@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>proscene</title>
+<meta name="description" content="a library for the programming environment processing" />
+<meta name="keywords" content="processing.org, library" />
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Language" content="en-us" />
+<meta name="ROBOTS" content="index,follow,archive" />
+<meta http-equiv="imagetoolbar" content="false" />
+<meta name="MSSmartTagsPreventParsing" content="true" />
+<meta name="author" content="##author##" />
+<meta name="Rating" content="General" />
+<meta name="revisit-after" content="7 Days" />
+<meta name="doc-class" content="Living Document" />
+<link rel="stylesheet" type="text/css" href="./stylesheet.css">
+</head>
+<body>
+	<div id="container">
+	
+		<div id="header">
+			<h1>proscene</h1>
+		</div>
+		
+		<div id="menu" class="clear">
+			<ul>
+				<li><a href="#about">About</a> \ </li>
+				<li><a href="#download">Download</a> \ </li>
+				<li><a href="#download">Installation</a> \ </li>
+			    <li><a href="#examples">Examples</a> \ </li>
+				<li><a href="./reference/index.html" target="_blank">Reference</a> \ </li>
+				<!-- <li><a href="#demos">Demos</a> \ </li>  -->
+				<li><a href="#misc">Acknowledgements</a></li>
+				<!-- <li><a href="#images">Images</a> \ </li> -->
+			</ul>
+		</div>
+		
+		<div id="content" class="clear">
+			
+			<div id="about">
+			<h2>proscene</h2>
+			<p>
+			A library by <a href="http://www.disi.unal.edu.co/grupos/remixlab/">Jean Pierre Charalambos</a> for the programming environment <a href="http://www.processing.org" target="_blank">processing</a>. Last update, 03/12/2011.
+			</p>
+			<p>
+			Proscene (pronounced similar as the Czech word "prosím"  which means "please") provides classes to ease the creation of interactive 3D scenes in <a href="http://www.processing.org" target="_blank">processing</a>.
+			Proscene has been pretty much inspired in the Qt's OpenGL C++ <a href="http://www.libqglviewer.com/" target="_blank">libqglviewer</a> library and thus it has a very similar functionality and API reference to that found in libqglviewer.
+			Main features include (but are not limited to):
+			<ul>
+				<li>1. Default interactivity to your scenes</li>
+				<li>2. Arcball, walkthrough and third person camera modes.</li>
+				<li>3. Hierarchical coordinate systems (frames).</li>
+				<li>4. Frames can easily be moved with the mouse.</li>
+				<li>5. Keyframes.</li>
+				<li>6. Object picking</li>
+				<li>7. Keyboard shortcuts and camera profiles customization</li>
+				<li>8. Animation framework</li>
+				<li>9. Off-screen rendering support</li>
+			</ul>
+			</p>
+			</div>
+			
+			
+			
+			<div id="download" class="clear">
+			<br>
+			<br>
+			<h2>Download</h2>
+			<p>
+			Download proscene version 1.0.1-pre11.02.11 in 
+			<a href="./download/proscene-1.0.1-pre11.02.11.zip">.zip format</a>.
+			</p>
+			<h2>Installation</h2>
+			<p>
+			Unzip and put the extracted proscene folder into the libraries folder of your processing sketches (or directly into your processing's libraries folder). Reference and examples are included in the proscene folder.
+			</p>
+			</div>	
+			
+			
+			<div id="resources">
+			<p><strong>Keywords</strong> viewport manipulation, camera modes, frames, keyframes, visibility algortihms</p>
+			<p><strong>Reference</strong>. Have a look at the javadoc reference <a href="./reference/index.html" target="_blank">here</a>. a copy of the reference is included in the .zip as well.</p>		
+			<p><strong>Source</strong>. The source code of proscene is available at <a href="http://code.google.com/p/proscene">google code</a>, and its repository can be browsed <a href="http://code.google.com/p/proscene/source/browse/" target="_blank">here</a>.</p>			
+			</div>
+			
+			<div id="examples" class="clear">
+			<h2>Examples</h2>
+			<p>Find a list of online examples below (the sources are also found in the current distribution of proscene).</p>
+			<ul>
+			<!-- <li><a href="examples/AlternativeUse/AlternativeUse.pde">AlternativeUse</a></li> <li><a href="examples/Animation/Animation.pde">Animation</a></li> <li><a href="examples/AnimationHandler/AnimationHandler.pde">AnimationHandler</a></li> <li><a href="examples/BasicUse/BasicUse.pde">BasicUse</a></li> <li><a href="examples/BasicUseOffscreen/BasicUseOffscreen.pde">BasicUseOffscreen</a></li> <li><a href="examples/CajasOrientadas/CajasOrientadas.pde">CajasOrientadas</a></li> <li><a href="examples/CameraCustomization/CameraCustomization.pde">CameraCustomization</a></li> <li><a href="examples/CameraInterpolation/CameraInterpolation.pde">CameraInterpolation</a></li> <li><a href="examples/ConstrainedCamera/ConstrainedCamera.pde">ConstrainedCamera</a></li> <li><a href="examples/ConstrainedFrame/ConstrainedFrame.pde">ConstrainedFrame</a></li> <li><a href="examples/Flock/Flock.pde">Flock</a></li> <li><a href="examples/FrameInteraction/FrameInteraction.pde">FrameInteraction</a></li> <li><a href="examples/FrameInterpolation/FrameInterpolation.pde">FrameInterpolation</a></li> <li><a href="examples/Luxo/Luxo.pde">Luxo</a></li> <li><a href="examples/Moire/Moire.pde">Moire</a></li> <li><a href="examples/MouseGrabbers/MouseGrabbers.pde">MouseGrabbers</a></li> <li><a href="examples/PointUnderPixel/PointUnderPixel.pde">PointUnderPixel</a></li> <li><a href="examples/Scramble/Scramble.pde">Scramble</a></li> <li><a href="examples/ScreenDrawing/ScreenDrawing.pde">ScreenDrawing</a></li> <li><a href="examples/SpaceNavigator/SpaceNavigator.pde">SpaceNavigator</a></li> <li><a href="examples/StandardCamera/StandardCamera.pde">StandardCamera</a></li> <li><a href="examples/ThirdPersonCamera/ThirdPersonCamera.pde">ThirdPersonCamera</a></li> <li><a href="examples/ViewFrustumCulling/ViewFrustumCulling.pde">ViewFrustumCulling</a></li>  -->
+			<li><a href="./demos/AlternativeUse/applet/index.html">Alternative Use</a></li>
+			<li><a href="./demos/Animation/applet/index.html">Animation</a></li>
+			<li><a href="./demos/AnimationHandler/applet/index.html">Animation Handler</a></li>
+			<li><a href="./demos/BasicUse/applet/index.html">Basic Use</a></li>
+			<li><a href="./demos/BasicUseOffscreen/applet/index.html">Basic Use Offscreen</a></li>
+			<li><a href="./demos/CajasOrientadas/applet/index.html">Cajas Orientadas</a></li>
+			<li><a href="./demos/CameraCustomization/applet/index.html">Camera Customization</a></li>
+			<li><a href="./demos/CameraInterpolation/applet/index.html">Camera Interpolation</a></li>
+			<li><a href="./demos/ConstrainedCamera/applet/index.html">Constrained Camera</a></li>
+			<li><a href="./demos/ConstrainedFrame/applet/index.html">Constrained Frame</a></li>
+			<li><a href="./demos/Flock/applet/index.html">Flock</a></li>
+			<li><a href="./demos/FrameInteraction/applet/index.html">Frame Interaction</a></li>
+			<li><a href="./demos/FrameInterpolation/applet/index.html">Frame Interpolation</a></li>
+			<li><a href="./demos/Luxo/applet/index.html">Luxo</a></li>
+			<li><a href="./demos/Moire/applet/index.html">Moire</a></li>
+			<li><a href="./demos/MouseGrabbers/applet/index.html">Mouse Grabbers</a></li>
+			<li><a href="./demos/PointUnderPixel/applet/index.html">Point Under Pixel</a></li>
+			<li><a href="./demos/Scramble/applet/index.html">Scramble</a></li>
+			<li><a href="./demos/ScreenDrawing/applet/index.html">Screen Drawing</a></li>
+			<li><a href="./demos/StandardCamera/applet/index.html">Standard Camera</a></li>
+			<li><a href="./demos/ThirdPersonCamera/applet/index.html">Third Person Camera</a></li>
+			<li><a href="./demos/ViewFrustumCulling/applet/index.html">View-Frustum Culling</a></li>
+			</ul>
+			</div>
+			
+			
+			<div id="info">
+			<h2>Tested</h2>
+			<p>
+			<!-- on which platform has the library been tested? -->
+			<strong>Platform</strong> linux,windows,osx
+			
+			<!-- which processing version did you use for testing your library? -->
+			<br /><strong>Processing</strong> 1.2.1
+			
+			<!-- does your library depend on any other library or framework? -->
+			<br /><strong>Dependencies</strong> none for the library but some examples need the <a href="http://glgraphics.sourceforge.net/">GLGraphics library</a> an others the <a href="http://github.com/acsmith/napplet/downloads">napplet library</a>.
+			</p>
+			</div>
+		
+			
+			<!-- use the demos section for a list of applets run in a browser. -->
+			<!--
+			<div id="demos" class="clear">
+				<h2>demos</h2>
+				<p>
+				find a list of online applet demos below.
+				
+				<ul>
+					<li><a href="./applets/demo/index.html">demo</a></li>
+				</ul>
+				</p>
+			</div>
+			-->
+			
+			<!-- use the misc section for other relevant information. Activate the link to the misc section in the menu above. -->
+			<div id="misc" class="clear">			
+			<br>
+			<br>			
+			<h2>Acknowledgements</h2>
+				<p>
+				Many thanks to Gilles Debunne for his awesome <a href="http://www.libqglviewer.com/" target="_blank">libqglviewer</a>.<br>
+				Many thanks to Andres Colubri for redistributing previous releases of Proscene (such as v-0.7.0) along side his
+				fantastic <a href="http://glgraphics.sourceforge.net/" target="_blank">GLGraphics</a>.<br>
+				Many thanks to <a href="http://github.com/acsmith/napplet" target="_blank">"adamcsmitty"</a> and to <a href="http://www.lagers.org.uk/" target="_blank">Peter Lagger</a> for their suggestions regarding how to handle multiple viewers in proscene.<br>
+				</p>
+			</div>
+			
+			<!-- use the images/screenshots section. Activate the link to the misc section in the menu above. -->
+			<!--
+			<div id="images" class="clear">
+			</div>
+			-->
+			
+			
+			<br class="clear" />
+		</div>
+		
+		<div id="footer">
+			<p>by Jean Pierre Charalambos, (c) 2010-2011.</p>
+		</div>
+	</div>
+</body>
+</html>
