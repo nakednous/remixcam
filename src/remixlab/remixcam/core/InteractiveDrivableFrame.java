@@ -25,11 +25,8 @@
 
 package remixlab.remixcam.core;
 
-import processing.core.*;
 import remixlab.proscene.Scene;
-import remixlab.proscene.Scene.MouseAction;
-import remixlab.remixcam.geom.Point;
-import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.geom.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,8 +45,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	protected float flySpd;
 	protected float drvSpd;
 	protected Timer flyTimer;
-	protected PVector flyUpVec;
-	protected PVector flyDisp;
+	protected Vector3D flyUpVec;
+	protected Vector3D flyDisp;
 
 	/**
 	 * Default constructor.
@@ -59,9 +56,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	public InteractiveDrivableFrame(Scene scn) {
 		super(scn);
 		drvSpd = 0.0f;
-		flyUpVec = new PVector(0.0f, 1.0f, 0.0f);
+		flyUpVec = new Vector3D(0.0f, 1.0f, 0.0f);
 
-		flyDisp = new PVector(0.0f, 0.0f, 0.0f);
+		flyDisp = new Vector3D(0.0f, 0.0f, 0.0f);
 
 		setFlySpeed(0.0f);
 
@@ -79,8 +76,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	public InteractiveDrivableFrame clone() {
 		InteractiveDrivableFrame clonedIAvtrFrame = (InteractiveDrivableFrame) super
 				.clone();
-		clonedIAvtrFrame.flyUpVec = new PVector(flyUpVec.x, flyUpVec.y, flyUpVec.z);
-		clonedIAvtrFrame.flyDisp = new PVector(flyDisp.x, flyDisp.y, flyDisp.z);
+		clonedIAvtrFrame.flyUpVec = new Vector3D(flyUpVec.x, flyUpVec.y, flyUpVec.z);
+		clonedIAvtrFrame.flyDisp = new Vector3D(flyDisp.x, flyDisp.y, flyDisp.z);
     clonedIAvtrFrame.flyTimer = new Timer();
 		return clonedIAvtrFrame;
 	}
@@ -134,10 +131,10 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	 * Default value is (0,1,0), but it is updated by the Camera when set as its
 	 * {@link remixlab.remixcam.core.Camera#frame()}.
 	 * {@link remixlab.remixcam.core.Camera#setOrientation(Quaternion)} and
-	 * {@link remixlab.remixcam.core.Camera#setUpVector(PVector)} modify this value and
+	 * {@link remixlab.remixcam.core.Camera#setUpVector(Vector3D)} modify this value and
 	 * should be used instead.
 	 */
-	public PVector flyUpVector() {
+	public Vector3D flyUpVector() {
 		return flyUpVec;
 	}
 
@@ -146,9 +143,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	 * <p>
 	 * Default value is (0,1,0), but it is updated by the Camera when set as its
 	 * {@link remixlab.remixcam.core.Camera#frame()}. Use
-	 * {@link remixlab.remixcam.core.Camera#setUpVector(PVector)} instead in that case.
+	 * {@link remixlab.remixcam.core.Camera#setUpVector(Vector3D)} instead in that case.
 	 */
-	public void setFlyUpVector(PVector up) {
+	public void setFlyUpVector(Vector3D up) {
 		flyUpVec = up;
 	}
 
@@ -264,13 +261,12 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 			}
 
 			case ROLL: {
-				float angle = Quaternion.PI * ((int)eventPoint.x - (int)prevPos.x)
-						/ camera.screenWidth();
+				float angle = (float) Math.PI * ((int)eventPoint.x - (int)prevPos.x) / camera.screenWidth();
 				
 			  //lef-handed coordinate system correction
 				angle = -angle;
 				
-				Quaternion rot = new Quaternion(new PVector(0.0f, 0.0f, 1.0f), angle);
+				Quaternion rot = new Quaternion(new Vector3D(0.0f, 0.0f, 1.0f), angle);
 				rotate(rot);
 				setSpinningQuaternion(rot);
 				updateFlyUpVector();
@@ -347,9 +343,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;
 			
-			PVector trans = new PVector(0.0f, 0.0f, rotation * wheelSensitivity()	* wheelSensitivityCoef * (PVector.sub(camera.position(), position())).mag());
+			Vector3D trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
 		  //right_handed coordinate system should go like this:
-			//PVector trans = new PVector(0.0f, 0.0f, -rotation * wheelSensitivity()	* wheelSensitivityCoef * (PVector.sub(camera.position(), position())).mag());
+			//Vector3D trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
 			
 			// #CONNECTION# Cut-pasted from the mouseMoveEvent ZOOM case
 			trans = camera.frame().orientation().rotate(trans);
@@ -361,7 +357,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 		case MOVE_FORWARD:
 		case MOVE_BACKWARD:
 			// #CONNECTION# mouseMoveEvent() MOVE_FORWARD case
-			translate(inverseTransformOf(new PVector(0.0f, 0.0f, 0.2f * flySpeed()
+			translate(inverseTransformOf(new Vector3D(0.0f, 0.0f, 0.2f * flySpeed()
 					* (-rotation))));
 			break;
 		default:
@@ -396,7 +392,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	 * should not need to call this method.
 	 */
 	public final void updateFlyUpVector() {
-		flyUpVec = inverseTransformOf(new PVector(0.0f, 1.0f, 0.0f));
+		flyUpVec = inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f));
 	}
 
 	/**
@@ -404,7 +400,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	 * proportional to the horizontal mouse position.
 	 */
 	protected final Quaternion turnQuaternion(int x, Camera camera) {
-		return new Quaternion(new PVector(0.0f, 1.0f, 0.0f), rotationSensitivity()
+		return new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), rotationSensitivity()
 				* ((int)prevPos.x - x) / camera.screenWidth());
 	}
 
@@ -417,7 +413,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
   	//right_handed coordinate system should go like this:
 		//deltaY = (int) (prevPos.y - y);
 		
-		Quaternion rotX = new Quaternion(new PVector(1.0f, 0.0f, 0.0f),
+		Quaternion rotX = new Quaternion(new Vector3D(1.0f, 0.0f, 0.0f),
 				rotationSensitivity() * deltaY / camera.screenHeight());
 		Quaternion rotY = new Quaternion(transformOf(flyUpVector()),
 				rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());

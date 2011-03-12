@@ -26,16 +26,9 @@
 package remixlab.remixcam.core;
 
 import processing.core.*;
-import remixlab.proscene.KeyFrameInterpolator;
-import remixlab.proscene.MathUtils;
 import remixlab.proscene.Scene;
-import remixlab.proscene.Scene.Button;
-import remixlab.proscene.Scene.ClickAction;
-import remixlab.proscene.Scene.MouseAction;
-import remixlab.remixcam.constraint.Constraint;
-import remixlab.remixcam.geom.Point;
-import remixlab.remixcam.geom.Quaternion;
-
+import remixlab.remixcam.constraint.*;
+import remixlab.remixcam.geom.*;
 import java.util.*;
 
 /**
@@ -168,6 +161,65 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		while (it.hasNext())
 			list.add(it.next());
 	}
+	
+	/**
+	 * Convenience wrapper function that simply calls {@code applyTransformation( (PGraphics3D) p.g )}.
+	 * 
+	 * @see #applyTransformation(PGraphics3D)
+	 */
+	public void applyTransformation(PApplet p) {
+		applyTransformation( (PGraphics3D) p.g );
+	}
+	
+	/**
+	 * Apply the transformation defined by this Frame to {@code p3d}. The Frame is
+	 * first translated and then rotated around the new translated origin.
+	 * <p>
+	 * Same as:
+	 * <p>
+	 * {@code p3d.translate(translation().x, translation().y, translation().z);} <br>
+	 * {@code p3d.rotate(rotation().angle(), rotation().axis().x,
+	 * rotation().axis().y, rotation().axis().z);} <br>
+	 * <p>
+	 * This method should be used in conjunction with PApplet to modify the
+	 * processing modelview matrix from a Frame hierarchy. For example, with this
+	 * Frame hierarchy:
+	 * <p>
+	 * {@code Frame body = new Frame();} <br>
+	 * {@code Frame leftArm = new Frame();} <br>
+	 * {@code Frame rightArm = new Frame();} <br>
+	 * {@code leftArm.setReferenceFrame(body);} <br>
+	 * {@code rightArm.setReferenceFrame(body);} <br>
+	 * <p>
+	 * The associated processing drawing code should look like:
+	 * <p>
+	 * {@code p3d.pushMatrix();//p is the PApplet instance} <br>
+	 * {@code body.applyTransformation(p);} <br>
+	 * {@code drawBody();} <br>
+	 * {@code p3d.pushMatrix();} <br>
+	 * {@code leftArm.applyTransformation(p);} <br>
+	 * {@code drawArm();} <br>
+	 * {@code p3d.popMatrix();} <br>
+	 * {@code p3d.pushMatrix();} <br>
+	 * {@code rightArm.applyTransformation(p);} <br>
+	 * {@code drawArm();} <br>
+	 * {@code p3d.popMatrix();} <br>
+	 * {@code p3d.popMatrix();} <br>
+	 * <p>
+	 * Note the use of nested {@code pushMatrix()} and {@code popMatrix()} blocks
+	 * to represent the frame hierarchy: {@code leftArm} and {@code rightArm} are
+	 * both correctly drawn with respect to the {@code body} coordinate system.
+	 * <p>
+	 * <b>Attention:</b> When drawing a frame hierarchy as above, this method
+	 * should be used whenever possible (one can also use {@link #matrix()}
+	 * instead).
+	 * 
+	 * @see #matrix()
+	 */
+	public void applyTransformation(PGraphics3D p3d) {
+		p3d.translate(translation().x, translation().y, translation().z);
+		p3d.rotate(rotation().angle(), rotation().axis().x, rotation().axis().y, rotation().axis().z);
+	}
 
 	/**
 	 * Convenience function that simply calls {@code applyTransformation(
@@ -234,12 +286,12 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * <p>
 	 * The InteractiveFrame {@link #grabsMouse()} when the mouse is within a {@link #grabsMouseThreshold()}
 	 * pixels region around its
-	 * {@link remixlab.remixcam.core.Camera#projectedCoordinatesOf(PVector)}
+	 * {@link remixlab.remixcam.core.Camera#projectedCoordinatesOf(Vector3D)}
 	 * {@link #position()}.
 	 */
 	public void checkIfGrabsMouse(int x, int y, Camera camera) {
-		PVector proj = camera.projectedCoordinatesOf(position());
-		setGrabsMouse(keepsGrabbingMouse || ((PApplet.abs(x - proj.x) < grabsMouseThreshold()) && (PApplet.abs(y - proj.y) < grabsMouseThreshold())));
+		Vector3D proj = camera.projectedCoordinatesOf(position());
+		setGrabsMouse(keepsGrabbingMouse || ((Math.abs(x - proj.x) < grabsMouseThreshold()) && (Math.abs(y - proj.y) < grabsMouseThreshold())));
 	}
 
 	/**
@@ -422,7 +474,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * <p>
 	 * The {@link #spinningQuaternion()} axis is defined in the InteractiveFrame
 	 * coordinate system. You can use
-	 * {@link remixlab.remixcam.core.GLFrame#transformOfFrom(PVector, GLFrame)} to convert
+	 * {@link remixlab.remixcam.core.GLFrame#transformOfFrom(Vector3D, GLFrame)} to convert
 	 * this axis from an other Frame coordinate system.
 	 */
 	public final Quaternion spinningQuaternion() {
@@ -547,13 +599,13 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		switch (action) {
 		case TRANSLATE: {
 			Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
-			PVector trans = new PVector((int) delta.getX(), (int) -delta.getY(),
+			Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(),
 					0.0f);
 			// Scale to fit the screen mouse displacement
 			switch (camera.type()) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * PApplet.tan(camera.fieldOfView() / 2.0f)
-						* PApplet.abs((camera.frame().coordinatesOf(position())).z)
+				trans.mult(2.0f * (float) Math.tan(camera.fieldOfView() / 2.0f)
+						* Math.abs((camera.frame().coordinatesOf(position())).z)
 						/ camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC: {
@@ -565,7 +617,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 			}
 			// Transform to world coordinate system.
 			trans = camera.frame().orientation().rotate(
-					PVector.mult(trans, translationSensitivity()));
+					Vector3D.mult(trans, translationSensitivity()));
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -577,7 +629,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		case ZOOM: {
 			// #CONNECTION# wheelEvent ZOOM case
 		  //Warning: same for left and right CoordinateSystemConvention:
-			PVector trans = new PVector(0.0f, 0.0f, (PVector.sub(camera.position(), position())).mag() * ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
+			Vector3D trans = new Vector3D(0.0f, 0.0f, (Vector3D.sub(camera.position(), position())).mag() * ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
 			trans = camera.frame().orientation().rotate(trans);
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -589,13 +641,12 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		case SCREEN_ROTATE: {
 			// TODO: needs testing to see if it works correctly when left-handed is
 			// set
-			PVector trans = camera.projectedCoordinatesOf(position());
-			float prev_angle = PApplet
-					.atan2((int)prevPos.y - trans.y, (int)prevPos.x - trans.x);
-			float angle = PApplet.atan2((int)eventPoint.y - trans.y, (int)eventPoint.x
+			Vector3D trans = camera.projectedCoordinatesOf(position());
+			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.y, (int)prevPos.x - trans.x);
+			float angle = (float) Math.atan2((int)eventPoint.y - trans.y, (int)eventPoint.x
 					- trans.x);
-			PVector axis = transformOf(camera.frame().inverseTransformOf(
-					new PVector(0.0f, 0.0f, -1.0f)));
+			Vector3D axis = transformOf(camera.frame().inverseTransformOf(
+					new Vector3D(0.0f, 0.0f, -1.0f)));
 			 
 			Quaternion rot = new Quaternion(axis, prev_angle - angle);
 		  //right_handed coordinate system should go like this:
@@ -613,7 +664,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		case SCREEN_TRANSLATE: {
 			// TODO: needs testing to see if it works correctly when left-handed is
 			// set
-			PVector trans = new PVector();
+			Vector3D trans = new Vector3D();
 			int dir = mouseOriginalDirection(eventPoint);
 			if (dir == 1)
 				trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
@@ -621,8 +672,8 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 				trans.set(0.0f, -deltaY, 0.0f);
 			switch (camera.type()) {
 			case PERSPECTIVE:
-				trans.mult(PApplet.tan(camera.fieldOfView() / 2.0f)
-						* PApplet.abs((camera.frame().coordinatesOf(position())).z)
+				trans.mult((float) Math.tan(camera.fieldOfView() / 2.0f)
+						* Math.abs((camera.frame().coordinatesOf(position())).z)
 						/ camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC: {
@@ -634,7 +685,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 			}
 			// Transform to world coordinate system.
 			trans = camera.frame().orientation().rotate(
-					PVector.mult(trans, translationSensitivity()));
+					Vector3D.mult(trans, translationSensitivity()));
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -645,7 +696,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		}
 
 		case ROTATE: {
-			PVector trans = camera.projectedCoordinatesOf(position());
+			Vector3D trans = camera.projectedCoordinatesOf(position());
 			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,
 					trans.x, trans.y, camera);
 			trans.set(-rot.x, -rot.y, -rot.z);
@@ -713,12 +764,12 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	public void mouseWheelMoved(int rotation, Camera camera) {
 		if (action == Scene.MouseAction.ZOOM) {
 			float wheelSensitivityCoef = 8E-4f;
-			// PVector trans(0.0, 0.0,
+			// Vector3D trans(0.0, 0.0,
 			// -event.delta()*wheelSensitivity()*wheelSensitivityCoef*(camera.position()-position()).norm());
 			
-			PVector	trans = new PVector(0.0f, 0.0f, rotation * wheelSensitivity() * wheelSensitivityCoef * (PVector.sub(camera.position(), position())).mag());
+			Vector3D	trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
 		  //right_handed coordinate system should go like this:
-			//PVector trans = new PVector(0.0f, 0.0f, -rotation * wheelSensitivity() * wheelSensitivityCoef * (PVector.sub(camera.position(), position())).mag());
+			//Vector3D trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
 			
 			// #CONNECTION# Cut-pasted from the mouseMoveEvent ZOOM case
 			trans = camera.frame().orientation().rotate(trans);
@@ -805,8 +856,8 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		if (!dirIsFixed) {
 			Point delta = new Point((eventPoint.x - pressPos.x),
 					(eventPoint.y - pressPos.y));
-			dirIsFixed = PApplet.abs((int)delta.x) != PApplet.abs((int)delta.y);
-			horiz = PApplet.abs((int)delta.x) > PApplet.abs((int)delta.y);
+			dirIsFixed = Math.abs((int)delta.x) != Math.abs((int)delta.y);
+			horiz = Math.abs((int)delta.x) > Math.abs((int)delta.y);
 		}
 
 		if (dirIsFixed)
@@ -831,14 +882,14 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		float dx = rotationSensitivity() * (x - cx) / camera.screenWidth();
 		float dy = rotationSensitivity() * (cy - y) / camera.screenHeight();
 
-		PVector p1 = new PVector(px, py, projectOnBall(px, py));
-		PVector p2 = new PVector(dx, dy, projectOnBall(dx, dy));
+		Vector3D p1 = new Vector3D(px, py, projectOnBall(px, py));
+		Vector3D p2 = new Vector3D(dx, dy, projectOnBall(dx, dy));
 		// Approximation of rotation angle
 		// Should be divided by the projectOnBall size, but it is 1.0
-		PVector axis = p2.cross(p1);
+		Vector3D axis = p2.cross(p1);
 
-		float angle = 2.0f * PApplet.asin(PApplet.sqrt(MathUtils.squaredNorm(axis)
-				/ MathUtils.squaredNorm(p1) / MathUtils.squaredNorm(p2)));
+		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(Vector3D.squaredNorm(axis)
+				/ Vector3D.squaredNorm(p1) / Vector3D.squaredNorm(p2)));
 
   	//lef-handed coordinate system correction (next two lines)
 	  axis.y = -axis.y;
@@ -861,7 +912,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		float size_limit = size2 * 0.5f;
 
 		float d = x * x + y * y;
-		return d < size_limit ? PApplet.sqrt(size2 - d) : size_limit
-				/ PApplet.sqrt(d);
+		return d < size_limit ? (float) Math.sqrt(size2 - d) : size_limit
+				/ (float) Math.sqrt(d);
 	}
 }

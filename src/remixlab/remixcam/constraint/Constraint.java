@@ -25,9 +25,8 @@
 
 package remixlab.remixcam.constraint;
 
-import processing.core.*;
-import remixlab.remixcam.core.GLFrame;
-import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.core.*;
+import remixlab.remixcam.geom.*;
 
 /**
  * An interface class for Frame constraints.
@@ -49,11 +48,11 @@ public class Constraint {
 	 * the translation accordingly instead.
 	 * <p>
 	 * {@code translation} is expressed in the local Frame coordinate system. Use
-	 * {@link remixlab.remixcam.core.GLFrame#inverseTransformOf(PVector)} to express it
+	 * {@link remixlab.remixcam.core.GLFrame#inverseTransformOf(Vector3D)} to express it
 	 * in the world coordinate system if needed.
 	 */
-	public PVector constrainTranslation(PVector translation, GLFrame frame) {
-		return new PVector(translation.x, translation.y, translation.z);
+	public Vector3D constrainTranslation(Vector3D translation, GLFrame frame) {
+		return new Vector3D(translation.x, translation.y, translation.z);
 	}
 
 	/**
@@ -61,9 +60,9 @@ public class Constraint {
 	 * implementation is empty (no filtering).
 	 * <p>
 	 * Overload this method in your own Constraint class to define a new rotation
-	 * constraint. See {@link #constrainTranslation(PVector, GLFrame)} for details.
+	 * constraint. See {@link #constrainTranslation(Vector3D, GLFrame)} for details.
 	 * <p>
-	 * Use {@link remixlab.remixcam.core.GLFrame#inverseTransformOf(PVector)} on the
+	 * Use {@link remixlab.remixcam.core.GLFrame#inverseTransformOf(Vector3D)} on the
 	 * {@code rotation} {@link remixlab.remixcam.geom.Quaternion#axis()} to express
 	 * {@code rotation} in the world coordinate system if needed.
 	 */

@@ -25,9 +25,7 @@
 
 package remixlab.remixcam.constraint;
 
-import processing.core.*;
-import remixlab.remixcam.core.GLFrame;
-import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.geom.*;
 
 /**
  * An abstract class for Frame constraints defined by an axis or a plane.
@@ -65,8 +63,8 @@ public class AxisPlaneConstraint extends Constraint {
 
 	private Type transConstraintType;
 	private Type rotConstraintType;
-	private PVector transConstraintDir;
-	private PVector rotConstraintDir;
+	private Vector3D transConstraintDir;
+	private Vector3D rotConstraintDir;
 
 	/**
 	 * 
@@ -80,8 +78,8 @@ public class AxisPlaneConstraint extends Constraint {
 		// Do not use set since setRotationConstraintType needs a read.
 		this.transConstraintType = AxisPlaneConstraint.Type.FREE;
 		this.rotConstraintType = AxisPlaneConstraint.Type.FREE;
-		transConstraintDir = new PVector(0.0f, 0.0f, 0.0f);
-		rotConstraintDir = new PVector(0.0f, 0.0f, 0.0f);
+		transConstraintDir = new Vector3D(0.0f, 0.0f, 0.0f);
+		rotConstraintDir = new Vector3D(0.0f, 0.0f, 0.0f);
 	}
 
 	/**
@@ -92,7 +90,7 @@ public class AxisPlaneConstraint extends Constraint {
 	 * {@link Type#AXIS}), will be forced to stay into a plane ({@link Type#PLANE}
 	 * ) or will not able to translate at all ({@link Type#FORBIDDEN}).
 	 * <p>
-	 * Use {@link remixlab.remixcam.core.GLFrame#setPosition(PVector)} to define the
+	 * Use {@link remixlab.remixcam.core.GLFrame#setPosition(Vector3D)} to define the
 	 * position of the constrained Frame before it gets constrained.
 	 */
 	public Type translationConstraintType() {
@@ -110,9 +108,9 @@ public class AxisPlaneConstraint extends Constraint {
 	 * The AxisPlaneConstraint derived classes express this direction in different
 	 * coordinate system (camera for CameraConstraint, local for LocalConstraint,
 	 * and world for WorldConstraint). This value can be modified with
-	 * {@link #setRotationConstraintDirection(PVector)}.
+	 * {@link #setRotationConstraintDirection(Vector3D)}.
 	 */
-	public PVector translationConstraintDirection() {
+	public Vector3D translationConstraintDirection() {
 		return transConstraintDir;
 	}
 
@@ -132,17 +130,17 @@ public class AxisPlaneConstraint extends Constraint {
 	 * The AxisPlaneConstraint derived classes express this direction in different
 	 * coordinate system (camera for CameraConstraint, local for LocalConstraint,
 	 * and world for WorldConstraint). This value can be modified with
-	 * {@link #setRotationConstraintDirection(PVector)}.
+	 * {@link #setRotationConstraintDirection(Vector3D)}.
 	 */
-	public PVector rotationConstraintDirection() {
+	public Vector3D rotationConstraintDirection() {
 		return rotConstraintDir;
 	}
 
 	/**
 	 * Simply calls {@link #setTranslationConstraintType(Type)} and
-	 * {@link #setTranslationConstraintDirection(PVector)}.
+	 * {@link #setTranslationConstraintDirection(Vector3D)}.
 	 */
-	public void setTranslationConstraint(Type type, PVector direction) {
+	public void setTranslationConstraint(Type type, Vector3D direction) {
 		setTranslationConstraintType(type);
 		setTranslationConstraintDirection(direction);
 	}
@@ -152,23 +150,23 @@ public class AxisPlaneConstraint extends Constraint {
 	 * system where {@code direction} is expressed depends on your class
 	 * implementation.
 	 */
-	public void setTranslationConstraintDirection(PVector direction) {
+	public void setTranslationConstraintDirection(Vector3D direction) {
 		if ((translationConstraintType() != AxisPlaneConstraint.Type.FREE)
 				&& (translationConstraintType() != AxisPlaneConstraint.Type.FORBIDDEN)) {
 			float norm = direction.mag();
 			if (norm < 1E-8) {
-				PApplet.println("Warning: AxisPlaneConstraint.setTranslationConstraintDir: null vector for translation constraint");
+				System.out.println("Warning: AxisPlaneConstraint.setTranslationConstraintDir: null vector for translation constraint");
 				transConstraintType = AxisPlaneConstraint.Type.FREE;
 			} else
-				transConstraintDir = PVector.mult(direction, (1.0f / norm));
+				transConstraintDir = Vector3D.mult(direction, (1.0f / norm));
 		}
 	}
 
 	/**
 	 * Simply calls {@link #setRotationConstraintType(Type)} and
-	 * {@link #setRotationConstraintDirection(PVector)}.
+	 * {@link #setRotationConstraintDirection(Vector3D)}.
 	 */
-	public void setRotationConstraint(Type type, PVector direction) {
+	public void setRotationConstraint(Type type, Vector3D direction) {
 		setRotationConstraintType(type);
 		setRotationConstraintDirection(direction);
 	}
@@ -177,15 +175,15 @@ public class AxisPlaneConstraint extends Constraint {
 	 * Defines the {@link #rotationConstraintDirection()}. The coordinate system
 	 * where {@code direction} is expressed depends on your class implementation.
 	 */
-	public void setRotationConstraintDirection(PVector direction) {
+	public void setRotationConstraintDirection(Vector3D direction) {
 		if ((rotationConstraintType() != AxisPlaneConstraint.Type.FREE)
 				&& (rotationConstraintType() != AxisPlaneConstraint.Type.FORBIDDEN)) {
 			float norm = direction.mag();
 			if (norm < 1E-8) {
-				PApplet.println("Warning: AxisPlaneConstraint.setRotationConstraintDir: null vector for rotation constraint");
+				System.out.println("Warning: AxisPlaneConstraint.setRotationConstraintDir: null vector for rotation constraint");
 				rotConstraintType = AxisPlaneConstraint.Type.FREE;
 			} else
-				rotConstraintDir = PVector.mult(direction, (1.0f / norm));
+				rotConstraintDir = Vector3D.mult(direction, (1.0f / norm));
 		}
 	}
 
@@ -213,7 +211,7 @@ public class AxisPlaneConstraint extends Constraint {
 	 */
 	public void setRotationConstraintType(Type type) {
 		if (rotationConstraintType() == AxisPlaneConstraint.Type.PLANE) {
-			PApplet.println("Warning: AxisPlaneConstraint.setRotationConstraintType: the PLANE type cannot be used for a rotation constraints");
+			System.out.println("Warning: AxisPlaneConstraint.setRotationConstraintType: the PLANE type cannot be used for a rotation constraints");
 			return;
 		}
 

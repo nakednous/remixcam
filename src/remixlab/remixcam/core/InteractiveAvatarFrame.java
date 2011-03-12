@@ -25,10 +25,8 @@
 
 package remixlab.remixcam.core;
 
-import processing.core.*;
 import remixlab.proscene.Scene;
-import remixlab.proscene.Trackable;
-import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.geom.*;
 
 /**
  * The InteractiveAvatarFrame class represents an InteractiveDrivableFrame that
@@ -40,11 +38,10 @@ import remixlab.remixcam.geom.Quaternion;
  * {@link #trackingDistance()}) respect to the {@link #position()} (which
  * defines its {@link #target()}) of the InteractiveAvatarFrame.
  */
-public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements
-		Trackable {
+public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	Trackable {
 	private Quaternion q;
 	private float trackingDist;
-	private PVector camRelPos;
+	private Vector3D camRelPos;
 
 	/**
 	 * Constructs an InteractiveAvatarFrame and sets its
@@ -57,8 +54,8 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements
 	public InteractiveAvatarFrame(Scene scn) {
 		super(scn);
 		q = new Quaternion();
-		q.fromTaitBryan(PApplet.QUARTER_PI, 0, 0);
-		camRelPos = new PVector();
+		q.fromTaitBryan((float) Math.PI/4, 0, 0);
+		camRelPos = new Vector3D();
 		setTrackingDistance(scene.radius() / 5);
 	}
 
@@ -116,32 +113,32 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements
 	// Interface implementation
 
 	/**
-	 * Overloading of {@link remixlab.proscene.Trackable#cameraPosition()}.
+	 * Overloading of {@link remixlab.remixcam.core.Trackable#cameraPosition()}.
 	 * Returns the world coordinates of the camera position computed in
 	 * {@link #computeCameraPosition()}.
 	 */
-	public PVector cameraPosition() {
+	public Vector3D cameraPosition() {
 		return inverseCoordinatesOf(camRelPos);
 	}
 
 	/**
-	 * Overloading of {@link remixlab.proscene.Trackable#upVector()}. Simply
+	 * Overloading of {@link remixlab.remixcam.core.Trackable#upVector()}. Simply
 	 * returns the frame {@link #yAxis()}.
 	 */
-	public PVector upVector() {
+	public Vector3D upVector() {
 		return yAxis();
 	}
 
 	/**
-	 * Overloading of {@link remixlab.proscene.Trackable#target()}. Simply returns
+	 * Overloading of {@link remixlab.remixcam.core.Trackable#target()}. Simply returns
 	 * the frame {@link #position()}.
 	 */
-	public PVector target() {
+	public Vector3D target() {
 		return position();
 	}
 
 	/**
-	 * Overloading of {@link remixlab.proscene.Trackable#computeCameraPosition()}.
+	 * Overloading of {@link remixlab.remixcam.core.Trackable#computeCameraPosition()}.
 	 * <p>
 	 * The {@link #cameraPosition()} of the camera that is to be tracking the
 	 * frame (see the documentation of the Trackable interface) is defined in
@@ -150,7 +147,7 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements
 	 * {@link #position()}.
 	 */
 	public void computeCameraPosition() {
-		camRelPos = q.rotate(new PVector(0, 0, 1));
+		camRelPos = q.rotate(new Vector3D(0, 0, 1));
 		camRelPos.mult(trackingDistance());
 	}
 }

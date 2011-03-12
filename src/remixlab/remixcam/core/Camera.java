@@ -26,13 +26,10 @@
 package remixlab.remixcam.core;
 
 import processing.core.*;
-import remixlab.proscene.KeyFrameInterpolator;
 import remixlab.proscene.MathUtils;
 import remixlab.proscene.Scene;
 import remixlab.proscene.Scene.MouseAction;
-import remixlab.remixcam.geom.Point;
-import remixlab.remixcam.geom.Quaternion;
-import remixlab.remixcam.geom.Rectangle;
+import remixlab.remixcam.geom.*;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,12 +40,12 @@ import java.util.Iterator;
  * A Camera defines some intrinsic parameters ({@link #fieldOfView()},
  * {@link #position()}, {@link #viewDirection()}, {@link #upVector()}...) and
  * useful positioning tools that ease its placement ({@link #showEntireScene()},
- * {@link #fitSphere(PVector, float)}, {@link #lookAt(PVector)}...). It exports
+ * {@link #fitSphere(Vector3D, float)}, {@link #lookAt(Vector3D)}...). It exports
  * its associated processing projection and modelview matrices and it can
  * interactively be modified using the mouse.
  * <p>
  * Camera matrices can be directly set as references to the processing camera
- * matrices (default), or they can be set as independent PMatrix3D objects
+ * matrices (default), or they can be set as independent Matrix3D objects
  * (which may be useful for off-screen computations). See
  * {@link #isAttachedToPCamera()}, {@link #attachToPCamera()} and
  * {@link #detachFromPCamera()}.
@@ -67,18 +64,18 @@ public class Camera implements Cloneable {
 	 * implemented by an openGL based derived class Camera).
 	 */
 	public class WorldPoint {
-		public WorldPoint(PVector p, boolean f) {
+		public WorldPoint(Vector3D p, boolean f) {
 			point = p;
 			found = f;
 		}
 
-		public PVector point;
+		public Vector3D point;
 		public boolean found;
 	}
 
 	int viewport[] = new int[4];
 	// next variables are needed for frustum plane coefficients
-	PVector normal[] = new PVector[6];
+	Vector3D normal[] = new Vector3D[6];
 	float dist[] = new float[6];
 
 	/**
@@ -115,7 +112,7 @@ public class Camera implements Cloneable {
 	// C a m e r a p a r a m e t e r s
 	private int scrnWidth, scrnHeight; // size of the window, in pixels
 	private float fldOfView; // in radians
-	private PVector scnCenter;
+	private Vector3D scnCenter;
 	private float scnRadius; // processing scene units
 	private float zNearCoef;
 	private float zClippingCoef;
@@ -126,8 +123,8 @@ public class Camera implements Cloneable {
 	private float stdZNear;
 	private float stdZFar;
 
-	private PMatrix3D modelViewMat;
-	private PMatrix3D projectionMat;
+	private Matrix3D modelViewMat;
+	private Matrix3D projectionMat;
 
 	// S t e r e o p a r a m e t e r s
 	private float IODist; // inter-ocular distance, in meters
@@ -184,9 +181,9 @@ public class Camera implements Cloneable {
 		attachedToPCam = attachedToScene;
 
 		for (int i = 0; i < normal.length; i++)
-			normal[i] = new PVector();
+			normal[i] = new Vector3D();
 
-		fldOfView = Quaternion.PI / 4.0f;
+		fldOfView = (float) Math.PI / 4.0f;
 
 		fpCoefficients = new float[6][4];
 
@@ -200,10 +197,10 @@ public class Camera implements Cloneable {
 		setSceneRadius(100);
 
 		// Initial value (only scaled after this)
-		orthoCoef = PApplet.tan(fieldOfView() / 2.0f);
+		orthoCoef = (float) Math.tan(fieldOfView() / 2.0f);
 
 		// Also defines the arcballReferencePoint(), which changes orthoCoef.
-		setSceneCenter(new PVector(0.0f, 0.0f, 0.0f));
+		setSceneCenter(new Vector3D(0.0f, 0.0f, 0.0f));
 
 		setKind(Kind.PROSCENE);
 		orthoSize = 1;// only for standard kind, but we initialize it here
@@ -217,7 +214,7 @@ public class Camera implements Cloneable {
 		setType(Camera.Type.PERSPECTIVE);
 
 		setZNearCoefficient(0.005f);
-		setZClippingCoefficient(PApplet.sqrt(3.0f));
+		setZClippingCoefficient((float) Math.sqrt(3.0f));
 
 		// Dummy values
 		setScreenWidthAndHeight(600, 400);
@@ -234,8 +231,8 @@ public class Camera implements Cloneable {
 			computeProjectionMatrix();
 			computeModelViewMatrix();
 		} else {
-			modelViewMat = new PMatrix3D();
-			projectionMat = new PMatrix3D();
+			modelViewMat = new Matrix3D();
+			projectionMat = new Matrix3D();
 			projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 			computeProjectionMatrix();
 		}
@@ -297,8 +294,8 @@ public class Camera implements Cloneable {
 	public void detachFromPCamera() {
 		if (isAttachedToPCamera()) {
 			attachedToPCam = false;
-			modelViewMat = new PMatrix3D();
-			projectionMat = new PMatrix3D();
+			modelViewMat = new Matrix3D();
+			projectionMat = new Matrix3D();
 			projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 			computeProjectionMatrix();
 			computeModelViewMatrix();
@@ -324,10 +321,10 @@ public class Camera implements Cloneable {
 				Integer key = itrtr.next();
 				clonedCam.kfi.put(key, kfi.get(key).clone());
 			}
-			clonedCam.scnCenter = new PVector(scnCenter.x, scnCenter.y, scnCenter.z);
+			clonedCam.scnCenter = new Vector3D(scnCenter.x, scnCenter.y, scnCenter.z);
 			if (isDetachedFromPCamera()) {
-				clonedCam.modelViewMat = new PMatrix3D(modelViewMat);
-				clonedCam.projectionMat = new PMatrix3D(projectionMat);
+				clonedCam.modelViewMat = new Matrix3D(modelViewMat);
+				clonedCam.projectionMat = new Matrix3D(projectionMat);
 			}
 			clonedCam.frm = frm.clone();
 			return clonedCam;
@@ -342,7 +339,7 @@ public class Camera implements Cloneable {
 	 * Returns the Camera position (the eye), defined in the world coordinate
 	 * system.
 	 * <p>
-	 * Use {@link #setPosition(PVector)} to set the Camera position. Other
+	 * Use {@link #setPosition(Vector3D)} to set the Camera position. Other
 	 * convenient methods are showEntireScene() or fitSphere(). Actually returns
 	 * {@link remixlab.remixcam.core.GLFrame#position()}.
 	 * <p>
@@ -350,7 +347,7 @@ public class Camera implements Cloneable {
 	 * camera. It is not located in the image plane, which is at a zNear()
 	 * distance ahead.
 	 */
-	public final PVector position() {
+	public final Vector3D position() {
 		return frame().position();
 	}
 
@@ -358,7 +355,7 @@ public class Camera implements Cloneable {
 	 * Sets the Camera {@link #position()} (the eye), defined in the world
 	 * coordinate system.
 	 */
-	public void setPosition(PVector pos) {
+	public void setPosition(Vector3D pos) {
 		frame().setPosition(pos);
 	}
 
@@ -366,23 +363,23 @@ public class Camera implements Cloneable {
 	 * Returns the normalized up vector of the Camera, defined in the world
 	 * coordinate system.
 	 * <p>
-	 * Set using {@link #setUpVector(PVector)} or
+	 * Set using {@link #setUpVector(Vector3D)} or
 	 * {@link #setOrientation(Quaternion)}. It is orthogonal to
 	 * {@link #viewDirection()} and to {@link #rightVector()}.
 	 * <p>
 	 * It corresponds to the Y axis of the associated {@link #frame()} (actually
 	 * returns {@code frame().yAxis()}
 	 */
-	public PVector upVector() {
+	public Vector3D upVector() {
 		return frame().yAxis();
 	}
 
 	/**
 	 * Convenience function that simply calls {@code setUpVector(up, true)}.
 	 * 
-	 * @see #setUpVector(PVector, boolean)
+	 * @see #setUpVector(Vector3D, boolean)
 	 */
-	public void setUpVector(PVector up) {
+	public void setUpVector(Vector3D up) {
 		setUpVector(up, true);
 	}
 
@@ -405,17 +402,17 @@ public class Camera implements Cloneable {
 	 * unchanged, which is an intuitive behavior when the Camera is in a
 	 * walkthrough fly mode.
 	 * 
-	 * @see #setViewDirection(PVector)
-	 * @see #lookAt(PVector)
+	 * @see #setViewDirection(Vector3D)
+	 * @see #lookAt(Vector3D)
 	 * @see #setOrientation(Quaternion)
 	 */
-	public void setUpVector(PVector up, boolean noMove) {
-		Quaternion q = new Quaternion(new PVector(0.0f, 1.0f, 0.0f), frame()
+	public void setUpVector(Vector3D up, boolean noMove) {
+		Quaternion q = new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), frame()
 				.transformOf(up));
 
 		if (!noMove)
 			frame().setPosition(
-					PVector.sub(arcballReferencePoint(), (Quaternion.multiply(frame()
+					Vector3D.sub(arcballReferencePoint(), (Quaternion.multiply(frame()
 							.orientation(), q)).rotate(frame().coordinatesOf(
 							arcballReferencePoint()))));
 
@@ -429,15 +426,15 @@ public class Camera implements Cloneable {
 	 * Returns the normalized view direction of the Camera, defined in the world
 	 * coordinate system.
 	 * <p>
-	 * Change this value using {@link #setViewDirection(PVector)},
-	 * {@link #lookAt(PVector)} or {@link #setOrientation(Quaternion)}. It is
+	 * Change this value using {@link #setViewDirection(Vector3D)},
+	 * {@link #lookAt(Vector3D)} or {@link #setOrientation(Quaternion)}. It is
 	 * orthogonal to {@link #upVector()} and to {@link #rightVector()}.
 	 * <p>
 	 * This corresponds to the negative Z axis of the {@link #frame()} ( {@code
-	 * frame().inverseTransformOf(new PVector(0.0f, 0.0f, -1.0f))} ).
+	 * frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f))} ).
 	 */
-	public PVector viewDirection() {
-		return frame().inverseTransformOf(new PVector(0.0f, 0.0f, -1.0f));
+	public Vector3D viewDirection() {
+		return frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f));
 	}
 
 	/**
@@ -447,23 +444,23 @@ public class Camera implements Cloneable {
 	 * The Camera {@link #position()} is not modified. The Camera is rotated so
 	 * that the horizon (defined by its {@link #upVector()}) is preserved.
 	 * 
-	 * @see #lookAt(PVector)
-	 * @see #setUpVector(PVector)
+	 * @see #lookAt(Vector3D)
+	 * @see #setUpVector(Vector3D)
 	 */
-	public void setViewDirection(PVector direction) {
-		if (MathUtils.squaredNorm(direction) < 1E-10)
+	public void setViewDirection(Vector3D direction) {
+		if (Vector3D.squaredNorm(direction) < 1E-10)
 			return;
 
-		PVector xAxis = direction.cross(upVector());
-		if (MathUtils.squaredNorm(xAxis) < 1E-10) {
+		Vector3D xAxis = direction.cross(upVector());
+		if (Vector3D.squaredNorm(xAxis) < 1E-10) {
 			// target is aligned with upVector, this means a rotation around X
 			// axis
 			// X axis is then unchanged, let's keep it !
-			xAxis = frame().inverseTransformOf(new PVector(1.0f, 0.0f, 0.0f));
+			xAxis = frame().inverseTransformOf(new Vector3D(1.0f, 0.0f, 0.0f));
 		}
 
 		Quaternion q = new Quaternion();
-		q.fromRotatedBasis(xAxis, xAxis.cross(direction), PVector.mult(direction,
+		q.fromRotatedBasis(xAxis, xAxis.cross(direction), Vector3D.mult(direction,
 				-1));
 		frame().setOrientationWithConstraint(q);
 	}
@@ -474,12 +471,12 @@ public class Camera implements Cloneable {
 	 * <p>
 	 * This vector lies in the Camera horizontal plane, directed along the X axis
 	 * (orthogonal to {@link #upVector()} and to {@link #viewDirection()}. Set
-	 * using {@link #setUpVector(PVector)}, {@link #lookAt(PVector)} or
+	 * using {@link #setUpVector(Vector3D)}, {@link #lookAt(Vector3D)} or
 	 * {@link #setOrientation(Quaternion)}.
 	 * <p>
 	 * Simply returns {@code frame().xAxis()}.
 	 */
-	public PVector rightVector() {
+	public Vector3D rightVector() {
 		return frame().xAxis();
 	}
 
@@ -487,8 +484,8 @@ public class Camera implements Cloneable {
 	 * Returns the Camera orientation, defined in the world coordinate system.
 	 * <p>
 	 * Actually returns {@code frame().orientation()}. Use
-	 * {@link #setOrientation(Quaternion)}, {@link #setUpVector(PVector)} or
-	 * {@link #lookAt(PVector)} to set the Camera orientation.
+	 * {@link #setOrientation(Quaternion)}, {@link #setUpVector(Vector3D)} or
+	 * {@link #lookAt(Vector3D)} to set the Camera orientation.
 	 */
 	public Quaternion orientation() {
 		return frame().orientation();
@@ -507,13 +504,13 @@ public class Camera implements Cloneable {
 	 * The {@link #position()} of the Camera is unchanged, you may want to call
 	 * {@link #showEntireScene()} after this method to move the Camera.
 	 * 
-	 * @see #setUpVector(PVector)
+	 * @see #setUpVector(Vector3D)
 	 */
 	public void setOrientation(float theta, float phi) {
 		// TODO: need check.
-		PVector axis = new PVector(0.0f, 1.0f, 0.0f);
+		Vector3D axis = new Vector3D(0.0f, 1.0f, 0.0f);
 		Quaternion rot1 = new Quaternion(axis, theta);
-		axis.set(-PApplet.cos(theta), 0.0f, PApplet.sin(theta));
+		axis.set(-(float) Math.cos(theta), 0.0f, (float) Math.sin(theta));
 		Quaternion rot2 = new Quaternion(axis, phi);
 		setOrientation(Quaternion.multiply(rot1, rot2));
 	}
@@ -649,7 +646,7 @@ public class Camera implements Cloneable {
 		// setArcballReferencePoint in the meantime.
 		if ((type == Camera.Type.ORTHOGRAPHIC)
 				&& (type() == Camera.Type.PERSPECTIVE))
-			orthoCoef = PApplet.tan(fieldOfView() / 2.0f);
+			orthoCoef = (float) Math.tan(fieldOfView() / 2.0f);
 
 		this.tp = type;
 	}
@@ -681,7 +678,7 @@ public class Camera implements Cloneable {
 	 */
 	public void setFieldOfView(float fov) {
 		fldOfView = fov;
-		setFocusDistance(sceneRadius() / PApplet.tan(fov / 2.0f));
+		setFocusDistance(sceneRadius() / (float) Math.tan(fov / 2.0f));
 	}
 
 	/**
@@ -692,12 +689,12 @@ public class Camera implements Cloneable {
 	 * <p>
 	 * The {@link #position()} and {@link #orientation()} of the Camera are not
 	 * modified and you first have to orientate the Camera in order to actually
-	 * see the scene (see {@link #lookAt(PVector)}, {@link #showEntireScene()} or
-	 * {@link #fitSphere(PVector, float)}).
+	 * see the scene (see {@link #lookAt(Vector3D)}, {@link #showEntireScene()} or
+	 * {@link #fitSphere(Vector3D, float)}).
 	 * <p>
 	 * This method is especially useful for <i>shadow maps</i> computation. Use
-	 * the Camera positioning tools ({@link #setPosition(PVector)},
-	 * {@link #lookAt(PVector)}) to position a Camera at the light position. Then
+	 * the Camera positioning tools ({@link #setPosition(Vector3D)},
+	 * {@link #lookAt(Vector3D)}) to position a Camera at the light position. Then
 	 * use this method to define the {@link #fieldOfView()} so that the shadow map
 	 * resolution is optimally used:
 	 * <p>
@@ -716,11 +713,11 @@ public class Camera implements Cloneable {
 	 * resolution, although it may miss some parts of the scene.
 	 */
 	public void setFOVToFitScene() {
-		if (distanceToSceneCenter() > PApplet.sqrt(2.0f) * sceneRadius())
-			setFieldOfView(2.0f * PApplet.asin(sceneRadius()
+		if (distanceToSceneCenter() > (float) Math.sqrt(2.0f) * sceneRadius())
+			setFieldOfView(2.0f * (float) Math.asin(sceneRadius()
 					/ distanceToSceneCenter()));
 		else
-			setFieldOfView(Quaternion.PI / 2.0f);
+			setFieldOfView((float) Math.PI / 2.0f);
 	}
 
 	/**
@@ -766,8 +763,7 @@ public class Camera implements Cloneable {
 			// 2. halfHeight
 			target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);
 		} else {
-			float dist = orthoCoef
-					* PApplet.abs(cameraCoordinatesOf(arcballReferencePoint()).z);
+			float dist = orthoCoef * Math.abs(cameraCoordinatesOf(arcballReferencePoint()).z);
 			// #CONNECTION# fitScreenRegion
 			// 1. halfWidth
 			target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
@@ -787,7 +783,7 @@ public class Camera implements Cloneable {
 	 * aspectRatio() )}.
 	 */
 	public float horizontalFieldOfView() {
-		return 2.0f * PApplet.atan(PApplet.tan(fieldOfView() / 2.0f)
+		return 2.0f * (float) Math.atan((float) Math.tan(fieldOfView() / 2.0f)
 				* aspectRatio());
 	}
 
@@ -800,8 +796,7 @@ public class Camera implements Cloneable {
 	 * call to {@link #horizontalFieldOfView()} returns the expected value.
 	 */
 	public void setHorizontalFieldOfView(float hfov) {
-		setFieldOfView(2.0f * PApplet
-				.atan(PApplet.tan(hfov / 2.0f) / aspectRatio()));
+		setFieldOfView(2.0f * (float) Math.atan((float) Math.tan(hfov / 2.0f) / aspectRatio()));
 	}
 
 	/**
@@ -887,7 +882,7 @@ public class Camera implements Cloneable {
 	 * is null (or not the correct size), a new array will be created.
 	 * <p>
 	 * This method is mainly used in conjunction with
-	 * {@link #project(float, float, float, PMatrix3D, PMatrix3D, int[], float[])}
+	 * {@link #project(float, float, float, Matrix3D, Matrix3D, int[], float[])}
 	 * , which requires such a viewport. Returned values are (0,
 	 * {@link #screenHeight()}, {@link #screenWidth()}, -{@link #screenHeight()}),
 	 * so that the origin is located in the upper left corner of the window.
@@ -1057,16 +1052,16 @@ public class Camera implements Cloneable {
 	 * <p>
 	 * {@code beginShape(LINES);}<br>
 	 * {@code vertex(sceneCenter().x, sceneCenter().y, sceneCenter().z);}<br>
-	 * {@code PVector v = PVector.add(sceneCenter(), PVector.mult(upVector(), 20 *
+	 * {@code Vector3D v = Vector3D.add(sceneCenter(), Vector3D.mult(upVector(), 20 *
 	 * pixelPRatio(sceneCenter())));}<br>
 	 * {@code vertex(v.x, v.y, v.z);}<br>
 	 * {@code endShape();}<br>
 	 */
-	public float pixelPRatio(PVector position) {
+	public float pixelPRatio(Vector3D position) {
 		switch (type()) {
 		case PERSPECTIVE:
-			return 2.0f * PApplet.abs((frame().coordinatesOf(position)).z)
-					* PApplet.tan(fieldOfView() / 2.0f) / screenHeight();
+			return 2.0f * Math.abs((frame().coordinatesOf(position)).z)
+					* (float) Math.tan(fieldOfView() / 2.0f) / screenHeight();
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
 			return 2.0f * wh[1] / screenHeight();
@@ -1090,22 +1085,22 @@ public class Camera implements Cloneable {
 	 * in your Scene setup (with
 	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()}).
 	 * 
-	 * @see #pointIsVisible(PVector)
-	 * @see #sphereIsVisible(PVector, float)
-	 * @see #aaBoxIsVisible(PVector, PVector)
+	 * @see #pointIsVisible(Vector3D)
+	 * @see #sphereIsVisible(Vector3D, float)
+	 * @see #aaBoxIsVisible(Vector3D, Vector3D)
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
-	public float distanceToFrustumPlane(int index, PVector pos) {
+	public float distanceToFrustumPlane(int index, Vector3D pos) {
 		if (!scene.frustumEquationsUpdateIsEnable())
-			PApplet.println("The camera frustum plane equations (needed by distanceToFrustumPlane) may be outdated. Please "
+			System.out.println("The camera frustum plane equations (needed by distanceToFrustumPlane) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableFrustumEquationsUpdate()");
-		PVector myVec = new PVector(fpCoefficients[index][0],
+		Vector3D myVec = new Vector3D(fpCoefficients[index][0],
 				fpCoefficients[index][1], fpCoefficients[index][2]);
-		return PVector.dot(pos, myVec) - fpCoefficients[index][3];
+		return Vector3D.dot(pos, myVec) - fpCoefficients[index][3];
 	}
 
 	/**
@@ -1118,17 +1113,17 @@ public class Camera implements Cloneable {
 	 * in your Scene setup (with
 	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, PVector)
-	 * @see #sphereIsVisible(PVector, float)
-	 * @see #aaBoxIsVisible(PVector, PVector)
+	 * @see #distanceToFrustumPlane(int, Vector3D)
+	 * @see #sphereIsVisible(Vector3D, float)
+	 * @see #aaBoxIsVisible(Vector3D, Vector3D)
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
-	public boolean pointIsVisible(PVector point) {
+	public boolean pointIsVisible(Vector3D point) {
 		if (!scene.frustumEquationsUpdateIsEnable())
-			PApplet.println("The camera frustum plane equations (needed by pointIsVisible) may be outdated. Please "
+			System.out.println("The camera frustum plane equations (needed by pointIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableFrustumEquationsUpdate()");
 		for (int i = 0; i < 6; ++i)
@@ -1150,17 +1145,17 @@ public class Camera implements Cloneable {
 	 * in your Scene setup (with
 	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, PVector)
-	 * @see #pointIsVisible(PVector)
-	 * @see #aaBoxIsVisible(PVector, PVector)
+	 * @see #distanceToFrustumPlane(int, Vector3D)
+	 * @see #pointIsVisible(Vector3D)
+	 * @see #aaBoxIsVisible(Vector3D, Vector3D)
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
-	public Visibility sphereIsVisible(PVector center, float radius) {
+	public Visibility sphereIsVisible(Vector3D center, float radius) {
 		if (!scene.frustumEquationsUpdateIsEnable())
-			PApplet.println("The camera frustum plane equations (needed by sphereIsVisible) may be outdated. Please "
+			System.out.println("The camera frustum plane equations (needed by sphereIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableFrustumEquationsUpdate()");
 		boolean allInForAllPlanes = true;
@@ -1189,24 +1184,24 @@ public class Camera implements Cloneable {
 	 * in your Scene setup (with
 	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, PVector)
-	 * @see #pointIsVisible(PVector)
-	 * @see #sphereIsVisible(PVector, float)
+	 * @see #distanceToFrustumPlane(int, Vector3D)
+	 * @see #pointIsVisible(Vector3D)
+	 * @see #sphereIsVisible(Vector3D, float)
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
-	public Visibility aaBoxIsVisible(PVector p1, PVector p2) {
+	public Visibility aaBoxIsVisible(Vector3D p1, Vector3D p2) {
 		if (!scene.frustumEquationsUpdateIsEnable())
-			PApplet.println("The camera frustum plane equations (needed by aaBoxIsVisible) may be outdated. Please "
+			System.out.println("The camera frustum plane equations (needed by aaBoxIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableFrustumEquationsUpdate()");
 		boolean allInForAllPlanes = true;
 		for (int i = 0; i < 6; ++i) {
 			boolean allOut = true;
 			for (int c = 0; c < 8; ++c) {
-				PVector pos = new PVector(((c & 4) != 0) ? p1.x : p2.x,
+				Vector3D pos = new Vector3D(((c & 4) != 0) ? p1.x : p2.x,
 						((c & 2) != 0) ? p1.y : p2.y, ((c & 1) != 0) ? p1.z : p2.z);
 				if (distanceToFrustumPlane(i, pos) > 0.0)
 					allInForAllPlanes = false;
@@ -1236,10 +1231,10 @@ public class Camera implements Cloneable {
 	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()} which
 	 * automatically update the frustum equations every frame instead.
 	 * 
-	 * @see #distanceToFrustumPlane(int, PVector)
-	 * @see #pointIsVisible(PVector)
-	 * @see #sphereIsVisible(PVector, float)
-	 * @see #aaBoxIsVisible(PVector, PVector)
+	 * @see #distanceToFrustumPlane(int, Vector3D)
+	 * @see #pointIsVisible(Vector3D)
+	 * @see #sphereIsVisible(Vector3D, float)
+	 * @see #aaBoxIsVisible(Vector3D, Vector3D)
 	 * @see #computeFrustumEquations()
 	 * @see #getFrustumEquations()
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
@@ -1266,17 +1261,17 @@ public class Camera implements Cloneable {
 	 * in your Scene setup (with
 	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, PVector)
-	 * @see #pointIsVisible(PVector)
-	 * @see #sphereIsVisible(PVector, float)
-	 * @see #aaBoxIsVisible(PVector, PVector)
+	 * @see #distanceToFrustumPlane(int, Vector3D)
+	 * @see #pointIsVisible(Vector3D)
+	 * @see #sphereIsVisible(Vector3D, float)
+	 * @see #aaBoxIsVisible(Vector3D, Vector3D)
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
 	public float[][] getFrustumEquations() {
 		if (!scene.frustumEquationsUpdateIsEnable())
-			PApplet.println("The camera frustum plane equations may be outdated. Please "
+			System.out.println("The camera frustum plane equations may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableFrustumEquationsUpdate()");
 		return fpCoefficients;
@@ -1338,34 +1333,34 @@ public class Camera implements Cloneable {
 			coef = new float[6][4];
 
 		// Computed once and for all
-		PVector pos = position();
-		PVector viewDir = viewDirection();
-		PVector up = upVector();
-		PVector right = rightVector();
-		float posViewDir = PVector.dot(pos, viewDir);
+		Vector3D pos = position();
+		Vector3D viewDir = viewDirection();
+		Vector3D up = upVector();
+		Vector3D right = rightVector();
+		float posViewDir = Vector3D.dot(pos, viewDir);
 
 		switch (type()) {
 		case PERSPECTIVE: {
 			float hhfov = horizontalFieldOfView() / 2.0f;
-			float chhfov = PApplet.cos(hhfov);
-			float shhfov = PApplet.sin(hhfov);
-			normal[0] = PVector.mult(viewDir, -shhfov);
-			normal[1] = PVector.add(normal[0], PVector.mult(right, chhfov));
-			normal[0] = PVector.add(normal[0], PVector.mult(right, -chhfov));
-			normal[2] = PVector.mult(viewDir, -1);
+			float chhfov = (float) Math.cos(hhfov);
+			float shhfov = (float) Math.sin(hhfov);
+			normal[0] = Vector3D.mult(viewDir, -shhfov);
+			normal[1] = Vector3D.add(normal[0], Vector3D.mult(right, chhfov));
+			normal[0] = Vector3D.add(normal[0], Vector3D.mult(right, -chhfov));
+			normal[2] = Vector3D.mult(viewDir, -1);
 			normal[3] = viewDir;
 
 			float hfov = fieldOfView() / 2.0f;
-			float chfov = PApplet.cos(hfov);
-			float shfov = PApplet.sin(hfov);
-			normal[4] = PVector.mult(viewDir, -shfov);
-			normal[5] = PVector.add(normal[4], PVector.mult(up, -chfov));
-			normal[4] = PVector.add(normal[4], PVector.mult(up, chfov));
+			float chfov = (float) Math.cos(hfov);
+			float shfov = (float) Math.sin(hfov);
+			normal[4] = Vector3D.mult(viewDir, -shfov);
+			normal[5] = Vector3D.add(normal[4], Vector3D.mult(up, -chfov));
+			normal[4] = Vector3D.add(normal[4], Vector3D.mult(up, chfov));
 
 			for (int i = 0; i < 2; ++i)
-				dist[i] = PVector.dot(pos, normal[i]);
+				dist[i] = Vector3D.dot(pos, normal[i]);
 			for (int j = 4; j < 6; ++j)
-				dist[j] = PVector.dot(pos, normal[j]);
+				dist[j] = Vector3D.dot(pos, normal[j]);
 
 			// Natural equations are:
 			// dist[0,1,4,5] = pos * normal[0,1,4,5];
@@ -1374,36 +1369,36 @@ public class Camera implements Cloneable {
 
 			// 2 times less computations using expanded/merged equations. Dir vectors
 			// are normalized.
-			float posRightCosHH = chhfov * PVector.dot(pos, right);
+			float posRightCosHH = chhfov * Vector3D.dot(pos, right);
 			dist[0] = -shhfov * posViewDir;
 			dist[1] = dist[0] + posRightCosHH;
 			dist[0] = dist[0] - posRightCosHH;
-			float posUpCosH = chfov * PVector.dot(pos, up);
+			float posUpCosH = chfov * Vector3D.dot(pos, up);
 			dist[4] = -shfov * posViewDir;
 			dist[5] = dist[4] - posUpCosH;
 			dist[4] = dist[4] + posUpCosH;
 			break;
 		}
 		case ORTHOGRAPHIC:
-			normal[0] = PVector.mult(right, -1);
+			normal[0] = Vector3D.mult(right, -1);
 			normal[1] = right;
 			normal[4] = up;
-			normal[5] = PVector.mult(up, -1);
+			normal[5] = Vector3D.mult(up, -1);
 
 			float[] wh = getOrthoWidthHeight();
-			dist[0] = PVector.dot(PVector.sub(pos, PVector.mult(right, wh[0])),
+			dist[0] = Vector3D.dot(Vector3D.sub(pos, Vector3D.mult(right, wh[0])),
 					normal[0]);
-			dist[1] = PVector.dot(PVector.add(pos, PVector.mult(right, wh[0])),
+			dist[1] = Vector3D.dot(Vector3D.add(pos, Vector3D.mult(right, wh[0])),
 					normal[1]);
-			dist[4] = PVector.dot(PVector.add(pos, PVector.mult(up, wh[1])),
+			dist[4] = Vector3D.dot(Vector3D.add(pos, Vector3D.mult(up, wh[1])),
 					normal[4]);
-			dist[5] = PVector.dot(PVector.sub(pos, PVector.mult(up, wh[1])),
+			dist[5] = Vector3D.dot(Vector3D.sub(pos, Vector3D.mult(up, wh[1])),
 					normal[5]);
 			break;
 		}
 
 		// Front and far planes are identical for both camera types.
-		normal[2] = PVector.mult(viewDir, -1);
+		normal[2] = Vector3D.mult(viewDir, -1);
 		normal[3] = viewDir;
 		dist[2] = -posViewDir - zNear();
 		dist[3] = posViewDir + zFar();
@@ -1430,7 +1425,7 @@ public class Camera implements Cloneable {
 	 * Note that Scene.sceneRadius() (resp. Scene.setSceneRadius()) simply call
 	 * this method on its associated Camera.
 	 * 
-	 * @see #setSceneBoundingBox(PVector, PVector)
+	 * @see #setSceneBoundingBox(Vector3D, Vector3D)
 	 */
 	public float sceneRadius() {
 		return scnRadius;
@@ -1447,13 +1442,13 @@ public class Camera implements Cloneable {
 	 */
 	public void setSceneRadius(float radius) {
 		if (radius <= 0.0f) {
-			PApplet.println("Warning: Scene radius must be positive - Ignoring value");
+			System.out.println("Warning: Scene radius must be positive - Ignoring value");
 			return;
 		}
 
 		scnRadius = radius;
 
-		setFocusDistance(sceneRadius() / PApplet.tan(fieldOfView() / 2.0f));
+		setFocusDistance(sceneRadius() / (float) Math.tan(fieldOfView() / 2.0f));
 
 		setFlySpeed(0.01f * sceneRadius());
 
@@ -1475,14 +1470,14 @@ public class Camera implements Cloneable {
 	 * as {@link #showEntireScene()}.
 	 * <p>
 	 * Note that {@link remixlab.proscene.Scene#center()} (resp.
-	 * remixlab.proscene.Scene{@link #setSceneCenter(PVector)}) simply call this
-	 * method (resp. {@link #setSceneCenter(PVector)}) on its associated
+	 * remixlab.proscene.Scene{@link #setSceneCenter(Vector3D)}) simply call this
+	 * method (resp. {@link #setSceneCenter(Vector3D)}) on its associated
 	 * {@link remixlab.proscene.Scene#camera()}. Default value is (0,0,0) (world
-	 * origin). Use {@link #setSceneCenter(PVector)} to change it.
+	 * origin). Use {@link #setSceneCenter(Vector3D)} to change it.
 	 * 
-	 * @see #setSceneBoundingBox(PVector, PVector)
+	 * @see #setSceneBoundingBox(Vector3D, Vector3D)
 	 */
-	public PVector sceneCenter() {
+	public Vector3D sceneCenter() {
 		return scnCenter;
 	}
 
@@ -1492,7 +1487,7 @@ public class Camera implements Cloneable {
 	 * <b>Attention:</b> This method also sets the
 	 * {@link #arcballReferencePoint()} to {@link #sceneCenter()}.
 	 */
-	public void setSceneCenter(PVector center) {
+	public void setSceneCenter(Vector3D center) {
 		scnCenter = center;
 		setArcballReferencePoint(sceneCenter());
 	}
@@ -1504,17 +1499,17 @@ public class Camera implements Cloneable {
 	 * Used by {@link #zNear()} and {@link #zFar()} to optimize the Z range.
 	 */
 	public float distanceToSceneCenter() {
-		return PApplet.abs((frame().coordinatesOf(sceneCenter())).z);
+		return Math.abs((frame().coordinatesOf(sceneCenter())).z);
 	}
 
 	/**
 	 * Similar to {@link #setSceneRadius(float)} and
-	 * {@link #setSceneCenter(PVector)}, but the scene limits are defined by a
+	 * {@link #setSceneCenter(Vector3D)}, but the scene limits are defined by a
 	 * (world axis aligned) bounding box.
 	 */
-	public void setSceneBoundingBox(PVector min, PVector max) {
-		setSceneCenter(PVector.mult(PVector.add(min, max), 1 / 2.0f));
-		setSceneRadius(0.5f * (PVector.sub(max, min)).mag());
+	public void setSceneBoundingBox(Vector3D min, Vector3D max) {
+		setSceneCenter(Vector3D.mult(Vector3D.add(min, max), 1 / 2.0f));
+		setSceneRadius(0.5f * (Vector3D.sub(max, min)).mag());
 	}
 
 	// 5. ARCBALL REFERENCE POINT
@@ -1526,9 +1521,9 @@ public class Camera implements Cloneable {
 	 * <p>
 	 * Default value is the {@link #sceneCenter()}.
 	 * <p>
-	 * <b>Attention:</b> {@link #setSceneCenter(PVector)} changes this value.
+	 * <b>Attention:</b> {@link #setSceneCenter(Vector3D)} changes this value.
 	 */
-	public final PVector arcballReferencePoint() {
+	public final Vector3D arcballReferencePoint() {
 		return frame().arcballReferencePoint();
 	}
 
@@ -1536,8 +1531,8 @@ public class Camera implements Cloneable {
 	 * Changes the {@link #arcballReferencePoint()} to {@code rap} (defined in the
 	 * world coordinate system).
 	 */
-	public void setArcballReferencePoint(PVector rap) {
-		float prevDist = PApplet.abs(cameraCoordinatesOf(arcballReferencePoint()).z);
+	public void setArcballReferencePoint(Vector3D rap) {
+		float prevDist = Math.abs(cameraCoordinatesOf(arcballReferencePoint()).z);
 
 		frame().setArcballReferencePoint(rap);
 
@@ -1545,7 +1540,7 @@ public class Camera implements Cloneable {
 		// arcballReferencePoint, so that the image does
 		// not change when the arcballReferencePoint is changed in ORTHOGRAPHIC
 		// mode.
-		float newDist = PApplet.abs(cameraCoordinatesOf(arcballReferencePoint()).z);
+		float newDist = Math.abs(cameraCoordinatesOf(arcballReferencePoint()).z);
 		// Prevents division by zero when rap is set to camera position
 		if ((prevDist > 1E-9) && (newDist > 1E-9))
 			orthoCoef *= prevDist / newDist;
@@ -1570,7 +1565,7 @@ public class Camera implements Cloneable {
 	}
 
 	/**
-	 * The {@link #setSceneCenter(PVector)} is set to the point located under
+	 * The {@link #setSceneCenter(Vector3D)} is set to the point located under
 	 * {@code pixel} on screen. Returns {@code true} if a point was found under
 	 * {@code pixel} and {@code false} if none was found (in this case no
 	 * {@link #sceneCenter()} is set).
@@ -1597,7 +1592,7 @@ public class Camera implements Cloneable {
 	 * (dummy value), meaning that no point was found under pixel.
 	 */
 	protected WorldPoint pointUnderPixel(Point pixel) {
-		return new WorldPoint(new PVector(0, 0, 0), false);
+		return new WorldPoint(new Vector3D(0, 0, 0), false);
 	}
 
 	// 6. ASSOCIATED FRAME AND FRAME WRAPPER FUNCTIONS
@@ -1616,9 +1611,9 @@ public class Camera implements Cloneable {
 	/**
 	 * Sets the Camera {@link #frame()}.
 	 * <p>
-	 * If you want to move the Camera, use {@link #setPosition(PVector)} and
+	 * If you want to move the Camera, use {@link #setPosition(Vector3D)} and
 	 * {@link #setOrientation(Quaternion)} or one of the Camera positioning
-	 * methods ({@link #lookAt(PVector)}, {@link #fitSphere(PVector, float)},
+	 * methods ({@link #lookAt(Vector3D)}, {@link #fitSphere(Vector3D, float)},
 	 * {@link #showEntireScene()}...) instead.
 	 * <p>
 	 * This method is actually mainly useful if you derive the
@@ -1753,7 +1748,7 @@ public class Camera implements Cloneable {
 		boolean info = true;
 		if (!kfi.containsKey(key)) {
 			setKeyFrameInterpolator(key, new KeyFrameInterpolator(frame(), pg3d));
-			PApplet.println("Position " + key + " saved");
+			System.out.println("Position " + key + " saved");
 			info = false;
 		}
 
@@ -1763,7 +1758,7 @@ public class Camera implements Cloneable {
 			kfi.get(key).addKeyFrame(frame(), false);
 
 		if (info)
-			PApplet.println("Path " + key + ", position "
+			System.out.println("Path " + key + ", position "
 					+ kfi.get(key).numberOfKeyFrames() + " added");
 	}
 
@@ -1782,12 +1777,12 @@ public class Camera implements Cloneable {
 		if (kfi.containsKey(key)) {
 			if (kfi.get(key).interpolationIsStarted()) {
 				kfi.get(key).stopInterpolation();
-				PApplet.println("Path " + key + " stopped");
+				System.out.println("Path " + key + " stopped");
 			} else {
 				if (anyInterpolationIsStarted())
 					stopAllInterpolations();
 				kfi.get(key).startInterpolation();
-				PApplet.println("Path " + key + " started");
+				System.out.println("Path " + key + " started");
 			}
 		}
 	}
@@ -1803,7 +1798,7 @@ public class Camera implements Cloneable {
 			kfi.get(key).stopInterpolation();
 			kfi.get(key).deletePath();
 			kfi.remove(key);
-			PApplet.println("Path " + key + " deleted");
+			System.out.println("Path " + key + " deleted");
 		}
 	}
 
@@ -1812,9 +1807,9 @@ public class Camera implements Cloneable {
 	 * key}.
 	 * <p>
 	 * If this path is not being played (see {@link #playPath(int)} and
-	 * {@link remixlab.proscene.KeyFrameInterpolator#interpolationIsStarted()}),
+	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#interpolationIsStarted()}),
 	 * resets it to its starting position (see
-	 * {@link remixlab.proscene.KeyFrameInterpolator#resetInterpolation()}). If
+	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#resetInterpolation()}). If
 	 * the path is played, simply stops interpolation.
 	 */
 	public void resetPath(int key) {
@@ -1833,9 +1828,9 @@ public class Camera implements Cloneable {
 	 * and makes them editable by adding all its Frames to the mouse grabber pool.
 	 * <p>
 	 * First calls
-	 * {@link remixlab.proscene.KeyFrameInterpolator#addFramesToMouseGrabberPool()}
+	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#addFramesToMouseGrabberPool()}
 	 * and then
-	 * {@link remixlab.proscene.KeyFrameInterpolator#drawPath(int, int, float)}
+	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#drawPath(int, int, float)}
 	 * for all the defined paths.
 	 * 
 	 * @see #hideAllPaths()
@@ -1854,7 +1849,7 @@ public class Camera implements Cloneable {
 	 * provisionally removing all its Frames from the mouse grabber pool.
 	 * <p>
 	 * Simply calls
-	 * {@link remixlab.proscene.KeyFrameInterpolator#removeFramesFromMouseGrabberPool()}.
+	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#removeFramesFromMouseGrabberPool()}.
 	 * 
 	 * @see #drawAllPaths()
 	 */
@@ -1870,17 +1865,17 @@ public class Camera implements Cloneable {
 
 	/**
 	 * Convenience function that simply returns {@code getProjectionMatrix(new
-	 * PMatrix3D())}
+	 * Matrix3D())}
 	 * 
-	 * @see #getProjectionMatrix(PMatrix3D)
+	 * @see #getProjectionMatrix(Matrix3D)
 	 */
-	public PMatrix3D getProjectionMatrix() {
-		return getProjectionMatrix(new PMatrix3D());
+	public Matrix3D getProjectionMatrix() {
+		return getProjectionMatrix(new Matrix3D());
 	}
 
 	/**
 	 * Fills {@code m} with the Camera projection matrix values and returns it. If
-	 * {@code m} is {@code null} a new PMatrix3D will be created.
+	 * {@code m} is {@code null} a new Matrix3D will be created.
 	 * <p>
 	 * First calls {@link #computeProjectionMatrix()} to define the Camera
 	 * projection matrix.
@@ -1888,9 +1883,9 @@ public class Camera implements Cloneable {
 	 * 
 	 * @see #getModelViewMatrix()
 	 */
-	public PMatrix3D getProjectionMatrix(PMatrix3D m) {
+	public Matrix3D getProjectionMatrix(Matrix3D m) {
 		if (m == null)
-			m = new PMatrix3D();
+			m = new Matrix3D();
 
 		// May not be needed, but easier and more robust like this.
 		computeProjectionMatrix();
@@ -1921,7 +1916,7 @@ public class Camera implements Cloneable {
 	 * with a Scene and is used for offscreen computations (using {@code
 	 * projectedCoordinatesOf()} for instance).
 	 * 
-	 * @see #setProjectionMatrix(PMatrix3D)
+	 * @see #setProjectionMatrix(Matrix3D)
 	 */
 	public void computeProjectionMatrix() {
 		float ZNear = zNear();
@@ -1931,7 +1926,7 @@ public class Camera implements Cloneable {
 		case PERSPECTIVE: {
 			// #CONNECTION# all non null coefficients were set to 0.0 in
 			// constructor.
-			float f = 1.0f / PApplet.tan(fieldOfView() / 2.0f);
+			float f = 1.0f / (float) Math.tan(fieldOfView() / 2.0f);
 			projectionMat.m00 = f / aspectRatio();
 			projectionMat.m11 = f;
 			projectionMat.m22 = (ZNear + ZFar) / (ZNear - ZFar);
@@ -1961,33 +1956,33 @@ public class Camera implements Cloneable {
 	 * <p>
 	 * Only meaningful when the camera {@link #isDetachedFromPCamera()}.
 	 * 
-	 * @see #setModelViewMatrix(PMatrix3D)
+	 * @see #setModelViewMatrix(Matrix3D)
 	 */
-	public void setProjectionMatrix(PMatrix3D proj) {
+	public void setProjectionMatrix(Matrix3D proj) {
 		if (isDetachedFromPCamera())
 			projectionMat.set(proj);
 	}
 
 	/**
 	 * Convenience function that simply returns {@code getModelViewMatrix(new
-	 * PMatrix3D())}
+	 * Matrix3D())}
 	 */
-	public PMatrix3D getModelViewMatrix() {
-		return getModelViewMatrix(new PMatrix3D());
+	public Matrix3D getModelViewMatrix() {
+		return getModelViewMatrix(new Matrix3D());
 	}
 
 	/**
 	 * Fills {@code m} with the Camera modelView matrix values and returns it. If
-	 * {@code m} is {@code null} a new PMatrix3D will be created.
+	 * {@code m} is {@code null} a new Matrix3D will be created.
 	 * <p>
 	 * First calls {@link #computeModelViewMatrix()} to define the Camera
 	 * modelView matrix.
 	 * 
-	 * @see #getProjectionMatrix(PMatrix3D)
+	 * @see #getProjectionMatrix(Matrix3D)
 	 */
-	public PMatrix3D getModelViewMatrix(PMatrix3D m) {
+	public Matrix3D getModelViewMatrix(Matrix3D m) {
 		if (m == null)
-			m = new PMatrix3D();
+			m = new Matrix3D();
 		// May not be needed, but easier like this.
 		// Prevents from retrieving matrix in stereo mode -> overwrites shifted
 		// value.
@@ -2040,7 +2035,7 @@ public class Camera implements Cloneable {
 		modelViewMat.m22 = 1.0f - q11 - q00;
 		modelViewMat.m32 = 0.0f;
 
-		PVector t = q.inverseRotate(frame().position());
+		Vector3D t = q.inverseRotate(frame().position());
 
 		modelViewMat.m03 = -t.x;
 		modelViewMat.m13 = -t.y;
@@ -2053,9 +2048,9 @@ public class Camera implements Cloneable {
 	 * <p>
 	 * Only meaningful when the camera {@link #isDetachedFromPCamera()}.
 	 * 
-	 * @see #setProjectionMatrix(PMatrix3D)
+	 * @see #setProjectionMatrix(Matrix3D)
 	 */
-	public void setModelViewMatrix(PMatrix3D modelview) {
+	public void setModelViewMatrix(Matrix3D modelview) {
 		if (isDetachedFromPCamera())
 			modelViewMat.set(modelview);
 	}
@@ -2066,13 +2061,13 @@ public class Camera implements Cloneable {
 	 * Returns the Camera frame coordinates of a point {@code src} defined in
 	 * world coordinates.
 	 * <p>
-	 * {@link #worldCoordinatesOf(PVector)} performs the inverse transformation.
+	 * {@link #worldCoordinatesOf(Vector3D)} performs the inverse transformation.
 	 * <p>
 	 * Note that the point coordinates are simply converted in a different
 	 * coordinate system. They are not projected on screen. Use
-	 * {@link #projectedCoordinatesOf(PVector, GLFrame)} for that.
+	 * {@link #projectedCoordinatesOf(Vector3D, GLFrame)} for that.
 	 */
-	public final PVector cameraCoordinatesOf(PVector src) {
+	public final Vector3D cameraCoordinatesOf(Vector3D src) {
 		return frame().coordinatesOf(src);
 	}
 
@@ -2080,9 +2075,9 @@ public class Camera implements Cloneable {
 	 * Returns the world coordinates of the point whose position {@code src} is
 	 * defined in the Camera coordinate system.
 	 * <p>
-	 * {@link #cameraCoordinatesOf(PVector)} performs the inverse transformation.
+	 * {@link #cameraCoordinatesOf(Vector3D)} performs the inverse transformation.
 	 */
-	public PVector worldCoordinatesOf(final PVector src) {
+	public Vector3D worldCoordinatesOf(final Vector3D src) {
 		return frame().inverseCoordinatesOf(src);
 	}
 
@@ -2102,8 +2097,8 @@ public class Camera implements Cloneable {
 	 * <p>
 	 * This method is useful for analytical intersection in a selection method.
 	 */
-	public void convertClickToLine(final Point pixelInput, PVector orig,
-			PVector dir) {
+	public void convertClickToLine(final Point pixelInput, Vector3D orig,
+			Vector3D dir) {
 		Point pixel = new Point(pixelInput.getX(), pixelInput.getY());
 		
 		//lef-handed coordinate system correction
@@ -2112,17 +2107,17 @@ public class Camera implements Cloneable {
 		switch (type()) {
 		case PERSPECTIVE:
 			orig.set(position());
-			dir.set(new PVector(((2.0f * (int)pixel.x / screenWidth()) - 1.0f)
-					* PApplet.tan(fieldOfView() / 2.0f) * aspectRatio(),
+			dir.set(new Vector3D(((2.0f * (int)pixel.x / screenWidth()) - 1.0f)
+					* (float) Math.tan(fieldOfView() / 2.0f) * aspectRatio(),
 					((2.0f * (screenHeight() - (int)pixel.y) / screenHeight()) - 1.0f)
-							* PApplet.tan(fieldOfView() / 2.0f), -1.0f));
-			dir.set(PVector.sub(worldCoordinatesOf(dir), orig));
+							* (float) Math.tan(fieldOfView() / 2.0f), -1.0f));
+			dir.set(Vector3D.sub(worldCoordinatesOf(dir), orig));
 			dir.normalize();
 			break;
 
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
-			orig.set(new PVector((2.0f * (int)pixel.x / screenWidth() - 1.0f) * wh[0],
+			orig.set(new Vector3D((2.0f * (int)pixel.x / screenWidth() - 1.0f) * wh[0],
 					-(2.0f * (int)pixel.y / screenHeight() - 1.0f) * wh[1], 0.0f));
 			orig.set(worldCoordinatesOf(orig));
 			dir.set(viewDirection());
@@ -2135,9 +2130,9 @@ public class Camera implements Cloneable {
 	 * Convenience function that simply returns {@code projectedCoordinatesOf(src,
 	 * null)}
 	 * 
-	 * @see #projectedCoordinatesOf(PVector, GLFrame)
+	 * @see #projectedCoordinatesOf(Vector3D, GLFrame)
 	 */
-	public final PVector projectedCoordinatesOf(PVector src) {
+	public final Vector3D projectedCoordinatesOf(Vector3D src) {
 		return projectedCoordinatesOf(src, null);
 	}
 
@@ -2146,9 +2141,9 @@ public class Camera implements Cloneable {
 	 * the {@code frame} coordinate system.
 	 * <p>
 	 * When {@code frame} is {@code null}, {@code src} is expressed in the world
-	 * coordinate system. See {@link #projectedCoordinatesOf(PVector)}.
+	 * coordinate system. See {@link #projectedCoordinatesOf(Vector3D)}.
 	 * <p>
-	 * The x and y coordinates of the returned PVector are expressed in pixel,
+	 * The x and y coordinates of the returned Vector3D are expressed in pixel,
 	 * (0,0) being the upper left corner of the window. The z coordinate ranges
 	 * between 0.0 (near plane) and 1.0 (excluded, far plane). See the {@code
 	 * gluProject} man page for details.
@@ -2159,14 +2154,14 @@ public class Camera implements Cloneable {
 	 * matrices. You can hence define a virtual Camera and use this method to
 	 * compute projections out of a classical rendering context.
 	 * 
-	 * @see #unprojectedCoordinatesOf(PVector, GLFrame)
+	 * @see #unprojectedCoordinatesOf(Vector3D, GLFrame)
 	 */
-	public final PVector projectedCoordinatesOf(PVector src, GLFrame frame) {
+	public final Vector3D projectedCoordinatesOf(Vector3D src, GLFrame frame) {
 		float xyz[] = new float[3];
 		viewport = getViewport();
 
 		if (frame != null) {
-			PVector tmp = frame.inverseCoordinatesOf(src);
+			Vector3D tmp = frame.inverseCoordinatesOf(src);
 			project(tmp.x, tmp.y, tmp.z, modelViewMat, projectionMat, viewport, xyz);
 		} else
 			project(src.x, src.y, src.z, modelViewMat, projectionMat, viewport, xyz);
@@ -2174,16 +2169,16 @@ public class Camera implements Cloneable {
   	//lef-handed coordinate system correction
 		xyz[1] = screenHeight() - xyz[1];
 
-		return new PVector((float) xyz[0], (float) xyz[1], (float) xyz[2]);
+		return new Vector3D((float) xyz[0], (float) xyz[1], (float) xyz[2]);
 	}
 
 	/**
 	 * Convenience function that simply returns {@code return
 	 * unprojectedCoordinatesOf(src, null)}
 	 * 
-	 * #see {@link #unprojectedCoordinatesOf(PVector, GLFrame)}
+	 * #see {@link #unprojectedCoordinatesOf(Vector3D, GLFrame)}
 	 */
-	public final PVector unprojectedCoordinatesOf(PVector src) {
+	public final Vector3D unprojectedCoordinatesOf(Vector3D src) {
 		return this.unprojectedCoordinatesOf(src, null);
 	}
 
@@ -2201,7 +2196,7 @@ public class Camera implements Cloneable {
 	 * coordinates system. The possible {@code frame}
 	 * {@link remixlab.remixcam.core.GLFrame#referenceFrame()} are taken into account.
 	 * <p>
-	 * {@link #projectedCoordinatesOf(PVector, GLFrame)} performs the inverse
+	 * {@link #projectedCoordinatesOf(Vector3D, GLFrame)} performs the inverse
 	 * transformation.
 	 * <p>
 	 * This method only uses the intrinsic Camera parameters (see
@@ -2220,10 +2215,10 @@ public class Camera implements Cloneable {
 	 * projection matrix (modelview, projection and then viewport) to speed-up the
 	 * queries. See the gluUnProject man page for details.
 	 * 
-	 * @see #projectedCoordinatesOf(PVector, GLFrame)
+	 * @see #projectedCoordinatesOf(Vector3D, GLFrame)
 	 * @see #setScreenWidthAndHeight(int, int)
 	 */
-	public final PVector unprojectedCoordinatesOf(PVector src, GLFrame frame) {
+	public final Vector3D unprojectedCoordinatesOf(Vector3D src, GLFrame frame) {
 		float xyz[] = new float[3];
 		viewport = getViewport();
 		
@@ -2232,10 +2227,10 @@ public class Camera implements Cloneable {
 		//unproject(src.x, src.y, src.z, modelViewMat, projectionMat, viewport, xyz);
 		
 		if (frame != null)
-			return frame.coordinatesOf(new PVector((float) xyz[0], (float) xyz[1],
+			return frame.coordinatesOf(new Vector3D((float) xyz[0], (float) xyz[1],
 					(float) xyz[2]));
 		else
-			return new PVector((float) xyz[0], (float) xyz[1], (float) xyz[2]);
+			return new Vector3D((float) xyz[0], (float) xyz[1], (float) xyz[2]);
 	}
 
 	// 11. FLYSPEED
@@ -2272,17 +2267,17 @@ public class Camera implements Cloneable {
 	 * target} (defined in the world coordinate system).
 	 * <p>
 	 * The Camera {@link #position()} is not modified. Simply
-	 * {@link #setViewDirection(PVector)}.
+	 * {@link #setViewDirection(Vector3D)}.
 	 * 
 	 * @see #at()
-	 * @see #setUpVector(PVector)
+	 * @see #setUpVector(Vector3D)
 	 * @see #setOrientation(Quaternion)
 	 * @see #showEntireScene()
-	 * @see #fitSphere(PVector, float)
-	 * @see #fitBoundingBox(PVector, PVector)
+	 * @see #fitSphere(Vector3D, float)
+	 * @see #fitBoundingBox(Vector3D, Vector3D)
 	 */
-	public void lookAt(PVector target) {
-		setViewDirection(PVector.sub(target, position()));
+	public void lookAt(Vector3D target) {
+		setViewDirection(Vector3D.sub(target, position()));
 	}
 
 	/**
@@ -2291,10 +2286,10 @@ public class Camera implements Cloneable {
 	 * the Processing camera() which uses a similar approach of that found in
 	 * gluLookAt.
 	 * 
-	 * @see #lookAt(PVector)
+	 * @see #lookAt(Vector3D)
 	 */
-	public PVector at() {
-		return PVector.add(position(), viewDirection());
+	public Vector3D at() {
+		return Vector3D.add(position(), viewDirection());
 	}
 
 	/**
@@ -2311,11 +2306,11 @@ public class Camera implements Cloneable {
 	 * the {@link #standardOrthoFrustumSize()} to 1 and then calls {@code
 	 * lookAt(sceneCenter())}.
 	 * 
-	 * @see #lookAt(PVector)
+	 * @see #lookAt(Vector3D)
 	 * @see #setOrientation(Quaternion)
-	 * @see #setUpVector(PVector, boolean)
+	 * @see #setUpVector(Vector3D, boolean)
 	 */
-	public void fitSphere(PVector center, float radius) {
+	public void fitSphere(Vector3D center, float radius) {
 		if ((kind() == Kind.STANDARD) && (type() == Type.ORTHOGRAPHIC)) {
 			orthoSize = 1;
 			lookAt(sceneCenter());
@@ -2325,20 +2320,20 @@ public class Camera implements Cloneable {
 		float distance = 0.0f;
 		switch (type()) {
 		case PERSPECTIVE: {
-			float yview = radius / PApplet.sin(fieldOfView() / 2.0f);
-			float xview = radius / PApplet.sin(horizontalFieldOfView() / 2.0f);
-			distance = PApplet.max(xview, yview);
+			float yview = radius / (float) Math.sin(fieldOfView() / 2.0f);
+			float xview = radius / (float) Math.sin(horizontalFieldOfView() / 2.0f);
+			distance = Math.max(xview, yview);
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			distance = PVector.dot(PVector.sub(center, arcballReferencePoint()),
+			distance = Vector3D.dot(Vector3D.sub(center, arcballReferencePoint()),
 					viewDirection())
 					+ (radius / orthoCoef);
 			break;
 		}
 		}
 
-		PVector newPos = PVector.sub(center, PVector
+		Vector3D newPos = Vector3D.sub(center, Vector3D
 				.mult(viewDirection(), distance));
 		frame().setPositionWithConstraint(newPos);
 	}
@@ -2346,13 +2341,13 @@ public class Camera implements Cloneable {
 	/**
 	 * Moves the Camera so that the (world axis aligned) bounding box ({@code min}
 	 * , {@code max}) is entirely visible, using
-	 * {@link #fitSphere(PVector, float)}.
+	 * {@link #fitSphere(Vector3D, float)}.
 	 */
-	public void fitBoundingBox(PVector min, PVector max) {
-		float diameter = PApplet.max(PApplet.abs(max.y - min.y), PApplet.abs(max.x
+	public void fitBoundingBox(Vector3D min, Vector3D max) {
+		float diameter = Math.max(Math.abs(max.y - min.y), Math.abs(max.x
 				- min.x));
-		diameter = PApplet.max(PApplet.abs(max.z - min.z), diameter);
-		fitSphere(PVector.mult(PVector.add(min, max), 0.5f), 0.5f * diameter);
+		diameter = Math.max(Math.abs(max.z - min.z), diameter);
+		fitSphere(Vector3D.mult(Vector3D.add(min, max), 0.5f), 0.5f * diameter);
 	}
 
 	/**
@@ -2368,59 +2363,59 @@ public class Camera implements Cloneable {
 	 * eventually fitted.
 	 */
 	public void fitScreenRegion(Rectangle rectangle) {
-		PVector vd = viewDirection();
+		Vector3D vd = viewDirection();
 		float distToPlane = distanceToSceneCenter();
 
 		Point center = new Point((int) rectangle.getCenterX(), (int) rectangle
 				.getCenterY());
 
-		PVector orig = new PVector();
-		PVector dir = new PVector();
+		Vector3D orig = new Vector3D();
+		Vector3D dir = new Vector3D();
 		convertClickToLine(center, orig, dir);
-		PVector newCenter = PVector.add(orig, PVector.mult(dir,
-				(distToPlane / PVector.dot(dir, vd))));
+		Vector3D newCenter = Vector3D.add(orig, Vector3D.mult(dir,
+				(distToPlane / Vector3D.dot(dir, vd))));
 
 		convertClickToLine(new Point(rectangle.x, center.y), orig, dir);
-		final PVector pointX = PVector.add(orig, PVector.mult(dir,
-				(distToPlane / PVector.dot(dir, vd))));
+		final Vector3D pointX = Vector3D.add(orig, Vector3D.mult(dir,
+				(distToPlane / Vector3D.dot(dir, vd))));
 
 		convertClickToLine(new Point(center.x, rectangle.y), orig, dir);
-		final PVector pointY = PVector.add(orig, PVector.mult(dir,
-				(distToPlane / PVector.dot(dir, vd))));
+		final Vector3D pointY = Vector3D.add(orig, Vector3D.mult(dir,
+				(distToPlane / Vector3D.dot(dir, vd))));
 
 		float distance = 0.0f;
 		switch (type()) {
 		case PERSPECTIVE: {
-			final float distX = PVector.dist(pointX, newCenter)
-					/ PApplet.sin(horizontalFieldOfView() / 2.0f);
-			final float distY = PVector.dist(pointY, newCenter)
-					/ PApplet.sin(fieldOfView() / 2.0f);
+			final float distX = Vector3D.dist(pointX, newCenter)
+					/ (float) Math.sin(horizontalFieldOfView() / 2.0f);
+			final float distY = Vector3D.dist(pointY, newCenter)
+					/ (float) Math.sin(fieldOfView() / 2.0f);
 
-			distance = PApplet.max(distX, distY);
+			distance = Math.max(distX, distY);
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			final float dist = PVector.dot(PVector.sub(newCenter,
+			final float dist = Vector3D.dot(Vector3D.sub(newCenter,
 					arcballReferencePoint()), vd);
-			final float distX = PVector.dist(pointX, newCenter) / orthoCoef
+			final float distX = Vector3D.dist(pointX, newCenter) / orthoCoef
 					/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
-			final float distY = PVector.dist(pointY, newCenter) / orthoCoef
+			final float distY = Vector3D.dist(pointY, newCenter) / orthoCoef
 					/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
 
-			distance = dist + PApplet.max(distX, distY);
+			distance = dist + Math.max(distX, distY);
 
 			break;
 		}
 		}
 
 		frame().setPositionWithConstraint(
-				PVector.sub(newCenter, PVector.mult(vd, distance)));
+				Vector3D.sub(newCenter, Vector3D.mult(vd, distance)));
 	}
 
 	/**
 	 * Moves the Camera so that the entire scene is visible.
 	 * <p>
-	 * Simply calls {@link #fitSphere(PVector, float)} on a sphere defined by
+	 * Simply calls {@link #fitSphere(Vector3D, float)} on a sphere defined by
 	 * {@link #sceneCenter()} and {@link #sceneRadius()}.
 	 * <p>
 	 * You will typically use this method in
@@ -2472,7 +2467,7 @@ public class Camera implements Cloneable {
 		// without modifying frame
 		tempFrame = new InteractiveCameraFrame(scene);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new PVector(frame().position().x,
+		tempFrame.setPosition(new Vector3D(frame().position().x,
 				frame().position().y, frame().position().z));
 		tempFrame.setOrientation(new Quaternion(frame().orientation()));
 		setFrame(tempFrame);
@@ -2514,16 +2509,16 @@ public class Camera implements Cloneable {
 		interpolationKfi.deletePath();
 		interpolationKfi.addKeyFrame(frame(), false);
 
-		interpolationKfi.addKeyFrame(new GLFrame(PVector.add(PVector.mult(frame()
-				.position(), 0.3f), PVector.mult(target.point, 0.7f)), frame()
+		interpolationKfi.addKeyFrame(new GLFrame(Vector3D.add(Vector3D.mult(frame()
+				.position(), 0.3f), Vector3D.mult(target.point, 0.7f)), frame()
 				.orientation()), 0.4f, false);
 
 		// Small hack: attach a temporary frame to take advantage of lookAt without
 		// modifying frame
 		tempFrame = new InteractiveCameraFrame(scene);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(PVector.add(PVector.mult(frame().position(), coef),
-				PVector.mult(target.point, (1.0f - coef))));
+		tempFrame.setPosition(Vector3D.add(Vector3D.mult(frame().position(), coef),
+				Vector3D.mult(target.point, (1.0f - coef))));
 		tempFrame.setOrientation(new Quaternion(frame().orientation()));
 		setFrame(tempFrame);
 		lookAt(target.point);
@@ -2560,7 +2555,7 @@ public class Camera implements Cloneable {
 		// without modifying frame
 		tempFrame = new InteractiveCameraFrame(scene);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new PVector(frame().position().x,
+		tempFrame.setPosition(new Vector3D(frame().position().x,
 				frame().position().y, frame().position().z));
 		tempFrame.setOrientation(new Quaternion(frame().orientation()));
 		setFrame(tempFrame);
@@ -2748,7 +2743,7 @@ public class Camera implements Cloneable {
 	 *          Return the computed window coordinates.
 	 */
 	public boolean project(float objx, float objy, float objz,
-			PMatrix3D modelview, PMatrix3D projection, int[] viewport,
+			Matrix3D modelview, Matrix3D projection, int[] viewport,
 			float[] windowCoordinate) {
 		// Transformation vectors
 		float in[] = new float[4];
@@ -2802,9 +2797,9 @@ public class Camera implements Cloneable {
 	 *          Return the computed object coordinates.
 	 */
 	public boolean unproject(float winx, float winy, float winz,
-			PMatrix3D modelview, PMatrix3D projection, int viewport[],
+			Matrix3D modelview, Matrix3D projection, int viewport[],
 			float[] objCoordinate) {
-		PMatrix3D finalMatrix = new PMatrix3D(projection);
+		Matrix3D finalMatrix = new Matrix3D(projection);
 		float in[] = new float[4];
 		float out[] = new float[4];
 

@@ -25,16 +25,13 @@
 
 package remixlab.remixcam.geom;
 
-import processing.core.*;
-import remixlab.proscene.MathUtils;
-
 /**
  * A 4 element unit quaternion represented by single precision floating point
  * x,y,z,w coordinates.
  * 
  */
 
-public class Quaternion implements PConstants {
+public class Quaternion {
 	/**
 	 * The x coordinate, i.e., the x coordinate of the vector part of the
 	 * Quaternion.
@@ -96,7 +93,7 @@ public class Quaternion implements PConstants {
 	 */
 	public Quaternion(float x, float y, float z, float w, boolean normalize) {
 		if (normalize) {
-			float mag = PApplet.sqrt(x * x + y * y + z * z + w * w);
+			float mag = (float) Math.sqrt(x * x + y * y + z * z + w * w);
 			if (mag > 0.0f) {
 				this.x = x / mag;
 				this.y = y / mag;
@@ -133,7 +130,7 @@ public class Quaternion implements PConstants {
 	 */
 	public Quaternion(float[] q, boolean normalize) {
 		if (normalize) {
-			float mag = PApplet.sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3]
+			float mag = (float) Math.sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3]
 					* q[3]);
 			if (mag > 0.0f) {
 				this.x = q[0] / mag;
@@ -202,13 +199,13 @@ public class Quaternion implements PConstants {
 	 * {@link #axis() axis} (non null) and {@link #angle() angle} (in radians).
 	 * 
 	 * @param axis
-	 *          the PVector representing the axis
+	 *          the Vector3D representing the axis
 	 * @param angle
 	 *          the angle in radians
 	 * 
-	 * @see #fromAxisAngle(PVector, float)
+	 * @see #fromAxisAngle(Vector3D, float)
 	 */
-	public Quaternion(PVector axis, float angle) {
+	public Quaternion(Vector3D axis, float angle) {
 		fromAxisAngle(axis, angle);
 	}
 
@@ -217,13 +214,13 @@ public class Quaternion implements PConstants {
 	 * the {@code to} direction.
 	 * 
 	 * @param from
-	 *          the first PVector
+	 *          the first Vector3D
 	 * @param to
-	 *          the second PVector
+	 *          the second Vector3D
 	 * 
-	 * @see #fromTo(PVector, PVector)
+	 * @see #fromTo(Vector3D, Vector3D)
 	 */
-	public Quaternion(PVector from, PVector to) {
+	public Quaternion(Vector3D from, Vector3D to) {
 		fromTo(from, to);
 	}
 
@@ -327,12 +324,12 @@ public class Quaternion implements PConstants {
 	 * {@code this.rotate(v).}
 	 * 
 	 * @param v
-	 *          the PVector
+	 *          the Vector3D
 	 * 
-	 * @see #rotate(PVector)
-	 * @see #inverseRotate(PVector)
+	 * @see #rotate(Vector3D)
+	 * @see #inverseRotate(Vector3D)
 	 */
-	public final PVector multiply(PVector v) {
+	public final Vector3D multiply(Vector3D v) {
 		return this.rotate(v);
 	}
 
@@ -344,12 +341,12 @@ public class Quaternion implements PConstants {
 	 *          the Quaternion
 	 * 
 	 * @param v
-	 *          the PVector
+	 *          the Vector3D
 	 * 
-	 * @see #rotate(PVector)
-	 * @see #inverseRotate(PVector)
+	 * @see #rotate(Vector3D)
+	 * @see #inverseRotate(Vector3D)
 	 */
-	public static final PVector multiply(Quaternion q1, PVector v) {
+	public static final Vector3D multiply(Quaternion q1, Vector3D v) {
 		return q1.rotate(v);
 	}
 
@@ -432,7 +429,7 @@ public class Quaternion implements PConstants {
 	 * norm}.
 	 */
 	public final float normalize() {
-		float norm = PApplet.sqrt(this.x * this.x + this.y * this.y + this.z
+		float norm = (float) Math.sqrt(this.x * this.x + this.y * this.y + this.z
 				* this.z + this.w * this.w);
 		if (norm > 0.0f) {
 			this.x /= norm;
@@ -452,9 +449,9 @@ public class Quaternion implements PConstants {
 	 * Returns the image of {@code v} by the Quaternion rotation.
 	 * 
 	 * @param v
-	 *          the PVector
+	 *          the Vector3D
 	 */
-	public final PVector rotate(PVector v) {
+	public final Vector3D rotate(Vector3D v) {
 		float q00 = 2.0f * x * x;
 		float q11 = 2.0f * y * y;
 		float q22 = 2.0f * z * z;
@@ -468,7 +465,7 @@ public class Quaternion implements PConstants {
 
 		float q23 = 2.0f * z * w;
 
-		return new PVector((1.0f - q11 - q22) * v.x + (q01 - q23) * v.y
+		return new Vector3D((1.0f - q11 - q22) * v.x + (q01 - q23) * v.y
 				+ (q02 + q13) * v.z, (q01 + q23) * v.x + (1.0f - q22 - q00) * v.y
 				+ (q12 - q03) * v.z, (q02 - q13) * v.x + (q12 + q03) * v.y
 				+ (1.0f - q11 - q00) * v.z);
@@ -478,12 +475,12 @@ public class Quaternion implements PConstants {
 	 * Returns the image of {@code v} by the Quaternion {@link #inverse()}
 	 * rotation.
 	 * <p>
-	 * {@link #rotate(PVector)} performs an inverse transformation.
+	 * {@link #rotate(Vector3D)} performs an inverse transformation.
 	 * 
 	 * @param v
-	 *          the PVector
+	 *          the Vector3D
 	 */
-	public final PVector inverseRotate(PVector v) {
+	public final Vector3D inverseRotate(Vector3D v) {
 		Quaternion tempQuat = new Quaternion(x, y, z, w);
 		tempQuat.invert();
 		return tempQuat.rotate(v);
@@ -497,11 +494,11 @@ public class Quaternion implements PConstants {
 	 * result in an identity Quaternion.
 	 * 
 	 * @param axis
-	 *          the PVector representing the axis
+	 *          the Vector3D representing the axis
 	 * @param angle
 	 *          the angle in radians
 	 */
-	public void fromAxisAngle(PVector axis, float angle) {
+	public void fromAxisAngle(Vector3D axis, float angle) {
 		float norm = axis.mag();
 		if (norm < 1E-8f) {
 			// Null rotation
@@ -510,18 +507,18 @@ public class Quaternion implements PConstants {
 			this.z = 0.0f;
 			this.w = 1.0f;
 		} else {
-			float sin_half_angle = PApplet.sin(angle / 2.0f);
+			float sin_half_angle = (float) Math.sin(angle / 2.0f);
 			this.x = sin_half_angle * axis.x / norm;
 			this.y = sin_half_angle * axis.y / norm;
 			this.z = sin_half_angle * axis.z / norm;
-			this.w = PApplet.cos(angle / 2.0f);
+			this.w = (float) Math.cos(angle / 2.0f);
 		}
 	}
 
 	/**
-	 * Same as {@link #fromEulerAngles(PVector)}.
+	 * Same as {@link #fromEulerAngles(Vector3D)}.
 	 */
-	public void fromTaitBryan(PVector angles) {
+	public void fromTaitBryan(Vector3D angles) {
 		fromEulerAngles(angles);
 	}
 
@@ -539,7 +536,7 @@ public class Quaternion implements PConstants {
 	 * @see #fromEulerAngles(float, float, float)
 	 * @see #eulerAngles()
 	 */
-	public void fromEulerAngles(PVector angles) {
+	public void fromEulerAngles(Vector3D angles) {
 		fromEulerAngles(angles.x, angles.y, angles.z);
 	}
 
@@ -562,9 +559,9 @@ public class Quaternion implements PConstants {
 	 * @see #eulerAngles()
 	 */
 	public void fromEulerAngles(float roll, float pitch, float yaw) {
-		Quaternion qx = new Quaternion(new PVector(1, 0, 0), roll);
-		Quaternion qy = new Quaternion(new PVector(0, 1, 0), pitch);
-		Quaternion qz = new Quaternion(new PVector(0, 0, 1), yaw);
+		Quaternion qx = new Quaternion(new Vector3D(1, 0, 0), roll);
+		Quaternion qy = new Quaternion(new Vector3D(0, 1, 0), pitch);
+		Quaternion qz = new Quaternion(new Vector3D(0, 0, 1), yaw);
 		set(qy);
 		multiply(qz);
 		multiply(qx);
@@ -573,7 +570,7 @@ public class Quaternion implements PConstants {
 	/**
 	 * Same as {@link #eulerAngles()}.
 	 */
-	public PVector taitBryanAngles() {
+	public Vector3D taitBryanAngles() {
 		return eulerAngles();
 	}
 
@@ -587,7 +584,7 @@ public class Quaternion implements PConstants {
 	 * <p>
 	 * <b>Attention:</b> This method assumes that this Quaternion is normalized.
 	 * 
-	 * @return the PVector holding the roll (x coordinate of the vector), pitch (y
+	 * @return the Vector3D holding the roll (x coordinate of the vector), pitch (y
 	 *         coordinate of the vector) and yaw angles (z coordinate of the
 	 *         vector). <b>Note:</b> The order of the rotations that would produce
 	 *         this Quaternion (i.e., as with {@code fromEulerAngles(roll, pitch,
@@ -595,45 +592,45 @@ public class Quaternion implements PConstants {
 	 * 
 	 * @see #fromEulerAngles(float, float, float)
 	 */
-	public PVector eulerAngles() {
+	public Vector3D eulerAngles() {
 		float roll, pitch, yaw;
 		float test = x * y + z * w;
 		if (test > 0.499) { // singularity at north pole
-			pitch = 2 * PApplet.atan2(x, w);
-			yaw = PApplet.PI / 2;
+			pitch = 2 * (float) Math.atan2(x, w);
+			yaw = (float) Math.PI / 2;
 			roll = 0;
-			return new PVector(roll, pitch, yaw);
+			return new Vector3D(roll, pitch, yaw);
 		}
 		if (test < -0.499) { // singularity at south pole
-			pitch = -2 * PApplet.atan2(x, w);
-			yaw = -PApplet.PI / 2;
+			pitch = -2 * (float) Math.atan2(x, w);
+			yaw = -(float) Math.PI / 2;
 			roll = 0;
-			return new PVector(roll, pitch, yaw);
+			return new Vector3D(roll, pitch, yaw);
 		}
 		float sqx = x * x;
 		float sqy = y * y;
 		float sqz = z * z;
-		pitch = PApplet.atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz);
-		yaw = PApplet.asin(2 * test);
-		roll = PApplet.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz);
-		return new PVector(roll, pitch, yaw);
+		pitch = (float) Math.atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz);
+		yaw = (float) Math.asin(2 * test);
+		roll = (float) Math.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz);
+		return new Vector3D(roll, pitch, yaw);
 	}
 
 	/**
-	 * public PVector eulerAngles() { //This quaternion does not need to be
+	 * public Vector3D eulerAngles() { //This quaternion does not need to be
 	 * normalized. See:
 	 * //http://www.euclideanspace.com/maths/geometry/rotations/conversions
 	 * /quaternionToEuler/index.htm float roll, pitch, yaw; float sqw = w*w; float
 	 * sqx = x*x; float sqy = y*y; float sqz = z*z; float unit = sqx + sqy + sqz +
 	 * sqw; // if normalised is one, otherwise is correction factor float test =
 	 * x*y + z*w; if (test > 0.499*unit) { // singularity at north pole pitch = 2
-	 * * PApplet.atan2(x,w); yaw = PApplet.PI/2; roll = 0; return new
-	 * PVector(roll, pitch, yaw); } if (test < -0.499*unit) { // singularity at
-	 * south pole pitch = -2 * PApplet.atan2(x,w); yaw = - PApplet.PI/2; roll = 0;
-	 * return new PVector(roll, pitch, yaw); } pitch = PApplet.atan2(2*y*w-2*x*z ,
-	 * sqx - sqy - sqz + sqw); yaw = PApplet.asin(2*test/unit); roll =
-	 * PApplet.atan2(2*x*w-2*y*z , -sqx + sqy - sqz + sqw); return new
-	 * PVector(roll, pitch, yaw); } //
+	 * * (float) Math.atan2(x,w); yaw = (float) Math.PI/2; roll = 0; return new
+	 * Vector3D(roll, pitch, yaw); } if (test < -0.499*unit) { // singularity at
+	 * south pole pitch = -2 * (float) Math.atan2(x,w); yaw = - (float) Math.PI/2; roll = 0;
+	 * return new Vector3D(roll, pitch, yaw); } pitch = (float) Math.atan2(2*y*w-2*x*z ,
+	 * sqx - sqy - sqz + sqw); yaw = (float) Math.asin(2*test/unit); roll =
+	 * (float) Math.atan2(2*x*w-2*y*z , -sqx + sqy - sqz + sqw); return new
+	 * Vector3D(roll, pitch, yaw); } //
 	 */
 
 	/**
@@ -645,30 +642,30 @@ public class Quaternion implements PConstants {
 	 * rotation angle. This method is robust and can handle small or almost
 	 * identical vectors.
 	 * 
-	 * @see #fromAxisAngle(PVector, float)
+	 * @see #fromAxisAngle(Vector3D, float)
 	 */
-	public void fromTo(PVector from, PVector to) {
-		float fromSqNorm = MathUtils.squaredNorm(from);
-		float toSqNorm = MathUtils.squaredNorm(to);
+	public void fromTo(Vector3D from, Vector3D to) {
+		float fromSqNorm = Vector3D.squaredNorm(from);
+		float toSqNorm = Vector3D.squaredNorm(to);
 		// Identity Quaternion when one vector is null
 		if ((fromSqNorm < 1E-10f) || (toSqNorm < 1E-10f)) {
 			this.x = this.y = this.z = 0.0f;
 			this.w = 1.0f;
 		} else {
 
-			PVector axis = from.cross(to);
+			Vector3D axis = from.cross(to);
 
-			float axisSqNorm = MathUtils.squaredNorm(axis);
+			float axisSqNorm = Vector3D.squaredNorm(axis);
 
 			// Aligned vectors, pick any axis, not aligned with from or to
 			if (axisSqNorm < 1E-10f)
-				axis = MathUtils.orthogonalVector(from);
+				axis = Vector3D.orthogonalVector(from);
 
-			float angle = PApplet.asin(PApplet.sqrt(axisSqNorm
+			float angle = (float) Math.asin((float) Math.sqrt(axisSqNorm
 					/ (fromSqNorm * toSqNorm)));
 
 			if (from.dot(to) < 0.0)
-				angle = PI - angle;
+				angle = (float) Math.PI - angle;
 
 			fromAxisAngle(axis, angle);
 		}
@@ -680,7 +677,7 @@ public class Quaternion implements PConstants {
 	 * The matrix is expressed in European format: its three columns are the
 	 * images by the rotation of the three vectors of an orthogonal basis.
 	 * <p>
-	 * {@link #fromRotatedBasis(PVector, PVector, PVector)} sets a Quaternion from
+	 * {@link #fromRotatedBasis(Vector3D, Vector3D, Vector3D)} sets a Quaternion from
 	 * the three axis of a rotated frame. It actually fills the three columns of a
 	 * matrix with these rotated basis vectors and calls this method.
 	 * 
@@ -693,7 +690,7 @@ public class Quaternion implements PConstants {
 
 		if (onePlusTrace > 1E-5f) {
 			// Direct computation
-			float s = PApplet.sqrt(onePlusTrace) * 2.0f;
+			float s = (float) Math.sqrt(onePlusTrace) * 2.0f;
 			this.x = (m[2][1] - m[1][2]) / s;
 			this.y = (m[0][2] - m[2][0]) / s;
 			this.z = (m[1][0] - m[0][1]) / s;
@@ -701,19 +698,19 @@ public class Quaternion implements PConstants {
 		} else {
 			// Computation depends on major diagonal term
 			if ((m[0][0] > m[1][1]) & (m[0][0] > m[2][2])) {
-				float s = PApplet.sqrt(1.0f + m[0][0] - m[1][1] - m[2][2]) * 2.0f;
+				float s = (float) Math.sqrt(1.0f + m[0][0] - m[1][1] - m[2][2]) * 2.0f;
 				this.x = 0.25f * s;
 				this.y = (m[0][1] + m[1][0]) / s;
 				this.z = (m[0][2] + m[2][0]) / s;
 				this.w = (m[1][2] - m[2][1]) / s;
 			} else if (m[1][1] > m[2][2]) {
-				float s = PApplet.sqrt(1.0f + m[1][1] - m[0][0] - m[2][2]) * 2.0f;
+				float s = (float) Math.sqrt(1.0f + m[1][1] - m[0][0] - m[2][2]) * 2.0f;
 				this.x = (m[0][1] + m[1][0]) / s;
 				this.y = 0.25f * s;
 				this.z = (m[1][2] + m[2][1]) / s;
 				this.w = (m[0][2] - m[2][0]) / s;
 			} else {
-				float s = PApplet.sqrt(1.0f + m[2][2] - m[0][0] - m[1][1]) * 2.0f;
+				float s = (float) Math.sqrt(1.0f + m[2][2] - m[0][0] - m[1][1]) * 2.0f;
 				this.x = (m[0][2] + m[2][0]) / s;
 				this.y = (m[1][2] + m[2][1]) / s;
 				this.z = 0.25f * s;
@@ -725,12 +722,12 @@ public class Quaternion implements PConstants {
 
 	/**
 	 * Set the Quaternion from a (supposedly correct) 3x3 rotation matrix given in
-	 * the upper left 3x3 sub-matrix of the PMatrix3D.
+	 * the upper left 3x3 sub-matrix of the Matrix3D.
 	 * 
 	 * @see #fromRotationMatrix(float[][])
 	 */
-	public final void fromMatrix(PMatrix3D pM) {
-		fromRotationMatrix(MathUtils.get3x3UpperLeftMatrixFromPMatrix3D(pM));
+	public final void fromMatrix(Matrix3D pM) {
+		fromRotationMatrix(pM.get3x3UpperLeftMatrixFromMatrix3D());
 	}
 
 	/**
@@ -740,17 +737,17 @@ public class Quaternion implements PConstants {
 	 * direct (i,e., {@code X^Y=k*Z, with k>0}).
 	 * 
 	 * @param X
-	 *          the first PVector
+	 *          the first Vector3D
 	 * @param Y
-	 *          the second PVector
+	 *          the second Vector3D
 	 * @param Z
-	 *          the third PVector
+	 *          the third Vector3D
 	 * 
 	 * @see #fromRotationMatrix(float[][])
-	 * @see #Quaternion(PVector, PVector)
+	 * @see #Quaternion(Vector3D, Vector3D)
 	 * 
 	 */
-	public final void fromRotatedBasis(PVector X, PVector Y, PVector Z) {
+	public final void fromRotatedBasis(Vector3D X, Vector3D Y, Vector3D Z) {
 		float m[][] = new float[3][3];
 		float normX = X.mag();
 		float normY = Y.mag();
@@ -773,12 +770,12 @@ public class Quaternion implements PConstants {
 	 * 
 	 * @see #angle()
 	 */
-	public final PVector axis() {
-		PVector res = new PVector(this.x, this.y, this.z);
+	public final Vector3D axis() {
+		Vector3D res = new Vector3D(this.x, this.y, this.z);
 		float sinus = res.mag();
 		if (sinus > 1E-8f)
 			res.div(sinus);
-		if (PApplet.acos(this.w) <= HALF_PI)
+		if ((float) Math.acos(this.w) <= (float) Math.PI / 2)
 			return res;
 		else {
 			res.x = -res.x;
@@ -798,8 +795,8 @@ public class Quaternion implements PConstants {
 	 * @see #axis()
 	 */
 	public final float angle() {
-		float angle = 2.0f * PApplet.acos(this.w);
-		return (angle <= PI) ? angle : 2.0f * PI - angle;
+		float angle = 2.0f * (float) Math.acos(this.w);
+		return (angle <= (float) Math.PI) ? angle : 2.0f * (float) Math.PI - angle;
 	}
 
 	/**
@@ -812,16 +809,16 @@ public class Quaternion implements PConstants {
 	 * 
 	 */
 	public final float[][] rotationMatrix() {
-		return MathUtils.get3x3UpperLeftMatrixFromPMatrix3D(matrix());
+		return matrix().get3x3UpperLeftMatrixFromMatrix3D();
 	}
 
 	/**
-	 * Returns the PMatrix3D (processing matrix) which represents the rotation
+	 * Returns the Matrix3D (processing matrix) which represents the rotation
 	 * matrix associated with the Quaternion.
 	 * 
 	 * @see #rotationMatrix()
 	 */
-	public final PMatrix3D matrix() {
+	public final Matrix3D matrix() {
 
 		float q00 = 2.0f * this.x * this.x;
 		float q11 = 2.0f * this.y * this.y;
@@ -857,19 +854,19 @@ public class Quaternion implements PConstants {
 		float m23 = 0.0f;
 		float m33 = 1.0f;
 
-		return new PMatrix3D(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22,
+		return new Matrix3D(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22,
 				m23, m30, m31, m32, m33);
 	}
 
 	/**
-	 * Returns the associated inverse rotation processing PMatrix3D. This is
+	 * Returns the associated inverse rotation processing Matrix3D. This is
 	 * simply {@link #matrix()} of the {@link #inverse()}.
 	 * <p>
 	 * <b>Attention:</b> The result is only valid until the next call to
 	 * {@link #inverseMatrix()}. Use it immediately (as in {@code
 	 * applyMatrix(q.inverseMatrix())}).
 	 */
-	public final PMatrix3D inverseMatrix() {
+	public final Matrix3D inverseMatrix() {
 		Quaternion tempQuat = new Quaternion(x, y, z, w);
 		tempQuat.invert();
 		return tempQuat.matrix();
@@ -881,7 +878,7 @@ public class Quaternion implements PConstants {
 	 * <b>Attention:</b> This is the classical mathematical rotation matrix.
 	 */
 	public final float[][] inverseRotationMatrix() {
-		return MathUtils.get3x3UpperLeftMatrixFromPMatrix3D(inverseMatrix());
+		return inverseMatrix().get3x3UpperLeftMatrixFromMatrix3D();
 	}
 
 	/**
@@ -891,13 +888,13 @@ public class Quaternion implements PConstants {
 	 */
 	public final Quaternion log() {
 		// Warning: this method should not normalize the Quaternion
-		float len = PApplet.sqrt(this.x * this.x + this.y * this.y + this.z
+		float len = (float) Math.sqrt(this.x * this.x + this.y * this.y + this.z
 				* this.z);
 
 		if (len < 1E-6f)
 			return new Quaternion(this.x, this.y, this.z, 0.0f, false);
 		else {
-			float coef = PApplet.acos(this.w) / len;
+			float coef = (float) Math.acos(this.w) / len;
 			return new Quaternion(this.x * coef, this.y * coef, this.z * coef, 0.0f,
 					false);
 		}
@@ -909,15 +906,15 @@ public class Quaternion implements PConstants {
 	 * @see #log()
 	 */
 	public final Quaternion exp() {
-		float theta = PApplet.sqrt(this.x * this.x + this.y * this.y + this.z
+		float theta = (float) Math.sqrt(this.x * this.x + this.y * this.y + this.z
 				* this.z);
 
 		if (theta < 1E-6f)
-			return new Quaternion(this.x, this.y, this.z, PApplet.cos(theta));
+			return new Quaternion(this.x, this.y, this.z, (float) Math.cos(theta));
 		else {
-			float coef = PApplet.sin(theta) / theta;
+			float coef = (float) Math.sin(theta) / theta;
 			return new Quaternion(this.x * coef, this.y * coef, this.z * coef,
-					PApplet.cos(theta));
+					(float) Math.cos(theta));
 		}
 	}
 
@@ -926,20 +923,19 @@ public class Quaternion implements PConstants {
 	 * <p>
 	 * You can create a randomly directed unit vector using:
 	 * <p>
-	 * {@code PVector randomDir = new PVector(1.0f, 0.0f, 0.0f);} <br>
+	 * {@code Vector3D randomDir = new Vector3D(1.0f, 0.0f, 0.0f);} <br>
 	 * {@code randomDir = Quaternion.multiply(Quaternion.randomQuaternion(),
 	 * randomDir);}
 	 */
 	public final static Quaternion randomQuaternion() {
 		float seed = (float) Math.random();
-		float r1 = PApplet.sqrt(1.0f - seed);
-		float r2 = PApplet.sqrt(seed);
-		float t1 = 2.0f * PI * (float) Math.random();
-		float t2 = 2.0f * PI * (float) Math.random();
+		float r1 = (float) Math.sqrt(1.0f - seed);
+		float r2 = (float) Math.sqrt(seed);
+		float t1 = 2.0f * (float) Math.PI * (float) Math.random();
+		float t2 = 2.0f * (float) Math.PI * (float) Math.random();
 
-		return new Quaternion(PApplet.sin(t1) * r1, PApplet.cos(t1) * r1, PApplet
-				.sin(t2)
-				* r2, PApplet.cos(t2) * r2);
+		return new Quaternion((float) Math.sin(t1) * r1, (float) Math.cos(t1) * r1, (float) Math.sin(t2)
+				* r2, (float) Math.cos(t2) * r2);
 	}
 
 	/**
@@ -978,15 +974,15 @@ public class Quaternion implements PConstants {
 
 		float c1, c2;
 		// Linear interpolation for close orientations
-		if ((1.0 - PApplet.abs(cosAngle)) < 0.01) {
+		if ((1.0 - Math.abs(cosAngle)) < 0.01) {
 			c1 = 1.0f - t;
 			c2 = t;
 		} else {
 			// Spherical interpolation
-			float angle = PApplet.acos(PApplet.abs(cosAngle));
-			float sinAngle = PApplet.sin(angle);
-			c1 = PApplet.sin(angle * (1.0f - t)) / sinAngle;
-			c2 = PApplet.sin(angle * t) / sinAngle;
+			float angle = (float) Math.acos(Math.abs(cosAngle));
+			float sinAngle = (float) Math.sin(angle);
+			c1 = (float) Math.sin(angle * (1.0f - t)) / sinAngle;
+			c2 = (float) Math.sin(angle * t) / sinAngle;
 		}
 
 		// Use the shortest path

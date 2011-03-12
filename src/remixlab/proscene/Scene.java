@@ -26,12 +26,8 @@
 package remixlab.proscene;
 
 import processing.core.*;
-import remixlab.remixcam.core.Camera;
-import remixlab.remixcam.core.InteractiveAvatarFrame;
-import remixlab.remixcam.core.InteractiveDrivableFrame;
-import remixlab.remixcam.core.InteractiveFrame;
-import remixlab.remixcam.core.MouseGrabbable;
-import remixlab.remixcam.geom.Point;
+import remixlab.remixcam.core.*;
+import remixlab.remixcam.geom.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -426,7 +422,7 @@ public class Scene implements PConstants {
 	// mouse actions
 	boolean arpFlag;
 	boolean pupFlag;
-	PVector pupVec;
+	Vector3D pupVec;
 
 	// background
 	private BackgroundMode backgroundMode;
@@ -669,8 +665,7 @@ public class Scene implements PConstants {
 			return;
 
 		camera.setSceneRadius(radius());
-		camera.setSceneCenter(center());
-
+		camera.setSceneCenter(camera().sceneCenter());
 		camera.setScreenWidthAndHeight(pg3d.width, pg3d.height);
 
 		cam = camera;
@@ -1416,7 +1411,7 @@ public class Scene implements PConstants {
 		if (arpFlag)
 			drawArcballReferencePointHint();
 		if (pupFlag) {
-			PVector v = camera().projectedCoordinatesOf(pupVec);
+			Vector3D v = camera().projectedCoordinatesOf( pupVec ) ;
 			drawCross(v.x, v.y);
 		}
 	}
@@ -1616,7 +1611,7 @@ public class Scene implements PConstants {
 	 * @see #setCenter(PVector) {@link #radius()}
 	 */
 	public PVector center() {
-		return camera().sceneCenter();
+		return MathUtils.fromVector3D(camera().sceneCenter());
 	}
 
 	/**
@@ -1628,7 +1623,7 @@ public class Scene implements PConstants {
 	 * @see #setCenter(PVector) {@link #radius()}
 	 */
 	public PVector arcballReferencePoint() {
-		return camera().arcballReferencePoint();
+		return MathUtils.fromVector3D(camera().arcballReferencePoint());
 	}
 
 	/**
@@ -1651,7 +1646,7 @@ public class Scene implements PConstants {
 	 * @see #setRadius(float)
 	 */
 	public void setCenter(PVector center) {
-		camera().setSceneCenter(center);
+		camera().setSceneCenter(MathUtils.toVector3D(center));
 	}
 
 	/**
@@ -1665,7 +1660,7 @@ public class Scene implements PConstants {
 	 * @see #setCenter(PVector)
 	 */
 	public void setBoundingBox(PVector min, PVector max) {
-		camera().setSceneBoundingBox(min, max);
+		camera().setSceneBoundingBox(MathUtils.toVector3D(min), MathUtils.toVector3D(max));
 	}
 
 	/**
@@ -1826,7 +1821,7 @@ public class Scene implements PConstants {
 	protected void drawScreenRotateLineHint() {
 		float p1x = (float) dE.fCorner.getX();
 		float p1y = (float) dE.fCorner.getY();
-		PVector p2 = camera().projectedCoordinatesOf(arcballReferencePoint());
+		Vector3D p2 = camera().projectedCoordinatesOf(camera().arcballReferencePoint());
 		beginScreenDrawing();
 		pg3d.pushStyle();
 		pg3d.stroke(255, 255, 255);
@@ -1851,7 +1846,7 @@ public class Scene implements PConstants {
 	 * @see #drawCross(float, float)
 	 */
 	protected void drawArcballReferencePointHint() {
-		PVector p = camera().projectedCoordinatesOf(arcballReferencePoint());
+		Vector3D p = camera().projectedCoordinatesOf(camera().arcballReferencePoint());
 		drawCross(p.x, p.y);
 	}
 
@@ -1869,7 +1864,7 @@ public class Scene implements PConstants {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
-					PVector center = camera().projectedCoordinatesOf(iF.position());
+					Vector3D center = camera().projectedCoordinatesOf(iF.position());
 					if (mg.grabsMouse())
 						drawShooterTarget(pg3d.color(0, 255, 0), center, (iF.grabsMouseThreshold() + 1), 2);
 					else
@@ -1891,7 +1886,7 @@ public class Scene implements PConstants {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
-					PVector center = camera().projectedCoordinatesOf(iF.position());
+					Vector3D center = camera().projectedCoordinatesOf(iF.position());
 					if (mg.grabsMouse())
 						drawShooterTarget(pg3d.color(0, 255, 255), center, (iF.grabsMouseThreshold() + 1), 2);
 					else
@@ -2006,6 +2001,15 @@ public class Scene implements PConstants {
 		pg3d.popStyle();
 		endScreenDrawing();
 	}
+	
+	/**
+	 * Utility function that simply calls {@code drawShooterTarget(color, MathUtils.toVector3D(center), length, strokeWeight)}
+	 * 
+	 * @see #drawShooterTarget(int, Vector3D, float, int)
+	 */
+	public void drawShooterTarget(int color, PVector center, float length, int strokeWeight) {
+		drawShooterTarget(color, MathUtils.toVector3D(center), length, strokeWeight);
+	}
 
 	/**
 	 * Draws the classical shooter target on the screen.
@@ -2019,7 +2023,7 @@ public class Scene implements PConstants {
 	 * @param strokeWeight
 	 *          Stroke weight
 	 */
-	public void drawShooterTarget(int color, PVector center, float length, int strokeWeight) {
+	public void drawShooterTarget(int color, Vector3D center, float length, int strokeWeight) {
 		if (isOffscreen()) {
 			PApplet.println("Warning: Nothing drawn. Off-screen rendering disables screen rendering.");
 			return;
@@ -2947,7 +2951,7 @@ public class Scene implements PConstants {
 			}
 			break;
 		case RESET_ARP:
-			camera().setArcballReferencePoint(new PVector(0, 0, 0));
+			camera().setArcballReferencePoint(new Vector3D(0, 0, 0));
 			arpFlag = true;
 			Timer timer=new Timer();
 			TimerTask timerTask = new TimerTask() {
@@ -3010,24 +3014,16 @@ public class Scene implements PConstants {
 			showAll();
 			break;
 		case MOVE_CAMERA_LEFT:
-			camera().frame().translate(
-					camera().frame().inverseTransformOf(
-							new PVector(-10.0f * camera().flySpeed(), 0.0f, 0.0f)));
+			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(-10.0f * camera().flySpeed(), 0.0f, 0.0f)));
 			break;
 		case MOVE_CAMERA_RIGHT:
-			camera().frame().translate(
-					camera().frame().inverseTransformOf(
-							new PVector(10.0f * camera().flySpeed(), 0.0f, 0.0f)));
+			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(10.0f * camera().flySpeed(), 0.0f, 0.0f)));
 			break;
 		case MOVE_CAMERA_UP:
-			camera().frame().translate(
-					camera().frame().inverseTransformOf(
-							new PVector(0.0f, -10.0f * camera().flySpeed(), 0.0f)));
+			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * camera().flySpeed(), 0.0f)));
 			break;
 		case MOVE_CAMERA_DOWN:
-			camera().frame().translate(
-					camera().frame().inverseTransformOf(
-							new PVector(0.0f, 10.0f * camera().flySpeed(), 0.0f)));
+			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * camera().flySpeed(), 0.0f)));
 			break;
 		case INCREASE_ROTATION_SENSITIVITY:
 			camera().setRotationSensitivity(camera().rotationSensitivity() * 1.2f);
@@ -3044,8 +3040,7 @@ public class Scene implements PConstants {
 		case INCREASE_AVATAR_FLY_SPEED:
 			if (avatar() != null)
 				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar())
-							.setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() * 1.2f);
+					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() * 1.2f);
 			break;
 		case DECREASE_AVATAR_FLY_SPEED:
 			if (avatar() != null)
@@ -3401,7 +3396,7 @@ public class Scene implements PConstants {
 			}
 			break;
 		case RESET_ARP:
-			camera().setArcballReferencePoint(new PVector(0, 0, 0));
+			camera().setArcballReferencePoint(new Vector3D(0, 0, 0));
 			arpFlag = true;
 			Timer timer=new Timer();
 			TimerTask timerTask = new TimerTask() {
@@ -3757,13 +3752,11 @@ public class Scene implements PConstants {
 		// parameters
 		switch (camera().type()) {
 		case PERSPECTIVE:
-			pg3d.perspective(camera().fieldOfView(), camera().aspectRatio(), camera()
-					.zNear(), camera().zFar());
+			pg3d.perspective(camera().fieldOfView(), camera().aspectRatio(), camera().zNear(), camera().zFar());
 			break;
 		case ORTHOGRAPHIC:
 			float[] wh = camera().getOrthoWidthHeight();
-			pg3d.ortho(-wh[0], wh[0], -wh[1], wh[1], camera().zNear(), camera()
-					.zFar());
+			pg3d.ortho(-wh[0], wh[0], -wh[1], wh[1], camera().zNear(), camera().zFar());
 			break;
 		}
 		// if our camera() matrices are detached from the processing Camera

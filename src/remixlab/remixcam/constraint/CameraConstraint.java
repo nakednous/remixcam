@@ -25,11 +25,8 @@
 
 package remixlab.remixcam.constraint;
 
-import processing.core.*;
-import remixlab.proscene.MathUtils;
-import remixlab.remixcam.core.Camera;
-import remixlab.remixcam.core.GLFrame;
-import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.core.*;
+import remixlab.remixcam.geom.*;
 
 /**
  * An AxisPlaneConstraint defined in the camera coordinate system.
@@ -64,28 +61,26 @@ public class CameraConstraint extends AxisPlaneConstraint {
 	 * {@link #camera()} coordinate system by
 	 * {@link #translationConstraintDirection()}.
 	 */
-	public PVector constrainTranslation(PVector translation, GLFrame frame) {
-		PVector res = new PVector(translation.x, translation.y, translation.z);
-		PVector proj;
+	public Vector3D constrainTranslation(Vector3D translation, GLFrame frame) {
+		Vector3D res = new Vector3D(translation.x, translation.y, translation.z);
+		Vector3D proj;
 		switch (translationConstraintType()) {
 		case FREE:
 			break;
 		case PLANE:
-			proj = camera().frame().inverseTransformOf(
-					translationConstraintDirection());
+			proj = camera().frame().inverseTransformOf(translationConstraintDirection());
 			if (frame.referenceFrame() != null)
 				proj = frame.referenceFrame().transformOf(proj);
-			res = MathUtils.projectVectorOnPlane(translation, proj);
+			res = Vector3D.projectVectorOnPlane(translation, proj);
 			break;
 		case AXIS:
-			proj = camera().frame().inverseTransformOf(
-					translationConstraintDirection());
+			proj = camera().frame().inverseTransformOf(translationConstraintDirection());
 			if (frame.referenceFrame() != null)
 				proj = frame.referenceFrame().transformOf(proj);
-			res = MathUtils.projectVectorOnAxis(translation, proj);
+			res = Vector3D.projectVectorOnAxis(translation, proj);
 			break;
 		case FORBIDDEN:
-			res = new PVector(0.0f, 0.0f, 0.0f);
+			res = new Vector3D(0.0f, 0.0f, 0.0f);
 			break;
 		}
 		return res;
@@ -105,11 +100,10 @@ public class CameraConstraint extends AxisPlaneConstraint {
 		case PLANE:
 			break;
 		case AXIS: {
-			PVector axis = frame.transformOf(camera().frame().inverseTransformOf(
-					rotationConstraintDirection()));
-			PVector quat = new PVector(rotation.x, rotation.y, rotation.z);
-			quat = MathUtils.projectVectorOnAxis(quat, axis);
-			res = new Quaternion(quat, 2.0f * PApplet.acos(rotation.w));
+			Vector3D axis = frame.transformOf(camera().frame().inverseTransformOf(rotationConstraintDirection()));
+			Vector3D quat = new Vector3D(rotation.x, rotation.y, rotation.z);
+			quat = Vector3D.projectVectorOnAxis(quat, axis);
+			res = new Quaternion(quat, 2.0f * (float) Math.acos(rotation.w));
 		}
 			break;
 		case FORBIDDEN:

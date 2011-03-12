@@ -26,9 +26,8 @@
 package remixlab.proscene;
 
 import processing.core.*;
-import remixlab.remixcam.core.Camera;
-import remixlab.remixcam.core.GLFrame;
-import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.core.*;
+import remixlab.remixcam.geom.*;
 
 /**
  * Utility class that implements some drawing methods used among proscene
@@ -400,12 +399,11 @@ public class DrawingUtils implements PConstants {
 	 * 
 	 * @see #drawArrow(PApplet, float, float)
 	 */
-	public static void drawArrow(PGraphics3D p3d, PVector from, PVector to,
-			float radius) {
+	public static void drawArrow(PGraphics3D p3d, PVector from, PVector to,	float radius) {		
 		p3d.pushMatrix();
 		p3d.translate(from.x, from.y, from.z);
-		p3d.applyMatrix(new Quaternion(new PVector(0, 0, 1), PVector.sub(to,
-				from)).matrix());
+	  // TODO: fix data conversion in an stronger way:
+		p3d.applyMatrix(MathUtils.fromMatrix3D(new Quaternion(new Vector3D(0, 0, 1), Vector3D.sub(new Vector3D(to.x, to.y, to.z), new Vector3D(from.x, from.y, from.z))).matrix()));
 		drawArrow(p3d, PVector.sub(to, from).mag(), radius);
 		p3d.popMatrix();
 	}
@@ -662,7 +660,9 @@ public class DrawingUtils implements PConstants {
 		// p3d.applyMatrix(camera.frame().worldMatrix());
 		// same as the previous line, but maybe more efficient
 		tmpFrame.fromMatrix(camera.frame().worldMatrix());
-		tmpFrame.applyTransformation(p3d);
+		//tmpFrame.applyTransformation(p3d);// TODO: fix me?		
+		p3d.translate(tmpFrame.translation().x, tmpFrame.translation().y, tmpFrame.translation().z);
+		p3d.rotate(tmpFrame.rotation().angle(), tmpFrame.rotation().axis().x, tmpFrame.rotation().axis().y, tmpFrame.rotation().axis().z);
 
 		// 0 is the upper left coordinates of the near corner, 1 for the far one
 		PVector[] points = new PVector[2];

@@ -25,10 +25,8 @@
 
 package remixlab.remixcam.constraint;
 
-import processing.core.*;
-import remixlab.proscene.MathUtils;
-import remixlab.remixcam.core.GLFrame;
-import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.core.*;
+import remixlab.remixcam.geom.*;
 
 /**
  * An AxisPlaneConstraint defined in the world coordinate system.
@@ -42,32 +40,29 @@ public class WorldConstraint extends AxisPlaneConstraint {
 	 * translation to be along an axis or limited to a plane defined in the Frame
 	 * world coordinate system by {@link #translationConstraintDirection()}.
 	 */
-	public PVector constrainTranslation(PVector translation, GLFrame frame) {
-		PVector res = new PVector(translation.x, translation.y, translation.z);
-		PVector proj;
+	public Vector3D constrainTranslation(Vector3D translation, GLFrame frame) {
+		Vector3D res = new Vector3D(translation.x, translation.y, translation.z);
+		Vector3D proj;
 		switch (translationConstraintType()) {
 		case FREE:
 			break;
 		case PLANE:
 			if (frame.referenceFrame() != null) {
-				proj = frame.referenceFrame().transformOf(
-						translationConstraintDirection());
-				res = MathUtils.projectVectorOnPlane(translation, proj);
+				proj = frame.referenceFrame().transformOf(translationConstraintDirection());
+				res = Vector3D.projectVectorOnPlane(translation, proj);
 			} else
-				res = MathUtils.projectVectorOnPlane(translation,
-						translationConstraintDirection());
+				res = Vector3D.projectVectorOnPlane(translation, translationConstraintDirection());
 			break;
 		case AXIS:
 			if (frame.referenceFrame() != null) {
-				proj = frame.referenceFrame().transformOf(
-						translationConstraintDirection());
-				res = MathUtils.projectVectorOnAxis(translation, proj);
+				proj = frame.referenceFrame().transformOf(translationConstraintDirection());
+				res = Vector3D.projectVectorOnAxis(translation, proj);
 			} else
-				res = MathUtils.projectVectorOnAxis(translation,
+				res = Vector3D.projectVectorOnAxis(translation,
 						translationConstraintDirection());
 			break;
 		case FORBIDDEN:
-			res = new PVector(0.0f, 0.0f, 0.0f);
+			res = new Vector3D(0.0f, 0.0f, 0.0f);
 			break;
 		}
 		return res;
@@ -86,10 +81,10 @@ public class WorldConstraint extends AxisPlaneConstraint {
 		case PLANE:
 			break;
 		case AXIS: {
-			PVector quat = new PVector(rotation.x, rotation.y, rotation.z);
-			PVector axis = frame.transformOf(rotationConstraintDirection());
-			quat = MathUtils.projectVectorOnAxis(quat, axis);
-			res = new Quaternion(quat, 2.0f * PApplet.acos(rotation.w));
+			Vector3D quat = new Vector3D(rotation.x, rotation.y, rotation.z);
+			Vector3D axis = frame.transformOf(rotationConstraintDirection());
+			quat = Vector3D.projectVectorOnAxis(quat, axis);
+			res = new Quaternion(quat, 2.0f * (float) Math.acos(rotation.w));
 			break;
 		}
 		case FORBIDDEN:

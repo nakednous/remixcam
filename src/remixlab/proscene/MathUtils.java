@@ -26,6 +26,7 @@
 package remixlab.proscene;
 
 import processing.core.*;
+import remixlab.remixcam.geom.*;
 
 /**
  * Utility class that complements the PVector and PMatrix classes.
@@ -85,15 +86,54 @@ public class MathUtils /**implements PConstants*/ {
 		else
 			return new PVector(-v.y, v.x, 0.0f);
 	}
+	
+  //TODO find a better way!
+	/**
+	 * Utility function that returns the PVector representation of the given Vector3D.
+	 */
+	public static final PVector fromVector3D(Vector3D v) {
+		return new  PVector(v.x, v.y, v.z);		
+	}
+	
+  //TODO find a better way!
+	/**
+	 * Utility function that returns the Vector3D representation of the given PVector.
+	 */
+	public static final Vector3D toVector3D(PVector v) {
+		return new Vector3D(v.x, v.y, v.z);		
+	}
+	
+	//TODO find a better way!
+	/**
+	 * Utility function that returns the PMatrix3D representation of the given Matrix3D.
+	 */
+	public static final PMatrix3D fromMatrix3D(Matrix3D m) {
+		return new PMatrix3D(m.m00, m.m01, m.m02, m.m03, 
+				                 m.m10, m.m11, m.m12, m.m13,
+				                 m.m20, m.m21, m.m22, m.m23,
+				                 m.m30, m.m31, m.m32, m.m33);
+	}
+	
+  //TODO find a better way!
+	/**
+	 * Utility function that returns the PMatrix3D representation of the given Matrix3D.
+	 */
+	public static final Matrix3D toMatrix3D(PMatrix3D m) {
+		return new Matrix3D(m.m00, m.m01, m.m02, m.m03, 
+				                m.m10, m.m11, m.m12, m.m13,
+				                m.m20, m.m21, m.m22, m.m23,
+				                m.m30, m.m31, m.m32, m.m33);
+	}
 
 	/**
 	 * Utility function that returns the PMatrix3D representation of the 4x4
 	 * {@code m} given in European format.
 	 */
 	public static final PMatrix3D fromMatrix(float[][] m) {
-		return new PMatrix3D(m[0][0], m[0][1], m[0][2], m[0][3], m[1][0], m[1][1],
-				m[1][2], m[1][3], m[2][0], m[2][1], m[2][2], m[2][3], m[3][0], m[3][1],
-				m[3][2], m[3][3]);
+		return new PMatrix3D(m[0][0], m[0][1], m[0][2], m[0][3], 
+				                 m[1][0], m[1][1], m[1][2], m[1][3],
+				                 m[2][0], m[2][1], m[2][2], m[2][3],
+				                 m[3][0], m[3][1], m[3][2], m[3][3]);
 	}
 
 	/**
@@ -122,7 +162,7 @@ public class MathUtils /**implements PConstants*/ {
 	}
 
 	/**
-	 * Utility function that returns the [4][4]float matrix representation
+	 * Utility function that returns the [4][4] float matrix representation
 	 * (European format) of the given PMatrix3D.
 	 */
 	public static final float[][] toMatrix(PMatrix3D pM) {
