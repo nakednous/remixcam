@@ -3,3 +3,4 @@ remixlab.remixcam.constraint
 remixlab.remixcam.core
 remixlab.remixcam.devices
 remixlab.remixcam.geom
+remixlab.remixcam.util
