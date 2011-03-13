@@ -84,7 +84,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 
 	// P R O S C E N E A N D P R O C E S S I N G A P P L E T A N D O B J E C T S
 	//public Scene scene;
-	public MouseGrabberPool mouseGrabberPool;
+	protected MouseGrabberPool mouseGrabberPool;
 
 	/**
 	 * Default constructor.

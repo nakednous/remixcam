@@ -25,10 +25,7 @@
 
 package remixlab.remixcam.core;
 
-import processing.core.*;
-import remixlab.proscene.Scene;
 import remixlab.remixcam.geom.*;
-
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -135,8 +132,8 @@ public class Camera implements Cloneable {
 	protected float fpCoefficients[][];
 	
   // P R O S C E N E A N D P R O C E S S I N G A P P L E T A N D O B J E C T S
-	public Scene scene;
-	public PGraphics3D pg3d;
+	//public Scene scene;
+	protected MouseGrabberPool mouseGrabberPool;
 
 	/**
 	 * Main constructor. {@code p} will be used for rendering purposes.
@@ -156,9 +153,9 @@ public class Camera implements Cloneable {
 	 * 
 	 * @see #Camera(Scene)
 	 */
-	public Camera(Scene scn) {
-		scene = scn;
-		pg3d = scene.pg3d;
+	public Camera(MouseGrabberPool mgPool) {
+		//scene = scn;
+		mouseGrabberPool = mgPool;
 		
 		for (int i = 0; i < normal.length; i++)
 			normal[i] = new Vector3D();
@@ -171,7 +168,7 @@ public class Camera implements Cloneable {
 		interpolationKfi = new KeyFrameInterpolator(frame());
 		kfi = new HashMap<Integer, KeyFrameInterpolator>();
 
-		setFrame(new InteractiveCameraFrame(scene.mouseGrabberPoolObject()));
+		setFrame(new InteractiveCameraFrame(mouseGrabberPool));
 
 		// Requires fieldOfView() to define focusDistance()
 		setSceneRadius(100);
@@ -1002,8 +999,7 @@ public class Camera implements Cloneable {
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
 	public float distanceToFrustumPlane(int index, Vector3D pos) {
-		if (!scene.frustumEquationsUpdateIsEnable())
-			System.out.println("The camera frustum plane equations (needed by distanceToFrustumPlane) may be outdated. Please "
+		System.out.println("The camera frustum plane equations (needed by distanceToFrustumPlane) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableFrustumEquationsUpdate()");
 		Vector3D myVec = new Vector3D(fpCoefficients[index][0],
@@ -1030,8 +1026,7 @@ public class Camera implements Cloneable {
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
 	public boolean pointIsVisible(Vector3D point) {
-		if (!scene.frustumEquationsUpdateIsEnable())
-			System.out.println("The camera frustum plane equations (needed by pointIsVisible) may be outdated. Please "
+		System.out.println("The camera frustum plane equations (needed by pointIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableFrustumEquationsUpdate()");
 		for (int i = 0; i < 6; ++i)
@@ -1062,8 +1057,7 @@ public class Camera implements Cloneable {
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
 	public Visibility sphereIsVisible(Vector3D center, float radius) {
-		if (!scene.frustumEquationsUpdateIsEnable())
-			System.out.println("The camera frustum plane equations (needed by sphereIsVisible) may be outdated. Please "
+		System.out.println("The camera frustum plane equations (needed by sphereIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableFrustumEquationsUpdate()");
 		boolean allInForAllPlanes = true;
@@ -1101,8 +1095,7 @@ public class Camera implements Cloneable {
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
 	public Visibility aaBoxIsVisible(Vector3D p1, Vector3D p2) {
-		if (!scene.frustumEquationsUpdateIsEnable())
-			System.out.println("The camera frustum plane equations (needed by aaBoxIsVisible) may be outdated. Please "
+		System.out.println("The camera frustum plane equations (needed by aaBoxIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableFrustumEquationsUpdate()");
 		boolean allInForAllPlanes = true;
@@ -1178,8 +1171,7 @@ public class Camera implements Cloneable {
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
 	public float[][] getFrustumEquations() {
-		if (!scene.frustumEquationsUpdateIsEnable())
-			System.out.println("The camera frustum plane equations may be outdated. Please "
+		System.out.println("The camera frustum plane equations may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableFrustumEquationsUpdate()");
 		return fpCoefficients;
@@ -1361,8 +1353,11 @@ public class Camera implements Cloneable {
 		setFlySpeed(0.01f * sceneRadius());
 
 		// if there's an avatar we change its fly speed as well
+		//TODO: scene is not visible
+		/**
 		if (scene.avatarIsInteractiveDrivableFrame)
 			((InteractiveDrivableFrame) scene.avatar()).setFlySpeed(0.01f * scene.radius());
+			*/
 	}
 
 	/**
@@ -1660,7 +1655,7 @@ public class Camera implements Cloneable {
 		}
 
 		if (editablePath)
-			kfi.get(key).addKeyFrame(new InteractiveFrame(scene.mouseGrabberPoolObject(), frame()));
+			kfi.get(key).addKeyFrame(new InteractiveFrame(mouseGrabberPool, frame()));
 		else
 			kfi.get(key).addKeyFrame(frame(), false);
 
@@ -2345,7 +2340,7 @@ public class Camera implements Cloneable {
 
 		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
 		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(scene.mouseGrabberPoolObject());
+		tempFrame = new InteractiveCameraFrame(mouseGrabberPool);
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(new Vector3D(frame().position().x,
 				frame().position().y, frame().position().z));
@@ -2395,7 +2390,7 @@ public class Camera implements Cloneable {
 
 		// Small hack: attach a temporary frame to take advantage of lookAt without
 		// modifying frame
-		tempFrame = new InteractiveCameraFrame(scene.mouseGrabberPoolObject());
+		tempFrame = new InteractiveCameraFrame(mouseGrabberPool);
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(Vector3D.add(Vector3D.mult(frame().position(), coef),
 				Vector3D.mult(target.point, (1.0f - coef))));
@@ -2433,7 +2428,7 @@ public class Camera implements Cloneable {
 
 		// Small hack: attach a temporary frame to take advantage of showEntireScene
 		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(scene.mouseGrabberPoolObject());
+		tempFrame = new InteractiveCameraFrame(mouseGrabberPool);
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(new Vector3D(frame().position().x,
 				frame().position().y, frame().position().z));

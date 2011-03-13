@@ -5,14 +5,14 @@ import java.util.List;
 
 public class MouseGrabberPool {
   //M o u s e G r a b b e r
-	protected List<MouseGrabbable> MouseGrabberPool;
+	protected List<MouseGrabbable> mouseGrabberPool;
 	MouseGrabbable mouseGrbbr;
 	boolean mouseGrabberIsAnIFrame;
 	boolean mouseGrabberIsADrivableFrame;
 	
 	public MouseGrabberPool() {
 		//mouse grabber pool
-		MouseGrabberPool = new ArrayList<MouseGrabbable>();
+		mouseGrabberPool = new ArrayList<MouseGrabbable>();
 		mouseGrabberIsAnIFrame = false;
 		mouseGrabberIsADrivableFrame = false;
 	}
@@ -29,7 +29,7 @@ public class MouseGrabberPool {
 	 * {@link #addInMouseGrabberPool(MouseGrabbable)} to modify this list.
 	 */
 	public List<MouseGrabbable> mouseGrabberPool() {
-		return MouseGrabberPool;
+		return mouseGrabberPool;
 	}	
 
 	/**

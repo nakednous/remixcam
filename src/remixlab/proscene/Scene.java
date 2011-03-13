@@ -349,7 +349,7 @@ public class Scene implements PConstants {
 		// need it here to properly init the camera
 		avatarIsInteractiveAvatarFrame = false;// also init in setAvatar, but we
 		// need it here to properly init the camera
-		cam = new Camera(this);
+		cam = new Camera(mouseGrabberPool);
 		setCamera(camera());// showAll();It is set in setCamera()
 		setInteractiveFrame(null);
 		setAvatar(null);
@@ -1397,6 +1397,10 @@ public class Scene implements PConstants {
 	 */
 	public void setRadius(float radius) {
 		camera().setSceneRadius(radius);
+		
+	  // if there's an avatar we change its fly speed as well
+		if (avatarIsInteractiveDrivableFrame)
+			((InteractiveDrivableFrame) avatar()).setFlySpeed(0.01f * radius());
 	}
 
 	/**
