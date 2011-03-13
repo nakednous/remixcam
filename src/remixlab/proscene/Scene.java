@@ -31,6 +31,7 @@ import remixlab.remixcam.core.InteractiveAvatarFrame;
 import remixlab.remixcam.core.InteractiveDrivableFrame;
 import remixlab.remixcam.core.InteractiveFrame;
 import remixlab.remixcam.core.MouseGrabbable;
+import remixlab.remixcam.core.MouseGrabberPool;
 import remixlab.remixcam.core.Trackable;
 import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.geom.Point;
@@ -464,11 +465,9 @@ public class Scene implements PConstants {
 	protected int startCoordCalls;
   protected int beginOffScreenDrawingCalls;
 
-	// M o u s e G r a b b e r
-	protected List<MouseGrabbable> MouseGrabberPool;
-	MouseGrabbable mouseGrbbr;
-	boolean mouseGrabberIsAnIFrame;
-	boolean mouseGrabberIsADrivableFrame;
+  //M o u s e G r a b b e r
+	protected MouseGrabberPool mouseGrabberPool;
+	
 	boolean mouseTrckn;
 
 	// F r u s t u m p l a n e c o e f f i c i e n t s
@@ -542,8 +541,7 @@ public class Scene implements PConstants {
 		//event handler
 		dE = new DesktopEvents(this);
 		
-		//mouse grabber pool
-		MouseGrabberPool = new ArrayList<MouseGrabbable>();	
+		mouseGrabberPool = new MouseGrabberPool();
 
 		gProfile = new Bindings<KeyboardShortcut, KeyboardAction>(this);
 		pathKeys = new Bindings<Integer, Integer>(this);		
@@ -563,10 +561,7 @@ public class Scene implements PConstants {
 		offscreen = renderer != p.g;
 		beginOffScreenDrawingCalls = 0;
 		setMouseTracking(!offscreen);
-		setMouseGrabber(null);
-		
-		mouseGrabberIsAnIFrame = false;
-		mouseGrabberIsADrivableFrame = false;
+		mouseGrabberPool.setMouseGrabber(null, camera());
 
 		initDefaultCameraProfiles();
 
@@ -643,20 +638,25 @@ public class Scene implements PConstants {
 	// 2. Associated objects
 
 	/**
-	 * Returns a list containing references to all the active MouseGrabbers.
+	 * Returns an object containing references to all the active MouseGrabbers.
 	 * <p>
 	 * Used to parse all the MouseGrabbers and to check if any of them
-	 * {@link remixlab.remixcam.core.MouseGrabbable#grabsMouse()} using
-	 * {@link remixlab.remixcam.core.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}.
+	 * {@link remixlab.proscene.MouseGrabbable#grabsMouse()} using
+	 * {@link remixlab.proscene.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}.
 	 * <p>
-	 * You should not have to directly use this list. Use
-	 * {@link #removeFromMouseGrabberPool(MouseGrabbable)} and
+	 * Use {@link #removeFromMouseGrabberPool(MouseGrabbable)} and
 	 * {@link #addInMouseGrabberPool(MouseGrabbable)} to modify this list.
 	 */
-	public List<MouseGrabbable> mouseGrabberPool() {
-		return MouseGrabberPool;
+	// TODO refactor the name
+	public MouseGrabberPool mouseGrabberPoolObject() {
+		return mouseGrabberPool;
 	}
-
+	
+	//TODO: document me
+	public List<MouseGrabbable> mouseGrabberPool() {
+		return mouseGrabberPool.mouseGrabberPool();
+	}
+	
 	/**
 	 * Returns the associated Camera, never {@code null}.
 	 */
@@ -751,83 +751,39 @@ public class Scene implements PConstants {
 		else if (glIFrame instanceof Trackable)
 			setAvatar((Trackable) glIFrame);
 	}
-
-	/**
-	 * Returns the current MouseGrabber, or {@code null} if none currently grabs
-	 * mouse events.
-	 * <p>
-	 * When {@link remixlab.remixcam.core.MouseGrabbable#grabsMouse()}, the different
-	 * mouse events are sent to it instead of their usual targets (
-	 * {@link #camera()} or {@link #interactiveFrame()}).
-	 */
+	
 	public MouseGrabbable mouseGrabber() {
-		return mouseGrbbr;
+		return mouseGrabberPoolObject().mouseGrabber();
 	}
-
-	/**
-	 * Directly defines the {@link #mouseGrabber()}.
-	 * <p>
-	 * You should not call this method directly as it bypasses the
-	 * {@link remixlab.remixcam.core.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}
-	 * test performed by {@link #mouseMoved(MouseEvent)}.
-	 */
+	
 	protected void setMouseGrabber(MouseGrabbable mouseGrabber) {
-		mouseGrbbr = mouseGrabber;
-
-		mouseGrabberIsAnIFrame = mouseGrabber instanceof InteractiveFrame;
-		mouseGrabberIsADrivableFrame = ((mouseGrabber != camera().frame()) && (mouseGrabber instanceof InteractiveDrivableFrame));
+		mouseGrabberPoolObject().setMouseGrabber(mouseGrabber, camera());
 	}
 	
-	// 3. Mouse grabber handling
+	protected boolean mouseGrabberIsAnIFrame() {
+		return mouseGrabberPoolObject().mouseGrabberIsAnIFrame();
+	}
 	
-	/**
-	 * Returns true if the mouseGrabber is currently in the {@link #mouseGrabberPool()} list.
-	 * <p>
-	 * When set to false using {@link #removeFromMouseGrabberPool(MouseGrabbable)}, the Scene no longer
-	 * {@link remixlab.remixcam.core.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)} on this mouseGrabber.
-	 * Use {@link #addInMouseGrabberPool(MouseGrabbable)} to insert it back.
-	 */
+	protected boolean mouseGrabberIsADrivableFrame() {
+		return mouseGrabberPoolObject().mouseGrabberIsADrivableFrame();
+	}
+	
+  // 3. Mouse grabber handling
+	
 	public boolean isInMouseGrabberPool(MouseGrabbable mouseGrabber) {
-		return mouseGrabberPool().contains(mouseGrabber);
+		return mouseGrabberPoolObject().isInMouseGrabberPool(mouseGrabber);
 	}
 	
-	/**
-	 * Adds the mouseGrabber in the {@link #mouseGrabberPool()}.
-	 * <p>
-	 * All created InteractiveFrames (which are MouseGrabbers) are automatically added in the
-	 * {@link #mouseGrabberPool()} by their constructors. Trying to add a
-	 * mouseGrabber that already {@link #isInMouseGrabberPool(MouseGrabbable)} has no effect.
-	 * <p>
-	 * Use {@link #removeFromMouseGrabberPool(MouseGrabbable)} to remove the mouseGrabber from
-	 * the list, so that it is no longer tested with
-	 * {@link remixlab.remixcam.core.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}
-	 * by the Scene, and hence can no longer grab mouse focus. Use
-	 * {@link #isInMouseGrabberPool(MouseGrabbable)} to know the current state of the MouseGrabber.
-	 */
 	public void addInMouseGrabberPool(MouseGrabbable mouseGrabber) {
-		if (!isInMouseGrabberPool(mouseGrabber))
-			mouseGrabberPool().add(mouseGrabber);
+		mouseGrabberPoolObject().addInMouseGrabberPool(mouseGrabber);
 	}
 
-	/**
-	 * Removes the mouseGrabber from the {@link #mouseGrabberPool()}.
-	 * <p>
-	 * See {@link #addInMouseGrabberPool(MouseGrabbable)} for details. Removing a mouseGrabber
-	 * that is not in {@link #mouseGrabberPool()} has no effect.
-	 */
 	public void removeFromMouseGrabberPool(MouseGrabbable mouseGrabber) {
-		mouseGrabberPool().remove(mouseGrabber);
+		mouseGrabberPoolObject().removeFromMouseGrabberPool(mouseGrabber);
 	}
 
-	/**
-	 * Clears the {@link #mouseGrabberPool()}.
-	 * <p>
-	 * Use this method only if it is faster to clear the
-	 * {@link #mouseGrabberPool()} and then to add back a few MouseGrabbers
-	 * than to remove each one independently.
-	 */
 	public void clearMouseGrabberPool() {
-		mouseGrabberPool().clear();
+		mouseGrabberPoolObject().clearMouseGrabberPool();
 	}
 	
 	/**
@@ -851,9 +807,9 @@ public class Scene implements PConstants {
 		if( enable && offscreen )
 			return;
 		if(!enable) {
-			if( mouseGrabber() != null )
-				mouseGrabber().setGrabsMouse(false);
-			setMouseGrabber(null);
+			if( mouseGrabberPool.mouseGrabber() != null )
+				mouseGrabberPool.mouseGrabber().setGrabsMouse(false);
+			mouseGrabberPool.setMouseGrabber(null, camera());
 		}
 		mouseTrckn = enable;
 	}
@@ -1867,7 +1823,7 @@ public class Scene implements PConstants {
 	 * @see #drawCameraPathSelectionHints()
 	 */
 	protected void drawSelectionHints() {
-		for (MouseGrabbable mg : MouseGrabberPool) {
+		for (MouseGrabbable mg : mouseGrabberPool.mouseGrabberPool()) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
@@ -1889,7 +1845,7 @@ public class Scene implements PConstants {
 	 * @see #drawSelectionHints()
 	 */
 	protected void drawCameraPathSelectionHints() {
-		for (MouseGrabbable mg : MouseGrabberPool) {
+		for (MouseGrabbable mg : mouseGrabberPool.mouseGrabberPool()) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
@@ -2114,7 +2070,9 @@ public class Scene implements PConstants {
 
 		pg3d.pushMatrix();
 		if (camera().frame() != null)
-			camera().frame().applyTransformation(pg3d);
+			// TODO check this replacement
+			//camera().frame().applyTransformation(pg3d);
+			TempUtils.applyTransformation(camera().frame(), pg3d);			
 	}
 
 	/**

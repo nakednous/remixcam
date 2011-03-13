@@ -28,7 +28,6 @@ package remixlab.remixcam.core;
 import remixlab.proscene.Scene;
 import remixlab.remixcam.geom.*;
 
-
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -54,8 +53,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	 * <p>
 	 * {@link #flySpeed()} is set to 0.0 and {@link #flyUpVector()} is (0,1,0).
 	 */
-	public InteractiveDrivableFrame(Scene scn) {
-		super(scn);
+	public InteractiveDrivableFrame(MouseGrabberPool mgPool) {
+		super(mgPool);
 		drvSpd = 0.0f;
 		flyUpVec = new Vector3D(0.0f, 1.0f, 0.0f);
 

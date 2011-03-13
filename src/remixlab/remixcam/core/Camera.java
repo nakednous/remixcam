@@ -171,7 +171,7 @@ public class Camera implements Cloneable {
 		interpolationKfi = new KeyFrameInterpolator(frame(), pg3d);
 		kfi = new HashMap<Integer, KeyFrameInterpolator>();
 
-		setFrame(new InteractiveCameraFrame(scene));
+		setFrame(new InteractiveCameraFrame(scene.mouseGrabberPoolObject()));
 
 		// Requires fieldOfView() to define focusDistance()
 		setSceneRadius(100);
@@ -1660,7 +1660,7 @@ public class Camera implements Cloneable {
 		}
 
 		if (editablePath)
-			kfi.get(key).addKeyFrame(new InteractiveFrame(scene, frame()));
+			kfi.get(key).addKeyFrame(new InteractiveFrame(scene.mouseGrabberPoolObject(), frame()));
 		else
 			kfi.get(key).addKeyFrame(frame(), false);
 
@@ -2366,7 +2366,7 @@ public class Camera implements Cloneable {
 
 		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
 		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(scene);
+		tempFrame = new InteractiveCameraFrame(scene.mouseGrabberPoolObject());
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(new Vector3D(frame().position().x,
 				frame().position().y, frame().position().z));
@@ -2416,7 +2416,7 @@ public class Camera implements Cloneable {
 
 		// Small hack: attach a temporary frame to take advantage of lookAt without
 		// modifying frame
-		tempFrame = new InteractiveCameraFrame(scene);
+		tempFrame = new InteractiveCameraFrame(scene.mouseGrabberPoolObject());
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(Vector3D.add(Vector3D.mult(frame().position(), coef),
 				Vector3D.mult(target.point, (1.0f - coef))));
@@ -2454,7 +2454,7 @@ public class Camera implements Cloneable {
 
 		// Small hack: attach a temporary frame to take advantage of showEntireScene
 		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(scene);
+		tempFrame = new InteractiveCameraFrame(scene.mouseGrabberPoolObject());
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(new Vector3D(frame().position().x,
 				frame().position().y, frame().position().z));

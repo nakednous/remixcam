@@ -41,7 +41,7 @@ import remixlab.remixcam.geom.Point;
  * <b>Note:</b> The InteractiveFrame object implements the MouseGrabbable interface.
  */
 public class MouseGrabber implements MouseGrabbable {
-	protected Scene scene;
+	protected MouseGrabberPool mouseGrabberPool;
 	protected boolean grabsMouse;
 	protected boolean keepsGrabbingMouse;
 	
@@ -51,11 +51,11 @@ public class MouseGrabber implements MouseGrabbable {
 	 * 
 	 * @param scn Scene instance
 	 */
-	public MouseGrabber(Scene scn) {
-		scene = scn;
+	public MouseGrabber(MouseGrabberPool mgPool) {
 		grabsMouse = false;
 		keepsGrabbingMouse = false;
-		scene.addInMouseGrabberPool(this);		
+		mouseGrabberPool = mgPool;
+		mouseGrabberPool.addInMouseGrabberPool(this);
 	}
 	
 	/**

@@ -25,7 +25,6 @@
 
 package remixlab.remixcam.core;
 
-import processing.core.*;
 import remixlab.proscene.Scene;
 import remixlab.remixcam.constraint.*;
 import remixlab.remixcam.geom.*;
@@ -83,7 +82,8 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	protected boolean isInCamPath;
 
 	// P R O S C E N E A N D P R O C E S S I N G A P P L E T A N D O B J E C T S
-	public Scene scene;
+	//public Scene scene;
+	public MouseGrabberPool mouseGrabberPool;
 
 	/**
 	 * Default constructor.
@@ -97,9 +97,9 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * <b>Note:</b> the InteractiveFrame is automatically added to
 	 * the {@link remixlab.proscene.Scene#mouseGrabberPool()}.
 	 */
-	public InteractiveFrame(Scene scn) {
-		scene = scn;
-
+	public InteractiveFrame(MouseGrabberPool mgPool) {
+		mouseGrabberPool = mgPool;
+		
 		action = Scene.MouseAction.NO_MOUSE_ACTION;
 		horiz = true;
 
@@ -136,9 +136,9 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * 
 	 * @see remixlab.remixcam.core.Camera#addKeyFrameToPath(int)
 	 */
-	public InteractiveFrame(Scene scn, InteractiveCameraFrame iFrame) {
+	public InteractiveFrame(MouseGrabberPool mgPool, InteractiveCameraFrame iFrame) {
 		super(iFrame.translation(), iFrame.rotation());
-		scene = scn;
+		mouseGrabberPool = mgPool;
 		action = Scene.MouseAction.NO_MOUSE_ACTION;
 		horiz = true;
 
@@ -161,76 +161,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		Iterator<KeyFrameInterpolator> it = iFrame.listeners().iterator();
 		while (it.hasNext())
 			list.add(it.next());
-	}
-	
-	/**
-	 * Convenience wrapper function that simply calls {@code applyTransformation( (PGraphics3D) p.g )}.
-	 * 
-	 * @see #applyTransformation(PGraphics3D)
-	 */
-	public void applyTransformation(PApplet p) {
-		applyTransformation( (PGraphics3D) p.g );
-	}
-	
-	/**
-	 * Apply the transformation defined by this Frame to {@code p3d}. The Frame is
-	 * first translated and then rotated around the new translated origin.
-	 * <p>
-	 * Same as:
-	 * <p>
-	 * {@code p3d.translate(translation().x, translation().y, translation().z);} <br>
-	 * {@code p3d.rotate(rotation().angle(), rotation().axis().x,
-	 * rotation().axis().y, rotation().axis().z);} <br>
-	 * <p>
-	 * This method should be used in conjunction with PApplet to modify the
-	 * processing modelview matrix from a Frame hierarchy. For example, with this
-	 * Frame hierarchy:
-	 * <p>
-	 * {@code Frame body = new Frame();} <br>
-	 * {@code Frame leftArm = new Frame();} <br>
-	 * {@code Frame rightArm = new Frame();} <br>
-	 * {@code leftArm.setReferenceFrame(body);} <br>
-	 * {@code rightArm.setReferenceFrame(body);} <br>
-	 * <p>
-	 * The associated processing drawing code should look like:
-	 * <p>
-	 * {@code p3d.pushMatrix();//p is the PApplet instance} <br>
-	 * {@code body.applyTransformation(p);} <br>
-	 * {@code drawBody();} <br>
-	 * {@code p3d.pushMatrix();} <br>
-	 * {@code leftArm.applyTransformation(p);} <br>
-	 * {@code drawArm();} <br>
-	 * {@code p3d.popMatrix();} <br>
-	 * {@code p3d.pushMatrix();} <br>
-	 * {@code rightArm.applyTransformation(p);} <br>
-	 * {@code drawArm();} <br>
-	 * {@code p3d.popMatrix();} <br>
-	 * {@code p3d.popMatrix();} <br>
-	 * <p>
-	 * Note the use of nested {@code pushMatrix()} and {@code popMatrix()} blocks
-	 * to represent the frame hierarchy: {@code leftArm} and {@code rightArm} are
-	 * both correctly drawn with respect to the {@code body} coordinate system.
-	 * <p>
-	 * <b>Attention:</b> When drawing a frame hierarchy as above, this method
-	 * should be used whenever possible (one can also use {@link #matrix()}
-	 * instead).
-	 * 
-	 * @see #matrix()
-	 */
-	public void applyTransformation(PGraphics3D p3d) {
-		p3d.translate(translation().x, translation().y, translation().z);
-		p3d.rotate(rotation().angle(), rotation().axis().x, rotation().axis().y, rotation().axis().z);
-	}
-
-	/**
-	 * Convenience function that simply calls {@code applyTransformation(
-	 * scene.pg3d)}
-	 * 
-	 * @see #applyTransformation(PApplet)
-	 */
-	public void applyTransformation() {
-		applyTransformation(scene.pg3d);
-	}
+	}	
 
 	/**
 	 * Returns {@code true} if the InteractiveFrame forms part of a Camera path
@@ -319,7 +250,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * @see remixlab.proscene.Scene#isInMouseGrabberPool(MouseGrabbable)
 	 */
 	public boolean isInMouseGrabberPool() {
-		return scene.isInMouseGrabberPool(this);
+		return mouseGrabberPool.isInMouseGrabberPool(this);
 	}	
 
 	/**
@@ -328,7 +259,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * @see remixlab.proscene.Scene#addInMouseGrabberPool(MouseGrabbable)
 	 */
 	public void addInMouseGrabberPool() {
-		scene.addInMouseGrabberPool(this);
+		mouseGrabberPool.addInMouseGrabberPool(this);
 	}
 
 	/**
@@ -337,7 +268,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * @see remixlab.proscene.Scene#removeFromMouseGrabberPool(MouseGrabbable)
 	 */
 	public void removeFromMouseGrabberPool() {
-		scene.removeFromMouseGrabberPool(this);
+		mouseGrabberPool.removeFromMouseGrabberPool(this);
 	}
 
 	/**
@@ -830,8 +761,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * spinning in {@link #mouseReleased(Point, Camera)}.
 	 */
 	protected void computeMouseSpeed(Point eventPoint) {
-		float dist = (float) Point.distance(eventPoint.x, eventPoint.y, prevPos
-				.getX(), prevPos.getY());
+		float dist = (float) Point.distance(eventPoint.x, eventPoint.y, prevPos.getX(), prevPos.getY());
 
 		if (startedTime == 0) {
 			delay = 0;

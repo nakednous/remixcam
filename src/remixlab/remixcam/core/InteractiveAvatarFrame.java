@@ -25,7 +25,6 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.proscene.Scene;
 import remixlab.remixcam.geom.*;
 
 /**
@@ -42,21 +41,28 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	private Quaternion q;
 	private float trackingDist;
 	private Vector3D camRelPos;
-
+	
+	/**
+	 * Convenience constructor that simply calls {@code this(mgPool, 30)}
+	 */
+	public InteractiveAvatarFrame(MouseGrabberPool mgPool) {
+		this(mgPool, 30);
+	}
+	
 	/**
 	 * Constructs an InteractiveAvatarFrame and sets its
-	 * {@link #trackingDistance()} to {@link remixlab.proscene.Scene#radius()}/5,
+	 * {@link #trackingDistance()} to {@code tDistance} ,
 	 * {@link #azimuth()} to 0, and {@link #inclination()} to 0.
 	 * 
 	 * @see remixlab.proscene.Scene#setAvatar(Trackable)
 	 * @see remixlab.proscene.Scene#setInteractiveFrame(InteractiveFrame)
 	 */
-	public InteractiveAvatarFrame(Scene scn) {
-		super(scn);
+	public InteractiveAvatarFrame(MouseGrabberPool mgPool, float tDistance) {
+		super(mgPool);
 		q = new Quaternion();
 		q.fromTaitBryan((float) Math.PI/4, 0, 0);
 		camRelPos = new Vector3D();
-		setTrackingDistance(scene.radius() / 5);
+		setTrackingDistance(30);
 	}
 
 	/**

@@ -60,8 +60,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame {
 	 * <p>
 	 * <b>Attention:</b> Created object is {@link #removeFromMouseGrabberPool()}.
 	 */
-	public InteractiveCameraFrame(Scene scn) {
-		super(scn);
+	public InteractiveCameraFrame(MouseGrabberPool mgPool) {
+		super(mgPool);
 		removeFromMouseGrabberPool();
 		arcballRefPnt = new Vector3D(0.0f, 0.0f, 0.0f);
 	}
