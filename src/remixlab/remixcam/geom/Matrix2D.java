@@ -23,7 +23,6 @@
 
 package remixlab.remixcam.geom;
 
-
 /**
  * 3x2 affine matrix implementation.
  */

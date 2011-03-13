@@ -26,8 +26,11 @@
 package remixlab.proscene;
 
 import processing.core.*;
-import remixlab.remixcam.core.*;
-import remixlab.remixcam.geom.*;
+import remixlab.remixcam.core.Camera;
+import remixlab.remixcam.core.GLFrame;
+import remixlab.remixcam.geom.Matrix3D;
+import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.geom.Vector3D;
 
 /**
  * Utility class that implements some drawing methods used among proscene
@@ -403,7 +406,7 @@ public class DrawingUtils implements PConstants {
 		p3d.pushMatrix();
 		p3d.translate(from.x, from.y, from.z);
 	  // TODO: fix data conversion in an stronger way:
-		p3d.applyMatrix(MathUtils.fromMatrix3D(new Quaternion(new Vector3D(0, 0, 1), Vector3D.sub(new Vector3D(to.x, to.y, to.z), new Vector3D(from.x, from.y, from.z))).matrix()));
+		p3d.applyMatrix(fromMatrix3D(new Quaternion(new Vector3D(0, 0, 1), Vector3D.sub(new Vector3D(to.x, to.y, to.z), new Vector3D(from.x, from.y, from.z))).matrix()));
 		drawArrow(p3d, PVector.sub(to, from).mag(), radius);
 		p3d.popMatrix();
 	}
@@ -858,5 +861,16 @@ public class DrawingUtils implements PConstants {
 		p3d.endShape();
 
 		p3d.popStyle();
+	}
+	
+  //TODO find a better way!
+	/**
+	 * Utility function that returns the PMatrix3D representation of the given Matrix3D.
+	 */
+	public static final PMatrix3D fromMatrix3D(Matrix3D m) {
+		return new PMatrix3D(m.m00, m.m01, m.m02, m.m03, 
+				                 m.m10, m.m11, m.m12, m.m13,
+				                 m.m20, m.m21, m.m22, m.m23,
+				                 m.m30, m.m31, m.m32, m.m33);
 	}
 }

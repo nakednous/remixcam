@@ -29,6 +29,7 @@ import processing.core.*;
 import remixlab.proscene.Scene;
 import remixlab.remixcam.constraint.*;
 import remixlab.remixcam.geom.*;
+
 import java.util.*;
 
 /**
@@ -126,7 +127,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * <p>
 	 * Constructs a Frame from the the {@code iFrame} {@link #translation()} and
 	 * {@link #orientation()} and immediately adds it to the
-	 * {@link #mouseGrabberPool()}.
+	 * {@link remixlab.proscene.Scene#mouseGrabberPool()}.
 	 * <p>
 	 * A call on {@link #isInCameraPath()} on this Frame will return {@code true}.
 	 * 
@@ -225,7 +226,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * Convenience function that simply calls {@code applyTransformation(
 	 * scene.pg3d)}
 	 * 
-	 * @see remixlab.remixcam.core.GLFrame#applyTransformation(PApplet)
+	 * @see #applyTransformation(PApplet)
 	 */
 	public void applyTransformation() {
 		applyTransformation(scene.pg3d);

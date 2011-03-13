@@ -28,6 +28,7 @@ package remixlab.remixcam.core;
 import remixlab.proscene.Scene;
 import remixlab.remixcam.geom.*;
 
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,8 +39,8 @@ import java.util.TimerTask;
  * <p>
  * An InteractiveDrivableFrame basically moves forward, and turns according to
  * the mouse motion. See {@link #flySpeed()}, {@link #flyUpVector()} and the
- * {@link Scene.MouseAction#MOVE_FORWARD} and
- * {@link Scene.MouseAction#MOVE_BACKWARD}.
+ * {@link remixlab.proscene.Scene.MouseAction#MOVE_FORWARD} and
+ * {@link remixlab.proscene.Scene.MouseAction#MOVE_BACKWARD}.
  */
 public class InteractiveDrivableFrame extends InteractiveFrame {
 	protected float flySpd;
@@ -87,8 +88,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	 * <p>
 	 * It corresponds to the incremental displacement that is periodically applied
 	 * to the InteractiveDrivableFrame position when a
-	 * {@link Scene.MouseAction#MOVE_FORWARD} or
-	 * {@link Scene.MouseAction#MOVE_BACKWARD} Scene.MouseAction is proceeded.
+	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_FORWARD} or
+	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_BACKWARD} Scene.MouseAction is proceeded.
 	 * <p>
 	 * <b>Attention:</b> When the InteractiveDrivableFrame is set as the
 	 * {@link remixlab.remixcam.core.Camera#frame()} (which indeed is an instance of
@@ -151,7 +152,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 
 	/**
 	 * Called for continuous frame motion in first person mode (see
-	 * {@link Scene.MouseAction#MOVE_FORWARD}).
+	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_FORWARD}).
 	 */
 	public void flyUpdate() {
 		flyDisp.set(0.0f, 0.0f, 0.0f);

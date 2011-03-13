@@ -29,9 +29,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-//import processing.core.*;
 import remixlab.remixcam.constraint.*;
-import remixlab.remixcam.geom.*;
+import remixlab.remixcam.geom.Matrix3D;
+import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.geom.Vector3D;
 
 /**
  * A Frame is a 3D coordinate system, represented by a {@link #position()} and
@@ -1154,8 +1155,7 @@ public class GLFrame implements Cloneable {
 	 * <p>
 	 * <b>Attention:</b> This technique is inefficient because {@code
 	 * p.applyMatrix} will try to calculate the inverse of the transform. Avoid it
-	 * whenever possible and instead use {@link #applyTransformation(PApplet)}
-	 * which is very efficient.
+	 * whenever possible and instead apply a translation/rotation (in that order) yourself.
 	 * <p>
 	 * This matrix only represents the local Frame transformation (i.e., with
 	 * respect to the {@link #referenceFrame()}). Use {@link #worldMatrix()} to
@@ -1167,8 +1167,6 @@ public class GLFrame implements Cloneable {
 	 * {@link #worldMatrix()}. Use it immediately (as above).
 	 * <p>
 	 * <b>Note:</b> The scaling factor of the 4x4 matrix is 1.0.
-	 * 
-	 * @see #applyTransformation(PApplet)
 	 */
 	public final Matrix3D matrix() {
 		Matrix3D pM = new Matrix3D();
@@ -1243,7 +1241,7 @@ public class GLFrame implements Cloneable {
 	 * <b>Attention:</b> A Frame does not contain a scale factor. The possible
 	 * scaling in {@code m} will not be converted into the Frame by this method.
 	 */
-	public final void fromMatrix(Matrix3D pM) {
+	public final void fromMatrix(remixlab.remixcam.geom.Matrix3D pM) {
 		// m should be of size [4][4]
 		if (Math.abs(pM.m33) < 1E-8) {
 			System.out.println("Doing nothing: pM.m33 should be non-zero!");

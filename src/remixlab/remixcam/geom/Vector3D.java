@@ -25,9 +25,6 @@ package remixlab.remixcam.geom;
 
 import java.io.Serializable;
 
-//import processing.core.PApplet;
-//import processing.core.PVector;
-
 /**
  * A class to describe a two or three dimensional vector.
  * <p>

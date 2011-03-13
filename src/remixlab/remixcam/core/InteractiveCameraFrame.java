@@ -25,6 +25,7 @@
 
 package remixlab.remixcam.core;
 
+
 import java.util.Timer;
 import java.util.TimerTask;
 import remixlab.proscene.Scene;

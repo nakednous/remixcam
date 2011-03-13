@@ -28,7 +28,6 @@ package remixlab.remixcam.core;
 import remixlab.proscene.Scene;
 import remixlab.remixcam.geom.Point;
 
-
 /**
  * Interface for objects that grab mouse focus in a Scene.
  * <p>
@@ -82,7 +81,7 @@ public interface MouseGrabbable {
 	 * parameter, corresponding to the calling Scene Camera. Project on screen and
 	 * then compare the projected coordinates:
 	 * <p>
-	 * {@code PVector proj = new PVector
+	 * {@code Vector3D proj = new Vector3D
 	 * (camera.projectedCoordinatesOf(myMouseGrabber.frame().position());} <br>
 	 * {@code setGrabsMouse((PApplet.abs(x-proj.x) < 5) && (PApplet.(y-proj.y) <
 	 * 2)); // Rectangular region} <br>

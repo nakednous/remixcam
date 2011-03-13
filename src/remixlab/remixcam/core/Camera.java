@@ -29,6 +29,7 @@ import processing.core.*;
 import remixlab.proscene.Scene;
 import remixlab.remixcam.geom.*;
 
+
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -41,12 +42,6 @@ import java.util.Iterator;
  * {@link #fitSphere(Vector3D, float)}, {@link #lookAt(Vector3D)}...). It exports
  * its associated processing projection and modelview matrices and it can
  * interactively be modified using the mouse.
- * <p>
- * Camera matrices can be directly set as references to the processing camera
- * matrices (default), or they can be set as independent Matrix3D objects
- * (which may be useful for off-screen computations). See
- * {@link #isAttachedToPCamera()}, {@link #attachToPCamera()} and
- * {@link #detachFromPCamera()}.
  * <p>
  * There are to {@link #kind()} of Cameras: PROSCENE (default) and STANDARD. The
  * former kind dynamically sets up the {@link #zNear()} and {@link #zFar()}
@@ -1865,8 +1860,6 @@ public class Camera implements Cloneable {
 
 	/**
 	 * Fills the projection matrix with the {@code proj} matrix values.
-	 * <p>
-	 * Only meaningful when the camera {@link #isDetachedFromPCamera()}.
 	 * 
 	 * @see #setModelViewMatrix(Matrix3D)
 	 */
@@ -1956,8 +1949,6 @@ public class Camera implements Cloneable {
 
 	/**
 	 * Fills the modelview matrix with the {@code modelview} matrix values.
-	 * <p>
-	 * Only meaningful when the camera {@link #isDetachedFromPCamera()}.
 	 * 
 	 * @see #setProjectionMatrix(Matrix3D)
 	 */

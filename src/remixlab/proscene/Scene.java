@@ -26,8 +26,15 @@
 package remixlab.proscene;
 
 import processing.core.*;
-import remixlab.remixcam.core.*;
-import remixlab.remixcam.geom.*;
+import remixlab.remixcam.core.Camera;
+import remixlab.remixcam.core.InteractiveAvatarFrame;
+import remixlab.remixcam.core.InteractiveDrivableFrame;
+import remixlab.remixcam.core.InteractiveFrame;
+import remixlab.remixcam.core.MouseGrabbable;
+import remixlab.remixcam.core.Trackable;
+import remixlab.remixcam.geom.Matrix3D;
+import remixlab.remixcam.geom.Point;
+import remixlab.remixcam.geom.Vector3D;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -712,8 +719,7 @@ public class Scene implements PConstants {
 			avatarIsInteractiveAvatarFrame = false;
 			avatarIsInteractiveDrivableFrame = true;
 			if (interactiveFrame() != null)
-				((InteractiveDrivableFrame) interactiveFrame())
-						.setFlySpeed(0.01f * radius());
+				((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
 		}
 	}
 
@@ -1609,10 +1615,10 @@ public class Scene implements PConstants {
 	 * Convenience wrapper function that simply returns {@code
 	 * camera().sceneCenter()}
 	 * 
-	 * @see #setCenter(PVector) {@link #radius()}
+	 * @see #setCenter(Vector3D) {@link #radius()}
 	 */
-	public PVector center() {
-		return MathUtils.fromVector3D(camera().sceneCenter());
+	public Vector3D center() {
+		return camera().sceneCenter();
 	}
 
 	/**
@@ -1621,10 +1627,10 @@ public class Scene implements PConstants {
 	 * Convenience wrapper function that simply returns {@code
 	 * camera().arcballReferencePoint()}
 	 * 
-	 * @see #setCenter(PVector) {@link #radius()}
+	 * @see #setCenter(Vector3D) {@link #radius()}
 	 */
-	public PVector arcballReferencePoint() {
-		return MathUtils.fromVector3D(camera().arcballReferencePoint());
+	public Vector3D arcballReferencePoint() {
+		return camera().arcballReferencePoint();
 	}
 
 	/**
@@ -1633,7 +1639,7 @@ public class Scene implements PConstants {
 	 * Convenience wrapper function that simply returns {@code
 	 * camera().setSceneRadius(radius)}
 	 * 
-	 * @see #setCenter(PVector)
+	 * @see #setCenter(Vector3D)
 	 */
 	public void setRadius(float radius) {
 		camera().setSceneRadius(radius);
@@ -1646,22 +1652,22 @@ public class Scene implements PConstants {
 	 * 
 	 * @see #setRadius(float)
 	 */
-	public void setCenter(PVector center) {
-		camera().setSceneCenter(MathUtils.toVector3D(center));
+	public void setCenter(Vector3D center) {
+		camera().setSceneCenter(center);
 	}
 
 	/**
 	 * Sets the {@link #center()} and {@link #radius()} of the Scene from the
-	 * {@code min} and {@code max} PVectors.
+	 * {@code min} and {@code max} Vector3Ds.
 	 * <p>
 	 * Convenience wrapper function that simply calls {@code
 	 * camera().setSceneBoundingBox(min,max)}
 	 * 
 	 * @see #setRadius(float)
-	 * @see #setCenter(PVector)
+	 * @see #setCenter(Vector3D)
 	 */
-	public void setBoundingBox(PVector min, PVector max) {
-		camera().setSceneBoundingBox(MathUtils.toVector3D(min), MathUtils.toVector3D(max));
+	public void setBoundingBox(Vector3D min, Vector3D max) {
+		camera().setSceneBoundingBox(min, max);
 	}
 
 	/**
@@ -1945,7 +1951,7 @@ public class Scene implements PConstants {
 	 * @see #beginScreenDrawing()
 	 * @see #endScreenDrawing()
 	 */
-	public void drawFilledCircle(int color, PVector center, float radius) {
+	public void drawFilledCircle(int color, Vector3D center, float radius) {
 		if (isOffscreen()) {
 			PApplet.println("Warning: Nothing drawn. Off-screen rendering disables screen rendering.");
 			return;
@@ -1982,7 +1988,7 @@ public class Scene implements PConstants {
 	 * @see #beginScreenDrawing()
 	 * @see #endScreenDrawing()
 	 */
-	public void drawFilledSquare(int color, PVector center, float edge) {
+	public void drawFilledSquare(int color, Vector3D center, float edge) {
 		if (isOffscreen()) {
 			PApplet.println("Warning: Nothing drawn. Off-screen rendering disables screen rendering.");
 			return;
@@ -2001,15 +2007,6 @@ public class Scene implements PConstants {
 		pg3d.endShape();
 		pg3d.popStyle();
 		endScreenDrawing();
-	}
-	
-	/**
-	 * Utility function that simply calls {@code drawShooterTarget(color, MathUtils.toVector3D(center), length, strokeWeight)}
-	 * 
-	 * @see #drawShooterTarget(int, Vector3D, float, int)
-	 */
-	public void drawShooterTarget(int color, PVector center, float length, int strokeWeight) {
-		drawShooterTarget(color, MathUtils.toVector3D(center), length, strokeWeight);
 	}
 
 	/**
@@ -3763,7 +3760,7 @@ public class Scene implements PConstants {
 		// if our camera() matrices are detached from the processing Camera
 		// matrices,
 		// we cache the processing camera projection matrix into our camera()
-		camera().setProjectionMatrix(MathUtils.toMatrix3D(pg3d.projection));
+		camera().setProjectionMatrix(toMatrix3D(pg3d.projection));
 		// camera().setProjectionMatrix(((PGraphics3D) parent.g).projection);
 	}
 
@@ -3780,7 +3777,18 @@ public class Scene implements PConstants {
 		// if our camera() matrices are detached from the processing Camera
 		// matrices,
 		// we cache the processing camera modelview matrix into our camera()
-		camera().setModelViewMatrix(MathUtils.toMatrix3D(pg3d.modelview));
+		camera().setModelViewMatrix(toMatrix3D(pg3d.modelview));
 		// camera().setProjectionMatrix(((PGraphics3D) parent.g).modelview);
+	}
+	
+  //TODO find a better way!
+	/**
+	 * Utility function that returns the PMatrix3D representation of the given Matrix3D.
+	 */
+	public static final Matrix3D toMatrix3D(PMatrix3D m) {
+		return new Matrix3D(m.m00, m.m01, m.m02, m.m03, 
+				                m.m10, m.m11, m.m12, m.m13,
+				                m.m20, m.m21, m.m22, m.m23,
+				                m.m30, m.m31, m.m32, m.m33);
 	}
 }
