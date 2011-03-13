@@ -25,16 +25,15 @@
 
 package remixlab.proscene;
 
-
 import java.awt.event.*;
 
 import processing.core.PApplet;
 
-import remixlab.proscene.Scene.Button;
-import remixlab.proscene.Scene.CameraKeyboardAction;
-import remixlab.proscene.Scene.ClickAction;
-import remixlab.proscene.Scene.KeyboardAction;
-import remixlab.proscene.Scene.MouseAction;
+import remixlab.remixcam.devices.Mouse.Button;
+import remixlab.remixcam.devices.Actions.KeyboardAction;
+import remixlab.remixcam.devices.Actions.CameraKeyboardAction;
+import remixlab.remixcam.devices.Actions.ClickAction;
+import remixlab.remixcam.devices.Actions.MouseAction;
 import remixlab.remixcam.core.InteractiveDrivableFrame;
 import remixlab.remixcam.core.InteractiveFrame;
 import remixlab.remixcam.core.MouseGrabbable;

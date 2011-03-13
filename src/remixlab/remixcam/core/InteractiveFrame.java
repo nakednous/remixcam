@@ -25,7 +25,8 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.proscene.Scene;
+import remixlab.remixcam.devices.Actions.MouseAction;
+import remixlab.remixcam.devices.Mouse.Button;
 import remixlab.remixcam.constraint.*;
 import remixlab.remixcam.geom.*;
 
@@ -70,7 +71,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	// MouseGrabber
 	protected boolean keepsGrabbingMouse;
 
-	protected Scene.MouseAction action;
+	protected MouseAction action;
 	protected Constraint prevConstraint; // When manipulation is without
 	// Constraint.
 	// Previous mouse position (used for incremental updates) and mouse press
@@ -100,7 +101,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	public InteractiveFrame(MouseGrabberPool mgPool) {
 		mouseGrabberPool = mgPool;
 		
-		action = Scene.MouseAction.NO_MOUSE_ACTION;
+		action = MouseAction.NO_MOUSE_ACTION;
 		horiz = true;
 
 		addInMouseGrabberPool();
@@ -139,7 +140,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	public InteractiveFrame(MouseGrabberPool mgPool, InteractiveCameraFrame iFrame) {
 		super(iFrame.translation(), iFrame.rotation());
 		mouseGrabberPool = mgPool;
-		action = Scene.MouseAction.NO_MOUSE_ACTION;
+		action = MouseAction.NO_MOUSE_ACTION;
 		horiz = true;
 
 		addInMouseGrabberPool();
@@ -427,7 +428,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * during manipulation.
 	 */
 	public boolean isInInteraction() {
-		return action != Scene.MouseAction.NO_MOUSE_ACTION;
+		return action != MouseAction.NO_MOUSE_ACTION;
 	}
 
 	/**
@@ -482,7 +483,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * and {@link remixlab.proscene.Scene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
 	 * the camera view direction.
 	 */
-	public void mouseClicked(/**Point eventPoint,*/ Scene.Button button, int numberOfClicks, Camera camera) {
+	public void mouseClicked(/**Point eventPoint,*/ Button button, int numberOfClicks, Camera camera) {
 		if(numberOfClicks != 2)
 			return;
 		switch (button) {
@@ -523,7 +524,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 */
 	public void mouseDragged(Point eventPoint, Camera camera) {
 		int deltaY = 0;
-		if(action != Scene.MouseAction.NO_MOUSE_ACTION)
+		if(action != MouseAction.NO_MOUSE_ACTION)
 			deltaY = (int) (prevPos.y - eventPoint.y);
 	    //right_handed coordinate system should go like this:
 		  //deltaY = (int) (eventPoint.y - prevPos.y);
@@ -678,11 +679,11 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		if (prevConstraint != null)
 			setConstraint(prevConstraint);
 
-		if (((action == Scene.MouseAction.ROTATE) || (action == Scene.MouseAction.SCREEN_ROTATE))
+		if (((action == MouseAction.ROTATE) || (action == MouseAction.SCREEN_ROTATE))
 				&& (mouseSpeed >= spinningSensitivity()))
 			startSpinning(delay);
 
-		action = Scene.MouseAction.NO_MOUSE_ACTION;
+		action = MouseAction.NO_MOUSE_ACTION;
 	}
 
 	/**
@@ -694,7 +695,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * @see #setWheelSensitivity(float)
 	 */
 	public void mouseWheelMoved(int rotation, Camera camera) {
-		if (action == Scene.MouseAction.ZOOM) {
+		if (action == MouseAction.ZOOM) {
 			float wheelSensitivityCoef = 8E-4f;
 			// Vector3D trans(0.0, 0.0,
 			// -event.delta()*wheelSensitivity()*wheelSensitivityCoef*(camera.position()-position()).norm());
@@ -714,7 +715,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		if (prevConstraint != null)
 			setConstraint(prevConstraint);
 
-		action = Scene.MouseAction.NO_MOUSE_ACTION;
+		action = MouseAction.NO_MOUSE_ACTION;
 	}
 
 	/**
@@ -722,14 +723,14 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * 
 	 * @see #startAction(Scene.MouseAction, boolean)
 	 */
-	protected void startAction(Scene.MouseAction action) {
+	protected void startAction(MouseAction action) {
 		startAction(action, true);
 	}
 	
 	/**
 	 * Protected internal method used to handle mouse actions.
 	 */
-	public void startAction(Scene.MouseAction act, boolean withConstraint) {
+	public void startAction(MouseAction act, boolean withConstraint) {
 		action = act;
 
 		if (withConstraint)

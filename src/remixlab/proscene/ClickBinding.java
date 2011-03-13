@@ -25,6 +25,8 @@
 
 package remixlab.proscene;
 
+import remixlab.remixcam.devices.Mouse.Button;
+
 /**
  * This class represents mouse click shortcuts.
  * <p>
@@ -76,7 +78,7 @@ public class ClickBinding {
 	 * 
 	 * @param b mouse button
 	 */
-	public ClickBinding(Scene.Button b) {
+	public ClickBinding(Button b) {
 		this(0, b, 1);
 	}
 	
@@ -87,7 +89,7 @@ public class ClickBinding {
 	 * @param m modifier mask
 	 * @param b mouse button
 	 */
-	public ClickBinding(Integer m, Scene.Button b) {
+	public ClickBinding(Integer m, Button b) {
 		this(m, b, 1);
 	}
 	
@@ -98,7 +100,7 @@ public class ClickBinding {
 	 * @param b mouse button
 	 * @param c number of clicks
 	 */
-	public ClickBinding(Scene.Button b, Integer c) {
+	public ClickBinding(Button b, Integer c) {
 		this(0, b, c);
 	}
 	
@@ -110,7 +112,7 @@ public class ClickBinding {
 	 * @param b mouse button
 	 * @param c bumber of clicks
 	 */
-	public ClickBinding(Integer m, Scene.Button b, Integer c) {
+	public ClickBinding(Integer m, Button b, Integer c) {
 		this.mask = m;
 		this.button = b;
 		if(c <= 0)
@@ -148,5 +150,5 @@ public class ClickBinding {
 	
 	private final Integer mask;
 	private final Integer numberOfClicks;
-	private final Scene.Button button;
+	private final Button button;
 }

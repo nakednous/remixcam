@@ -25,7 +25,7 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.proscene.Scene;
+import remixlab.remixcam.devices.Mouse.Button;
 import remixlab.remixcam.geom.Point;
 
 /**
@@ -104,7 +104,7 @@ public interface MouseGrabbable {
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a mouse button is clicked.
 	 */
-	void mouseClicked(/**Point eventPoint,*/ Scene.Button button, int numberOfClicks, Camera camera);
+	void mouseClicked(/**Point eventPoint,*/ Button button, int numberOfClicks, Camera camera);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a

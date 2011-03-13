@@ -25,8 +25,7 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.proscene.Scene;
-import remixlab.proscene.Scene.Button;
+import remixlab.remixcam.devices.Mouse.Button;
 import remixlab.remixcam.geom.Point;
 
 /**

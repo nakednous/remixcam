@@ -25,10 +25,9 @@
 
 package remixlab.remixcam.core;
 
-
 import java.util.Timer;
 import java.util.TimerTask;
-import remixlab.proscene.Scene;
+import remixlab.remixcam.devices.Actions.MouseAction;
 import remixlab.remixcam.geom.*;
 
 /**
@@ -122,13 +121,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame {
 	 * inverted from those of an InteractiveFrame.
 	 */
 	public void mouseDragged(Point eventPoint, Camera camera) {
-		if ((action == Scene.MouseAction.MOVE_FORWARD)
-				|| (action == Scene.MouseAction.MOVE_BACKWARD)
-				|| (action == Scene.MouseAction.DRIVE)
-				|| (action == Scene.MouseAction.LOOK_AROUND)
-				|| (action == Scene.MouseAction.ROLL)
-				|| (action == Scene.MouseAction.ZOOM_ON_REGION)
-				|| (action == Scene.MouseAction.NO_MOUSE_ACTION))
+		if ((action == MouseAction.MOVE_FORWARD)
+				|| (action == MouseAction.MOVE_BACKWARD)
+				|| (action == MouseAction.DRIVE)
+				|| (action == MouseAction.LOOK_AROUND)
+				|| (action == MouseAction.ROLL)
+				|| (action == MouseAction.ZOOM_ON_REGION)
+				|| (action == MouseAction.NO_MOUSE_ACTION))
 			super.mouseDragged(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);
@@ -242,7 +241,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame {
 	public void mouseReleased(Point eventPoint, Camera camera) {
 		// Added by pierre: #CONNECTION# seems that startAction should always be
 		// called before :)
-		if (action == Scene.MouseAction.ZOOM_ON_REGION) {
+		if (action == MouseAction.ZOOM_ON_REGION) {
 			// the rectangle needs to be normalized!
 			int w = Math.abs((int)eventPoint.x - (int)pressPos.x);
 			int tlX = (int)pressPos.x < (int)eventPoint.x ? (int)pressPos.x : (int)eventPoint.x;
@@ -264,10 +263,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame {
 	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseWheelMoved(int, Camera)}.
 	 * <p>
 	 * The wheel behavior depends on the wheel binded action. Current possible
-	 * actions are {@link remixlab.proscene.Scene.MouseAction#ZOOM},
-	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_FORWARD} and
-	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_BACKWARD}.
-	 * {@link remixlab.proscene.Scene.MouseAction#ZOOM} speed depends on
+	 * actions are {@link remixlab.proscene.MouseAction#ZOOM},
+	 * {@link remixlab.proscene.MouseAction#MOVE_FORWARD} and
+	 * {@link remixlab.proscene.MouseAction#MOVE_BACKWARD}.
+	 * {@link remixlab.proscene.MouseAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	public void mouseWheelMoved(int rotation, Camera camera) {
@@ -311,6 +310,6 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame {
 		};
 		flyTimer.schedule(timerTask, finalDrawAfterWheelEventDelay);
 
-		action = Scene.MouseAction.NO_MOUSE_ACTION;
+		action = MouseAction.NO_MOUSE_ACTION;
 	}
 }

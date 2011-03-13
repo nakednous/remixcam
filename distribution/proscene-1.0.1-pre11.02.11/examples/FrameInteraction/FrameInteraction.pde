@@ -24,7 +24,7 @@ void setup() {
   size(640, 360, P3D);
   scene = new Scene(this);
   // A Scene has a single InteractiveFrame (null by default). We set it here.
-  scene.setInteractiveFrame(new InteractiveFrame(scene));
+  scene.setInteractiveFrame(new InteractiveFrame(scene.mouseGrabberPoolObject()));
   //scene.interactiveFrame().translate(new PVector(30, 30, 0));
   scene.interactiveFrame().translate(new Vector3D(30, 30, 0));
   // press 'i' to switch the interaction between the camera frame and the interactive frame
@@ -41,8 +41,8 @@ void draw() {
   // Save the current model view matrix
   pushMatrix();
   // Multiply matrix to get in the frame coordinate system.
-  // applyMatrix(scene.interactiveFrame().matrix()) is handy but inefficient 
-  scene.interactiveFrame().applyTransformation(); //optimum
+  // applyMatrix(scene.interactiveFrame().matrix()) is handy but inefficient
+  TempUtils.applyTransformation(scene.interactiveFrame(), this); //optimum
   // Draw an axis using the Scene static function
   scene.drawAxis(20);
   // Draw a second box attached to the interactive frame

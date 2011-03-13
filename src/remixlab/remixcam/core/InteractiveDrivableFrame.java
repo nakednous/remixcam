@@ -25,7 +25,7 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.proscene.Scene;
+import remixlab.remixcam.devices.Actions.MouseAction;
 import remixlab.remixcam.geom.*;
 
 import java.util.Timer;
@@ -178,14 +178,14 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	 * 
 	 * @see #startAction(Scene.MouseAction, boolean)
 	 */
-	protected void startAction(Scene.MouseAction action) {
+	protected void startAction(MouseAction action) {
 		startAction(action, true);
 	}
 	
 	/**
 	 * Protected internal method used to handle mouse actions.
 	 */
-	public void startAction(Scene.MouseAction a, boolean withConstraint) {
+	public void startAction(MouseAction a, boolean withConstraint) {
 		super.startAction(a, withConstraint);
 		switch (action) {
 		case MOVE_FORWARD:
@@ -212,12 +212,12 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	 * Non-overloaded version of {@link #mouseDragged(Point, Camera)}.
 	 */	
 	public final void iDrivableMouseDragged(Point eventPoint, Camera camera) {
-		if ((action == Scene.MouseAction.TRANSLATE)
-				|| (action == Scene.MouseAction.ZOOM)
-				|| (action == Scene.MouseAction.SCREEN_ROTATE)
-				|| (action == Scene.MouseAction.SCREEN_TRANSLATE)
-				|| (action == Scene.MouseAction.ROTATE)
-				|| (action == Scene.MouseAction.NO_MOUSE_ACTION))
+		if ((action == MouseAction.TRANSLATE)
+				|| (action == MouseAction.ZOOM)
+				|| (action == MouseAction.SCREEN_ROTATE)
+				|| (action == MouseAction.SCREEN_TRANSLATE)
+				|| (action == MouseAction.ROTATE)
+				|| (action == MouseAction.NO_MOUSE_ACTION))
 			super.mouseDragged(eventPoint, camera);
 		else {		
 			int	deltaY = (int) (eventPoint.y - prevPos.y);
@@ -308,9 +308,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	 * Non-overloaded version of {@link #mouseReleased(Point, Camera)}.
 	 */	
 	public final void iDrivableMouseReleased(Point eventPoint, Camera camera) {
-		if ((action == Scene.MouseAction.MOVE_FORWARD)
-				|| (action == Scene.MouseAction.MOVE_BACKWARD)
-				|| (action == Scene.MouseAction.DRIVE)) {
+		if ((action == MouseAction.MOVE_FORWARD)
+				|| (action == MouseAction.MOVE_BACKWARD)
+				|| (action == MouseAction.DRIVE)) {
 			if(flyTimer != null) {
 				flyTimer.cancel();
 				flyTimer.purge();
@@ -383,7 +383,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 		};
 		flyTimer.schedule(timerTask, finalDrawAfterWheelEventDelay);
 
-		action = Scene.MouseAction.NO_MOUSE_ACTION;
+		action = MouseAction.NO_MOUSE_ACTION;
 	}
 
 	/**
