@@ -168,7 +168,7 @@ public class Camera implements Cloneable {
 		fpCoefficients = new float[6][4];
 
 		// KeyFrames
-		interpolationKfi = new KeyFrameInterpolator(frame(), pg3d);
+		interpolationKfi = new KeyFrameInterpolator(frame());
 		kfi = new HashMap<Integer, KeyFrameInterpolator>();
 
 		setFrame(new InteractiveCameraFrame(scene.mouseGrabberPoolObject()));
@@ -1654,7 +1654,7 @@ public class Camera implements Cloneable {
 	public void addKeyFrameToPath(int key, boolean editablePath) {
 		boolean info = true;
 		if (!kfi.containsKey(key)) {
-			setKeyFrameInterpolator(key, new KeyFrameInterpolator(frame(), pg3d));
+			setKeyFrameInterpolator(key, new KeyFrameInterpolator(frame()));
 			System.out.println("Position " + key + " saved");
 			info = false;
 		}
@@ -1727,27 +1727,6 @@ public class Camera implements Cloneable {
 				kfi.get(key).resetInterpolation();
 				kfi.get(key).interpolateAtTime(kfi.get(key).interpolationTime());
 			}
-		}
-	}
-
-	/**
-	 * Draws all the Camera paths defined by {@link #keyFrameInterpolator(int)}
-	 * and makes them editable by adding all its Frames to the mouse grabber pool.
-	 * <p>
-	 * First calls
-	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#addFramesToMouseGrabberPool()}
-	 * and then
-	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#drawPath(int, int, float)}
-	 * for all the defined paths.
-	 * 
-	 * @see #hideAllPaths()
-	 */
-	public void drawAllPaths() {
-		itrtr = kfi.keySet().iterator();
-		while (itrtr.hasNext()) {
-			Integer key = itrtr.next();
-			kfi.get(key).addFramesToMouseGrabberPool();
-			kfi.get(key).drawPath(3, 5, sceneRadius());
 		}
 	}
 
@@ -2528,6 +2507,13 @@ public class Camera implements Cloneable {
 		}
 		if (interpolationKfi.interpolationIsStarted())
 			interpolationKfi.stopInterpolation();
+	}
+	
+	/**
+	 * Connection: drawing utils
+	 */
+	public HashMap<Integer, KeyFrameInterpolator> kfiMap() {
+		return kfi;
 	}
 
 	// 13. STEREO PARAMETERS

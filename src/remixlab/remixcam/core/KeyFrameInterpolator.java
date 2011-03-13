@@ -27,8 +27,8 @@ package remixlab.remixcam.core;
 
 import java.util.*;
 
-import processing.core.*;
-import remixlab.proscene.DrawingUtils;
+//import processing.core.*;
+//import remixlab.proscene.DrawingUtils;
 import remixlab.remixcam.geom.*;
 
 /**
@@ -105,8 +105,7 @@ import remixlab.remixcam.geom.*;
  * (computed as if there was no constraint) will probably be erroneous.
  */
 public class KeyFrameInterpolator implements Cloneable {
-
-	private class KeyFrame implements Cloneable {
+	public class KeyFrame implements Cloneable {
 		private Vector3D p, tgPVec;
 		private Quaternion q, tgQuat;
 		private float tm;
@@ -141,30 +140,30 @@ public class KeyFrameInterpolator implements Cloneable {
 			}
 		}
 
-		void updateValues() {
+		public void updateValues() {
 			if (frame() != null) {
 				p = frame().position();
 				q = frame().orientation();
 			}
 		}
 
-		Vector3D position() {
+		public Vector3D position() {
 			return p;
 		}
 
-		Quaternion orientation() {
+		public Quaternion orientation() {
 			return q;
 		}
 
-		Vector3D tgP() {
+		public Vector3D tgP() {
 			return tgPVec;
 		}
 
-		Quaternion tgQ() {
+		public Quaternion tgQ() {
 			return tgQuat;
 		}
 
-		float time() {
+		public float time() {
 			return tm;
 		}
 
@@ -188,10 +187,8 @@ public class KeyFrameInterpolator implements Cloneable {
 	private ListIterator<KeyFrame> currentFrame1;
 	private ListIterator<KeyFrame> currentFrame2;
 	private ListIterator<KeyFrame> currentFrame3;
-	private List<GLFrame> path;
 	// A s s o c i a t e d f r a m e
 	private GLFrame fr;
-	private GLFrame myFrame;// needed for drawPath
 
 	// R h y t h m
 	private Timer timer;
@@ -205,47 +202,11 @@ public class KeyFrameInterpolator implements Cloneable {
 	private boolean lpInterpolation;
 
 	// C a c h e d v a l u e s a n d f l a g s
-	private boolean pathIsValid;
 	private boolean valuesAreValid;
 	private boolean currentFrmValid;
 	private boolean splineCacheIsValid;
 	private Vector3D v1, v2;
-
-	// P R O C E S S I N G A P P L E T
-	public PGraphics3D pg3d;
-
-	/**
-	 * Convenience constructor that simply calls {@code this(new Frame(), p)}.
-	 * <p>
-	 * Creates an anonymous {@link #frame()} to be interpolated by this
-	 * KeyFrameInterpolator.
-	 * 
-	 * @see #KeyFrameInterpolator(GLFrame, PApplet)
-	 */	
-	public KeyFrameInterpolator(PApplet p) {
-		this(new GLFrame(), p);
-	}
-	
-	/**
-	 * Convenience constructor that simply calls {@code this(new Frame(), p3d)}.
-	 * <p>
-	 * Creates an anonymous {@link #frame()} to be interpolated by this
-	 * KeyFrameInterpolator.
-	 * 
-	 * @see #KeyFrameInterpolator(GLFrame, PGraphics3D)
-	 */
-	public KeyFrameInterpolator(PGraphics3D p3d) {
-		this(new GLFrame(), p3d);
-	}
-	
-	/**
-	 * Convenience constructor that simply calls {this(frame, (PGraphics3D) parent.g)}.
-	 * 
-	 * @see #KeyFrameInterpolator(GLFrame, PGraphics3D)
-	 */
-	public KeyFrameInterpolator(GLFrame frame, PApplet parent) {
-		this(frame, (PGraphics3D) parent.g);
-	}
+	private boolean pathIsValid;
 
 	/**
 	 * Creates a KeyFrameInterpolator, with {@code frame} as associated
@@ -259,11 +220,8 @@ public class KeyFrameInterpolator implements Cloneable {
 	 * 
 	 * @see #KeyFrameInterpolator(PApplet)
 	 */
-	public KeyFrameInterpolator(GLFrame frame, PGraphics3D p3d) {
-		pg3d = p3d;
-		myFrame = new GLFrame();
+	public KeyFrameInterpolator(GLFrame frame) {
 		keyFr = new ArrayList<KeyFrame>();
-		path = new ArrayList<GLFrame>();
 		fr = null;
 		period = 40;
 		interpolationTm = 0.0f;
@@ -308,6 +266,34 @@ public class KeyFrameInterpolator implements Cloneable {
 			throw new Error(
 					"Something went wrong when cloning the KeyFrameInterpolator");
 		}
+	}
+	
+	/**
+	 * Connection: drawing utils
+	 */
+	public List<KeyFrame> keyFrame() {
+		return keyFr;
+	}
+	
+	/**
+	 * Connection: drawing utils
+	 */
+	public boolean pathIsValid() {
+		return pathIsValid;
+	}
+	
+	/**
+	 * Connection: drawing utils
+	 */
+	public void validatePath() {
+		pathIsValid = true;
+	}
+	
+	/**
+	 * Connection: drawing utils
+	 */
+	public boolean valuesAreValid() {
+		return valuesAreValid;
 	}
 
 	/**
@@ -704,7 +690,7 @@ public class KeyFrameInterpolator implements Cloneable {
 		}
 	}
 
-	protected void updateModifiedFrameValues() {
+	public void updateModifiedFrameValues() {
 		Quaternion prevQ = keyFr.get(0).orientation();
 
 		KeyFrame kf;
@@ -730,145 +716,6 @@ public class KeyFrameInterpolator implements Cloneable {
 			kf = next;
 		}
 		valuesAreValid = true;
-	}
-
-	/**
-	 * Convenience function that simply calls {@code drawPath(1, 6, 100)}
-	 */
-	public void drawPath() {
-		drawPath(1, 6, 100);
-	}
-
-	/**
-	 * Convenience function that simply calls {@code drawPath(1, 6, scale)}
-	 */
-	public void drawPath(float scale) {
-		drawPath(1, 6, scale);
-	}
-
-	/**
-	 * Convenience function that simply calls {@code drawPath(mask, nbFrames,
-	 * 100)}
-	 */
-	public void drawPath(int mask, int nbFrames) {
-		drawPath(mask, nbFrames, 100);
-	}
-
-	/**
-	 * Draws the path used to interpolate the {@link #frame()}.
-	 * <p>
-	 * {@code mask} controls what is drawn: If ( (mask & 1) != 0 ), the position
-	 * path is drawn. If ( (mask & 2) != 0 ), a camera representation is regularly
-	 * drawn and if ( (mask & 4) != 0 ), an oriented axis is regularly drawn.
-	 * Examples:
-	 * <p>
-	 * {@code drawPath(); // Simply draws the interpolation path} <br>
-	 * {@code drawPath(3); // Draws path and cameras} <br>
-	 * {@code drawPath(5); // Draws path and axis} <br>
-	 * <p>
-	 * In the case where camera or axis is drawn, {@code nbFrames} controls the
-	 * number of objects (axis or camera) drawn between two successive keyFrames.
-	 * When {@code nbFrames = 1}, only the path KeyFrames are drawn. {@code
-	 * nbFrames = 2} also draws the intermediate orientation, etc. The maximum
-	 * value is 30. {@code nbFrames} should divide 30 so that an object is drawn
-	 * for each KeyFrame. Default value is 6.
-	 * <p>
-	 * {@code scale} controls the scaling of the camera and axis drawing. A value
-	 * of {@link remixlab.proscene.Scene#radius()} should give good results.
-	 */
-	public void drawPath(int mask, int nbFrames, float scale) {
-		int nbSteps = 30;
-		if (!pathIsValid) {
-			path.clear();
-
-			if (keyFr.isEmpty())
-				return;
-
-			if (!valuesAreValid)
-				updateModifiedFrameValues();
-
-			if (keyFr.get(0) == keyFr.get(keyFr.size() - 1))
-				path.add(new GLFrame(keyFr.get(0).position(), keyFr.get(0).orientation()));
-			else {
-				KeyFrame[] kf = new KeyFrame[4];
-				kf[0] = keyFr.get(0);
-				kf[1] = kf[0];
-
-				int index = 1;
-				kf[2] = (index < keyFr.size()) ? keyFr.get(index) : null;
-				index++;
-				kf[3] = (index < keyFr.size()) ? keyFr.get(index) : null;
-
-				while (kf[2] != null) {
-					Vector3D diff = Vector3D.sub(kf[2].position(), kf[1].position());
-					Vector3D vec1 = Vector3D.add(Vector3D.mult(diff, 3.0f), Vector3D.mult(
-							kf[1].tgP(), (-2.0f)));
-					vec1 = Vector3D.sub(vec1, kf[2].tgP());
-					Vector3D vec2 = Vector3D.add(Vector3D.mult(diff, (-2.0f)), kf[1].tgP());
-					vec2 = Vector3D.add(vec2, kf[2].tgP());
-
-					for (int step = 0; step < nbSteps; ++step) {
-						float alpha = step / (float) nbSteps;
-						myFrame.setPosition(Vector3D.add(kf[1].position(), Vector3D.mult(
-								Vector3D.add(kf[1].tgP(), Vector3D.mult(Vector3D.add(vec1, Vector3D
-										.mult(vec2, alpha)), alpha)), alpha)));
-						myFrame.setOrientation(Quaternion.squad(kf[1].orientation(), kf[1]
-								.tgQ(), kf[2].tgQ(), kf[2].orientation(), alpha));
-						path.add(new GLFrame(myFrame));
-					}
-
-					// Shift
-					kf[0] = kf[1];
-					kf[1] = kf[2];
-					kf[2] = kf[3];
-
-					index++;
-					kf[3] = (index < keyFr.size()) ? keyFr.get(index) : null;
-				}
-				// Add last KeyFrame
-				path.add(new GLFrame(kf[1].position(), kf[1].orientation()));
-			}
-			pathIsValid = true;
-		}
-
-		if (mask != 0) {
-			pg3d.pushStyle();
-			pg3d.strokeWeight(2);
-
-			if ((mask & 1) != 0) {
-				pg3d.noFill();
-				pg3d.stroke(170);
-				pg3d.beginShape();
-				for (GLFrame myFr : path)
-					pg3d.vertex(myFr.position().x, myFr.position().y, myFr.position().z);
-				pg3d.endShape();
-			}
-			if ((mask & 6) != 0) {
-				int count = 0;
-				if (nbFrames > nbSteps)
-					nbFrames = nbSteps;
-				float goal = 0.0f;
-
-				for (GLFrame myFr : path)
-					if ((count++) >= goal) {
-						goal += nbSteps / (float) nbFrames;
-						pg3d.pushMatrix();
-
-						// pg3d.applyMatrix(myFr.matrix());
-						//myFr.applyTransformation(pg3d);// replaced with the two lines below:						
-						pg3d.translate(myFr.translation().x, myFr.translation().y, myFr.translation().z);
-						pg3d.rotate(myFr.rotation().angle(), myFr.rotation().axis().x, myFr.rotation().axis().y, myFr.rotation().axis().z);
-
-						if ((mask & 2) != 0)
-							DrawingUtils.drawKFICamera(pg3d, scale);
-						if ((mask & 4) != 0)
-							DrawingUtils.drawAxis(pg3d, scale / 10.0f);
-
-						pg3d.popMatrix();
-					}
-			}
-			pg3d.popStyle();
-		}
 	}
 
 	/**

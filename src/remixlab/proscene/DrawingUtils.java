@@ -25,9 +25,16 @@
 
 package remixlab.proscene;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
 import processing.core.*;
 import remixlab.remixcam.core.Camera;
 import remixlab.remixcam.core.GLFrame;
+import remixlab.remixcam.core.KeyFrameInterpolator;
+import remixlab.remixcam.core.KeyFrameInterpolator.KeyFrame;
 import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.geom.Quaternion;
 import remixlab.remixcam.geom.Vector3D;
@@ -38,7 +45,9 @@ import remixlab.remixcam.geom.Vector3D;
  */
 public class DrawingUtils implements PConstants {
 	// needed for drawCamera
-	static protected GLFrame tmpFrame = new GLFrame();
+	static protected GLFrame tmpFrame = new GLFrame();	
+	static protected List<GLFrame> path = new ArrayList<GLFrame>();
+	static protected  GLFrame myFrame = new GLFrame();
 
 	// 1. SCENE
 	
@@ -861,6 +870,168 @@ public class DrawingUtils implements PConstants {
 		p3d.endShape();
 
 		p3d.popStyle();
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawPath(1, 6, 100)}
+	 */
+	public static void drawPath(PGraphics3D pg3d, KeyFrameInterpolator KFI) {
+		drawPath(pg3d, KFI, 1, 6, 100);
+	}
+
+	/**
+	 * Convenience function that simply calls {@code drawPath(1, 6, scale)}
+	 */
+	public static void drawPath(PGraphics3D pg3d, KeyFrameInterpolator KFI, float scale) {
+		drawPath(pg3d, KFI, 1, 6, scale);
+	}
+
+	/**
+	 * Convenience function that simply calls {@code drawPath(mask, nbFrames,
+	 * 100)}
+	 */
+	public static void drawPath(PGraphics3D pg3d, KeyFrameInterpolator KFI, int mask, int nbFrames) {
+		drawPath(pg3d, KFI, mask, nbFrames, 100);
+	}
+
+	/**
+	 * Draws the path used to interpolate the {@link #frame()}.
+	 * <p>
+	 * {@code mask} controls what is drawn: If ( (mask & 1) != 0 ), the position
+	 * path is drawn. If ( (mask & 2) != 0 ), a camera representation is regularly
+	 * drawn and if ( (mask & 4) != 0 ), an oriented axis is regularly drawn.
+	 * Examples:
+	 * <p>
+	 * {@code drawPath(); // Simply draws the interpolation path} <br>
+	 * {@code drawPath(3); // Draws path and cameras} <br>
+	 * {@code drawPath(5); // Draws path and axis} <br>
+	 * <p>
+	 * In the case where camera or axis is drawn, {@code nbFrames} controls the
+	 * number of objects (axis or camera) drawn between two successive keyFrames.
+	 * When {@code nbFrames = 1}, only the path KeyFrames are drawn. {@code
+	 * nbFrames = 2} also draws the intermediate orientation, etc. The maximum
+	 * value is 30. {@code nbFrames} should divide 30 so that an object is drawn
+	 * for each KeyFrame. Default value is 6.
+	 * <p>
+	 * {@code scale} controls the scaling of the camera and axis drawing. A value
+	 * of {@link remixlab.proscene.Scene#radius()} should give good results.
+	 */
+	public static void drawPath(PGraphics3D pg3d, KeyFrameInterpolator KFI, int mask, int nbFrames, float scale) {
+		int nbSteps = 30;
+		if (!KFI.pathIsValid()) {
+			path.clear();
+
+			if (KFI.keyFrame().isEmpty())
+				return;
+
+			if (!KFI.valuesAreValid())
+				KFI.updateModifiedFrameValues();
+
+			if (KFI.keyFrame().get(0) == KFI.keyFrame().get(KFI.keyFrame().size() - 1))
+				path.add(new GLFrame(KFI.keyFrame().get(0).position(), KFI.keyFrame().get(0).orientation()));
+			else {
+				KeyFrame[] kf = new KeyFrame[4];
+				kf[0] = KFI.keyFrame().get(0);
+				kf[1] = kf[0];
+
+				int index = 1;
+				kf[2] = (index < KFI.keyFrame().size()) ? KFI.keyFrame().get(index) : null;
+				index++;
+				kf[3] = (index < KFI.keyFrame().size()) ? KFI.keyFrame().get(index) : null;
+
+				while (kf[2] != null) {
+					Vector3D diff = Vector3D.sub(kf[2].position(), kf[1].position());
+					Vector3D vec1 = Vector3D.add(Vector3D.mult(diff, 3.0f), Vector3D.mult(
+							kf[1].tgP(), (-2.0f)));
+					vec1 = Vector3D.sub(vec1, kf[2].tgP());
+					Vector3D vec2 = Vector3D.add(Vector3D.mult(diff, (-2.0f)), kf[1].tgP());
+					vec2 = Vector3D.add(vec2, kf[2].tgP());
+
+					for (int step = 0; step < nbSteps; ++step) {
+						float alpha = step / (float) nbSteps;
+						myFrame.setPosition(Vector3D.add(kf[1].position(), Vector3D.mult(
+								Vector3D.add(kf[1].tgP(), Vector3D.mult(Vector3D.add(vec1, Vector3D
+										.mult(vec2, alpha)), alpha)), alpha)));
+						myFrame.setOrientation(Quaternion.squad(kf[1].orientation(), kf[1]
+								.tgQ(), kf[2].tgQ(), kf[2].orientation(), alpha));
+						path.add(new GLFrame(myFrame));
+					}
+
+					// Shift
+					kf[0] = kf[1];
+					kf[1] = kf[2];
+					kf[2] = kf[3];
+
+					index++;
+					kf[3] = (index < KFI.keyFrame().size()) ? KFI.keyFrame().get(index) : null;
+				}
+				// Add last KeyFrame
+				path.add(new GLFrame(kf[1].position(), kf[1].orientation()));
+			}
+			KFI.validatePath();
+		}
+
+		if (mask != 0) {
+			pg3d.pushStyle();
+			pg3d.strokeWeight(2);
+
+			if ((mask & 1) != 0) {
+				pg3d.noFill();
+				pg3d.stroke(170);
+				pg3d.beginShape();
+				for (GLFrame myFr : path)
+					pg3d.vertex(myFr.position().x, myFr.position().y, myFr.position().z);
+				pg3d.endShape();
+			}
+			if ((mask & 6) != 0) {
+				int count = 0;
+				if (nbFrames > nbSteps)
+					nbFrames = nbSteps;
+				float goal = 0.0f;
+
+				for (GLFrame myFr : path)
+					if ((count++) >= goal) {
+						goal += nbSteps / (float) nbFrames;
+						pg3d.pushMatrix();
+
+						// pg3d.applyMatrix(myFr.matrix());
+						//myFr.applyTransformation(pg3d);// replaced with the two lines below:						
+						pg3d.translate(myFr.translation().x, myFr.translation().y, myFr.translation().z);
+						pg3d.rotate(myFr.rotation().angle(), myFr.rotation().axis().x, myFr.rotation().axis().y, myFr.rotation().axis().z);
+
+						if ((mask & 2) != 0)
+							DrawingUtils.drawKFICamera(pg3d, scale);
+						if ((mask & 4) != 0)
+							DrawingUtils.drawAxis(pg3d, scale / 10.0f);
+
+						pg3d.popMatrix();
+					}
+			}
+			pg3d.popStyle();
+		}
+	}
+	
+	/**
+	 * Draws all the Camera paths defined by {@link #keyFrameInterpolator(int)}
+	 * and makes them editable by adding all its Frames to the mouse grabber pool.
+	 * <p>
+	 * First calls
+	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#addFramesToMouseGrabberPool()}
+	 * and then
+	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#drawPath(int, int, float)}
+	 * for all the defined paths.
+	 * 
+	 * @see #hideAllPaths()
+	 */
+	public static void drawAllPaths(Scene scene) {
+		Camera camera = scene.camera();
+		HashMap<Integer, KeyFrameInterpolator> kfi = camera.kfiMap();
+		Iterator<Integer> itrtr = kfi.keySet().iterator();
+		while (itrtr.hasNext()) {
+			Integer key = itrtr.next();
+			kfi.get(key).addFramesToMouseGrabberPool();
+			drawPath(scene.pg3d, kfi.get(key), 3, 5, camera.sceneRadius());
+		}
 	}
 	
   //TODO find a better way!

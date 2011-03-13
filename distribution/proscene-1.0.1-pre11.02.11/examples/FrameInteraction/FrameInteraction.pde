@@ -17,6 +17,7 @@
 import remixlab.proscene.*;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
+import remixlab.remixcam.devices.Actions.KeyboardAction;
 
 Scene scene;
 
@@ -28,9 +29,9 @@ void setup() {
   //scene.interactiveFrame().translate(new PVector(30, 30, 0));
   scene.interactiveFrame().translate(new Vector3D(30, 30, 0));
   // press 'i' to switch the interaction between the camera frame and the interactive frame
-  scene.setShortcut('i', Scene.KeyboardAction.FOCUS_INTERACTIVE_FRAME);
+  scene.setShortcut('i', KeyboardAction.FOCUS_INTERACTIVE_FRAME);
   // press 'f' to display frame selection hints
-  scene.setShortcut('f', Scene.KeyboardAction.DRAW_FRAME_SELECTION_HINT);
+  scene.setShortcut('f', KeyboardAction.DRAW_FRAME_SELECTION_HINT);
 }
 
 void draw() {

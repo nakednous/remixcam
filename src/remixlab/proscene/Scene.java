@@ -1159,7 +1159,7 @@ public class Scene implements PConstants {
 		if (frameSelectionHintIsDrawn())
 			drawSelectionHints();
 		if (cameraPathsAreDrawn()) {
-			camera().drawAllPaths();
+			DrawingUtils.drawAllPaths(this);
 			drawCameraPathSelectionHints();
 		} else {
 			camera().hideAllPaths();
