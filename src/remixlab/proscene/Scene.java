@@ -33,6 +33,7 @@ import remixlab.remixcam.core.InteractiveFrame;
 import remixlab.remixcam.core.MouseGrabbable;
 import remixlab.remixcam.core.MouseGrabberPool;
 import remixlab.remixcam.core.Trackable;
+import remixlab.remixcam.devices.Bindings;
 import remixlab.remixcam.devices.Actions.KeyboardAction;
 import remixlab.remixcam.devices.Actions.CameraKeyboardAction;
 import remixlab.remixcam.devices.Actions.ClickAction;

@@ -2718,4 +2718,14 @@ public class Camera implements Cloneable {
 
 		return true;
 	}
+	
+	// TODO experimental
+	
+	public Matrix3D projection() {
+		return projectionMat;
+	}
+	
+	public Matrix3D modelview() {
+		return modelViewMat;
+	}
 }

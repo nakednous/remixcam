@@ -27,8 +27,6 @@ package remixlab.remixcam.core;
 
 import java.util.*;
 
-//import processing.core.*;
-//import remixlab.proscene.DrawingUtils;
 import remixlab.remixcam.geom.*;
 
 /**

@@ -29,6 +29,7 @@ import java.awt.event.*;
 import java.util.Map.Entry;
 
 import processing.core.PApplet;
+import remixlab.remixcam.devices.Bindings;
 import remixlab.remixcam.devices.Mouse.Button;
 import remixlab.remixcam.devices.Actions.CameraKeyboardAction;
 import remixlab.remixcam.devices.Actions.ClickAction;
