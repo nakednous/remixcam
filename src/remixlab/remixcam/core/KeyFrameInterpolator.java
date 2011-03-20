@@ -187,6 +187,10 @@ public class KeyFrameInterpolator implements Cloneable {
 	private ListIterator<KeyFrame> currentFrame3;
 	// A s s o c i a t e d f r a m e
 	private GLFrame fr;
+	
+	// D r a w i n g
+	private List<GLFrame> path = new ArrayList<GLFrame>();
+	private GLFrame myFrame;
 
 	// R h y t h m
 	private Timer timer;
@@ -219,6 +223,8 @@ public class KeyFrameInterpolator implements Cloneable {
 	 * @see #KeyFrameInterpolator(PApplet)
 	 */
 	public KeyFrameInterpolator(GLFrame frame) {
+		myFrame = new GLFrame();
+		path = new ArrayList<GLFrame>();
 		keyFr = new ArrayList<KeyFrame>();
 		fr = null;
 		period = 40;
@@ -292,6 +298,17 @@ public class KeyFrameInterpolator implements Cloneable {
 	 */
 	public boolean valuesAreValid() {
 		return valuesAreValid;
+	}
+	
+	/**
+	 * Connection: drawing utils
+	 */
+	public GLFrame drawingFrame() {
+		return myFrame;
+	}
+	
+	public ArrayList<GLFrame> drawingPath() {
+		return (ArrayList<GLFrame>)path;
 	}
 
 	/**

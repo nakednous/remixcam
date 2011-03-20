@@ -25,10 +25,8 @@
 
 package remixlab.proscene;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 import processing.core.*;
 import remixlab.remixcam.core.Camera;
@@ -45,9 +43,7 @@ import remixlab.remixcam.geom.Vector3D;
  */
 public class DrawingUtils implements PConstants {
 	// needed for drawCamera
-	static protected GLFrame tmpFrame = new GLFrame();	
-	static protected List<GLFrame> path = new ArrayList<GLFrame>();
-	static protected  GLFrame myFrame = new GLFrame();
+	static protected GLFrame tmpFrame = new GLFrame();
 
 	// 1. SCENE
 	
@@ -919,7 +915,7 @@ public class DrawingUtils implements PConstants {
 	public static void drawPath(PGraphics3D pg3d, KeyFrameInterpolator KFI, int mask, int nbFrames, float scale) {
 		int nbSteps = 30;
 		if (!KFI.pathIsValid()) {
-			path.clear();
+			KFI.drawingPath().clear();
 
 			if (KFI.keyFrame().isEmpty())
 				return;
@@ -928,7 +924,7 @@ public class DrawingUtils implements PConstants {
 				KFI.updateModifiedFrameValues();
 
 			if (KFI.keyFrame().get(0) == KFI.keyFrame().get(KFI.keyFrame().size() - 1))
-				path.add(new GLFrame(KFI.keyFrame().get(0).position(), KFI.keyFrame().get(0).orientation()));
+				KFI.drawingPath().add(new GLFrame(KFI.keyFrame().get(0).position(), KFI.keyFrame().get(0).orientation()));
 			else {
 				KeyFrame[] kf = new KeyFrame[4];
 				kf[0] = KFI.keyFrame().get(0);
@@ -949,12 +945,12 @@ public class DrawingUtils implements PConstants {
 
 					for (int step = 0; step < nbSteps; ++step) {
 						float alpha = step / (float) nbSteps;
-						myFrame.setPosition(Vector3D.add(kf[1].position(), Vector3D.mult(
+						KFI.drawingFrame().setPosition(Vector3D.add(kf[1].position(), Vector3D.mult(
 								Vector3D.add(kf[1].tgP(), Vector3D.mult(Vector3D.add(vec1, Vector3D
 										.mult(vec2, alpha)), alpha)), alpha)));
-						myFrame.setOrientation(Quaternion.squad(kf[1].orientation(), kf[1]
+						KFI.drawingFrame().setOrientation(Quaternion.squad(kf[1].orientation(), kf[1]
 								.tgQ(), kf[2].tgQ(), kf[2].orientation(), alpha));
-						path.add(new GLFrame(myFrame));
+						KFI.drawingPath().add(new GLFrame(KFI.drawingFrame()));
 					}
 
 					// Shift
@@ -966,7 +962,7 @@ public class DrawingUtils implements PConstants {
 					kf[3] = (index < KFI.keyFrame().size()) ? KFI.keyFrame().get(index) : null;
 				}
 				// Add last KeyFrame
-				path.add(new GLFrame(kf[1].position(), kf[1].orientation()));
+				KFI.drawingPath().add(new GLFrame(kf[1].position(), kf[1].orientation()));
 			}
 			KFI.validatePath();
 		}
@@ -979,7 +975,7 @@ public class DrawingUtils implements PConstants {
 				pg3d.noFill();
 				pg3d.stroke(170);
 				pg3d.beginShape();
-				for (GLFrame myFr : path)
+				for (GLFrame myFr : KFI.drawingPath())
 					pg3d.vertex(myFr.position().x, myFr.position().y, myFr.position().z);
 				pg3d.endShape();
 			}
@@ -989,7 +985,7 @@ public class DrawingUtils implements PConstants {
 					nbFrames = nbSteps;
 				float goal = 0.0f;
 
-				for (GLFrame myFr : path)
+				for (GLFrame myFr : KFI.drawingPath())
 					if ((count++) >= goal) {
 						goal += nbSteps / (float) nbFrames;
 						pg3d.pushMatrix();
