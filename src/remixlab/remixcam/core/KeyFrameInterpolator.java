@@ -25,9 +25,14 @@
 
 package remixlab.remixcam.core;
 
-import java.util.*;
+//import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 
 import remixlab.remixcam.geom.*;
+import remixlab.remixcam.util.*;
 
 /**
  * A keyFrame Catmull-Rom Frame interpolator.
@@ -102,7 +107,7 @@ import remixlab.remixcam.geom.*;
  * before {@link #interpolationIsStarted()}, otherwise the interpolated motion
  * (computed as if there was no constraint) will probably be erroneous.
  */
-public class KeyFrameInterpolator implements Cloneable {
+public class KeyFrameInterpolator implements Cloneable, RTimerCommand {
 	public class KeyFrame implements Cloneable {
 		private Vector3D p, tgPVec;
 		private Quaternion q, tgQuat;
@@ -193,8 +198,7 @@ public class KeyFrameInterpolator implements Cloneable {
 	private GLFrame myFrame;
 
 	// R h y t h m
-	private Timer timer;
-  //private TimerTask timerTask;
+	private RTimer timer;
 	private int period;
 	private float interpolationTm;
 	private float interpolationSpd;
@@ -242,7 +246,7 @@ public class KeyFrameInterpolator implements Cloneable {
 		currentFrame2 = keyFr.listIterator();
 		currentFrame3 = keyFr.listIterator();
 		
-		timer = new Timer();
+		timer = new RTimerWrap(this);
 	}
 
 	/**
@@ -263,8 +267,6 @@ public class KeyFrameInterpolator implements Cloneable {
 			clonedKfi.currentFrame1 = keyFr.listIterator(currentFrame1.nextIndex());
 			clonedKfi.currentFrame2 = keyFr.listIterator(currentFrame2.nextIndex());
 			clonedKfi.currentFrame3 = keyFr.listIterator(currentFrame3.nextIndex());
-			//next line added when migrating to java.util.Timer
-			clonedKfi.timer = new Timer();
 			return clonedKfi;
 		} catch (CloneNotSupportedException e) {
 			throw new Error(
@@ -466,7 +468,7 @@ public class KeyFrameInterpolator implements Cloneable {
 	 * reaches {@link #firstTime()} or {@link #lastTime()}, unless
 	 * {@link #loopInterpolation()} is {@code true}.
 	 */
-	protected void update() {
+	public void update() {
 		interpolateAtTime(interpolationTime());
 
 		interpolationTm += interpolationSpeed() * interpolationPeriod() / 1000.0f;
@@ -544,6 +546,8 @@ public class KeyFrameInterpolator implements Cloneable {
 			if ((interpolationSpeed() < 0.0)
 					&& (interpolationTime() <= keyFr.get(0).time()))
 				setInterpolationTime(keyFr.get(keyFr.size() - 1).time());
+			timer.runTimer(interpolationPeriod());
+			/**
 			if(timer != null) {
 				timer.cancel();
 				timer.purge();
@@ -555,6 +559,7 @@ public class KeyFrameInterpolator implements Cloneable {
 				}
 			};
 			timer.scheduleAtFixedRate(timerTask, 0, interpolationPeriod());
+			*/
 
 			interpolationStrt = true;
 			update();
@@ -566,10 +571,7 @@ public class KeyFrameInterpolator implements Cloneable {
 	 * {@link #interpolationIsStarted()} and {@link #toggleInterpolation()}.
 	 */
 	public void stopInterpolation() {
-		if(timer != null) {
-			timer.cancel();
-			timer.purge();
-		}
+		timer.cancelTimer();
 		interpolationStrt = false;
 	}
 
@@ -914,5 +916,9 @@ public class KeyFrameInterpolator implements Cloneable {
 
 		frame().setPositionWithConstraint(pos);
 		frame().setRotationWithConstraint(q);
+	}
+	
+	public void execute() {
+		update();
 	}
 }
