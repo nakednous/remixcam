@@ -132,7 +132,7 @@ public class Camera implements Cloneable {
 	protected float fpCoefficients[][];
 	
   // P R O S C E N E A N D P R O C E S S I N G A P P L E T A N D O B J E C T S
-	//public Scene scene;
+	public RCScene scene;
 	protected MouseGrabberPool mouseGrabberPool;
 
 	/**
@@ -153,9 +153,9 @@ public class Camera implements Cloneable {
 	 * 
 	 * @see #Camera(Scene)
 	 */
-	public Camera(MouseGrabberPool mgPool) {
-		//scene = scn;
-		mouseGrabberPool = mgPool;
+	public Camera(RCScene scn) {
+		scene = scn;
+		mouseGrabberPool = scene.mouseGrabberPool;
 		
 		for (int i = 0; i < normal.length; i++)
 			normal[i] = new Vector3D();
@@ -165,10 +165,10 @@ public class Camera implements Cloneable {
 		fpCoefficients = new float[6][4];
 
 		// KeyFrames
-		interpolationKfi = new KeyFrameInterpolator(frame());
+		interpolationKfi = new KeyFrameInterpolator(scene, frame());
 		kfi = new HashMap<Integer, KeyFrameInterpolator>();
 
-		setFrame(new InteractiveCameraFrame(mouseGrabberPool));
+		setFrame(new InteractiveCameraFrame(scene));
 
 		// Requires fieldOfView() to define focusDistance()
 		setSceneRadius(100);
@@ -1649,13 +1649,13 @@ public class Camera implements Cloneable {
 	public void addKeyFrameToPath(int key, boolean editablePath) {
 		boolean info = true;
 		if (!kfi.containsKey(key)) {
-			setKeyFrameInterpolator(key, new KeyFrameInterpolator(frame()));
+			setKeyFrameInterpolator(key, new KeyFrameInterpolator(scene, frame()));
 			System.out.println("Position " + key + " saved");
 			info = false;
 		}
 
 		if (editablePath)
-			kfi.get(key).addKeyFrame(new InteractiveFrame(mouseGrabberPool, frame()));
+			kfi.get(key).addKeyFrame(new InteractiveFrame(scene, frame()));
 		else
 			kfi.get(key).addKeyFrame(frame(), false);
 
@@ -2340,7 +2340,7 @@ public class Camera implements Cloneable {
 
 		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
 		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(mouseGrabberPool);
+		tempFrame = new InteractiveCameraFrame(scene);
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(new Vector3D(frame().position().x,
 				frame().position().y, frame().position().z));
@@ -2390,7 +2390,7 @@ public class Camera implements Cloneable {
 
 		// Small hack: attach a temporary frame to take advantage of lookAt without
 		// modifying frame
-		tempFrame = new InteractiveCameraFrame(mouseGrabberPool);
+		tempFrame = new InteractiveCameraFrame(scene);
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(Vector3D.add(Vector3D.mult(frame().position(), coef),
 				Vector3D.mult(target.point, (1.0f - coef))));
@@ -2428,7 +2428,7 @@ public class Camera implements Cloneable {
 
 		// Small hack: attach a temporary frame to take advantage of showEntireScene
 		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(mouseGrabberPool);
+		tempFrame = new InteractiveCameraFrame(scene);
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(new Vector3D(frame().position().x,
 				frame().position().y, frame().position().z));

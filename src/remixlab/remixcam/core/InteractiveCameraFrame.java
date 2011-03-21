@@ -59,8 +59,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame {
 	 * <p>
 	 * <b>Attention:</b> Created object is {@link #removeFromMouseGrabberPool()}.
 	 */
-	public InteractiveCameraFrame(MouseGrabberPool mgPool) {
-		super(mgPool);
+	public InteractiveCameraFrame(RCScene scn) {
+		super(scn);
 		removeFromMouseGrabberPool();
 		arcballRefPnt = new Vector3D(0.0f, 0.0f, 0.0f);
 	}
@@ -74,8 +74,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame {
 	 * @see remixlab.remixcam.core.InteractiveFrame#clone()
 	 */
 	public InteractiveCameraFrame clone() {
-		InteractiveCameraFrame clonedICamFrame = (InteractiveCameraFrame) super
-				.clone();
+		InteractiveCameraFrame clonedICamFrame = (InteractiveCameraFrame) super.clone();
 		clonedICamFrame.arcballRefPnt = new Vector3D(arcballRefPnt.x,
 				arcballRefPnt.y, arcballRefPnt.z);
 		return clonedICamFrame;

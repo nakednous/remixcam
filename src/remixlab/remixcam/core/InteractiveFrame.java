@@ -25,12 +25,15 @@
 
 package remixlab.remixcam.core;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import remixlab.remixcam.devices.Actions.MouseAction;
 import remixlab.remixcam.devices.Mouse.Button;
 import remixlab.remixcam.constraint.*;
 import remixlab.remixcam.geom.*;
-
-import java.util.*;
+import remixlab.remixcam.util.RTimer;
+import remixlab.remixcam.util.Taskable;
 
 /**
  * A InteractiveFrame is a Frame that can be rotated and translated using the
@@ -46,7 +49,97 @@ import java.util.*;
  * the {@link remixlab.proscene.Scene#mouseGrabberPool()}.
  */
 
-public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneable {
+public class InteractiveFrame extends GLFrame implements MouseGrabbable, Taskable, Cloneable {
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((action == null) ? 0 : action.hashCode());
+		result = prime * result + delay;
+		result = prime * result + (dirIsFixed ? 1231 : 1237);
+		result = prime * result + grabsMouseThreshold;
+		result = prime * result + (grbsMouse ? 1231 : 1237);
+		result = prime * result + (horiz ? 1231 : 1237);
+		result = prime * result + (isInCamPath ? 1231 : 1237);
+		result = prime * result + (isSpng ? 1231 : 1237);
+		result = prime * result + (keepsGrabbingMouse ? 1231 : 1237);
+		result = prime * result + Float.floatToIntBits(mouseSpeed);
+		result = prime * result + ((pressPos == null) ? 0 : pressPos.hashCode());
+		result = prime * result + ((prevPos == null) ? 0 : prevPos.hashCode());
+		result = prime * result + Float.floatToIntBits(rotSensitivity);
+		result = prime * result + ((spngQuat == null) ? 0 : spngQuat.hashCode());
+		result = prime * result + Float.floatToIntBits(spngSensitivity);
+		result = prime * result + startedTime;
+		result = prime * result + Float.floatToIntBits(transSensitivity);
+		result = prime * result + Float.floatToIntBits(wheelSensitivity);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InteractiveFrame other = (InteractiveFrame) obj;
+		if (action == null) {
+			if (other.action != null)
+				return false;
+		} else if (!action.equals(other.action))
+			return false;
+		if (delay != other.delay)
+			return false;
+		if (dirIsFixed != other.dirIsFixed)
+			return false;
+		if (grabsMouseThreshold != other.grabsMouseThreshold)
+			return false;
+		if (grbsMouse != other.grbsMouse)
+			return false;
+		if (horiz != other.horiz)
+			return false;
+		if (isInCamPath != other.isInCamPath)
+			return false;
+		if (isSpng != other.isSpng)
+			return false;
+		if (keepsGrabbingMouse != other.keepsGrabbingMouse)
+			return false;
+		if (Float.floatToIntBits(mouseSpeed) != Float
+				.floatToIntBits(other.mouseSpeed))
+			return false;
+		if (pressPos == null) {
+			if (other.pressPos != null)
+				return false;
+		} else if (!pressPos.equals(other.pressPos))
+			return false;
+		if (prevPos == null) {
+			if (other.prevPos != null)
+				return false;
+		} else if (!prevPos.equals(other.prevPos))
+			return false;
+		if (Float.floatToIntBits(rotSensitivity) != Float
+				.floatToIntBits(other.rotSensitivity))
+			return false;
+		if (spngQuat == null) {
+			if (other.spngQuat != null)
+				return false;
+		} else if (!spngQuat.equals(other.spngQuat))
+			return false;
+		if (Float.floatToIntBits(spngSensitivity) != Float
+				.floatToIntBits(other.spngSensitivity))
+			return false;
+		if (startedTime != other.startedTime)
+			return false;
+		if (Float.floatToIntBits(transSensitivity) != Float
+				.floatToIntBits(other.transSensitivity))
+			return false;
+		if (Float.floatToIntBits(wheelSensitivity) != Float
+				.floatToIntBits(other.wheelSensitivity))
+			return false;
+		return true;
+	}
+
 	private boolean horiz;// Two simultaneous InteractiveFrame require two mice!
 	private int grabsMouseThreshold;
 	private float rotSensitivity;
@@ -58,7 +151,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	private float mouseSpeed;
 	// spinning stuff:
 	private boolean isSpng;
-	private Timer spngTimer;
+	private RTimer spngTimer;
 	private int startedTime;
 	private int delay;
 
@@ -83,7 +176,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	protected boolean isInCamPath;
 
 	// P R O S C E N E A N D P R O C E S S I N G A P P L E T A N D O B J E C T S
-	//public Scene scene;
+	public RCScene scene;
 	protected MouseGrabberPool mouseGrabberPool;
 
 	/**
@@ -98,8 +191,10 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * <b>Note:</b> the InteractiveFrame is automatically added to
 	 * the {@link remixlab.proscene.Scene#mouseGrabberPool()}.
 	 */
-	public InteractiveFrame(MouseGrabberPool mgPool) {
-		mouseGrabberPool = mgPool;
+	public InteractiveFrame(RCScene scn) {
+		scene = scn;
+		mouseGrabberPool = scene.mouseGrabberPool;
+		registerInTimerPool();
 		
 		action = MouseAction.NO_MOUSE_ACTION;
 		horiz = true;
@@ -119,7 +214,6 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		prevConstraint = null;
 		startedTime = 0;
 		// delay = 10;
-		spngTimer = new Timer();
 	}
 
 	/**
@@ -137,9 +231,11 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * 
 	 * @see remixlab.remixcam.core.Camera#addKeyFrameToPath(int)
 	 */
-	public InteractiveFrame(MouseGrabberPool mgPool, InteractiveCameraFrame iFrame) {
+	public InteractiveFrame(RCScene scn, InteractiveCameraFrame iFrame) {
 		super(iFrame.translation(), iFrame.rotation());
-		mouseGrabberPool = mgPool;
+		scene = scn;
+		mouseGrabberPool = scene.mouseGrabberPool;
+		registerInTimerPool();
 		action = MouseAction.NO_MOUSE_ACTION;
 		horiz = true;
 
@@ -184,7 +280,6 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 */
 	public InteractiveFrame clone() {
 		InteractiveFrame clonedIFrame = (InteractiveFrame) super.clone();
-		clonedIFrame.spngTimer = new Timer();
 		return clonedIFrame;
 	}
 
@@ -436,10 +531,8 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 * {@link #isSpinning()} will return {@code false} after this call.
 	 */
 	public final void stopSpinning() {
-		if(spngTimer!=null) {
-			spngTimer.cancel();
-			spngTimer.purge();
-		}
+		if(spngTimer != null)
+			spngTimer.cancelTimer();
 		isSpng = false;
 	}
 
@@ -453,17 +546,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	public void startSpinning(int updateInterval) {
 		isSpng = true;
 		if(updateInterval>0) {
-			if(spngTimer!=null) {
-				spngTimer.cancel();
-				spngTimer.purge();
-			}
-			spngTimer=new Timer();
-			TimerTask timerTask = new TimerTask() {
-				public void run() {
-					spin();
-				}
-			};
-			spngTimer.scheduleAtFixedRate(timerTask, 0, updateInterval);
+			spngTimer.runTimer(updateInterval);
 		}
 	}
 
@@ -846,5 +929,27 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		float d = x * x + y * y;
 		return d < size_limit ? (float) Math.sqrt(size2 - d) : size_limit
 				/ (float) Math.sqrt(d);
+	}
+	
+	public RTimer timer() {
+		return spngTimer;
+	}
+	
+	public void setTimer(RTimer t) {
+		spngTimer = t;
+	} 
+	
+	public void registerInTimerPool() {
+		scene.timerPool().registerInTimerPool(this, true);
+	}
+	
+	public boolean isTimerInit() {
+		if(timer() == null)
+			return false;
+		return true;
+	}
+	
+	public void execute() {
+		spin();
 	}
 }

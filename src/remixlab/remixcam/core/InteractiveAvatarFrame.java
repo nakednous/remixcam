@@ -45,8 +45,8 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	/**
 	 * Convenience constructor that simply calls {@code this(mgPool, 30)}
 	 */
-	public InteractiveAvatarFrame(MouseGrabberPool mgPool) {
-		this(mgPool, 30);
+	public InteractiveAvatarFrame(RCScene scn) {
+		this(scn, 30);
 	}
 	
 	/**
@@ -57,8 +57,8 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	 * @see remixlab.proscene.Scene#setAvatar(Trackable)
 	 * @see remixlab.proscene.Scene#setInteractiveFrame(InteractiveFrame)
 	 */
-	public InteractiveAvatarFrame(MouseGrabberPool mgPool, float tDistance) {
-		super(mgPool);
+	public InteractiveAvatarFrame(RCScene scn, float tDistance) {
+		super(scn);
 		q = new Quaternion();
 		q.fromTaitBryan((float) Math.PI/4, 0, 0);
 		camRelPos = new Vector3D();

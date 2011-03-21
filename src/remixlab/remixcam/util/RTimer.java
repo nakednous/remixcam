@@ -1,11 +1,7 @@
 package remixlab.remixcam.util;
 
-/**
-public interface RTimer<K> {
-	public void createTimer(K object);
-*/
-public interface RTimer {
-	//public void scheduleTimer(RTimerTask task, long delay, long period); 
+public interface RTimer { 
 	public void runTimer(long period);
 	public void cancelTimer();
+	public void createTimer();
 }

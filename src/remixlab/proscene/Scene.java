@@ -26,14 +26,14 @@
 package remixlab.proscene;
 
 import processing.core.*;
+import remixlab.remixcam.core.RCScene;
 import remixlab.remixcam.core.Camera;
 import remixlab.remixcam.core.InteractiveAvatarFrame;
 import remixlab.remixcam.core.InteractiveDrivableFrame;
 import remixlab.remixcam.core.InteractiveFrame;
 import remixlab.remixcam.core.MouseGrabbable;
-import remixlab.remixcam.core.MouseGrabberPool;
+//import remixlab.remixcam.core.MouseGrabberPool;
 import remixlab.remixcam.core.Trackable;
-import remixlab.remixcam.devices.Bindings;
 import remixlab.remixcam.devices.Actions.KeyboardAction;
 import remixlab.remixcam.devices.Actions.CameraKeyboardAction;
 import remixlab.remixcam.devices.Actions.ClickAction;
@@ -45,7 +45,6 @@ import remixlab.remixcam.geom.Vector3D;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 
 import java.util.Timer;
@@ -113,7 +112,7 @@ import java.util.TimerTask;
  * {@code Scene.background()} versions instead of any of the {@code
  * PApplet.background()} ones. The background is set to black by default.
  */
-public class Scene implements PConstants {
+public class Scene extends RCScene implements PConstants {
 	// proscene version
 	public static final String version = "2.0.0";
 	/**
@@ -263,9 +262,6 @@ public class Scene implements PConstants {
 	// E X C E P T I O N H A N D L I N G
 	protected int startCoordCalls;
   protected int beginOffScreenDrawingCalls;
-
-  //M o u s e G r a b b e r
-	protected MouseGrabberPool mouseGrabberPool;
 	
 	boolean mouseTrckn;
 
@@ -332,15 +328,15 @@ public class Scene implements PConstants {
 	 * screen rendering are completely disabled.  
 	 */
 	public Scene(PApplet p, PGraphics3D renderer) {
+		timerPool = new PTimerPool();
+		
 		parent = p;
 		pg3d = renderer;
 		width = pg3d.width;
 		height = pg3d.height;
 		
 		//event handler
-		dE = new DesktopEvents(this);
-		
-		mouseGrabberPool = new MouseGrabberPool();
+		dE = new DesktopEvents(this);		
 
 		gProfile = new Bindings<KeyboardShortcut, KeyboardAction>(this);
 		pathKeys = new Bindings<Integer, Integer>(this);		
@@ -350,7 +346,7 @@ public class Scene implements PConstants {
 		// need it here to properly init the camera
 		avatarIsInteractiveAvatarFrame = false;// also init in setAvatar, but we
 		// need it here to properly init the camera
-		cam = new Camera(mouseGrabberPool);
+		cam = new Camera(this);
 		setCamera(camera());// showAll();It is set in setCamera()
 		setInteractiveFrame(null);
 		setAvatar(null);
@@ -434,28 +430,7 @@ public class Scene implements PConstants {
 	 */
 	public void proscenium() {}
 
-	// 2. Associated objects
-
-	/**
-	 * Returns an object containing references to all the active MouseGrabbers.
-	 * <p>
-	 * Used to parse all the MouseGrabbers and to check if any of them
-	 * {@link remixlab.proscene.MouseGrabbable#grabsMouse()} using
-	 * {@link remixlab.proscene.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}.
-	 * <p>
-	 * Use {@link #removeFromMouseGrabberPool(MouseGrabbable)} and
-	 * {@link #addInMouseGrabberPool(MouseGrabbable)} to modify this list.
-	 */
-	// TODO refactor the name
-	public MouseGrabberPool mouseGrabberPoolObject() {
-		return mouseGrabberPool;
-	}
-	
-	//TODO: document me
-	public List<MouseGrabbable> mouseGrabberPool() {
-		return mouseGrabberPool.mouseGrabberPool();
-	}
-	
+	// 2. Associated objects	
 	/**
 	 * Returns the associated Camera, never {@code null}.
 	 */
@@ -551,38 +526,8 @@ public class Scene implements PConstants {
 			setAvatar((Trackable) glIFrame);
 	}
 	
-	public MouseGrabbable mouseGrabber() {
-		return mouseGrabberPoolObject().mouseGrabber();
-	}
-	
 	protected void setMouseGrabber(MouseGrabbable mouseGrabber) {
 		mouseGrabberPoolObject().setMouseGrabber(mouseGrabber, camera());
-	}
-	
-	protected boolean mouseGrabberIsAnIFrame() {
-		return mouseGrabberPoolObject().mouseGrabberIsAnIFrame();
-	}
-	
-	protected boolean mouseGrabberIsADrivableFrame() {
-		return mouseGrabberPoolObject().mouseGrabberIsADrivableFrame();
-	}
-	
-  // 3. Mouse grabber handling
-	
-	public boolean isInMouseGrabberPool(MouseGrabbable mouseGrabber) {
-		return mouseGrabberPoolObject().isInMouseGrabberPool(mouseGrabber);
-	}
-	
-	public void addInMouseGrabberPool(MouseGrabbable mouseGrabber) {
-		mouseGrabberPoolObject().addInMouseGrabberPool(mouseGrabber);
-	}
-
-	public void removeFromMouseGrabberPool(MouseGrabbable mouseGrabber) {
-		mouseGrabberPoolObject().removeFromMouseGrabberPool(mouseGrabber);
-	}
-
-	public void clearMouseGrabberPool() {
-		mouseGrabberPoolObject().clearMouseGrabberPool();
 	}
 	
 	/**
@@ -1190,6 +1135,9 @@ public class Scene implements PConstants {
 	public void pre() {
 		if (isOffscreen()) return;
 		
+		if( timerPool.needInit() )
+			timerPool.init();
+		
 		// handle possible resize events
 		// weird: we need to bypass the handling of a resize event when running the
 		// applet from eclipse		
@@ -1269,7 +1217,7 @@ public class Scene implements PConstants {
 	 * @see #addDrawHandler(Object, String)
 	 */
 	public void draw() {
-		if (isOffscreen()) return;
+		if (isOffscreen()) return;		
 		
 		if( animationIsStarted() )
 			performAnimation();
@@ -1307,6 +1255,9 @@ public class Scene implements PConstants {
    */	
 	public void beginDraw() {
 		if (isOffscreen()) {
+			if( timerPool.needInit() )
+				timerPool.init();
+			
 			if (beginOffScreenDrawingCalls != 0)
 				throw new RuntimeException(
 						"There should be exactly one beginDraw() call followed by a "

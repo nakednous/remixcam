@@ -53,8 +53,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	 * <p>
 	 * {@link #flySpeed()} is set to 0.0 and {@link #flyUpVector()} is (0,1,0).
 	 */
-	public InteractiveDrivableFrame(MouseGrabberPool mgPool) {
-		super(mgPool);
+	public InteractiveDrivableFrame(RCScene scn) {
+		super(scn);
 		drvSpd = 0.0f;
 		flyUpVec = new Vector3D(0.0f, 1.0f, 0.0f);
 
@@ -74,11 +74,10 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	 * @see remixlab.remixcam.core.InteractiveFrame#clone()
 	 */
 	public InteractiveDrivableFrame clone() {
-		InteractiveDrivableFrame clonedIAvtrFrame = (InteractiveDrivableFrame) super
-				.clone();
+		InteractiveDrivableFrame clonedIAvtrFrame = (InteractiveDrivableFrame) super.clone();
 		clonedIAvtrFrame.flyUpVec = new Vector3D(flyUpVec.x, flyUpVec.y, flyUpVec.z);
 		clonedIAvtrFrame.flyDisp = new Vector3D(flyDisp.x, flyDisp.y, flyDisp.z);
-    clonedIAvtrFrame.flyTimer = new Timer();
+    //clonedIAvtrFrame.flyTimer = new Timer();
 		return clonedIAvtrFrame;
 	}
 

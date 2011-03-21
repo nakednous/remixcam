@@ -25,8 +25,6 @@
 
 package remixlab.remixcam.core;
 
-//import java.util.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -107,7 +105,91 @@ import remixlab.remixcam.util.*;
  * before {@link #interpolationIsStarted()}, otherwise the interpolated motion
  * (computed as if there was no constraint) will probably be erroneous.
  */
-public class KeyFrameInterpolator implements Cloneable, RTimerCommand {
+public class KeyFrameInterpolator implements Taskable, Cloneable {
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (currentFrmValid ? 1231 : 1237);
+		result = prime * result + ((fr == null) ? 0 : fr.hashCode());
+		result = prime * result + Float.floatToIntBits(interpolationSpd);
+		result = prime * result + (interpolationStrt ? 1231 : 1237);
+		result = prime * result + Float.floatToIntBits(interpolationTm);
+		result = prime * result + ((keyFr == null) ? 0 : keyFr.hashCode());
+		result = prime * result + (lpInterpolation ? 1231 : 1237);
+		result = prime * result + ((myFrame == null) ? 0 : myFrame.hashCode());
+		result = prime * result + ((path == null) ? 0 : path.hashCode());
+		result = prime * result + (pathIsValid ? 1231 : 1237);
+		result = prime * result + period;
+		result = prime * result + (splineCacheIsValid ? 1231 : 1237);
+		result = prime * result + ((v1 == null) ? 0 : v1.hashCode());
+		result = prime * result + ((v2 == null) ? 0 : v2.hashCode());
+		result = prime * result + (valuesAreValid ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		KeyFrameInterpolator other = (KeyFrameInterpolator) obj;
+		if (currentFrmValid != other.currentFrmValid)
+			return false;
+		if (fr == null) {
+			if (other.fr != null)
+				return false;
+		} else if (!fr.equals(other.fr))
+			return false;
+		if (Float.floatToIntBits(interpolationSpd) != Float
+				.floatToIntBits(other.interpolationSpd))
+			return false;
+		if (interpolationStrt != other.interpolationStrt)
+			return false;
+		if (Float.floatToIntBits(interpolationTm) != Float
+				.floatToIntBits(other.interpolationTm))
+			return false;
+		if (keyFr == null) {
+			if (other.keyFr != null)
+				return false;
+		} else if (!keyFr.equals(other.keyFr))
+			return false;
+		if (lpInterpolation != other.lpInterpolation)
+			return false;
+		if (myFrame == null) {
+			if (other.myFrame != null)
+				return false;
+		} else if (!myFrame.equals(other.myFrame))
+			return false;
+		if (path == null) {
+			if (other.path != null)
+				return false;
+		} else if (!path.equals(other.path))
+			return false;
+		if (pathIsValid != other.pathIsValid)
+			return false;
+		if (period != other.period)
+			return false;
+		if (splineCacheIsValid != other.splineCacheIsValid)
+			return false;
+		if (v1 == null) {
+			if (other.v1 != null)
+				return false;
+		} else if (!v1.equals(other.v1))
+			return false;
+		if (v2 == null) {
+			if (other.v2 != null)
+				return false;
+		} else if (!v2.equals(other.v2))
+			return false;
+		if (valuesAreValid != other.valuesAreValid)
+			return false;
+		return true;
+	}
+
 	public class KeyFrame implements Cloneable {
 		private Vector3D p, tgPVec;
 		private Quaternion q, tgQuat;
@@ -188,7 +270,7 @@ public class KeyFrameInterpolator implements Cloneable, RTimerCommand {
 	private List<KeyFrame> keyFr;
 	private ListIterator<KeyFrame> currentFrame0;
 	private ListIterator<KeyFrame> currentFrame1;
-	private ListIterator<KeyFrame> currentFrame2;
+	private ListIterator<KeyFrame> currentFrame2;	
 	private ListIterator<KeyFrame> currentFrame3;
 	// A s s o c i a t e d f r a m e
 	private GLFrame fr;
@@ -213,6 +295,9 @@ public class KeyFrameInterpolator implements Cloneable, RTimerCommand {
 	private boolean splineCacheIsValid;
 	private Vector3D v1, v2;
 	private boolean pathIsValid;
+	
+	// S C E N E
+  public RCScene scene;
 
 	/**
 	 * Creates a KeyFrameInterpolator, with {@code frame} as associated
@@ -226,7 +311,10 @@ public class KeyFrameInterpolator implements Cloneable, RTimerCommand {
 	 * 
 	 * @see #KeyFrameInterpolator(PApplet)
 	 */
-	public KeyFrameInterpolator(GLFrame frame) {
+	public KeyFrameInterpolator(RCScene scn, GLFrame frame) {
+		timer = null;
+		scene = scn;
+		registerInTimerPool();
 		myFrame = new GLFrame();
 		path = new ArrayList<GLFrame>();
 		keyFr = new ArrayList<KeyFrame>();
@@ -244,9 +332,7 @@ public class KeyFrameInterpolator implements Cloneable, RTimerCommand {
 		currentFrame0 = keyFr.listIterator();
 		currentFrame1 = keyFr.listIterator();
 		currentFrame2 = keyFr.listIterator();
-		currentFrame3 = keyFr.listIterator();
-		
-		timer = new RTimerWrap(this);
+		currentFrame3 = keyFr.listIterator();		
 	}
 
 	/**
@@ -267,6 +353,8 @@ public class KeyFrameInterpolator implements Cloneable, RTimerCommand {
 			clonedKfi.currentFrame1 = keyFr.listIterator(currentFrame1.nextIndex());
 			clonedKfi.currentFrame2 = keyFr.listIterator(currentFrame2.nextIndex());
 			clonedKfi.currentFrame3 = keyFr.listIterator(currentFrame3.nextIndex());
+			//TODO delete next line when implementing a hashtable (with timers outside the object)
+      //clonedKfi.registerInTimerPool();
 			return clonedKfi;
 		} catch (CloneNotSupportedException e) {
 			throw new Error(
@@ -546,21 +634,8 @@ public class KeyFrameInterpolator implements Cloneable, RTimerCommand {
 			if ((interpolationSpeed() < 0.0)
 					&& (interpolationTime() <= keyFr.get(0).time()))
 				setInterpolationTime(keyFr.get(keyFr.size() - 1).time());
+			if(timer != null)
 			timer.runTimer(interpolationPeriod());
-			/**
-			if(timer != null) {
-				timer.cancel();
-				timer.purge();
-			}
-			timer=new Timer();
-			TimerTask timerTask = new TimerTask() {
-				public void run() {
-					update();
-				}
-			};
-			timer.scheduleAtFixedRate(timerTask, 0, interpolationPeriod());
-			*/
-
 			interpolationStrt = true;
 			update();
 		}
@@ -571,7 +646,8 @@ public class KeyFrameInterpolator implements Cloneable, RTimerCommand {
 	 * {@link #interpolationIsStarted()} and {@link #toggleInterpolation()}.
 	 */
 	public void stopInterpolation() {
-		timer.cancelTimer();
+		if(timer != null)
+			timer.cancelTimer();
 		interpolationStrt = false;
 	}
 
@@ -916,6 +992,24 @@ public class KeyFrameInterpolator implements Cloneable, RTimerCommand {
 
 		frame().setPositionWithConstraint(pos);
 		frame().setRotationWithConstraint(q);
+	}
+	
+	public RTimer timer() {
+		return timer;
+	}
+	
+	public void setTimer(RTimer t) {
+		timer = t;
+	} 
+	
+	public void registerInTimerPool() {
+		scene.timerPool().registerInTimerPool(this, true);
+	}
+	
+	public boolean isTimerInit() {
+		if(timer() == null)
+			return false;
+		return true;
 	}
 	
 	public void execute() {

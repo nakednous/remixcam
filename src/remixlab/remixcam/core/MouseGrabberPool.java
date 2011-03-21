@@ -15,7 +15,7 @@ public class MouseGrabberPool {
 		mouseGrabberPool = new ArrayList<MouseGrabbable>();
 		mouseGrabberIsAnIFrame = false;
 		mouseGrabberIsADrivableFrame = false;
-	}
+	}	
 	
 	/**
 	 * Returns a list containing references to all the active MouseGrabbers.

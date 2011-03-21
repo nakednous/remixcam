@@ -41,6 +41,49 @@ import remixlab.remixcam.geom.Vector3D;
  * origin.
  */
 public class GLFrame implements Cloneable {
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((list == null) ? 0 : list.hashCode());
+		result = prime * result + ((refFrame == null) ? 0 : refFrame.hashCode());
+		result = prime * result + ((rot == null) ? 0 : rot.hashCode());
+		result = prime * result + ((trans == null) ? 0 : trans.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GLFrame other = (GLFrame) obj;
+		if (list == null) {
+			if (other.list != null)
+				return false;
+		} else if (!list.equals(other.list))
+			return false;
+		if (refFrame == null) {
+			if (other.refFrame != null)
+				return false;
+		} else if (!refFrame.equals(other.refFrame))
+			return false;
+		if (rot == null) {
+			if (other.rot != null)
+				return false;
+		} else if (!rot.equals(other.rot))
+			return false;
+		if (trans == null) {
+			if (other.trans != null)
+				return false;
+		} else if (!trans.equals(other.trans))
+			return false;
+		return true;
+	}
+
 	protected Vector3D trans;
 	protected Quaternion rot;
 	protected GLFrame refFrame;

@@ -23,11 +23,10 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.devices;
+package remixlab.proscene;
 
 import java.util.HashMap;
 
-import remixlab.proscene.Scene;
 
 /**
  * A parameterized template class used to define shortcut bindings. This is

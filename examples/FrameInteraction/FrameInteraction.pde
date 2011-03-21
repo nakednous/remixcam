@@ -14,10 +14,6 @@
  * and mouse bindings in the console.
  */
 
-//import java.util.Timer;
-//import java.util.TimerTask;
-import remixlab.remixcam.util.Timer;
-
 import remixlab.proscene.*;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
@@ -29,7 +25,7 @@ void setup() {
   size(640, 360, P3D);
   scene = new Scene(this);
   // A Scene has a single InteractiveFrame (null by default). We set it here.
-  scene.setInteractiveFrame(new InteractiveFrame(scene.mouseGrabberPoolObject()));
+  scene.setInteractiveFrame(new InteractiveFrame(scene));
   //scene.interactiveFrame().translate(new PVector(30, 30, 0));
   scene.interactiveFrame().translate(new Vector3D(30, 30, 0));
   // press 'i' to switch the interaction between the camera frame and the interactive frame
@@ -64,29 +60,4 @@ void draw() {
     box(10, 15, 20);
   }		
   popMatrix();
-}
-
-void keyPressed() {
-  if ( key == 'u') {
-    /**
-    Timer timer=new Timer();
-    TimerTask timerTask = new TimerTask() {
-      public void run() {
-        println("Nifty, eh?");
-      }
-    };
-    //timer.schedule(timerTask, 1000);
-    timer.scheduleAtFixedRate(timerTask, 0, 1000);
-    */
-
-    // /**     
-    Timer timer = new Timer() {      
-      public void run() {
-        println("Nifty, eh?");
-      }
-    };
-    // Schedule the timer to run once in 5 seconds.
-    timer.schedule(5000);
-    // */
-  }
 }
