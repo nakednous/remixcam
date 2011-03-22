@@ -27,9 +27,7 @@ package remixlab.remixcam.core;
 
 import remixlab.remixcam.devices.Actions.MouseAction;
 import remixlab.remixcam.geom.*;
-
-import java.util.Timer;
-import java.util.TimerTask;
+import remixlab.remixcam.util.TimerJob;
 
 /**
  * The InteractiveDrivableFrame represents an InteractiveFrame that can "fly" in
@@ -42,9 +40,46 @@ import java.util.TimerTask;
  * {@link remixlab.proscene.Scene.MouseAction#MOVE_BACKWARD}.
  */
 public class InteractiveDrivableFrame extends InteractiveFrame {
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Float.floatToIntBits(drvSpd);
+		result = prime * result + ((flyDisp == null) ? 0 : flyDisp.hashCode());
+		result = prime * result + Float.floatToIntBits(flySpd);
+		result = prime * result + ((flyUpVec == null) ? 0 : flyUpVec.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InteractiveDrivableFrame other = (InteractiveDrivableFrame) obj;
+		if (Float.floatToIntBits(drvSpd) != Float.floatToIntBits(other.drvSpd))
+			return false;
+		if (flyDisp == null) {
+			if (other.flyDisp != null)
+				return false;
+		} else if (!flyDisp.equals(other.flyDisp))
+			return false;
+		if (Float.floatToIntBits(flySpd) != Float.floatToIntBits(other.flySpd))
+			return false;
+		if (flyUpVec == null) {
+			if (other.flyUpVec != null)
+				return false;
+		} else if (!flyUpVec.equals(other.flyUpVec))
+			return false;
+		return true;
+	}
+
 	protected float flySpd;
 	protected float drvSpd;
-	protected Timer flyTimer;
+	protected TimerJob flyTimerJob;
 	protected Vector3D flyUpVec;
 	protected Vector3D flyDisp;
 
@@ -62,7 +97,12 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 
 		setFlySpeed(0.0f);
 
-    flyTimer = new Timer();
+		flyTimerJob = new TimerJob() {
+			public void execute() {
+				flyUpdate();
+			}
+		};		
+		scene.timerPool.registerInTimerPool(this, flyTimerJob);
 	}
 
 	/**
@@ -190,17 +230,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 		case MOVE_FORWARD:
 		case MOVE_BACKWARD:
 		case DRIVE:
-			if(flyTimer != null) {
-				flyTimer.cancel();
-				flyTimer.purge();
-			}
-			flyTimer=new Timer();
-			TimerTask timerTask = new TimerTask() {
-				public void run() {
-					flyUpdate();
-				}
-			};
-			flyTimer.scheduleAtFixedRate(timerTask, 0, 10);
+			if( flyTimerJob.timer() != null )
+				flyTimerJob.timer().runTimer(10);
 			break;
 		default:
 			break;
@@ -310,10 +341,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 		if ((action == MouseAction.MOVE_FORWARD)
 				|| (action == MouseAction.MOVE_BACKWARD)
 				|| (action == MouseAction.DRIVE)) {
-			if(flyTimer != null) {
-				flyTimer.cancel();
-				flyTimer.purge();
-			}
+			if( flyTimerJob.timer() != null )
+				flyTimerJob.timer().cancelTimer();			
 		}
 
 		super.mouseReleased(eventPoint, camera);
@@ -370,17 +399,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 		int finalDrawAfterWheelEventDelay = 400;
 		
 	  // Starts (or prolungates) the timer.
-		if(flyTimer != null) {
-			flyTimer.cancel();
-			flyTimer.purge();
-		}
-		flyTimer=new Timer();
-		TimerTask timerTask = new TimerTask() {
-			public void run() {
-				flyUpdate();
-			}
-		};
-		flyTimer.schedule(timerTask, finalDrawAfterWheelEventDelay);
+		if( flyTimerJob.timer() != null )
+			flyTimerJob.timer().runTimerOnce(finalDrawAfterWheelEventDelay);
 
 		action = MouseAction.NO_MOUSE_ACTION;
 	}

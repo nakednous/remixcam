@@ -8,7 +8,7 @@ import remixlab.remixcam.util.Taskable;
 public class PTimerWrap implements RTimer {
 	Timer timer;
 	TimerTask timerTask;
-	Taskable caller;	 
+	Taskable caller;
 	
 	public PTimerWrap(Taskable o) {
 		caller = o;
@@ -31,6 +31,11 @@ public class PTimerWrap implements RTimer {
   public void runTimer(long period) {
   	createTimer();
 		timer.scheduleAtFixedRate(timerTask, 0, period);
+  }
+  
+  public void runTimerOnce(long period) {
+  	createTimer();
+		timer.schedule(timerTask, period);
   }
   
   public void cancelTimer() {

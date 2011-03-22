@@ -105,7 +105,7 @@ import remixlab.remixcam.util.*;
  * before {@link #interpolationIsStarted()}, otherwise the interpolated motion
  * (computed as if there was no constraint) will probably be erroneous.
  */
-public class KeyFrameInterpolator implements Taskable, Cloneable {
+public class KeyFrameInterpolator implements Cloneable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -280,7 +280,7 @@ public class KeyFrameInterpolator implements Taskable, Cloneable {
 	private GLFrame myFrame;
 
 	// R h y t h m
-	private RTimer timer;
+	private TimerJob timerFx1;
 	private int period;
 	private float interpolationTm;
 	private float interpolationSpd;
@@ -312,9 +312,7 @@ public class KeyFrameInterpolator implements Taskable, Cloneable {
 	 * @see #KeyFrameInterpolator(PApplet)
 	 */
 	public KeyFrameInterpolator(RCScene scn, GLFrame frame) {
-		timer = null;
-		scene = scn;
-		registerInTimerPool();
+		scene = scn;		
 		myFrame = new GLFrame();
 		path = new ArrayList<GLFrame>();
 		keyFr = new ArrayList<KeyFrame>();
@@ -332,7 +330,14 @@ public class KeyFrameInterpolator implements Taskable, Cloneable {
 		currentFrame0 = keyFr.listIterator();
 		currentFrame1 = keyFr.listIterator();
 		currentFrame2 = keyFr.listIterator();
-		currentFrame3 = keyFr.listIterator();		
+		currentFrame3 = keyFr.listIterator();
+		
+		timerFx1 = new TimerJob() {
+			public void execute() {
+				update();
+			}
+		};		
+		scene.timerPool.registerInTimerPool(this, timerFx1);
 	}
 
 	/**
@@ -353,8 +358,7 @@ public class KeyFrameInterpolator implements Taskable, Cloneable {
 			clonedKfi.currentFrame1 = keyFr.listIterator(currentFrame1.nextIndex());
 			clonedKfi.currentFrame2 = keyFr.listIterator(currentFrame2.nextIndex());
 			clonedKfi.currentFrame3 = keyFr.listIterator(currentFrame3.nextIndex());
-			//TODO delete next line when implementing a hashtable (with timers outside the object)
-      //clonedKfi.registerInTimerPool();
+			//TODO to check what has to be done with the timers
 			return clonedKfi;
 		} catch (CloneNotSupportedException e) {
 			throw new Error(
@@ -634,8 +638,8 @@ public class KeyFrameInterpolator implements Taskable, Cloneable {
 			if ((interpolationSpeed() < 0.0)
 					&& (interpolationTime() <= keyFr.get(0).time()))
 				setInterpolationTime(keyFr.get(keyFr.size() - 1).time());
-			if(timer != null)
-			timer.runTimer(interpolationPeriod());
+			if( timerFx1.timer() != null )
+				timerFx1.timer().runTimer(interpolationPeriod());
 			interpolationStrt = true;
 			update();
 		}
@@ -646,8 +650,8 @@ public class KeyFrameInterpolator implements Taskable, Cloneable {
 	 * {@link #interpolationIsStarted()} and {@link #toggleInterpolation()}.
 	 */
 	public void stopInterpolation() {
-		if(timer != null)
-			timer.cancelTimer();
+		if( timerFx1.timer() != null )
+			timerFx1.timer().cancelTimer();
 		interpolationStrt = false;
 	}
 
@@ -992,27 +996,5 @@ public class KeyFrameInterpolator implements Taskable, Cloneable {
 
 		frame().setPositionWithConstraint(pos);
 		frame().setRotationWithConstraint(q);
-	}
-	
-	public RTimer timer() {
-		return timer;
-	}
-	
-	public void setTimer(RTimer t) {
-		timer = t;
-	} 
-	
-	public void registerInTimerPool() {
-		scene.timerPool().registerInTimerPool(this, true);
-	}
-	
-	public boolean isTimerInit() {
-		if(timer() == null)
-			return false;
-		return true;
-	}
-	
-	public void execute() {
-		update();
 	}
 }

@@ -32,8 +32,7 @@ import remixlab.remixcam.devices.Actions.MouseAction;
 import remixlab.remixcam.devices.Mouse.Button;
 import remixlab.remixcam.constraint.*;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.util.RTimer;
-import remixlab.remixcam.util.Taskable;
+import remixlab.remixcam.util.TimerJob;
 
 /**
  * A InteractiveFrame is a Frame that can be rotated and translated using the
@@ -49,7 +48,7 @@ import remixlab.remixcam.util.Taskable;
  * the {@link remixlab.proscene.Scene#mouseGrabberPool()}.
  */
 
-public class InteractiveFrame extends GLFrame implements MouseGrabbable, Taskable, Cloneable {
+public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -151,7 +150,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Taskabl
 	private float mouseSpeed;
 	// spinning stuff:
 	private boolean isSpng;
-	private RTimer spngTimer;
+	private TimerJob timerFx1;
 	private int startedTime;
 	private int delay;
 
@@ -194,7 +193,6 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Taskabl
 	public InteractiveFrame(RCScene scn) {
 		scene = scn;
 		mouseGrabberPool = scene.mouseGrabberPool;
-		registerInTimerPool();
 		
 		action = MouseAction.NO_MOUSE_ACTION;
 		horiz = true;
@@ -213,6 +211,13 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Taskabl
 		isSpng = false;
 		prevConstraint = null;
 		startedTime = 0;
+		
+		timerFx1 = new TimerJob() {
+			public void execute() {
+				spin();
+			}
+		};		
+		scene.timerPool.registerInTimerPool(this, timerFx1);
 		// delay = 10;
 	}
 
@@ -235,7 +240,6 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Taskabl
 		super(iFrame.translation(), iFrame.rotation());
 		scene = scn;
 		mouseGrabberPool = scene.mouseGrabberPool;
-		registerInTimerPool();
 		action = MouseAction.NO_MOUSE_ACTION;
 		horiz = true;
 
@@ -258,6 +262,13 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Taskabl
 		Iterator<KeyFrameInterpolator> it = iFrame.listeners().iterator();
 		while (it.hasNext())
 			list.add(it.next());
+		
+		timerFx1 = new TimerJob() {
+			public void execute() {
+				spin();
+			}
+		};		
+		scene.timerPool.registerInTimerPool(this, timerFx1);
 	}	
 
 	/**
@@ -531,8 +542,8 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Taskabl
 	 * {@link #isSpinning()} will return {@code false} after this call.
 	 */
 	public final void stopSpinning() {
-		if(spngTimer != null)
-			spngTimer.cancelTimer();
+		if( timerFx1.timer() != null )
+			timerFx1.timer().cancelTimer();
 		isSpng = false;
 	}
 
@@ -546,7 +557,8 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Taskabl
 	public void startSpinning(int updateInterval) {
 		isSpng = true;
 		if(updateInterval>0) {
-			spngTimer.runTimer(updateInterval);
+			if( timerFx1.timer() != null )
+				timerFx1.timer().runTimer(updateInterval);
 		}
 	}
 
@@ -929,27 +941,5 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Taskabl
 		float d = x * x + y * y;
 		return d < size_limit ? (float) Math.sqrt(size2 - d) : size_limit
 				/ (float) Math.sqrt(d);
-	}
-	
-	public RTimer timer() {
-		return spngTimer;
-	}
-	
-	public void setTimer(RTimer t) {
-		spngTimer = t;
-	} 
-	
-	public void registerInTimerPool() {
-		scene.timerPool().registerInTimerPool(this, true);
-	}
-	
-	public boolean isTimerInit() {
-		if(timer() == null)
-			return false;
-		return true;
-	}
-	
-	public void execute() {
-		spin();
 	}
 }

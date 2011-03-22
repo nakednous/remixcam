@@ -25,8 +25,6 @@
 
 package remixlab.remixcam.core;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import remixlab.remixcam.devices.Actions.MouseAction;
 import remixlab.remixcam.geom.*;
 
@@ -49,6 +47,32 @@ import remixlab.remixcam.geom.*;
  * {@link remixlab.proscene.Scene#mouseGrabberPool()} upon creation.
  */
 public class InteractiveCameraFrame extends InteractiveDrivableFrame {
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((arcballRefPnt == null) ? 0 : arcballRefPnt.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InteractiveCameraFrame other = (InteractiveCameraFrame) obj;
+		if (arcballRefPnt == null) {
+			if (other.arcballRefPnt != null)
+				return false;
+		} else if (!arcballRefPnt.equals(other.arcballRefPnt))
+			return false;
+		return true;
+	}
+
 	private Vector3D arcballRefPnt;
 
 	/**
@@ -297,17 +321,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame {
 		int finalDrawAfterWheelEventDelay = 400;
 
 		// Starts (or prolungates) the timer.
-		if(flyTimer != null) {
-			flyTimer.cancel();
-			flyTimer.purge();
-		}
-		flyTimer=new Timer();
-		TimerTask timerTask = new TimerTask() {
-			public void run() {
-				flyUpdate();
-			}
-		};
-		flyTimer.schedule(timerTask, finalDrawAfterWheelEventDelay);
+		if( flyTimerJob.timer() != null )
+			flyTimerJob.timer().runTimerOnce(finalDrawAfterWheelEventDelay);
 
 		action = MouseAction.NO_MOUSE_ACTION;
 	}

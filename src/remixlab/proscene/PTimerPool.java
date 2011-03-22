@@ -1,14 +1,16 @@
 package remixlab.proscene;
 
-import remixlab.remixcam.util.Taskable;
+import java.util.List;
+
+import remixlab.remixcam.util.TimerJob;
 import remixlab.remixcam.util.TimerPool;
 
 public class PTimerPool extends TimerPool {
 	@Override
 	public void init() {
-		for (Taskable t : timerPool()) {
-			if (!t.isTimerInit())
-				init(t, new PTimerWrap(t));
-		}
+		for (List<TimerJob> list : timerPool.values())
+			for ( TimerJob e : list )
+				if ( e.timer() == null )
+					e.setTimer(new PTimerWrap(e));
 	}
 }
