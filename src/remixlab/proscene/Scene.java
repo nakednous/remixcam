@@ -26,6 +26,8 @@
 package remixlab.proscene;
 
 import processing.core.*;
+import remixlab.remixcam.core.GLFrame;
+import remixlab.remixcam.core.KeyFrameInterpolator;
 import remixlab.remixcam.core.RCScene;
 import remixlab.remixcam.core.Camera;
 import remixlab.remixcam.core.InteractiveAvatarFrame;
@@ -33,17 +35,20 @@ import remixlab.remixcam.core.InteractiveDrivableFrame;
 import remixlab.remixcam.core.InteractiveFrame;
 import remixlab.remixcam.core.MouseGrabbable;
 import remixlab.remixcam.core.Trackable;
+import remixlab.remixcam.core.KeyFrameInterpolator.KeyFrame;
 import remixlab.remixcam.devices.Actions.KeyboardAction;
 import remixlab.remixcam.devices.Actions.CameraKeyboardAction;
 import remixlab.remixcam.devices.Actions.ClickAction;
 import remixlab.remixcam.devices.Actions.MouseAction;
 import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.geom.Point;
+import remixlab.remixcam.geom.Quaternion;
 import remixlab.remixcam.geom.Vector3D;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import java.util.Timer;
@@ -306,7 +311,10 @@ public class Scene extends RCScene implements PConstants {
 	protected Method animateHandlerMethod;
 	/** the name of the method to handle the animation */
 	protected String animateHandlerMethodName;	
-
+	
+	// DRAWING STUFF
+	GLFrame tmpFrame;
+	
 	/**
 	 * All viewer parameters (display flags, scene parameters, associated
 	 * objects...) are set to their default values. The PApplet background is set
@@ -395,6 +403,9 @@ public class Scene extends RCScene implements PConstants {
 		removeDrawHandler();
 	  // register animation method
 		removeAnimationHandler();
+		
+		// DRAWING STUFF
+		tmpFrame = new GLFrame();
 
 		// called only once
 		init();
@@ -1104,7 +1115,7 @@ public class Scene extends RCScene implements PConstants {
 		if (frameSelectionHintIsDrawn())
 			drawSelectionHints();
 		if (cameraPathsAreDrawn()) {
-			DrawingUtils.drawAllPaths(this);
+			drawAllPaths();
 			drawCameraPathSelectionHints();
 		} else {
 			camera().hideAllPaths();
@@ -1445,67 +1456,7 @@ public class Scene extends RCScene implements PConstants {
 	}
 
 	// 6. Display of visual hints and Display methods
-
-	/**
-	 * Convenience wrapper function that simply calls {@code
-	 * DrawingUtils.drawAxis(parent)}
-	 * 
-	 * @see remixlab.proscene.DrawingUtils#drawAxis(PApplet)
-	 */
-	public void drawAxis() {
-		DrawingUtils.drawAxis(pg3d);
-	}
-
-	/**
-	 * Convenience wrapper function that simply calls {@code
-	 * DrawingUtils.drawAxis(parent, length)}
-	 * 
-	 * @see remixlab.proscene.DrawingUtils#drawAxis(PApplet, float)
-	 */
-	public void drawAxis(float length) {
-		DrawingUtils.drawAxis(pg3d, length);
-	}
-
-	/**
-	 * Convenience wrapper function that simply calls {@code
-	 * DrawingUtils.drawGrid(pg3d, 100, 10)}
-	 * 
-	 * @see remixlab.proscene.DrawingUtils#drawGrid(PApplet)
-	 */
-	public void drawGrid() {
-		DrawingUtils.drawGrid(pg3d, 100, 10);
-	}
-
-	/**
-	 * Convenience wrapper function that simply calls {@code
-	 * DrawingUtils.drawGrid(pg3d, size, 10)}
-	 * 
-	 * @see remixlab.proscene.DrawingUtils#drawGrid(PApplet, float)
-	 */
-	public void drawGrid(float size) {
-		DrawingUtils.drawGrid(pg3d, size, 10);
-	}
-
-	/**
-	 * Convenience wrapper function that simply calls {@code
-	 * DrawingUtils.drawGrid(pg3d, 100, nbSubdivisions)}
-	 * 
-	 * @see remixlab.proscene.DrawingUtils#drawGrid(PApplet, float, int)
-	 */
-	public void drawGrid(int nbSubdivisions) {
-		DrawingUtils.drawGrid(pg3d, 100, nbSubdivisions);
-	}
-
-	/**
-	 * Convenience wrapper function that simply calls {@code
-	 * DrawingUtils.drawGrid(pg3d, size, nbSubdivisions)}
-	 * 
-	 * @see remixlab.proscene.DrawingUtils#drawGrid(PApplet, float, int)
-	 */
-	public void drawGrid(float size, int nbSubdivisions) {
-		DrawingUtils.drawGrid(pg3d, size, nbSubdivisions);
-	}
-
+	
 	/**
 	 * Draws a rectangle on the screen showing the region where a zoom operation
 	 * is taking place.
@@ -1825,7 +1776,7 @@ public class Scene extends RCScene implements PConstants {
 		if (camera().frame() != null)
 			// TODO check this replacement
 			//camera().frame().applyTransformation(pg3d);
-			TempUtils.applyTransformation(camera().frame(), pg3d);			
+			applyTransformation(camera().frame());			
 	}
 
 	/**
@@ -3513,8 +3464,655 @@ public class Scene extends RCScene implements PConstants {
 		camera().setModelViewMatrix(toMatrix3D(pg3d.modelview));
 		// camera().setProjectionMatrix(((PGraphics3D) parent.g).modelview);
 	}
+
 	
-  //TODO find a better way!
+	// Drawing methods
+	
+	/**
+	 * Same as {@code cone(12, 0, 0, r, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float)
+	 */
+	public void cone(float r, float h) {
+		cone(12, 0, 0, r, h);
+	}
+	
+	/**
+	 * Same as {@code cone(det, 0, 0, r, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float)
+	 */
+	public void cone(int det, float r, float h) {
+		cone(det, 0, 0, r, h);
+	}
+	
+	/**
+	 * Same as {@code cone(18, 0, 0, r1, r2, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float, float)
+	 */
+	public void cone(float r1, float r2, float h) {
+		cone(18, 0, 0, r1, r2, h);
+	}
+	
+	/**
+	 * Same as {@code cone(det, 0, 0, r1, r2, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float, float)
+	 */
+	public void cone(int det, float r1, float r2, float h) {
+		cone(det, 0, 0, r1, r2, h);
+	}
+
+	/**
+	 * The code of this function was adapted from
+	 * http://processinghacks.com/hacks:cone Thanks to Tom Carden.
+	 * 
+	 * @see #cone(int, float, float, float, float, float)
+	 */
+	@Override
+	public void cone(int detail, float x, float y, float r, float h) {
+		float unitConeX[] = new float[detail + 1];
+		float unitConeY[] = new float[detail + 1];
+
+		for (int i = 0; i <= detail; i++) {
+			float a1 = TWO_PI * i / detail;
+			unitConeX[i] = r * (float) Math.cos(a1);
+			unitConeY[i] = r * (float) Math.sin(a1);
+		}
+
+		pg3d.pushMatrix();
+		pg3d.translate(x, y);
+		pg3d.beginShape(TRIANGLE_FAN);
+		pg3d.vertex(0, 0, h);
+		for (int i = 0; i <= detail; i++) {
+			pg3d.vertex(unitConeX[i], unitConeY[i], 0.0f);
+		}
+		pg3d.endShape();
+		pg3d.popMatrix();		
+	}
+
+	@Override
+	public void cone(int detail, float x, float y, float r1, float r2, float h) {
+		float firstCircleX[] = new float[detail + 1];
+		float firstCircleY[] = new float[detail + 1];
+		float secondCircleX[] = new float[detail + 1];
+		float secondCircleY[] = new float[detail + 1];
+
+		for (int i = 0; i <= detail; i++) {
+			float a1 = TWO_PI * i / detail;
+			firstCircleX[i] = r1 * (float) Math.cos(a1);
+			firstCircleY[i] = r1 * (float) Math.sin(a1);
+			secondCircleX[i] = r2 * (float) Math.cos(a1);
+			secondCircleY[i] = r2 * (float) Math.sin(a1);
+		}
+
+		pg3d.pushMatrix();
+		pg3d.translate(x, y);
+		pg3d.beginShape(QUAD_STRIP);
+		for (int i = 0; i <= detail; i++) {
+			pg3d.vertex(firstCircleX[i], firstCircleY[i], 0);
+			pg3d.vertex(secondCircleX[i], secondCircleY[i], h);
+		}
+		pg3d.endShape();
+		pg3d.popMatrix();		
+	}
+	
+	@Override
+	public void cylinder(float w, float h) {
+		float px, py;
+
+		pg3d.beginShape(QUAD_STRIP);
+		for (float i = 0; i < 13; i++) {
+			px = PApplet.cos(PApplet.radians(i * 30)) * w;
+			py = PApplet.sin(PApplet.radians(i * 30)) * w;
+			pg3d.vertex(px, py, 0);
+			pg3d.vertex(px, py, h);
+		}
+		pg3d.endShape();
+
+		pg3d.beginShape(TRIANGLE_FAN);
+		pg3d.vertex(0, 0, 0);
+		for (float i = 12; i > -1; i--) {
+			px = PApplet.cos(PApplet.radians(i * 30)) * w;
+			py = PApplet.sin(PApplet.radians(i * 30)) * w;
+			pg3d.vertex(px, py, 0);
+		}
+		pg3d.endShape();
+
+		pg3d.beginShape(TRIANGLE_FAN);
+		pg3d.vertex(0, 0, h);
+		for (float i = 0; i < 13; i++) {
+			px = PApplet.cos(PApplet.radians(i * 30)) * w;
+			py = PApplet.sin(PApplet.radians(i * 30)) * w;
+			pg3d.vertex(px, py, h);
+		}
+		pg3d.endShape();
+	}
+
+	/**
+	 * Draws all the Camera paths defined by {@link #keyFrameInterpolator(int)}
+	 * and makes them editable by adding all its Frames to the mouse grabber pool.
+	 * <p>
+	 * First calls
+	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#addFramesToMouseGrabberPool()}
+	 * and then
+	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#drawPath(int, int, float)}
+	 * for all the defined paths.
+	 * 
+	 * @see #hideAllPaths()
+	 */
+	public void drawAllPaths() {
+		HashMap<Integer, KeyFrameInterpolator> kfi = camera().kfiMap();
+		Iterator<Integer> itrtr = kfi.keySet().iterator();
+		while (itrtr.hasNext()) {
+			Integer key = itrtr.next();
+			kfi.get(key).addFramesToMouseGrabberPool();
+			drawPath(kfi.get(key), 3, 5, camera().sceneRadius());
+		}		
+	}
+
+	@Override
+	public void drawArrow(float length, float radius) {
+		float head = 2.5f * (radius / length) + 0.1f;
+		float coneRadiusCoef = 4.0f - 5.0f * head;
+
+		cylinder(radius, length	* (1.0f - head / coneRadiusCoef));
+		pg3d.translate(0.0f, 0.0f, length * (1.0f - head));
+		cone(coneRadiusCoef * radius, head * length);
+		pg3d.translate(0.0f, 0.0f, -length * (1.0f - head));
+	}
+
+	@Override
+	public void drawArrow(Vector3D from, Vector3D to, float radius) {
+		pg3d.pushMatrix();
+		pg3d.translate(from.x, from.y, from.z);
+	  // TODO: fix data conversion in an stronger way:
+		pg3d.applyMatrix(fromMatrix3D(new Quaternion(new Vector3D(0, 0, 1), Vector3D.sub(new Vector3D(to.x, to.y, to.z), new Vector3D(from.x, from.y, from.z))).matrix()));
+		drawArrow(Vector3D.sub(to, from).mag(), radius);
+		pg3d.popMatrix();
+	}
+	
+	/**
+	 * Convenience wrapper function that simply calls {@code drawAxis(100)}
+	 * 
+	 * @see #drawAxis(float)
+	 */
+	public void drawAxis() {
+		drawAxis(100);
+	}
+
+	@Override
+	public void drawAxis(float length) {
+		final float charWidth = length / 40.0f;
+		final float charHeight = length / 30.0f;
+		final float charShift = 1.04f * length;
+
+		// pg3d.noLights();
+
+		pg3d.pushStyle();
+		
+		pg3d.beginShape(LINES);		
+		pg3d.strokeWeight(2);
+		// The X
+		pg3d.stroke(255, 178, 178);
+		pg3d.vertex(charShift, charWidth, -charHeight);
+		pg3d.vertex(charShift, -charWidth, charHeight);
+		pg3d.vertex(charShift, -charWidth, -charHeight);
+		pg3d.vertex(charShift, charWidth, charHeight);
+		// The Y
+		pg3d.stroke(178, 255, 178);
+		pg3d.vertex(charWidth, charShift, charHeight);
+		pg3d.vertex(0.0f, charShift, 0.0f);
+		pg3d.vertex(-charWidth, charShift, charHeight);
+		pg3d.vertex(0.0f, charShift, 0.0f);
+		pg3d.vertex(0.0f, charShift, 0.0f);
+		pg3d.vertex(0.0f, charShift, -charHeight);
+		// The Z
+		pg3d.stroke(178, 178, 255);
+		
+		//left_handed
+		pg3d.vertex(-charWidth, -charHeight, charShift);
+		pg3d.vertex(charWidth, -charHeight, charShift);
+		pg3d.vertex(charWidth, -charHeight, charShift);
+		pg3d.vertex(-charWidth, charHeight, charShift);
+		pg3d.vertex(-charWidth, charHeight, charShift);
+		pg3d.vertex(charWidth, charHeight, charShift);
+	  //right_handed coordinate system should go like this:
+		//pg3d.vertex(-charWidth, charHeight, charShift);
+		//pg3d.vertex(charWidth, charHeight, charShift);
+		//pg3d.vertex(charWidth, charHeight, charShift);
+		//pg3d.vertex(-charWidth, -charHeight, charShift);
+		//pg3d.vertex(-charWidth, -charHeight, charShift);
+		//pg3d.vertex(charWidth, -charHeight, charShift);
+		
+		pg3d.endShape();
+
+		// Z axis
+		pg3d.noStroke();
+		pg3d.fill(178, 178, 255);
+		drawArrow(length, 0.01f * length);
+
+		// X Axis
+		pg3d.fill(255, 178, 178);
+		pg3d.pushMatrix();
+		pg3d.rotateY(HALF_PI);
+		drawArrow(length, 0.01f * length);
+		pg3d.popMatrix();
+
+		// Y Axis
+		pg3d.fill(178, 255, 178);
+		pg3d.pushMatrix();
+		pg3d.rotateX(-HALF_PI);
+		drawArrow(length, 0.01f * length);
+		pg3d.popMatrix();
+
+		pg3d.popStyle();
+	}
+
+	/**
+	 * Convenience wrapper function that simply calls {@code drawGrid(100, 10)}
+	 * 
+	 * @see #drawGrid(float, int)
+	 */
+	public void drawGrid() {
+		drawGrid(100, 10);
+	}
+
+	/**
+	 * Convenience wrapper function that simply calls {@code drawGrid(size, 10)}
+	 * 
+	 * @see #drawGrid(float, int)
+	 */
+	public void drawGrid(float size) {
+		drawGrid(size, 10);
+	}
+
+	/**
+	 * Convenience wrapper function that simply calls {@code drawGrid(100, nbSubdivisions)}
+	 * 
+	 * @see #drawGrid(float, int)
+	 */
+	public void drawGrid(int nbSubdivisions) {
+		drawGrid(100, nbSubdivisions);
+	}
+
+	@Override
+	public void drawGrid(float size, int nbSubdivisions) {
+		pg3d.pushStyle();
+		pg3d.stroke(170, 170, 170);
+		pg3d.strokeWeight(1);
+		pg3d.beginShape(LINES);
+		for (int i = 0; i <= nbSubdivisions; ++i) {
+			final float pos = size * (2.0f * i / nbSubdivisions - 1.0f);
+			pg3d.vertex(pos, -size);
+			pg3d.vertex(pos, +size);
+			pg3d.vertex(-size, pos);
+			pg3d.vertex(size, pos);
+		}
+		pg3d.endShape();
+		pg3d.popStyle();
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawCamera(camera,
+	 * 170, true, 1.0f)}
+	 * 
+	 * @see #drawCamera(Camera, int, boolean, float)
+	 */
+	public void drawCamera(Camera camera) {
+		drawCamera(camera, 170, true, 1.0f);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawCamera(camera,
+	 * 170, true, scale)}
+	 * 
+	 * @see #drawCamera(Camera, int, boolean, float)
+	 */
+	public void drawCamera(PGraphics3D pg3d, Camera camera, float scale) {
+		drawCamera(camera, 170, true, scale);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawCamera(camera,
+	 * color, true, 1.0f)}
+	 * 
+	 * @see #drawCamera(Camera, int, boolean, float)
+	 */
+	public void drawCamera(Camera camera, int color) {
+		drawCamera(camera, color, true, 1.0f);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawCamera(camera,
+	 * 170, drawFarPlane, 1.0f)}
+	 * 
+	 * @see #drawCamera(Camera, int, boolean, float)
+	 */
+	public void drawCamera(Camera camera,	boolean drawFarPlane) {
+		drawCamera(camera, 170, drawFarPlane, 1.0f);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawCamera(camera, 170, drawFarPlane, scale)}
+	 * 
+	 * @see #drawCamera(Camera, int, boolean, float)
+	 */
+	public void drawCamera(Camera camera,	boolean drawFarPlane, float scale) {
+		drawCamera(camera, 170, drawFarPlane, scale);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawCamera(camera, color, true, scale)}
+	 * 
+	 * @see #drawCamera(Camera, int, boolean, float)
+	 */
+	public void drawCamera(Camera camera, int color,	float scale) {
+		drawCamera(camera, color, true, scale);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawCamera(camera,
+	 * color, drawFarPlane, 1.0f)}
+	 * 
+	 * @see #drawCamera(Camera, int, boolean, float)
+	 */
+	public void drawCamera(Camera camera, int color,	boolean drawFarPlane) {
+		drawCamera(camera, color, drawFarPlane, 1.0f);
+	}
+
+	@Override
+	public void drawCamera(Camera camera, int color, boolean drawFarPlane, float scale) {
+		pg3d.pushMatrix();
+		// pg3d.applyMatrix(camera.frame().worldMatrix());
+		// same as the previous line, but maybe more efficient		
+		tmpFrame.fromMatrix(camera.frame().worldMatrix());
+		//tmpFrame.applyTransformation(pg3d);// TODO: fix me?		
+		pg3d.translate(tmpFrame.translation().x, tmpFrame.translation().y, tmpFrame.translation().z);
+		pg3d.rotate(tmpFrame.rotation().angle(), tmpFrame.rotation().axis().x, tmpFrame.rotation().axis().y, tmpFrame.rotation().axis().z);
+
+		// 0 is the upper left coordinates of the near corner, 1 for the far one
+		PVector[] points = new PVector[2];
+		points[0] = new PVector();
+		points[1] = new PVector();
+
+		points[0].z = scale * camera.zNear();
+		points[1].z = scale * camera.zFar();
+
+		switch (camera.type()) {
+		case PERSPECTIVE: {
+			points[0].y = points[0].z * PApplet.tan(camera.fieldOfView() / 2.0f);
+			points[0].x = points[0].y * camera.aspectRatio();
+			float ratio = points[1].z / points[0].z;
+			points[1].y = ratio * points[0].y;
+			points[1].x = ratio * points[0].x;
+			break;
+		}
+		case ORTHOGRAPHIC: {
+			float[] wh = camera.getOrthoWidthHeight();
+			points[0].x = points[1].x = scale * wh[0];
+			points[0].y = points[1].y = scale * wh[1];
+			break;
+		}
+		}
+
+		int farIndex = drawFarPlane ? 1 : 0;
+
+		// Near and (optionally) far plane(s)
+		pg3d.pushStyle();
+		pg3d.noStroke();
+		pg3d.fill(color);
+		pg3d.beginShape(PApplet.QUADS);
+		for (int i = farIndex; i >= 0; --i) {
+			pg3d.normal(0.0f, 0.0f, (i == 0) ? 1.0f : -1.0f);
+			pg3d.vertex(points[i].x, points[i].y, -points[i].z);
+			pg3d.vertex(-points[i].x, points[i].y, -points[i].z);
+			pg3d.vertex(-points[i].x, -points[i].y, -points[i].z);
+			pg3d.vertex(points[i].x, -points[i].y, -points[i].z);
+		}
+		pg3d.endShape();
+
+		// Up arrow
+		float arrowHeight = 1.5f * points[0].y;
+		float baseHeight = 1.2f * points[0].y;
+		float arrowHalfWidth = 0.5f * points[0].x;
+		float baseHalfWidth = 0.3f * points[0].x;
+
+		// pg3d.noStroke();
+		pg3d.fill(color);
+		// Base
+		pg3d.beginShape(PApplet.QUADS);
+		
+		pg3d.vertex(-baseHalfWidth, -points[0].y, -points[0].z);
+		pg3d.vertex(baseHalfWidth, -points[0].y, -points[0].z);
+		pg3d.vertex(baseHalfWidth, -baseHeight, -points[0].z);
+		pg3d.vertex(-baseHalfWidth, -baseHeight, -points[0].z);
+  	//right_handed coordinate system should go like this:
+		//pg3d.vertex(-baseHalfWidth, points[0].y, -points[0].z);
+		//pg3d.vertex(baseHalfWidth, points[0].y, -points[0].z);
+		//pg3d.vertex(baseHalfWidth, baseHeight, -points[0].z);
+		//pg3d.vertex(-baseHalfWidth, baseHeight, -points[0].z);
+		
+		pg3d.endShape();
+
+		// Arrow
+		pg3d.fill(color);
+		pg3d.beginShape(PApplet.TRIANGLES);
+		
+		pg3d.vertex(0.0f, -arrowHeight, -points[0].z);
+		pg3d.vertex(-arrowHalfWidth, -baseHeight, -points[0].z);
+		pg3d.vertex(arrowHalfWidth, -baseHeight, -points[0].z);
+  	//right_handed coordinate system should go like this:
+		//pg3d.vertex(0.0f, arrowHeight, -points[0].z);
+		//pg3d.vertex(-arrowHalfWidth, baseHeight, -points[0].z);
+		//pg3d.vertex(arrowHalfWidth, baseHeight, -points[0].z);
+		
+		pg3d.endShape();
+
+		// Frustum lines
+		pg3d.stroke(color);
+		pg3d.strokeWeight(2);
+		switch (camera.type()) {
+		case PERSPECTIVE:
+			pg3d.beginShape(PApplet.LINES);
+			pg3d.vertex(0.0f, 0.0f, 0.0f);
+			pg3d.vertex(points[farIndex].x, points[farIndex].y, -points[farIndex].z);
+			pg3d.vertex(0.0f, 0.0f, 0.0f);
+			pg3d.vertex(-points[farIndex].x, points[farIndex].y, -points[farIndex].z);
+			pg3d.vertex(0.0f, 0.0f, 0.0f);
+			pg3d.vertex(-points[farIndex].x, -points[farIndex].y, -points[farIndex].z);
+			pg3d.vertex(0.0f, 0.0f, 0.0f);
+			pg3d.vertex(points[farIndex].x, -points[farIndex].y, -points[farIndex].z);
+			pg3d.endShape();
+			break;
+		case ORTHOGRAPHIC:
+			if (drawFarPlane) {
+				pg3d.beginShape(PApplet.LINES);
+				pg3d.vertex(points[0].x, points[0].y, -points[0].z);
+				pg3d.vertex(points[1].x, points[1].y, -points[1].z);
+				pg3d.vertex(-points[0].x, points[0].y, -points[0].z);
+				pg3d.vertex(-points[1].x, points[1].y, -points[1].z);
+				pg3d.vertex(-points[0].x, -points[0].y, -points[0].z);
+				pg3d.vertex(-points[1].x, -points[1].y, -points[1].z);
+				pg3d.vertex(points[0].x, -points[0].y, -points[0].z);
+				pg3d.vertex(points[1].x, -points[1].y, -points[1].z);
+				pg3d.endShape();
+			}
+		}
+
+		pg3d.popStyle();
+
+		pg3d.popMatrix();
+	}
+	
+	public void drawKFICamera(float scale) {
+		drawKFICamera(170, scale);
+	}
+
+	@Override
+	public void drawKFICamera(int color, float scale) {
+		float halfHeight = scale * 0.07f;
+		float halfWidth = halfHeight * 1.3f;
+		float dist = halfHeight / PApplet.tan(PApplet.PI / 8.0f);
+
+		float arrowHeight = 1.5f * halfHeight;
+		float baseHeight = 1.2f * halfHeight;
+		float arrowHalfWidth = 0.5f * halfWidth;
+		float baseHalfWidth = 0.3f * halfWidth;
+
+		// Frustum outline
+		pg3d.pushStyle();
+
+		pg3d.noFill();
+		pg3d.stroke(color);
+		pg3d.beginShape();
+		pg3d.vertex(-halfWidth, halfHeight, -dist);
+		pg3d.vertex(-halfWidth, -halfHeight, -dist);
+		pg3d.vertex(0.0f, 0.0f, 0.0f);
+		pg3d.vertex(halfWidth, -halfHeight, -dist);
+		pg3d.vertex(-halfWidth, -halfHeight, -dist);
+		pg3d.endShape();
+		pg3d.noFill();
+		pg3d.beginShape();
+		pg3d.vertex(halfWidth, -halfHeight, -dist);
+		pg3d.vertex(halfWidth, halfHeight, -dist);
+		pg3d.vertex(0.0f, 0.0f, 0.0f);
+		pg3d.vertex(-halfWidth, halfHeight, -dist);
+		pg3d.vertex(halfWidth, halfHeight, -dist);
+		pg3d.endShape();
+
+		// Up arrow
+		pg3d.noStroke();
+		pg3d.fill(color);
+		// Base
+		pg3d.beginShape(PApplet.QUADS);
+		
+		pg3d.vertex(baseHalfWidth, -halfHeight, -dist);
+		pg3d.vertex(-baseHalfWidth, -halfHeight, -dist);
+		pg3d.vertex(-baseHalfWidth, -baseHeight, -dist);
+		pg3d.vertex(baseHalfWidth, -baseHeight, -dist);
+  	//right_handed coordinate system should go like this:
+		//pg3d.vertex(-baseHalfWidth, halfHeight, -dist);
+		//pg3d.vertex(baseHalfWidth, halfHeight, -dist);
+		//pg3d.vertex(baseHalfWidth, baseHeight, -dist);
+		//pg3d.vertex(-baseHalfWidth, baseHeight, -dist);
+		
+		pg3d.endShape();
+		// Arrow
+		pg3d.beginShape(PApplet.TRIANGLES);
+		
+		pg3d.vertex(0.0f, -arrowHeight, -dist);
+		pg3d.vertex(arrowHalfWidth, -baseHeight, -dist);
+		pg3d.vertex(-arrowHalfWidth, -baseHeight, -dist);
+	  //right_handed coordinate system should go like this:
+		//pg3d.vertex(0.0f, arrowHeight, -dist);
+		//pg3d.vertex(-arrowHalfWidth, baseHeight, -dist);
+		//pg3d.vertex(arrowHalfWidth, baseHeight, -dist);
+		
+		pg3d.endShape();
+
+		pg3d.popStyle();		
+	}
+
+	@Override
+	public void drawPath(KeyFrameInterpolator KFI, int mask, int nbFrames,	float scale) {
+		int nbSteps = 30;
+		if (!KFI.pathIsValid()) {
+			KFI.drawingPath().clear();
+
+			if (KFI.keyFrame().isEmpty())
+				return;
+
+			if (!KFI.valuesAreValid())
+				KFI.updateModifiedFrameValues();
+
+			if (KFI.keyFrame().get(0) == KFI.keyFrame().get(KFI.keyFrame().size() - 1))
+				KFI.drawingPath().add(new GLFrame(KFI.keyFrame().get(0).position(), KFI.keyFrame().get(0).orientation()));
+			else {
+				KeyFrame[] kf = new KeyFrame[4];
+				kf[0] = KFI.keyFrame().get(0);
+				kf[1] = kf[0];
+
+				int index = 1;
+				kf[2] = (index < KFI.keyFrame().size()) ? KFI.keyFrame().get(index) : null;
+				index++;
+				kf[3] = (index < KFI.keyFrame().size()) ? KFI.keyFrame().get(index) : null;
+
+				while (kf[2] != null) {
+					Vector3D diff = Vector3D.sub(kf[2].position(), kf[1].position());
+					Vector3D vec1 = Vector3D.add(Vector3D.mult(diff, 3.0f), Vector3D.mult(
+							kf[1].tgP(), (-2.0f)));
+					vec1 = Vector3D.sub(vec1, kf[2].tgP());
+					Vector3D vec2 = Vector3D.add(Vector3D.mult(diff, (-2.0f)), kf[1].tgP());
+					vec2 = Vector3D.add(vec2, kf[2].tgP());
+
+					for (int step = 0; step < nbSteps; ++step) {
+						float alpha = step / (float) nbSteps;
+						KFI.drawingFrame().setPosition(Vector3D.add(kf[1].position(), Vector3D.mult(
+								Vector3D.add(kf[1].tgP(), Vector3D.mult(Vector3D.add(vec1, Vector3D
+										.mult(vec2, alpha)), alpha)), alpha)));
+						KFI.drawingFrame().setOrientation(Quaternion.squad(kf[1].orientation(), kf[1]
+								.tgQ(), kf[2].tgQ(), kf[2].orientation(), alpha));
+						KFI.drawingPath().add(new GLFrame(KFI.drawingFrame()));
+					}
+
+					// Shift
+					kf[0] = kf[1];
+					kf[1] = kf[2];
+					kf[2] = kf[3];
+
+					index++;
+					kf[3] = (index < KFI.keyFrame().size()) ? KFI.keyFrame().get(index) : null;
+				}
+				// Add last KeyFrame
+				KFI.drawingPath().add(new GLFrame(kf[1].position(), kf[1].orientation()));
+			}
+			KFI.validatePath();
+		}
+
+		if (mask != 0) {
+			pg3d.pushStyle();
+			pg3d.strokeWeight(2);
+
+			if ((mask & 1) != 0) {
+				pg3d.noFill();
+				pg3d.stroke(170);
+				pg3d.beginShape();
+				for (GLFrame myFr : KFI.drawingPath())
+					pg3d.vertex(myFr.position().x, myFr.position().y, myFr.position().z);
+				pg3d.endShape();
+			}
+			if ((mask & 6) != 0) {
+				int count = 0;
+				if (nbFrames > nbSteps)
+					nbFrames = nbSteps;
+				float goal = 0.0f;
+
+				for (GLFrame myFr : KFI.drawingPath())
+					if ((count++) >= goal) {
+						goal += nbSteps / (float) nbFrames;
+						pg3d.pushMatrix();
+
+						// pg3d.applyMatrix(myFr.matrix());
+						//myFr.applyTransformation(pg3d);// replaced with the two lines below:						
+						pg3d.translate(myFr.translation().x, myFr.translation().y, myFr.translation().z);
+						pg3d.rotate(myFr.rotation().angle(), myFr.rotation().axis().x, myFr.rotation().axis().y, myFr.rotation().axis().z);
+
+						if ((mask & 2) != 0)
+							drawKFICamera(scale);
+						if ((mask & 4) != 0)
+							drawAxis(scale / 10.0f);
+
+						pg3d.popMatrix();
+					}
+			}
+			pg3d.popStyle();
+		}
+	}
+	
+	// TODO: check where to put all these
+	
 	/**
 	 * Utility function that returns the PMatrix3D representation of the given Matrix3D.
 	 */
@@ -3523,5 +4121,65 @@ public class Scene extends RCScene implements PConstants {
 				                m.m10, m.m11, m.m12, m.m13,
 				                m.m20, m.m21, m.m22, m.m23,
 				                m.m30, m.m31, m.m32, m.m33);
+	}
+	
+	/**
+	 * Utility function that returns the PMatrix3D representation of the given Matrix3D.
+	 */
+	public static final PMatrix3D fromMatrix3D(Matrix3D m) {
+		return new PMatrix3D(m.m00, m.m01, m.m02, m.m03, 
+				                 m.m10, m.m11, m.m12, m.m13,
+				                 m.m20, m.m21, m.m22, m.m23,
+				                 m.m30, m.m31, m.m32, m.m33);
+	}
+	
+	/**
+	 * Apply the transformation defined by this Frame to {@code p3d}. The Frame is
+	 * first translated and then rotated around the new translated origin.
+	 * <p>
+	 * Same as:
+	 * <p>
+	 * {@code p3d.translate(translation().x, translation().y, translation().z);} <br>
+	 * {@code p3d.rotate(rotation().angle(), rotation().axis().x,
+	 * rotation().axis().y, rotation().axis().z);} <br>
+	 * <p>
+	 * This method should be used in conjunction with PApplet to modify the
+	 * processing modelview matrix from a Frame hierarchy. For example, with this
+	 * Frame hierarchy:
+	 * <p>
+	 * {@code Frame body = new Frame();} <br>
+	 * {@code Frame leftArm = new Frame();} <br>
+	 * {@code Frame rightArm = new Frame();} <br>
+	 * {@code leftArm.setReferenceFrame(body);} <br>
+	 * {@code rightArm.setReferenceFrame(body);} <br>
+	 * <p>
+	 * The associated processing drawing code should look like:
+	 * <p>
+	 * {@code p3d.pushMatrix();//p is the PApplet instance} <br>
+	 * {@code body.applyTransformation(p);} <br>
+	 * {@code drawBody();} <br>
+	 * {@code p3d.pushMatrix();} <br>
+	 * {@code leftArm.applyTransformation(p);} <br>
+	 * {@code drawArm();} <br>
+	 * {@code p3d.popMatrix();} <br>
+	 * {@code p3d.pushMatrix();} <br>
+	 * {@code rightArm.applyTransformation(p);} <br>
+	 * {@code drawArm();} <br>
+	 * {@code p3d.popMatrix();} <br>
+	 * {@code p3d.popMatrix();} <br>
+	 * <p>
+	 * Note the use of nested {@code pushMatrix()} and {@code popMatrix()} blocks
+	 * to represent the frame hierarchy: {@code leftArm} and {@code rightArm} are
+	 * both correctly drawn with respect to the {@code body} coordinate system.
+	 * <p>
+	 * <b>Attention:</b> When drawing a frame hierarchy as above, this method
+	 * should be used whenever possible (one can also use {@link #matrix()}
+	 * instead).
+	 * 
+	 * @see #matrix()
+	 */
+	public void applyTransformation(InteractiveFrame iFrame) {
+		pg3d.translate( iFrame.translation().x, iFrame.translation().y, iFrame.translation().z );
+		pg3d.rotate( iFrame.rotation().angle(), iFrame.rotation().axis().x, iFrame.rotation().axis().y, iFrame.rotation().axis().z);
 	}
 }
