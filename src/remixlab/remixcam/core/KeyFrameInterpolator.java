@@ -359,6 +359,13 @@ public class KeyFrameInterpolator implements Cloneable {
 			clonedKfi.currentFrame2 = keyFr.listIterator(currentFrame2.nextIndex());
 			clonedKfi.currentFrame3 = keyFr.listIterator(currentFrame3.nextIndex());
 			//TODO to check what has to be done with the timers
+			TimerJob clonedTimerFx1 = new TimerJob() {
+				public void execute() {
+					update();
+				}
+			};		
+			scene.timerPool.registerInTimerPool(clonedKfi, clonedTimerFx1);
+			
 			return clonedKfi;
 		} catch (CloneNotSupportedException e) {
 			throw new Error(

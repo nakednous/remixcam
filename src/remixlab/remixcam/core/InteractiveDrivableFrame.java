@@ -116,8 +116,15 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 	public InteractiveDrivableFrame clone() {
 		InteractiveDrivableFrame clonedIAvtrFrame = (InteractiveDrivableFrame) super.clone();
 		clonedIAvtrFrame.flyUpVec = new Vector3D(flyUpVec.x, flyUpVec.y, flyUpVec.z);
-		clonedIAvtrFrame.flyDisp = new Vector3D(flyDisp.x, flyDisp.y, flyDisp.z);
-    //clonedIAvtrFrame.flyTimer = new Timer();
+		clonedIAvtrFrame.flyDisp = new Vector3D(flyDisp.x, flyDisp.y, flyDisp.z);		
+	  //TODO check if timer needs to be clone
+		TimerJob clonedflyTimerJob = new TimerJob() {
+			public void execute() {
+				flyUpdate();
+			}
+		};		
+		scene.timerPool.registerInTimerPool(clonedIAvtrFrame, clonedflyTimerJob);
+		
 		return clonedIAvtrFrame;
 	}
 

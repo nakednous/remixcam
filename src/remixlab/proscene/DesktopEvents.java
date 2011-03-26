@@ -208,10 +208,10 @@ public class DesktopEvents implements MouseWheelListener {
 	protected boolean keyReleasedKeyboardAction(KeyEvent e) {
 		// 1. Key-frames
 		// 1.1. Need to add a key-frame?
-		if (((scene.addKeyFrameKeyboardModifier == Scene.Modifier.ALT) && (e.isAltDown()))
-	   || ((scene.addKeyFrameKeyboardModifier == Scene.Modifier.ALT_GRAPH) && (e.isAltGraphDown()))
-		 || ((scene.addKeyFrameKeyboardModifier == Scene.Modifier.CTRL) && (e.isControlDown()))
-		 || ((scene.addKeyFrameKeyboardModifier == Scene.Modifier.SHIFT) && (e.isShiftDown()))) {
+		if (((scene.addKeyFrameKeyboardModifier() == Scene.Modifier.ALT) && (e.isAltDown()))
+	   || ((scene.addKeyFrameKeyboardModifier() == Scene.Modifier.ALT_GRAPH) && (e.isAltGraphDown()))
+		 || ((scene.addKeyFrameKeyboardModifier() == Scene.Modifier.CTRL) && (e.isControlDown()))
+		 || ((scene.addKeyFrameKeyboardModifier() == Scene.Modifier.SHIFT) && (e.isShiftDown()))) {
 			Integer path = scene.path(e.getKeyCode());
 			if (path != null) {
 				scene.camera().addKeyFrameToPath(path);
@@ -219,10 +219,10 @@ public class DesktopEvents implements MouseWheelListener {
 			}
 		}
   	// 1.2. Need to delete a key-frame?
-		if (((scene.deleteKeyFrameKeyboardModifier == Scene.Modifier.ALT) && (e.isAltDown()))
-		 || ((scene.deleteKeyFrameKeyboardModifier == Scene.Modifier.ALT_GRAPH) && (e.isAltGraphDown()))
-		 || ((scene.deleteKeyFrameKeyboardModifier == Scene.Modifier.CTRL) && (e.isControlDown()))
-		 || ((scene.deleteKeyFrameKeyboardModifier == Scene.Modifier.SHIFT) && (e.isShiftDown()))) {
+		if (((scene.deleteKeyFrameKeyboardModifier() == Scene.Modifier.ALT) && (e.isAltDown()))
+		 || ((scene.deleteKeyFrameKeyboardModifier() == Scene.Modifier.ALT_GRAPH) && (e.isAltGraphDown()))
+		 || ((scene.deleteKeyFrameKeyboardModifier() == Scene.Modifier.CTRL) && (e.isControlDown()))
+		 || ((scene.deleteKeyFrameKeyboardModifier() == Scene.Modifier.SHIFT) && (e.isShiftDown()))) {
 			Integer path = scene.path(e.getKeyCode());
 			if (path != null) {
 				scene.camera().deletePath(path);

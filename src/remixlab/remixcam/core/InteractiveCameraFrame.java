@@ -99,8 +99,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame {
 	 */
 	public InteractiveCameraFrame clone() {
 		InteractiveCameraFrame clonedICamFrame = (InteractiveCameraFrame) super.clone();
-		clonedICamFrame.arcballRefPnt = new Vector3D(arcballRefPnt.x,
-				arcballRefPnt.y, arcballRefPnt.z);
+		clonedICamFrame.arcballRefPnt = new Vector3D(arcballRefPnt.x,	arcballRefPnt.y, arcballRefPnt.z);
 		return clonedICamFrame;
 	}
 

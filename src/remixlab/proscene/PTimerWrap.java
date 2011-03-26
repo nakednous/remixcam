@@ -16,11 +16,8 @@ public class PTimerWrap implements RTimer {
 	}	
 	
 	public void createTimer() {
-		if(timer != null) {
-			timer.cancel();
-			timer.purge();
-		}
-		timer=new Timer();
+		cancelTimer();
+		timer = new Timer();
 		timerTask = new TimerTask() {
 			public void run() {
 				caller.execute();

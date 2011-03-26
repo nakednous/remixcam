@@ -6,29 +6,37 @@ import java.util.HashMap;
 
 public abstract class TimerPool {
 	public HashMap<Object, List<TimerJob>> timerPool;
+	protected boolean needInit;
 	
 	public TimerPool() {
 		timerPool = new HashMap<Object, List<TimerJob>>();
+		needInit = false;
 	}
 
 	public boolean needInit() {
-		for (List<TimerJob> list : timerPool.values())
-			for ( TimerJob e : list )
-				if ( e.timer() == null )
-					return true;
-		return false;		
+		/**
+		if(!cached)
+			for (List<TimerJob> list : timerPool.values())
+				for ( TimerJob e : list )
+					if ( e.timer() == null )
+						needIt = true;
+					else
+						needIt = false;
+						*/
+		return needInit;
 	}
 	
 	public HashMap<Object, List<TimerJob>> timerPool() {
 		return timerPool;
 	}	
 	
-	public void registerInTimerPool(Object o, TimerJob t) {
+	public void registerInTimerPool(Object o, TimerJob t) {		
 		if( !timerPool.containsKey(o) ) {
 			timerPool.put(o, new ArrayList<TimerJob>());
 		} 
 		if( !timerPool.get(o).contains(t) )
 			timerPool.get(o).add(t);
+		needInit = true;
 	}
 	
 	public void unregisterFromTimerPool(Object t) {

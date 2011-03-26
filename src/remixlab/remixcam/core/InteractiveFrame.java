@@ -291,6 +291,13 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 */
 	public InteractiveFrame clone() {
 		InteractiveFrame clonedIFrame = (InteractiveFrame) super.clone();
+		//TODO check if timer needs to be clone
+		TimerJob clonedTimerFx1 = new TimerJob() {
+			public void execute() {
+				spin();
+			}
+		};		
+		scene.timerPool.registerInTimerPool(clonedIFrame, clonedTimerFx1);
 		return clonedIFrame;
 	}
 

@@ -32,7 +32,6 @@ import remixlab.remixcam.core.InteractiveAvatarFrame;
 import remixlab.remixcam.core.InteractiveDrivableFrame;
 import remixlab.remixcam.core.InteractiveFrame;
 import remixlab.remixcam.core.MouseGrabbable;
-//import remixlab.remixcam.core.MouseGrabberPool;
 import remixlab.remixcam.core.Trackable;
 import remixlab.remixcam.devices.Actions.KeyboardAction;
 import remixlab.remixcam.devices.Actions.CameraKeyboardAction;
@@ -2397,11 +2396,31 @@ public class Scene extends RCScene implements PConstants {
 	public boolean isPathKeyInUse(Integer vKey) {
 		return pathKeys.isShortcutInUse(vKey);
 	}
+	
+	/**
+	 * Returns the modifier key needed to play the key-frame interpolator paths.
+	 * 
+	 * @see #setAddKeyFrameKeyboardModifier(Modifier)
+	 */
+	public Modifier addKeyFrameKeyboardModifier() {
+		return addKeyFrameKeyboardModifier;
+	}
+	
+	/**
+	 * Returns the modifier key needed to delete the key-frame interpolator paths.
+	 * 
+	 * @see #setDeleteKeyFrameKeyboardModifier(Modifier)
+	 */
+	public Modifier deleteKeyFrameKeyboardModifier() {
+		return deleteKeyFrameKeyboardModifier;
+	}
 
 	/**
 	 * Sets the modifier key needed to play the key-frame interpolator paths.
 	 * 
 	 * @param modifier
+	 * 
+	 * @see #addKeyFrameKeyboardModifier()
 	 */
 	public void setAddKeyFrameKeyboardModifier(Modifier modifier) {
 		addKeyFrameKeyboardModifier = modifier;
@@ -2411,6 +2430,8 @@ public class Scene extends RCScene implements PConstants {
 	 * Sets the modifier key needed to delete the key-frame interpolator paths.
 	 * 
 	 * @param modifier
+	 * 
+	 * @see #deleteKeyFrameKeyboardModifier()
 	 */
 	public void setDeleteKeyFrameKeyboardModifier(Modifier modifier) {
 		deleteKeyFrameKeyboardModifier = modifier;
