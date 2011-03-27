@@ -4,6 +4,9 @@ import java.util.List;
 
 import processing.core.PApplet;
 
+import remixlab.remixcam.devices.Actions.CameraKeyboardAction;
+import remixlab.remixcam.devices.Actions.ClickAction;
+import remixlab.remixcam.devices.Actions.KeyboardAction;
 import remixlab.remixcam.geom.Point;
 import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.util.*;
@@ -44,6 +47,12 @@ public abstract class RCScene {
 	// C O N S T R A I N T S
 	protected boolean withConstraint;
 	
+	//	timer and related mouse actions
+	protected boolean arpFlag;
+	protected boolean pupFlag;
+	protected Vector3D pupVec;
+	protected TimerJob timerFx;
+	
 	public RCScene() {
 		mouseGrabberPool = new MouseGrabberPool();
 		avatarIsInteractiveDrivableFrame = false;// also init in setAvatar, but we
@@ -54,13 +63,117 @@ public abstract class RCScene {
 		//setCamera(camera(), width, height);
 		//setInteractiveFrame(null);
 		//setAvatar(null);
+		
+		timerFx = new TimerJob() {
+			public void execute() {
+				unSetTimerFlag();
+			}
+		};		
+		
 		setDrawWithConstraint(true);
 		disableFrustumEquationsUpdate();
 	}	
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (avatarIsInteractiveAvatarFrame ? 1231 : 1237);
+		result = prime * result + (avatarIsInteractiveDrivableFrame ? 1231 : 1237);
+		result = prime * result + (axisIsDrwn ? 1231 : 1237);
+		result = prime * result + ((cam == null) ? 0 : cam.hashCode());
+		result = prime * result + (cameraPathsAreDrwn ? 1231 : 1237);
+		result = prime * result + (fpCoefficientsUpdate ? 1231 : 1237);
+		result = prime * result + (frameSelectionHintIsDrwn ? 1231 : 1237);
+		result = prime * result + ((glIFrame == null) ? 0 : glIFrame.hashCode());
+		result = prime * result + (gridIsDrwn ? 1231 : 1237);
+		result = prime * result + height;
+		result = prime * result + (iFrameIsDrwn ? 1231 : 1237);
+		result = prime * result + (interactiveFrameIsDrivable ? 1231 : 1237);
+		result = prime * result + (mouseTrckn ? 1231 : 1237);
+		result = prime * result + (offscreen ? 1231 : 1237);
+		result = prime * result + width;
+		result = prime * result + (withConstraint ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RCScene other = (RCScene) obj;
+		if (avatarIsInteractiveAvatarFrame != other.avatarIsInteractiveAvatarFrame)
+			return false;
+		if (avatarIsInteractiveDrivableFrame != other.avatarIsInteractiveDrivableFrame)
+			return false;
+		if (axisIsDrwn != other.axisIsDrwn)
+			return false;
+		if (cam == null) {
+			if (other.cam != null)
+				return false;
+		} else if (!cam.equals(other.cam))
+			return false;
+		if (cameraPathsAreDrwn != other.cameraPathsAreDrwn)
+			return false;
+		if (fpCoefficientsUpdate != other.fpCoefficientsUpdate)
+			return false;
+		if (frameSelectionHintIsDrwn != other.frameSelectionHintIsDrwn)
+			return false;
+		if (glIFrame == null) {
+			if (other.glIFrame != null)
+				return false;
+		} else if (!glIFrame.equals(other.glIFrame))
+			return false;
+		if (gridIsDrwn != other.gridIsDrwn)
+			return false;
+		if (height != other.height)
+			return false;
+		if (iFrameIsDrwn != other.iFrameIsDrwn)
+			return false;
+		if (interactiveFrameIsDrivable != other.interactiveFrameIsDrivable)
+			return false;
+		if (mouseTrckn != other.mouseTrckn)
+			return false;
+		if (offscreen != other.offscreen)
+			return false;
+		if (width != other.width)
+			return false;
+		if (withConstraint != other.withConstraint)
+			return false;
+		return true;
+	}
+
 	public TimerPool timerPool() {
 		return timerPool;
 	}
+	
+	// --- TODO
+	// To be studied of the following abstract function can 
+	// be implemented in this class 
+	/**
+	 * Sets the interactivity to the Scene {@link #interactiveFrame()} instance
+	 * according to {@code draw}
+	 */
+	//TODO implement here, once camera profile are pulled  up
+	public abstract void setDrawInteractiveFrame(boolean draw);
+	
+	public abstract void displayGlobalHelp();
+	
+	public abstract void displayCurrentCameraProfileHelp();
+	
+	public abstract void nextCameraProfile();
+	
+	public abstract void startAnimation();
+	
+	public abstract void stopAnimation();
+	
+	public abstract boolean animationIsStarted();
+	
+	// TODO --- end abstract functions section
 	
 	/**
 	 * Returns an object containing references to all the active MouseGrabbers.
@@ -437,13 +550,6 @@ public abstract class RCScene {
 		else
 			setDrawInteractiveFrame(true);
 	}
-
-	/**
-	 * Sets the interactivity to the Scene {@link #interactiveFrame()} instance
-	 * according to {@code draw}
-	 */
-	//TODO implement here, once camera profile are pulled  up
-	public abstract void setDrawInteractiveFrame(boolean draw);
 	
 	/**
 	 * Returns {@code true} if axis is currently being drawn and {@code false}
@@ -716,6 +822,252 @@ public abstract class RCScene {
 			setDrawWithConstraint(false);
 		else
 			setDrawWithConstraint(true);
+	}
+	
+	// timer stuff
+	
+	/**
+	 * Called from the timer to stop displaying the point under pixel and arcball
+	 * reference point visual hints.
+	 */
+	protected void unSetTimerFlag() {	
+		arpFlag = false;
+		pupFlag = false;
+	}
+	
+	// animation framework
+	
+	/**
+	 * Calls {@link #startAnimation()} or {@link #stopAnimation()}, depending on
+	 * {@link #animationIsStarted()}.
+	 */
+	public void toggleAnimation() {
+		if (animationIsStarted()) stopAnimation(); else startAnimation();
+	}
+	
+	/**
+	 * Restart the animation.
+	 * <p>
+	 * Simply calls {@link #stopAnimation()} and then {@link #startAnimation()}.
+	 */
+  public void restartAnimation() {
+  	stopAnimation();
+  	startAnimation();
+	}
+  
+  // handles
+  
+  /**
+	 * Internal method. Handles the different global keyboard actions.
+	 */
+	protected void handleKeyboardAction(KeyboardAction id, Point p) {
+		switch (id) {
+		case DRAW_AXIS:
+			toggleAxisIsDrawn();
+			break;
+		case DRAW_GRID:
+			toggleGridIsDrawn();
+			break;
+		case CAMERA_PROFILE:
+			nextCameraProfile();
+			break;
+		case CAMERA_TYPE:
+			toggleCameraType();
+			break;
+		case CAMERA_KIND:
+			toggleCameraKind();
+			break;
+		case ANIMATION:
+			toggleAnimation();
+			break;
+		case ARP_FROM_PIXEL:
+			if (Camera.class == camera().getClass())
+				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
+								+ "See the Point Under Pixel example!");
+			else if (setArcballReferencePointFromPixel(p)) {
+				arpFlag = true;
+				if( timerFx.timer() != null )
+					timerFx.timer().runTimerOnce(1000);				
+			}
+			break;
+		case RESET_ARP:
+			camera().setArcballReferencePoint(new Vector3D(0, 0, 0));
+			arpFlag = true;
+			if( timerFx.timer() != null )
+				timerFx.timer().runTimerOnce(1000);
+			break;
+		case GLOBAL_HELP:
+			displayGlobalHelp();
+			break;
+		case CURRENT_CAMERA_PROFILE_HELP:
+			displayCurrentCameraProfileHelp();
+			break;
+		case EDIT_CAMERA_PATH:
+			toggleCameraPathsAreDrawn();
+			break;
+		case FOCUS_INTERACTIVE_FRAME:
+			toggleDrawInteractiveFrame();
+			break;
+		case DRAW_FRAME_SELECTION_HINT:
+			toggleFrameSelectionHintIsDrawn();
+			break;
+		case CONSTRAIN_FRAME:
+			toggleDrawInteractiveFrame();
+			break;
+		}
+	}
+	
+	/**
+	 * Internal method. Handles the different camera keyboard actions.
+	 */
+	protected void handleCameraKeyboardAction(CameraKeyboardAction id, Point p) {
+		switch (id) {
+		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
+			if (Camera.class == camera().getClass())
+				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
+								+ "See the Point Under Pixel example!");
+			else {
+				Camera.WorldPoint wP = interpolateToZoomOnPixel(p);
+				if (wP.found) {
+					pupVec = wP.point;
+					pupFlag = true;
+					if( timerFx.timer() != null )
+						timerFx.timer().runTimerOnce(1000);
+				}
+			}
+			break;
+		case INTERPOLATE_TO_FIT_SCENE:
+			camera().interpolateToFitScene();
+			break;
+		case SHOW_ALL:
+			showAll();
+			break;
+		case MOVE_CAMERA_LEFT:
+			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(-10.0f * camera().flySpeed(), 0.0f, 0.0f)));
+			break;
+		case MOVE_CAMERA_RIGHT:
+			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(10.0f * camera().flySpeed(), 0.0f, 0.0f)));
+			break;
+		case MOVE_CAMERA_UP:
+			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * camera().flySpeed(), 0.0f)));
+			break;
+		case MOVE_CAMERA_DOWN:
+			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * camera().flySpeed(), 0.0f)));
+			break;
+		case INCREASE_ROTATION_SENSITIVITY:
+			camera().setRotationSensitivity(camera().rotationSensitivity() * 1.2f);
+			break;
+		case DECREASE_ROTATION_SENSITIVITY:
+			camera().setRotationSensitivity(camera().rotationSensitivity() / 1.2f);
+			break;
+		case INCREASE_CAMERA_FLY_SPEED:
+			camera().setFlySpeed(camera().flySpeed() * 1.2f);
+			break;
+		case DECREASE_CAMERA_FLY_SPEED:
+			camera().setFlySpeed(camera().flySpeed() / 1.2f);
+			break;
+		case INCREASE_AVATAR_FLY_SPEED:
+			if (avatar() != null)
+				if (avatarIsInteractiveDrivableFrame)
+					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() * 1.2f);
+			break;
+		case DECREASE_AVATAR_FLY_SPEED:
+			if (avatar() != null)
+				if (avatarIsInteractiveDrivableFrame)
+					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() / 1.2f);
+			break;
+		case INCREASE_AZYMUTH:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() + PApplet.PI / 64);
+			break;
+		case DECREASE_AZYMUTH:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() - PApplet.PI / 64);
+			break;
+		case INCREASE_INCLINATION:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() + PApplet.PI / 64);
+			break;
+		case DECREASE_INCLINATION:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() - PApplet.PI / 64);
+			break;
+		case INCREASE_TRACKING_DISTANCE:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() + radius() / 50);
+			break;
+		case DECREASE_TRACKING_DISTANCE:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() - radius() / 50);
+			break;
+		}
+	}
+	
+	/**
+	 * Internal method. Handles the different mouse click actions.
+	 */
+	protected void handleClickAction(ClickAction action, Point p) {
+		switch (action) {
+		case NO_CLICK_ACTION:
+			break;
+		case ZOOM_ON_PIXEL:
+			if (Camera.class == camera().getClass())
+				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
+								+ "See the Point Under Pixel example!");
+			else {
+				Camera.WorldPoint wP = interpolateToZoomOnPixel(p);
+				if (wP.found) {
+					pupVec = wP.point;
+					pupFlag = true;
+					if( timerFx.timer() != null )
+						timerFx.timer().runTimerOnce(1000);
+				}
+			}
+			break;
+		case ZOOM_TO_FIT:
+			camera().interpolateToFitScene();
+			break;
+		case ARP_FROM_PIXEL:
+			if (Camera.class == camera().getClass())
+				PApplet.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
+								+ "See the Point Under Pixel example!");
+			else if (setArcballReferencePointFromPixel(p)) {
+				arpFlag = true;
+				if( timerFx.timer() != null )
+					timerFx.timer().runTimerOnce(1000);
+			}
+			break;
+		case RESET_ARP:
+			camera().setArcballReferencePoint(new Vector3D(0, 0, 0));
+			arpFlag = true;
+			if( timerFx.timer() != null )
+				timerFx.timer().runTimerOnce(1000);
+			break;
+		case CENTER_FRAME:
+			if (interactiveFrame() != null)
+				interactiveFrame().projectOnLine(camera().position(),
+						camera().viewDirection());
+			break;
+		case CENTER_SCENE:
+			camera().centerScene();
+			break;
+		case SHOW_ALL:
+			camera().showEntireScene();
+			break;
+		case ALIGN_FRAME:
+			if (interactiveFrame() != null)
+				interactiveFrame().alignWithFrame(camera().frame());
+			break;
+		case ALIGN_CAMERA:
+			camera().frame().alignWithFrame(null, true);
+			break;
+		}
 	}
 	
 	// drawing functions

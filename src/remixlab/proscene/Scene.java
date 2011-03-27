@@ -30,7 +30,6 @@ import remixlab.remixcam.core.GLFrame;
 import remixlab.remixcam.core.KeyFrameInterpolator;
 import remixlab.remixcam.core.RCScene;
 import remixlab.remixcam.core.Camera;
-import remixlab.remixcam.core.InteractiveAvatarFrame;
 import remixlab.remixcam.core.InteractiveDrivableFrame;
 import remixlab.remixcam.core.InteractiveFrame;
 import remixlab.remixcam.core.MouseGrabbable;
@@ -49,9 +48,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * A 3D interactive Processing scene.
@@ -227,12 +223,7 @@ public class Scene extends RCScene implements PConstants {
 	private HashMap<String, CameraProfile> cameraProfileMap;
 	private ArrayList<String> cameraProfileNames;
 	private CameraProfile currentCameraProfile;
-
-	// mouse actions
-	boolean arpFlag;
-	boolean pupFlag;
-	Vector3D pupVec;
-
+	
 	// background
 	private BackgroundMode backgroundMode;
 	private boolean enableBackground;
@@ -315,7 +306,8 @@ public class Scene extends RCScene implements PConstants {
 		width = pg3d.width;
 		height = pg3d.height;		
 		
-		timerPool = new PTimerPool();		
+		timerPool = new PTimerPool();
+		timerPool.registerInTimerPool(this, timerFx);
 		
 		//event handler
 		dE = new DesktopEvents(this);		
@@ -967,7 +959,7 @@ public class Scene extends RCScene implements PConstants {
 
 	/**
 	 * Convenience function that simply calls {@code
-	 * drawPointUnderPixelHint(pg3d.color(255,255,255),px,py,15,3)}.
+	 * drawCross(pg3d.color(255, 255, 255), px, py, 15, 3)}.
 	 */
 	public void drawCross(float px, float py) {
 		drawCross(pg3d.color(255, 255, 255), px, py, 15, 3);
@@ -1255,15 +1247,6 @@ public class Scene extends RCScene implements PConstants {
 		return -zC;
 	}
 
-	/**
-	 * Called from the timer to stop displaying the point under pixel and arcball
-	 * reference point visual hints.
-	 */
-	protected void unSetTimerFlag() {
-		arpFlag = false;
-		pupFlag = false;
-	}
-
 	// 7. Camera profiles
 
 	/**
@@ -1481,6 +1464,7 @@ public class Scene extends RCScene implements PConstants {
 	 * <p>
 	 * Camera profiles are ordered by their registration order.
 	 */
+	@Override
 	public void nextCameraProfile() {
 		int currentCameraProfileIndex = cameraProfileNames
 				.indexOf(currentCameraProfile().name());
@@ -2000,183 +1984,14 @@ public class Scene extends RCScene implements PConstants {
 	 * Internal method. Handles the different global keyboard actions.
 	 */
 	protected void handleKeyboardAction(KeyboardAction id) {
-		switch (id) {
-		case DRAW_AXIS:
-			toggleAxisIsDrawn();
-			break;
-		case DRAW_GRID:
-			toggleGridIsDrawn();
-			break;
-		case CAMERA_PROFILE:
-			nextCameraProfile();
-			break;
-		case CAMERA_TYPE:
-			toggleCameraType();
-			break;
-		case CAMERA_KIND:
-			toggleCameraKind();
-			break;
-		case ANIMATION:
-			toggleAnimation();
-			break;
-		case ARP_FROM_PIXEL:
-			if (Camera.class == camera().getClass())
-				PApplet.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
-								+ "See the Point Under Pixel example!");
-			else if (setArcballReferencePointFromPixel(new Point(parent.mouseX, parent.mouseY))) {
-				arpFlag = true;
-				Timer timer=new Timer();
-				TimerTask timerTask = new TimerTask() {
-					public void run() {
-						unSetTimerFlag();
-					}
-				};
-				timer.schedule(timerTask, 1000);
-			}
-			break;
-		case RESET_ARP:
-			camera().setArcballReferencePoint(new Vector3D(0, 0, 0));
-			arpFlag = true;
-			Timer timer=new Timer();
-			TimerTask timerTask = new TimerTask() {
-				public void run() {
-					unSetTimerFlag();
-				}
-			};
-			timer.schedule(timerTask, 1000);
-			break;
-		case GLOBAL_HELP:
-			displayGlobalHelp();
-			break;
-		case CURRENT_CAMERA_PROFILE_HELP:
-			displayCurrentCameraProfileHelp();
-			break;
-		case EDIT_CAMERA_PATH:
-			toggleCameraPathsAreDrawn();
-			break;
-		case FOCUS_INTERACTIVE_FRAME:
-			toggleDrawInteractiveFrame();
-			break;
-		case DRAW_FRAME_SELECTION_HINT:
-			toggleFrameSelectionHintIsDrawn();
-			break;
-		case CONSTRAIN_FRAME:
-			toggleDrawInteractiveFrame();
-			break;
-		}
+		super.handleKeyboardAction(id, new Point(parent.mouseX, parent.mouseY));
 	}
 
 	/**
 	 * Internal method. Handles the different camera keyboard actions.
 	 */
 	protected void handleCameraKeyboardAction(CameraKeyboardAction id) {
-		switch (id) {
-		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
-			if (Camera.class == camera().getClass())
-				PApplet.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
-								+ "See the Point Under Pixel example!");
-			else {
-				Camera.WorldPoint wP = interpolateToZoomOnPixel(new Point(
-						parent.mouseX, parent.mouseY));
-				if (wP.found) {
-					pupVec = wP.point;
-					pupFlag = true;
-					Timer timer=new Timer();
-					TimerTask timerTask = new TimerTask() {
-						public void run() {
-							unSetTimerFlag();
-						}
-					};
-					timer.schedule(timerTask, 1000);
-				}
-			}
-			break;
-		case INTERPOLATE_TO_FIT_SCENE:
-			camera().interpolateToFitScene();
-			break;
-		case SHOW_ALL:
-			showAll();
-			break;
-		case MOVE_CAMERA_LEFT:
-			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(-10.0f * camera().flySpeed(), 0.0f, 0.0f)));
-			break;
-		case MOVE_CAMERA_RIGHT:
-			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(10.0f * camera().flySpeed(), 0.0f, 0.0f)));
-			break;
-		case MOVE_CAMERA_UP:
-			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * camera().flySpeed(), 0.0f)));
-			break;
-		case MOVE_CAMERA_DOWN:
-			camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * camera().flySpeed(), 0.0f)));
-			break;
-		case INCREASE_ROTATION_SENSITIVITY:
-			camera().setRotationSensitivity(camera().rotationSensitivity() * 1.2f);
-			break;
-		case DECREASE_ROTATION_SENSITIVITY:
-			camera().setRotationSensitivity(camera().rotationSensitivity() / 1.2f);
-			break;
-		case INCREASE_CAMERA_FLY_SPEED:
-			camera().setFlySpeed(camera().flySpeed() * 1.2f);
-			break;
-		case DECREASE_CAMERA_FLY_SPEED:
-			camera().setFlySpeed(camera().flySpeed() / 1.2f);
-			break;
-		case INCREASE_AVATAR_FLY_SPEED:
-			if (avatar() != null)
-				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() * 1.2f);
-			break;
-		case DECREASE_AVATAR_FLY_SPEED:
-			if (avatar() != null)
-				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar())
-							.setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() / 1.2f);
-			break;
-		case INCREASE_AZYMUTH:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar())
-							.setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth()
-									+ PApplet.PI / 64);
-			break;
-		case DECREASE_AZYMUTH:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar())
-							.setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth()
-									- PApplet.PI / 64);
-			break;
-		case INCREASE_INCLINATION:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar())
-							.setInclination(((InteractiveAvatarFrame) avatar()).inclination()
-									+ PApplet.PI / 64);
-			break;
-		case DECREASE_INCLINATION:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar())
-							.setInclination(((InteractiveAvatarFrame) avatar()).inclination()
-									- PApplet.PI / 64);
-			break;
-		case INCREASE_TRACKING_DISTANCE:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar())
-							.setTrackingDistance(((InteractiveAvatarFrame) avatar())
-									.trackingDistance()
-									+ radius() / 50);
-			break;
-		case DECREASE_TRACKING_DISTANCE:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar())
-							.setTrackingDistance(((InteractiveAvatarFrame) avatar())
-									.trackingDistance()
-									- radius() / 50);
-			break;
-		}
+		super.handleCameraKeyboardAction(id, new Point(parent.mouseX, parent.mouseY));
 	}
 
 	/**
@@ -2184,6 +1999,7 @@ public class Scene extends RCScene implements PConstants {
 	 * 
 	 * @see #displayGlobalHelp(boolean)
 	 */
+	@Override
 	public void displayGlobalHelp() {
 		displayGlobalHelp(true);
 	}
@@ -2237,6 +2053,7 @@ public class Scene extends RCScene implements PConstants {
 	 * 
 	 * @see #displayCurrentCameraProfileHelp(boolean)
 	 */
+	@Override
 	public void displayCurrentCameraProfileHelp() {
 		displayCurrentCameraProfileHelp(true);
 	}
@@ -2433,82 +2250,7 @@ public class Scene extends RCScene implements PConstants {
 	 * Internal method. Handles the different mouse click actions.
 	 */
 	protected void handleClickAction(ClickAction action) {
-		// public enum ClickAction { NO_CLICK_ACTION, ZOOM_ON_PIXEL, ZOOM_TO_FIT,
-		// SELECT, ARP_FROM_PIXEL, RESET_ARP,
-		// CENTER_FRAME, CENTER_SCENE, SHOW_ALL, ALIGN_FRAME, ALIGN_CAMERA }
-
-		switch (action) {
-		case NO_CLICK_ACTION:
-			break;
-		case ZOOM_ON_PIXEL:
-			if (Camera.class == camera().getClass())
-				PApplet
-						.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
-								+ "See the Point Under Pixel example!");
-			else {
-				Camera.WorldPoint wP = interpolateToZoomOnPixel(new Point(
-						parent.mouseX, parent.mouseY));
-				if (wP.found) {
-					pupVec = wP.point;
-					pupFlag = true;
-					Timer timer=new Timer();
-					TimerTask timerTask = new TimerTask() {
-						public void run() {
-							unSetTimerFlag();
-						}
-					};
-					timer.schedule(timerTask, 1000);
-				}
-			}
-			break;
-		case ZOOM_TO_FIT:
-			camera().interpolateToFitScene();
-			break;
-		case ARP_FROM_PIXEL:
-			if (Camera.class == camera().getClass())
-				PApplet.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
-								+ "See the Point Under Pixel example!");
-			else if (setArcballReferencePointFromPixel(new Point(parent.mouseX, parent.mouseY))) {
-				arpFlag = true;
-				Timer timer=new Timer();
-				TimerTask timerTask = new TimerTask() {
-					public void run() {
-						unSetTimerFlag();
-					}
-				};
-				timer.schedule(timerTask, 1000);
-			}
-			break;
-		case RESET_ARP:
-			camera().setArcballReferencePoint(new Vector3D(0, 0, 0));
-			arpFlag = true;
-			Timer timer=new Timer();
-			TimerTask timerTask = new TimerTask() {
-				public void run() {
-					unSetTimerFlag();
-				}
-			};
-			timer.schedule(timerTask, 1000);
-			break;
-		case CENTER_FRAME:
-			if (interactiveFrame() != null)
-				interactiveFrame().projectOnLine(camera().position(),
-						camera().viewDirection());
-			break;
-		case CENTER_SCENE:
-			camera().centerScene();
-			break;
-		case SHOW_ALL:
-			camera().showEntireScene();
-			break;
-		case ALIGN_FRAME:
-			if (interactiveFrame() != null)
-				interactiveFrame().alignWithFrame(camera().frame());
-			break;
-		case ALIGN_CAMERA:
-			camera().frame().alignWithFrame(null, true);
-			break;
-		}
+		super.handleClickAction(action, new Point(parent.mouseX, parent.mouseY));
 	}	
 
 	// 10. Draw method registration
@@ -2615,6 +2357,7 @@ public class Scene extends RCScene implements PConstants {
 	 * @see #addAnimationHandler(Object, String)
 	 * @see #animate()
 	 */
+	@Override
 	public boolean animationIsStarted() {
 		return animationStarted;
 	}
@@ -2678,6 +2421,7 @@ public class Scene extends RCScene implements PConstants {
 	 * 
 	 * @see #animationIsStarted()
 	 */
+	@Override
 	public void stopAnimation()	{
 		animationStarted = false;
 		animatedFrameWasTriggered = false;
@@ -2698,6 +2442,7 @@ public class Scene extends RCScene implements PConstants {
 	 * 
 	 * @see #animationIsStarted()
 	 */
+	@Override
 	public void startAnimation() {
 		animationStarted = true;		
 		//sync with processing drawing method:		
@@ -2711,17 +2456,7 @@ public class Scene extends RCScene implements PConstants {
 			currentAnimationFrame = 0;
 			animationToFrameRateRatio = animationFrameRate/targetFrameRate;
 		}
-	}
-	
-	/**
-	 * Restart the animation.
-	 * <p>
-	 * Simply calls {@link #stopAnimation()} and then {@link #startAnimation()}.
-	 */
-  public void restartAnimation() {
-  	stopAnimation();
-  	startAnimation();
-	}
+	}	
   
   /**
 	 * Internal use.
@@ -2770,15 +2505,7 @@ public class Scene extends RCScene implements PConstants {
 	 * @see #addAnimationHandler(Object, String).
 	 */
 	public void animate() {
-	}
-	
-	/**
-	 * Calls {@link #startAnimation()} or {@link #stopAnimation()}, depending on
-	 * {@link #animationIsStarted()}.
-	 */
-	public void toggleAnimation() {
-		if (animationIsStarted()) stopAnimation(); else startAnimation();
-	}
+	}	
 	
 	/**
 	 * Attempt to add an 'animation' handler method to the Scene. The default event
