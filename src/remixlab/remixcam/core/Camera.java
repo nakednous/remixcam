@@ -998,15 +998,13 @@ public class Camera implements Cloneable {
 	 * @see #getFrustumEquations()
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
-	public float distanceToFrustumPlane(int index, Vector3D pos) {
-		// TODO: print the warning properly
-		/**
-		System.out.println("The camera frustum plane equations (needed by distanceToFrustumPlane) may be outdated. Please "
-							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
-		*/
-		Vector3D myVec = new Vector3D(fpCoefficients[index][0],
-				fpCoefficients[index][1], fpCoefficients[index][2]);
+	public float distanceToFrustumPlane(int index, Vector3D pos) {		
+		if (!scene.frustumEquationsUpdateIsEnable())
+			System.out.println("The camera frustum plane equations (needed by distanceToFrustumPlane) may be outdated. Please "
+							         + "enable automatic updates of the equations in your PApplet.setup "
+						         	 + "with Scene.enableFrustumEquationsUpdate()");
+		
+		Vector3D myVec = new Vector3D(fpCoefficients[index][0],	fpCoefficients[index][1], fpCoefficients[index][2]);
 		return Vector3D.dot(pos, myVec) - fpCoefficients[index][3];
 	}
 
@@ -1028,13 +1026,12 @@ public class Camera implements Cloneable {
 	 * @see #getFrustumEquations()
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
-	public boolean pointIsVisible(Vector3D point) {
-	  // TODO: print the warning properly
-		/**
-		System.out.println("The camera frustum plane equations (needed by pointIsVisible) may be outdated. Please "
-							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
-		*/
+	public boolean pointIsVisible(Vector3D point) {	  
+		if (!scene.frustumEquationsUpdateIsEnable())
+			System.out.println("The camera frustum plane equations (needed by pointIsVisible) may be outdated. Please "
+							         + "enable automatic updates of the equations in your PApplet.setup "
+						           + "with Scene.enableFrustumEquationsUpdate()");
+		
 		for (int i = 0; i < 6; ++i)
 			if (distanceToFrustumPlane(i, point) > 0)
 				return false;
@@ -1063,12 +1060,10 @@ public class Camera implements Cloneable {
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
 	public Visibility sphereIsVisible(Vector3D center, float radius) {
-	  // TODO: print the warning properly
-		/**
-		System.out.println("The camera frustum plane equations (needed by sphereIsVisible) may be outdated. Please "
-							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
-		*/
+		if (!scene.frustumEquationsUpdateIsEnable())
+			System.out.println("The camera frustum plane equations (needed by sphereIsVisible) may be outdated. Please "
+			   	 			       + "enable automatic updates of the equations in your PApplet.setup "
+							         + "with Scene.enableFrustumEquationsUpdate()");
 		boolean allInForAllPlanes = true;
 		for (int i = 0; i < 6; ++i) {
 			float d = distanceToFrustumPlane(i, center);
@@ -1104,12 +1099,10 @@ public class Camera implements Cloneable {
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
 	public Visibility aaBoxIsVisible(Vector3D p1, Vector3D p2) {
-	// TODO: print the warning properly
-		/**
-		System.out.println("The camera frustum plane equations (needed by aaBoxIsVisible) may be outdated. Please "
-							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
-		*/
+		if (!scene.frustumEquationsUpdateIsEnable())
+			System.out.println("The camera frustum plane equations (needed by aaBoxIsVisible) may be outdated. Please "
+							         + "enable automatic updates of the equations in your PApplet.setup "
+							         + "with Scene.enableFrustumEquationsUpdate()");
 		boolean allInForAllPlanes = true;
 		for (int i = 0; i < 6; ++i) {
 			boolean allOut = true;
@@ -1183,12 +1176,10 @@ public class Camera implements Cloneable {
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
 	public float[][] getFrustumEquations() {
-	  // TODO: print the warning properly
-		/**
-		System.out.println("The camera frustum plane equations may be outdated. Please "
-							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
-		*/
+		if (!scene.frustumEquationsUpdateIsEnable())
+			System.out.println("The camera frustum plane equations may be outdated. Please "
+							         + "enable automatic updates of the equations in your PApplet.setup "
+							         + "with Scene.enableFrustumEquationsUpdate()");
 		return fpCoefficients;
 	}
 
@@ -1367,12 +1358,9 @@ public class Camera implements Cloneable {
 
 		setFlySpeed(0.01f * sceneRadius());
 
-		// if there's an avatar we change its fly speed as well
-		//TODO: scene is not visible
-		/**
+		// if there's an avatar we change its fly speed as well		
 		if (scene.avatarIsInteractiveDrivableFrame)
-			((InteractiveDrivableFrame) scene.avatar()).setFlySpeed(0.01f * scene.radius());
-			*/
+			((InteractiveDrivableFrame) scene.avatar()).setFlySpeed(0.01f * scene.radius());			
 	}
 
 	/**

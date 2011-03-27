@@ -2,16 +2,60 @@ package remixlab.remixcam.core;
 
 import java.util.List;
 
+import processing.core.PApplet;
+
+import remixlab.remixcam.geom.Point;
 import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.util.*;
 
 public abstract class RCScene {
+	//Size
+	protected int width, height;
+	
   //M o u s e G r a b b e r
 	protected MouseGrabberPool mouseGrabberPool;
+	protected boolean mouseTrckn;
+	
+	//offscreen
+	protected boolean offscreen;
+	
+	//Timer pool
 	protected TimerPool timerPool;
+	
+	// F r u s t u m p l a n e c o e f f i c i e n t s
+	protected boolean fpCoefficientsUpdate;
+	
+  //O B J E C T S
+	//protected DesktopEvents dE;
+	protected Camera cam;
+	protected InteractiveFrame glIFrame;
+	protected boolean interactiveFrameIsDrivable;
+	protected boolean iFrameIsDrwn;
+	protected Trackable trck;
+	protected boolean avatarIsInteractiveDrivableFrame;
+	protected boolean avatarIsInteractiveAvatarFrame;
+	
+  //D I S P L A Y F L A G S
+	protected boolean axisIsDrwn; // world axis
+	protected boolean gridIsDrwn; // world XY grid
+	protected boolean frameSelectionHintIsDrwn;
+	protected boolean cameraPathsAreDrwn;
+	
+	// C O N S T R A I N T S
+	protected boolean withConstraint;
 	
 	public RCScene() {
 		mouseGrabberPool = new MouseGrabberPool();
+		avatarIsInteractiveDrivableFrame = false;// also init in setAvatar, but we
+		// need it here to properly init the camera
+		avatarIsInteractiveAvatarFrame = false;// also init in setAvatar, but we
+		// need it here to properly init the camera
+		//cam = new Camera(this);
+		//setCamera(camera(), width, height);
+		//setInteractiveFrame(null);
+		//setAvatar(null);
+		setDrawWithConstraint(true);
+		disableFrustumEquationsUpdate();
 	}	
 
 	public TimerPool timerPool() {
@@ -66,6 +110,612 @@ public abstract class RCScene {
 
 	public void clearMouseGrabberPool() {
 		mouseGrabberPoolObject().clearMouseGrabberPool();
+	}
+	
+	public void setMouseGrabber(MouseGrabbable mouseGrabber) {
+		mouseGrabberPoolObject().setMouseGrabber(mouseGrabber, camera());
+	}
+	
+	//
+	
+	/**
+	 * Returns {@code true}
+	 * if {@link remixlab.proscene.DesktopEvents#mouseMoved(java.awt.event.MouseEvent)}
+	 * is called even when no mouse button is pressed.
+	 * <p>
+	 * You need to setMouseTracking() to \c true in order to use MouseGrabber (see mouseGrabber()).
+	 */
+	public boolean hasMouseTracking() {
+		return mouseTrckn;
+	}
+	
+	/**
+	 * Sets the {@link #hasMouseTracking()} value.
+	 * <p>
+	 * <b>Attention:</b> If {@code enable} is {@code true} and the Scene is in offscreen
+	 * mode the call has no effect (i.e., it is silently ignored).
+	 */
+	public void setMouseTracking(boolean enable) {
+		if( enable && offscreen )
+			return;
+		if(!enable) {
+			if( mouseGrabberPool.mouseGrabber() != null )
+				mouseGrabberPool.mouseGrabber().setGrabsMouse(false);
+			mouseGrabberPool.setMouseGrabber(null, camera());
+		}
+		mouseTrckn = enable;
+	}
+	
+	/**
+	 * Calls {@link #setMouseTracking(boolean)} to toggle the {@link #hasMouseTracking()} value.
+	 */
+	public void toggleMouseTracking() {
+		setMouseTracking(!hasMouseTracking());
+	}
+	
+	/**
+	 * Returns {@code true} if this Scene is associated to an offscreen 
+	 * renderer and {@code false} otherwise.
+	 * 
+	 * @see #Scene(PApplet, PGraphics3D)
+	 */	
+	public boolean isOffscreen() {
+		return offscreen;
+	}
+	
+	// dimensions
+	
+	/**
+	 * Returns the scene radius.
+	 * <p>
+	 * Convenience wrapper function that simply calls {@code
+	 * camera().sceneRadius()}
+	 * 
+	 * @see #setRadius(float)
+	 * @see #center()
+	 */
+	public float radius() {
+		return camera().sceneRadius();
+	}
+
+	/**
+	 * Returns the scene center.
+	 * <p>
+	 * Convenience wrapper function that simply returns {@code
+	 * camera().sceneCenter()}
+	 * 
+	 * @see #setCenter(Vector3D) {@link #radius()}
+	 */
+	public Vector3D center() {
+		return camera().sceneCenter();
+	}
+
+	/**
+	 * Returns the arcball reference point.
+	 * <p>
+	 * Convenience wrapper function that simply returns {@code
+	 * camera().arcballReferencePoint()}
+	 * 
+	 * @see #setCenter(Vector3D) {@link #radius()}
+	 */
+	public Vector3D arcballReferencePoint() {
+		return camera().arcballReferencePoint();
+	}
+
+	/**
+	 * Sets the {@link #radius()} of the Scene.
+	 * <p>
+	 * Convenience wrapper function that simply returns {@code
+	 * camera().setSceneRadius(radius)}
+	 * 
+	 * @see #setCenter(Vector3D)
+	 */
+	public void setRadius(float radius) {
+		camera().setSceneRadius(radius);
+		
+	  // if there's an avatar we change its fly speed as well
+		if (avatarIsInteractiveDrivableFrame)
+			((InteractiveDrivableFrame) avatar()).setFlySpeed(0.01f * radius());
+	}
+
+	/**
+	 * Sets the {@link #center()} of the Scene.
+	 * <p>
+	 * Convenience wrapper function that simply calls {@code }
+	 * 
+	 * @see #setRadius(float)
+	 */
+	public void setCenter(Vector3D center) {
+		camera().setSceneCenter(center);
+	}
+
+	/**
+	 * Sets the {@link #center()} and {@link #radius()} of the Scene from the
+	 * {@code min} and {@code max} Vector3Ds.
+	 * <p>
+	 * Convenience wrapper function that simply calls {@code
+	 * camera().setSceneBoundingBox(min,max)}
+	 * 
+	 * @see #setRadius(float)
+	 * @see #setCenter(Vector3D)
+	 */
+	public void setBoundingBox(Vector3D min, Vector3D max) {
+		camera().setSceneBoundingBox(min, max);
+	}
+
+	/**
+	 * Convenience wrapper function that simply calls {@code
+	 * camera().showEntireScene()}
+	 * 
+	 * @see remixlab.remixcam.core.Camera#showEntireScene()
+	 */
+	public void showAll() {
+		camera().showEntireScene();
+	}
+
+	/**
+	 * Convenience wrapper function that simply returns {@code
+	 * camera().setArcballReferencePointFromPixel(pixel)}.
+	 * <p>
+	 * Current implementation set no
+	 * {@link remixlab.remixcam.core.Camera#arcballReferencePoint()}. Override
+	 * {@link remixlab.remixcam.core.Camera#pointUnderPixel(Point)} in your openGL
+	 * based camera for this to work.
+	 * 
+	 * @see remixlab.remixcam.core.Camera#setArcballReferencePointFromPixel(Point)
+	 * @see remixlab.remixcam.core.Camera#pointUnderPixel(Point)
+	 */
+	public boolean setArcballReferencePointFromPixel(Point pixel) {
+		return camera().setArcballReferencePointFromPixel(pixel);
+	}
+
+	/**
+	 * Convenience wrapper function that simply returns {@code
+	 * camera().interpolateToZoomOnPixel(pixel)}.
+	 * <p>
+	 * Current implementation does nothing. Override
+	 * {@link remixlab.remixcam.core.Camera#pointUnderPixel(Point)} in your openGL
+	 * based camera for this to work.
+	 * 
+	 * @see remixlab.remixcam.core.Camera#interpolateToZoomOnPixel(Point)
+	 * @see remixlab.remixcam.core.Camera#pointUnderPixel(Point)
+	 */
+	public Camera.WorldPoint interpolateToZoomOnPixel(Point pixel) {
+		return camera().interpolateToZoomOnPixel(pixel);
+	}
+
+	/**
+	 * Convenience wrapper function that simply returns {@code
+	 * camera().setSceneCenterFromPixel(pixel)}
+	 * <p>
+	 * Current implementation set no
+	 * {@link remixlab.remixcam.core.Camera#sceneCenter()}. Override
+	 * {@link remixlab.remixcam.core.Camera#pointUnderPixel(Point)} in your openGL
+	 * based camera for this to work.
+	 * 
+	 * @see remixlab.remixcam.core.Camera#setSceneCenterFromPixel(Point)
+	 * @see remixlab.remixcam.core.Camera#pointUnderPixel(Point)
+	 */
+	public boolean setCenterFromPixel(Point pixel) {
+		return camera().setSceneCenterFromPixel(pixel);
+	}
+	
+	/**
+	 * Returns the {@link #width} to {@link #height} aspect ratio of
+	 * the scene display window.
+	 */
+	public float aspectRatio() {
+		return (float) width / (float) height;
+	}
+	
+	// Camera
+	
+	/**
+	 * Returns the associated Camera, never {@code null}.
+	 */
+	public Camera camera() {
+		return cam;
+	}
+		
+	/**
+	 * Replaces the current {@link #camera()} with {@code camera}. The {@code width}
+	 * and {@code height} of the view-port need to be provided.
+	 */
+	public void setCamera(Camera camera, int width, int height) {
+		if (camera == null)
+			return;
+
+		camera.setSceneRadius(radius());
+		camera.setSceneCenter(camera().sceneCenter());
+		camera.setScreenWidthAndHeight(width, height);
+
+		cam = camera;
+
+		showAll();
+	}
+	
+	/**
+	 * Toggles the {@link #camera()} type between PERSPECTIVE and ORTHOGRAPHIC.
+	 */
+	public void toggleCameraType() {
+		if (camera().type() == Camera.Type.PERSPECTIVE)
+			setCameraType(Camera.Type.ORTHOGRAPHIC);
+		else
+			setCameraType(Camera.Type.PERSPECTIVE);
+	}
+
+	/**
+	 * Toggles the {@link #camera()} kind between PROSCENE and STANDARD.
+	 */
+	public void toggleCameraKind() {
+		if (camera().kind() == Camera.Kind.PROSCENE)
+			setCameraKind(Camera.Kind.STANDARD);
+		else
+			setCameraKind(Camera.Kind.PROSCENE);
+	}
+	
+	/**
+	 * Returns the current {@link #camera()} type.
+	 */
+	public final Camera.Type cameraType() {
+		return camera().type();
+	}
+
+	/**
+	 * Sets the {@link #camera()} type.
+	 */
+	public void setCameraType(Camera.Type type) {
+		if (type != camera().type())
+			camera().setType(type);
+	}
+
+	/**
+	 * Returns the current {@link #camera()} kind.
+	 */
+	public final Camera.Kind cameraKind() {
+		return camera().kind();
+	}
+
+	/**
+	 * Sets the {@link #camera()} kind.
+	 */
+	public void setCameraKind(Camera.Kind kind) {
+		if (kind != camera().kind()) {
+			camera().setKind(kind);
+			if (kind == Camera.Kind.PROSCENE)
+				System.out.println("Changing camera kind to Proscene");
+			else
+				System.out.println("Changing camera kind to Standard");
+		}
+	}
+	
+	// interactive frame
+	
+	/**
+	 * Returns the InteractiveFrame associated to this Scene. It could be null if
+	 * there's no InteractiveFrame associated to this Scene.
+	 * 
+	 * @see #setInteractiveFrame(InteractiveFrame)
+	 */
+	public InteractiveFrame interactiveFrame() {
+		return glIFrame;
+	}
+	
+	/**
+	 * Sets {@code frame} as the InteractiveFrame associated to this Scene. If
+	 * {@code frame} is instance of Trackable it is also automatically set as the
+	 * Scene {@link #avatar()} (by automatically calling {@code
+	 * setAvatar((Trackable) frame)}).
+	 * 
+	 * @see #interactiveFrame()
+	 * @see #setAvatar(Trackable)
+	 */
+	public void setInteractiveFrame(InteractiveFrame frame) {
+		glIFrame = frame;
+		interactiveFrameIsDrivable = ((interactiveFrame() != camera().frame()) && (interactiveFrame() instanceof InteractiveDrivableFrame));
+		if (glIFrame == null)
+			iFrameIsDrwn = false;
+		else if (glIFrame instanceof Trackable)
+			setAvatar((Trackable) glIFrame);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code setDrawInteractiveFrame(true)}.
+	 * 
+	 * @see #setDrawInteractiveFrame(boolean)
+	 */
+	public void setDrawInteractiveFrame() {
+		setDrawInteractiveFrame(true);
+	}
+	
+	/**
+	 * Toggles the {@link #interactiveFrame()} interactivity on and off.
+	 */
+	public void toggleDrawInteractiveFrame() {
+		if (interactiveFrameIsDrawn())
+			setDrawInteractiveFrame(false);
+		else
+			setDrawInteractiveFrame(true);
+	}
+
+	/**
+	 * Sets the interactivity to the Scene {@link #interactiveFrame()} instance
+	 * according to {@code draw}
+	 */
+	//TODO implement here, once camera profile are pulled  up
+	public abstract void setDrawInteractiveFrame(boolean draw);
+	
+	/**
+	 * Returns {@code true} if axis is currently being drawn and {@code false}
+	 * otherwise.
+	 */
+	public boolean interactiveFrameIsDrawn() {
+		return iFrameIsDrwn;
+	}
+	
+	public boolean interactiveFrameIsDrivable() {
+		return interactiveFrameIsDrivable;
+	}
+	
+	// avatar
+	
+	/**
+	 * Returns the avatar object to be tracked by the Camera when
+	 * {@link #currentCameraProfile()} is an instance of ThirdPersonCameraProfile.
+	 * Simply returns {@code null} if no avatar has been set.
+	 */
+	public Trackable avatar() {
+		return trck;
+	}
+
+	/**
+	 * Sets the avatar object to be tracked by the Camera when
+	 * {@link #currentCameraProfile()} is an instance of ThirdPersonCameraProfile.
+	 * 
+	 * @see #unsetAvatar()
+	 */
+	public void setAvatar(Trackable t) {
+		trck = t;
+		avatarIsInteractiveAvatarFrame = false;
+		avatarIsInteractiveDrivableFrame = false;
+		if (avatar() instanceof InteractiveAvatarFrame) {
+			avatarIsInteractiveAvatarFrame = true;
+			avatarIsInteractiveDrivableFrame = true;
+			if (interactiveFrame() != null)
+				((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
+		} else if (avatar() instanceof InteractiveDrivableFrame) {
+			avatarIsInteractiveAvatarFrame = false;
+			avatarIsInteractiveDrivableFrame = true;
+			if (interactiveFrame() != null)
+				((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
+		}
+	}
+
+	/**
+	 * If there's a avatar unset it.
+	 * 
+	 * @see #setAvatar(Trackable)
+	 */
+	public void unsetAvatar() {
+		trck = null;
+		avatarIsInteractiveAvatarFrame = false;
+		avatarIsInteractiveDrivableFrame = false;
+	}
+	
+	// frustum equations
+	
+	/**
+	 * Returns {@code true} if automatic update of the camera frustum plane
+	 * equations is enabled and {@code false} otherwise. Computation of the
+	 * equations is expensive and hence is disabled by default.
+	 * 
+	 * @see #toggleFrustumEquationsUpdate()
+	 * @see #disableFrustumEquationsUpdate()
+	 * @see #enableFrustumEquationsUpdate()
+	 * @see #enableFrustumEquationsUpdate(boolean)
+	 * @see remixlab.remixcam.core.Camera#updateFrustumEquations()
+	 */
+	public boolean frustumEquationsUpdateIsEnable() {
+		return fpCoefficientsUpdate;
+	}
+
+	/**
+	 * Toggles automatic update of the camera frustum plane equations every frame.
+	 * Computation of the equations is expensive and hence is disabled by default.
+	 * 
+	 * @see #frustumEquationsUpdateIsEnable()
+	 * @see #disableFrustumEquationsUpdate()
+	 * @see #enableFrustumEquationsUpdate()
+	 * @see #enableFrustumEquationsUpdate(boolean)
+	 * @see remixlab.remixcam.core.Camera#updateFrustumEquations()
+	 */
+	public void toggleFrustumEquationsUpdate() {
+		fpCoefficientsUpdate = !fpCoefficientsUpdate;
+	}
+
+	/**
+	 * Disables automatic update of the camera frustum plane equations every
+	 * frame. Computation of the equations is expensive and hence is disabled by
+	 * default.
+	 * 
+	 * @see #frustumEquationsUpdateIsEnable()
+	 * @see #toggleFrustumEquationsUpdate()
+	 * @see #enableFrustumEquationsUpdate()
+	 * @see #enableFrustumEquationsUpdate(boolean)
+	 * @see remixlab.remixcam.core.Camera#updateFrustumEquations()
+	 */
+	public void disableFrustumEquationsUpdate() {
+		enableFrustumEquationsUpdate(false);
+	}
+
+	/**
+	 * Enables automatic update of the camera frustum plane equations every frame.
+	 * Computation of the equations is expensive and hence is disabled by default.
+	 * 
+	 * @see #frustumEquationsUpdateIsEnable()
+	 * @see #toggleFrustumEquationsUpdate()
+	 * @see #disableFrustumEquationsUpdate()
+	 * @see #enableFrustumEquationsUpdate(boolean)
+	 * @see remixlab.remixcam.core.Camera#updateFrustumEquations()
+	 */
+	public void enableFrustumEquationsUpdate() {
+		enableFrustumEquationsUpdate(true);
+	}
+
+	/**
+	 * Enables or disables automatic update of the camera frustum plane equations
+	 * every frame according to {@code flag}. Computation of the equations is
+	 * expensive and hence is disabled by default.
+	 * 
+	 * @see #frustumEquationsUpdateIsEnable()
+	 * @see #toggleFrustumEquationsUpdate()
+	 * @see #disableFrustumEquationsUpdate()
+	 * @see #enableFrustumEquationsUpdate()
+	 * @see remixlab.remixcam.core.Camera#updateFrustumEquations()
+	 */
+	public void enableFrustumEquationsUpdate(boolean flag) {
+		fpCoefficientsUpdate = flag;
+	}
+	
+	// display flags
+	
+	/**
+	 * Returns {@code true} if axis is currently being drawn and {@code false}
+	 * otherwise.
+	 */
+	public boolean axisIsDrawn() {
+		return axisIsDrwn;
+	}
+
+	/**
+	 * Returns {@code true} if grid is currently being drawn and {@code false}
+	 * otherwise.
+	 */
+	public boolean gridIsDrawn() {
+		return gridIsDrwn;
+	}
+
+	/**
+	 * Returns {@code true} if the frames selection visual hints are currently
+	 * being drawn and {@code false} otherwise.
+	 */
+	public boolean frameSelectionHintIsDrawn() {
+		return frameSelectionHintIsDrwn;
+	}
+
+	/**
+	 * Returns {@code true} if the camera key frame paths are currently being
+	 * drawn and {@code false} otherwise.
+	 */
+	public boolean cameraPathsAreDrawn() {
+		return cameraPathsAreDrwn;
+	}
+
+	/**
+	 * Convenience function that simply calls {@code setAxisIsDrawn(true)}
+	 */
+	public void setAxisIsDrawn() {
+		setAxisIsDrawn(true);
+	}
+
+	/**
+	 * Sets the display of the axis according to {@code draw}
+	 */
+	public void setAxisIsDrawn(boolean draw) {
+		axisIsDrwn = draw;
+	}
+
+	/**
+	 * Convenience function that simply calls {@code setGridIsDrawn(true)}
+	 */
+	public void setGridIsDrawn() {
+		setGridIsDrawn(true);
+	}
+
+	/**
+	 * Sets the display of the grid according to {@code draw}
+	 */
+	public void setGridIsDrawn(boolean draw) {
+		gridIsDrwn = draw;
+	}
+
+	/**
+	 * Sets the display of the interactive frames' selection hints according to
+	 * {@code draw}
+	 */
+	public void setFrameSelectionHintIsDrawn(boolean draw) {
+		frameSelectionHintIsDrwn = draw;
+	}
+
+	/**
+	 * Sets the display of the camera key frame paths according to {@code draw}
+	 */
+	public void setCameraPathsAreDrawn(boolean draw) {
+		cameraPathsAreDrwn = draw;
+	}
+	
+	/**
+	 * Toggles the state of {@link #axisIsDrawn()}.
+	 * 
+	 * @see #axisIsDrawn()
+	 * @see #setAxisIsDrawn(boolean)
+	 */
+	public void toggleAxisIsDrawn() {
+		setAxisIsDrawn(!axisIsDrawn());
+	}
+
+	/**
+	 * Toggles the state of {@link #gridIsDrawn()}.
+	 * 
+	 * @see #setGridIsDrawn(boolean)
+	 */
+	public void toggleGridIsDrawn() {
+		setGridIsDrawn(!gridIsDrawn());
+	}
+
+	/**
+	 * Toggles the state of {@link #frameSelectionHintIsDrawn()}.
+	 * 
+	 * @see #setFrameSelectionHintIsDrawn(boolean)
+	 */
+	public void toggleFrameSelectionHintIsDrawn() {
+		setFrameSelectionHintIsDrawn(!frameSelectionHintIsDrawn());
+	}
+
+	/**
+	 * Toggles the state of {@link #cameraPathsAreDrawn()}.
+	 * 
+	 * @see #setCameraPathsAreDrawn(boolean)
+	 */
+	public void toggleCameraPathsAreDrawn() {
+		setCameraPathsAreDrawn(!cameraPathsAreDrawn());
+	}
+	
+	// constraint handling 
+	
+	/**
+	 * Returns {@code true} if drawn is currently being constrained and {@code
+	 * false} otherwise.
+	 */
+	public boolean drawIsConstrained() {
+		return withConstraint;
+	}
+
+	/**
+	 * Constrain frame displacements according to {@code wConstraint}
+	 */
+	public void setDrawWithConstraint(boolean wConstraint) {
+		withConstraint = wConstraint;
+	}
+	
+	/**
+	 * Toggles the draw with constraint on and off.
+	 */
+	public void toggleDrawWithConstraint() {
+		if (drawIsConstrained())
+			setDrawWithConstraint(false);
+		else
+			setDrawWithConstraint(true);
 	}
 	
 	// drawing functions

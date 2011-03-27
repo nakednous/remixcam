@@ -391,7 +391,7 @@ public class DesktopEvents implements MouseWheelListener {
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
-			if (scene.interactiveFrameIsDrivable)
+			if (scene.interactiveFrameIsDrivable())
 				((InteractiveDrivableFrame)scene.interactiveFrame()).iDrivableMouseDragged(new Point(event.getX(), event.getY()), scene.camera());
 			else
 				scene.interactiveFrame().mouseDragged(new Point(event.getX(), event.getY()), scene.camera());
@@ -432,7 +432,7 @@ public class DesktopEvents implements MouseWheelListener {
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
-			if (scene.interactiveFrameIsDrivable)
+			if (scene.interactiveFrameIsDrivable())
 				((InteractiveDrivableFrame)scene.interactiveFrame()).iDrivableMouseReleased(new Point(event.getX(), event.getY()), scene.camera());
 			else
 				scene.interactiveFrame().mouseReleased(new Point(event.getX(), event.getY()), scene.camera());
