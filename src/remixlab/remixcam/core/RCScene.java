@@ -2,8 +2,6 @@ package remixlab.remixcam.core;
 
 import java.util.List;
 
-import processing.core.PApplet;
-
 import remixlab.remixcam.devices.Actions.CameraKeyboardAction;
 import remixlab.remixcam.devices.Actions.ClickAction;
 import remixlab.remixcam.devices.Actions.KeyboardAction;
@@ -979,22 +977,22 @@ public abstract class RCScene {
 		case INCREASE_AZYMUTH:
 			if (avatar() != null)
 				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() + PApplet.PI / 64);
+					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() + (float) Math.PI / 64);
 			break;
 		case DECREASE_AZYMUTH:
 			if (avatar() != null)
 				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() - PApplet.PI / 64);
+					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() - (float) Math.PI / 64);
 			break;
 		case INCREASE_INCLINATION:
 			if (avatar() != null)
 				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() + PApplet.PI / 64);
+					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() + (float) Math.PI / 64);
 			break;
 		case DECREASE_INCLINATION:
 			if (avatar() != null)
 				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() - PApplet.PI / 64);
+					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() - (float) Math.PI / 64);
 			break;
 		case INCREASE_TRACKING_DISTANCE:
 			if (avatar() != null)
@@ -1035,7 +1033,7 @@ public abstract class RCScene {
 			break;
 		case ARP_FROM_PIXEL:
 			if (Camera.class == camera().getClass())
-				PApplet.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
+				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
 								+ "See the Point Under Pixel example!");
 			else if (setArcballReferencePointFromPixel(p)) {
 				arpFlag = true;
