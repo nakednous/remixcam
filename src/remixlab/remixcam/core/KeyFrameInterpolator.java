@@ -105,7 +105,7 @@ import remixlab.remixcam.util.*;
  * before {@link #interpolationIsStarted()}, otherwise the interpolated motion
  * (computed as if there was no constraint) will probably be erroneous.
  */
-public class KeyFrameInterpolator implements Cloneable {
+public class KeyFrameInterpolator implements Copyable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -190,7 +190,7 @@ public class KeyFrameInterpolator implements Cloneable {
 		return true;
 	}
 
-	public class KeyFrame implements Cloneable {
+	public class KeyFrame implements Copyable {
 		private Vector3D p, tgPVec;
 		private Quaternion q, tgQuat;
 		private float tm;
@@ -204,25 +204,26 @@ public class KeyFrameInterpolator implements Cloneable {
 			} else {
 				frm = null;
 				p = new Vector3D(fr.position().x, fr.position().y, fr.position().z);
-				q = new Quaternion(fr.orientation());
+				q = fr.orientation().getCopy();
 			}
 		}
-
-		public KeyFrame clone() {
-			try {
-				KeyFrame clonedKeyFrame = (KeyFrame) super.clone();
-				if (frm != null)
-					clonedKeyFrame.frm = frm.clone();
-				else
-					clonedKeyFrame.frm = null;
-				clonedKeyFrame.p = new Vector3D(position().x, position().y, position().z);
-				clonedKeyFrame.tgPVec = new Vector3D(tgP().x, tgP().y, tgP().z);
-				clonedKeyFrame.q = new Quaternion(orientation());
-				clonedKeyFrame.tgQuat = new Quaternion(tgQ());
-				return clonedKeyFrame;
-			} catch (CloneNotSupportedException e) {
-				throw new Error("Something went wrong when cloning the KeyFrame");
+		
+		protected KeyFrame(KeyFrame otherKF) {
+			this.tm = otherKF.tm;
+			this.frm = otherKF.frm;
+			if (this.frm != null) {
+				this.p = this.frame().position();
+				this.q = this.frame().orientation();
+			} else {
+				//p = new Vector3D( otherKF.p.x, otherKF.p.y, otherKF.p.z );
+				this.p = new Vector3D(otherKF.position().x, otherKF.position().y, otherKF.position().z);
+				//q = otherKF.q.getCopy();
+				this.q = otherKF.orientation().getCopy();
 			}
+		}
+		
+		public KeyFrame getCopy() {
+			return new KeyFrame(this);
 		}
 
 		public void updateValues() {
@@ -339,39 +340,53 @@ public class KeyFrameInterpolator implements Cloneable {
 		};		
 		scene.timerPool.registerInTimerPool(this, timerFx1);
 	}
-
-	/**
-	 * Implementation of the clone method.
-	 * <p>
-	 * The method performs a deep copy of the all the KeyFrameInterpolator {@code
-	 * KeyFrames}.
-	 */
-	public KeyFrameInterpolator clone() {
-		try {
-			KeyFrameInterpolator clonedKfi = (KeyFrameInterpolator) super.clone();
-			clonedKfi.keyFr = new ArrayList<KeyFrame>();
-			ListIterator<KeyFrame> it = keyFr.listIterator();
-			while (it.hasNext()) {
-				clonedKfi.keyFr.add(it.next().clone());
+	
+	protected KeyFrameInterpolator(KeyFrameInterpolator otherKFI) {
+		this.scene = otherKFI.scene;
+		this.myFrame = otherKFI.myFrame.getCopy();		
+		
+		this.path = new ArrayList<GLFrame>();
+		ListIterator<GLFrame> frameIt = otherKFI.path.listIterator();
+		while (frameIt.hasNext()) {
+			this.path.add(frameIt.next().getCopy());
+		}		
+		
+		if(otherKFI.fr != null)
+			this.fr = otherKFI.fr.getCopy();
+		else
+			this.fr = null;		
+		
+		this.period = otherKFI.period;
+		this.interpolationTm = otherKFI.interpolationTm;
+		this.interpolationSpd = otherKFI.interpolationSpd;
+		this.interpolationStrt = otherKFI.interpolationStrt;
+		this.lpInterpolation = otherKFI.lpInterpolation;
+		this.pathIsValid = otherKFI.pathIsValid;
+		this.valuesAreValid = otherKFI.valuesAreValid;
+		this.currentFrmValid = otherKFI.currentFrmValid;		
+		
+		this.keyFr = new ArrayList<KeyFrame>();		
+		ListIterator<KeyFrame> it = otherKFI.keyFr.listIterator();
+		while (it.hasNext()) {
+			this.keyFr.add(it.next().getCopy());
+		}		
+		
+		this.currentFrame0 = keyFr.listIterator(otherKFI.currentFrame0.nextIndex());
+		this.currentFrame1 = keyFr.listIterator(otherKFI.currentFrame1.nextIndex());
+		this.currentFrame2 = keyFr.listIterator(otherKFI.currentFrame2.nextIndex());
+		this.currentFrame3 = keyFr.listIterator(otherKFI.currentFrame3.nextIndex());
+		
+		this.timerFx1 = new TimerJob() {
+			public void execute() {
+				update();
 			}
-			clonedKfi.currentFrame0 = keyFr.listIterator(currentFrame0.nextIndex());
-			clonedKfi.currentFrame1 = keyFr.listIterator(currentFrame1.nextIndex());
-			clonedKfi.currentFrame2 = keyFr.listIterator(currentFrame2.nextIndex());
-			clonedKfi.currentFrame3 = keyFr.listIterator(currentFrame3.nextIndex());
-			//TODO to check what has to be done with the timers
-			TimerJob clonedTimerFx1 = new TimerJob() {
-				public void execute() {
-					update();
-				}
-			};		
-			scene.timerPool.registerInTimerPool(clonedKfi, clonedTimerFx1);
-			
-			return clonedKfi;
-		} catch (CloneNotSupportedException e) {
-			throw new Error(
-					"Something went wrong when cloning the KeyFrameInterpolator");
-		}
+		};		
+		scene.timerPool.registerInTimerPool(this, this.timerFx1);		
 	}
+	
+	public KeyFrameInterpolator getCopy() {
+		return new KeyFrameInterpolator(this);
+	}	
 	
 	/**
 	 * Connection: drawing utils
@@ -675,7 +690,7 @@ public class KeyFrameInterpolator implements Cloneable {
 	}
 
 	/**
-	 * Convenience function that simply calls {@code addKeyFrame(frame, false)}.
+	 * Convenience function that simply calls {@code addKeyFrame(frame, true)}.
 	 * 
 	 * @see #addKeyFrame(GLFrame, boolean)
 	 */
@@ -704,7 +719,7 @@ public class KeyFrameInterpolator implements Cloneable {
 
 	/**
 	 * Convenience function that simply calls {@code addKeyFrame(frame, time,
-	 * false)}.
+	 * true)}.
 	 * 
 	 * @see #addKeyFrame(GLFrame, float, boolean)
 	 */

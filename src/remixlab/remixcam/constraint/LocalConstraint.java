@@ -69,7 +69,7 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	 * Frame local coordinate system by {@link #rotationConstraintDirection()}.
 	 */
 	public Quaternion constrainRotation(Quaternion rotation, GLFrame frame) {
-		Quaternion res = new Quaternion(rotation);
+		Quaternion res = rotation.getCopy();
 		switch (rotationConstraintType()) {
 		case FREE:
 			break;

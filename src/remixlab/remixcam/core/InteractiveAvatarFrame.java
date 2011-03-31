@@ -37,7 +37,7 @@ import remixlab.remixcam.geom.*;
  * {@link #trackingDistance()}) respect to the {@link #position()} (which
  * defines its {@link #target()}) of the InteractiveAvatarFrame.
  */
-public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	Trackable {
+public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	Trackable, Copyable {
 	private Quaternion q;
 	private float trackingDist;
 	private Vector3D camRelPos;
@@ -63,6 +63,18 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 		q.fromTaitBryan((float) Math.PI/4, 0, 0);
 		camRelPos = new Vector3D();
 		setTrackingDistance(30);
+	}
+	
+	protected InteractiveAvatarFrame(InteractiveAvatarFrame otherFrame) {
+		super(otherFrame);
+		this.q = otherFrame.q.getCopy();
+		this.camRelPos = new Vector3D();
+		this.camRelPos.set( otherFrame.camRelPos );
+		this.setTrackingDistance(otherFrame.trackingDistance());
+	}
+	
+	public InteractiveAvatarFrame getCopy() {
+		return new InteractiveAvatarFrame(this);
 	}
 
 	/**

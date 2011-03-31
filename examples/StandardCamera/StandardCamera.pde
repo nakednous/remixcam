@@ -4,9 +4,9 @@
  * 
  * A 'standard' Camera with fixed near and far planes.
  * 
- * Proscene supports a STANDARD camera kind which may be need by some applications.
+ * Proscene supports a STANDARD camera kind which may be needed by some applications.
  * Its near and far planes distances are set to fixed values, instead of being fit
- * to scene dimensions as is done in the PROSCENE camera kind (default).
+ * to scene dimensions which is the PROSCENE camera kind (default) behavior.
  * 
  * Note, however, that the precision of the z-Buffer highly depends on how the zNear()
  * and zFar() values are fitted to your scene (as it is done with the PROSCENE camera

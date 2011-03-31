@@ -48,7 +48,140 @@ import java.util.Iterator;
  * and {@link #setStandardZFar(float)}).
  * 
  */
-public class Camera implements Cloneable {
+public class Camera implements Copyable {
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Float.floatToIntBits(IODist);
+		result = prime * result + Arrays.hashCode(dist);
+		result = prime * result + Float.floatToIntBits(fldOfView);
+		result = prime * result + Float.floatToIntBits(focusDist);
+		result = prime * result + Arrays.hashCode(fpCoefficients);
+		result = prime * result + ((frm == null) ? 0 : frm.hashCode());
+		result = prime * result
+				+ ((interpolationKfi == null) ? 0 : interpolationKfi.hashCode());
+		result = prime * result + ((knd == null) ? 0 : knd.hashCode());
+		result = prime * result
+				+ ((modelViewMat == null) ? 0 : modelViewMat.hashCode());
+		result = prime * result + Arrays.hashCode(normal);
+		result = prime * result + Float.floatToIntBits(orthoCoef);
+		result = prime * result + Float.floatToIntBits(orthoSize);
+		result = prime * result + Float.floatToIntBits(physicalDist2Scrn);
+		result = prime * result + Float.floatToIntBits(physicalScrnWidth);
+		result = prime * result
+				+ ((projectionMat == null) ? 0 : projectionMat.hashCode());
+		result = prime * result + ((scnCenter == null) ? 0 : scnCenter.hashCode());
+		result = prime * result + Float.floatToIntBits(scnRadius);
+		result = prime * result + scrnHeight;
+		result = prime * result + scrnWidth;
+		result = prime * result + Float.floatToIntBits(stdZFar);
+		result = prime * result + Float.floatToIntBits(stdZNear);
+		result = prime * result + ((tempFrame == null) ? 0 : tempFrame.hashCode());
+		result = prime * result + ((tp == null) ? 0 : tp.hashCode());
+		result = prime * result + Arrays.hashCode(viewport);
+		result = prime * result + Float.floatToIntBits(zClippingCoef);
+		result = prime * result + Float.floatToIntBits(zNearCoef);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Camera other = (Camera) obj;
+		if (Float.floatToIntBits(IODist) != Float.floatToIntBits(other.IODist))
+			return false;
+		if (!Arrays.equals(dist, other.dist))
+			return false;
+		if (Float.floatToIntBits(fldOfView) != Float
+				.floatToIntBits(other.fldOfView))
+			return false;
+		if (Float.floatToIntBits(focusDist) != Float
+				.floatToIntBits(other.focusDist))
+			return false;
+		if (!Arrays.equals(fpCoefficients, other.fpCoefficients))
+			return false;
+		if (frm == null) {
+			if (other.frm != null)
+				return false;
+		} else if (!frm.equals(other.frm))
+			return false;
+		if (interpolationKfi == null) {
+			if (other.interpolationKfi != null)
+				return false;
+		} else if (!interpolationKfi.equals(other.interpolationKfi))
+			return false;
+		if (knd == null) {
+			if (other.knd != null)
+				return false;
+		} else if (!knd.equals(other.knd))
+			return false;
+		if (modelViewMat == null) {
+			if (other.modelViewMat != null)
+				return false;
+		} else if (!modelViewMat.equals(other.modelViewMat))
+			return false;
+		if (!Arrays.equals(normal, other.normal))
+			return false;
+		if (Float.floatToIntBits(orthoCoef) != Float
+				.floatToIntBits(other.orthoCoef))
+			return false;
+		if (Float.floatToIntBits(orthoSize) != Float
+				.floatToIntBits(other.orthoSize))
+			return false;
+		if (Float.floatToIntBits(physicalDist2Scrn) != Float
+				.floatToIntBits(other.physicalDist2Scrn))
+			return false;
+		if (Float.floatToIntBits(physicalScrnWidth) != Float
+				.floatToIntBits(other.physicalScrnWidth))
+			return false;
+		if (projectionMat == null) {
+			if (other.projectionMat != null)
+				return false;
+		} else if (!projectionMat.equals(other.projectionMat))
+			return false;
+		if (scnCenter == null) {
+			if (other.scnCenter != null)
+				return false;
+		} else if (!scnCenter.equals(other.scnCenter))
+			return false;
+		if (Float.floatToIntBits(scnRadius) != Float
+				.floatToIntBits(other.scnRadius))
+			return false;
+		if (scrnHeight != other.scrnHeight)
+			return false;
+		if (scrnWidth != other.scrnWidth)
+			return false;
+		if (Float.floatToIntBits(stdZFar) != Float.floatToIntBits(other.stdZFar))
+			return false;
+		if (Float.floatToIntBits(stdZNear) != Float.floatToIntBits(other.stdZNear))
+			return false;
+		if (tempFrame == null) {
+			if (other.tempFrame != null)
+				return false;
+		} else if (!tempFrame.equals(other.tempFrame))
+			return false;
+		if (tp == null) {
+			if (other.tp != null)
+				return false;
+		} else if (!tp.equals(other.tp))
+			return false;
+		if (!Arrays.equals(viewport, other.viewport))
+			return false;
+		if (Float.floatToIntBits(zClippingCoef) != Float
+				.floatToIntBits(other.zClippingCoef))
+			return false;
+		if (Float.floatToIntBits(zNearCoef) != Float
+				.floatToIntBits(other.zNearCoef))
+			return false;
+		return true;
+	}	
+	
 	/**
 	 * Internal class provided to catch the output of
 	 * {@link remixlab.remixcam.core.Camera#pointUnderPixel(Point)} (which should be
@@ -209,168 +342,52 @@ public class Camera implements Cloneable {
 		computeProjectionMatrix();
 	}
 	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Float.floatToIntBits(IODist);
-		result = prime * result + Arrays.hashCode(dist);
-		result = prime * result + Float.floatToIntBits(fldOfView);
-		result = prime * result + Float.floatToIntBits(focusDist);
-		result = prime * result + Arrays.hashCode(fpCoefficients);
-		result = prime * result + ((frm == null) ? 0 : frm.hashCode());
-		result = prime * result
-				+ ((interpolationKfi == null) ? 0 : interpolationKfi.hashCode());
-		result = prime * result + ((knd == null) ? 0 : knd.hashCode());
-		result = prime * result
-				+ ((modelViewMat == null) ? 0 : modelViewMat.hashCode());
-		result = prime * result + Arrays.hashCode(normal);
-		result = prime * result + Float.floatToIntBits(orthoCoef);
-		result = prime * result + Float.floatToIntBits(orthoSize);
-		result = prime * result + Float.floatToIntBits(physicalDist2Scrn);
-		result = prime * result + Float.floatToIntBits(physicalScrnWidth);
-		result = prime * result
-				+ ((projectionMat == null) ? 0 : projectionMat.hashCode());
-		result = prime * result + ((scnCenter == null) ? 0 : scnCenter.hashCode());
-		result = prime * result + Float.floatToIntBits(scnRadius);
-		result = prime * result + scrnHeight;
-		result = prime * result + scrnWidth;
-		result = prime * result + Float.floatToIntBits(stdZFar);
-		result = prime * result + Float.floatToIntBits(stdZNear);
-		result = prime * result + ((tempFrame == null) ? 0 : tempFrame.hashCode());
-		result = prime * result + ((tp == null) ? 0 : tp.hashCode());
-		result = prime * result + Arrays.hashCode(viewport);
-		result = prime * result + Float.floatToIntBits(zClippingCoef);
-		result = prime * result + Float.floatToIntBits(zNearCoef);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Camera other = (Camera) obj;
-		if (Float.floatToIntBits(IODist) != Float.floatToIntBits(other.IODist))
-			return false;
-		if (!Arrays.equals(dist, other.dist))
-			return false;
-		if (Float.floatToIntBits(fldOfView) != Float
-				.floatToIntBits(other.fldOfView))
-			return false;
-		if (Float.floatToIntBits(focusDist) != Float
-				.floatToIntBits(other.focusDist))
-			return false;
-		if (!Arrays.equals(fpCoefficients, other.fpCoefficients))
-			return false;
-		if (frm == null) {
-			if (other.frm != null)
-				return false;
-		} else if (!frm.equals(other.frm))
-			return false;
-		if (interpolationKfi == null) {
-			if (other.interpolationKfi != null)
-				return false;
-		} else if (!interpolationKfi.equals(other.interpolationKfi))
-			return false;
-		if (knd == null) {
-			if (other.knd != null)
-				return false;
-		} else if (!knd.equals(other.knd))
-			return false;
-		if (modelViewMat == null) {
-			if (other.modelViewMat != null)
-				return false;
-		} else if (!modelViewMat.equals(other.modelViewMat))
-			return false;
-		if (!Arrays.equals(normal, other.normal))
-			return false;
-		if (Float.floatToIntBits(orthoCoef) != Float
-				.floatToIntBits(other.orthoCoef))
-			return false;
-		if (Float.floatToIntBits(orthoSize) != Float
-				.floatToIntBits(other.orthoSize))
-			return false;
-		if (Float.floatToIntBits(physicalDist2Scrn) != Float
-				.floatToIntBits(other.physicalDist2Scrn))
-			return false;
-		if (Float.floatToIntBits(physicalScrnWidth) != Float
-				.floatToIntBits(other.physicalScrnWidth))
-			return false;
-		if (projectionMat == null) {
-			if (other.projectionMat != null)
-				return false;
-		} else if (!projectionMat.equals(other.projectionMat))
-			return false;
-		if (scnCenter == null) {
-			if (other.scnCenter != null)
-				return false;
-		} else if (!scnCenter.equals(other.scnCenter))
-			return false;
-		if (Float.floatToIntBits(scnRadius) != Float
-				.floatToIntBits(other.scnRadius))
-			return false;
-		if (scrnHeight != other.scrnHeight)
-			return false;
-		if (scrnWidth != other.scrnWidth)
-			return false;
-		if (Float.floatToIntBits(stdZFar) != Float.floatToIntBits(other.stdZFar))
-			return false;
-		if (Float.floatToIntBits(stdZNear) != Float.floatToIntBits(other.stdZNear))
-			return false;
-		if (tempFrame == null) {
-			if (other.tempFrame != null)
-				return false;
-		} else if (!tempFrame.equals(other.tempFrame))
-			return false;
-		if (tp == null) {
-			if (other.tp != null)
-				return false;
-		} else if (!tp.equals(other.tp))
-			return false;
-		if (!Arrays.equals(viewport, other.viewport))
-			return false;
-		if (Float.floatToIntBits(zClippingCoef) != Float
-				.floatToIntBits(other.zClippingCoef))
-			return false;
-		if (Float.floatToIntBits(zNearCoef) != Float
-				.floatToIntBits(other.zNearCoef))
-			return false;
-		return true;
-	}
-
-	/**
-	 * Implementation of the clone method.
-	 * <p>
-	 * Calls {@link remixlab.remixcam.core.GLFrame#clone()} and makes a deep copy of the
-	 * remaining object attributes except for {@code prevConstraint} (which is
-	 * shallow copied).
-	 * 
-	 * @see remixlab.remixcam.core.GLFrame#clone()
-	 */
-	public Camera clone() {
-		try {
-			Camera clonedCam = (Camera) super.clone();
-			clonedCam.interpolationKfi = interpolationKfi.clone();
-			clonedCam.kfi = new HashMap<Integer, KeyFrameInterpolator>();
-			itrtr = kfi.keySet().iterator();
-			while (itrtr.hasNext()) {
-				Integer key = itrtr.next();
-				clonedCam.kfi.put(key, kfi.get(key).clone());
-			}
-			clonedCam.scnCenter = new Vector3D(scnCenter.x, scnCenter.y, scnCenter.z);
-			clonedCam.modelViewMat = new Matrix3D(modelViewMat);
-			clonedCam.projectionMat = new Matrix3D(projectionMat);
-			
-			clonedCam.frm = frm.clone();
-			return clonedCam;
-		} catch (CloneNotSupportedException e) {
-			throw new Error("Something went wrong when cloning the Camera");
+	protected Camera(Camera oCam) {
+		this.scene = oCam.scene;
+		this.mouseGrabberPool = scene.mouseGrabberPool;
+		
+		for (int i = 0; i < normal.length; i++)
+			this.normal[i] = new Vector3D(oCam.normal[i].x, oCam.normal[i].y, oCam.normal[i].z );
+		
+		this.fldOfView = oCam.fldOfView;
+		
+		this.fpCoefficients = new float[6][4];
+		for (int i=0; i<6; i++)
+			for (int j=0; j<4; j++)
+				this.fpCoefficients[i][j] = oCam.fpCoefficients[i][j];
+		
+		this.frm = oCam.frame().getCopy();		
+		this.interpolationKfi = oCam.interpolationKfi.getCopy();
+		
+		this.kfi = new HashMap<Integer, KeyFrameInterpolator>();
+		
+		itrtr = oCam.kfi.keySet().iterator();
+		while (itrtr.hasNext()) {
+			Integer key = itrtr.next();
+			this.kfi.put(new Integer(key.intValue()), oCam.kfi.get(key).getCopy());
 		}
+		
+		this.setSceneRadius(oCam.sceneRadius());
+		this.orthoCoef = oCam.orthoCoef;
+		this.setSceneCenter( oCam.sceneCenter() );
+		this.setKind(oCam.kind());
+		this.orthoSize = oCam.orthoSize;
+		this.setStandardZNear(oCam.standardZNear());
+		this.setStandardZFar(oCam.standardZFar());
+		this.setType(oCam.type());
+		this.setZNearCoefficient(oCam.zNearCoefficient());		
+		this.setScreenWidthAndHeight(oCam.screenWidth(), oCam.screenHeight());
+		this.setIODistance( oCam.IODistance() );
+		this.setPhysicalDistanceToScreen(oCam.physicalDistanceToScreen());
+		this.setPhysicalScreenWidth( oCam.physicalScreenWidth() );		
+		
+		this.modelViewMat = new Matrix3D(oCam.modelViewMat);
+		this.projectionMat = new Matrix3D(oCam.projectionMat);
 	}
+	
+	public Camera getCopy() {
+		return new Camera(this);
+	}	
 
 	// 2. POSITION AND ORIENTATION
 
@@ -2479,9 +2496,8 @@ public class Camera implements Cloneable {
 		// without modifying frame
 		tempFrame = new InteractiveCameraFrame(scene);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().x,
-				frame().position().y, frame().position().z));
-		tempFrame.setOrientation(new Quaternion(frame().orientation()));
+		tempFrame.setPosition(new Vector3D(frame().position().x, frame().position().y, frame().position().z));
+		tempFrame.setOrientation( frame().orientation().getCopy() );
 		setFrame(tempFrame);
 		fitScreenRegion(rectangle);
 		setFrame(originalFrame);
@@ -2529,9 +2545,8 @@ public class Camera implements Cloneable {
 		// modifying frame
 		tempFrame = new InteractiveCameraFrame(scene);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(Vector3D.add(Vector3D.mult(frame().position(), coef),
-				Vector3D.mult(target.point, (1.0f - coef))));
-		tempFrame.setOrientation(new Quaternion(frame().orientation()));
+		tempFrame.setPosition(Vector3D.add(Vector3D.mult(frame().position(), coef), Vector3D.mult(target.point, (1.0f - coef))));
+		tempFrame.setOrientation( frame().orientation().getCopy() );
 		setFrame(tempFrame);
 		lookAt(target.point);
 		setFrame(originalFrame);
@@ -2567,9 +2582,8 @@ public class Camera implements Cloneable {
 		// without modifying frame
 		tempFrame = new InteractiveCameraFrame(scene);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().x,
-				frame().position().y, frame().position().z));
-		tempFrame.setOrientation(new Quaternion(frame().orientation()));
+		tempFrame.setPosition(new Vector3D(frame().position().x, frame().position().y, frame().position().z));
+		tempFrame.setOrientation( frame().orientation().getCopy() );
 		setFrame(tempFrame);
 		showEntireScene();
 		setFrame(originalFrame);

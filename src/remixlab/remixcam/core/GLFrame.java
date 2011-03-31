@@ -40,7 +40,7 @@ import remixlab.remixcam.geom.Vector3D;
  * the Frame is first translated and then rotated around the new translated
  * origin.
  */
-public class GLFrame implements Cloneable {
+public class GLFrame implements Copyable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -117,7 +117,7 @@ public class GLFrame implements Cloneable {
 	 */
 	public GLFrame(Vector3D p, Quaternion r) {
 		trans = new Vector3D(p.x, p.y, p.z);
-		rot = new Quaternion(r);
+		rot = r.getCopy();
 		refFrame = null;
 		constr = null;
 		list = new ArrayList<KeyFrameInterpolator>();
@@ -129,9 +129,9 @@ public class GLFrame implements Cloneable {
 	 * @param other
 	 *          the Frame containing the object to be copied
 	 */
-	public GLFrame(GLFrame other) {
+	protected GLFrame(GLFrame other) {
 		trans = new Vector3D(other.translation().x, other.translation().y, other.translation().z);
-		rot = new Quaternion(other.rotation());
+		rot = other.rotation().getCopy();
 		refFrame = other.referenceFrame();
 		constr = other.constraint();
 		list = new ArrayList<KeyFrameInterpolator>();
@@ -141,39 +141,13 @@ public class GLFrame implements Cloneable {
 	}
 
 	/**
-	 * Calls {@link #GLFrame(GLFrame)} (which is private) and returns a copy of
+	 * Calls {@link #GLFrame(GLFrame)} (which is protected) and returns a copy of
 	 * {@code this} object.
 	 * 
 	 * @see #GLFrame(GLFrame)
 	 */
-	public GLFrame copy() {
+	public GLFrame getCopy() {
 		return new GLFrame(this);
-	}
-
-	/**
-	 * Implementation of the clone method.
-	 * <p>
-	 * The method performs a deep copy of the {@link #translation()} and
-	 * {@link #rotation()} objects of the Frame, and a shallow copy of its
-	 * {@link #referenceFrame()} and {@link #constraint()} objects.
-	 * 
-	 * @see #copy()
-	 */
-	// public Frame clone() throws CloneNotSupportedException {
-	public GLFrame clone() {
-		try {
-			GLFrame clonedFrame = (GLFrame) super.clone();
-			clonedFrame.trans = new Vector3D(translation().x, translation().y,
-					translation().z);
-			clonedFrame.rot = new Quaternion(rotation());
-			clonedFrame.list = new ArrayList<KeyFrameInterpolator>();
-			Iterator<KeyFrameInterpolator> it = listeners().iterator();
-			while (it.hasNext())
-				clonedFrame.list.add(it.next());
-			return clonedFrame;
-		} catch (CloneNotSupportedException e) {
-			throw new Error("Something went wrong when cloning the Frame");
-		}
 	}
 
 	/**
@@ -259,7 +233,7 @@ public class GLFrame implements Cloneable {
 	}
 
 	/**
-	 * Adds {@code kfi} Returns the list of KeyFrameInterpolators that are
+	 * Adds {@code kfi} to the list of KeyFrameInterpolators that are
 	 * currently listening this frame.
 	 */
 	public void addListener(KeyFrameInterpolator kfi) {
@@ -623,7 +597,7 @@ public class GLFrame implements Cloneable {
 	 * @see #translate(Vector3D)
 	 */
 	public final void rotate(Quaternion q, boolean keepArg) {
-		Quaternion o = new Quaternion(q);
+		Quaternion o = q.getCopy();
 		if (constraint() != null) {
 			o = constraint().constrainRotation(q, this);
 			if (!keepArg) {
@@ -696,7 +670,7 @@ public class GLFrame implements Cloneable {
 	 */
 	public final void rotateAroundPoint(Quaternion rotation, Vector3D point,
 			boolean keepArg) {
-		Quaternion q = new Quaternion(rotation);
+		Quaternion q = rotation.getCopy();
 		if (constraint() != null) {
 			q = constraint().constrainRotation(rotation, this);
 			if (!keepArg) {
@@ -799,8 +773,8 @@ public class GLFrame implements Cloneable {
 			}
 		}
 
-		// Frame old = new Frame(this);
-		GLFrame old = this.clone();
+		GLFrame old = this.getCopy();
+		//GLFrame old = this.clone();
 
 		vec.set(directions[0][index[0]]);
 		float coef = vec.dot(directions[1][index[1]]);

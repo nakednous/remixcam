@@ -1435,7 +1435,7 @@ public class Scene extends RCScene implements PConstants {
 				// perform small animation ;)
 				if (camera().anyInterpolationIsStarted())
 					camera().stopAllInterpolations();
-				Camera cm = camera().clone();
+				Camera cm = camera().getCopy();
 				cm.setPosition(avatar().cameraPosition());
 				cm.setUpVector(avatar().upVector());
 				cm.lookAt(avatar().target());
@@ -3183,7 +3183,7 @@ public class Scene extends RCScene implements PConstants {
 										.mult(vec2, alpha)), alpha)), alpha)));
 						KFI.drawingFrame().setOrientation(Quaternion.squad(kf[1].orientation(), kf[1]
 								.tgQ(), kf[2].tgQ(), kf[2].orientation(), alpha));
-						KFI.drawingPath().add(new GLFrame(KFI.drawingFrame()));
+						KFI.drawingPath().add( KFI.drawingFrame().getCopy() );
 					}
 
 					// Shift

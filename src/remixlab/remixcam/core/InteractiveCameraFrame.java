@@ -46,7 +46,7 @@ import remixlab.remixcam.geom.*;
  * <b>Note:</b> The InteractiveCameraFrame is not added to the
  * {@link remixlab.proscene.Scene#mouseGrabberPool()} upon creation.
  */
-public class InteractiveCameraFrame extends InteractiveDrivableFrame {
+public class InteractiveCameraFrame extends InteractiveDrivableFrame implements Copyable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -88,19 +88,15 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame {
 		removeFromMouseGrabberPool();
 		arcballRefPnt = new Vector3D(0.0f, 0.0f, 0.0f);
 	}
-
-	/**
-	 * Implementation of the clone method.
-	 * <p>
-	 * Calls {@link remixlab.remixcam.core.InteractiveFrame#clone()} and makes a deep
-	 * copy of the remaining object attributes.
-	 * 
-	 * @see remixlab.remixcam.core.InteractiveFrame#clone()
-	 */
-	public InteractiveCameraFrame clone() {
-		InteractiveCameraFrame clonedICamFrame = (InteractiveCameraFrame) super.clone();
-		clonedICamFrame.arcballRefPnt = new Vector3D(arcballRefPnt.x,	arcballRefPnt.y, arcballRefPnt.z);
-		return clonedICamFrame;
+	
+	protected InteractiveCameraFrame(InteractiveCameraFrame otherFrame) {
+		super(otherFrame);
+		this.arcballRefPnt = new Vector3D();
+		this.arcballRefPnt.set(otherFrame.arcballRefPnt );
+	}
+	
+	public InteractiveCameraFrame getCopy() {
+		return new InteractiveCameraFrame(this);
 	}
 
 	/**

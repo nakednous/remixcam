@@ -25,13 +25,15 @@
 
 package remixlab.remixcam.geom;
 
+import remixlab.remixcam.core.Copyable;
+
 /**
  * A 4 element unit quaternion represented by single precision floating point
  * x,y,z,w coordinates.
  * 
  */
 
-public class Quaternion {
+public class Quaternion implements Copyable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -188,8 +190,12 @@ public class Quaternion {
 	 * @param q1
 	 *          the Quaternion containing the initialization x y z w data
 	 */
-	public Quaternion(Quaternion q1) {
+	protected Quaternion(Quaternion q1) {
 		set(q1);
+	}
+	
+	public Quaternion getCopy() {
+		return new Quaternion(this);
 	}
 
 	/**

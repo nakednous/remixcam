@@ -48,7 +48,7 @@ import remixlab.remixcam.util.TimerJob;
  * the {@link remixlab.proscene.Scene#mouseGrabberPool()}.
  */
 
-public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneable {
+public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -220,6 +220,52 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 		scene.timerPool.registerInTimerPool(this, timerFx1);
 		// delay = 10;
 	}
+	
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param otherFrame the other interactive frame
+	 */
+	protected InteractiveFrame(InteractiveFrame otherFrame) {
+		super(otherFrame);
+		this.scene = otherFrame.scene;
+		this.mouseGrabberPool = otherFrame.mouseGrabberPool;
+		this.action = otherFrame.action;
+		this.horiz = otherFrame.horiz;
+		
+		this.addInMouseGrabberPool();
+		this.isInCamPath = otherFrame.isInCamPath;
+		this.grbsMouse = otherFrame.grbsMouse;
+		
+		if(this.isInCamPath) {
+			this.list = new ArrayList<KeyFrameInterpolator>();
+			Iterator<KeyFrameInterpolator> it = otherFrame.listeners().iterator();
+			while (it.hasNext())
+				this.list.add(it.next());
+		}
+
+		this.setGrabsMouseThreshold( otherFrame.grabsMouseThreshold()  );
+		this.setRotationSensitivity( otherFrame.rotationSensitivity() );
+		this.setTranslationSensitivity( otherFrame.translationSensitivity() );
+		this.setSpinningSensitivity( otherFrame.spinningSensitivity() );
+		this.setWheelSensitivity( otherFrame.wheelSensitivity() );
+
+		this.keepsGrabbingMouse = otherFrame.keepsGrabbingMouse;
+		this.isSpng = otherFrame.isSpng;
+		this.prevConstraint = otherFrame.prevConstraint; 
+		this.startedTime = otherFrame.startedTime;
+		
+		this.timerFx1 = new TimerJob() {
+			public void execute() {
+				spin();
+			}
+		};		
+		scene.timerPool.registerInTimerPool(this, this.timerFx1);
+	}
+  
+	public InteractiveFrame getCopy() {
+		return new InteractiveFrame(this);
+	}
 
 	/**
 	 * Ad-hoc constructor needed to make editable a Camera path defined by
@@ -278,27 +324,6 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Cloneab
 	 */
 	public boolean isInCameraPath() {
 		return isInCamPath;
-	}
-
-	/**
-	 * Implementation of the clone method.
-	 * <p>
-	 * Calls {@link remixlab.remixcam.core.GLFrame#clone()} and makes a deep copy of the
-	 * remaining object attributes except for {@link #prevConstraint} (which is
-	 * shallow copied).
-	 * 
-	 * @see remixlab.remixcam.core.GLFrame#clone()
-	 */
-	public InteractiveFrame clone() {
-		InteractiveFrame clonedIFrame = (InteractiveFrame) super.clone();
-		//TODO check if timer needs to be clone
-		TimerJob clonedTimerFx1 = new TimerJob() {
-			public void execute() {
-				spin();
-			}
-		};		
-		scene.timerPool.registerInTimerPool(clonedIFrame, clonedTimerFx1);
-		return clonedIFrame;
 	}
 
 	/**

@@ -67,6 +67,6 @@ public class Constraint {
 	 * {@code rotation} in the world coordinate system if needed.
 	 */
 	public Quaternion constrainRotation(Quaternion rotation, GLFrame frame) {
-		return new Quaternion(rotation);
+		return rotation.getCopy();
 	}
 }

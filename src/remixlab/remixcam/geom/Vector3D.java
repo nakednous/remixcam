@@ -90,7 +90,7 @@ public class Vector3D implements Serializable {
     this.y = y;
     this.z = 0;
   }
-
+  
 
   /**
    * Set x, y, and z coordinates.

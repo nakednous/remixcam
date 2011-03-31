@@ -39,7 +39,7 @@ import remixlab.remixcam.util.TimerJob;
  * {@link remixlab.proscene.Scene.MouseAction#MOVE_FORWARD} and
  * {@link remixlab.proscene.Scene.MouseAction#MOVE_BACKWARD}.
  */
-public class InteractiveDrivableFrame extends InteractiveFrame {
+public class InteractiveDrivableFrame extends InteractiveFrame implements Copyable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -92,9 +92,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 		super(scn);
 		drvSpd = 0.0f;
 		flyUpVec = new Vector3D(0.0f, 1.0f, 0.0f);
-
 		flyDisp = new Vector3D(0.0f, 0.0f, 0.0f);
-
 		setFlySpeed(0.0f);
 
 		flyTimerJob = new TimerJob() {
@@ -104,29 +102,27 @@ public class InteractiveDrivableFrame extends InteractiveFrame {
 		};		
 		scene.timerPool.registerInTimerPool(this, flyTimerJob);
 	}
-
-	/**
-	 * Implementation of the clone method.
-	 * <p>
-	 * Calls {@link remixlab.remixcam.core.InteractiveFrame#clone()} and makes a deep
-	 * copy of the remaining object attributes.
-	 * 
-	 * @see remixlab.remixcam.core.InteractiveFrame#clone()
-	 */
-	public InteractiveDrivableFrame clone() {
-		InteractiveDrivableFrame clonedIAvtrFrame = (InteractiveDrivableFrame) super.clone();
-		clonedIAvtrFrame.flyUpVec = new Vector3D(flyUpVec.x, flyUpVec.y, flyUpVec.z);
-		clonedIAvtrFrame.flyDisp = new Vector3D(flyDisp.x, flyDisp.y, flyDisp.z);		
-	  //TODO check if timer needs to be clone
-		TimerJob clonedflyTimerJob = new TimerJob() {
+	
+	protected InteractiveDrivableFrame(InteractiveDrivableFrame otherFrame) {		
+		super(otherFrame);
+		this.drvSpd = otherFrame.drvSpd;
+		this.flyUpVec = new Vector3D();
+		this.flyUpVec.set(otherFrame.flyUpVector());
+		this.flyDisp = new Vector3D();
+		this.flyDisp.set(otherFrame.flyDisp);
+		this.setFlySpeed( otherFrame.flySpeed() );
+		
+		this.flyTimerJob = new TimerJob() {
 			public void execute() {
 				flyUpdate();
 			}
 		};		
-		scene.timerPool.registerInTimerPool(clonedIAvtrFrame, clonedflyTimerJob);
-		
-		return clonedIAvtrFrame;
+		scene.timerPool.registerInTimerPool(this, this.flyTimerJob);
 	}
+	
+	public InteractiveDrivableFrame getCopy() {
+		return new InteractiveDrivableFrame(this);
+	}	
 
 	/**
 	 * Returns the fly speed, expressed in processing scene units.
