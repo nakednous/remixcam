@@ -25,6 +25,9 @@
 
 package remixlab.remixcam.geom;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 import remixlab.remixcam.core.Copyable;
 
 /**
@@ -36,13 +39,12 @@ import remixlab.remixcam.core.Copyable;
 public class Quaternion implements Copyable {
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Float.floatToIntBits(w);
-		result = prime * result + Float.floatToIntBits(x);
-		result = prime * result + Float.floatToIntBits(y);
-		result = prime * result + Float.floatToIntBits(z);
-		return result;
+    return new HashCodeBuilder(17, 37).
+    append(w).
+    append(x).
+    append(y).
+    append(z).    
+    toHashCode();    
 	}
 
 	@Override
@@ -54,15 +56,13 @@ public class Quaternion implements Copyable {
 		if (getClass() != obj.getClass())
 			return false;
 		Quaternion other = (Quaternion) obj;
-		if (Float.floatToIntBits(w) != Float.floatToIntBits(other.w))
-			return false;
-		if (Float.floatToIntBits(x) != Float.floatToIntBits(other.x))
-			return false;
-		if (Float.floatToIntBits(y) != Float.floatToIntBits(other.y))
-			return false;
-		if (Float.floatToIntBits(z) != Float.floatToIntBits(other.z))
-			return false;
-		return true;
+		return new EqualsBuilder()
+		.appendSuper(super.equals(obj))
+		.append(w,  other.w)
+		.append(x,  other.x)
+		.append(y,  other.y)
+		.append(z,  other.z)
+		.isEquals();						
 	}
 
 	/**

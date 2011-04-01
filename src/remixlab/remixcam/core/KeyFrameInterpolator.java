@@ -32,6 +32,9 @@ import java.util.ListIterator;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.*;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 /**
  * A keyFrame Catmull-Rom Frame interpolator.
  * <p>
@@ -108,24 +111,24 @@ import remixlab.remixcam.util.*;
 public class KeyFrameInterpolator implements Copyable {
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (currentFrmValid ? 1231 : 1237);
-		result = prime * result + ((fr == null) ? 0 : fr.hashCode());
-		result = prime * result + Float.floatToIntBits(interpolationSpd);
-		result = prime * result + (interpolationStrt ? 1231 : 1237);
-		result = prime * result + Float.floatToIntBits(interpolationTm);
-		result = prime * result + ((keyFr == null) ? 0 : keyFr.hashCode());
-		result = prime * result + (lpInterpolation ? 1231 : 1237);
-		result = prime * result + ((myFrame == null) ? 0 : myFrame.hashCode());
-		result = prime * result + ((path == null) ? 0 : path.hashCode());
-		result = prime * result + (pathIsValid ? 1231 : 1237);
-		result = prime * result + period;
-		result = prime * result + (splineCacheIsValid ? 1231 : 1237);
-		result = prime * result + ((v1 == null) ? 0 : v1.hashCode());
-		result = prime * result + ((v2 == null) ? 0 : v2.hashCode());
-		result = prime * result + (valuesAreValid ? 1231 : 1237);
-		return result;
+
+    return new HashCodeBuilder(17, 37).
+		append(currentFrmValid).
+		append(fr).
+		append(interpolationSpd).
+		append(interpolationStrt).
+		append(interpolationTm).
+		append(keyFr).
+		append(lpInterpolation).
+		append(myFrame).
+		append(path).
+		append(pathIsValid).
+		append(period).
+		append(splineCacheIsValid).
+		append(v1).
+		append(v2).
+		append(valuesAreValid).
+    toHashCode();
 	}
 
 	@Override
@@ -137,57 +140,23 @@ public class KeyFrameInterpolator implements Copyable {
 		if (getClass() != obj.getClass())
 			return false;
 		KeyFrameInterpolator other = (KeyFrameInterpolator) obj;
-		if (currentFrmValid != other.currentFrmValid)
-			return false;
-		if (fr == null) {
-			if (other.fr != null)
-				return false;
-		} else if (!fr.equals(other.fr))
-			return false;
-		if (Float.floatToIntBits(interpolationSpd) != Float
-				.floatToIntBits(other.interpolationSpd))
-			return false;
-		if (interpolationStrt != other.interpolationStrt)
-			return false;
-		if (Float.floatToIntBits(interpolationTm) != Float
-				.floatToIntBits(other.interpolationTm))
-			return false;
-		if (keyFr == null) {
-			if (other.keyFr != null)
-				return false;
-		} else if (!keyFr.equals(other.keyFr))
-			return false;
-		if (lpInterpolation != other.lpInterpolation)
-			return false;
-		if (myFrame == null) {
-			if (other.myFrame != null)
-				return false;
-		} else if (!myFrame.equals(other.myFrame))
-			return false;
-		if (path == null) {
-			if (other.path != null)
-				return false;
-		} else if (!path.equals(other.path))
-			return false;
-		if (pathIsValid != other.pathIsValid)
-			return false;
-		if (period != other.period)
-			return false;
-		if (splineCacheIsValid != other.splineCacheIsValid)
-			return false;
-		if (v1 == null) {
-			if (other.v1 != null)
-				return false;
-		} else if (!v1.equals(other.v1))
-			return false;
-		if (v2 == null) {
-			if (other.v2 != null)
-				return false;
-		} else if (!v2.equals(other.v2))
-			return false;
-		if (valuesAreValid != other.valuesAreValid)
-			return false;
-		return true;
+	   return new EqualsBuilder()		
+		.append(currentFrmValid , other.currentFrmValid)
+		.append(fr ,other.fr)
+		.append(interpolationSpd , other.interpolationSpd)
+		.append(interpolationStrt , other.interpolationStrt)
+		.append(interpolationTm , other.interpolationTm)
+		.append(keyFr ,other.keyFr)
+		.append(lpInterpolation , other.lpInterpolation)
+		.append(myFrame ,other.myFrame)
+		.append(path,other.path )
+		.append(pathIsValid , other.pathIsValid)
+		.append(period , other.period)
+		.append(splineCacheIsValid , other.splineCacheIsValid)
+		.append(v1 ,other.v1 )
+		.append(v2 ,other.v2 )
+		.append(valuesAreValid , other.valuesAreValid)
+		.isEquals();
 	}
 
 	public class KeyFrame implements Copyable {

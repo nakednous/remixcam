@@ -25,6 +25,9 @@ package remixlab.remixcam.geom;
 
 import java.io.Serializable;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 /**
  * A class to describe a two or three dimensional vector.
  * <p>
@@ -577,22 +580,27 @@ public class Vector3D implements Serializable {
     array[2] = z;
     return array;
   }
-
+  
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof Vector3D))
       return false;
-    final Vector3D p = (Vector3D) obj;
-    return x == p.x && y == p.y && z == p.z;
+    final Vector3D other = (Vector3D) obj;
+		return new EqualsBuilder()
+		.appendSuper(super.equals(obj))
+		.append(x,  other.x)
+		.append(y,  other.y)
+		.append(z,  other.z)
+		.isEquals();
   }
 
   @Override
-  public int hashCode() {
-    int result = 1;
-    result = 31 * result + Float.floatToIntBits(x);
-    result = 31 * result + Float.floatToIntBits(y);
-    result = 31 * result + Float.floatToIntBits(z);
-    return result;
+  public int hashCode() {    
+    return new HashCodeBuilder(17, 37).
+    append(x).
+    append(y).
+    append(z).
+    toHashCode();
   }
   
   public Vector3D projectVectorOnAxis(Vector3D direction) {

@@ -34,6 +34,9 @@ import remixlab.remixcam.constraint.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.TimerJob;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 /**
  * A InteractiveFrame is a Frame that can be rotated and translated using the
  * mouse.
@@ -51,27 +54,26 @@ import remixlab.remixcam.util.TimerJob;
 public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyable {
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((action == null) ? 0 : action.hashCode());
-		result = prime * result + delay;
-		result = prime * result + (dirIsFixed ? 1231 : 1237);
-		result = prime * result + grabsMouseThreshold;
-		result = prime * result + (grbsMouse ? 1231 : 1237);
-		result = prime * result + (horiz ? 1231 : 1237);
-		result = prime * result + (isInCamPath ? 1231 : 1237);
-		result = prime * result + (isSpng ? 1231 : 1237);
-		result = prime * result + (keepsGrabbingMouse ? 1231 : 1237);
-		result = prime * result + Float.floatToIntBits(mouseSpeed);
-		result = prime * result + ((pressPos == null) ? 0 : pressPos.hashCode());
-		result = prime * result + ((prevPos == null) ? 0 : prevPos.hashCode());
-		result = prime * result + Float.floatToIntBits(rotSensitivity);
-		result = prime * result + ((spngQuat == null) ? 0 : spngQuat.hashCode());
-		result = prime * result + Float.floatToIntBits(spngSensitivity);
-		result = prime * result + startedTime;
-		result = prime * result + Float.floatToIntBits(transSensitivity);
-		result = prime * result + Float.floatToIntBits(wheelSensitivity);
-		return result;
+    return new HashCodeBuilder(17, 37).
+		append(action).
+		append(delay).
+		append(dirIsFixed).
+		append(grabsMouseThreshold).
+		append(grbsMouse).
+		append(horiz).
+		append(isInCamPath).
+		append(isSpng).
+		append(keepsGrabbingMouse).
+		append(mouseSpeed).
+		append(pressPos).
+		append(prevPos).
+		append(rotSensitivity).
+		append(spngQuat).
+		append(spngSensitivity).
+		append(startedTime).
+		append(transSensitivity).
+		append(wheelSensitivity).
+    toHashCode();
 	}
 
 	@Override
@@ -83,60 +85,27 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		if (getClass() != obj.getClass())
 			return false;
 		InteractiveFrame other = (InteractiveFrame) obj;
-		if (action == null) {
-			if (other.action != null)
-				return false;
-		} else if (!action.equals(other.action))
-			return false;
-		if (delay != other.delay)
-			return false;
-		if (dirIsFixed != other.dirIsFixed)
-			return false;
-		if (grabsMouseThreshold != other.grabsMouseThreshold)
-			return false;
-		if (grbsMouse != other.grbsMouse)
-			return false;
-		if (horiz != other.horiz)
-			return false;
-		if (isInCamPath != other.isInCamPath)
-			return false;
-		if (isSpng != other.isSpng)
-			return false;
-		if (keepsGrabbingMouse != other.keepsGrabbingMouse)
-			return false;
-		if (Float.floatToIntBits(mouseSpeed) != Float
-				.floatToIntBits(other.mouseSpeed))
-			return false;
-		if (pressPos == null) {
-			if (other.pressPos != null)
-				return false;
-		} else if (!pressPos.equals(other.pressPos))
-			return false;
-		if (prevPos == null) {
-			if (other.prevPos != null)
-				return false;
-		} else if (!prevPos.equals(other.prevPos))
-			return false;
-		if (Float.floatToIntBits(rotSensitivity) != Float
-				.floatToIntBits(other.rotSensitivity))
-			return false;
-		if (spngQuat == null) {
-			if (other.spngQuat != null)
-				return false;
-		} else if (!spngQuat.equals(other.spngQuat))
-			return false;
-		if (Float.floatToIntBits(spngSensitivity) != Float
-				.floatToIntBits(other.spngSensitivity))
-			return false;
-		if (startedTime != other.startedTime)
-			return false;
-		if (Float.floatToIntBits(transSensitivity) != Float
-				.floatToIntBits(other.transSensitivity))
-			return false;
-		if (Float.floatToIntBits(wheelSensitivity) != Float
-				.floatToIntBits(other.wheelSensitivity))
-			return false;
-		return true;
+		 return new EqualsBuilder()
+     .appendSuper(super.equals(obj))		
+     .append(action,other.action != null)
+		.append(delay , other.delay)
+		.append(dirIsFixed , other.dirIsFixed)
+		.append(grabsMouseThreshold , other.grabsMouseThreshold)
+		.append(grbsMouse , other.grbsMouse)	
+		.append(horiz , other.horiz)
+		.append(isInCamPath , other.isInCamPath)
+		.append(isSpng , other.isSpng)
+		.append(keepsGrabbingMouse , other.keepsGrabbingMouse)
+		.append(mouseSpeed,other.mouseSpeed)
+		.append(pressPos,other.pressPos )
+		.append(prevPos ,other.prevPos )
+		.append(rotSensitivity, other.rotSensitivity)
+		.append(spngQuat,other.spngQuat)
+		.append(spngSensitivity,other.spngSensitivity)
+		.append(startedTime , other.startedTime)
+		.append(transSensitivity ,other.transSensitivity)
+		.append(wheelSensitivity ,other.wheelSensitivity)
+		.isEquals();
 	}
 
 	private boolean horiz;// Two simultaneous InteractiveFrame require two mice!

@@ -27,9 +27,11 @@ package remixlab.remixcam.core;
 
 import remixlab.remixcam.geom.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 /**
  * A perspective or orthographic camera.
@@ -50,39 +52,36 @@ import java.util.Iterator;
  */
 public class Camera implements Copyable {
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Float.floatToIntBits(IODist);
-		result = prime * result + Arrays.hashCode(dist);
-		result = prime * result + Float.floatToIntBits(fldOfView);
-		result = prime * result + Float.floatToIntBits(focusDist);
-		result = prime * result + Arrays.hashCode(fpCoefficients);
-		result = prime * result + ((frm == null) ? 0 : frm.hashCode());
-		result = prime * result
-				+ ((interpolationKfi == null) ? 0 : interpolationKfi.hashCode());
-		result = prime * result + ((knd == null) ? 0 : knd.hashCode());
-		result = prime * result
-				+ ((modelViewMat == null) ? 0 : modelViewMat.hashCode());
-		result = prime * result + Arrays.hashCode(normal);
-		result = prime * result + Float.floatToIntBits(orthoCoef);
-		result = prime * result + Float.floatToIntBits(orthoSize);
-		result = prime * result + Float.floatToIntBits(physicalDist2Scrn);
-		result = prime * result + Float.floatToIntBits(physicalScrnWidth);
-		result = prime * result
-				+ ((projectionMat == null) ? 0 : projectionMat.hashCode());
-		result = prime * result + ((scnCenter == null) ? 0 : scnCenter.hashCode());
-		result = prime * result + Float.floatToIntBits(scnRadius);
-		result = prime * result + scrnHeight;
-		result = prime * result + scrnWidth;
-		result = prime * result + Float.floatToIntBits(stdZFar);
-		result = prime * result + Float.floatToIntBits(stdZNear);
-		result = prime * result + ((tempFrame == null) ? 0 : tempFrame.hashCode());
-		result = prime * result + ((tp == null) ? 0 : tp.hashCode());
-		result = prime * result + Arrays.hashCode(viewport);
-		result = prime * result + Float.floatToIntBits(zClippingCoef);
-		result = prime * result + Float.floatToIntBits(zNearCoef);
-		return result;
+	public int hashCode() {	
+    return new HashCodeBuilder(17, 37).
+		append(IODist).
+		append(dist).
+		append(fldOfView).
+		append(focusDist).
+		append(fpCoefficients).
+		append(frm).
+		append(interpolationKfi).
+		append(knd).
+		append(modelViewMat).
+		append(normal).
+		append(orthoCoef).
+		append(orthoSize).
+		append(physicalDist2Scrn).
+		append(physicalScrnWidth).
+		append(projectionMat).
+		append(scnCenter).
+		append(scnRadius).
+		append(scrnHeight).
+		append(scrnWidth).
+		append(stdZFar).
+		append(stdZNear).
+		append(tempFrame).
+		append(tp).
+		append(viewport).
+		append(zClippingCoef).
+		append(zNearCoef).
+    toHashCode();
+
 	}
 
 	@Override
@@ -94,93 +93,37 @@ public class Camera implements Copyable {
 		if (getClass() != obj.getClass())
 			return false;
 		Camera other = (Camera) obj;
-		if (Float.floatToIntBits(IODist) != Float.floatToIntBits(other.IODist))
-			return false;
-		if (!Arrays.equals(dist, other.dist))
-			return false;
-		if (Float.floatToIntBits(fldOfView) != Float
-				.floatToIntBits(other.fldOfView))
-			return false;
-		if (Float.floatToIntBits(focusDist) != Float
-				.floatToIntBits(other.focusDist))
-			return false;
-		if (!Arrays.equals(fpCoefficients, other.fpCoefficients))
-			return false;
-		if (frm == null) {
-			if (other.frm != null)
-				return false;
-		} else if (!frm.equals(other.frm))
-			return false;
-		if (interpolationKfi == null) {
-			if (other.interpolationKfi != null)
-				return false;
-		} else if (!interpolationKfi.equals(other.interpolationKfi))
-			return false;
-		if (knd == null) {
-			if (other.knd != null)
-				return false;
-		} else if (!knd.equals(other.knd))
-			return false;
-		if (modelViewMat == null) {
-			if (other.modelViewMat != null)
-				return false;
-		} else if (!modelViewMat.equals(other.modelViewMat))
-			return false;
-		if (!Arrays.equals(normal, other.normal))
-			return false;
-		if (Float.floatToIntBits(orthoCoef) != Float
-				.floatToIntBits(other.orthoCoef))
-			return false;
-		if (Float.floatToIntBits(orthoSize) != Float
-				.floatToIntBits(other.orthoSize))
-			return false;
-		if (Float.floatToIntBits(physicalDist2Scrn) != Float
-				.floatToIntBits(other.physicalDist2Scrn))
-			return false;
-		if (Float.floatToIntBits(physicalScrnWidth) != Float
-				.floatToIntBits(other.physicalScrnWidth))
-			return false;
-		if (projectionMat == null) {
-			if (other.projectionMat != null)
-				return false;
-		} else if (!projectionMat.equals(other.projectionMat))
-			return false;
-		if (scnCenter == null) {
-			if (other.scnCenter != null)
-				return false;
-		} else if (!scnCenter.equals(other.scnCenter))
-			return false;
-		if (Float.floatToIntBits(scnRadius) != Float
-				.floatToIntBits(other.scnRadius))
-			return false;
-		if (scrnHeight != other.scrnHeight)
-			return false;
-		if (scrnWidth != other.scrnWidth)
-			return false;
-		if (Float.floatToIntBits(stdZFar) != Float.floatToIntBits(other.stdZFar))
-			return false;
-		if (Float.floatToIntBits(stdZNear) != Float.floatToIntBits(other.stdZNear))
-			return false;
-		if (tempFrame == null) {
-			if (other.tempFrame != null)
-				return false;
-		} else if (!tempFrame.equals(other.tempFrame))
-			return false;
-		if (tp == null) {
-			if (other.tp != null)
-				return false;
-		} else if (!tp.equals(other.tp))
-			return false;
-		if (!Arrays.equals(viewport, other.viewport))
-			return false;
-		if (Float.floatToIntBits(zClippingCoef) != Float
-				.floatToIntBits(other.zClippingCoef))
-			return false;
-		if (Float.floatToIntBits(zNearCoef) != Float
-				.floatToIntBits(other.zNearCoef))
-			return false;
-		return true;
-	}	
+		
+	   return new EqualsBuilder()
+    .appendSuper(super.equals(obj))		
+		.append(IODist,other.IODist)
+		.append(dist,other.dist)
+		.append(fldOfView,other.fldOfView)
+		.append(focusDist,other.focusDist)
+		.append(fpCoefficients,other.fpCoefficients)
+		.append(frm,other.frm)
+		.append(interpolationKfi,other.interpolationKfi)
+		.append(knd,other.knd)
+		.append(modelViewMat,other.modelViewMat)
+		.append(normal,other.normal)
+		.append(orthoCoef,other.orthoCoef)
+		.append(orthoSize,other.orthoSize)
+		.append(physicalDist2Scrn,other.physicalDist2Scrn)
+		.append(physicalScrnWidth,other.physicalScrnWidth)
+		.append(projectionMat,other.projectionMat)
+		.append(scnCenter,other.scnCenter)
+		.append(scnRadius,other.scnRadius)
+		.append(scrnHeight,other.scrnHeight)
+		.append(scrnWidth,other.scrnWidth)
+		.append(stdZFar,other.stdZFar)
+		.append(stdZNear,other.stdZNear)
+		.append(tempFrame,other.tempFrame)
+		.append(tp,other.tp)
+		.append(viewport,other.viewport)
+		.append(zClippingCoef,other.zClippingCoef)
+		.append(zNearCoef,other.zNearCoef)
+		.isEquals();
+	}		
 	
 	/**
 	 * Internal class provided to catch the output of

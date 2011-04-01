@@ -29,6 +29,9 @@ import remixlab.remixcam.devices.Actions.MouseAction;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.TimerJob;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 /**
  * The InteractiveDrivableFrame represents an InteractiveFrame that can "fly" in
  * the scene. It is the base class of all objects that are drivable in the
@@ -42,13 +45,13 @@ import remixlab.remixcam.util.TimerJob;
 public class InteractiveDrivableFrame extends InteractiveFrame implements Copyable {
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + Float.floatToIntBits(drvSpd);
-		result = prime * result + ((flyDisp == null) ? 0 : flyDisp.hashCode());
-		result = prime * result + Float.floatToIntBits(flySpd);
-		result = prime * result + ((flyUpVec == null) ? 0 : flyUpVec.hashCode());
-		return result;
+    return new HashCodeBuilder(17, 37).		
+		append(drvSpd).
+		append(flyDisp).
+		append(flySpd).
+		append(flyUpVec).
+    toHashCode();		
+
 	}
 
 	@Override
@@ -60,21 +63,13 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		if (getClass() != obj.getClass())
 			return false;
 		InteractiveDrivableFrame other = (InteractiveDrivableFrame) obj;
-		if (Float.floatToIntBits(drvSpd) != Float.floatToIntBits(other.drvSpd))
-			return false;
-		if (flyDisp == null) {
-			if (other.flyDisp != null)
-				return false;
-		} else if (!flyDisp.equals(other.flyDisp))
-			return false;
-		if (Float.floatToIntBits(flySpd) != Float.floatToIntBits(other.flySpd))
-			return false;
-		if (flyUpVec == null) {
-			if (other.flyUpVec != null)
-				return false;
-		} else if (!flyUpVec.equals(other.flyUpVec))
-			return false;
-		return true;
+	  return new EqualsBuilder()
+    .appendSuper(super.equals(obj))		
+		.append(drvSpd,other.drvSpd)
+		.append(flyDisp,other.flyDisp)
+		.append(flySpd,other.flySpd)
+		.append(flyUpVec,other.flyUpVec)
+		.isEquals();
 	}
 
 	protected float flySpd;
