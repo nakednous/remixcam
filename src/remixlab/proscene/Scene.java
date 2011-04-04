@@ -245,11 +245,7 @@ public class Scene extends RCScene implements PConstants {
 
 	// E X C E P T I O N H A N D L I N G
 	protected int startCoordCalls;
-  protected int beginOffScreenDrawingCalls;	
-
-	// K E Y B O A R D A N D M O U S E
-	protected boolean mouseHandling;
-	protected boolean keyboardHandling;
+  protected int beginOffScreenDrawingCalls;
 	
 	// A N I M A T I O N
 	protected float targetFrameRate;
@@ -757,7 +753,21 @@ public class Scene extends RCScene implements PConstants {
 	 */
 	public void draw() {
 		if (isOffscreen()) return;		
-		
+		drawCommon();
+	  // Try to draw what should have been drawn in the pre()
+		if (!backgroundIsHandled()) {
+			if (gridIsDrawn())
+				drawGrid(camera().sceneRadius());
+			if (axisIsDrawn())
+				drawAxis(camera().sceneRadius());
+			displayVisualHints();
+		}
+	}
+	
+	/**
+	 * Internal method. Called by {@link #draw()} and {@link #beginDraw()}.
+	 */
+	protected void drawCommon() {
 		if( animationIsStarted() )
 			performAnimation();
 		
@@ -772,16 +782,16 @@ public class Scene extends RCScene implements PConstants {
 				PApplet.println("Something went wrong when invoking your "	+ drawHandlerMethodName + " method");
 				e.printStackTrace();
 			}
-		}
-
-		// 3. Try to draw what should have been drawn in the pre()
-		if (!backgroundIsHandled()) {
-			if (gridIsDrawn())
-				drawGrid(camera().sceneRadius());
-			if (axisIsDrawn())
-				drawAxis(camera().sceneRadius());
-			displayVisualHints();
-		}
+		}				
+	}
+	
+	/**
+	 * Returns the renderer context linked to this scene. 
+	 * 
+	 * @return PGraphics3D renderer.
+	 */
+	public PGraphics3D renderer() {
+		return pg3d;
 	}
 
 	/**
@@ -822,6 +832,8 @@ public class Scene extends RCScene implements PConstants {
 				drawGrid(camera().sceneRadius());
 			if (axisIsDrawn())
 				drawAxis(camera().sceneRadius());
+			
+			drawCommon();// TODO experimental: check animation in offscreen rendering
 		}
 	}
 
@@ -1538,54 +1550,18 @@ public class Scene extends RCScene implements PConstants {
 		}
 	}
 
-	/**
-	 * Returns {@code true} if the keyboard is currently being handled by proscene
-	 * and {@code false} otherwise. Set keyboard handling with
-	 * {@link #enableMouseHandling(boolean)}.
-	 * <p>
-	 * Keyboard handling is enable by default.
-	 */
-	public boolean keyboardIsHandled() {
-		return keyboardHandling;
-	}
-
-	/**
-	 * Toggles the state of {@link #keyboardIsHandled()}
-	 */
-	public void toggleKeyboardHandling() {
-		enableKeyboardHandling(!keyboardHandling);
-	}
-
-	/**
-	 * Enables or disables proscene keyboard handling according to {@code enable}
-	 * 
-	 * @see #keyboardIsHandled()
-	 */
-	public void enableKeyboardHandling(boolean enable) {
-		if (enable)
-			enableKeyboardHandling();
-		else
-			disableKeyboardHandling();
-	}
-
-	/**
-	 * Enables Proscene keyboard handling.
-	 * 
-	 * @see #keyboardIsHandled()
-	 * @see #enableMouseHandling()
-	 * @see #disableKeyboardHandling()
-	 */
+	@Override
 	public void enableKeyboardHandling() {
+		if( keyboardIsHandled() )
+			return;
 		keyboardHandling = true;
 		parent.registerKeyEvent(dE);
 	}
 
-	/**
-	 * Disables Proscene keyboard handling.
-	 * 
-	 * @see #keyboardIsHandled()
-	 */
+	@Override
 	public void disableKeyboardHandling() {
+		if( !keyboardIsHandled() )
+			return;
 		keyboardHandling = false;
 		parent.unregisterKeyEvent(dE);
 	}
@@ -2186,62 +2162,25 @@ public class Scene extends RCScene implements PConstants {
 		} catch (NoSuchMethodException e) {
 			foundMC = false;
 		}
-
+		
 		if ( (foundMD || foundMM || foundMR || foundMP || foundMC) && mouseIsHandled() ) {			
 			PApplet.println("Warning: it seems that you have implemented some mouseXxxxMethod in your sketch. You may temporarily disable proscene " +
 			"mouse handling with Scene.disableMouseHandling() (you can re-enable it later with Scene.enableMouseHandling()).");
 		}
-	}
-
-	/**
-	 * Returns {@code true} if the mouse is currently being handled by proscene and
-	 * {@code false} otherwise. Set mouse handling with
-	 * {@link #enableMouseHandling(boolean)}.
-	 * <p>
-	 * Mouse handling is enable by default.
-	 */
-	public boolean mouseIsHandled() {
-		return mouseHandling;
-	}
-
-	/**
-	 * Toggles the state of {@link #mouseIsHandled()}
-	 */
-	public void toggleMouseHandling() {
-		enableMouseHandling(!mouseHandling);
-	}
-
-	/**
-	 * Enables or disables proscene mouse handling according to {@code enable}
-	 * 
-	 * @see #mouseIsHandled()
-	 */
-	public void enableMouseHandling(boolean enable) {
-		if (enable)
-			enableMouseHandling();
-		else
-			disableMouseHandling();
-	}
-
-	/**
-	 * Enables Proscene mouse handling.
-	 * 
-	 * @see #mouseIsHandled()
-	 * @see #disableMouseHandling()
-	 * @see #enableKeyboardHandling()
-	 */
+	}	
+	
+	@Override
 	public void enableMouseHandling() {
+		if( mouseIsHandled() )
+			return;
 		mouseHandling = true;
 		parent.registerMouseEvent(dE);
 	}
 
-	/**
-	 * Disables Proscene mouse handling.
-	 * 
-	 * 
-	 * @see #mouseIsHandled()
-	 */
+	@Override
 	public void disableMouseHandling() {
+		if( !mouseIsHandled() )
+			return;
 		mouseHandling = false;
 		parent.unregisterMouseEvent(dE);
 	}
@@ -2891,16 +2830,6 @@ public class Scene extends RCScene implements PConstants {
 	 */
 	public void drawCamera(Camera camera) {
 		drawCamera(camera, 170, true, 1.0f);
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code drawCamera(camera,
-	 * 170, true, scale)}
-	 * 
-	 * @see #drawCamera(Camera, int, boolean, float)
-	 */
-	public void drawCamera(PGraphics3D pg3d, Camera camera, float scale) {
-		drawCamera(camera, 170, true, scale);
 	}
 	
 	/**

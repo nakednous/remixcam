@@ -17,6 +17,10 @@ public abstract class RCScene {
 	protected MouseGrabberPool mouseGrabberPool;
 	protected boolean mouseTrckn;
 	
+  //K E Y B O A R D A N D M O U S E
+	protected boolean mouseHandling;
+	protected boolean keyboardHandling;
+	
 	//offscreen
 	protected boolean offscreen;
 	
@@ -606,6 +610,100 @@ public abstract class RCScene {
 		avatarIsInteractiveDrivableFrame = false;
 	}
 	
+	// mouse and keyboard
+	
+	/**
+	 * Returns {@code true} if the mouse is currently being handled by proscene and
+	 * {@code false} otherwise. Set mouse handling with
+	 * {@link #enableMouseHandling(boolean)}.
+	 * <p>
+	 * Mouse handling is enable by default.
+	 */
+	public boolean mouseIsHandled() {
+		return mouseHandling;
+	}
+
+	/**
+	 * Toggles the state of {@link #mouseIsHandled()}
+	 */
+	public void toggleMouseHandling() {
+		enableMouseHandling(!mouseHandling);
+	}
+
+	/**
+	 * Enables or disables proscene mouse handling according to {@code enable}
+	 * 
+	 * @see #mouseIsHandled()
+	 */
+	public void enableMouseHandling(boolean enable) {
+		if (enable)
+			enableMouseHandling();
+		else
+			disableMouseHandling();
+	}
+	
+	/**
+	 * Enables Proscene mouse handling.
+	 * 
+	 * @see #mouseIsHandled()
+	 * @see #disableMouseHandling()
+	 * @see #enableKeyboardHandling()
+	 */
+	public abstract void enableMouseHandling();
+	
+	/**
+	 * Disables Proscene mouse handling. 
+	 * 
+	 * @see #mouseIsHandled()
+	 */
+	public abstract void disableMouseHandling();
+	
+	/**
+	 * Returns {@code true} if the keyboard is currently being handled by proscene
+	 * and {@code false} otherwise. Set keyboard handling with
+	 * {@link #enableMouseHandling(boolean)}.
+	 * <p>
+	 * Keyboard handling is enable by default.
+	 */
+	public boolean keyboardIsHandled() {
+		return keyboardHandling;
+	}
+
+	/**
+	 * Toggles the state of {@link #keyboardIsHandled()}
+	 */
+	public void toggleKeyboardHandling() {
+		enableKeyboardHandling(!keyboardHandling);
+	}
+
+	/**
+	 * Enables or disables proscene keyboard handling according to {@code enable}
+	 * 
+	 * @see #keyboardIsHandled()
+	 */
+	public void enableKeyboardHandling(boolean enable) {
+		if (enable)
+			enableKeyboardHandling();
+		else
+			disableKeyboardHandling();
+	}
+	
+	/**
+	 * Enables Proscene keyboard handling.
+	 * 
+	 * @see #keyboardIsHandled()
+	 * @see #enableMouseHandling()
+	 * @see #disableKeyboardHandling()
+	 */
+	public abstract void enableKeyboardHandling();
+	
+	/**
+	 * Disables Proscene keyboard handling.
+	 * 
+	 * @see #keyboardIsHandled()
+	 */
+	public abstract void disableKeyboardHandling();
+	
 	// frustum equations
 	
 	/**
@@ -859,6 +957,8 @@ public abstract class RCScene {
 	 * Internal method. Handles the different global keyboard actions.
 	 */
 	protected void handleKeyboardAction(KeyboardAction id, Point p) {
+		if( !keyboardIsHandled() ) //TODO experimental
+			return;
 		switch (id) {
 		case DRAW_AXIS:
 			toggleAxisIsDrawn();
@@ -919,6 +1019,8 @@ public abstract class RCScene {
 	 * Internal method. Handles the different camera keyboard actions.
 	 */
 	protected void handleCameraKeyboardAction(CameraKeyboardAction id, Point p) {
+		if( !keyboardIsHandled() ) //TODO experimental
+			return;
 		switch (id) {
 		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
 			if (Camera.class == camera().getClass())
@@ -1011,6 +1113,8 @@ public abstract class RCScene {
 	 * Internal method. Handles the different mouse click actions.
 	 */
 	protected void handleClickAction(ClickAction action, Point p) {
+		if( !mouseIsHandled() ) //TODO experimental
+			return;
 		switch (action) {
 		case NO_CLICK_ACTION:
 			break;

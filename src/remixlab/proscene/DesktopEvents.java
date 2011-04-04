@@ -76,6 +76,8 @@ public class DesktopEvents implements MouseWheelListener {
 	 * @see remixlab.proscene.Scene#enableKeyboardHandling(boolean)
 	 */
 	public void keyEvent(KeyEvent e) {
+		if( !scene.keyboardIsHandled() ) //TODO experimental: overkill as this check is handled in the scene
+			return;
 		keyHandled = false;
 		switch (e.getID()) {		
 		case KeyEvent.KEY_PRESSED:
@@ -272,7 +274,8 @@ public class DesktopEvents implements MouseWheelListener {
 	 * @see remixlab.proscene.Scene#enableMouseHandling(boolean)
 	 */
 	public void mouseEvent(MouseEvent e) {
-		if (scene.currentCameraProfile() == null)
+		//if (scene.currentCameraProfile() == null)
+		if ((scene.currentCameraProfile() == null) || (!scene.mouseIsHandled()) )//TODO experimental
 			return;
 		switch (e.getID()) {
 		case MouseEvent.MOUSE_CLICKED:
@@ -464,6 +467,8 @@ public class DesktopEvents implements MouseWheelListener {
 	 * @see #mousePressed(MouseEvent)
 	 */
 	public void mouseWheelMoved(MouseWheelEvent event) {
+		if(!scene.mouseIsHandled())//TODO experimental
+				return;
 		if (scene.mouseGrabber() != null) {
 			if (scene.mouseGrabberIsAnIFrame()) { //covers also the case when mouseGrabberIsADrivableFrame
 				if (scene.mouseGrabberIsADrivableFrame()) {	
