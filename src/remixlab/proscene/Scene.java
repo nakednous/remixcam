@@ -248,15 +248,12 @@ public class Scene extends RCScene implements PConstants {
   protected int beginOffScreenDrawingCalls;
 	
 	// A N I M A T I O N
-	protected float targetFrameRate;
-	protected float animationFrameRate;
+	protected float targetFrameRate;	
 	private long initialDrawingFrameWhenAnimationStarted;
 	private long currentAnimationFrame;
 	private float animationToFrameRateRatio;
 	//private int framesInBetween;
-	private boolean animationStarted;
-	public boolean animatedFrameWasTriggered;
-	private float animationPeriod;
+	public boolean animatedFrameWasTriggered;	
 
 	// R E G I S T E R   D R A W   A N D   A N I M A T I O N   M E T H O D S
 	// Draw
@@ -2274,85 +2271,6 @@ public class Scene extends RCScene implements PConstants {
 	}
 	
 	/**
-	 * Return {@code true} when the animation loop is started.
-	 * <p>
-	 * Proscene animation loop relies on processing drawing loop. The {@link #draw()} function will
-	 * check when {@link #animationIsStarted()} and then called the animation handler method
-	 * (set with {@link #addAnimationHandler(Object, String)}) or {@link #animate()} (if no handler
-	 * has been added to the scene) every {@link #animationPeriod()} milliseconds. In addition,
-	 * During the drawing loop, the variable {@link #animatedFrameWasTriggered} is set
-   * to {@code true} each time an animated frame is triggered (and {@code false} otherwise),
-   * which is useful to notify to the outside world when an animation event occurs. 
-	 * <p>
-	 * Be sure to call {@code loop()} before an animation is started.
-	 * <p>
-	 * <b>Note:</b> The drawing frame rate may be modified when {@link #startAnimation()} is called,
-	 * depending on the {@link #animationPeriod()}.   
-	 * <p>
-	 * Use {@link #startAnimation()}, {@link #stopAnimation()} or {@link #toggleAnimation()}
-	 * to change this value.
-	 * 
-	 * @see #startAnimation()
-	 * @see #addAnimationHandler(Object, String)
-	 * @see #animate()
-	 */
-	@Override
-	public boolean animationIsStarted() {
-		return animationStarted;
-	}
-	
-	/**
-	 * The animation loop period, in milliseconds. When {@link #animationIsStarted()}, this is
-	 * the delay that takes place between two consecutive iterations of the animation loop.
-	 * <p>
-	 * This delay defines a target frame rate that will only be achieved if your
-	 * {@link #animate()} and {@link #draw()} methods are fast enough. If you want to know
-	 * the maximum possible frame rate of your machine on a given scene,
-	 * {@link #setAnimationPeriod(float)} to {@code 1}, and {@link #startAnimation()}. The display
-	 * will then be updated as often as possible, and the frame rate will be meaningful.  
-	 * <p>
-	 * Default value is 16.6666 milliseconds (60 Hz) which matches <b>processing</b> default
-	 * frame rate.
-	 * <p>
-	 * <b>Note:</b> This value is taken into account only the next time you call
-	 * {@link #startAnimation()}. If {@link #animationIsStarted()}, you should
-	 * {@link #stopAnimation()} first. See {@link #restartAnimation()} and
-	 * {@link #setAnimationPeriod(float, boolean)}.
-	 * 
-	 * @see #setAnimationPeriod(float, boolean)
-	 */
-	public float animationPeriod() {
-		return animationPeriod;
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code setAnimationPeriod(period, true)}.
-	 * 
-	 * @see #setAnimationPeriod(float, boolean)
-	 */
-	public void setAnimationPeriod(float period) {
-		setAnimationPeriod(period, true);
-	}
-	
-	/**
-	 * Sets the {@link #animationPeriod()}, in milliseconds. If restart is {@code true}
-	 * and {@link #animationIsStarted()} then {@link #restartAnimation()} is called.
-	 * <p>
-	 * <b>Note:</b> The drawing frame rate could be modified when {@link #startAnimation()} is called
-	 * depending on the {@link #animationPeriod()}.
-	 * 
-	 * @see #startAnimation()
-	 */
-	public void setAnimationPeriod(float period, boolean restart) {
-		if(period>0) {
-			animationPeriod = period;
-			animationFrameRate = 1000f/animationPeriod;
-			if(animationIsStarted() && restart)				
-				restartAnimation();
-		}
-	}
-	
-	/**
 	 * Stops animation.
 	 * <p>
 	 * <b>Warning:</b> Restores the {@code PApplet} frame rate to its default value,
@@ -2428,23 +2346,7 @@ public class Scene extends RCScene implements PConstants {
 		}
 		else
 			animate();
-	}
-	
-	/**
-	 * Scene animation method.
-	 * <p>
-	 * When {@link #animationIsStarted()}, this method defines how your scene evolves over time.
-	 * <p>
-	 * Overload it as needed. Default implementation is empty. You may
-	 * {@link #addAnimationHandler(Object, String)} instead.
-	 * <p>
-	 * <b>Note</b> that remixlab.proscene.KeyFrameInterpolator (which regularly updates a Frame)
-	 * do not use this method.
-	 * 
-	 * @see #addAnimationHandler(Object, String).
-	 */
-	public void animate() {
-	}	
+	}		
 	
 	/**
 	 * Attempt to add an 'animation' handler method to the Scene. The default event

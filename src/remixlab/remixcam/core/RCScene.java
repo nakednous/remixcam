@@ -55,6 +55,11 @@ public abstract class RCScene {
 	protected Vector3D pupVec;
 	protected TimerJob timerFx;
 	
+	// animation
+	protected boolean animationStarted;	
+	protected float animationPeriod;
+	protected float animationFrameRate;
+	
 	public RCScene() {
 		mouseGrabberPool = new MouseGrabberPool();
 		avatarIsInteractiveDrivableFrame = false;// also init in setAvatar, but we
@@ -167,13 +172,103 @@ public abstract class RCScene {
 	
 	public abstract void displayCurrentCameraProfileHelp();
 	
-	public abstract void nextCameraProfile();
+	public abstract void nextCameraProfile();	
 	
-	public abstract void startAnimation();
+	/**
+	 * Return {@code true} when the animation loop is started.
+	 * <p>
+	 * Proscene animation loop relies on processing drawing loop. The {@link #draw()} function will
+	 * check when {@link #animationIsStarted()} and then called the animation handler method
+	 * (set with {@link #addAnimationHandler(Object, String)}) or {@link #animate()} (if no handler
+	 * has been added to the scene) every {@link #animationPeriod()} milliseconds. In addition,
+	 * During the drawing loop, the variable {@link #animatedFrameWasTriggered} is set
+   * to {@code true} each time an animated frame is triggered (and {@code false} otherwise),
+   * which is useful to notify to the outside world when an animation event occurs. 
+	 * <p>
+	 * Be sure to call {@code loop()} before an animation is started.
+	 * <p>
+	 * <b>Note:</b> The drawing frame rate may be modified when {@link #startAnimation()} is called,
+	 * depending on the {@link #animationPeriod()}.   
+	 * <p>
+	 * Use {@link #startAnimation()}, {@link #stopAnimation()} or {@link #toggleAnimation()}
+	 * to change this value.
+	 * 
+	 * @see #startAnimation()
+	 * @see #addAnimationHandler(Object, String)
+	 * @see #animate()
+	 */
+	public boolean animationIsStarted() {
+		return animationStarted;
+	}	
+	
+	/**
+	 * Convenience function that simply calls {@code setAnimationPeriod(period, true)}.
+	 * 
+	 * @see #setAnimationPeriod(float, boolean)
+	 */
+	public void setAnimationPeriod(float period) {
+		setAnimationPeriod(period, true);
+	}
+	
+	/**
+	 * Sets the {@link #animationPeriod()}, in milliseconds. If restart is {@code true}
+	 * and {@link #animationIsStarted()} then {@link #restartAnimation()} is called.
+	 * <p>
+	 * <b>Note:</b> The drawing frame rate could be modified when {@link #startAnimation()} is called
+	 * depending on the {@link #animationPeriod()}.
+	 * 
+	 * @see #startAnimation()
+	 */
+	public void setAnimationPeriod(float period, boolean restart) {
+		if(period>0) {
+			animationPeriod = period;
+			animationFrameRate = 1000f/animationPeriod;
+			if(animationIsStarted() && restart)				
+				restartAnimation();
+		}
+	}
+	
+	/**
+	 * The animation loop period, in milliseconds. When {@link #animationIsStarted()}, this is
+	 * the delay that takes place between two consecutive iterations of the animation loop.
+	 * <p>
+	 * This delay defines a target frame rate that will only be achieved if your
+	 * {@link #animate()} and {@link #draw()} methods are fast enough. If you want to know
+	 * the maximum possible frame rate of your machine on a given scene,
+	 * {@link #setAnimationPeriod(float)} to {@code 1}, and {@link #startAnimation()}. The display
+	 * will then be updated as often as possible, and the frame rate will be meaningful.  
+	 * <p>
+	 * Default value is 16.6666 milliseconds (60 Hz) which matches <b>processing</b> default
+	 * frame rate.
+	 * <p>
+	 * <b>Note:</b> This value is taken into account only the next time you call
+	 * {@link #startAnimation()}. If {@link #animationIsStarted()}, you should
+	 * {@link #stopAnimation()} first. See {@link #restartAnimation()} and
+	 * {@link #setAnimationPeriod(float, boolean)}.
+	 * 
+	 * @see #setAnimationPeriod(float, boolean)
+	 */
+	public float animationPeriod() {
+		return animationPeriod;
+	}
+	
+	/**
+	 * Scene animation method.
+	 * <p>
+	 * When {@link #animationIsStarted()}, this method defines how your scene evolves over time.
+	 * <p>
+	 * Overload it as needed. Default implementation is empty. You may
+	 * {@link #addAnimationHandler(Object, String)} instead.
+	 * <p>
+	 * <b>Note</b> that remixlab.proscene.KeyFrameInterpolator (which regularly updates a Frame)
+	 * do not use this method.
+	 */
+	public void animate() {
+	}
+	
+  public abstract void startAnimation();
 	
 	public abstract void stopAnimation();
-	
-	public abstract boolean animationIsStarted();
 	
 	// TODO --- end abstract functions section
 	

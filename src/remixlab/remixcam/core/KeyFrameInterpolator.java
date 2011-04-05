@@ -268,6 +268,18 @@ public class KeyFrameInterpolator implements Copyable {
 	
 	// S C E N E
   public RCScene scene;
+  
+  /**
+   * Convenience constructor that simply calls {@code this(scn, new GLFrame())}.
+   * <p>
+   * Creates an anonymous {@link #frame()} to be interpolated by this
+   * KeyFrameInterpolator.
+   * 
+   * @see #KeyFrameInterpolator(RCScene, GLFrame)
+   */
+  public KeyFrameInterpolator(RCScene scn) {
+  	this(scn, new GLFrame());
+  }
 
 	/**
 	 * Creates a KeyFrameInterpolator, with {@code frame} as associated
