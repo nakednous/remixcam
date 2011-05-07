@@ -209,15 +209,6 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			break;
 		}
 	}
-
-	/**
-	 * Protected method that simply calls {@code startAction(action, true)}.
-	 * 
-	 * @see #startAction(Scene.MouseAction, boolean)
-	 */
-	protected void startAction(MouseAction action) {
-		startAction(action, true);
-	}
 	
 	/**
 	 * Protected internal method used to handle mouse actions.
