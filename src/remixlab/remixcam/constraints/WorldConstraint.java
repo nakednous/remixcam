@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.constraint;
+package remixlab.remixcam.constraints;
 
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
@@ -40,7 +40,8 @@ public class WorldConstraint extends AxisPlaneConstraint {
 	 * translation to be along an axis or limited to a plane defined in the Frame
 	 * world coordinate system by {@link #translationConstraintDirection()}.
 	 */
-	public Vector3D constrainTranslation(Vector3D translation, GLFrame frame) {
+	@Override
+	public Vector3D constrainTranslation(Vector3D translation, BasicFrame frame) {
 		Vector3D res = new Vector3D(translation.x, translation.y, translation.z);
 		Vector3D proj;
 		switch (translationConstraintType()) {
@@ -51,15 +52,14 @@ public class WorldConstraint extends AxisPlaneConstraint {
 				proj = frame.referenceFrame().transformOf(translationConstraintDirection());
 				res = Vector3D.projectVectorOnPlane(translation, proj);
 			} else
-				res = Vector3D.projectVectorOnPlane(translation, translationConstraintDirection());
+				res = Vector3D.projectVectorOnPlane(translation,	translationConstraintDirection());
 			break;
 		case AXIS:
 			if (frame.referenceFrame() != null) {
 				proj = frame.referenceFrame().transformOf(translationConstraintDirection());
 				res = Vector3D.projectVectorOnAxis(translation, proj);
 			} else
-				res = Vector3D.projectVectorOnAxis(translation,
-						translationConstraintDirection());
+				res = Vector3D.projectVectorOnAxis(translation, translationConstraintDirection());
 			break;
 		case FORBIDDEN:
 			res = new Vector3D(0.0f, 0.0f, 0.0f);
@@ -73,7 +73,8 @@ public class WorldConstraint extends AxisPlaneConstraint {
 	 * rotation} to be a rotation around an axis whose direction is defined in the
 	 * Frame world coordinate system by {@link #rotationConstraintDirection()}.
 	 */
-	public Quaternion constrainRotation(Quaternion rotation, GLFrame frame) {
+	@Override
+	public Quaternion constrainRotation(Quaternion rotation, BasicFrame frame) {
 		Quaternion res = rotation.getCopy();
 		switch (rotationConstraintType()) {
 		case FREE:

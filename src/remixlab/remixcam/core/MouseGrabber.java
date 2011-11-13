@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -25,7 +25,7 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.devices.Mouse.Button;
+import remixlab.remixcam.core.AbstractScene.Button;
 import remixlab.remixcam.geom.Point;
 
 /**
@@ -40,7 +40,7 @@ import remixlab.remixcam.geom.Point;
  * <b>Note:</b> The InteractiveFrame object implements the MouseGrabbable interface.
  */
 public class MouseGrabber implements MouseGrabbable {
-	protected MouseGrabberPool mouseGrabberPool;
+	protected AbstractScene scene;
 	protected boolean grabsMouse;
 	protected boolean keepsGrabbingMouse;
 	
@@ -50,11 +50,11 @@ public class MouseGrabber implements MouseGrabbable {
 	 * 
 	 * @param scn Scene instance
 	 */
-	public MouseGrabber(MouseGrabberPool mgPool) {
+	public MouseGrabber(AbstractScene scn) {
+		scene = scn;
 		grabsMouse = false;
 		keepsGrabbingMouse = false;
-		mouseGrabberPool = mgPool;
-		mouseGrabberPool.addInMouseGrabberPool(this);
+		scene.addInMouseGrabberPool(this);		
 	}
 	
 	/**

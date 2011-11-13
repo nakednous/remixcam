@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -28,6 +28,7 @@ package remixlab.remixcam.geom;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
+import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.core.Copyable;
 
 /**
@@ -36,7 +37,7 @@ import remixlab.remixcam.core.Copyable;
  * 
  */
 
-public class Quaternion implements Copyable {
+public class Quaternion implements Constants, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -63,8 +64,8 @@ public class Quaternion implements Copyable {
 		.append(y,  other.y)
 		.append(z,  other.z)
 		.isEquals();						
-	}
-
+	}	
+	
 	/**
 	 * The x coordinate, i.e., the x coordinate of the vector part of the
 	 * Quaternion.
@@ -194,6 +195,12 @@ public class Quaternion implements Copyable {
 		set(q1);
 	}
 	
+	/**
+	 * Calls {@link #Quaternion(Quaternion)} (which is protected) and returns a copy of
+	 * {@code this} object.
+	 * 
+	 * @see #Quaternion(Quaternion)
+	 */	
 	public Quaternion getCopy() {
 		return new Quaternion(this);
 	}
@@ -634,13 +641,13 @@ public class Quaternion implements Copyable {
 		float test = x * y + z * w;
 		if (test > 0.499) { // singularity at north pole
 			pitch = 2 * (float) Math.atan2(x, w);
-			yaw = (float) Math.PI / 2;
+			yaw = PI / 2;
 			roll = 0;
 			return new Vector3D(roll, pitch, yaw);
 		}
 		if (test < -0.499) { // singularity at south pole
 			pitch = -2 * (float) Math.atan2(x, w);
-			yaw = -(float) Math.PI / 2;
+			yaw = - PI / 2;
 			roll = 0;
 			return new Vector3D(roll, pitch, yaw);
 		}
@@ -661,12 +668,12 @@ public class Quaternion implements Copyable {
 	 * sqx = x*x; float sqy = y*y; float sqz = z*z; float unit = sqx + sqy + sqz +
 	 * sqw; // if normalised is one, otherwise is correction factor float test =
 	 * x*y + z*w; if (test > 0.499*unit) { // singularity at north pole pitch = 2
-	 * * (float) Math.atan2(x,w); yaw = (float) Math.PI/2; roll = 0; return new
+	 * * PApplet.atan2(x,w); yaw = PApplet.PI/2; roll = 0; return new
 	 * Vector3D(roll, pitch, yaw); } if (test < -0.499*unit) { // singularity at
-	 * south pole pitch = -2 * (float) Math.atan2(x,w); yaw = - (float) Math.PI/2; roll = 0;
-	 * return new Vector3D(roll, pitch, yaw); } pitch = (float) Math.atan2(2*y*w-2*x*z ,
-	 * sqx - sqy - sqz + sqw); yaw = (float) Math.asin(2*test/unit); roll =
-	 * (float) Math.atan2(2*x*w-2*y*z , -sqx + sqy - sqz + sqw); return new
+	 * south pole pitch = -2 * PApplet.atan2(x,w); yaw = - PApplet.PI/2; roll = 0;
+	 * return new Vector3D(roll, pitch, yaw); } pitch = PApplet.atan2(2*y*w-2*x*z ,
+	 * sqx - sqy - sqz + sqw); yaw = PApplet.asin(2*test/unit); roll =
+	 * PApplet.atan2(2*x*w-2*y*z , -sqx + sqy - sqz + sqw); return new
 	 * Vector3D(roll, pitch, yaw); } //
 	 */
 
@@ -682,8 +689,8 @@ public class Quaternion implements Copyable {
 	 * @see #fromAxisAngle(Vector3D, float)
 	 */
 	public void fromTo(Vector3D from, Vector3D to) {
-		float fromSqNorm = Vector3D.squaredNorm(from);
-		float toSqNorm = Vector3D.squaredNorm(to);
+		float fromSqNorm = from.squaredNorm();
+		float toSqNorm = to.squaredNorm();
 		// Identity Quaternion when one vector is null
 		if ((fromSqNorm < 1E-10f) || (toSqNorm < 1E-10f)) {
 			this.x = this.y = this.z = 0.0f;
@@ -692,17 +699,17 @@ public class Quaternion implements Copyable {
 
 			Vector3D axis = from.cross(to);
 
-			float axisSqNorm = Vector3D.squaredNorm(axis);
+			float axisSqNorm = axis.squaredNorm();
 
 			// Aligned vectors, pick any axis, not aligned with from or to
 			if (axisSqNorm < 1E-10f)
-				axis = Vector3D.orthogonalVector(from);
+				axis = from.orthogonalVector();
 
 			float angle = (float) Math.asin((float) Math.sqrt(axisSqNorm
 					/ (fromSqNorm * toSqNorm)));
 
 			if (from.dot(to) < 0.0)
-				angle = (float) Math.PI - angle;
+				angle = PI - angle;
 
 			fromAxisAngle(axis, angle);
 		}
@@ -812,7 +819,7 @@ public class Quaternion implements Copyable {
 		float sinus = res.mag();
 		if (sinus > 1E-8f)
 			res.div(sinus);
-		if ((float) Math.acos(this.w) <= (float) Math.PI / 2)
+		if ((float) Math.acos(this.w) <= HALF_PI)
 			return res;
 		else {
 			res.x = -res.x;
@@ -833,7 +840,7 @@ public class Quaternion implements Copyable {
 	 */
 	public final float angle() {
 		float angle = 2.0f * (float) Math.acos(this.w);
-		return (angle <= (float) Math.PI) ? angle : 2.0f * (float) Math.PI - angle;
+		return (angle <= PI) ? angle : 2.0f * PI - angle;
 	}
 
 	/**
@@ -968,8 +975,8 @@ public class Quaternion implements Copyable {
 		float seed = (float) Math.random();
 		float r1 = (float) Math.sqrt(1.0f - seed);
 		float r2 = (float) Math.sqrt(seed);
-		float t1 = 2.0f * (float) Math.PI * (float) Math.random();
-		float t2 = 2.0f * (float) Math.PI * (float) Math.random();
+		float t1 = 2.0f * PI * (float) Math.random();
+		float t2 = 2.0f * PI * (float) Math.random();
 
 		return new Quaternion((float) Math.sin(t1) * r1, (float) Math.cos(t1) * r1, (float) Math.sin(t2)
 				* r2, (float) Math.cos(t2) * r2);
@@ -988,7 +995,7 @@ public class Quaternion implements Copyable {
 	 * Returns the slerp interpolation of quaternions {@code a} and {@code b}, at
 	 * time {@code t}.
 	 * <p>
-	 * {@code t} should range in {@code [0,1]}. Result is a when {@code t=0 } and
+	 * {@code t} should range in {@code [0,1]}. Result is {@code a} when {@code t=0} and
 	 * {@code b} when {@code t=1}.
 	 * <p>
 	 * When {@code allowFlip} is true (default) the slerp interpolation will
@@ -1011,7 +1018,7 @@ public class Quaternion implements Copyable {
 
 		float c1, c2;
 		// Linear interpolation for close orientations
-		if ((1.0 - Math.abs(cosAngle)) < 0.01) {
+		if ((1.0 - (float) Math.abs(cosAngle)) < 0.01) {
 			c1 = 1.0f - t;
 			c2 = t;
 		} else {

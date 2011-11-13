@@ -304,9 +304,11 @@ public class MatrixStack {
    */
   public void printMatrix() {
     if (matrixMode == PROJECTION) {
-      projection.print();
+    	// TODO implement me!
+      //projection.print();
     } else {
-      modelview.print();  
+    	// TODO implement me!
+      //modelview.print();  
     }    
   }
   

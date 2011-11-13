@@ -1,26 +1,3 @@
-/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
-
-/*
-  Part of the Processing project - http://processing.org
-
-  Copyright (c) 2005-08 Ben Fry and Casey Reas
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General
-  Public License along with this library; if not, write to the
-  Free Software Foundation, Inc., 59 Temple Place, Suite 330,
-  Boston, MA  02111-1307  USA
-*/
-
 package remixlab.remixcam.geom;
 
 /**
@@ -46,6 +23,25 @@ public class Matrix2D implements Matrix {
 
   public Matrix2D(Matrix matrix) {
     set(matrix);
+  }
+  
+  
+  public Matrix2D(Object any) {
+  	try {
+  		float [] result = new float [16];  		
+      any.getClass().getMethod("get", new Class[] { float [].class }).invoke(any, result);
+      
+      m00 = result[0];
+      m01 = result[1];
+      m02 = result[2];
+
+      m10 = result[3];
+      m11 = result[4];
+      m12 = result[5];      
+      
+  		} catch ( Exception e ) {
+  			throw(new RuntimeException("vec cannot handle class in constructor: "+any.getClass(),e));
+  		}
   }
 
 
@@ -384,14 +380,6 @@ public class Matrix2D implements Matrix {
 
   //////////////////////////////////////////////////////////////
 
-  public void print() {
-    System.out.println(m00 + " " + m01 + " " + m02 + "\n" +
-                       m10 + " " + m11 + " " + m12 + "\n");
-    System.out.println();
-  }
-
-  //////////////////////////////////////////////////////////////
-
   // TODO these need to be added as regular API, but the naming and 
   // implementation needs to be improved first. (e.g. actually keeping track
   // of whether the matrix is in fact identity internally.)
@@ -411,16 +399,7 @@ public class Matrix2D implements Matrix {
 
 
   //////////////////////////////////////////////////////////////
-
-  /**
-  private final float max(float a, float b) {
-    return (a > b) ? a : b;
-  }
-
-  private final float abs(float a) {
-    return (a < 0) ? -a : a;
-  }
-  */
+  
 
   private final float sin(float angle) {
     return (float)Math.sin(angle);

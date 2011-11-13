@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -25,15 +25,13 @@
 
 package remixlab.remixcam.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-
-import remixlab.remixcam.geom.*;
-import remixlab.remixcam.util.*;
+import java.util.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
+import remixlab.remixcam.geom.*;
+import remixlab.remixcam.util.AbstractTimerJob;
 
 /**
  * A keyFrame Catmull-Rom Frame interpolator.
@@ -55,7 +53,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * {@code kfi = new KeyFrameInterpolator( myFrame, this );} 
  * //or an anonymous Frame may also be given: {@code kfi = new KeyFrameInterpolator( this );}<br>
  * {@code //By default the Frame is provided as a reference to the
- * KeyFrameInterpolator}} (see {@link #addKeyFrame(GLFrame)} methods):<br>
+ * KeyFrameInterpolator}} (see {@link #addKeyFrame(BasicFrame)} methods):<br>
  * {@code kfi.addKeyFrame( new Frame( new Vector3D(1,0,0), new Quaternion() ) );}<br>
  * {@code kfi.addKeyFrame( new Frame( new Vector3D(2,1,0), new Quaternion() ) );}<br>
  * {@code // ...and so on for all the keyFrames.}<br>
@@ -73,7 +71,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * <p>
  * The keyFrames are defined by a Frame and a time, expressed in seconds.
  * Optionally, the Frame can be provided as a reference (see the
- * {@link #addKeyFrame(GLFrame)} methods). In this case, the path will
+ * {@link #addKeyFrame(BasicFrame)} methods). In this case, the path will
  * automatically be updated when the Frame is modified.
  * <p>
  * The time has to be monotonously increasing over keyFrames. When
@@ -104,14 +102,13 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * to drive the Camera along a path.
  * <p>
  * <b>Attention:</b> If a Constraint is attached to the {@link #frame()} (see
- * {@link remixlab.remixcam.core.GLFrame#constraint()}), it should be deactivated
+ * {@link remixlab.remixcam.core.BasicFrame#constraint()}), it should be deactivated
  * before {@link #interpolationIsStarted()}, otherwise the interpolated motion
  * (computed as if there was no constraint) will probably be erroneous.
  */
 public class KeyFrameInterpolator implements Copyable {
 	@Override
 	public int hashCode() {
-
     return new HashCodeBuilder(17, 37).
 		append(currentFrmValid).
 		append(fr).
@@ -124,9 +121,6 @@ public class KeyFrameInterpolator implements Copyable {
 		append(path).
 		append(pathIsValid).
 		append(period).
-		append(splineCacheIsValid).
-		append(v1).
-		append(v2).
 		append(valuesAreValid).
     toHashCode();
 	}
@@ -141,31 +135,28 @@ public class KeyFrameInterpolator implements Copyable {
 			return false;
 		KeyFrameInterpolator other = (KeyFrameInterpolator) obj;
 	   return new EqualsBuilder()		
-		.append(currentFrmValid , other.currentFrmValid)
-		.append(fr ,other.fr)
-		.append(interpolationSpd , other.interpolationSpd)
-		.append(interpolationStrt , other.interpolationStrt)
-		.append(interpolationTm , other.interpolationTm)
-		.append(keyFr ,other.keyFr)
-		.append(lpInterpolation , other.lpInterpolation)
-		.append(myFrame ,other.myFrame)
-		.append(path,other.path )
-		.append(pathIsValid , other.pathIsValid)
-		.append(period , other.period)
-		.append(splineCacheIsValid , other.splineCacheIsValid)
-		.append(v1 ,other.v1 )
-		.append(v2 ,other.v2 )
-		.append(valuesAreValid , other.valuesAreValid)
+		.append(currentFrmValid, other.currentFrmValid)
+		.append(fr, other.fr)
+		.append(interpolationSpd, other.interpolationSpd)
+		.append(interpolationStrt, other.interpolationStrt)
+		.append(interpolationTm, other.interpolationTm)
+		.append(keyFr, other.keyFr)
+		.append(lpInterpolation, other.lpInterpolation)
+		.append(myFrame, other.myFrame)
+		.append(path, other.path )
+		.append(pathIsValid, other.pathIsValid)
+		.append(period, other.period)
+		.append(valuesAreValid, other.valuesAreValid)
 		.isEquals();
 	}
 
-	public class KeyFrame implements Copyable {
+	private class KeyFrame implements Copyable {
 		private Vector3D p, tgPVec;
 		private Quaternion q, tgQuat;
 		private float tm;
-		private GLFrame frm;
+		private BasicFrame frm;
 
-		KeyFrame(GLFrame fr, float t, boolean setRef) {
+		KeyFrame(BasicFrame fr, float t, boolean setRef) {
 			tm = t;
 			if (setRef) {
 				frm = fr;
@@ -193,36 +184,36 @@ public class KeyFrameInterpolator implements Copyable {
 		
 		public KeyFrame getCopy() {
 			return new KeyFrame(this);
-		}
+		}		
 
-		public void updateValues() {
+		void updateValues() {
 			if (frame() != null) {
 				p = frame().position();
 				q = frame().orientation();
 			}
 		}
 
-		public Vector3D position() {
+		Vector3D position() {
 			return p;
 		}
 
-		public Quaternion orientation() {
+		Quaternion orientation() {
 			return q;
 		}
 
-		public Vector3D tgP() {
+		Vector3D tgP() {
 			return tgPVec;
 		}
 
-		public Quaternion tgQ() {
+		Quaternion tgQ() {
 			return tgQuat;
 		}
 
-		public float time() {
+		float time() {
 			return tm;
 		}
 
-		GLFrame frame() {
+		BasicFrame frame() {
 			return frm;
 		}
 
@@ -240,17 +231,15 @@ public class KeyFrameInterpolator implements Copyable {
 	private List<KeyFrame> keyFr;
 	private ListIterator<KeyFrame> currentFrame0;
 	private ListIterator<KeyFrame> currentFrame1;
-	private ListIterator<KeyFrame> currentFrame2;	
+	private ListIterator<KeyFrame> currentFrame2;
 	private ListIterator<KeyFrame> currentFrame3;
+	private List<BasicFrame> path;
 	// A s s o c i a t e d f r a m e
-	private GLFrame fr;
-	
-	// D r a w i n g
-	private List<GLFrame> path = new ArrayList<GLFrame>();
-	private GLFrame myFrame;
+	private BasicFrame fr;
+	private BasicFrame myFrame;// needed for drawPath
 
 	// R h y t h m
-	private TimerJob timerFx1;
+	private AbstractTimerJob interpolationTimerJob;
 	private int period;
 	private float interpolationTm;
 	private float interpolationSpd;
@@ -260,25 +249,25 @@ public class KeyFrameInterpolator implements Copyable {
 	private boolean lpInterpolation;
 
 	// C a c h e d v a l u e s a n d f l a g s
+	private boolean pathIsValid;
 	private boolean valuesAreValid;
 	private boolean currentFrmValid;
 	private boolean splineCacheIsValid;
 	private Vector3D v1, v2;
-	private boolean pathIsValid;
-	
-	// S C E N E
-  public RCScene scene;
+
+  //S C E N E
+  public AbstractScene scene;
   
   /**
-   * Convenience constructor that simply calls {@code this(scn, new GLFrame())}.
+   * Convenience constructor that simply calls {@code this(scn, new Frame())}.
    * <p>
    * Creates an anonymous {@link #frame()} to be interpolated by this
    * KeyFrameInterpolator.
    * 
-   * @see #KeyFrameInterpolator(RCScene, GLFrame)
+   * @see #KeyFrameInterpolator(Scene, BasicFrame)
    */
-  public KeyFrameInterpolator(RCScene scn) {
-  	this(scn, new GLFrame());
+  public KeyFrameInterpolator(AbstractScene scn) {
+  	this(scn, new BasicFrame());
   }
 
 	/**
@@ -286,18 +275,16 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #frame()}. The {@code p3d} object will be used if
 	 * {@link #drawPath(int, int, float)} is called.
 	 * <p>
-	 * The {@link #frame()} can be set or changed using {@link #setFrame(GLFrame)}.
+	 * The {@link #frame()} can be set or changed using {@link #setFrame(BasicFrame)}.
 	 * <p>
 	 * {@link #interpolationTime()}, {@link #interpolationSpeed()} and
 	 * {@link #interpolationPeriod()} are set to their default values.
-	 * 
-	 * @see #KeyFrameInterpolator(PApplet)
 	 */
-	public KeyFrameInterpolator(RCScene scn, GLFrame frame) {
-		scene = scn;		
-		myFrame = new GLFrame();
-		path = new ArrayList<GLFrame>();
+	public KeyFrameInterpolator(AbstractScene scn, BasicFrame frame) {
+		scene = scn;
+		myFrame = new BasicFrame();
 		keyFr = new ArrayList<KeyFrame>();
+		path = new ArrayList<BasicFrame>();
 		fr = null;
 		period = 40;
 		interpolationTm = 0.0f;
@@ -314,20 +301,20 @@ public class KeyFrameInterpolator implements Copyable {
 		currentFrame2 = keyFr.listIterator();
 		currentFrame3 = keyFr.listIterator();
 		
-		timerFx1 = new TimerJob() {
+		interpolationTimerJob = new AbstractTimerJob() {
 			public void execute() {
 				update();
 			}
 		};		
-		scene.timerPool.registerInTimerPool(this, timerFx1);
-	}
+		scene.registerInTimerPool(interpolationTimerJob);
+	}	
 	
 	protected KeyFrameInterpolator(KeyFrameInterpolator otherKFI) {
 		this.scene = otherKFI.scene;
 		this.myFrame = otherKFI.myFrame.getCopy();		
 		
-		this.path = new ArrayList<GLFrame>();
-		ListIterator<GLFrame> frameIt = otherKFI.path.listIterator();
+		this.path = new ArrayList<BasicFrame>();
+		ListIterator<BasicFrame> frameIt = otherKFI.path.listIterator();
 		while (frameIt.hasNext()) {
 			this.path.add(frameIt.next().getCopy());
 		}		
@@ -357,61 +344,22 @@ public class KeyFrameInterpolator implements Copyable {
 		this.currentFrame2 = keyFr.listIterator(otherKFI.currentFrame2.nextIndex());
 		this.currentFrame3 = keyFr.listIterator(otherKFI.currentFrame3.nextIndex());
 		
-		this.timerFx1 = new TimerJob() {
+		this.interpolationTimerJob = new AbstractTimerJob() {
 			public void execute() {
 				update();
 			}
 		};		
-		scene.timerPool.registerInTimerPool(this, this.timerFx1);		
+		scene.registerInTimerPool(interpolationTimerJob);		
 	}
 	
 	public KeyFrameInterpolator getCopy() {
 		return new KeyFrameInterpolator(this);
-	}	
-	
-	/**
-	 * Connection: drawing utils
-	 */
-	public List<KeyFrame> keyFrame() {
-		return keyFr;
-	}
-	
-	/**
-	 * Connection: drawing utils
-	 */
-	public boolean pathIsValid() {
-		return pathIsValid;
-	}
-	
-	/**
-	 * Connection: drawing utils
-	 */
-	public void validatePath() {
-		pathIsValid = true;
-	}
-	
-	/**
-	 * Connection: drawing utils
-	 */
-	public boolean valuesAreValid() {
-		return valuesAreValid;
-	}
-	
-	/**
-	 * Connection: drawing utils
-	 */
-	public GLFrame drawingFrame() {
-		return myFrame;
-	}
-	
-	public ArrayList<GLFrame> drawingPath() {
-		return (ArrayList<GLFrame>)path;
 	}
 
 	/**
 	 * Sets the {@link #frame()} associated to the KeyFrameInterpolator.
 	 */
-	public void setFrame(GLFrame f) {
+	public void setFrame(BasicFrame f) {
 		fr = f;
 	}
 
@@ -423,16 +371,16 @@ public class KeyFrameInterpolator implements Copyable {
 	 * orientation will regularly be updated by a timer, so that they follow the
 	 * KeyFrameInterpolator path.
 	 * <p>
-	 * Set using {@link #setFrame(GLFrame)} or with the KeyFrameInterpolator
+	 * Set using {@link #setFrame(BasicFrame)} or with the KeyFrameInterpolator
 	 * constructor.
 	 */
-	public GLFrame frame() {
+	public BasicFrame frame() {
 		return fr;
 	}
 
 	/**
 	 * Returns the number of keyFrames used by the interpolation. Use
-	 * {@link #addKeyFrame(GLFrame)} to add new keyFrames.
+	 * {@link #addKeyFrame(BasicFrame)} to add new keyFrames.
 	 */
 	public int numberOfKeyFrames() {
 		return keyFr.size();
@@ -474,6 +422,8 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #interpolationTime()} at each update, and the {@link #frame()} state
 	 * is modified accordingly (see {@link #interpolateAtTime(float)}). Default
 	 * value is 40 milliseconds.
+	 * 
+	 * @see #setInterpolationPeriod(int)splineCacheIsValid
 	 */
 	public int interpolationPeriod() {
 		return period;
@@ -515,12 +465,16 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 
 	/**
-	 * Sets the {@link #interpolationPeriod()}.
+	 * Sets the {@link #interpolationPeriod()}. Should positive.
 	 */
 	public void setInterpolationPeriod(int myPeriod) {
-		period = myPeriod;
+		if(myPeriod > 0)
+			period = myPeriod;
 	}
 
+	/**
+	 * Convenience function that simply calls  {@code setLoopInterpolation(true)}. 
+	 */
 	public void setLoopInterpolation() {
 		setLoopInterpolation(true);
 	}
@@ -563,7 +517,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * reaches {@link #firstTime()} or {@link #lastTime()}, unless
 	 * {@link #loopInterpolation()} is {@code true}.
 	 */
-	public void update() {
+	protected void update() {
 		interpolateAtTime(interpolationTime());
 
 		interpolationTm += interpolationSpeed() * interpolationPeriod() / 1000.0f;
@@ -591,7 +545,7 @@ public class KeyFrameInterpolator implements Copyable {
 		}
 	}
 
-	public void invalidateValues() {
+	protected void invalidateValues() {
 		valuesAreValid = false;
 		pathIsValid = false;
 		splineCacheIsValid = false;
@@ -627,7 +581,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * change the starting {@link #interpolationTime()}.
 	 * <p>
 	 * <b>Attention:</b> The keyFrames must be defined (see
-	 * {@link #addKeyFrame(GLFrame, float)}) before you startInterpolation(), or
+	 * {@link #addKeyFrame(BasicFrame, float)}) before you startInterpolation(), or
 	 * else the interpolation will naturally immediately stop.
 	 */
 	public void startInterpolation(int myPeriod) {
@@ -641,8 +595,7 @@ public class KeyFrameInterpolator implements Copyable {
 			if ((interpolationSpeed() < 0.0)
 					&& (interpolationTime() <= keyFr.get(0).time()))
 				setInterpolationTime(keyFr.get(keyFr.size() - 1).time());
-			if( timerFx1.timer() != null )
-				timerFx1.timer().runTimer(interpolationPeriod());
+			interpolationTimerJob.run(interpolationPeriod());
 			interpolationStrt = true;
 			update();
 		}
@@ -653,8 +606,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #interpolationIsStarted()} and {@link #toggleInterpolation()}.
 	 */
 	public void stopInterpolation() {
-		if( timerFx1.timer() != null )
-			timerFx1.timer().cancelTimer();
+		interpolationTimerJob.stop();
 		interpolationStrt = false;
 	}
 
@@ -671,23 +623,23 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 
 	/**
-	 * Convenience function that simply calls {@code addKeyFrame(frame, true)}.
+	 * Convenience function that simply calls {@code addKeyFrame(frame, false)}.
 	 * 
-	 * @see #addKeyFrame(GLFrame, boolean)
+	 * @see #addKeyFrame(BasicFrame, boolean)
 	 */
-	public void addKeyFrame(GLFrame frame) {
+	public void addKeyFrame(BasicFrame frame) {
 		addKeyFrame(frame, true);
 	}
 
 	/**
 	 * Appends a new keyFrame to the path.
 	 * <p>
-	 * Same as {@link #addKeyFrame(GLFrame, float, boolean)}, except that the
+	 * Same as {@link #addKeyFrame(BasicFrame, float, boolean)}, except that the
 	 * {@link #keyFrameTime(int)} is set to the previous
 	 * {@link #keyFrameTime(int)} plus one second (or 0.0 if there is no previous
 	 * keyFrame).
 	 */
-	public void addKeyFrame(GLFrame frame, boolean setRef) {
+	public void addKeyFrame(BasicFrame frame, boolean setRef) {
 		float time;
 
 		if (keyFr.isEmpty())
@@ -700,11 +652,11 @@ public class KeyFrameInterpolator implements Copyable {
 
 	/**
 	 * Convenience function that simply calls {@code addKeyFrame(frame, time,
-	 * true)}.
+	 * false)}.
 	 * 
-	 * @see #addKeyFrame(GLFrame, float, boolean)
+	 * @see #addKeyFrame(BasicFrame, float, boolean)
 	 */
-	public void addKeyFrame(GLFrame frame, float time) {
+	public void addKeyFrame(BasicFrame frame, float time) {
 		addKeyFrame(frame, time, true);
 	}
 
@@ -723,7 +675,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #keyFrameTime(int)} has to be monotonously increasing over
 	 * keyFrames.
 	 */
-	public void addKeyFrame(GLFrame frame, float time, boolean setRef) {
+	public void addKeyFrame(BasicFrame frame, float time, boolean setRef) {
 		if (frame == null)
 			return;
 
@@ -767,7 +719,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * 
 	 * @see #addFramesToMouseGrabberPool()
 	 */
-	public void removeFramesFromMouseGrabberPool() {
+	protected void removeFramesFromMouseGrabberPool() {
 		for (int i = 0; i < keyFr.size(); ++i) {
 			if (keyFr.get(i).frame() != null)
 				if (((InteractiveFrame) keyFr.get(i).frame()).isInMouseGrabberPool())
@@ -782,7 +734,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * 
 	 * @see #removeFramesFromMouseGrabberPool()
 	 */
-	public void addFramesToMouseGrabberPool() {
+	protected void addFramesToMouseGrabberPool() {
 		for (int i = 0; i < keyFr.size(); ++i) {
 			if (keyFr.get(i).frame() != null)
 				if (!((InteractiveFrame) keyFr.get(i).frame()).isInMouseGrabberPool())
@@ -790,7 +742,7 @@ public class KeyFrameInterpolator implements Copyable {
 		}
 	}
 
-	public void updateModifiedFrameValues() {
+	protected void updateModifiedFrameValues() {
 		Quaternion prevQ = keyFr.get(0).orientation();
 
 		KeyFrame kf;
@@ -819,18 +771,120 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 
 	/**
+	 * Convenience function that simply calls {@code drawPath(1, 6, 100)}
+	 */
+	public void drawPath() {
+		drawPath(1, 6, 100);
+	}
+
+	/**
+	 * Convenience function that simply calls {@code drawPath(1, 6, scale)}
+	 */
+	public void drawPath(float scale) {
+		drawPath(1, 6, scale);
+	}
+
+	/**
+	 * Convenience function that simply calls {@code drawPath(mask, nbFrames,
+	 * 100)}
+	 */
+	public void drawPath(int mask, int nbFrames) {
+		drawPath(mask, nbFrames, 100);
+	}
+
+	/**
+	 * Draws the path used to interpolate the {@link #frame()}.
+	 * <p>
+	 * {@code mask} controls what is drawn: If ( (mask & 1) != 0 ), the position
+	 * path is drawn. If ( (mask & 2) != 0 ), a camera representation is regularly
+	 * drawn and if ( (mask & 4) != 0 ), an oriented axis is regularly drawn.
+	 * Examples:
+	 * <p>
+	 * {@code drawPath(); // Simply draws the interpolation path} <br>
+	 * {@code drawPath(3); // Draws path and cameras} <br>
+	 * {@code drawPath(5); // Draws path and axis} <br>
+	 * <p>
+	 * In the case where camera or axis is drawn, {@code nbFrames} controls the
+	 * number of objects (axis or camera) drawn between two successive keyFrames.
+	 * When {@code nbFrames = 1}, only the path KeyFrames are drawn. {@code
+	 * nbFrames = 2} also draws the intermediate orientation, etc. The maximum
+	 * value is 30. {@code nbFrames} should divide 30 so that an object is drawn
+	 * for each KeyFrame. Default value is 6.
+	 * <p>
+	 * {@code scale} controls the scaling of the camera and axis drawing. A value
+	 * of {@link remixlab.proscene.Scene#radius()} should give good results.
+	 */
+	public void drawPath(int mask, int nbFrames, float scale) {
+		int nbSteps = 30;
+		if (!pathIsValid) {
+			path.clear();
+
+			if (keyFr.isEmpty())
+				return;
+
+			if (!valuesAreValid)
+				updateModifiedFrameValues();
+
+			if (keyFr.get(0) == keyFr.get(keyFr.size() - 1))
+				path.add(new BasicFrame(keyFr.get(0).position(), keyFr.get(0).orientation()));
+			else {
+				KeyFrame[] kf = new KeyFrame[4];
+				kf[0] = keyFr.get(0);
+				kf[1] = kf[0];
+
+				int index = 1;
+				kf[2] = (index < keyFr.size()) ? keyFr.get(index) : null;
+				index++;
+				kf[3] = (index < keyFr.size()) ? keyFr.get(index) : null;
+
+				while (kf[2] != null) {
+					Vector3D diff = Vector3D.sub(kf[2].position(), kf[1].position());
+					Vector3D vec1 = Vector3D.add(Vector3D.mult(diff, 3.0f), Vector3D.mult(
+							kf[1].tgP(), (-2.0f)));
+					vec1 = Vector3D.sub(vec1, kf[2].tgP());
+					Vector3D vec2 = Vector3D.add(Vector3D.mult(diff, (-2.0f)), kf[1].tgP());
+					vec2 = Vector3D.add(vec2, kf[2].tgP());
+
+					for (int step = 0; step < nbSteps; ++step) {
+						float alpha = step / (float) nbSteps;
+						myFrame.setPosition(Vector3D.add(kf[1].position(), Vector3D.mult(
+								Vector3D.add(kf[1].tgP(), Vector3D.mult(Vector3D.add(vec1, Vector3D
+										.mult(vec2, alpha)), alpha)), alpha)));
+						myFrame.setOrientation(Quaternion.squad(kf[1].orientation(), kf[1]
+								.tgQ(), kf[2].tgQ(), kf[2].orientation(), alpha));
+						path.add(new BasicFrame(myFrame));
+					}
+
+					// Shift
+					kf[0] = kf[1];
+					kf[1] = kf[2];
+					kf[2] = kf[3];
+
+					index++;
+					kf[3] = (index < keyFr.size()) ? keyFr.get(index) : null;
+				}
+				// Add last KeyFrame
+				path.add(new BasicFrame(kf[1].position(), kf[1].orientation()));
+			}
+			pathIsValid = true;
+		}
+		
+		scene.drawPath(path, mask, nbFrames, nbSteps, scale);
+	}
+
+	/**
 	 * Returns the Frame associated with the keyFrame at index {@code index}.
 	 * <p>
 	 * See also {@link #keyFrameTime(int)}. {@code index} has to be in the range
 	 * 0..{@link #numberOfKeyFrames()}-1.
 	 * <p>
 	 * <b>Note:</b> If this keyFrame was defined using a reference to a Frame (see
-	 * {@link #addKeyFrame(GLFrame, float, boolean)} the current referenced Frame
+	 * {@link #addKeyFrame(BasicFrame, float, boolean)} the current referenced Frame
 	 * state is returned.
 	 */
-	public GLFrame keyFrame(int index) {
+	public BasicFrame keyFrame(int index) {
 		KeyFrame kf = keyFr.get(index);
-		return new GLFrame(kf.position(), kf.orientation());
+		return new BasicFrame(kf.position(), kf.orientation());
 	}
 
 	/**

@@ -1,4 +1,4 @@
-<project name="RemixCamLib" default="clean" basedir="../">
+<project name="RemixcamLib" default="clean" basedir="../">
 
     
 <!--	

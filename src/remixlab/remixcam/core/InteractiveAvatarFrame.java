@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -25,6 +25,9 @@
 
 package remixlab.remixcam.core;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 import remixlab.remixcam.geom.*;
 
 /**
@@ -37,34 +40,58 @@ import remixlab.remixcam.geom.*;
  * {@link #trackingDistance()}) respect to the {@link #position()} (which
  * defines its {@link #target()}) of the InteractiveAvatarFrame.
  */
-public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	Trackable, Copyable {
+public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	Constants, Trackable, Copyable {
+	@Override
+	public int hashCode() {
+    return new HashCodeBuilder(17, 37).		
+		append(q).
+		append(trackingDist).
+		append(camRelPos).
+    toHashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InteractiveAvatarFrame other = (InteractiveAvatarFrame) obj;
+	  return new EqualsBuilder()
+    .appendSuper(super.equals(obj))		
+		.append(q, other.q)
+		.append(trackingDist, other.trackingDist)
+		.append(camRelPos, other.camRelPos)
+		.isEquals();
+	}
+	
 	private Quaternion q;
 	private float trackingDist;
 	private Vector3D camRelPos;
-	
-	/**
-	 * Convenience constructor that simply calls {@code this(mgPool, 30)}
-	 */
-	public InteractiveAvatarFrame(RCScene scn) {
-		this(scn, 30);
-	}
-	
+
 	/**
 	 * Constructs an InteractiveAvatarFrame and sets its
-	 * {@link #trackingDistance()} to {@code tDistance} ,
+	 * {@link #trackingDistance()} to {@link remixlab.proscene.Scene#radius()}/5,
 	 * {@link #azimuth()} to 0, and {@link #inclination()} to 0.
 	 * 
 	 * @see remixlab.proscene.Scene#setAvatar(Trackable)
 	 * @see remixlab.proscene.Scene#setInteractiveFrame(InteractiveFrame)
 	 */
-	public InteractiveAvatarFrame(RCScene scn, float tDistance) {
+	public InteractiveAvatarFrame(AbstractScene scn) {
 		super(scn);
 		q = new Quaternion();
-		q.fromTaitBryan((float) Math.PI/4, 0, 0);
+		q.fromTaitBryan(QUARTER_PI, 0, 0);
 		camRelPos = new Vector3D();
-		setTrackingDistance(30);
+		setTrackingDistance(scene.radius() / 5);
 	}
 	
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param otherFrame the other interactive avatar frame
+	 */
 	protected InteractiveAvatarFrame(InteractiveAvatarFrame otherFrame) {
 		super(otherFrame);
 		this.q = otherFrame.q.getCopy();
@@ -73,6 +100,12 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 		this.setTrackingDistance(otherFrame.trackingDistance());
 	}
 	
+	/**
+	 * Calls {@link #InteractiveAvatarFrame(InteractiveAvatarFrame)} (which is protected)
+	 * and returns a copy of {@code this} object.
+	 * 
+	 * @see #InteractiveAvatarFrame(InteractiveAvatarFrame)
+	 */
 	public InteractiveAvatarFrame getCopy() {
 		return new InteractiveAvatarFrame(this);
 	}

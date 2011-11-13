@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -23,10 +23,10 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.proscene;
+package remixlab.remixcam.devices;
 
 import java.util.HashMap;
-
+import remixlab.remixcam.core.*;
 
 /**
  * A parameterized template class used to define shortcut bindings. This is
@@ -40,12 +40,20 @@ import java.util.HashMap;
  * (HashMap<K, A>). 
  */
 public class Bindings<K, A> {
-	protected Scene scene;
-	public HashMap<K, A> map;
+	protected AbstractScene scene;
+	protected HashMap<K, A> map;
 
-	public Bindings(Scene scn) {
+	public Bindings(AbstractScene scn) {
 		scene = scn;
 		map = new HashMap<K, A>();
+	}
+	
+	/**
+	 * Returns the {@code map} (which is simply an instance of {@code HashMap})
+	 * encapsulated by this object.
+	 */
+	public HashMap<K, A> map() {
+		return map;
 	}
 
 	/**

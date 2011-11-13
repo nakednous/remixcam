@@ -1,30 +1,4 @@
-/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
-
-/*
-  Part of the Processing project - http://processing.org
-
-  Copyright (c) 2005-08 Ben Fry and Casey Reas
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General
-  Public License along with this library; if not, write to the
-  Free Software Foundation, Inc., 59 Temple Place, Suite 330,
-  Boston, MA  02111-1307  USA
-*/
-
 package remixlab.remixcam.geom;
-
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 /**
  * 4x4 matrix implementation.
@@ -46,46 +20,7 @@ public final class Matrix3D implements Matrix /*, PConstants*/ {
   }
 
 
-  @Override
-	public int hashCode() {
-		return new HashCodeBuilder(17, 37).append(m00).append(m01).append(m02)
-				.append(m03).append(m10).append(m11).append(m12).append(m13)
-				.append(m20).append(m21).append(m22).append(m23).append(m30)
-				.append(m31).append(m32).append(m33).toHashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Matrix3D other = (Matrix3D) obj;
-		return new EqualsBuilder()
-		.appendSuper(super.equals(obj))
-		.append(m00,  other.m00)
-		.append(m01,  other.m01)
-		.append(m02,  other.m02)
-		.append(m03,  other.m03)
-		.append(m10,  other.m10)
-		.append(m11,  other.m11)
-		.append(m12,  other.m12)
-		.append(m13,  other.m13)
-		.append(m20,  other.m20)
-		.append(m21,  other.m21)
-		.append(m22,  other.m22)
-		.append(m23,  other.m23)
-		.append(m30,  other.m30)
-		.append(m31,  other.m31)
-		.append(m32,  other.m32)
-		.append(m33,  other.m33)
-		.isEquals();
-	}
-
-
-	public Matrix3D(float m00, float m01, float m02,
+  public Matrix3D(float m00, float m01, float m02,
                    float m10, float m11, float m12) {
     set(m00, m01, m02, 0,
         m10, m11, m12, 0,
@@ -108,7 +43,58 @@ public final class Matrix3D implements Matrix /*, PConstants*/ {
   public Matrix3D(Matrix matrix) {
     set(matrix);
   }
+  
+  public Matrix3D(Object any) {
+  	try {
+  		float [] result = new float [16];  		
+      any.getClass().getMethod("get", new Class[] { float [].class }).invoke(any, result);
+      
+      m00 = result[0];
+      m01 = result[1];
+      m02 = result[2];
+      m03 = result[3];
 
+      m10 = result[4];
+      m11 = result[5];
+      m12 = result[6];
+      m13 = result[7];
+
+      m20 = result[8];
+      m21 = result[9];
+      m22 = result[10];
+      m23 = result[11];
+
+      m30 = result[12];
+      m31 = result[13];
+      m32 = result[14];
+      m33 = result[15];      
+      
+  		} catch ( Exception e ) {
+  			throw(new RuntimeException("vec cannot handle class in constructor: "+any.getClass(),e));
+  		}
+  }
+  
+  public final float[][] get3x3UpperLeftMatrixFromMatrix3D() {
+  	return get3x3UpperLeftMatrixFromMatrix3D(this);
+  }
+  
+  /**
+	 * Utility function that returns the 3x3 upper left sub-matrix of the given
+	 * PMatrix3D.
+	 */
+	public static final float[][] get3x3UpperLeftMatrixFromMatrix3D(Matrix3D pM) {
+		float[][] m = new float[3][3];
+		m[0][0] = pM.m00;
+		m[0][1] = pM.m01;
+		m[0][2] = pM.m02;
+		m[1][0] = pM.m10;
+		m[1][1] = pM.m11;
+		m[1][2] = pM.m12;
+		m[2][0] = pM.m20;
+		m[2][1] = pM.m21;
+		m[2][2] = pM.m22;
+		return m;
+	}
 
   public void reset() {
     set(1, 0, 0, 0,
@@ -354,6 +340,28 @@ public final class Matrix3D implements Matrix /*, PConstants*/ {
           0, 0, 1, 0,
           0, 0, 0, 1);
   }
+  
+  public static void mult(Matrix3D a, Matrix3D b, Matrix3D c) { 
+  	c.m00 = a.m00*b.m00 + a.m01*b.m10 + a.m02*b.m20 + a.m03*b.m30;
+    c.m01 = a.m00*b.m01 + a.m01*b.m11 + a.m02*b.m21 + a.m03*b.m31;
+    c.m02 = a.m00*b.m02 + a.m01*b.m12 + a.m02*b.m22 + a.m03*b.m32;
+    c.m03 = a.m00*b.m03 + a.m01*b.m13 + a.m02*b.m23 + a.m03*b.m33;
+
+    c.m10 = a.m10*b.m00 + a.m11*b.m10 + a.m12*b.m20 + a.m13*b.m30;
+    c.m11 = a.m10*b.m01 + a.m11*b.m11 + a.m12*b.m21 + a.m13*b.m31;
+    c.m12 = a.m10*b.m02 + a.m11*b.m12 + a.m12*b.m22 + a.m13*b.m32;
+    c.m13 = a.m10*b.m03 + a.m11*b.m13 + a.m12*b.m23 + a.m13*b.m33;
+
+    c.m20 = a.m20*b.m00 + a.m21*b.m10 + a.m22*b.m20 + a.m23*b.m30;
+    c.m21 = a.m20*b.m01 + a.m21*b.m11 + a.m22*b.m21 + a.m23*b.m31;
+    c.m22 = a.m20*b.m02 + a.m21*b.m12 + a.m22*b.m22 + a.m23*b.m32;
+    c.m23 = a.m20*b.m03 + a.m21*b.m13 + a.m22*b.m23 + a.m23*b.m33;
+
+    c.m30 = a.m30*b.m00 + a.m31*b.m10 + a.m32*b.m20 + a.m33*b.m30;
+    c.m31 = a.m30*b.m01 + a.m31*b.m11 + a.m32*b.m21 + a.m33*b.m31;
+    c.m32 = a.m30*b.m02 + a.m31*b.m12 + a.m32*b.m22 + a.m33*b.m32;
+    c.m33 = a.m30*b.m03 + a.m31*b.m13 + a.m32*b.m23 + a.m33*b.m33;
+  }
 
 
   public void apply(float n00, float n01, float n02, float n03,
@@ -575,7 +583,67 @@ public final class Matrix3D implements Matrix /*, PConstants*/ {
     temp = m13; m13 = m31; m31 = temp;
     temp = m23; m23 = m32; m32 = temp;
   }
+  
+  
+  /**
+   * Invert this matrix into {@code m}, i.e., doesn't modify this matrix.
+   * <p>
+   * {@code m} should be non-null.
+   */
+  public boolean invert(Matrix3D m) {
+  	float determinant = determinant();
+    if (determinant == 0) {
+      return false;
+    }    
+    
 
+    // first row
+    float t00 =  determinant3x3(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+    float t01 = -determinant3x3(m10, m12, m13, m20, m22, m23, m30, m32, m33);
+    float t02 =  determinant3x3(m10, m11, m13, m20, m21, m23, m30, m31, m33);
+    float t03 = -determinant3x3(m10, m11, m12, m20, m21, m22, m30, m31, m32);
+
+    // second row
+    float t10 = -determinant3x3(m01, m02, m03, m21, m22, m23, m31, m32, m33);
+    float t11 =  determinant3x3(m00, m02, m03, m20, m22, m23, m30, m32, m33);
+    float t12 = -determinant3x3(m00, m01, m03, m20, m21, m23, m30, m31, m33);
+    float t13 =  determinant3x3(m00, m01, m02, m20, m21, m22, m30, m31, m32);
+
+    // third row
+    float t20 =  determinant3x3(m01, m02, m03, m11, m12, m13, m31, m32, m33);
+    float t21 = -determinant3x3(m00, m02, m03, m10, m12, m13, m30, m32, m33);
+    float t22 =  determinant3x3(m00, m01, m03, m10, m11, m13, m30, m31, m33);
+    float t23 = -determinant3x3(m00, m01, m02, m10, m11, m12, m30, m31, m32);
+
+    // fourth row
+    float t30 = -determinant3x3(m01, m02, m03, m11, m12, m13, m21, m22, m23);
+    float t31 =  determinant3x3(m00, m02, m03, m10, m12, m13, m20, m22, m23);
+    float t32 = -determinant3x3(m00, m01, m03, m10, m11, m13, m20, m21, m23);
+    float t33 =  determinant3x3(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+
+     // transpose and divide by the determinant
+     m.m00 = t00 / determinant;
+     m.m01 = t10 / determinant;
+     m.m02 = t20 / determinant;
+     m.m03 = t30 / determinant;
+
+     m.m10 = t01 / determinant;
+     m.m11 = t11 / determinant;
+     m.m12 = t21 / determinant;
+     m.m13 = t31 / determinant;
+
+     m.m20 = t02 / determinant;
+     m.m21 = t12 / determinant;
+     m.m22 = t22 / determinant;
+     m.m23 = t32 / determinant;
+
+     m.m30 = t03 / determinant;
+     m.m31 = t13 / determinant;
+     m.m32 = t23 / determinant;
+     m.m33 = t33 / determinant;
+     
+     return true;
+  }
 
   /**
    * Invert this matrix.
@@ -634,7 +702,6 @@ public final class Matrix3D implements Matrix /*, PConstants*/ {
 
     return true;
   }
-
 
   /**
    * Calculate the determinant of a 3x3 matrix.
@@ -751,30 +818,7 @@ public final class Matrix3D implements Matrix /*, PConstants*/ {
     return true;
   }
 
-
   //////////////////////////////////////////////////////////////
-
-
-  public void print() {
-    System.out.println(m00 + " " + m01 + " " + m02 + " " + m03 + "\n" +
-                       m10 + " " + m11 + " " + m12 + " " + m13 + "\n" +
-                       m20 + " " + m21 + " " + m22 + " " + m23 + "\n" +
-                       m30 + " " + m31 + " " + m32 + " " + m33 + "\n");
-    System.out.println();
-  }
-
-
-  //////////////////////////////////////////////////////////////
-
-  /**
-  private final float max(float a, float b) {
-    return (a > b) ? a : b;
-  }
-
-  private final float abs(float a) {
-    return (a < 0) ? -a : a;
-  }
-  */
 
   private final float sin(float angle) {
     return (float) Math.sin(angle);
@@ -783,26 +827,4 @@ public final class Matrix3D implements Matrix /*, PConstants*/ {
   private final float cos(float angle) {
     return (float) Math.cos(angle);
   }
-  
-  public final float[][] get3x3UpperLeftMatrixFromMatrix3D() {
-  	return get3x3UpperLeftMatrixFromMatrix3D(this);
-  }
-  
-  /**
-	 * Utility function that returns the 3x3 upper left sub-matrix of the given
-	 * Matrix3D.
-	 */
-	public static final float[][] get3x3UpperLeftMatrixFromMatrix3D(Matrix3D pM) {
-		float[][] m = new float[3][3];
-		m[0][0] = pM.m00;
-		m[0][1] = pM.m01;
-		m[0][2] = pM.m02;
-		m[1][0] = pM.m10;
-		m[1][1] = pM.m11;
-		m[1][2] = pM.m12;
-		m[2][0] = pM.m20;
-		m[2][1] = pM.m21;
-		m[2][2] = pM.m22;
-		return m;
-	}
 }

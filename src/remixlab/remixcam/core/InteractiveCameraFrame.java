@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -25,7 +25,9 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.devices.Actions.MouseAction;
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 import remixlab.remixcam.geom.*;
 
 /**
@@ -49,11 +51,9 @@ import remixlab.remixcam.geom.*;
 public class InteractiveCameraFrame extends InteractiveDrivableFrame implements Copyable {
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result
-				+ ((arcballRefPnt == null) ? 0 : arcballRefPnt.hashCode());
-		return result;
+    return new HashCodeBuilder(17, 37).
+		append(arcballRefPnt).
+    toHashCode();
 	}
 
 	@Override
@@ -65,15 +65,14 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		if (getClass() != obj.getClass())
 			return false;
 		InteractiveCameraFrame other = (InteractiveCameraFrame) obj;
-		if (arcballRefPnt == null) {
-			if (other.arcballRefPnt != null)
-				return false;
-		} else if (!arcballRefPnt.equals(other.arcballRefPnt))
-			return false;
-		return true;
+	  return new EqualsBuilder()
+    .appendSuper(super.equals(obj))		
+		.append(arcballRefPnt, other.arcballRefPnt)
+		.isEquals();
 	}
-
-	private Vector3D arcballRefPnt;
+	
+	protected Camera camera;
+	protected Vector3D arcballRefPnt;
 
 	/**
 	 * Default constructor.
@@ -83,20 +82,43 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * <p>
 	 * <b>Attention:</b> Created object is {@link #removeFromMouseGrabberPool()}.
 	 */
-	public InteractiveCameraFrame(RCScene scn) {
-		super(scn);
+	public InteractiveCameraFrame(Camera cam) {
+		super(cam.scene);
+		camera = cam;
 		removeFromMouseGrabberPool();
 		arcballRefPnt = new Vector3D(0.0f, 0.0f, 0.0f);
 	}
 	
+	/**
+	 * Copy constructor
+	 * 
+	 * @param otherFrame the other interactive camera frame
+	 */
 	protected InteractiveCameraFrame(InteractiveCameraFrame otherFrame) {
 		super(otherFrame);
+		this.camera = otherFrame.camera;
 		this.arcballRefPnt = new Vector3D();
 		this.arcballRefPnt.set(otherFrame.arcballRefPnt );
 	}
 	
+	/**
+	 * Calls {@link #InteractiveCameraFrame(InteractiveCameraFrame)} (which is protected)
+	 * and returns a copy of {@code this} object.
+	 * 
+	 * @see #InteractiveCameraFrame(InteractiveCameraFrame)
+	 */
 	public InteractiveCameraFrame getCopy() {
 		return new InteractiveCameraFrame(this);
+	}	
+
+	/**
+	 * Updates the {@link remixlab.remixcam.core.Camera#lastFrameUpdate} variable when
+	 * the frame changes and then calls {@code super.modified()}.
+	 */
+	@Override
+	protected void modified() {		
+		camera.lastFrameUpdate = scene.frameCount();
+		super.modified();
 	}
 
 	/**
@@ -105,6 +127,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * Rotates the InteractiveCameraFrame around its #arcballReferencePoint()
 	 * instead of its origin.
 	 */
+	@Override
 	public void spin() {
 		rotateAroundPoint(spinningQuaternion(), arcballReferencePoint());
 	}
@@ -139,18 +162,18 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * inverted from those of an InteractiveFrame.
 	 */
 	public void mouseDragged(Point eventPoint, Camera camera) {
-		if ((action == MouseAction.MOVE_FORWARD)
-				|| (action == MouseAction.MOVE_BACKWARD)
-				|| (action == MouseAction.DRIVE)
-				|| (action == MouseAction.LOOK_AROUND)
-				|| (action == MouseAction.ROLL)
-				|| (action == MouseAction.ZOOM_ON_REGION)
-				|| (action == MouseAction.NO_MOUSE_ACTION))
+		if ((action == AbstractScene.MouseAction.MOVE_FORWARD)
+				|| (action == AbstractScene.MouseAction.MOVE_BACKWARD)
+				|| (action == AbstractScene.MouseAction.DRIVE)
+				|| (action == AbstractScene.MouseAction.LOOK_AROUND)
+				|| (action == AbstractScene.MouseAction.ROLL)
+				|| (action == AbstractScene.MouseAction.ZOOM_ON_REGION)
+				|| (action == AbstractScene.MouseAction.NO_MOUSE_ACTION))
 			super.mouseDragged(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);
-  		//right_handed coordinate system should go like this:
-			//int deltaY = (int) (prevPos.y - eventPoint.y);
+			// right_handed coordinate system should go like this:
+			// int deltaY = (int) (prevPos.y - eventPoint.y);
 			switch (action) {
 			case TRANSLATE: {
 				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
@@ -158,7 +181,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				// Scale to fit the screen mouse displacement
 				switch (camera.type()) {
 				case PERSPECTIVE:
-					trans.mult(2.0f	* (float) Math.tan(camera.fieldOfView() / 2.0f) * Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).z)	/ camera.screenHeight());
+					trans.mult(2.0f
+							* (float) Math.tan(camera.fieldOfView() / 2.0f)
+							* Math.abs((camera.frame()
+									.coordinatesOf(arcballReferencePoint())).z)
+							/ camera.screenHeight());
 					break;
 				case ORTHOGRAPHIC: {
 					float[] wh = camera.getOrthoWidthHeight();
@@ -175,9 +202,12 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 			case ZOOM: {
 				// #CONNECTION# wheelEvent() ZOOM case
-				float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).z), 0.2f * camera.sceneRadius());
-				//Warning: same for left and right CoordinateSystemConvention:
-				Vector3D trans = new Vector3D(0.0f, 0.0f, -coef * ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
+				float coef = Math.max(Math.abs((camera.frame()
+						.coordinatesOf(camera.arcballReferencePoint())).z), 0.2f * camera
+						.sceneRadius());
+				// Warning: same for left and right CoordinateSystemConvention:
+				Vector3D trans = new Vector3D(0.0f, 0.0f, -coef
+						* ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
 				translate(inverseTransformOf(trans));
 				prevPos = eventPoint;
 				break;
@@ -185,8 +215,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 			case ROTATE: {
 				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
-				Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,
-						trans.x, trans.y, camera);
+				Quaternion rot = deformedBallQuaternion((int) eventPoint.x,
+						(int) eventPoint.y, trans.x, trans.y, camera);
 				// #CONNECTION# These two methods should go together (spinning detection
 				// and activation)
 				computeMouseSpeed(eventPoint);
@@ -198,13 +228,14 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 			case SCREEN_ROTATE: {
 				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
-				float angle = (float) Math.atan2((int)eventPoint.y - trans.y, (int)eventPoint.x
-						- trans.x)
-						- (float) Math.atan2((int)prevPos.y - trans.y, (int)prevPos.x - trans.x);
-				
-  			//lef-handed coordinate system correction
+				float angle = (float) Math.atan2((int) eventPoint.y - trans.y,
+						(int) eventPoint.x - trans.x)
+						- (float) Math.atan2((int) prevPos.y - trans.y, (int) prevPos.x
+								- trans.x);
+
+				// lef-handed coordinate system correction
 				angle = -angle;
-				
+
 				Quaternion rot = new Quaternion(new Vector3D(0.0f, 0.0f, 1.0f), angle);
 				// #CONNECTION# These two methods should go together (spinning detection
 				// and activation)
@@ -220,7 +251,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				Vector3D trans = new Vector3D();
 				int dir = mouseOriginalDirection(eventPoint);
 				if (dir == 1)
-					trans.set(((int)prevPos.x - (int)eventPoint.x), 0.0f, 0.0f);
+					trans.set(((int) prevPos.x - (int) eventPoint.x), 0.0f, 0.0f);
 				else if (dir == -1)
 					trans.set(0.0f, -deltaY, 0.0f);
 				switch (camera.type()) {
@@ -259,12 +290,14 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	public void mouseReleased(Point eventPoint, Camera camera) {
 		// Added by pierre: #CONNECTION# seems that startAction should always be
 		// called before :)
-		if (action == MouseAction.ZOOM_ON_REGION) {
+		if (action == AbstractScene.MouseAction.ZOOM_ON_REGION) {
 			// the rectangle needs to be normalized!
-			int w = Math.abs((int)eventPoint.x - (int)pressPos.x);
-			int tlX = (int)pressPos.x < (int)eventPoint.x ? (int)pressPos.x : (int)eventPoint.x;
-			int h = Math.abs((int)eventPoint.y - (int)pressPos.y);
-			int tlY = (int)pressPos.y < (int)eventPoint.y ? (int)pressPos.y : (int)eventPoint.y;
+			int w = Math.abs((int) eventPoint.x - (int) pressPos.x);
+			int tlX = (int) pressPos.x < (int) eventPoint.x ? (int) pressPos.x
+					: (int) eventPoint.x;
+			int h = Math.abs((int) eventPoint.y - (int) pressPos.y);
+			int tlY = (int) pressPos.y < (int) eventPoint.y ? (int) pressPos.y
+					: (int) eventPoint.y;
 
 			// overkill:
 			// if (event.getButton() == MouseEvent.BUTTON3)//right button
@@ -278,13 +311,14 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseWheelMoved(int, Camera)}.
+	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseWheelMoved(int, Camera)}
+	 * .
 	 * <p>
 	 * The wheel behavior depends on the wheel binded action. Current possible
-	 * actions are {@link remixlab.proscene.MouseAction#ZOOM},
-	 * {@link remixlab.proscene.MouseAction#MOVE_FORWARD} and
-	 * {@link remixlab.proscene.MouseAction#MOVE_BACKWARD}.
-	 * {@link remixlab.proscene.MouseAction#ZOOM} speed depends on
+	 * actions are {@link remixlab.proscene.Scene.MouseAction#ZOOM},
+	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_FORWARD} and
+	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_BACKWARD}.
+	 * {@link remixlab.proscene.Scene.MouseAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	public void mouseWheelMoved(int rotation, Camera camera) {
@@ -292,10 +326,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;
 			// #CONNECTION# mouseMoveEvent() ZOOM case
-			float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).z), 0.2f * camera.sceneRadius());
-			Vector3D trans = new Vector3D(0.0f, 0.0f, coef * (-rotation) * wheelSensitivity() * wheelSensitivityCoef);
-  		//right_handed coordinate system should go like this:
-			//Vector3D trans = new Vector3D(0.0f, 0.0f, coef * rotation * wheelSensitivity() * wheelSensitivityCoef);
+			float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera
+					.arcballReferencePoint())).z), 0.2f * camera.sceneRadius());
+			Vector3D trans = new Vector3D(0.0f, 0.0f, coef * (-rotation)
+					* wheelSensitivity() * wheelSensitivityCoef);
+			// right_handed coordinate system should go like this:
+			// Vector3D trans = new Vector3D(0.0f, 0.0f, coef * rotation *
+			// wheelSensitivity() * wheelSensitivityCoef);
 			translate(inverseTransformOf(trans));
 			break;
 		}
@@ -317,8 +354,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 		// Starts (or prolungates) the timer.
 		if( flyTimerJob.timer() != null )
-			flyTimerJob.timer().runTimerOnce(finalDrawAfterWheelEventDelay);
+			flyTimerJob.timer().runOnce(finalDrawAfterWheelEventDelay);
 
-		action = MouseAction.NO_MOUSE_ACTION;
+		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
 	}
 }

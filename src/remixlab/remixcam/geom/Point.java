@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -25,36 +25,37 @@
 
 package remixlab.remixcam.geom;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 /**
  * Point class that provides a quick replacement for the java.awt.Point.
  */
 public class Point {
-	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + x;
-		result = prime * result + y;
-		return result;
+    return new HashCodeBuilder(17, 37).		
+		append(x).
+		append(y).
+    toHashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		Point other = (Point) obj;
-		if (x != other.x)
-			return false;
-		if (y != other.y)
-			return false;
-		return true;
+	  return new EqualsBuilder()
+    .appendSuper(super.equals(obj))		
+		.append(x, other.x)
+		.append(y, other.y)
+		.isEquals();
 	}
-
+	
 	/**
 	 * The X coordinate of this Point.
 	 */
@@ -66,7 +67,7 @@ public class Point {
 	public int y;
 
 	/**
-	 * Constructs and initializes a point at the specified (x,y) location in the
+	 * Constructs and initializes a point at the (0,0) location in the
 	 * coordinate space.
 	 */
 	public Point() {

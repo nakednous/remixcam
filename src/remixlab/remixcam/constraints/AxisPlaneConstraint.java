@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.constraint;
+package remixlab.remixcam.constraints;
 
 import remixlab.remixcam.geom.*;
 
@@ -41,8 +41,7 @@ import remixlab.remixcam.geom.*;
  * expressed.
  */
 
-public class AxisPlaneConstraint extends Constraint {
-
+public abstract class AxisPlaneConstraint extends Constraint {
 	/**
 	 * Type lists the different types of translation and rotation constraints that
 	 * are available.
@@ -90,7 +89,7 @@ public class AxisPlaneConstraint extends Constraint {
 	 * {@link Type#AXIS}), will be forced to stay into a plane ({@link Type#PLANE}
 	 * ) or will not able to translate at all ({@link Type#FORBIDDEN}).
 	 * <p>
-	 * Use {@link remixlab.remixcam.core.GLFrame#setPosition(Vector3D)} to define the
+	 * Use {@link remixlab.remixcam.core.BasicFrame#setPosition(Vector3D)} to define the
 	 * position of the constrained Frame before it gets constrained.
 	 */
 	public Type translationConstraintType() {
@@ -203,7 +202,7 @@ public class AxisPlaneConstraint extends Constraint {
 	 * will only be able to rotate around an axis ({@link Type#AXIS}), or will not
 	 * able to rotate at all {@link Type#FORBIDDEN}.
 	 * <p>
-	 * Use {@link remixlab.remixcam.core.GLFrame#setOrientation(Quaternion)} to define
+	 * Use {@link remixlab.remixcam.core.BasicFrame#setOrientation(Quaternion)} to define
 	 * the orientation of the constrained Frame before it gets constrained.
 	 * <p>
 	 * <b>Attention:</b> An {@link Type#PLANE} Type is not meaningful for

@@ -1,55 +1,24 @@
-/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
-
-/*
-  Part of the Processing project - http://processing.org
-
-  Copyright (c) 2008 Dan Shiffman
-  Copyright (c) 2008-10 Ben Fry and Casey Reas
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License version 2.1 as published by the Free Software Foundation.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General
-  Public License along with this library; if not, write to the
-  Free Software Foundation, Inc., 59 Temple Place, Suite 330,
-  Boston, MA  02111-1307  USA
-*/
-
 package remixlab.remixcam.geom;
 
-import java.io.Serializable;
-
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+import remixlab.remixcam.core.Constants;
 
 /**
  * A class to describe a two or three dimensional vector.
  * <p>
  * The result of all functions are applied to the vector itself, with the
- * exception of cross(), which returns a new Vector3D (or writes to a specified
- * 'target' Vector3D). That is, add() will add the contents of one vector to
+ * exception of cross(), which returns a new PVector (or writes to a specified
+ * 'target' PVector). That is, add() will add the contents of one vector to
  * this one. Using add() with additional parameters allows you to put the
- * result into a new Vector3D. Functions that act on multiple vectors also
+ * result into a new PVector. Functions that act on multiple vectors also
  * include static versions. Because creating new objects can be computationally
- * expensive, most functions include an optional 'target' Vector3D, so that a
- * new Vector3D object is not created with each operation.
+ * expensive, most functions include an optional 'target' PVector, so that a
+ * new PVector object is not created with each operation.
  * <p>
  * Initially based on the Vector3D class by <a href="http://www.shiffman.net">Dan Shiffman</a>.
  */
-public class Vector3D implements Serializable {
+public class Vector3D implements Constants {
 
-  /**
-	 * Generated 2011-03-12 by nakednous
-	 */
-	private static final long serialVersionUID = 3003291235947398399L;
-
-	/** The x component of the vector. */
+  /** The x component of the vector. */
   public float x;
 
   /** The y component of the vector. */
@@ -66,6 +35,103 @@ public class Vector3D implements Serializable {
    */
   public Vector3D() {
   }
+  
+  // TODO New testing
+  /**
+  public Vector3D(Object any) {
+  	try {
+  		x = any.getClass().getDeclaredField("x").getFloat(any);
+  		y = any.getClass().getDeclaredField("y").getFloat(any);
+  		z = any.getClass().getDeclaredField("z").getFloat(any);
+  		} catch ( Exception e ) {
+  			throw(new RuntimeException("vec cannot handle class in constructor: "+any.getClass(),e));
+  		}
+  }  
+  */
+  
+  public Vector3D(Object any) {
+  	try {
+  		float [] result = new float [3];  		
+      any.getClass().getMethod("get", new Class[] { float [].class }).invoke(any, result);
+      x = result[0];
+      y = result[1];
+      z = result[2];      
+      
+  		} catch ( Exception e ) {
+  			throw(new RuntimeException("vec cannot handle class in constructor: "+any.getClass(),e));
+  		}
+  }
+  
+  public Vector3D projectVectorOnAxis(Vector3D direction) {
+  	return projectVectorOnAxis(this, direction);
+  }
+  
+  public static Vector3D projectVectorOnAxis(Vector3D src, Vector3D direction) {
+		float directionSquaredNorm = squaredNorm(direction);
+		if (directionSquaredNorm < 1E-10f)
+			throw new RuntimeException("Direction squared norm is nearly 0");
+
+		float modulation = src.dot(direction) / directionSquaredNorm;
+		return Vector3D.mult(direction, modulation);
+	}
+  
+  public Vector3D projectVectorOnPlane(Vector3D normal) {
+  	return projectVectorOnPlane(this, normal);
+  }
+
+	/**
+	 * Utility function that simply projects {@code src} on the plane whose normal
+	 * is {@code normal} that passes through the origin.
+	 * <p>
+	 * {@code normal} does not need to be normalized (but must be non null).
+	 */
+	public static Vector3D projectVectorOnPlane(Vector3D src, Vector3D normal) {
+		float normalSquaredNorm = squaredNorm(normal);
+		if (normalSquaredNorm < 1E-10f)
+			throw new RuntimeException("Normal squared norm is nearly 0");
+
+		float modulation = src.dot(normal) / normalSquaredNorm;
+		return Vector3D.sub(src, Vector3D.mult(normal, modulation));
+	}
+	
+	public static final float lerp(float start, float stop, float amt) {
+    return start + (stop-start) * amt;
+  }
+	
+	public float squaredNorm() {
+		return squaredNorm(this);
+	}
+
+	/**
+	 * Utility function that returns the squared norm of the Vector3D.
+	 */
+	public static float squaredNorm(Vector3D v) {
+		return (v.x * v.x) + (v.y * v.y) + (v.z * v.z);
+	}
+	
+	public Vector3D orthogonalVector() {
+		return orthogonalVector(this);
+	}
+
+	/**
+	 * Utility function that returns a Vector3D orthogonal to {@code v}. Its
+	 * {@code mag()} depends on the Vector3D, but is zero only for a {@code null}
+	 * Vector3D. Note that the function that associates an {@code
+	 * orthogonalVector()} to a Vector3D is not continuous.
+	 */
+	public static Vector3D orthogonalVector(Vector3D v) {
+		// Find smallest component. Keep equal case for null values.
+		if ((Math.abs(v.y) >= 0.9f * Math.abs(v.x))
+				&& (Math.abs(v.z) >= 0.9f * Math.abs(v.x)))
+			return new Vector3D(0.0f, -v.z, v.y);
+		else if ((Math.abs(v.x) >= 0.9f * Math.abs(v.y))
+				&& (Math.abs(v.z) >= 0.9f * Math.abs(v.y)))
+			return new Vector3D(-v.z, 0.0f, v.x);
+		else
+			return new Vector3D(-v.y, v.x, 0.0f);
+	}
+  
+  // end new
 
 
   /**
@@ -93,7 +159,7 @@ public class Vector3D implements Serializable {
     this.y = y;
     this.z = 0;
   }
-  
+
 
   /**
    * Set x, y, and z coordinates.
@@ -158,7 +224,6 @@ public class Vector3D implements Serializable {
     return target;
   }
 
-
   /**
    * Calculate the magnitude (length) of the vector
    * @return the magnitude of the vector
@@ -167,6 +232,16 @@ public class Vector3D implements Serializable {
     return (float) Math.sqrt(x*x + y*y + z*z);
   }
 
+  /**
+   * Calculate  the squared magnitude of the vector
+   * Faster if the real length is not required in the 
+   * case of comparing vectors, etc.
+   * 
+   * @return squared magnitude of the vector
+   */
+  public float magSq() {
+    return (x*x + y*y + z*z);
+  }
 
   /**
    * Add a vector to this vector
@@ -439,7 +514,7 @@ public class Vector3D implements Serializable {
 
 
   static public float dot(Vector3D v1, Vector3D v2) {
-      return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+    return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
   }
 
 
@@ -524,6 +599,26 @@ public class Vector3D implements Serializable {
     }
   }
 
+  /**
+   * Sets the magnitude of the vector to an arbitrary amount.
+   * @param len the new length for this vector
+   */
+  public void setMag(float len) {
+    normalize();
+    mult(len);	
+  }
+
+  /**
+   * Sets the magnitude of this vector, storing the result in another vector.
+   * @param target Set to null to create a new vector
+   * @param len the new length for the new vector
+   * @return a new vector (if target was null), or target
+   */
+  public Vector3D setMag(Vector3D target, float len) {
+    target = normalize(target);
+    target.mult(len);
+    return target;
+  }
 
   /**
    * Calculate the angle of rotation for this vector (only 2D vectors)
@@ -532,6 +627,33 @@ public class Vector3D implements Serializable {
   public float heading2D() {
     float angle = (float) Math.atan2(-y, x);
     return -1*angle;
+  }
+
+  /**
+   * Rotate the vector by an angle (only 2D vectors), magnitude remains the same
+   * @param theta the angle of rotation
+   */
+  public void rotate(float theta) {
+    float xTemp = x;
+    // Might need to check for rounding errors like with angleBetween function?
+    x = x*(float) Math.cos(theta) - y*(float) Math.sin(theta);
+    y = xTemp*(float) Math.sin(theta) + y*(float) Math.cos(theta);
+  }
+
+  /**
+   * Linear interpolate the vector to another vector
+   * @param Vector3D the vector to lerp to
+   * @param amt  The amt parameter is the amount to interpolate between the two vectors where 1.0 equal to the new vector
+   * 0.1 is very near the new vector, 0.5 is half-way in between.
+   */
+  public void lerp(Vector3D v, float amt) {
+    x = lerp(x,v.x,amt);
+    y = lerp(y,v.y,amt);
+  }
+
+  public void lerp(float x, float y, float z, float amt) {
+    this.x = lerp(this.x,x,amt);
+    this.y = lerp(this.y,y,amt);
   }
 
 
@@ -552,7 +674,7 @@ public class Vector3D implements Serializable {
     // Otherwise if outside the range, acos() will return NaN
     // http://www.cppreference.com/wiki/c/math/acos
     if (amt <= -1) {
-      return (float) Math.PI;
+      return PI;
     } else if (amt >= 1) {
       // http://code.google.com/p/processing/issues/detail?id=435
       return 0;
@@ -580,93 +702,21 @@ public class Vector3D implements Serializable {
     array[2] = z;
     return array;
   }
-  
+
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof Vector3D))
       return false;
-    final Vector3D other = (Vector3D) obj;
-		return new EqualsBuilder()
-		.appendSuper(super.equals(obj))
-		.append(x,  other.x)
-		.append(y,  other.y)
-		.append(z,  other.z)
-		.isEquals();
+    final Vector3D p = (Vector3D) obj;
+    return x == p.x && y == p.y && z == p.z;
   }
 
   @Override
-  public int hashCode() {    
-    return new HashCodeBuilder(17, 37).
-    append(x).
-    append(y).
-    append(z).
-    toHashCode();
-  }
-  
-  public Vector3D projectVectorOnAxis(Vector3D direction) {
-  	return projectVectorOnAxis(this, direction);
-	}
-
-	/**
-	 * Utility function that simply projects {@code src} on the axis of direction
-	 * {@code direction} that passes through the origin.
-	 * <p>
-	 * {@code direction} does not need to be normalized (but must be non null).
-	 */
-	public static Vector3D projectVectorOnAxis(Vector3D src, Vector3D direction) {
-		float directionSquaredNorm = squaredNorm(direction);
-		if (directionSquaredNorm < 1E-10f)
-			throw new RuntimeException("Direction squared norm is nearly 0");
-
-		float modulation = src.dot(direction) / directionSquaredNorm;
-		return Vector3D.mult(direction, modulation);
-	}
-	
-	public Vector3D projectVectorOnPlane(Vector3D normal) {
-		return projectVectorOnPlane(this, normal);
-	}
-
-	/**
-	 * Utility function that simply projects {@code src} on the plane whose normal
-	 * is {@code normal} that passes through the origin.
-	 * <p>
-	 * {@code normal} does not need to be normalized (but must be non null).
-	 */
-	public static Vector3D projectVectorOnPlane(Vector3D src, Vector3D normal) {
-		float normalSquaredNorm = squaredNorm(normal);
-		if (normalSquaredNorm < 1E-10f)
-			throw new RuntimeException("Normal squared norm is nearly 0");
-
-		float modulation = src.dot(normal) / normalSquaredNorm;
-		return Vector3D.sub(src, Vector3D.mult(normal, modulation));
-	}
-	
-	public float squaredNorm() {
-		return squaredNorm(this);
-	}
-
-	/**
-	 * Utility function that returns the squared norm of the Vector3D.
-	 */
-	public static float squaredNorm(Vector3D v) {
-		return (v.x * v.x) + (v.y * v.y) + (v.z * v.z);
-	}
-
-	/**
-	 * Utility function that returns a Vector3D orthogonal to {@code v}. Its
-	 * {@code mag()} depends on the Vector3D, but is zero only for a {@code null}
-	 * Vector3D. Note that the function that associates an {@code
-	 * orthogonalVector()} to a Vector3D is not continuous.
-	 */
-	public static Vector3D orthogonalVector(Vector3D v) {
-		// Find smallest component. Keep equal case for null values.
-		if ((Math.abs(v.y) >= 0.9f * Math.abs(v.x))
-				&& (Math.abs(v.z) >= 0.9f * Math.abs(v.x)))
-			return new Vector3D(0.0f, -v.z, v.y);
-		else if ((Math.abs(v.x) >= 0.9f * Math.abs(v.y))
-				&& (Math.abs(v.z) >= 0.9f * Math.abs(v.y)))
-			return new Vector3D(-v.z, 0.0f, v.x);
-		else
-			return new Vector3D(-v.y, v.x, 0.0f);
-	}
+  public int hashCode() {
+    int result = 1;
+    result = 31 * result + Float.floatToIntBits(x);
+    result = 31 * result + Float.floatToIntBits(y);
+    result = 31 * result + Float.floatToIntBits(z);
+    return result;
+  }  
 }

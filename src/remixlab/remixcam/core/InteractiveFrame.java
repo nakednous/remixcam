@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -25,14 +25,11 @@
 
 package remixlab.remixcam.core;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import remixlab.remixcam.devices.Actions.MouseAction;
-import remixlab.remixcam.devices.Mouse.Button;
-import remixlab.remixcam.constraint.*;
+import remixlab.remixcam.constraints.Constraint;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.util.TimerJob;
+import remixlab.remixcam.util.AbstractTimerJob;
+
+import java.util.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
@@ -51,7 +48,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * the {@link remixlab.proscene.Scene#mouseGrabberPool()}.
  */
 
-public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyable {
+public class InteractiveFrame extends BasicFrame implements MouseGrabbable, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -85,9 +82,9 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		if (getClass() != obj.getClass())
 			return false;
 		InteractiveFrame other = (InteractiveFrame) obj;
-		 return new EqualsBuilder()
-     .appendSuper(super.equals(obj))		
-     .append(action,other.action != null)
+		return new EqualsBuilder()
+    .appendSuper(super.equals(obj))		
+    .append(action,other.action != null)
 		.append(delay , other.delay)
 		.append(dirIsFixed , other.dirIsFixed)
 		.append(grabsMouseThreshold , other.grabsMouseThreshold)
@@ -107,7 +104,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		.append(wheelSensitivity ,other.wheelSensitivity)
 		.isEquals();
 	}
-
+	
 	private boolean horiz;// Two simultaneous InteractiveFrame require two mice!
 	private int grabsMouseThreshold;
 	private float rotSensitivity;
@@ -119,7 +116,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	private float mouseSpeed;
 	// spinning stuff:
 	private boolean isSpng;
-	private TimerJob timerFx1;
+	private AbstractTimerJob spinningTimerJob;
 	private int startedTime;
 	private int delay;
 
@@ -132,7 +129,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	// MouseGrabber
 	protected boolean keepsGrabbingMouse;
 
-	protected MouseAction action;
+	protected AbstractScene.MouseAction action;
 	protected Constraint prevConstraint; // When manipulation is without
 	// Constraint.
 	// Previous mouse position (used for incremental updates) and mouse press
@@ -144,8 +141,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	protected boolean isInCamPath;
 
 	// P R O S C E N E A N D P R O C E S S I N G A P P L E T A N D O B J E C T S
-	public RCScene scene;
-	protected MouseGrabberPool mouseGrabberPool;
+	public AbstractScene scene;
 
 	/**
 	 * Default constructor.
@@ -159,11 +155,10 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * <b>Note:</b> the InteractiveFrame is automatically added to
 	 * the {@link remixlab.proscene.Scene#mouseGrabberPool()}.
 	 */
-	public InteractiveFrame(RCScene scn) {
-		scene = scn;
-		mouseGrabberPool = scene.mouseGrabberPool;
+	public InteractiveFrame(AbstractScene scn) {
+		scene = scn;		
 		
-		action = MouseAction.NO_MOUSE_ACTION;
+		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
 		horiz = true;
 
 		addInMouseGrabberPool();
@@ -181,12 +176,13 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		prevConstraint = null;
 		startedTime = 0;
 		
-		timerFx1 = new TimerJob() {
+		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
 				spin();
 			}
-		};		
-		scene.timerPool.registerInTimerPool(this, timerFx1);
+		};	
+		scene.registerInTimerPool(spinningTimerJob);
+		
 		// delay = 10;
 	}
 	
@@ -198,7 +194,6 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	protected InteractiveFrame(InteractiveFrame otherFrame) {
 		super(otherFrame);
 		this.scene = otherFrame.scene;
-		this.mouseGrabberPool = otherFrame.mouseGrabberPool;
 		this.action = otherFrame.action;
 		this.horiz = otherFrame.horiz;
 		
@@ -224,14 +219,20 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		this.prevConstraint = otherFrame.prevConstraint; 
 		this.startedTime = otherFrame.startedTime;
 		
-		this.timerFx1 = new TimerJob() {
+		this.spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
 				spin();
 			}
 		};		
-		scene.timerPool.registerInTimerPool(this, this.timerFx1);
+		scene.registerInTimerPool(spinningTimerJob);
 	}
   
+	/**
+	 * Calls {@link #InteractiveFrame(InteractiveFrame)} (which is protected) and returns a copy of
+	 * {@code this} object.
+	 * 
+	 * @see #InteractiveFrame(InteractiveFrame)
+	 */
 	public InteractiveFrame getCopy() {
 		return new InteractiveFrame(this);
 	}
@@ -242,7 +243,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * <p>
 	 * Constructs a Frame from the the {@code iFrame} {@link #translation()} and
 	 * {@link #orientation()} and immediately adds it to the
-	 * {@link remixlab.proscene.Scene#mouseGrabberPool()}.
+	 * {@link #mouseGrabberPool()}.
 	 * <p>
 	 * A call on {@link #isInCameraPath()} on this Frame will return {@code true}.
 	 * 
@@ -251,11 +252,10 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * 
 	 * @see remixlab.remixcam.core.Camera#addKeyFrameToPath(int)
 	 */
-	public InteractiveFrame(RCScene scn, InteractiveCameraFrame iFrame) {
+	protected InteractiveFrame(AbstractScene scn, InteractiveCameraFrame iFrame) {
 		super(iFrame.translation(), iFrame.rotation());
 		scene = scn;
-		mouseGrabberPool = scene.mouseGrabberPool;
-		action = MouseAction.NO_MOUSE_ACTION;
+		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
 		horiz = true;
 
 		addInMouseGrabberPool();
@@ -277,14 +277,23 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		Iterator<KeyFrameInterpolator> it = iFrame.listeners().iterator();
 		while (it.hasNext())
 			list.add(it.next());
-		
-		timerFx1 = new TimerJob() {
+				
+		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
 				spin();
 			}
 		};		
-		scene.timerPool.registerInTimerPool(this, timerFx1);
-	}	
+		scene.registerInTimerPool(spinningTimerJob);
+	}
+
+	/**
+	 * Convenience function that simply calls {@code applyTransformation(scene)}.
+	 * 
+	 * @see remixlab.remixcam.core.BasicFrame#applyTransformation(Scene)
+	 */
+	public void applyTransformation() {
+		applyTransformation(scene);
+	}
 
 	/**
 	 * Returns {@code true} if the InteractiveFrame forms part of a Camera path
@@ -294,7 +303,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	public boolean isInCameraPath() {
 		return isInCamPath;
 	}
-
+	
 	/**
 	 * Returns the grabs mouse threshold which is used by this interactive frame to
 	 * {@link #checkIfGrabsMouse(int, int, Camera)}.
@@ -358,7 +367,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * @see remixlab.proscene.Scene#isInMouseGrabberPool(MouseGrabbable)
 	 */
 	public boolean isInMouseGrabberPool() {
-		return mouseGrabberPool.isInMouseGrabberPool(this);
+		return scene.isInMouseGrabberPool(this);
 	}	
 
 	/**
@@ -367,7 +376,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * @see remixlab.proscene.Scene#addInMouseGrabberPool(MouseGrabbable)
 	 */
 	public void addInMouseGrabberPool() {
-		mouseGrabberPool.addInMouseGrabberPool(this);
+		scene.addInMouseGrabberPool(this);
 	}
 
 	/**
@@ -376,7 +385,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * @see remixlab.proscene.Scene#removeFromMouseGrabberPool(MouseGrabbable)
 	 */
 	public void removeFromMouseGrabberPool() {
-		mouseGrabberPool.removeFromMouseGrabberPool(this);
+		scene.removeFromMouseGrabberPool(this);
 	}
 
 	/**
@@ -514,7 +523,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * <p>
 	 * The {@link #spinningQuaternion()} axis is defined in the InteractiveFrame
 	 * coordinate system. You can use
-	 * {@link remixlab.remixcam.core.GLFrame#transformOfFrom(Vector3D, GLFrame)} to convert
+	 * {@link remixlab.remixcam.core.BasicFrame#transformOfFrom(Vector3D, BasicFrame)} to convert
 	 * this axis from an other Frame coordinate system.
 	 */
 	public final Quaternion spinningQuaternion() {
@@ -535,16 +544,15 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * during manipulation.
 	 */
 	public boolean isInInteraction() {
-		return action != MouseAction.NO_MOUSE_ACTION;
+		return action != AbstractScene.MouseAction.NO_MOUSE_ACTION;
 	}
 
 	/**
 	 * Stops the spinning motion started using {@link #startSpinning(int)}.
 	 * {@link #isSpinning()} will return {@code false} after this call.
 	 */
-	public final void stopSpinning() {
-		if( timerFx1.timer() != null )
-			timerFx1.timer().cancelTimer();
+	public final void stopSpinning() {		
+		spinningTimerJob.stop();
 		isSpng = false;
 	}
 
@@ -557,10 +565,8 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 */
 	public void startSpinning(int updateInterval) {
 		isSpng = true;
-		if(updateInterval>0) {
-			if( timerFx1.timer() != null )
-				timerFx1.timer().runTimer(updateInterval);
-		}
+		if(updateInterval>0)
+			spinningTimerJob.run(updateInterval);
 	}
 
 	/**
@@ -575,11 +581,11 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * Overloading of
 	 * {@link remixlab.remixcam.core.MouseGrabbable#mouseClicked(remixlab.proscene.Scene.Button, int, Camera)}.
 	 * <p>
-	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(GLFrame)}
+	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(BasicFrame)}
 	 * and {@link remixlab.proscene.Scene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
 	 * the camera view direction.
 	 */
-	public void mouseClicked(/**Point eventPoint,*/ Button button, int numberOfClicks, Camera camera) {
+	public void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, Camera camera) {
 		if(numberOfClicks != 2)
 			return;
 		switch (button) {
@@ -620,7 +626,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 */
 	public void mouseDragged(Point eventPoint, Camera camera) {
 		int deltaY = 0;
-		if(action != MouseAction.NO_MOUSE_ACTION)
+		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION)
 			deltaY = (int) (prevPos.y - eventPoint.y);
 	    //right_handed coordinate system should go like this:
 		  //deltaY = (int) (eventPoint.y - prevPos.y);
@@ -628,8 +634,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		switch (action) {
 		case TRANSLATE: {
 			Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
-			Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(),
-					0.0f);
+			Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(), 0.0f);
 			// Scale to fit the screen mouse displacement
 			switch (camera.type()) {
 			case PERSPECTIVE:
@@ -645,8 +650,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 			}
 			}
 			// Transform to world coordinate system.
-			trans = camera.frame().orientation().rotate(
-					Vector3D.mult(trans, translationSensitivity()));
+			trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -668,8 +672,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		}
 
 		case SCREEN_ROTATE: {
-			// TODO: needs testing to see if it works correctly when left-handed is
-			// set
+			// TODO: needs testing to see if it works correctly when left-handed is set
 			Vector3D trans = camera.projectedCoordinatesOf(position());
 			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.y, (int)prevPos.x - trans.x);
 			float angle = (float) Math.atan2((int)eventPoint.y - trans.y, (int)eventPoint.x
@@ -691,8 +694,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		}
 
 		case SCREEN_TRANSLATE: {
-			// TODO: needs testing to see if it works correctly when left-handed is
-			// set
+			// TODO: needs testing to see if it works correctly when left-handed is set
 			Vector3D trans = new Vector3D();
 			int dir = mouseOriginalDirection(eventPoint);
 			if (dir == 1)
@@ -713,8 +715,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 			}
 			}
 			// Transform to world coordinate system.
-			trans = camera.frame().orientation().rotate(
-					Vector3D.mult(trans, translationSensitivity()));
+			trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -726,8 +727,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 
 		case ROTATE: {
 			Vector3D trans = camera.projectedCoordinatesOf(position());
-			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,
-					trans.x, trans.y, camera);
+			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.x, trans.y, camera);
 			trans.set(-rot.x, -rot.y, -rot.z);
 			trans = camera.frame().orientation().rotate(trans);
 			trans = transformOf(trans);
@@ -775,11 +775,11 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		if (prevConstraint != null)
 			setConstraint(prevConstraint);
 
-		if (((action == MouseAction.ROTATE) || (action == MouseAction.SCREEN_ROTATE))
+		if (((action == AbstractScene.MouseAction.ROTATE) || (action == AbstractScene.MouseAction.SCREEN_ROTATE))
 				&& (mouseSpeed >= spinningSensitivity()))
 			startSpinning(delay);
 
-		action = MouseAction.NO_MOUSE_ACTION;
+		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
 	}
 
 	/**
@@ -791,7 +791,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * @see #setWheelSensitivity(float)
 	 */
 	public void mouseWheelMoved(int rotation, Camera camera) {
-		if (action == MouseAction.ZOOM) {
+		if (action == AbstractScene.MouseAction.ZOOM) {
 			float wheelSensitivityCoef = 8E-4f;
 			// Vector3D trans(0.0, 0.0,
 			// -event.delta()*wheelSensitivity()*wheelSensitivityCoef*(camera.position()-position()).norm());
@@ -811,7 +811,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		if (prevConstraint != null)
 			setConstraint(prevConstraint);
 
-		action = MouseAction.NO_MOUSE_ACTION;
+		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
 	}
 
 	/**
@@ -819,14 +819,14 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * 
 	 * @see #startAction(Scene.MouseAction, boolean)
 	 */
-	protected void startAction(MouseAction action) {
+	protected void startAction(AbstractScene.MouseAction action) {
 		startAction(action, true);
 	}
 	
 	/**
 	 * Protected internal method used to handle mouse actions.
 	 */
-	public void startAction(MouseAction act, boolean withConstraint) {
+	public void startAction(AbstractScene.MouseAction act, boolean withConstraint) {
 		action = act;
 
 		if (withConstraint)
@@ -858,7 +858,8 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * spinning in {@link #mouseReleased(Point, Camera)}.
 	 */
 	protected void computeMouseSpeed(Point eventPoint) {
-		float dist = (float) Point.distance(eventPoint.x, eventPoint.y, prevPos.getX(), prevPos.getY());
+		float dist = (float) Point.distance(eventPoint.x, eventPoint.y, prevPos
+				.getX(), prevPos.getY());
 
 		if (startedTime == 0) {
 			delay = 0;
@@ -902,8 +903,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 	 * positions are projected on a deformed ball, centered on ({@code cx},
 	 * {@code cy}).
 	 */
-	protected Quaternion deformedBallQuaternion(int x, int y, float cx, float cy,
-			Camera camera) {
+	protected Quaternion deformedBallQuaternion(int x, int y, float cx, float cy,	Camera camera) {
 		// Points on the deformed ball
 		float px = rotationSensitivity() * ((int)prevPos.x - cx) / camera.screenWidth();
 		float py = rotationSensitivity() * (cy - (int)prevPos.y) / camera.screenHeight();
@@ -916,8 +916,7 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		// Should be divided by the projectOnBall size, but it is 1.0
 		Vector3D axis = p2.cross(p1);
 
-		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(Vector3D.squaredNorm(axis)
-				/ Vector3D.squaredNorm(p1) / Vector3D.squaredNorm(p2)));
+		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));
 
   	//lef-handed coordinate system correction (next two lines)
 	  axis.y = -axis.y;
@@ -940,7 +939,6 @@ public class InteractiveFrame extends GLFrame implements MouseGrabbable, Copyabl
 		float size_limit = size2 * 0.5f;
 
 		float d = x * x + y * y;
-		return d < size_limit ? (float) Math.sqrt(size2 - d) : size_limit
-				/ (float) Math.sqrt(d);
+		return d < size_limit ? (float) Math.sqrt(size2 - d) : size_limit	/ (float) Math.sqrt(d);
 	}
 }

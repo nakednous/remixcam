@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -29,66 +29,153 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import remixlab.remixcam.constraint.*;
-import remixlab.remixcam.geom.Matrix3D;
-import remixlab.remixcam.geom.Quaternion;
-import remixlab.remixcam.geom.Vector3D;
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
+import remixlab.remixcam.constraints.*;
+import remixlab.remixcam.geom.*;
 
 /**
  * A Frame is a 3D coordinate system, represented by a {@link #position()} and
  * an {@link #orientation()}. The order of these transformations is important:
  * the Frame is first translated and then rotated around the new translated
  * origin.
+ * <p>
+ * In rare situations a frame can be {@link #linkTo(BasicFrame)}, meaning that it
+ * will share its {@link #translation()}, {@link #rotation()},
+ * {@link #referenceFrame()}, and {@link #constraint()} with the other frame,
+ * which can useful for some off-screen scenes.
  */
-public class GLFrame implements Copyable {
+public class BasicFrame implements Copyable {	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((list == null) ? 0 : list.hashCode());
-		result = prime * result + ((refFrame == null) ? 0 : refFrame.hashCode());
-		result = prime * result + ((rot == null) ? 0 : rot.hashCode());
-		result = prime * result + ((trans == null) ? 0 : trans.hashCode());
-		return result;
+    return new HashCodeBuilder(17, 37).		
+		append(krnl).
+		append(list).
+		append(linkedFramesList).
+		append(srcFrame).
+    toHashCode();		
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		GLFrame other = (GLFrame) obj;
-		if (list == null) {
-			if (other.list != null)
-				return false;
-		} else if (!list.equals(other.list))
-			return false;
-		if (refFrame == null) {
-			if (other.refFrame != null)
-				return false;
-		} else if (!refFrame.equals(other.refFrame))
-			return false;
-		if (rot == null) {
-			if (other.rot != null)
-				return false;
-		} else if (!rot.equals(other.rot))
-			return false;
-		if (trans == null) {
-			if (other.trans != null)
-				return false;
-		} else if (!trans.equals(other.trans))
-			return false;
-		return true;
+		BasicFrame other = (BasicFrame) obj;
+	  return new EqualsBuilder()
+    .appendSuper(super.equals(obj))		
+		.append(krnl, other.krnl)
+		.append(list, other.list)
+		.append(linkedFramesList, other.linkedFramesList)
+		.append(srcFrame, other.srcFrame)
+		.isEquals();
 	}
+	
+	/**
+	 * Internal class that holds the main frame attributes. This class is useful
+	 * to linking frames (i.e., to share these attributes).
+	 */
+	public class FrameKernel implements Copyable {
+		@Override
+		public int hashCode() {
+	    return new HashCodeBuilder(17, 37).		
+			append(trans).
+			append(rot).
+			append(refFrame).
+			append(constr).
+	    toHashCode();		
+		}
 
-	protected Vector3D trans;
-	protected Quaternion rot;
-	protected GLFrame refFrame;
-	protected Constraint constr;
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!super.equals(obj))
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			FrameKernel other = (FrameKernel) obj;
+		  return new EqualsBuilder()
+	    .appendSuper(super.equals(obj))		
+			.append(trans, other.trans)
+			.append(rot, other.rot)
+			.append(refFrame, other.refFrame)
+			.append(constr, other.constr)
+			.isEquals();
+		}		
+
+		// TODO move Frame.modified() here?
+		protected Vector3D trans;
+		protected Quaternion rot;
+		protected BasicFrame refFrame;
+		protected Constraint constr;
+		
+		public FrameKernel() {
+			trans = new Vector3D(0, 0, 0);
+			rot = new Quaternion();
+			refFrame = null;
+			constr = null;
+		}
+		
+		public FrameKernel(Vector3D p, Quaternion r) {
+			trans = new Vector3D(p.x, p.y, p.z);
+			rot = r.getCopy();
+			refFrame = null;
+			constr = null;
+		}
+		
+		protected FrameKernel(FrameKernel other) {
+			trans = new Vector3D(other.translation().x, other.translation().y, other.translation().z);
+			rot = other.rotation().getCopy();
+			refFrame = other.referenceFrame();
+			constr = other.constraint();
+		}
+		
+		public FrameKernel getCopy() {
+			return new FrameKernel(this);
+		}		
+		
+		public final Vector3D translation() {
+			return trans;
+		}
+		
+		public final void setTranslation(Vector3D t) {
+			trans = t;			
+		}
+		
+		public final Quaternion rotation() {
+			return rot;
+		}
+		
+		public final void setRotation(Quaternion r) {
+			rot = r;
+		}
+		
+		public Constraint constraint() {
+			return constr;
+		}
+		
+		public final BasicFrame referenceFrame() {
+			return refFrame;
+		}
+		
+		public final void setReferenceFrame(BasicFrame rFrame) {
+			refFrame = rFrame;
+		}
+		
+		public void setConstraint(Constraint c) {
+			constr = c;
+		}		
+	}	
+
+	protected FrameKernel krnl;
 	protected List<KeyFrameInterpolator> list;
+	protected List<BasicFrame> linkedFramesList;
+	protected BasicFrame srcFrame;
 
 	/**
 	 * Creates a default Frame.
@@ -97,12 +184,11 @@ public class GLFrame implements Copyable {
 	 * {@link #orientation()} Quaternion. The {@link #referenceFrame()} and the
 	 * {@link #constraint()} are {@code null}.
 	 */
-	public GLFrame() {
-		trans = new Vector3D(0, 0, 0);
-		rot = new Quaternion();
-		refFrame = null;
-		constr = null;
+	public BasicFrame() {
+		krnl = new FrameKernel();
 		list = new ArrayList<KeyFrameInterpolator>();
+		linkedFramesList = new ArrayList<BasicFrame>();
+		srcFrame = null;
 	}
 
 	/**
@@ -115,12 +201,11 @@ public class GLFrame implements Copyable {
 	 * {@link #referenceFrame()} is {@code null}). It has a {@code null}
 	 * associated {@link #constraint()}.
 	 */
-	public GLFrame(Vector3D p, Quaternion r) {
-		trans = new Vector3D(p.x, p.y, p.z);
-		rot = r.getCopy();
-		refFrame = null;
-		constr = null;
+	public BasicFrame(Vector3D p, Quaternion r) {
+		krnl = new FrameKernel(p, r);
 		list = new ArrayList<KeyFrameInterpolator>();
+		linkedFramesList = new ArrayList<BasicFrame>();
+		srcFrame = null;
 	}
 
 	/**
@@ -129,25 +214,36 @@ public class GLFrame implements Copyable {
 	 * @param other
 	 *          the Frame containing the object to be copied
 	 */
-	protected GLFrame(GLFrame other) {
-		trans = new Vector3D(other.translation().x, other.translation().y, other.translation().z);
-		rot = other.rotation().getCopy();
-		refFrame = other.referenceFrame();
-		constr = other.constraint();
+	protected BasicFrame(BasicFrame other) {
+		krnl = new FrameKernel( other.kernel() );
 		list = new ArrayList<KeyFrameInterpolator>();
 		Iterator<KeyFrameInterpolator> it = other.listeners().iterator();
 		while (it.hasNext())
 			list.add(it.next());
+		linkedFramesList = new ArrayList<BasicFrame>();
+		Iterator<BasicFrame> iterator = other.linkedFramesList.iterator();
+		while (iterator.hasNext())
+			linkedFramesList.add(iterator.next());
+		srcFrame = other.srcFrame;
 	}
 
 	/**
-	 * Calls {@link #GLFrame(GLFrame)} (which is protected) and returns a copy of
+	 * Calls {@link #Frame(BasicFrame)} (which is private) and returns a copy of
 	 * {@code this} object.
 	 * 
-	 * @see #GLFrame(GLFrame)
+	 * @see #Frame(BasicFrame)
 	 */
-	public GLFrame getCopy() {
-		return new GLFrame(this);
+	public BasicFrame getCopy() {
+		return new BasicFrame(this);
+	}
+	
+	// TODO document me
+	public FrameKernel kernel() {
+		return krnl;
+	}
+	
+	public void setKernel(FrameKernel k) {
+		krnl = k;
 	}
 
 	/**
@@ -162,7 +258,7 @@ public class GLFrame implements Copyable {
 	 * @see #setTranslationWithConstraint(Vector3D)
 	 */
 	public final Vector3D translation() {
-		return trans;
+		return kernel().translation();
 	}
 
 	/**
@@ -177,7 +273,7 @@ public class GLFrame implements Copyable {
 	 * @see #setRotationWithConstraint(Quaternion)
 	 */
 	public final Quaternion rotation() {
-		return rot;
+		return kernel().rotation();
 	}
 
 	/**
@@ -194,18 +290,18 @@ public class GLFrame implements Copyable {
 	 * world coordinate system. The values match when the reference Frame {@code
 	 * null}.
 	 * <p>
-	 * Use {@link #setReferenceFrame(GLFrame)} to set this value and create a Frame
+	 * Use {@link #setReferenceFrame(BasicFrame)} to set this value and create a Frame
 	 * hierarchy. Convenient functions allow you to convert 3D coordinates from
 	 * one Frame to another: see {@link #coordinatesOf(Vector3D)},
 	 * {@link #localCoordinatesOf(Vector3D)} ,
-	 * {@link #coordinatesOfIn(Vector3D, GLFrame)} and their inverse functions.
+	 * {@link #coordinatesOfIn(Vector3D, BasicFrame)} and their inverse functions.
 	 * <p>
 	 * Vectors can also be converted using {@link #transformOf(Vector3D)},
-	 * {@link #transformOfIn(Vector3D, GLFrame)}, {@link #localTransformOf(Vector3D)}
+	 * {@link #transformOfIn(Vector3D, BasicFrame)}, {@link #localTransformOf(Vector3D)}
 	 * and their inverse functions.
 	 */
-	public final GLFrame referenceFrame() {
-		return refFrame;
+	public final BasicFrame referenceFrame() {
+		return kernel().referenceFrame();
 	}
 
 	/**
@@ -217,7 +313,7 @@ public class GLFrame implements Copyable {
 	 * See the Constraint class documentation for details.
 	 */
 	public Constraint constraint() {
-		return constr;
+		return kernel().constraint();
 	}
 
 	/**
@@ -225,7 +321,7 @@ public class GLFrame implements Copyable {
 	 * this frame. Normally, you should not call this method as the
 	 * KeyFrameInterpolator takes care of calling it.
 	 * 
-	 * @see remixlab.remixcam.core.KeyFrameInterpolator#addKeyFrame(GLFrame, float,
+	 * @see remixlab.remixcam.core.KeyFrameInterpolator#addKeyFrame(BasicFrame, float,
 	 *      boolean)
 	 */
 	public List<KeyFrameInterpolator> listeners() {
@@ -246,7 +342,7 @@ public class GLFrame implements Copyable {
 	 * method, unless you have added {@code kfi} before (by calling
 	 * {@link #addListener(KeyFrameInterpolator)}).
 	 * 
-	 * @see remixlab.remixcam.core.KeyFrameInterpolator#addKeyFrame(GLFrame, float,
+	 * @see remixlab.remixcam.core.KeyFrameInterpolator#addKeyFrame(BasicFrame, float,
 	 *      boolean)
 	 */
 	public void removeListener(KeyFrameInterpolator kfi) {
@@ -256,13 +352,171 @@ public class GLFrame implements Copyable {
 	/**
 	 * Resets the cache of all KeyFrameInterpolators' associated with this Frame.
 	 */
-	private void modified() {
+	protected void modified() {
 		Iterator<KeyFrameInterpolator> it = list.iterator();
 		while (it.hasNext()) {
 			it.next().invalidateValues();
 		}
 	}
-
+	
+	/**
+	 * Links this frame (referred to as the requested frame) to {@code sourceFrame},
+	 * meaning that this frame will take (and share by reference) the {@link #translation()},
+	 * {@link #rotation()}, {@link #referenceFrame()}, and {@link #constraint()} from the
+	 * {@code sourceFrame}. This can useful for some off-screen scenes, e.g., to link a
+	 * frame defined in one scene to the camera frame defined in other scene
+	 * (see the CameraCrane example).
+	 * <p>
+	 * <b>Note:</b> Linking frames has the following properties:
+	 * <ol>
+   * <li>A frame can be linked only to another frame (referred to as the source
+   * frame).</li> 
+   * <li>A source frame can be linked by from many (requested) frames.</li>
+   * <li>A source frame can't be linked to another (source) frame, i.e., it
+   * can only receive links form other frames.</li>
+   * </ol>
+	 * 
+	 * @param sourceFrame the frame to link this frame with.
+	 * @return true if this frame can successfully being linked to the frame. False otherwise.
+	 * 
+	 * @see #linkFrom(BasicFrame)
+	 * @see #unlink()
+	 * @see #unlinkFrom(BasicFrame)
+	 * @see #isLinked()
+	 * @see #areLinkedTogether(BasicFrame)
+	 */
+	public boolean linkTo(BasicFrame sourceFrame) {
+		// avoid loops		
+		if( (!linkedFramesList.isEmpty()) || sourceFrame.linkedFramesList.contains(this) || (sourceFrame == this) )
+			return false;		
+		
+		if(sourceFrame.linkedFramesList.add(this)) {
+			srcFrame = sourceFrame;
+			setKernel(srcFrame.kernel());
+			return true;
+		}
+		
+		return false;
+	}	
+	
+	/**
+	 * Attempts to link the {@code requestedFrame} to this frame.
+	 * <p>
+	 * See {@link #linkTo(BasicFrame)} for the rules and terminology applying to the linking process.
+	 * 
+	 * @param requestedFrame the frame that is requesting a link to this frame.
+	 * @return true if the requested frame can successfully being linked to this frame. False otherwise.
+	 * 
+	 * @see #linkTo(BasicFrame)
+	 * @see #unlink()
+	 * @see #unlinkFrom(BasicFrame)
+	 * @see #isLinked()
+	 * @see #areLinkedTogether(BasicFrame)
+	 */
+	public boolean linkFrom(BasicFrame requestedFrame) {
+	  // avoid loops		
+		if( (!requestedFrame.linkedFramesList.isEmpty()) || linkedFramesList.contains(this) || (requestedFrame == this) )
+			return false;		
+		
+		if(linkedFramesList.add(requestedFrame)) {
+			requestedFrame.srcFrame = this;
+			requestedFrame.setKernel(kernel());
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Unlinks this frame from its source frame. Does nothing if this frame is not
+	 * linked to another frame.
+	 * <p>
+	 * See {@link #linkTo(BasicFrame)} for the rules and terminology applying to the linking process.
+	 * 
+	 * @return true if succeeded otherwise returns false.
+	 * 
+	 * @see #linkTo(BasicFrame)
+	 * @see #linkFrom(BasicFrame) 
+	 * @see #unlinkFrom(BasicFrame)
+	 * @see #isLinked()
+	 * @see #areLinkedTogether(BasicFrame)
+	 */
+	public boolean unlink() {
+		boolean result = false;
+		if(srcFrame != null) {
+			result = srcFrame.linkedFramesList.remove(this);
+			if(result) {
+				setKernel(new FrameKernel(srcFrame.translation(), srcFrame.rotation()));
+				srcFrame = null;
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Unlinks the requested frame from this frame. Does nothing if the frames are
+	 * not linked together ({@link #areLinkedTogether(BasicFrame)}).
+	 * <p>
+	 * See {@link #linkTo(BasicFrame)} for the rules and terminology applying to the linking process.
+	 * 
+	 * @return true if succeeded otherwise returns false.
+	 * 
+	 * @see #linkTo(BasicFrame)
+	 * @see #linkFrom(BasicFrame)
+	 * @see #unlink()
+	 * @see #isLinked()
+	 * @see #areLinkedTogether(BasicFrame)
+	 */
+	public boolean unlinkFrom(BasicFrame requestedFrame) {
+		boolean result = false;
+		if ( (srcFrame == null) && (requestedFrame != this) ) {
+			result = linkedFramesList.remove(requestedFrame);
+			if (result) {
+				requestedFrame.setKernel(new FrameKernel(translation(), rotation()));
+				requestedFrame.srcFrame = null;
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns true if this frame is linked to a source frame or if this frame
+	 * acts as the source frame of other frames. Otherwise returns false.
+	 * <p>
+	 * See {@link #linkTo(BasicFrame)} for the rules and terminology applying to the linking process.
+	 * 
+	 * @see #linkTo(BasicFrame)
+	 * @see #linkFrom(BasicFrame)
+	 * @see #unlink()
+	 * @see #unlinkFrom(BasicFrame)
+	 * @see #areLinkedTogether(BasicFrame)
+	 */
+	public boolean isLinked() {
+		if ((srcFrame != null) || (!linkedFramesList.isEmpty()) )
+			return true;
+		return false;
+	}
+	
+	/**
+	 * Returns true if this frame is linked with {@code sourceFrame}. Otherwise
+	 * returns false.
+	 * <p>
+	 * See {@link #linkTo(BasicFrame)} for the rules and terminology applying to the linking process.
+	 * 
+	 * @see #linkTo(BasicFrame)
+	 * @see #linkFrom(BasicFrame)
+	 * @see #unlink()
+	 * @see #unlinkFrom(BasicFrame)
+	 * @see #isLinked() 
+	 */
+	public boolean areLinkedTogether(BasicFrame sourceFrame) {
+		if (sourceFrame == srcFrame)			
+			return true;
+		if (linkedFramesList.contains(sourceFrame))
+			return true;
+		return false;
+	}
+	
 	/**
 	 * Sets the {@link #translation()} of the frame, locally defined with respect
 	 * to the {@link #referenceFrame()}. Calls {@link #modified()}.
@@ -272,7 +526,7 @@ public class GLFrame implements Copyable {
 	 * take into account the potential {@link #constraint()} of the Frame.
 	 */
 	public final void setTranslation(Vector3D t) {
-		this.trans = t;
+		kernel().setTranslation(t);
 		modified();
 	}
 
@@ -297,7 +551,7 @@ public class GLFrame implements Copyable {
 		if (constraint() != null)
 			deltaT = constraint().constrainTranslation(deltaT, this);
 
-		setTranslation(Vector3D.add(this.translation(), deltaT));
+		translation().add(deltaT);
 
 		/**
 		 * translation.x = this.translation().x; translation.y =
@@ -322,7 +576,7 @@ public class GLFrame implements Copyable {
 	 * @see #setTranslation(Vector3D)
 	 */
 	public final void setRotation(Quaternion r) {
-		this.rot = r;
+		kernel().setRotation(r);
 		modified();
 	}
 
@@ -342,15 +596,14 @@ public class GLFrame implements Copyable {
 	 * @see #setOrientationWithConstraint(Quaternion)
 	 */
 	public final void setRotationWithConstraint(Quaternion rotation) {
-		Quaternion deltaQ = Quaternion
-				.multiply(this.rotation().inverse(), rotation);
+		Quaternion deltaQ = Quaternion.multiply(this.rotation().inverse(), rotation);
 		if (constraint() != null)
 			deltaQ = constraint().constrainRotation(deltaQ, this);
 
 		deltaQ.normalize(); // Prevent numerical drift
 
-		setRotation(Quaternion.multiply(this.rotation(), deltaQ));
-		rot.normalize();
+		rotation().multiply(deltaQ);
+		rotation().normalize();
 		// rotation.x = this.rotation().x;
 		// rotation.y = this.rotation().y;
 		// rotation.z = this.rotation().z;
@@ -373,14 +626,14 @@ public class GLFrame implements Copyable {
 	 * {@code refFrame} as the {@link #referenceFrame()} would create a loop in
 	 * the Frame hierarchy.
 	 * 
-	 * @see #settingAsReferenceFrameWillCreateALoop(GLFrame)
+	 * @see #settingAsReferenceFrameWillCreateALoop(BasicFrame)
 	 */
-	public final void setReferenceFrame(GLFrame rFrame) {
+	public final void setReferenceFrame(BasicFrame rFrame) {
 		if (settingAsReferenceFrameWillCreateALoop(rFrame))
 			System.out.println("Frame.setReferenceFrame would create a loop in Frame hierarchy");
 		else {
-			boolean identical = (this.refFrame == rFrame);
-			this.refFrame = rFrame;
+			boolean identical = (kernel().referenceFrame() == rFrame);
+			kernel().setReferenceFrame(rFrame);
 			if (!identical)
 				modified();
 		}
@@ -392,15 +645,15 @@ public class GLFrame implements Copyable {
 	 * A {@code null} value means no constraint.
 	 */
 	public void setConstraint(Constraint c) {
-		this.constr = c;
+		kernel().setConstraint(c);
 	}
 
 	/**
 	 * Returns {@code true} if setting {@code frame} as the Frame's
 	 * {@link #referenceFrame()} would create a loop in the Frame hierarchy.
 	 */
-	public final boolean settingAsReferenceFrameWillCreateALoop(GLFrame frame) {
-		GLFrame f = frame;
+	public final boolean settingAsReferenceFrameWillCreateALoop(BasicFrame frame) {
+		BasicFrame f = frame;
 		while (f != null) {
 			if (f == this)
 				return true;
@@ -419,7 +672,7 @@ public class GLFrame implements Copyable {
 	 */
 	public final Quaternion orientation() {
 		Quaternion res = rotation();
-		GLFrame fr = referenceFrame();
+		BasicFrame fr = referenceFrame();
 		while (fr != null) {
 			res = Quaternion.multiply(fr.rotation(), res);
 			fr = fr.referenceFrame();
@@ -476,8 +729,7 @@ public class GLFrame implements Copyable {
 	 */
 	public final void setOrientation(Quaternion q) {
 		if (referenceFrame() != null)
-			setRotation(Quaternion.multiply(referenceFrame().orientation().inverse(),
-					q));
+			setRotation(Quaternion.multiply(referenceFrame().orientation().inverse(),	q));
 		else
 			setRotation(q);
 	}
@@ -525,9 +777,9 @@ public class GLFrame implements Copyable {
 	 */
 	public final void translate(Vector3D t) {
 		if (constraint() != null)
-			trans.add(constraint().constrainTranslation(t, this));
+			kernel().translation().add(constraint().constrainTranslation(t, this));
 		else
-			trans.add(t);
+			kernel().translation().add(t);
 		modified();
 	}
 
@@ -555,7 +807,7 @@ public class GLFrame implements Copyable {
 				t.z = o.z;
 			}
 		}
-		trans.add(o);
+		kernel().translation().add(o);
 		modified();
 	}
 
@@ -574,11 +826,11 @@ public class GLFrame implements Copyable {
 	 */
 	public final void rotate(Quaternion q) {
 		if (constraint() != null)
-			rot.multiply(constraint().constrainRotation(q, this));
+			kernel().rotation().multiply(constraint().constrainRotation(q, this));
 		else
-			rot.multiply(q);
+			kernel().rotation().multiply(q);
 
-		rot.normalize(); // Prevents numerical drift
+		kernel().rotation().normalize(); // Prevents numerical drift
 		modified();
 	}
 
@@ -607,9 +859,9 @@ public class GLFrame implements Copyable {
 				q.w = o.w;
 			}
 		}
-		rot.multiply(o);
+		kernel().rotation().multiply(o);
 
-		rot.normalize(); // Prevents numerical drift
+		kernel().rotation().normalize(); // Prevents numerical drift
 		modified();
 	}
 
@@ -629,17 +881,17 @@ public class GLFrame implements Copyable {
 		if (constraint() != null)
 			rotation = constraint().constrainRotation(rotation, this);
 
-		this.rot.multiply(rotation);
-		this.rot.normalize(); // Prevents numerical drift
+		this.kernel().rotation().multiply(rotation);
+		this.kernel().rotation().normalize(); // Prevents numerical drift
 
 		Quaternion q = new Quaternion(inverseTransformOf(rotation.axis()), rotation.angle());
 		Vector3D t = Vector3D.add(point, q.rotate(Vector3D.sub(position(), point)));
-		t.sub(trans);
+		t.sub(kernel().translation());
 
 		if (constraint() != null)
-			trans.add(constraint().constrainTranslation(t, this));
+			kernel().translation().add(constraint().constrainTranslation(t, this));
 		else
-			trans.add(t);
+			kernel().translation().add(t);
 		modified();
 	}
 
@@ -657,7 +909,7 @@ public class GLFrame implements Copyable {
 	 * <p>
 	 * If the Frame has a {@link #constraint()}, {@code rotation} is first
 	 * constrained using
-	 * {@link remixlab.remixcam.constraint.Constraint#constrainRotation(Quaternion, GLFrame)}.
+	 * {@link remixlab.remixcam.constraints.Constraint#constrainRotation(Quaternion, BasicFrame)}.
 	 * Hence the rotation actually applied to the Frame may differ from {@code
 	 * rotation} (since it can be filtered by the {@link #constraint()}). Use
 	 * {@code rotateAroundPoint(rotation, point, false)} to retrieve the filtered
@@ -666,7 +918,7 @@ public class GLFrame implements Copyable {
 	 * <p>
 	 * The translation which results from the filtered rotation around {@code
 	 * point} is then computed and filtered using
-	 * {@link remixlab.remixcam.constraint.Constraint#constrainTranslation(Vector3D, GLFrame)}.
+	 * {@link remixlab.remixcam.constraints.Constraint#constrainTranslation(Vector3D, BasicFrame)}.
 	 */
 	public final void rotateAroundPoint(Quaternion rotation, Vector3D point,
 			boolean keepArg) {
@@ -680,17 +932,17 @@ public class GLFrame implements Copyable {
 				rotation.w = q.w;
 			}
 		}
-		this.rot.multiply(q);
-		this.rot.normalize(); // Prevents numerical drift
+		this.kernel().rotation().multiply(q);
+		this.kernel().rotation().normalize(); // Prevents numerical drift
 
 		q = new Quaternion(inverseTransformOf(rotation.axis()), rotation.angle());
 		Vector3D t = Vector3D.add(point, q.rotate(Vector3D.sub(position(), point)));
-		t.sub(trans);
+		t.sub(kernel().translation());
 
 		if (constraint() != null)
-			trans.add(constraint().constrainTranslation(t, this));
+			kernel().translation().add(constraint().constrainTranslation(t, this));
 		else
-			trans.add(t);
+			kernel().translation().add(t);
 		modified();
 	}
 
@@ -698,7 +950,7 @@ public class GLFrame implements Copyable {
 	 * Convenience function that simply calls {@code alignWithFrame(frame, false,
 	 * 0.85f)}
 	 */
-	public final void alignWithFrame(GLFrame frame) {
+	public final void alignWithFrame(BasicFrame frame) {
 		alignWithFrame(frame, false, 0.85f);
 	}
 
@@ -706,7 +958,7 @@ public class GLFrame implements Copyable {
 	 * Convenience function that simply calls {@code alignWithFrame(frame, move,
 	 * 0.85f)}
 	 */
-	public final void alignWithFrame(GLFrame frame, boolean move) {
+	public final void alignWithFrame(BasicFrame frame, boolean move) {
 		alignWithFrame(frame, move, 0.85f);
 	}
 
@@ -714,7 +966,7 @@ public class GLFrame implements Copyable {
 	 * Convenience function that simply calls {@code alignWithFrame(frame, false,
 	 * threshold)}
 	 */
-	public final void alignWithFrame(GLFrame frame, float threshold) {
+	public final void alignWithFrame(BasicFrame frame, float threshold) {
 		alignWithFrame(frame, false, threshold);
 	}
 
@@ -743,7 +995,7 @@ public class GLFrame implements Copyable {
 	 * {@code frame} may be {@code null} and then represents the world coordinate
 	 * system (same convention than for the {@link #referenceFrame()}).
 	 */
-	public final void alignWithFrame(GLFrame frame, boolean move, float threshold) {
+	public final void alignWithFrame(BasicFrame frame, boolean move, float threshold) {
 		Vector3D[][] directions = new Vector3D[2][3];
 		for (int d = 0; d < 3; ++d) {
 			Vector3D dir = new Vector3D((d == 0) ? 1.0f : 0.0f, (d == 1) ? 1.0f : 0.0f,
@@ -773,8 +1025,9 @@ public class GLFrame implements Copyable {
 			}
 		}
 
-		GLFrame old = this.getCopy();
-		//GLFrame old = this.clone();
+		//Frame old = new Frame(this);
+		BasicFrame old = this.getCopy();
+		//Frame old = this.clone();
 
 		vec.set(directions[0][index[0]]);
 		float coef = vec.dot(directions[1][index[1]]);
@@ -877,7 +1130,7 @@ public class GLFrame implements Copyable {
 	 * coordinates.
 	 */
 	public final Vector3D inverseCoordinatesOf(Vector3D src) {
-		GLFrame fr = this;
+		BasicFrame fr = this;
 		Vector3D res = src;
 		while (fr != null) {
 			res = fr.localInverseCoordinatesOf(res);
@@ -918,10 +1171,10 @@ public class GLFrame implements Copyable {
 	 * from} coordinate system is {@code src} (converts from {@code from} to
 	 * Frame).
 	 * <p>
-	 * {@link #coordinatesOfIn(Vector3D, GLFrame)} performs the inverse
+	 * {@link #coordinatesOfIn(Vector3D, BasicFrame)} performs the inverse
 	 * transformation.
 	 */
-	public final Vector3D coordinatesOfFrom(Vector3D src, GLFrame from) {
+	public final Vector3D coordinatesOfFrom(Vector3D src, BasicFrame from) {
 		if (this == from)
 			return src;
 		else if (referenceFrame() != null)
@@ -934,11 +1187,11 @@ public class GLFrame implements Copyable {
 	 * Returns the {@code in} coordinates of the point whose position in the Frame
 	 * coordinate system is {@code src} (converts from Frame to {@code in}).
 	 * <p>
-	 * {@link #coordinatesOfFrom(Vector3D, GLFrame)} performs the inverse
+	 * {@link #coordinatesOfFrom(Vector3D, BasicFrame)} performs the inverse
 	 * transformation.
 	 */
-	public final Vector3D coordinatesOfIn(Vector3D src, GLFrame in) {
-		GLFrame fr = this;
+	public final Vector3D coordinatesOfIn(Vector3D src, BasicFrame in) {
+		BasicFrame fr = this;
 		Vector3D res = src;
 		while ((fr != null) && (fr != in)) {
 			res = fr.localInverseCoordinatesOf(res);
@@ -980,7 +1233,7 @@ public class GLFrame implements Copyable {
 	 * of 3D vectors.
 	 */
 	public final Vector3D inverseTransformOf(Vector3D src) {
-		GLFrame fr = this;
+		BasicFrame fr = this;
 		Vector3D res = src;
 		while (fr != null) {
 			res = fr.localInverseTransformOf(res);
@@ -1102,9 +1355,9 @@ public class GLFrame implements Copyable {
 	 * from} coordinate system is {@code src} (converts vectors from {@code from}
 	 * to Frame).
 	 * <p>
-	 * {@link #transformOfIn(Vector3D, GLFrame)} performs the inverse transformation.
+	 * {@link #transformOfIn(Vector3D, BasicFrame)} performs the inverse transformation.
 	 */
-	public final Vector3D transformOfFrom(Vector3D src, GLFrame from) {
+	public final Vector3D transformOfFrom(Vector3D src, BasicFrame from) {
 		if (this == from)
 			return src;
 		else if (referenceFrame() != null)
@@ -1118,11 +1371,11 @@ public class GLFrame implements Copyable {
 	 * Frame coordinate system is {@code src} (converts vectors from Frame to
 	 * {@code in}).
 	 * <p>
-	 * {@link #transformOfFrom(Vector3D, GLFrame)} performs the inverse
+	 * {@link #transformOfFrom(Vector3D, BasicFrame)} performs the inverse
 	 * transformation.
 	 */
-	public final Vector3D transformOfIn(Vector3D src, GLFrame in) {
-		GLFrame fr = this;
+	public final Vector3D transformOfIn(Vector3D src, BasicFrame in) {
+		BasicFrame fr = this;
 		Vector3D res = src;
 		while ((fr != null) && (fr != in)) {
 			res = fr.localInverseTransformOf(res);
@@ -1172,7 +1425,8 @@ public class GLFrame implements Copyable {
 	 * <p>
 	 * <b>Attention:</b> This technique is inefficient because {@code
 	 * p.applyMatrix} will try to calculate the inverse of the transform. Avoid it
-	 * whenever possible and instead apply a translation/rotation (in that order) yourself.
+	 * whenever possible and instead use {@link #applyTransformation(PApplet)}
+	 * which is very efficient.
 	 * <p>
 	 * This matrix only represents the local Frame transformation (i.e., with
 	 * respect to the {@link #referenceFrame()}). Use {@link #worldMatrix()} to
@@ -1184,17 +1438,30 @@ public class GLFrame implements Copyable {
 	 * {@link #worldMatrix()}. Use it immediately (as above).
 	 * <p>
 	 * <b>Note:</b> The scaling factor of the 4x4 matrix is 1.0.
+	 * 
+	 * @see #applyTransformation(Scene)
 	 */
+	// TODO is always inneficient
 	public final Matrix3D matrix() {
 		Matrix3D pM = new Matrix3D();
 
-		pM = rot.matrix();
+		pM = kernel().rotation().matrix();
 
-		pM.m03 = trans.x;
-		pM.m13 = trans.y;
-		pM.m23 = trans.z;
+		pM.m03 = kernel().translation().x;
+		pM.m13 = kernel().translation().y;
+		pM.m23 = kernel().translation().z;
 
 		return pM;
+	}	
+	
+	/**
+	 * Convenience function that simply calls {@code scn.applyTransformation(this)}.
+	 * 
+	 * @see #matrix()
+	 * @see remixlab.proscene.Scene#applyTransformation(BasicFrame)
+	 */
+	public void applyTransformation(AbstractScene scn) {
+		scn.applyTransformation(this);
 	}
 
 	/**
@@ -1225,7 +1492,7 @@ public class GLFrame implements Copyable {
 	 */
 	public final Matrix3D worldMatrix() {
 		if (referenceFrame() != null) {
-			final GLFrame fr = new GLFrame();
+			final BasicFrame fr = new BasicFrame();
 			fr.setTranslation(position());
 			fr.setRotation(orientation());
 			return fr.matrix();
@@ -1258,16 +1525,16 @@ public class GLFrame implements Copyable {
 	 * <b>Attention:</b> A Frame does not contain a scale factor. The possible
 	 * scaling in {@code m} will not be converted into the Frame by this method.
 	 */
-	public final void fromMatrix(remixlab.remixcam.geom.Matrix3D pM) {
+	public final void fromMatrix(Matrix3D pM) {
 		// m should be of size [4][4]
 		if (Math.abs(pM.m33) < 1E-8) {
 			System.out.println("Doing nothing: pM.m33 should be non-zero!");
 			return;
 		}
 
-		trans.x = pM.m03 / pM.m33;
-		trans.y = pM.m13 / pM.m33;
-		trans.z = pM.m23 / pM.m33;
+		kernel().translation().x = pM.m03 / pM.m33;
+		kernel().translation().y = pM.m13 / pM.m33;
+		kernel().translation().z = pM.m23 / pM.m33;
 
 		float[][] r = new float[3][3];
 
@@ -1281,7 +1548,7 @@ public class GLFrame implements Copyable {
 		r[2][1] = pM.m21 / pM.m33;
 		r[2][2] = pM.m22 / pM.m33;
 
-		rot.fromRotationMatrix(r);
+		kernel().rotation().fromRotationMatrix(r);
 		modified();
 	}
 
@@ -1305,8 +1572,8 @@ public class GLFrame implements Copyable {
 	 * <p>
 	 * <b>Note:</b> The scaling factor of the 4x4 matrix is 1.0.
 	 */
-	public final GLFrame inverse() {
-		GLFrame fr = new GLFrame(Vector3D.mult(rot.inverseRotate(trans), -1), rot.inverse());
+	public final BasicFrame inverse() {
+		BasicFrame fr = new BasicFrame(Vector3D.mult(kernel().rotation().inverseRotate(kernel().translation()), -1), kernel().rotation().inverse());
 		fr.setReferenceFrame(referenceFrame());
 		return fr;
 	}
@@ -1326,8 +1593,8 @@ public class GLFrame implements Copyable {
 	 * Use {@link #inverse()} for a local (i.e., with respect to
 	 * {@link #referenceFrame()}) transformation inverse.
 	 */
-	public final GLFrame worldInverse() {
-		return (new GLFrame(
+	public final BasicFrame worldInverse() {
+		return (new BasicFrame(
 				Vector3D.mult(orientation().inverseRotate(position()), -1),
 				orientation().inverse()));
 	}

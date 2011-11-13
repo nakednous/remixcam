@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -27,6 +27,7 @@ package remixlab.remixcam.core;
 
 import remixlab.remixcam.geom.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -43,6 +44,12 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * its associated processing projection and modelview matrices and it can
  * interactively be modified using the mouse.
  * <p>
+ * Camera matrices can be directly set as references to the processing camera
+ * matrices (default), or they can be set as independent Matrix3D objects
+ * (which may be useful for off-screen computations). See
+ * {@link #isAttachedToP5Camera()}, {@link #attachToP5Camera()} and
+ * {@link #detachFromP5Camera()}.
+ * <p>
  * There are to {@link #kind()} of Cameras: PROSCENE (default) and STANDARD. The
  * former kind dynamically sets up the {@link #zNear()} and {@link #zFar()}
  * values, in order to provide optimal precision of the z-buffer. The latter
@@ -50,10 +57,16 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * and {@link #setStandardZFar(float)}).
  * 
  */
-public class Camera implements Copyable {
+public class Camera implements Constants, Copyable {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
+    //append(attachedToPCam).
+    append(fpCoefficientsUpdate).
+    append(unprojectCacheOptimized).
+    append(lastFrameUpdate).
+    append(lastFPCoeficientsUpdateIssued).
+    append(zClippingCoef).
 		append(IODist).
 		append(dist).
 		append(fldOfView).
@@ -96,6 +109,12 @@ public class Camera implements Copyable {
 		
 	   return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
+    //.append(attachedToPCam, other.attachedToPCam)
+    .append(fpCoefficientsUpdate, other.fpCoefficientsUpdate)
+    .append(unprojectCacheOptimized, other.unprojectCacheOptimized)
+    .append(lastFrameUpdate, other.lastFrameUpdate)
+    .append(lastFPCoeficientsUpdateIssued, other.lastFPCoeficientsUpdateIssued)
+    .append(zClippingCoef, other.zClippingCoef)
 		.append(IODist,other.IODist)
 		.append(dist,other.dist)
 		.append(fldOfView,other.fldOfView)
@@ -123,7 +142,82 @@ public class Camera implements Copyable {
 		.append(zClippingCoef,other.zClippingCoef)
 		.append(zNearCoef,other.zNearCoef)
 		.isEquals();
-	}		
+	}
+	
+	
+	/**
+	 * Internal class that represents/holds a cone of normals.
+	 * Typically needed to perform bfc.
+	 */
+	public class Cone {
+		Vector3D axis;
+		float angle;
+		
+		public Cone() {
+			reset();
+		}
+		
+		public Cone(Vector3D vec, float a) {
+			set(vec, a);
+		}
+		
+		public Cone(ArrayList<Vector3D> normals) {
+			set(normals);
+		}
+		
+		public Cone(Vector3D [] normals) {
+			set(normals);
+		}
+		
+		public Vector3D axis() {
+			return axis;
+		}
+		
+		public float angle() {
+			return angle;
+		}
+		
+		public void reset() {
+			axis = new Vector3D(0,0,1);
+			angle = 0;
+		}
+		
+		public void set(Vector3D vec, float a) {
+			axis = vec;
+			angle = a;
+		}
+		
+		public void set(ArrayList<Vector3D> normals) {
+			set( normals.toArray( new Vector3D [normals.size()] ) );		
+		}
+		
+		public void set(Vector3D [] normals) {
+			axis = new Vector3D(0,0,0);
+			if(normals.length == 0) {
+				reset();
+				return;
+			}
+			
+			Vector3D [] n = new Vector3D [normals.length];
+			for(int i=0; i<normals.length; i++ ) {
+				n[i] = new Vector3D();
+				n[i].set(normals[i]);
+				n[i].normalize();
+				axis = Vector3D.add(axis, n[i]);
+			}
+			
+			if ( axis.mag() != 0 ) {
+	      axis.normalize();
+	    }
+	    else {
+	      axis.set(0,0,1);
+	    }
+			
+			angle = 0;        
+			for(int i=0; i<normals.length; i++ )		
+				angle = Math.max( angle, (float) Math.acos( Vector3D.dot(n[i], axis)));		
+		}	
+	}
 	
 	/**
 	 * Internal class provided to catch the output of
@@ -190,8 +284,15 @@ public class Camera implements Copyable {
 	private float stdZNear;
 	private float stdZFar;
 
-	protected Matrix3D modelViewMat;
-	protected Matrix3D projectionMat;
+	private Matrix3D modelViewMat;
+	private Matrix3D projectionMat;
+	
+  //cache optimization
+	public boolean projectCacheOptimized;
+	private Matrix3D  projectionTimesModelview;
+	public boolean unprojectCacheOptimized;
+	private boolean projectionTimesModelviewHasInverse;
+	private Matrix3D projectionTimesModelviewInverse;
 
 	// S t e r e o p a r a m e t e r s
 	private float IODist; // inter-ocular distance, in meters
@@ -207,10 +308,34 @@ public class Camera implements Copyable {
 
 	// F r u s t u m p l a n e c o e f f i c i e n t s
 	protected float fpCoefficients[][];
+	protected boolean fpCoefficientsUpdate;
+	/**
+   * Which was the last frame the camera changes.
+   * <P>
+   * Takes into account the {@link #frame()} (position and orientation of the camera)
+   * and the camera {@link #type()} and {@link #kind()}.
+   */
+	public long lastFrameUpdate = 0;
+	protected long lastFPCoeficientsUpdateIssued = -1;
+
+	// A t t a c h e d S c e n e
+	//private boolean attachedToPCam;
+
+	// S C E N E   O B J E C T 
+	public AbstractScene scene;
+	//public PGraphics3D pg3d;
+
+	/**
+	 * Convenience constructor that simply calls {@code this(true, scn)}.
+	 * 
+	 * @see #Camera(Scene, boolean)
+	 */
 	
-  // P R O S C E N E A N D P R O C E S S I N G A P P L E T A N D O B J E C T S
-	public RCScene scene;
-	protected MouseGrabberPool mouseGrabberPool;
+	/**
+	public Camera(Scene scn) {
+		this(scn, true);
+	}
+	*/
 
 	/**
 	 * Main constructor. {@code p} will be used for rendering purposes.
@@ -230,10 +355,14 @@ public class Camera implements Copyable {
 	 * 
 	 * @see #Camera(Scene)
 	 */
-	public Camera(RCScene scn) {
+	public Camera(AbstractScene scn /**, boolean attachedToScene */) {
 		scene = scn;
-		mouseGrabberPool = scene.mouseGrabberPool;
+		//pg3d = scene.pg3d;
+		//attachedToPCam = attachedToScene;
 		
+		enableFrustumEquationsUpdate(false);
+		optimizeUnprojectCache(false);
+
 		for (int i = 0; i < normal.length; i++)
 			normal[i] = new Vector3D();
 
@@ -245,7 +374,7 @@ public class Camera implements Copyable {
 		interpolationKfi = new KeyFrameInterpolator(scene, frame());
 		kfi = new HashMap<Integer, KeyFrameInterpolator>();
 
-		setFrame(new InteractiveCameraFrame(scene));
+		setFrame(new InteractiveCameraFrame(this));
 
 		// Requires fieldOfView() to define focusDistance()
 		setSceneRadius(100);
@@ -279,15 +408,33 @@ public class Camera implements Copyable {
 		setPhysicalScreenWidth(0.4f);
 		// focusDistance is set from setFieldOfView()
 
-	  modelViewMat = new Matrix3D();
-		projectionMat = new Matrix3D();
-		projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-		computeProjectionMatrix();
+		/**
+		if (isAttachedToP5Camera()) {
+			projectionMat = pg3d.projection;
+			modelViewMat = pg3d.modelview;
+			computeProjectionMatrix();
+			computeModelViewMatrix();
+		} else {
+		*/
+			modelViewMat = new Matrix3D();
+			projectionMat = new Matrix3D();
+			projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			computeProjectionMatrix();
+		//}
 	}
 	
+	/**
+	 * Copy constructor 
+	 * 
+	 * @param oCam the camera object to be copied
+	 */
 	protected Camera(Camera oCam) {
 		this.scene = oCam.scene;
-		this.mouseGrabberPool = scene.mouseGrabberPool;
+		//this.pg3d = oCam.pg3d;
+		//this.attachedToPCam = oCam.attachedToPCam;
+		
+		this.fpCoefficientsUpdate = oCam.fpCoefficientsUpdate;
+		this.unprojectCacheOptimized = oCam.unprojectCacheOptimized;
 		
 		for (int i = 0; i < normal.length; i++)
 			this.normal[i] = new Vector3D(oCam.normal[i].x, oCam.normal[i].y, oCam.normal[i].z );
@@ -298,7 +445,7 @@ public class Camera implements Copyable {
 		for (int i=0; i<6; i++)
 			for (int j=0; j<4; j++)
 				this.fpCoefficients[i][j] = oCam.fpCoefficients[i][j];
-		
+				
 		this.frm = oCam.frame().getCopy();		
 		this.interpolationKfi = oCam.interpolationKfi.getCopy();
 		
@@ -318,7 +465,8 @@ public class Camera implements Copyable {
 		this.setStandardZNear(oCam.standardZNear());
 		this.setStandardZFar(oCam.standardZFar());
 		this.setType(oCam.type());
-		this.setZNearCoefficient(oCam.zNearCoefficient());		
+		this.setZNearCoefficient(oCam.zNearCoefficient());
+		this.setZClippingCoefficient(oCam.zClippingCoefficient());
 		this.setScreenWidthAndHeight(oCam.screenWidth(), oCam.screenHeight());
 		this.setIODistance( oCam.IODistance() );
 		this.setPhysicalDistanceToScreen(oCam.physicalDistanceToScreen());
@@ -328,9 +476,91 @@ public class Camera implements Copyable {
 		this.projectionMat = new Matrix3D(oCam.projectionMat);
 	}
 	
+	/**
+	 * Calls {@link #Camera(Camera)} (which is protected) and returns a copy of
+	 * {@code this} object.
+	 * 
+	 * @see #Camera(Camera)
+	 */	
 	public Camera getCopy() {
 		return new Camera(this);
+	}
+
+	// 1. ATTACHED PCAMERA MATRICES
+
+	/**
+	 * Convenience function that simply returns {@code !isAttachedToScene()}
+	 * 
+	 * @see #isAttachedToP5Camera()
+	 */
+	
+	/**
+	public boolean isDetachedFromP5Camera() {
+		return !isAttachedToP5Camera();
+	}
+	*/
+
+	/**
+	 * Returns {@code true} if the Camera matrices are set as references to the
+	 * processing camera matrices and {@code false} if not.
+	 * 
+	 * @see #isDetachedFromP5Camera()
+	 */
+	
+	/**
+	public boolean isAttachedToP5Camera() {
+		return attachedToPCam;
+	}
+	*/
+
+	/**
+	 * Set the Camera matrices as references to the processing camera matrices. If
+	 * the references are already set ({@link #isAttachedToP5Camera()}), silently
+	 * ignores the call.
+	 * <p>
+	 * <b>Note:</b> Since it is only one Scene per PApplet, there's no need to
+	 * specify it.
+	 * 
+	 * @see #detachFromP5Camera()
+	 * @see #isAttachedToP5Camera()
+	 */
+	
+	/**
+	public void attachToP5Camera() {
+		if (!isAttachedToP5Camera()) {
+			attachedToPCam = true;
+			projectionMat = pg3d.projection;
+			modelViewMat = pg3d.modelview;
+			computeProjectionMatrix();
+			computeModelViewMatrix();
+		}
+	}
+	*/
+
+	/**
+	 * Create new independent Camera matrices' objects (i.e., Camera matrices are
+	 * no longer set as references to processing camera matrices). If the Camera
+	 * is already detached, silently ignores the call.
+	 * <p>
+	 * The values of the newly created matrices are set with
+	 * {@link #computeProjectionMatrix()} and {@link #computeModelViewMatrix()}.
+	 * 
+	 * @see #attachToP5Camera()
+	 * @see #isAttachedToP5Camera()
+	 */
+	
+	/**
+	public void detachFromP5Camera() {
+		if (isAttachedToP5Camera()) {
+			attachedToPCam = false;
+			modelViewMat = new Matrix3D();
+			projectionMat = new Matrix3D();
+			projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			computeProjectionMatrix();
+			computeModelViewMatrix();
+		}
 	}	
+	*/
 
 	// 2. POSITION AND ORIENTATION
 
@@ -340,7 +570,7 @@ public class Camera implements Copyable {
 	 * <p>
 	 * Use {@link #setPosition(Vector3D)} to set the Camera position. Other
 	 * convenient methods are showEntireScene() or fitSphere(). Actually returns
-	 * {@link remixlab.remixcam.core.GLFrame#position()}.
+	 * {@link remixlab.remixcam.core.BasicFrame#position()}.
 	 * <p>
 	 * This position corresponds to the projection center of a Camera.PERSPECTIVE
 	 * camera. It is not located in the image plane, which is at a zNear()
@@ -406,8 +636,7 @@ public class Camera implements Copyable {
 	 * @see #setOrientation(Quaternion)
 	 */
 	public void setUpVector(Vector3D up, boolean noMove) {
-		Quaternion q = new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), frame()
-				.transformOf(up));
+		Quaternion q = new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), frame().transformOf(up));
 
 		if (!noMove)
 			frame().setPosition(
@@ -447,11 +676,11 @@ public class Camera implements Copyable {
 	 * @see #setUpVector(Vector3D)
 	 */
 	public void setViewDirection(Vector3D direction) {
-		if (Vector3D.squaredNorm(direction) < 1E-10)
+		if (direction.squaredNorm() < 1E-10)
 			return;
 
 		Vector3D xAxis = direction.cross(upVector());
-		if (Vector3D.squaredNorm(xAxis) < 1E-10) {
+		if (xAxis.squaredNorm() < 1E-10) {
 			// target is aligned with upVector, this means a rotation around X
 			// axis
 			// X axis is then unchanged, let's keep it !
@@ -459,8 +688,7 @@ public class Camera implements Copyable {
 		}
 
 		Quaternion q = new Quaternion();
-		q.fromRotatedBasis(xAxis, xAxis.cross(direction), Vector3D.mult(direction,
-				-1));
+		q.fromRotatedBasis(xAxis, xAxis.cross(direction), Vector3D.mult(direction,	-1));
 		frame().setOrientationWithConstraint(q);
 	}
 
@@ -556,7 +784,9 @@ public class Camera implements Copyable {
 	 * Sets the kind of the Camera: PROSCENE or STANDARD.
 	 */
 	public void setKind(Kind k) {
-		knd = k;
+		if(k!=knd)
+			lastFrameUpdate = scene.frameCount();
+		knd = k;		
 	}
 
 	/**
@@ -567,6 +797,8 @@ public class Camera implements Copyable {
 	 * @see #zFar()
 	 */
 	public void setStandardZNear(float zN) {
+		if( (kind() == Camera.Kind.STANDARD) && (zN != stdZNear) )
+			lastFrameUpdate = scene.frameCount();
 		stdZNear = zN;
 	}
 
@@ -589,6 +821,8 @@ public class Camera implements Copyable {
 	 * @see #zFar()
 	 */
 	public void setStandardZFar(float zF) {
+		if( (kind() == Camera.Kind.STANDARD) && (zF != stdZFar) )
+			lastFrameUpdate = scene.frameCount();
 		stdZFar = zF;
 	}
 
@@ -612,6 +846,8 @@ public class Camera implements Copyable {
 	 * @see #standardOrthoFrustumSize()
 	 */
 	public void changeStandardOrthoFrustumSize(boolean augment) {
+		if( (kind() == Camera.Kind.STANDARD) && (type() == Camera.Type.ORTHOGRAPHIC) )
+			lastFrameUpdate = scene.frameCount();
 		if (augment)
 			orthoSize *= 1.01f;
 		else
@@ -643,8 +879,9 @@ public class Camera implements Copyable {
 		// through RAP). Done only when CHANGING type since orthoCoef may have
 		// been changed with a
 		// setArcballReferencePoint in the meantime.
-		if ((type == Camera.Type.ORTHOGRAPHIC)
-				&& (type() == Camera.Type.PERSPECTIVE))
+		if( type != type() )
+			lastFrameUpdate = scene.frameCount();
+		if ((type == Camera.Type.ORTHOGRAPHIC) && (type() == Camera.Type.PERSPECTIVE))
 			orthoCoef = (float) Math.tan(fieldOfView() / 2.0f);
 
 		this.tp = type;
@@ -713,8 +950,7 @@ public class Camera implements Copyable {
 	 */
 	public void setFOVToFitScene() {
 		if (distanceToSceneCenter() > (float) Math.sqrt(2.0f) * sceneRadius())
-			setFieldOfView(2.0f * (float) Math.asin(sceneRadius()
-					/ distanceToSceneCenter()));
+			setFieldOfView(2.0f * (float) Math.asin(sceneRadius() / distanceToSceneCenter()));
 		else
 			setFieldOfView((float) Math.PI / 2.0f);
 	}
@@ -762,7 +998,8 @@ public class Camera implements Copyable {
 			// 2. halfHeight
 			target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);
 		} else {
-			float dist = orthoCoef * Math.abs(cameraCoordinatesOf(arcballReferencePoint()).z);
+			float dist = orthoCoef
+					* Math.abs(cameraCoordinatesOf(arcballReferencePoint()).z);
 			// #CONNECTION# fitScreenRegion
 			// 1. halfWidth
 			target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
@@ -782,8 +1019,7 @@ public class Camera implements Copyable {
 	 * aspectRatio() )}.
 	 */
 	public float horizontalFieldOfView() {
-		return 2.0f * (float) Math.atan((float) Math.tan(fieldOfView() / 2.0f)
-				* aspectRatio());
+		return 2.0f * (float) Math.atan((float) Math.tan(fieldOfView() / 2.0f) * aspectRatio());
 	}
 
 	/**
@@ -840,8 +1076,9 @@ public class Camera implements Copyable {
 	 * use {@link #setAspectRatio(float)} instead to define the projection matrix.
 	 */
 	public void setScreenWidthAndHeight(int width, int height) {
-		// Prevent negative and zero dimensions that would cause divisions by
-		// zero.
+		// Prevent negative and zero dimensions that would cause divisions by zero.
+		if( (width != scrnWidth) && (height != scrnHeight) )
+			lastFrameUpdate = scene.frameCount();
 		scrnWidth = width > 0 ? width : 1;
 		scrnHeight = height > 0 ? height : 1;
 	}
@@ -1005,6 +1242,8 @@ public class Camera implements Copyable {
 	 * Sets the {@link #zNearCoefficient()} value.
 	 */
 	public void setZNearCoefficient(float coef) {
+		if(coef != zNearCoef)
+			lastFrameUpdate = scene.frameCount();
 		zNearCoef = coef;
 	}
 
@@ -1033,6 +1272,8 @@ public class Camera implements Copyable {
 	 * Sets the {@link #zClippingCoefficient()} value.
 	 */
 	public void setZClippingCoefficient(float coef) {
+		if(coef != zClippingCoef)
+			lastFrameUpdate = scene.frameCount();
 		zClippingCoef = coef;
 	}
 
@@ -1040,7 +1281,7 @@ public class Camera implements Copyable {
 	 * Returns the ratio between pixel and processing scene units at {@code
 	 * position}.
 	 * <p>
-	 * A line of {@code n * pixelPRatio()} processing scene units, located at
+	 * A line of {@code n * pixelP5Ratio()} processing scene units, located at
 	 * {@code position} in the world coordinates system, will be projected with a
 	 * length of {@code n} pixels on screen.
 	 * <p>
@@ -1052,11 +1293,11 @@ public class Camera implements Copyable {
 	 * {@code beginShape(LINES);}<br>
 	 * {@code vertex(sceneCenter().x, sceneCenter().y, sceneCenter().z);}<br>
 	 * {@code Vector3D v = Vector3D.add(sceneCenter(), Vector3D.mult(upVector(), 20 *
-	 * pixelPRatio(sceneCenter())));}<br>
+	 * pixelP5Ratio(sceneCenter())));}<br>
 	 * {@code vertex(v.x, v.y, v.z);}<br>
 	 * {@code endShape();}<br>
 	 */
-	public float pixelPRatio(Vector3D position) {
+	public float pixelP5Ratio(Vector3D position) {
 		switch (type()) {
 		case PERSPECTIVE:
 			return 2.0f * Math.abs((frame().coordinatesOf(position)).z)
@@ -1092,13 +1333,13 @@ public class Camera implements Copyable {
 	 * @see #getFrustumEquations()
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
-	public float distanceToFrustumPlane(int index, Vector3D pos) {		
+	public float distanceToFrustumPlane(int index, Vector3D pos) {
 		if (!scene.frustumEquationsUpdateIsEnable())
 			System.out.println("The camera frustum plane equations (needed by distanceToFrustumPlane) may be outdated. Please "
-							         + "enable automatic updates of the equations in your PApplet.setup "
-						         	 + "with Scene.enableFrustumEquationsUpdate()");
-		
-		Vector3D myVec = new Vector3D(fpCoefficients[index][0],	fpCoefficients[index][1], fpCoefficients[index][2]);
+							+ "enable automatic updates of the equations in your PApplet.setup "
+							+ "with Scene.enableFrustumEquationsUpdate()");
+		Vector3D myVec = new Vector3D(fpCoefficients[index][0],
+				fpCoefficients[index][1], fpCoefficients[index][2]);
 		return Vector3D.dot(pos, myVec) - fpCoefficients[index][3];
 	}
 
@@ -1120,12 +1361,11 @@ public class Camera implements Copyable {
 	 * @see #getFrustumEquations()
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
-	public boolean pointIsVisible(Vector3D point) {	  
+	public boolean pointIsVisible(Vector3D point) {
 		if (!scene.frustumEquationsUpdateIsEnable())
 			System.out.println("The camera frustum plane equations (needed by pointIsVisible) may be outdated. Please "
-							         + "enable automatic updates of the equations in your PApplet.setup "
-						           + "with Scene.enableFrustumEquationsUpdate()");
-		
+							+ "enable automatic updates of the equations in your PApplet.setup "
+							+ "with Scene.enableFrustumEquationsUpdate()");
 		for (int i = 0; i < 6; ++i)
 			if (distanceToFrustumPlane(i, point) > 0)
 				return false;
@@ -1156,8 +1396,8 @@ public class Camera implements Copyable {
 	public Visibility sphereIsVisible(Vector3D center, float radius) {
 		if (!scene.frustumEquationsUpdateIsEnable())
 			System.out.println("The camera frustum plane equations (needed by sphereIsVisible) may be outdated. Please "
-			   	 			       + "enable automatic updates of the equations in your PApplet.setup "
-							         + "with Scene.enableFrustumEquationsUpdate()");
+							+ "enable automatic updates of the equations in your PApplet.setup "
+							+ "with Scene.enableFrustumEquationsUpdate()");
 		boolean allInForAllPlanes = true;
 		for (int i = 0; i < 6; ++i) {
 			float d = distanceToFrustumPlane(i, center);
@@ -1195,8 +1435,8 @@ public class Camera implements Copyable {
 	public Visibility aaBoxIsVisible(Vector3D p1, Vector3D p2) {
 		if (!scene.frustumEquationsUpdateIsEnable())
 			System.out.println("The camera frustum plane equations (needed by aaBoxIsVisible) may be outdated. Please "
-							         + "enable automatic updates of the equations in your PApplet.setup "
-							         + "with Scene.enableFrustumEquationsUpdate()");
+							+ "enable automatic updates of the equations in your PApplet.setup "
+							+ "with Scene.enableFrustumEquationsUpdate()");
 		boolean allInForAllPlanes = true;
 		for (int i = 0; i < 6; ++i) {
 			boolean allOut = true;
@@ -1240,7 +1480,10 @@ public class Camera implements Copyable {
 	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
 	 */
 	public void updateFrustumEquations() {
-		computeFrustumEquations(fpCoefficients);
+		if( lastFrameUpdate != lastFPCoeficientsUpdateIssued )	{		  
+			computeFrustumEquations(fpCoefficients);
+			lastFPCoeficientsUpdateIssued = lastFrameUpdate;		  
+		}
 	}
 
 	/**
@@ -1272,8 +1515,8 @@ public class Camera implements Copyable {
 	public float[][] getFrustumEquations() {
 		if (!scene.frustumEquationsUpdateIsEnable())
 			System.out.println("The camera frustum plane equations may be outdated. Please "
-							         + "enable automatic updates of the equations in your PApplet.setup "
-							         + "with Scene.enableFrustumEquationsUpdate()");
+							+ "enable automatic updates of the equations in your PApplet.setup "
+							+ "with Scene.enableFrustumEquationsUpdate()");
 		return fpCoefficients;
 	}
 
@@ -1325,7 +1568,7 @@ public class Camera implements Copyable {
 	 * 
 	 * @see #computeFrustumEquations()
 	 */
-	public float[][] computeFrustumEquations(float[][] coef) {
+	public float[][] computeFrustumEquations(float[][] coef) {		
 		// soft check:
 		if (coef == null || (coef.length == 0))
 			coef = new float[6][4];
@@ -1409,9 +1652,148 @@ public class Camera implements Copyable {
 			coef[i][2] = normal[i].z;
 			coef[i][3] = dist[i];
 		}
-
+		
 		return coef;
 	}
+	
+	/**
+	 * Enables or disables automatic update of the camera frustum plane equations
+	 * every frame according to {@code flag}. Computation of the equations is
+	 * expensive and hence is disabled by default.
+	 * 
+	 * @see #updateFrustumEquations()
+	 */
+	// TODO should be protected
+	public void enableFrustumEquationsUpdate(boolean flag) {
+		fpCoefficientsUpdate = flag;
+	}
+	
+	/**
+	 * Returns {@code true} if automatic update of the camera frustum plane
+	 * equations is enabled and {@code false} otherwise. Computation of the
+	 * equations is expensive and hence is disabled by default.
+	 * 
+	 * @see #updateFrustumEquations()
+	 */
+  // TODO should be protected
+	public boolean frustumEquationsUpdateIsEnable() {
+		return fpCoefficientsUpdate;
+	}
+		
+	/**
+	 * Convenience function that simply calls {@code coneIsBackFacing(new Cone(normals))}.
+	 * 
+	 * @see #coneIsBackFacing(Cone)
+	 * @see #coneIsBackFacing(Vector3D[])
+	 */
+	public boolean coneIsBackFacing(ArrayList<Vector3D> normals) {
+		return coneIsBackFacing(new Cone(normals));
+	}
+	
+	/**
+	 * Convenience function that simply calls
+	 * {coneIsBackFacing(viewDirection, new Cone(normals))}.
+	 * 
+	 * @param viewDirection Cached camera view direction.
+	 * @param normals cone of normals.
+	 */
+	public boolean coneIsBackFacing(Vector3D viewDirection, ArrayList<Vector3D> normals) {
+		return coneIsBackFacing(viewDirection, new Cone(normals));
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code coneIsBackFacing(new Cone(normals))}.
+	 * 
+	 * @see #coneIsBackFacing(Cone)
+	 * @see #coneIsBackFacing(ArrayList)
+	 */
+	public boolean coneIsBackFacing(Vector3D [] normals) {
+		return coneIsBackFacing(new Cone(normals));
+	}
+	
+	/**
+	 * Convenience function that simply returns
+	 * {@code coneIsBackFacing(viewDirection, new Cone(normals))}.
+	 * 
+	 * @param viewDirection Cached camera view direction.
+	 * @param normals cone of normals.
+	 */
+	public boolean coneIsBackFacing(Vector3D viewDirection, Vector3D [] normals) {
+		return coneIsBackFacing(viewDirection, new Cone(normals));
+	}
+	
+	/**
+	 * Convenience function that simply returns {@code coneIsBackFacing(cone.axis(), cone.angle())}.
+	 * 
+	 * @see #coneIsBackFacing(Vector3D, float)
+	 * @see #faceIsBackFacing(Vector3D, Vector3D, Vector3D)
+	 */
+	public boolean coneIsBackFacing(Cone cone) {
+		return coneIsBackFacing(cone.axis(), cone.angle());
+	}
+	
+	/**
+	 * Convenience function that simply returns 
+	 * {@code coneIsBackFacing(viewDirection, cone.axis(), cone.angle())}.
+	 * 
+	 * @param viewDirection cached camera view direction.
+	 * @param cone cone of normals
+	 */
+	public boolean coneIsBackFacing(Vector3D viewDirection, Cone cone) {
+		return coneIsBackFacing(viewDirection, cone.axis(), cone.angle());
+	}
+	
+	/**
+	 * Convinience funtion that simply returns
+	 * {@code coneIsBackFacing(viewDirection(), axis, angle)}.
+	 * <p>
+	 * Non-cached version of {@link #coneIsBackFacing(Vector3D, Vector3D, float)}
+	 */
+	public boolean coneIsBackFacing(Vector3D axis, float angle) {
+		return coneIsBackFacing(viewDirection(), axis, angle);
+	}
+	
+	/**
+	 * Returns {@code true} if the given cone is back facing the camera.
+	 * Otherwise returns {@code false}.
+	 * 
+	 * @param viewDirection cached view direction
+	 * @param axis normalized cone axis
+	 * @param angle cone angle
+	 * 
+	 * @see #coneIsBackFacing(Cone)
+	 * @see #faceIsBackFacing(Vector3D, Vector3D, Vector3D)
+	 */
+	public boolean coneIsBackFacing(Vector3D viewDirection, Vector3D axis, float angle) {		
+		if( angle < HALF_PI ) {			
+			float phi = (float) Math.acos ( Vector3D.dot(axis, viewDirection ) );
+			if(phi >= HALF_PI)
+				return false;
+			if( (phi+angle) >= HALF_PI)
+				return false;
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns {@code true} if the given face is back facing the camera.
+	 * Otherwise returns {@code false}.
+	 * <p>
+	 * <b>Attention:</b> This method is not computationally optimized.
+	 * If you call it several times with no change in the matrices, you should
+	 * buffer the matrices (modelview, projection and then viewport) to speed-up the
+	 * queries.
+	 * 
+	 * @param a first face vertex
+	 * @param b second face vertex
+	 * @param c third face vertex
+	 */
+  public boolean faceIsBackFacing(Vector3D a, Vector3D b, Vector3D c) {
+  	Vector3D v1 = Vector3D.sub(projectedCoordinatesOf(a), projectedCoordinatesOf(b));
+    Vector3D v2 = Vector3D.sub(projectedCoordinatesOf(b), projectedCoordinatesOf(c));
+    return v1.cross(v2).z <= 0;
+  }
 
 	// 4. SCENE RADIUS AND CENTER
 
@@ -1445,16 +1827,16 @@ public class Camera implements Copyable {
 			System.out.println("Warning: Scene radius must be positive - Ignoring value");
 			return;
 		}
-
+		
 		scnRadius = radius;
 
 		setFocusDistance(sceneRadius() / (float) Math.tan(fieldOfView() / 2.0f));
 
 		setFlySpeed(0.01f * sceneRadius());
 
-		// if there's an avatar we change its fly speed as well		
+		// if there's an avatar we change its fly speed as well
 		if (scene.avatarIsInteractiveDrivableFrame)
-			((InteractiveDrivableFrame) scene.avatar()).setFlySpeed(0.01f * scene.radius());			
+			((InteractiveDrivableFrame) scene.avatar()).setFlySpeed(0.01f * scene.radius());
 	}
 
 	/**
@@ -1590,7 +1972,7 @@ public class Camera implements Copyable {
 	 * Current implementation always returns {@code WorlPoint.found = false}
 	 * (dummy value), meaning that no point was found under pixel.
 	 */
-	protected WorldPoint pointUnderPixel(Point pixel) {
+	public WorldPoint pointUnderPixel(Point pixel) {
 		return new WorldPoint(new Vector3D(0, 0, 0), false);
 	}
 
@@ -1623,10 +2005,10 @@ public class Camera implements Copyable {
 	 */
 	public final void setFrame(InteractiveCameraFrame icf) {
 		if (icf == null)
-			return;
-
+			return;	
+		
 		frm = icf;
-		interpolationKfi.setFrame(frame());
+		interpolationKfi.setFrame(frame());			
 	}
 
 	/**
@@ -1823,6 +2205,27 @@ public class Camera implements Copyable {
 	}
 
 	/**
+	 * Draws all the Camera paths defined by {@link #keyFrameInterpolator(int)}
+	 * and makes them editable by adding all its Frames to the mouse grabber pool.
+	 * <p>
+	 * First calls
+	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#addFramesToMouseGrabberPool()}
+	 * and then
+	 * {@link remixlab.remixcam.core.KeyFrameInterpolator#drawPath(int, int, float)}
+	 * for all the defined paths.
+	 * 
+	 * @see #hideAllPaths()
+	 */
+	public void drawAllPaths() {
+		itrtr = kfi.keySet().iterator();
+		while (itrtr.hasNext()) {
+			Integer key = itrtr.next();
+			kfi.get(key).addFramesToMouseGrabberPool();
+			kfi.get(key).drawPath(3, 5, sceneRadius());
+		}
+	}
+
+	/**
 	 * Hides all the Camera paths defined by {@link #keyFrameInterpolator(int)} by
 	 * provisionally removing all its Frames from the mouse grabber pool.
 	 * <p>
@@ -1931,10 +2334,13 @@ public class Camera implements Copyable {
 
 	/**
 	 * Fills the projection matrix with the {@code proj} matrix values.
+	 * <p>
+	 * Only meaningful when the camera {@link #isDetachedFromP5Camera()}.
 	 * 
 	 * @see #setModelViewMatrix(Matrix3D)
 	 */
-	public void setProjectionMatrix(Matrix3D proj) {		
+	public void setProjectionMatrix(Matrix3D proj) {
+		//if (isDetachedFromP5Camera())
 			projectionMat.set(proj);
 	}
 
@@ -2020,10 +2426,13 @@ public class Camera implements Copyable {
 
 	/**
 	 * Fills the modelview matrix with the {@code modelview} matrix values.
+	 * <p>
+	 * Only meaningful when the camera {@link #isDetachedFromP5Camera()}.
 	 * 
 	 * @see #setProjectionMatrix(Matrix3D)
 	 */
 	public void setModelViewMatrix(Matrix3D modelview) {
+		//if (isDetachedFromP5Camera())
 			modelViewMat.set(modelview);
 	}
 
@@ -2037,7 +2446,7 @@ public class Camera implements Copyable {
 	 * <p>
 	 * Note that the point coordinates are simply converted in a different
 	 * coordinate system. They are not projected on screen. Use
-	 * {@link #projectedCoordinatesOf(Vector3D, GLFrame)} for that.
+	 * {@link #projectedCoordinatesOf(Vector3D, BasicFrame)} for that.
 	 */
 	public final Vector3D cameraCoordinatesOf(Vector3D src) {
 		return frame().coordinatesOf(src);
@@ -2069,8 +2478,7 @@ public class Camera implements Copyable {
 	 * <p>
 	 * This method is useful for analytical intersection in a selection method.
 	 */
-	public void convertClickToLine(final Point pixelInput, Vector3D orig,
-			Vector3D dir) {
+	public void convertClickToLine(final Point pixelInput, Vector3D orig, Vector3D dir) {
 		Point pixel = new Point(pixelInput.getX(), pixelInput.getY());
 		
 		//lef-handed coordinate system correction
@@ -2102,7 +2510,7 @@ public class Camera implements Copyable {
 	 * Convenience function that simply returns {@code projectedCoordinatesOf(src,
 	 * null)}
 	 * 
-	 * @see #projectedCoordinatesOf(Vector3D, GLFrame)
+	 * @see #projectedCoordinatesOf(Vector3D, BasicFrame)
 	 */
 	public final Vector3D projectedCoordinatesOf(Vector3D src) {
 		return projectedCoordinatesOf(src, null);
@@ -2126,9 +2534,9 @@ public class Camera implements Copyable {
 	 * matrices. You can hence define a virtual Camera and use this method to
 	 * compute projections out of a classical rendering context.
 	 * 
-	 * @see #unprojectedCoordinatesOf(Vector3D, GLFrame)
+	 * @see #unprojectedCoordinatesOf(Vector3D, BasicFrame)
 	 */
-	public final Vector3D projectedCoordinatesOf(Vector3D src, GLFrame frame) {
+	public final Vector3D projectedCoordinatesOf(Vector3D src, BasicFrame frame) {
 		float xyz[] = new float[3];
 		viewport = getViewport();
 
@@ -2148,7 +2556,7 @@ public class Camera implements Copyable {
 	 * Convenience function that simply returns {@code return
 	 * unprojectedCoordinatesOf(src, null)}
 	 * 
-	 * #see {@link #unprojectedCoordinatesOf(Vector3D, GLFrame)}
+	 * #see {@link #unprojectedCoordinatesOf(Vector3D, BasicFrame)}
 	 */
 	public final Vector3D unprojectedCoordinatesOf(Vector3D src) {
 		return this.unprojectedCoordinatesOf(src, null);
@@ -2166,9 +2574,9 @@ public class Camera implements Copyable {
 	 * The result is expressed in the {@code frame} coordinate system. When
 	 * {@code frame} is {@code null}, the result is expressed in the world
 	 * coordinates system. The possible {@code frame}
-	 * {@link remixlab.remixcam.core.GLFrame#referenceFrame()} are taken into account.
+	 * {@link remixlab.remixcam.core.BasicFrame#referenceFrame()} are taken into account.
 	 * <p>
-	 * {@link #projectedCoordinatesOf(Vector3D, GLFrame)} performs the inverse
+	 * {@link #projectedCoordinatesOf(Vector3D, BasicFrame)} performs the inverse
 	 * transformation.
 	 * <p>
 	 * This method only uses the intrinsic Camera parameters (see
@@ -2187,10 +2595,10 @@ public class Camera implements Copyable {
 	 * projection matrix (modelview, projection and then viewport) to speed-up the
 	 * queries. See the gluUnProject man page for details.
 	 * 
-	 * @see #projectedCoordinatesOf(Vector3D, GLFrame)
+	 * @see #projectedCoordinatesOf(Vector3D, BasicFrame)
 	 * @see #setScreenWidthAndHeight(int, int)
 	 */
-	public final Vector3D unprojectedCoordinatesOf(Vector3D src, GLFrame frame) {
+	public final Vector3D unprojectedCoordinatesOf(Vector3D src, BasicFrame frame) {
 		float xyz[] = new float[3];
 		viewport = getViewport();
 		
@@ -2305,8 +2713,7 @@ public class Camera implements Copyable {
 		}
 		}
 
-		Vector3D newPos = Vector3D.sub(center, Vector3D
-				.mult(viewDirection(), distance));
+		Vector3D newPos = Vector3D.sub(center, Vector3D.mult(viewDirection(), distance));
 		frame().setPositionWithConstraint(newPos);
 	}
 
@@ -2316,8 +2723,7 @@ public class Camera implements Copyable {
 	 * {@link #fitSphere(Vector3D, float)}.
 	 */
 	public void fitBoundingBox(Vector3D min, Vector3D max) {
-		float diameter = Math.max(Math.abs(max.y - min.y), Math.abs(max.x
-				- min.x));
+		float diameter = Math.max(Math.abs(max.y - min.y), Math.abs(max.x - min.x));
 		diameter = Math.max(Math.abs(max.z - min.z), diameter);
 		fitSphere(Vector3D.mult(Vector3D.add(min, max), 0.5f), 0.5f * diameter);
 	}
@@ -2338,8 +2744,7 @@ public class Camera implements Copyable {
 		Vector3D vd = viewDirection();
 		float distToPlane = distanceToSceneCenter();
 
-		Point center = new Point((int) rectangle.getCenterX(), (int) rectangle
-				.getCenterY());
+		Point center = new Point((int) rectangle.getCenterX(), (int) rectangle.getCenterY());
 
 		Vector3D orig = new Vector3D();
 		Vector3D dir = new Vector3D();
@@ -2380,8 +2785,7 @@ public class Camera implements Copyable {
 		}
 		}
 
-		frame().setPositionWithConstraint(
-				Vector3D.sub(newCenter, Vector3D.mult(vd, distance)));
+		frame().setPositionWithConstraint(Vector3D.sub(newCenter, Vector3D.mult(vd, distance)));
 	}
 
 	/**
@@ -2437,17 +2841,16 @@ public class Camera implements Copyable {
 
 		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
 		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(scene);
+		tempFrame = new InteractiveCameraFrame(this);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().x, frame().position().y, frame().position().z));
+		tempFrame.setPosition(new Vector3D(frame().position().x,	frame().position().y, frame().position().z));
 		tempFrame.setOrientation( frame().orientation().getCopy() );
 		setFrame(tempFrame);
 		fitScreenRegion(rectangle);
-		setFrame(originalFrame);
+		setFrame(originalFrame); 	
 
 		interpolationKfi.addKeyFrame(tempFrame, false);
-
-		interpolationKfi.startInterpolation();
+		interpolationKfi.startInterpolation();		
 	}
 
 	/**
@@ -2480,23 +2883,23 @@ public class Camera implements Copyable {
 		interpolationKfi.deletePath();
 		interpolationKfi.addKeyFrame(frame(), false);
 
-		interpolationKfi.addKeyFrame(new GLFrame(Vector3D.add(Vector3D.mult(frame()
+		interpolationKfi.addKeyFrame(new BasicFrame(Vector3D.add(Vector3D.mult(frame()
 				.position(), 0.3f), Vector3D.mult(target.point, 0.7f)), frame()
 				.orientation()), 0.4f, false);
 
 		// Small hack: attach a temporary frame to take advantage of lookAt without
 		// modifying frame
-		tempFrame = new InteractiveCameraFrame(scene);
+		tempFrame = new InteractiveCameraFrame(this);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(Vector3D.add(Vector3D.mult(frame().position(), coef), Vector3D.mult(target.point, (1.0f - coef))));
+		tempFrame.setPosition(Vector3D.add(Vector3D.mult(frame().position(), coef),
+				Vector3D.mult(target.point, (1.0f - coef))));
 		tempFrame.setOrientation( frame().orientation().getCopy() );
 		setFrame(tempFrame);
 		lookAt(target.point);
 		setFrame(originalFrame);
 
 		interpolationKfi.addKeyFrame(tempFrame, 1.0f, false);
-
-		interpolationKfi.startInterpolation();
+		interpolationKfi.startInterpolation();		
 
 		return target;
 	}
@@ -2523,25 +2926,24 @@ public class Camera implements Copyable {
 
 		// Small hack: attach a temporary frame to take advantage of showEntireScene
 		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(scene);
+		tempFrame = new InteractiveCameraFrame(this);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().x, frame().position().y, frame().position().z));
+		tempFrame.setPosition(new Vector3D(frame().position().x,	frame().position().y, frame().position().z));
 		tempFrame.setOrientation( frame().orientation().getCopy() );
 		setFrame(tempFrame);
 		showEntireScene();
 		setFrame(originalFrame);
 
 		interpolationKfi.addKeyFrame(tempFrame, false);
-
 		interpolationKfi.startInterpolation();
 	}
 
 	/**
 	 * Convenience function that simply calls {@code interpolateTo(fr, 1)}.
 	 * 
-	 * @see #interpolateTo(GLFrame, float)
+	 * @see #interpolateTo(BasicFrame, float)
 	 */
-	public void interpolateTo(GLFrame fr) {
+	public void interpolateTo(BasicFrame fr) {
 		interpolateTo(fr, 1);
 	}
 
@@ -2552,11 +2954,11 @@ public class Camera implements Copyable {
 	 * {@code fr} is expressed in world coordinates. {@code duration} tunes the
 	 * interpolation speed.
 	 * 
-	 * @see #interpolateTo(GLFrame)
+	 * @see #interpolateTo(BasicFrame)
 	 * @see #interpolateToFitScene()
 	 * @see #interpolateToZoomOnPixel(Point)
 	 */
-	public void interpolateTo(GLFrame fr, float duration) {
+	public void interpolateTo(BasicFrame fr, float duration) {
 		// if (interpolationKfi.interpolationIsStarted())
 		// interpolationKfi.stopInterpolation();
 		if (anyInterpolationIsStarted())
@@ -2596,13 +2998,6 @@ public class Camera implements Copyable {
 		}
 		if (interpolationKfi.interpolationIsStarted())
 			interpolationKfi.stopInterpolation();
-	}
-	
-	/**
-	 * Connection: drawing utils
-	 */
-	public HashMap<Integer, KeyFrameInterpolator> kfiMap() {
-		return kfi;
 	}
 
 	// 13. STEREO PARAMETERS
@@ -2694,11 +3089,70 @@ public class Camera implements Copyable {
 	 * Sets the focusDistance(), in processing scene units.
 	 */
 	public void setFocusDistance(float distance) {
+		if(distance != focusDist)
+			lastFrameUpdate = scene.frameCount();
 		focusDist = distance;
 	}
 
 	// 14. Implementation of glu utility functions
-
+	
+	/**
+	 * Cache {@code (P x M)} and {@code inv (P x M)} under the following circumstances:
+	 * <p>
+	 * i) If {@code scene.mouseGrabberPool().size() > 3 && scene.hasMouseTracking()} then
+	 * {@code (P x M)} is cached so that
+	 * {@link #project(float, float, float, PMatrix3D, PMatrix3D, int[], float[])} is speeded up.
+	 * <p>
+	 * ii) If {@link #unprojectCacheIsOptimized()} {@code inv (P x M)} is cached (and hence
+	 * {@code (P x M)} is cached too) so that 
+	 * {@link #unproject(float, float, float, PMatrix3D, PMatrix3D, int[], float[])} is speeded up.
+	 * 
+	 * @see #unprojectCacheIsOptimized()
+	 * @see #optimizeUnprojectCache(boolean)
+	 */
+	public void cacheMatrices() {
+		// 1. project
+		if( ( (scene.mouseGrabberPool().size() > 3) && scene.hasMouseTracking() ) || unprojectCacheIsOptimized()) {
+			projectCacheOptimized = true;
+			if(projectionTimesModelview == null)
+				projectionTimesModelview = new Matrix3D();
+			Matrix3D.mult(projectionMat, modelViewMat, projectionTimesModelview);
+		}
+		else
+			projectCacheOptimized = false;
+		
+		// 2. unproject
+		if(unprojectCacheIsOptimized()) {
+			if(projectionTimesModelviewInverse == null)
+				projectionTimesModelviewInverse = new Matrix3D();
+			projectionTimesModelviewHasInverse = projectionTimesModelview.invert(projectionTimesModelviewInverse);
+		}
+	}
+	
+	/**
+	 * Returns {@code true} if {@code P x M} and {@code inv (P x M)} are being cached,
+	 * and {@code false} otherwise.
+	 * 
+	 * @see #cacheMatrices()
+	 * @see #optimizeUnprojectCache(boolean)
+	 */
+	public boolean unprojectCacheIsOptimized() {
+		return unprojectCacheOptimized;
+	}
+	
+	/**
+	 * Cache {@code inv (P x M)} (and also {@code (P x M)} ) so that
+	 * {@link #project(float, float, float, PMatrix3D, PMatrix3D, int[], float[])}
+	 * (and also {@link #unproject(float, float, float, PMatrix3D, PMatrix3D, int[], float[])})
+	 * is optimised.
+	 * 
+	 * @see #unprojectCacheIsOptimized()
+	 * @see #cacheMatrices()
+	 */
+	public void optimizeUnprojectCache(boolean optimise) {
+		unprojectCacheOptimized = optimise;
+	}
+	
 	/**
 	 * Similar to {@code gluProject}: map object coordinates to window
 	 * coordinates.
@@ -2718,39 +3172,62 @@ public class Camera implements Copyable {
 	 * @param windowCoordinate
 	 *          Return the computed window coordinates.
 	 */
-	public boolean project(float objx, float objy, float objz,
-			Matrix3D modelview, Matrix3D projection, int[] viewport,
-			float[] windowCoordinate) {
-		// Transformation vectors
+	public boolean project(float objx, float objy, float objz, Matrix3D modelview,
+			                   Matrix3D projection, int[] viewport, float[] windowCoordinate) {
 		float in[] = new float[4];
 		float out[] = new float[4];
-
+		
 		in[0] = objx;
 		in[1] = objy;
 		in[2] = objz;
 		in[3] = 1.0f;
-
-		modelview.mult(in, out);
-		projection.mult(out, in);
-
-		if (in[3] == 0.0)
-			return false;
-		in[0] /= in[3];
-		in[1] /= in[3];
-		in[2] /= in[3];
-		/* Map x, y and z to range 0-1 */
-		in[0] = in[0] * 0.5f + 0.5f;
-		in[1] = in[1] * 0.5f + 0.5f;
-		in[2] = in[2] * 0.5f + 0.5f;
-
-		/* Map x,y to viewport */
-		in[0] = in[0] * viewport[2] + viewport[0];
-		in[1] = in[1] * viewport[3] + viewport[1];
-
-		windowCoordinate[0] = in[0];
-		windowCoordinate[1] = in[1];
-		windowCoordinate[2] = in[2];
-		return true;
+		
+		if(projectCacheOptimized) {	
+			out[0]=projectionTimesModelview.m00*in[0] + projectionTimesModelview.m01*in[1] + projectionTimesModelview.m02*in[2] + projectionTimesModelview.m03*in[3];
+			out[1]=projectionTimesModelview.m10*in[0] + projectionTimesModelview.m11*in[1] + projectionTimesModelview.m12*in[2] + projectionTimesModelview.m13*in[3];
+			out[2]=projectionTimesModelview.m20*in[0] + projectionTimesModelview.m21*in[1] + projectionTimesModelview.m22*in[2] + projectionTimesModelview.m23*in[3];
+			out[3]=projectionTimesModelview.m30*in[0] + projectionTimesModelview.m31*in[1] + projectionTimesModelview.m32*in[2] + projectionTimesModelview.m33*in[3];
+			
+			if (out[3] == 0.0)
+				return false;
+			
+			out[0] /= out[3];
+			out[1] /= out[3];
+			out[2] /= out[3];
+			// Map x, y and z to range 0-1
+			out[0] = out[0] * 0.5f + 0.5f;
+			out[1] = out[1] * 0.5f + 0.5f;
+			out[2] = out[2] * 0.5f + 0.5f;
+			
+			// Map x,y to viewport
+			out[0] = out[0] * viewport[2] + viewport[0];
+			out[1] = out[1] * viewport[3] + viewport[1];
+			
+			windowCoordinate[0] = out[0];
+			windowCoordinate[1] = out[1];
+			windowCoordinate[2] = out[2];
+			return true;	
+		}		
+		else {
+			modelview.mult(in, out);
+			projection.mult(out, in);
+			if (in[3] == 0.0)
+				return false;
+			in[0] /= in[3];
+			in[1] /= in[3];
+			in[2] /= in[3];
+			// Map x, y and z to range 0-1
+			in[0] = in[0] * 0.5f + 0.5f;
+			in[1] = in[1] * 0.5f + 0.5f;
+			in[2] = in[2] * 0.5f + 0.5f;			
+			// Map x,y to viewport
+			in[0] = in[0] * viewport[2] + viewport[0];
+			in[1] = in[1] * viewport[3] + viewport[1];
+			windowCoordinate[0] = in[0];
+			windowCoordinate[1] = in[1];
+			windowCoordinate[2] = in[2];
+			return true;
+		}
 	}
 
 	/**
@@ -2772,17 +3249,24 @@ public class Camera implements Copyable {
 	 * @param objCoordinate
 	 *          Return the computed object coordinates.
 	 */
-	public boolean unproject(float winx, float winy, float winz,
-			Matrix3D modelview, Matrix3D projection, int viewport[],
-			float[] objCoordinate) {
-		Matrix3D finalMatrix = new Matrix3D(projection);
+	public boolean unproject(float winx, float winy, float winz, Matrix3D modelview,
+			                     Matrix3D projection, int viewport[], float[] objCoordinate) {		
+		if(!unprojectCacheOptimized) {
+			if(!projectCacheOptimized) {		
+				if(projectionTimesModelview == null)
+					projectionTimesModelview = new Matrix3D();
+				Matrix3D.mult(projectionMat, modelViewMat, projectionTimesModelview);
+			}
+			if(projectionTimesModelviewInverse == null)
+				projectionTimesModelviewInverse = new Matrix3D();
+			projectionTimesModelviewHasInverse = projectionTimesModelview.invert(projectionTimesModelviewInverse);						
+		}		
+		
+		if (!projectionTimesModelviewHasInverse)
+			return false;
+		
 		float in[] = new float[4];
 		float out[] = new float[4];
-
-		finalMatrix.apply(modelview);
-
-		if (!finalMatrix.invert())
-			return false;
 
 		in[0] = winx;
 		in[1] = winy;
@@ -2798,7 +3282,7 @@ public class Camera implements Copyable {
 		in[1] = in[1] * 2 - 1;
 		in[2] = in[2] * 2 - 1;
 
-		finalMatrix.mult(in, out);
+		projectionTimesModelviewInverse.mult(in, out);
 		if (out[3] == 0.0)
 			return false;
 
@@ -2813,7 +3297,7 @@ public class Camera implements Copyable {
 		return true;
 	}
 	
-	// TODO experimental
+  //TODO experimental
 	
 	public Matrix3D projection() {
 		return projectionMat;

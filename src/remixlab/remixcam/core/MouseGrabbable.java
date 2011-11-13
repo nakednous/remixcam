@@ -1,5 +1,5 @@
 /**
- *                     ProScene (version 1.0.1)      
+ *                     ProScene (version 1.2.0)      
  *    Copyright (c) 2010-2011 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
@@ -25,8 +25,8 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.devices.Mouse.Button;
 import remixlab.remixcam.geom.Point;
+
 
 /**
  * Interface for objects that grab mouse focus in a Scene.
@@ -81,7 +81,7 @@ public interface MouseGrabbable {
 	 * parameter, corresponding to the calling Scene Camera. Project on screen and
 	 * then compare the projected coordinates:
 	 * <p>
-	 * {@code Vector3D proj = new Vector3D
+	 * {@code PVector proj = new PVector
 	 * (camera.projectedCoordinatesOf(myMouseGrabber.frame().position());} <br>
 	 * {@code setGrabsMouse((PApplet.abs(x-proj.x) < 5) && (PApplet.(y-proj.y) <
 	 * 2)); // Rectangular region} <br>
@@ -104,7 +104,7 @@ public interface MouseGrabbable {
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a mouse button is clicked.
 	 */
-	void mouseClicked(/**Point eventPoint,*/ Button button, int numberOfClicks, Camera camera);
+	void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, Camera camera);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a
