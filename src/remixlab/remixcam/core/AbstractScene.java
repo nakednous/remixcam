@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import remixlab.remixcam.devices.AbstractHIDevice;
-import remixlab.remixcam.devices.MouseGrabbable;
+import remixlab.remixcam.devices.HIDeviceGrabbable;
 import remixlab.remixcam.geom.Point;
 import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.util.AbstractTimerJob;
@@ -304,8 +304,8 @@ public abstract class AbstractScene {
 	protected ArrayList<AbstractTimerJob> timerPool;
 
 	// M o u s e G r a b b e r
-	protected List<MouseGrabbable> msGrabberPool;
-	protected MouseGrabbable mouseGrbbr;
+	protected List<HIDeviceGrabbable> msGrabberPool;
+	protected HIDeviceGrabbable mouseGrbbr;
 	public boolean mouseGrabberIsAnIFrame;	
 	protected boolean mouseTrckn;
 
@@ -349,7 +349,7 @@ public abstract class AbstractScene {
 		registerInTimerPool(timerFx);
 		
 		//mouse grabber pool
-		msGrabberPool = new ArrayList<MouseGrabbable>();
+		msGrabberPool = new ArrayList<HIDeviceGrabbable>();
 		//devices
 		devices = new ArrayList<AbstractHIDevice>();
 		// <- 1
@@ -571,14 +571,14 @@ public abstract class AbstractScene {
 	 * Returns a list containing references to all the active MouseGrabbers.
 	 * <p>
 	 * Used to parse all the MouseGrabbers and to check if any of them
-	 * {@link remixlab.remixcam.devices.MouseGrabbable#grabsMouse()} using
-	 * {@link remixlab.remixcam.devices.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}.
+	 * {@link remixlab.remixcam.devices.HIDeviceGrabbable#grabsMouse()} using
+	 * {@link remixlab.remixcam.devices.HIDeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}.
 	 * <p>
 	 * You should not have to directly use this list. Use
-	 * {@link #removeFromMouseGrabberPool(MouseGrabbable)} and
-	 * {@link #addInMouseGrabberPool(MouseGrabbable)} to modify this list.
+	 * {@link #removeFromMouseGrabberPool(HIDeviceGrabbable)} and
+	 * {@link #addInMouseGrabberPool(HIDeviceGrabbable)} to modify this list.
 	 */
-	public List<MouseGrabbable> mouseGrabberPool() {
+	public List<HIDeviceGrabbable> mouseGrabberPool() {
 		return msGrabberPool;
 	}
 	
@@ -701,11 +701,11 @@ public abstract class AbstractScene {
 	 * Returns the current MouseGrabber, or {@code null} if none currently grabs
 	 * mouse events.
 	 * <p>
-	 * When {@link remixlab.remixcam.devices.MouseGrabbable#grabsMouse()}, the different
+	 * When {@link remixlab.remixcam.devices.HIDeviceGrabbable#grabsMouse()}, the different
 	 * mouse events are sent to it instead of their usual targets (
 	 * {@link #camera()} or {@link #interactiveFrame()}).
 	 */
-	public MouseGrabbable mouseGrabber() {
+	public HIDeviceGrabbable mouseGrabber() {
 		return mouseGrbbr;
 	}
 	
@@ -713,10 +713,10 @@ public abstract class AbstractScene {
 	 * Directly defines the {@link #mouseGrabber()}.
 	 * <p>
 	 * You should not call this method directly as it bypasses the
-	 * {@link remixlab.remixcam.devices.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}
+	 * {@link remixlab.remixcam.devices.HIDeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}
 	 * test performed by {@link #mouseMoved(MouseEvent)}.
 	 */
-	public void setMouseGrabber(MouseGrabbable mouseGrabber) {
+	public void setMouseGrabber(HIDeviceGrabbable mouseGrabber) {
 		mouseGrbbr = mouseGrabber;
 
 		mouseGrabberIsAnIFrame = mouseGrabber instanceof InteractiveFrame;
@@ -727,11 +727,11 @@ public abstract class AbstractScene {
 	/**
 	 * Returns true if the mouseGrabber is currently in the {@link #mouseGrabberPool()} list.
 	 * <p>
-	 * When set to false using {@link #removeFromMouseGrabberPool(MouseGrabbable)}, the Scene no longer
-	 * {@link remixlab.remixcam.devices.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)} on this mouseGrabber.
-	 * Use {@link #addInMouseGrabberPool(MouseGrabbable)} to insert it back.
+	 * When set to false using {@link #removeFromMouseGrabberPool(HIDeviceGrabbable)}, the Scene no longer
+	 * {@link remixlab.remixcam.devices.HIDeviceGrabbable#checkIfGrabsMouse(int, int, Camera)} on this mouseGrabber.
+	 * Use {@link #addInMouseGrabberPool(HIDeviceGrabbable)} to insert it back.
 	 */
-	public boolean isInMouseGrabberPool(MouseGrabbable mouseGrabber) {
+	public boolean isInMouseGrabberPool(HIDeviceGrabbable mouseGrabber) {
 		return mouseGrabberPool().contains(mouseGrabber);
 	}
 	
@@ -740,15 +740,15 @@ public abstract class AbstractScene {
 	 * <p>
 	 * All created InteractiveFrames (which are MouseGrabbers) are automatically added in the
 	 * {@link #mouseGrabberPool()} by their constructors. Trying to add a
-	 * mouseGrabber that already {@link #isInMouseGrabberPool(MouseGrabbable)} has no effect.
+	 * mouseGrabber that already {@link #isInMouseGrabberPool(HIDeviceGrabbable)} has no effect.
 	 * <p>
-	 * Use {@link #removeFromMouseGrabberPool(MouseGrabbable)} to remove the mouseGrabber from
+	 * Use {@link #removeFromMouseGrabberPool(HIDeviceGrabbable)} to remove the mouseGrabber from
 	 * the list, so that it is no longer tested with
-	 * {@link remixlab.remixcam.devices.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}
+	 * {@link remixlab.remixcam.devices.HIDeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}
 	 * by the Scene, and hence can no longer grab mouse focus. Use
-	 * {@link #isInMouseGrabberPool(MouseGrabbable)} to know the current state of the MouseGrabber.
+	 * {@link #isInMouseGrabberPool(HIDeviceGrabbable)} to know the current state of the MouseGrabber.
 	 */
-	public void addInMouseGrabberPool(MouseGrabbable mouseGrabber) {
+	public void addInMouseGrabberPool(HIDeviceGrabbable mouseGrabber) {
 		if (!isInMouseGrabberPool(mouseGrabber))
 			mouseGrabberPool().add(mouseGrabber);
 	}
@@ -756,10 +756,10 @@ public abstract class AbstractScene {
 	/**
 	 * Removes the mouseGrabber from the {@link #mouseGrabberPool()}.
 	 * <p>
-	 * See {@link #addInMouseGrabberPool(MouseGrabbable)} for details. Removing a mouseGrabber
+	 * See {@link #addInMouseGrabberPool(HIDeviceGrabbable)} for details. Removing a mouseGrabber
 	 * that is not in {@link #mouseGrabberPool()} has no effect.
 	 */
-	public void removeFromMouseGrabberPool(MouseGrabbable mouseGrabber) {
+	public void removeFromMouseGrabberPool(HIDeviceGrabbable mouseGrabber) {
 		mouseGrabberPool().remove(mouseGrabber);
 	}
 

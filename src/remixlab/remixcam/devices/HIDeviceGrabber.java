@@ -41,18 +41,18 @@ import remixlab.remixcam.geom.Point;
  * <p>
  * <b>Note:</b> The InteractiveFrame object implements the MouseGrabbable interface.
  */
-public class MouseGrabber implements MouseGrabbable {
+public class HIDeviceGrabber implements HIDeviceGrabbable {
 	protected AbstractScene scene;
 	protected boolean grabsMouse;
 	protected boolean keepsGrabbingMouse;
 	
 	/**
 	 * The constructor takes a scene instance and
-	 * {@link remixlab.proscene.Scene#addInMouseGrabberPool(MouseGrabbable)} this MouseGrabber object.
+	 * {@link remixlab.proscene.Scene#addInMouseGrabberPool(HIDeviceGrabbable)} this MouseGrabber object.
 	 * 
 	 * @param scn Scene instance
 	 */
-	public MouseGrabber(AbstractScene scn) {
+	public HIDeviceGrabber(AbstractScene scn) {
 		scene = scn;
 		grabsMouse = false;
 		keepsGrabbingMouse = false;
@@ -62,7 +62,7 @@ public class MouseGrabber implements MouseGrabbable {
 	/**
 	 * Main class method. Current implementation is empty.
 	 * 
-	 * @see remixlab.remixcam.devices.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)
+	 * @see remixlab.remixcam.devices.HIDeviceGrabbable#checkIfGrabsMouse(int, int, Camera)
 	 */
 	public void checkIfGrabsMouse(int x, int y, Camera camera) { }
 

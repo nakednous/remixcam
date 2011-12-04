@@ -53,7 +53,7 @@ import remixlab.remixcam.geom.Point;
  * it from this pool using
  * {@link remixlab.proscene.Scene#removeFromMouseGrabberPool(MouseGrabbable)}.
  */
-public interface MouseGrabbable {
+public interface HIDeviceGrabbable {
 	/**
 	 * Called by the Scene before it tests if the MouseGrabber
 	 * {@link #grabsMouse()}. Should {@link #setGrabsMouse(boolean)} according to
