@@ -2,6 +2,11 @@ package remixlab.remixcam.geom;
 
 import remixlab.remixcam.core.*;
 
+/**
+ * This class has been almost entirely taken from Processing.
+ * 
+ * @author pierre
+ */
 public class MatrixStack {
 	
   // types of transformation matrices

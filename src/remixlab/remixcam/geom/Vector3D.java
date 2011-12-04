@@ -1,4 +1,32 @@
+/**
+ *                     RemixCam (version 1.0.0)      
+ *      Copyright (c) 2012 by National University of Colombia
+ *                 @author Jean Pierre Charalambos      
+ *              https://github.com/nakednous/remixcam
+ *                           
+ * This java library provides classes to ease the creation of interactive 3D
+ * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
+ * 
+ * This source file is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ * 
+ * A copy of the GNU General Public License is available on the World Wide Web
+ * at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by
+ * writing to the Free Software Foundation, 51 Franklin Street, Suite 500
+ * Boston, MA 02110-1335, USA.
+ */
+
 package remixlab.remixcam.geom;
+
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.remixcam.core.Constants;
 
@@ -15,8 +43,39 @@ import remixlab.remixcam.core.Constants;
  * new PVector object is not created with each operation.
  * <p>
  * Initially based on the Vector3D class by <a href="http://www.shiffman.net">Dan Shiffman</a>.
+ * <p>
+ * This class has been almost entirely taken from Processing. It adds stuff to
+ * convert between similar geometric types.
+ * 
+ * @author pierre
  */
 public class Vector3D implements Constants {
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Vector3D other = (Vector3D) obj;
+		
+	   return new EqualsBuilder()
+    .appendSuper(super.equals(obj))    
+    .append(x, other.x)
+    .append(y, other.y)
+    .append(z, other.z)
+		.isEquals();
+	}
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(17, 37).		
+		append(x).
+		append(y).
+		append(z).
+    toHashCode();
+  }
 
   /** The x component of the vector. */
   public float x;
@@ -701,22 +760,5 @@ public class Vector3D implements Constants {
     array[1] = y;
     array[2] = z;
     return array;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof Vector3D))
-      return false;
-    final Vector3D p = (Vector3D) obj;
-    return x == p.x && y == p.y && z == p.z;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = 1;
-    result = 31 * result + Float.floatToIntBits(x);
-    result = 31 * result + Float.floatToIntBits(y);
-    result = 31 * result + Float.floatToIntBits(z);
-    return result;
   }  
 }

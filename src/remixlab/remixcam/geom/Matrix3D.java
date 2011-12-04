@@ -2,6 +2,11 @@ package remixlab.remixcam.geom;
 
 /**
  * 4x4 matrix implementation.
+ * <p>
+ * This class has been almost entirely taken from Processing. It adds stuff to
+ * convert between similar geometric types.
+ * 
+ * @author pierre
  */
 public final class Matrix3D implements Matrix /*, PConstants*/ {
 

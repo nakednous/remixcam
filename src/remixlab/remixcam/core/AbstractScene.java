@@ -1,9 +1,35 @@
+/**
+ *                     RemixCam (version 1.0.0)      
+ *      Copyright (c) 2012 by National University of Colombia
+ *                 @author Jean Pierre Charalambos      
+ *              https://github.com/nakednous/remixcam
+ *                           
+ * This java library provides classes to ease the creation of interactive 3D
+ * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
+ * 
+ * This source file is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ * 
+ * A copy of the GNU General Public License is available on the World Wide Web
+ * at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by
+ * writing to the Free Software Foundation, 51 Franklin Street, Suite 500
+ * Boston, MA 02110-1335, USA.
+ */
+
 package remixlab.remixcam.core;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import remixlab.remixcam.devices.AbstractHIDevice;
+import remixlab.remixcam.devices.MouseGrabbable;
 import remixlab.remixcam.geom.Point;
 import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.util.AbstractTimerJob;
@@ -380,7 +406,7 @@ public abstract class AbstractScene {
 	 * 
 	 * @see #matrix()
 	 */
-	public abstract void applyTransformation(BasicFrame frame);
+	public abstract void applyTransformation(SimpleFrame frame);
 	
 	/**
 	 * Returns the approximate frame rate of the software as it executes.
@@ -545,8 +571,8 @@ public abstract class AbstractScene {
 	 * Returns a list containing references to all the active MouseGrabbers.
 	 * <p>
 	 * Used to parse all the MouseGrabbers and to check if any of them
-	 * {@link remixlab.remixcam.core.MouseGrabbable#grabsMouse()} using
-	 * {@link remixlab.remixcam.core.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}.
+	 * {@link remixlab.remixcam.devices.MouseGrabbable#grabsMouse()} using
+	 * {@link remixlab.remixcam.devices.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}.
 	 * <p>
 	 * You should not have to directly use this list. Use
 	 * {@link #removeFromMouseGrabberPool(MouseGrabbable)} and
@@ -675,7 +701,7 @@ public abstract class AbstractScene {
 	 * Returns the current MouseGrabber, or {@code null} if none currently grabs
 	 * mouse events.
 	 * <p>
-	 * When {@link remixlab.remixcam.core.MouseGrabbable#grabsMouse()}, the different
+	 * When {@link remixlab.remixcam.devices.MouseGrabbable#grabsMouse()}, the different
 	 * mouse events are sent to it instead of their usual targets (
 	 * {@link #camera()} or {@link #interactiveFrame()}).
 	 */
@@ -687,7 +713,7 @@ public abstract class AbstractScene {
 	 * Directly defines the {@link #mouseGrabber()}.
 	 * <p>
 	 * You should not call this method directly as it bypasses the
-	 * {@link remixlab.remixcam.core.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}
+	 * {@link remixlab.remixcam.devices.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}
 	 * test performed by {@link #mouseMoved(MouseEvent)}.
 	 */
 	public void setMouseGrabber(MouseGrabbable mouseGrabber) {
@@ -702,7 +728,7 @@ public abstract class AbstractScene {
 	 * Returns true if the mouseGrabber is currently in the {@link #mouseGrabberPool()} list.
 	 * <p>
 	 * When set to false using {@link #removeFromMouseGrabberPool(MouseGrabbable)}, the Scene no longer
-	 * {@link remixlab.remixcam.core.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)} on this mouseGrabber.
+	 * {@link remixlab.remixcam.devices.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)} on this mouseGrabber.
 	 * Use {@link #addInMouseGrabberPool(MouseGrabbable)} to insert it back.
 	 */
 	public boolean isInMouseGrabberPool(MouseGrabbable mouseGrabber) {
@@ -718,7 +744,7 @@ public abstract class AbstractScene {
 	 * <p>
 	 * Use {@link #removeFromMouseGrabberPool(MouseGrabbable)} to remove the mouseGrabber from
 	 * the list, so that it is no longer tested with
-	 * {@link remixlab.remixcam.core.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}
+	 * {@link remixlab.remixcam.devices.MouseGrabbable#checkIfGrabsMouse(int, int, Camera)}
 	 * by the Scene, and hence can no longer grab mouse focus. Use
 	 * {@link #isInMouseGrabberPool(MouseGrabbable)} to know the current state of the MouseGrabber.
 	 */
@@ -1327,5 +1353,5 @@ public abstract class AbstractScene {
 	 */
 	public abstract void drawShooterTarget(Vector3D center, float length);
 		
-	public abstract void drawPath(List<BasicFrame> path, int mask, int nbFrames, int nbSteps, float scale);
+	public abstract void drawPath(List<SimpleFrame> path, int mask, int nbFrames, int nbSteps, float scale);
 }

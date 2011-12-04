@@ -1,11 +1,11 @@
 /**
- *                     ProScene (version 1.2.0)      
- *    Copyright (c) 2010-2011 by National University of Colombia
+ *                     RemixCam (version 1.0.0)      
+ *      Copyright (c) 2012 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
- *           http://www.disi.unal.edu.co/grupos/remixlab/
+ *              https://github.com/nakednous/remixcam
  *                           
- * This java package provides classes to ease the creation of interactive 3D
- * scenes in Processing.
+ * This java library provides classes to ease the creation of interactive 3D
+ * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -89,7 +89,7 @@ public abstract class AxisPlaneConstraint extends Constraint {
 	 * {@link Type#AXIS}), will be forced to stay into a plane ({@link Type#PLANE}
 	 * ) or will not able to translate at all ({@link Type#FORBIDDEN}).
 	 * <p>
-	 * Use {@link remixlab.remixcam.core.BasicFrame#setPosition(Vector3D)} to define the
+	 * Use {@link remixlab.remixcam.core.SimpleFrame#setPosition(Vector3D)} to define the
 	 * position of the constrained Frame before it gets constrained.
 	 */
 	public Type translationConstraintType() {
@@ -202,7 +202,7 @@ public abstract class AxisPlaneConstraint extends Constraint {
 	 * will only be able to rotate around an axis ({@link Type#AXIS}), or will not
 	 * able to rotate at all {@link Type#FORBIDDEN}.
 	 * <p>
-	 * Use {@link remixlab.remixcam.core.BasicFrame#setOrientation(Quaternion)} to define
+	 * Use {@link remixlab.remixcam.core.SimpleFrame#setOrientation(Quaternion)} to define
 	 * the orientation of the constrained Frame before it gets constrained.
 	 * <p>
 	 * <b>Attention:</b> An {@link Type#PLANE} Type is not meaningful for

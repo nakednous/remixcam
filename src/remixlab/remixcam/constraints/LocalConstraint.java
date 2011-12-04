@@ -1,11 +1,11 @@
 /**
- *                     ProScene (version 1.2.0)      
- *    Copyright (c) 2010-2011 by National University of Colombia
+ *                     RemixCam (version 1.0.0)      
+ *      Copyright (c) 2012 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
- *           http://www.disi.unal.edu.co/grupos/remixlab/
+ *              https://github.com/nakednous/remixcam
  *                           
- * This java package provides classes to ease the creation of interactive 3D
- * scenes in Processing.
+ * This java library provides classes to ease the creation of interactive 3D
+ * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,7 +33,7 @@ import remixlab.remixcam.geom.*;
  * <p>
  * The {@link #translationConstraintDirection()} and
  * {@link #rotationConstraintDirection()} are expressed in the Frame local
- * coordinate system (see {@link remixlab.remixcam.core.BasicFrame#referenceFrame()}).
+ * coordinate system (see {@link remixlab.remixcam.core.SimpleFrame#referenceFrame()}).
  */
 public class LocalConstraint extends AxisPlaneConstraint {
 
@@ -43,7 +43,7 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	 * local coordinate system by {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public Vector3D constrainTranslation(Vector3D translation, BasicFrame frame) {
+	public Vector3D constrainTranslation(Vector3D translation, SimpleFrame frame) {
 		Vector3D res = new Vector3D(translation.x, translation.y, translation.z);
 		Vector3D proj;
 		switch (translationConstraintType()) {
@@ -70,8 +70,8 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	 * Frame local coordinate system by {@link #rotationConstraintDirection()}.
 	 */
 	@Override
-	public Quaternion constrainRotation(Quaternion rotation, BasicFrame frame) {
-		Quaternion res = rotation.getCopy();
+	public Quaternion constrainRotation(Quaternion rotation, SimpleFrame frame) {
+		Quaternion res = rotation.get();
 		switch (rotationConstraintType()) {
 		case FREE:
 			break;

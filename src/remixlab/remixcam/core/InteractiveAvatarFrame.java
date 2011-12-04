@@ -1,11 +1,11 @@
 /**
- *                     ProScene (version 1.2.0)      
- *    Copyright (c) 2010-2011 by National University of Colombia
+ *                     RemixCam (version 1.0.0)      
+ *      Copyright (c) 2012 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
- *           http://www.disi.unal.edu.co/grupos/remixlab/
+ *              https://github.com/nakednous/remixcam
  *                           
- * This java package provides classes to ease the creation of interactive 3D
- * scenes in Processing.
+ * This java library provides classes to ease the creation of interactive 3D
+ * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -94,7 +94,7 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	 */
 	protected InteractiveAvatarFrame(InteractiveAvatarFrame otherFrame) {
 		super(otherFrame);
-		this.q = otherFrame.q.getCopy();
+		this.q = otherFrame.q.get();
 		this.camRelPos = new Vector3D();
 		this.camRelPos.set( otherFrame.camRelPos );
 		this.setTrackingDistance(otherFrame.trackingDistance());
@@ -106,7 +106,7 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	 * 
 	 * @see #InteractiveAvatarFrame(InteractiveAvatarFrame)
 	 */
-	public InteractiveAvatarFrame getCopy() {
+	public InteractiveAvatarFrame get() {
 		return new InteractiveAvatarFrame(this);
 	}
 

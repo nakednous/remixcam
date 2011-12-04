@@ -1,11 +1,11 @@
 /**
- *                     ProScene (version 1.2.0)      
- *    Copyright (c) 2010-2011 by National University of Colombia
+ *                     RemixCam (version 1.0.0)      
+ *      Copyright (c) 2012 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
- *           http://www.disi.unal.edu.co/grupos/remixlab/
+ *              https://github.com/nakednous/remixcam
  *                           
- * This java package provides classes to ease the creation of interactive 3D
- * scenes in Processing.
+ * This java library provides classes to ease the creation of interactive 3D
+ * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -446,15 +446,15 @@ public class Camera implements Constants, Copyable {
 			for (int j=0; j<4; j++)
 				this.fpCoefficients[i][j] = oCam.fpCoefficients[i][j];
 				
-		this.frm = oCam.frame().getCopy();		
-		this.interpolationKfi = oCam.interpolationKfi.getCopy();
+		this.frm = oCam.frame().get();		
+		this.interpolationKfi = oCam.interpolationKfi.get();
 		
 		this.kfi = new HashMap<Integer, KeyFrameInterpolator>();
 		
 		itrtr = oCam.kfi.keySet().iterator();
 		while (itrtr.hasNext()) {
 			Integer key = itrtr.next();
-			this.kfi.put(new Integer(key.intValue()), oCam.kfi.get(key).getCopy());
+			this.kfi.put(new Integer(key.intValue()), oCam.kfi.get(key).get());
 		}
 		
 		this.setSceneRadius(oCam.sceneRadius());
@@ -482,7 +482,7 @@ public class Camera implements Constants, Copyable {
 	 * 
 	 * @see #Camera(Camera)
 	 */	
-	public Camera getCopy() {
+	public Camera get() {
 		return new Camera(this);
 	}
 
@@ -570,7 +570,7 @@ public class Camera implements Constants, Copyable {
 	 * <p>
 	 * Use {@link #setPosition(Vector3D)} to set the Camera position. Other
 	 * convenient methods are showEntireScene() or fitSphere(). Actually returns
-	 * {@link remixlab.remixcam.core.BasicFrame#position()}.
+	 * {@link remixlab.remixcam.core.SimpleFrame#position()}.
 	 * <p>
 	 * This position corresponds to the projection center of a Camera.PERSPECTIVE
 	 * camera. It is not located in the image plane, which is at a zNear()
@@ -2446,7 +2446,7 @@ public class Camera implements Constants, Copyable {
 	 * <p>
 	 * Note that the point coordinates are simply converted in a different
 	 * coordinate system. They are not projected on screen. Use
-	 * {@link #projectedCoordinatesOf(Vector3D, BasicFrame)} for that.
+	 * {@link #projectedCoordinatesOf(Vector3D, SimpleFrame)} for that.
 	 */
 	public final Vector3D cameraCoordinatesOf(Vector3D src) {
 		return frame().coordinatesOf(src);
@@ -2510,7 +2510,7 @@ public class Camera implements Constants, Copyable {
 	 * Convenience function that simply returns {@code projectedCoordinatesOf(src,
 	 * null)}
 	 * 
-	 * @see #projectedCoordinatesOf(Vector3D, BasicFrame)
+	 * @see #projectedCoordinatesOf(Vector3D, SimpleFrame)
 	 */
 	public final Vector3D projectedCoordinatesOf(Vector3D src) {
 		return projectedCoordinatesOf(src, null);
@@ -2534,9 +2534,9 @@ public class Camera implements Constants, Copyable {
 	 * matrices. You can hence define a virtual Camera and use this method to
 	 * compute projections out of a classical rendering context.
 	 * 
-	 * @see #unprojectedCoordinatesOf(Vector3D, BasicFrame)
+	 * @see #unprojectedCoordinatesOf(Vector3D, SimpleFrame)
 	 */
-	public final Vector3D projectedCoordinatesOf(Vector3D src, BasicFrame frame) {
+	public final Vector3D projectedCoordinatesOf(Vector3D src, SimpleFrame frame) {
 		float xyz[] = new float[3];
 		viewport = getViewport();
 
@@ -2556,7 +2556,7 @@ public class Camera implements Constants, Copyable {
 	 * Convenience function that simply returns {@code return
 	 * unprojectedCoordinatesOf(src, null)}
 	 * 
-	 * #see {@link #unprojectedCoordinatesOf(Vector3D, BasicFrame)}
+	 * #see {@link #unprojectedCoordinatesOf(Vector3D, SimpleFrame)}
 	 */
 	public final Vector3D unprojectedCoordinatesOf(Vector3D src) {
 		return this.unprojectedCoordinatesOf(src, null);
@@ -2574,9 +2574,9 @@ public class Camera implements Constants, Copyable {
 	 * The result is expressed in the {@code frame} coordinate system. When
 	 * {@code frame} is {@code null}, the result is expressed in the world
 	 * coordinates system. The possible {@code frame}
-	 * {@link remixlab.remixcam.core.BasicFrame#referenceFrame()} are taken into account.
+	 * {@link remixlab.remixcam.core.SimpleFrame#referenceFrame()} are taken into account.
 	 * <p>
-	 * {@link #projectedCoordinatesOf(Vector3D, BasicFrame)} performs the inverse
+	 * {@link #projectedCoordinatesOf(Vector3D, SimpleFrame)} performs the inverse
 	 * transformation.
 	 * <p>
 	 * This method only uses the intrinsic Camera parameters (see
@@ -2595,10 +2595,10 @@ public class Camera implements Constants, Copyable {
 	 * projection matrix (modelview, projection and then viewport) to speed-up the
 	 * queries. See the gluUnProject man page for details.
 	 * 
-	 * @see #projectedCoordinatesOf(Vector3D, BasicFrame)
+	 * @see #projectedCoordinatesOf(Vector3D, SimpleFrame)
 	 * @see #setScreenWidthAndHeight(int, int)
 	 */
-	public final Vector3D unprojectedCoordinatesOf(Vector3D src, BasicFrame frame) {
+	public final Vector3D unprojectedCoordinatesOf(Vector3D src, SimpleFrame frame) {
 		float xyz[] = new float[3];
 		viewport = getViewport();
 		
@@ -2844,7 +2844,7 @@ public class Camera implements Constants, Copyable {
 		tempFrame = new InteractiveCameraFrame(this);
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(new Vector3D(frame().position().x,	frame().position().y, frame().position().z));
-		tempFrame.setOrientation( frame().orientation().getCopy() );
+		tempFrame.setOrientation( frame().orientation().get() );
 		setFrame(tempFrame);
 		fitScreenRegion(rectangle);
 		setFrame(originalFrame); 	
@@ -2883,7 +2883,7 @@ public class Camera implements Constants, Copyable {
 		interpolationKfi.deletePath();
 		interpolationKfi.addKeyFrame(frame(), false);
 
-		interpolationKfi.addKeyFrame(new BasicFrame(Vector3D.add(Vector3D.mult(frame()
+		interpolationKfi.addKeyFrame(new SimpleFrame(Vector3D.add(Vector3D.mult(frame()
 				.position(), 0.3f), Vector3D.mult(target.point, 0.7f)), frame()
 				.orientation()), 0.4f, false);
 
@@ -2893,7 +2893,7 @@ public class Camera implements Constants, Copyable {
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(Vector3D.add(Vector3D.mult(frame().position(), coef),
 				Vector3D.mult(target.point, (1.0f - coef))));
-		tempFrame.setOrientation( frame().orientation().getCopy() );
+		tempFrame.setOrientation( frame().orientation().get() );
 		setFrame(tempFrame);
 		lookAt(target.point);
 		setFrame(originalFrame);
@@ -2929,7 +2929,7 @@ public class Camera implements Constants, Copyable {
 		tempFrame = new InteractiveCameraFrame(this);
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(new Vector3D(frame().position().x,	frame().position().y, frame().position().z));
-		tempFrame.setOrientation( frame().orientation().getCopy() );
+		tempFrame.setOrientation( frame().orientation().get() );
 		setFrame(tempFrame);
 		showEntireScene();
 		setFrame(originalFrame);
@@ -2941,9 +2941,9 @@ public class Camera implements Constants, Copyable {
 	/**
 	 * Convenience function that simply calls {@code interpolateTo(fr, 1)}.
 	 * 
-	 * @see #interpolateTo(BasicFrame, float)
+	 * @see #interpolateTo(SimpleFrame, float)
 	 */
-	public void interpolateTo(BasicFrame fr) {
+	public void interpolateTo(SimpleFrame fr) {
 		interpolateTo(fr, 1);
 	}
 
@@ -2954,11 +2954,11 @@ public class Camera implements Constants, Copyable {
 	 * {@code fr} is expressed in world coordinates. {@code duration} tunes the
 	 * interpolation speed.
 	 * 
-	 * @see #interpolateTo(BasicFrame)
+	 * @see #interpolateTo(SimpleFrame)
 	 * @see #interpolateToFitScene()
 	 * @see #interpolateToZoomOnPixel(Point)
 	 */
-	public void interpolateTo(BasicFrame fr, float duration) {
+	public void interpolateTo(SimpleFrame fr, float duration) {
 		// if (interpolationKfi.interpolationIsStarted())
 		// interpolationKfi.stopInterpolation();
 		if (anyInterpolationIsStarted())

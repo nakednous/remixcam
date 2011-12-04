@@ -1,11 +1,11 @@
 /**
- *                     ProScene (version 1.2.0)      
- *    Copyright (c) 2010-2011 by National University of Colombia
+ *                     RemixCam (version 1.0.0)      
+ *      Copyright (c) 2012 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
- *           http://www.disi.unal.edu.co/grupos/remixlab/
+ *              https://github.com/nakednous/remixcam
  *                           
- * This java package provides classes to ease the creation of interactive 3D
- * scenes in Processing.
+ * This java library provides classes to ease the creation of interactive 3D
+ * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,6 +26,7 @@
 package remixlab.remixcam.core;
 
 import remixlab.remixcam.constraints.Constraint;
+import remixlab.remixcam.devices.MouseGrabbable;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.AbstractTimerJob;
 
@@ -48,7 +49,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * the {@link remixlab.proscene.Scene#mouseGrabberPool()}.
  */
 
-public class InteractiveFrame extends BasicFrame implements MouseGrabbable, Copyable {
+public class InteractiveFrame extends SimpleFrame implements MouseGrabbable, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -233,7 +234,7 @@ public class InteractiveFrame extends BasicFrame implements MouseGrabbable, Copy
 	 * 
 	 * @see #InteractiveFrame(InteractiveFrame)
 	 */
-	public InteractiveFrame getCopy() {
+	public InteractiveFrame get() {
 		return new InteractiveFrame(this);
 	}
 
@@ -289,7 +290,7 @@ public class InteractiveFrame extends BasicFrame implements MouseGrabbable, Copy
 	/**
 	 * Convenience function that simply calls {@code applyTransformation(scene)}.
 	 * 
-	 * @see remixlab.remixcam.core.BasicFrame#applyTransformation(Scene)
+	 * @see remixlab.remixcam.core.SimpleFrame#applyTransformation(Scene)
 	 */
 	public void applyTransformation() {
 		applyTransformation(scene);
@@ -523,7 +524,7 @@ public class InteractiveFrame extends BasicFrame implements MouseGrabbable, Copy
 	 * <p>
 	 * The {@link #spinningQuaternion()} axis is defined in the InteractiveFrame
 	 * coordinate system. You can use
-	 * {@link remixlab.remixcam.core.BasicFrame#transformOfFrom(Vector3D, BasicFrame)} to convert
+	 * {@link remixlab.remixcam.core.SimpleFrame#transformOfFrom(Vector3D, SimpleFrame)} to convert
 	 * this axis from an other Frame coordinate system.
 	 */
 	public final Quaternion spinningQuaternion() {
@@ -579,9 +580,9 @@ public class InteractiveFrame extends BasicFrame implements MouseGrabbable, Copy
 	
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.MouseGrabbable#mouseClicked(remixlab.proscene.Scene.Button, int, Camera)}.
+	 * {@link remixlab.remixcam.devices.MouseGrabbable#mouseClicked(remixlab.proscene.Scene.Button, int, Camera)}.
 	 * <p>
-	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(BasicFrame)}
+	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(SimpleFrame)}
 	 * and {@link remixlab.proscene.Scene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
 	 * the camera view direction.
 	 */
@@ -597,7 +598,7 @@ public class InteractiveFrame extends BasicFrame implements MouseGrabbable, Copy
 
 	/**
 	 * Initiates the InteractiveFrame mouse manipulation. Overloading of
-	 * {@link remixlab.remixcam.core.MouseGrabbable#mousePressed(Point, Camera)}.
+	 * {@link remixlab.remixcam.devices.MouseGrabbable#mousePressed(Point, Camera)}.
 	 * 
 	 * The mouse behavior depends on which button is pressed.
 	 * 
@@ -759,7 +760,7 @@ public class InteractiveFrame extends BasicFrame implements MouseGrabbable, Copy
 	 * Stops the InteractiveFrame mouse manipulation.
 	 * <p>
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.MouseGrabbable#mouseReleased(Point, Camera)}.
+	 * {@link remixlab.remixcam.devices.MouseGrabbable#mouseReleased(Point, Camera)}.
 	 * <p>
 	 * If the action was ROTATE MouseAction, a continuous spinning is possible if
 	 * the speed of the mouse cursor is larger than {@link #spinningSensitivity()}
@@ -784,7 +785,7 @@ public class InteractiveFrame extends BasicFrame implements MouseGrabbable, Copy
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.MouseGrabbable#mouseWheelMoved(int, Camera)}.
+	 * {@link remixlab.remixcam.devices.MouseGrabbable#mouseWheelMoved(int, Camera)}.
 	 * <p>
 	 * Using the wheel is equivalent to a {@link remixlab.proscene.Scene.MouseAction#ZOOM}.
 	 * 
