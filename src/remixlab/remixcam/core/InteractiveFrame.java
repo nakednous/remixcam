@@ -26,7 +26,7 @@
 package remixlab.remixcam.core;
 
 import remixlab.remixcam.constraints.Constraint;
-import remixlab.remixcam.devices.HIDeviceGrabbable;
+import remixlab.remixcam.devices.DeviceGrabbable;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.AbstractTimerJob;
 
@@ -49,7 +49,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * the {@link remixlab.proscene.Scene#mouseGrabberPool()}.
  */
 
-public class InteractiveFrame extends SimpleFrame implements HIDeviceGrabbable, Copyable {
+public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -365,7 +365,7 @@ public class InteractiveFrame extends SimpleFrame implements HIDeviceGrabbable, 
 	/**
 	 * Convenience wrapper function that simply returns {@code scene.isInMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.proscene.Scene#isInMouseGrabberPool(HIDeviceGrabbable)
+	 * @see remixlab.proscene.Scene#isInMouseGrabberPool(DeviceGrabbable)
 	 */
 	public boolean isInMouseGrabberPool() {
 		return scene.isInMouseGrabberPool(this);
@@ -374,7 +374,7 @@ public class InteractiveFrame extends SimpleFrame implements HIDeviceGrabbable, 
 	/**
 	 * Convenience wrapper function that simply calls {@code scene.addInMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.proscene.Scene#addInMouseGrabberPool(HIDeviceGrabbable)
+	 * @see remixlab.proscene.Scene#addInMouseGrabberPool(DeviceGrabbable)
 	 */
 	public void addInMouseGrabberPool() {
 		scene.addInMouseGrabberPool(this);
@@ -383,7 +383,7 @@ public class InteractiveFrame extends SimpleFrame implements HIDeviceGrabbable, 
 	/**
 	 * Convenience wrapper function that simply calls {@code scene.removeFromMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.proscene.Scene#removeFromMouseGrabberPool(HIDeviceGrabbable)
+	 * @see remixlab.proscene.Scene#removeFromMouseGrabberPool(DeviceGrabbable)
 	 */
 	public void removeFromMouseGrabberPool() {
 		scene.removeFromMouseGrabberPool(this);
@@ -580,7 +580,7 @@ public class InteractiveFrame extends SimpleFrame implements HIDeviceGrabbable, 
 	
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.devices.HIDeviceGrabbable#mouseClicked(remixlab.proscene.Scene.Button, int, Camera)}.
+	 * {@link remixlab.remixcam.devices.DeviceGrabbable#mouseClicked(remixlab.proscene.Scene.Button, int, Camera)}.
 	 * <p>
 	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(SimpleFrame)}
 	 * and {@link remixlab.proscene.Scene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
@@ -598,7 +598,7 @@ public class InteractiveFrame extends SimpleFrame implements HIDeviceGrabbable, 
 
 	/**
 	 * Initiates the InteractiveFrame mouse manipulation. Overloading of
-	 * {@link remixlab.remixcam.devices.HIDeviceGrabbable#mousePressed(Point, Camera)}.
+	 * {@link remixlab.remixcam.devices.DeviceGrabbable#mousePressed(Point, Camera)}.
 	 * 
 	 * The mouse behavior depends on which button is pressed.
 	 * 
@@ -760,7 +760,7 @@ public class InteractiveFrame extends SimpleFrame implements HIDeviceGrabbable, 
 	 * Stops the InteractiveFrame mouse manipulation.
 	 * <p>
 	 * Overloading of
-	 * {@link remixlab.remixcam.devices.HIDeviceGrabbable#mouseReleased(Point, Camera)}.
+	 * {@link remixlab.remixcam.devices.DeviceGrabbable#mouseReleased(Point, Camera)}.
 	 * <p>
 	 * If the action was ROTATE MouseAction, a continuous spinning is possible if
 	 * the speed of the mouse cursor is larger than {@link #spinningSensitivity()}
@@ -785,7 +785,7 @@ public class InteractiveFrame extends SimpleFrame implements HIDeviceGrabbable, 
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.devices.HIDeviceGrabbable#mouseWheelMoved(int, Camera)}.
+	 * {@link remixlab.remixcam.devices.DeviceGrabbable#mouseWheelMoved(int, Camera)}.
 	 * <p>
 	 * Using the wheel is equivalent to a {@link remixlab.proscene.Scene.MouseAction#ZOOM}.
 	 * 

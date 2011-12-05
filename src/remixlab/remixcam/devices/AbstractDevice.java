@@ -36,7 +36,7 @@ import remixlab.remixcam.geom.*;
  * has no such neutral position. Examples of RELATIVE devices are the space navigator and the joystick,
  * examples of ABSOLUTE devices are the wii or the kinect.
  */
-public abstract class AbstractHIDevice {
+public abstract class AbstractDevice {
 	/**
 	 * This enum holds the device type.
 	 *
@@ -113,7 +113,7 @@ public abstract class AbstractHIDevice {
 	 * 
 	 * @see #HIDevice(Scene, Mode)
 	 */
-	public AbstractHIDevice(AbstractScene scn) {
+	public AbstractDevice(AbstractScene scn) {
 		this(scn, Mode.RELATIVE);
 	}
 
@@ -123,7 +123,7 @@ public abstract class AbstractHIDevice {
 	 * @param scn The Scene object this HIDevice belongs to.
 	 * @param m The device {@link #mode()}.
 	 */
-	public AbstractHIDevice(AbstractScene scn, Mode m) {
+	public AbstractDevice(AbstractScene scn, Mode m) {
 		scene = scn;
 		camera = scene.camera();
 		cameraFrame = camera.frame();
@@ -558,7 +558,7 @@ public abstract class AbstractHIDevice {
 			setCameraMode(CameraMode.GOOGLE_EARTH);
 			break;
 		case GOOGLE_EARTH:
-			if (AbstractHIDevice.class == this.getClass())
+			if (AbstractDevice.class == this.getClass())
 				setCameraMode(CameraMode.FIRST_PERSON);
 			else
 				setCameraMode(CameraMode.CUSTOM);
@@ -586,7 +586,7 @@ public abstract class AbstractHIDevice {
   public void previousCameraMode() {  	
   	switch (camMode) {
   	case FIRST_PERSON:
-			if (AbstractHIDevice.class == this.getClass())
+			if (AbstractDevice.class == this.getClass())
 				setCameraMode(CameraMode.GOOGLE_EARTH);
 			else
 				setCameraMode(CameraMode.CUSTOM);
@@ -647,7 +647,7 @@ public abstract class AbstractHIDevice {
 			setIFrameMode(IFrameMode.WORLD);
 			break;
 		case WORLD:
-			if (AbstractHIDevice.class == this.getClass())
+			if (AbstractDevice.class == this.getClass())
 				setIFrameMode(IFrameMode.FRAME);
 			else
 				setIFrameMode(IFrameMode.CUSTOM);
@@ -664,7 +664,7 @@ public abstract class AbstractHIDevice {
   public void previousIFrameMode() {  	
   	switch (iFrameMode) {
 		case FRAME:
-			if (AbstractHIDevice.class == this.getClass())
+			if (AbstractDevice.class == this.getClass())
 				setIFrameMode(IFrameMode.WORLD);
 			else
 				setIFrameMode(IFrameMode.CUSTOM);
