@@ -44,8 +44,7 @@ import remixlab.remixcam.core.Constants;
  * <p>
  * Initially based on the Vector3D class by <a href="http://www.shiffman.net">Dan Shiffman</a>.
  * <p>
- * This class has been almost entirely taken from Processing. It adds stuff to
- * convert between similar geometric types.
+ * This class has been almost entirely taken from Processing.
  * 
  * @author pierre
  */
@@ -95,31 +94,55 @@ public class Vector3D implements Constants {
   public Vector3D() {
   }
   
-  // TODO New testing
   /**
-  public Vector3D(Object any) {
-  	try {
-  		x = any.getClass().getDeclaredField("x").getFloat(any);
-  		y = any.getClass().getDeclaredField("y").getFloat(any);
-  		z = any.getClass().getDeclaredField("z").getFloat(any);
-  		} catch ( Exception e ) {
-  			throw(new RuntimeException("vec cannot handle class in constructor: "+any.getClass(),e));
-  		}
-  }  
-  */
-  
-  public Vector3D(Object any) {
-  	try {
-  		float [] result = new float [3];  		
-      any.getClass().getMethod("get", new Class[] { float [].class }).invoke(any, result);
-      x = result[0];
-      y = result[1];
-      z = result[2];      
-      
-  		} catch ( Exception e ) {
-  			throw(new RuntimeException("vec cannot handle class in constructor: "+any.getClass(),e));
-  		}
+   * Constructor for a 3D vector.
+   *
+   * @param  x the x coordinate.
+   * @param  y the y coordinate.
+   * @param  z the y coordinate.
+   */
+  public Vector3D(float x, float y, float z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
   }
+
+
+  /**
+   * Constructor for a 2D vector: z coordinate is set to 0.
+   *
+   * @param  x the x coordinate.
+   * @param  y the y coordinate.
+   */
+  public Vector3D(float x, float y) {
+    this.x = x;
+    this.y = y;
+    this.z = 0;
+  }
+  
+  public float x() {
+  	return this.x;
+  }
+  
+  public float y() {
+		return this.y;
+	}
+	
+	public float z() {
+		return this.z;
+	}	
+	
+	public float x(float x) {
+		return this.x = x;
+	}
+	
+	public float y(float y) {
+		return this.y = y;
+	}
+	
+	public float z(float z) {
+		return this.z = z;
+	}  
   
   public Vector3D projectVectorOnAxis(Vector3D direction) {
   	return projectVectorOnAxis(this, direction);
@@ -191,33 +214,7 @@ public class Vector3D implements Constants {
 	}
   
   // end new
-
-
-  /**
-   * Constructor for a 3D vector.
-   *
-   * @param  x the x coordinate.
-   * @param  y the y coordinate.
-   * @param  z the y coordinate.
-   */
-  public Vector3D(float x, float y, float z) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-  }
-
-
-  /**
-   * Constructor for a 2D vector: z coordinate is set to 0.
-   *
-   * @param  x the x coordinate.
-   * @param  y the y coordinate.
-   */
-  public Vector3D(float x, float y) {
-    this.x = x;
-    this.y = y;
-    this.z = 0;
-  }
+  
 
 
   /**

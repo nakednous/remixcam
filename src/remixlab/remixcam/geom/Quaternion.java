@@ -215,6 +215,38 @@ public class Quaternion implements Constants, Copyable {
 	public Quaternion(Quaternion q1, boolean normalize) {
 		set(q1, normalize);
 	}
+	
+	public float x() {
+		return this.x;
+	}
+	
+	public float y() {
+		return this.y;
+	}
+	
+	public float z() {
+		return this.z;
+	}
+	
+	public float w() {
+		return this.w;
+	}
+	
+	public float x(float x) {
+		return this.x = x;
+	}
+	
+	public float y(float y) {
+		return this.y = y;
+	}
+	
+	public float z(float z) {
+		return this.z = z;
+	}
+	
+	public float w(float w) {
+		return this.w = w;
+	}
 
 	/**
 	 * Convenience function that simply calls {@code set(q1, true);}

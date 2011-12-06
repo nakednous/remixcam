@@ -28,8 +28,7 @@ package remixlab.remixcam.geom;
 /**
  * 3x2 affine matrix implementation.
  * <p>
- * This class has been almost entirely taken from Processing. It adds stuff to
- * convert between similar geometric types.
+ * This class has been almost entirely taken from Processing.
  * 
  * @author pierre
  */
@@ -55,7 +54,9 @@ public class Matrix2D implements Matrix {
     set(matrix);
   }
   
-  
+
+  /**
+  // TODO: need to override this?
   public Matrix2D(Object any) {
   	try {
   		float [] result = new float [16];  		
@@ -73,6 +74,7 @@ public class Matrix2D implements Matrix {
   			throw(new RuntimeException("vec cannot handle class in constructor: "+any.getClass(),e));
   		}
   }
+  */
 
 
   public void reset() {

@@ -3,12 +3,11 @@ package remixlab.remixcam.geom;
 /**
  * 4x4 matrix implementation.
  * <p>
- * This class has been almost entirely taken from Processing. It adds stuff to
- * convert between similar geometric types.
+ * This class has been almost entirely taken from Processing.
  * 
  * @author pierre
  */
-public final class Matrix3D implements Matrix /*, PConstants*/ {
+public class Matrix3D implements Matrix /*, PConstants*/ {
 
   public float m00, m01, m02, m03;
   public float m10, m11, m12, m13;
@@ -47,37 +46,7 @@ public final class Matrix3D implements Matrix /*, PConstants*/ {
 
   public Matrix3D(Matrix matrix) {
     set(matrix);
-  }
-  
-  public Matrix3D(Object any) {
-  	try {
-  		float [] result = new float [16];  		
-      any.getClass().getMethod("get", new Class[] { float [].class }).invoke(any, result);
-      
-      m00 = result[0];
-      m01 = result[1];
-      m02 = result[2];
-      m03 = result[3];
-
-      m10 = result[4];
-      m11 = result[5];
-      m12 = result[6];
-      m13 = result[7];
-
-      m20 = result[8];
-      m21 = result[9];
-      m22 = result[10];
-      m23 = result[11];
-
-      m30 = result[12];
-      m31 = result[13];
-      m32 = result[14];
-      m33 = result[15];      
-      
-  		} catch ( Exception e ) {
-  			throw(new RuntimeException("vec cannot handle class in constructor: "+any.getClass(),e));
-  		}
-  }
+  }  
   
   public final float[][] get3x3UpperLeftMatrixFromMatrix3D() {
   	return get3x3UpperLeftMatrixFromMatrix3D(this);
