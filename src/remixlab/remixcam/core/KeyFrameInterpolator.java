@@ -264,7 +264,7 @@ public class KeyFrameInterpolator implements Copyable {
    * Creates an anonymous {@link #frame()} to be interpolated by this
    * KeyFrameInterpolator.
    * 
-   * @see #KeyFrameInterpolator(Scene, SimpleFrame)
+   * @see #KeyFrameInterpolator(AbstractScene, SimpleFrame)
    */
   public KeyFrameInterpolator(AbstractScene scn) {
   	this(scn, new SimpleFrame());
@@ -423,7 +423,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * is modified accordingly (see {@link #interpolateAtTime(float)}). Default
 	 * value is 40 milliseconds.
 	 * 
-	 * @see #setInterpolationPeriod(int)splineCacheIsValid
+	 * @see #setInterpolationPeriod(int)
 	 */
 	public int interpolationPeriod() {
 		return period;
@@ -812,7 +812,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * for each KeyFrame. Default value is 6.
 	 * <p>
 	 * {@code scale} controls the scaling of the camera and axis drawing. A value
-	 * of {@link remixlab.proscene.Scene#radius()} should give good results.
+	 * of {@link remixlab.remixcam.core.AbstractScene#radius()} should give good results.
 	 */
 	public void drawPath(int mask, int nbFrames, float scale) {
 		int nbSteps = 30;

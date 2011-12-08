@@ -46,7 +46,7 @@ import remixlab.remixcam.geom.*;
  * , which corresponds to the associated {@link Camera#arcballReferencePoint()}.
  * <p>
  * <b>Note:</b> The InteractiveCameraFrame is not added to the
- * {@link remixlab.proscene.Scene#mouseGrabberPool()} upon creation.
+ * {@link remixlab.remixcam.core.AbstractScene#mouseGrabberPool()} upon creation.
  */
 public class InteractiveCameraFrame extends InteractiveDrivableFrame implements Copyable {
 	@Override
@@ -315,10 +315,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * .
 	 * <p>
 	 * The wheel behavior depends on the wheel binded action. Current possible
-	 * actions are {@link remixlab.proscene.Scene.MouseAction#ZOOM},
-	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_FORWARD} and
-	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_BACKWARD}.
-	 * {@link remixlab.proscene.Scene.MouseAction#ZOOM} speed depends on
+	 * actions are {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM},
+	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_FORWARD} and
+	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_BACKWARD}.
+	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	public void mouseWheelMoved(int rotation, Camera camera) {

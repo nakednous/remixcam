@@ -358,8 +358,9 @@ public abstract class AbstractScene {
 	
 	// 0. Optimization stuff
 	
+	// TODO fix documentation
 	/**
-	 * Apply the transformation defined by {@code frame} to {@link #renderer()}.
+	 * Apply the transformation defined by {@code frame}.
 	 * The Frame is first translated and then rotated around the new translated origin.
 	 * <p>
 	 * Same as:
@@ -401,10 +402,7 @@ public abstract class AbstractScene {
 	 * both correctly drawn with respect to the {@code body} coordinate system.
 	 * <p>
 	 * <b>Attention:</b> When drawing a frame hierarchy as above, this method
-	 * should be used whenever possible (one can also use {@link #matrix()}
-	 * instead).
-	 * 
-	 * @see #matrix()
+	 * should be used whenever possible.
 	 */
 	public abstract void applyTransformation(SimpleFrame frame);
 	
@@ -583,11 +581,10 @@ public abstract class AbstractScene {
 	}
 	
 	/**
-	 * Returns {@code true}
-	 * if {@link remixlab.proscene.DesktopEvents#mouseMoved(java.awt.event.MouseEvent)}
-	 * is called even when no mouse button is pressed.
+	 * Returns {@code true} if a mouse moved event  is called even when no mouse button is pressed.
 	 * <p>
-	 * You need to setMouseTracking() to \c true in order to use MouseGrabber (see mouseGrabber()).
+	 * You need to {@link #setMouseTracking(boolean)} to {@code true} in order to use MouseGrabber
+	 * (see {@link #mouseGrabber()}).
 	 */
 	public boolean hasMouseTracking() {
 		return mouseTrckn;
@@ -636,8 +633,9 @@ public abstract class AbstractScene {
 	}
 	
 	/**
-	 * Returns the avatar object to be tracked by the Camera when
-	 * {@link #currentCameraProfile()} is an instance of ThirdPersonCameraProfile.
+	 * Returns the avatar object to be tracked by the Camera when it
+	 * is in Third Person mode.
+	 * <p>
 	 * Simply returns {@code null} if no avatar has been set.
 	 */
 	public Trackable avatar() {
@@ -645,8 +643,8 @@ public abstract class AbstractScene {
 	}
 
 	/**
-	 * Sets the avatar object to be tracked by the Camera when
-	 * {@link #currentCameraProfile()} is an instance of ThirdPersonCameraProfile.
+	 * Sets the avatar object to be tracked by the Camera when it is in Third
+	 * Person mode.
 	 * 
 	 * @see #unsetAvatar()
 	 */
@@ -714,7 +712,7 @@ public abstract class AbstractScene {
 	 * <p>
 	 * You should not call this method directly as it bypasses the
 	 * {@link remixlab.remixcam.devices.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}
-	 * test performed by {@link #mouseMoved(MouseEvent)}.
+	 * test performed by parsing the mouse moved event.
 	 */
 	public void setMouseGrabber(DeviceGrabbable mouseGrabber) {
 		mouseGrbbr = mouseGrabber;
@@ -1233,8 +1231,7 @@ public abstract class AbstractScene {
 	}
 	
 	/**
-	 * Draws a representation of the {@code camera} in the {@link #renderer()} 3D
-	 * virtual world.
+	 * Draws a representation of the {@code camera} in the 3D virtual world.
 	 * <p>
 	 * The near and far planes are drawn as quads, the frustum is drawn using
 	 * lines and the camera up vector is represented by an arrow to disambiguate
@@ -1309,7 +1306,7 @@ public abstract class AbstractScene {
 	 * Convenience function that simply calls
 	 * {@code drawFilledCircle(40, center, radius)}.
 	 * 
-	 * @see #drawFilledCircle(int, int, Vector3D, float)
+	 * @see #drawFilledCircle(int, Vector3D, float)
 	 */
 	public void drawFilledCircle(Vector3D center, float radius) {
 		drawFilledCircle(40, center, radius);
@@ -1324,9 +1321,6 @@ public abstract class AbstractScene {
 	 *          Circle screen center.
 	 * @param radius
 	 *          Circle screen radius.
-	 * 
-	 * @see #beginScreenDrawing()
-	 * @see #endScreenDrawing()
 	 */	
 	public abstract void drawFilledCircle(int subdivisions, Vector3D center, float radius);
 	
@@ -1337,9 +1331,6 @@ public abstract class AbstractScene {
 	 *          Square screen center.
 	 * @param edge
 	 *          Square edge length.
-	 * 
-	 * @see #beginScreenDrawing()
-	 * @see #endScreenDrawing()
 	 */
 	public abstract void drawFilledSquare(Vector3D center, float edge);
 	

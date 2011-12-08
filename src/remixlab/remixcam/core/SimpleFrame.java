@@ -228,10 +228,10 @@ public class SimpleFrame implements Copyable {
 	}
 
 	/**
-	 * Calls {@link #Frame(SimpleFrame)} (which is private) and returns a copy of
+	 * Calls {@code SimpleFrame(SimpleFrame)} (which is private) and returns a copy of
 	 * {@code this} object.
 	 * 
-	 * @see #Frame(SimpleFrame)
+	 * @see #SimpleFrame(SimpleFrame)
 	 */
 	public SimpleFrame get() {
 		return new SimpleFrame(this);
@@ -1425,7 +1425,7 @@ public class SimpleFrame implements Copyable {
 	 * <p>
 	 * <b>Attention:</b> This technique is inefficient because {@code
 	 * p.applyMatrix} will try to calculate the inverse of the transform. Avoid it
-	 * whenever possible and instead use {@link #applyTransformation(PApplet)}
+	 * whenever possible and instead use {@link #applyTransformation(AbstractScene)}
 	 * which is very efficient.
 	 * <p>
 	 * This matrix only represents the local Frame transformation (i.e., with
@@ -1439,7 +1439,7 @@ public class SimpleFrame implements Copyable {
 	 * <p>
 	 * <b>Note:</b> The scaling factor of the 4x4 matrix is 1.0.
 	 * 
-	 * @see #applyTransformation(Scene)
+	 * @see #applyTransformation(AbstractScene)
 	 */
 	// TODO is always inneficient
 	public final Matrix3D matrix() {
@@ -1458,7 +1458,7 @@ public class SimpleFrame implements Copyable {
 	 * Convenience function that simply calls {@code scn.applyTransformation(this)}.
 	 * 
 	 * @see #matrix()
-	 * @see remixlab.proscene.Scene#applyTransformation(SimpleFrame)
+	 * @see remixlab.remixcam.core.AbstractScene#applyTransformation(SimpleFrame)
 	 */
 	public void applyTransformation(AbstractScene scn) {
 		scn.applyTransformation(this);

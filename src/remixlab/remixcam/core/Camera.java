@@ -46,9 +46,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * <p>
  * Camera matrices can be directly set as references to the processing camera
  * matrices (default), or they can be set as independent Matrix3D objects
- * (which may be useful for off-screen computations). See
- * {@link #isAttachedToP5Camera()}, {@link #attachToP5Camera()} and
- * {@link #detachFromP5Camera()}.
+ * (which may be useful for off-screen computations).
  * <p>
  * There are to {@link #kind()} of Cameras: PROSCENE (default) and STANDARD. The
  * former kind dynamically sets up the {@link #zNear()} and {@link #zFar()}
@@ -324,12 +322,6 @@ public class Camera implements Constants, Copyable {
 	// S C E N E   O B J E C T 
 	public AbstractScene scene;
 	//public PGraphics3D pg3d;
-
-	/**
-	 * Convenience constructor that simply calls {@code this(true, scn)}.
-	 * 
-	 * @see #Camera(Scene, boolean)
-	 */
 	
 	/**
 	public Camera(Scene scn) {
@@ -351,9 +343,7 @@ public class Camera implements Constants, Copyable {
 	 * <p>
 	 * See {@link #IODistance()}, {@link #physicalDistanceToScreen()},
 	 * {@link #physicalScreenWidth()} and {@link #focusDistance()} documentations
-	 * for default stereo parameter values.
-	 * 
-	 * @see #Camera(Scene)
+	 * for default stereo parameter values. 
 	 */
 	public Camera(AbstractScene scn /**, boolean attachedToScene */) {
 		scene = scn;
@@ -919,8 +909,8 @@ public class Camera implements Constants, Copyable {
 
 	/**
 	 * Changes the Camera {@link #fieldOfView()} so that the entire scene (defined
-	 * by {@link remixlab.proscene.Scene#center()} and
-	 * {@link remixlab.proscene.Scene#radius()} is visible from the Camera
+	 * by {@link remixlab.remixcam.core.AbstractScene#center()} and 
+	 * {@link remixlab.remixcam.core.AbstractScene#radius()} is visible from the Camera
 	 * {@link #position()}.
 	 * <p>
 	 * The {@link #position()} and {@link #orientation()} of the Camera are not
@@ -1118,7 +1108,7 @@ public class Camera implements Constants, Copyable {
 	 * is null (or not the correct size), a new array will be created.
 	 * <p>
 	 * This method is mainly used in conjunction with
-	 * {@link #project(float, float, float, Matrix3D, Matrix3D, int[], float[])}
+	 * {@code project(float, float, float, Matrix3D, Matrix3D, int[], float[])}
 	 * , which requires such a viewport. Returned values are (0,
 	 * {@link #screenHeight()}, {@link #screenWidth()}, -{@link #screenHeight()}),
 	 * so that the origin is located in the upper left corner of the window.
@@ -1168,7 +1158,7 @@ public class Camera implements Constants, Copyable {
 	 * If you need a completely different zNear computation, overload the
 	 * {@link #zNear()} and {@link #zFar()} methods in a new class that publicly
 	 * inherits from Camera and use
-	 * {@link remixlab.proscene.Scene#setCamera(Camera)}.
+	 * {@link remixlab.remixcam.core.AbstractScene#setCamera(Camera)}.
 	 * <p>
 	 * <b>Attention:</b> The value is always positive although the clipping plane
 	 * is positioned at a negative z value in the Camera coordinate system. This
@@ -1323,7 +1313,7 @@ public class Camera implements Constants, Copyable {
 	 * before calling this method. You may compute them explicitly (by calling
 	 * {@link #computeFrustumEquations()} ) or enable them to be automatic updated
 	 * in your Scene setup (with
-	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()}).
+	 * {@link remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()}).
 	 * 
 	 * @see #pointIsVisible(Vector3D)
 	 * @see #sphereIsVisible(Vector3D, float)
@@ -1331,7 +1321,7 @@ public class Camera implements Constants, Copyable {
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
-	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
+	 * @see remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()
 	 */
 	public float distanceToFrustumPlane(int index, Vector3D pos) {
 		if (!scene.frustumEquationsUpdateIsEnable())
@@ -1351,7 +1341,7 @@ public class Camera implements Constants, Copyable {
 	 * before calling this method. You may compute them explicitly (by calling
 	 * {@link #computeFrustumEquations()} ) or enable them to be automatic updated
 	 * in your Scene setup (with
-	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()}).
+	 * {@link remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()}).
 	 * 
 	 * @see #distanceToFrustumPlane(int, Vector3D)
 	 * @see #sphereIsVisible(Vector3D, float)
@@ -1359,7 +1349,7 @@ public class Camera implements Constants, Copyable {
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
-	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
+	 * @see remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()
 	 */
 	public boolean pointIsVisible(Vector3D point) {
 		if (!scene.frustumEquationsUpdateIsEnable())
@@ -1383,7 +1373,7 @@ public class Camera implements Constants, Copyable {
 	 * before calling this method. You may compute them explicitly (by calling
 	 * {@link #computeFrustumEquations()} ) or enable them to be automatic updated
 	 * in your Scene setup (with
-	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()}).
+	 * {@link remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()}).
 	 * 
 	 * @see #distanceToFrustumPlane(int, Vector3D)
 	 * @see #pointIsVisible(Vector3D)
@@ -1391,7 +1381,7 @@ public class Camera implements Constants, Copyable {
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
-	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
+	 * @see remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()
 	 */
 	public Visibility sphereIsVisible(Vector3D center, float radius) {
 		if (!scene.frustumEquationsUpdateIsEnable())
@@ -1422,7 +1412,7 @@ public class Camera implements Constants, Copyable {
 	 * before calling this method. You may compute them explicitly (by calling
 	 * {@link #computeFrustumEquations()} ) or enable them to be automatic updated
 	 * in your Scene setup (with
-	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()}).
+	 * {@link remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()}).
 	 * 
 	 * @see #distanceToFrustumPlane(int, Vector3D)
 	 * @see #pointIsVisible(Vector3D)
@@ -1430,7 +1420,7 @@ public class Camera implements Constants, Copyable {
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
-	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
+	 * @see remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()
 	 */
 	public Visibility aaBoxIsVisible(Vector3D p1, Vector3D p2) {
 		if (!scene.frustumEquationsUpdateIsEnable())
@@ -1468,7 +1458,7 @@ public class Camera implements Constants, Copyable {
 	 * <p>
 	 * <b>Attention:</b> You should not call this method explicitly, unless you
 	 * need the frustum equations to be updated only occasionally (rare). Use
-	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()} which
+	 * {@link remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()} which
 	 * automatically update the frustum equations every frame instead.
 	 * 
 	 * @see #distanceToFrustumPlane(int, Vector3D)
@@ -1477,7 +1467,7 @@ public class Camera implements Constants, Copyable {
 	 * @see #aaBoxIsVisible(Vector3D, Vector3D)
 	 * @see #computeFrustumEquations()
 	 * @see #getFrustumEquations()
-	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
+	 * @see remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()
 	 */
 	public void updateFrustumEquations() {
 		if( lastFrameUpdate != lastFPCoeficientsUpdateIssued )	{		  
@@ -1502,7 +1492,7 @@ public class Camera implements Constants, Copyable {
 	 * before calling this method. You may compute them explicitly (by calling
 	 * {@link #computeFrustumEquations()} ) or enable them to be automatic updated
 	 * in your Scene setup (with
-	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()}).
+	 * {@link remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()}).
 	 * 
 	 * @see #distanceToFrustumPlane(int, Vector3D)
 	 * @see #pointIsVisible(Vector3D)
@@ -1510,7 +1500,7 @@ public class Camera implements Constants, Copyable {
 	 * @see #aaBoxIsVisible(Vector3D, Vector3D)
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
-	 * @see remixlab.proscene.Scene#enableFrustumEquationsUpdate()
+	 * @see remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()
 	 */
 	public float[][] getFrustumEquations() {
 		if (!scene.frustumEquationsUpdateIsEnable())
@@ -1526,7 +1516,7 @@ public class Camera implements Constants, Copyable {
 	 * <p>
 	 * <b>Attention:</b> You should not call this method explicitly, unless you
 	 * need the frustum equations to be updated only occasionally (rare). Use
-	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()} which
+	 * {@link remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()} which
 	 * automatically update the frustum equations every frame instead.
 	 * 
 	 * @see #computeFrustumEquations(float[][])
@@ -1563,7 +1553,7 @@ public class Camera implements Constants, Copyable {
 	 * <p>
 	 * <b>Attention:</b> You should not call this method explicitly, unless you
 	 * need the frustum equations to be updated only occasionally (rare). Use
-	 * {@link remixlab.proscene.Scene#enableFrustumEquationsUpdate()} which
+	 * {@link remixlab.remixcam.core.AbstractScene#enableFrustumEquationsUpdate()} which
 	 * automatically update the frustum equations every frame instead.
 	 * 
 	 * @see #computeFrustumEquations()
@@ -1819,7 +1809,7 @@ public class Camera implements Constants, Copyable {
 	 * <b>Attention:</b> This methods also sets {@link #focusDistance()} to
 	 * {@code sceneRadius() / tan(fieldOfView()/2)} and {@link #flySpeed()} to 1%
 	 * of {@link #sceneRadius()} (if there's an Scene
-	 * {@link remixlab.proscene.Scene#avatar()} and it is an instance of
+	 * {@link remixlab.remixcam.core.AbstractScene#avatar()} and it is an instance of
 	 * InteractiveDrivableFrame it also sets {@code flySpeed} to the same value).
 	 */
 	public void setSceneRadius(float radius) {
@@ -1850,10 +1840,10 @@ public class Camera implements Constants, Copyable {
 	 * clipping planes definition, and allows convenient positioning methods such
 	 * as {@link #showEntireScene()}.
 	 * <p>
-	 * Note that {@link remixlab.proscene.Scene#center()} (resp.
-	 * remixlab.proscene.Scene{@link #setSceneCenter(Vector3D)}) simply call this
+	 * Note that {@link remixlab.remixcam.core.AbstractScene#center()} (resp.
+	 * remixlab.remixcam.core.AbstractScene{@link #setSceneCenter(Vector3D)}) simply call this
 	 * method (resp. {@link #setSceneCenter(Vector3D)}) on its associated
-	 * {@link remixlab.proscene.Scene#camera()}. Default value is (0,0,0) (world
+	 * {@link remixlab.remixcam.core.AbstractScene#camera()}. Default value is (0,0,0) (world
 	 * origin). Use {@link #setSceneCenter(Vector3D)} to change it.
 	 * 
 	 * @see #setSceneBoundingBox(Vector3D, Vector3D)
@@ -1896,8 +1886,7 @@ public class Camera implements Constants, Copyable {
 	// 5. ARCBALL REFERENCE POINT
 
 	/**
-	 * The point the Camera revolves around with the
-	 * {@link remixlab.proscene.Scene.MouseAction#ROTATE} mouse binding. Defined
+	 * The point the Camera revolves around with the ROTATE mouse binding. Defined
 	 * in world coordinate system.
 	 * <p>
 	 * Default value is the {@link #sceneCenter()}.
@@ -2112,7 +2101,7 @@ public class Camera implements Constants, Copyable {
 	 * keyFrame to path {@code key}. If {@code editablePath} is {@code true},
 	 * builds an InteractiveFrame (from the current Camera {@link #position()} and
 	 * {@link #orientation()}) before adding it (see
-	 * {@link remixlab.remixcam.core.InteractiveFrame#InteractiveFrame(Scene, InteractiveCameraFrame)}
+	 * {@link remixlab.remixcam.core.InteractiveFrame#InteractiveFrame(AbstractScene, InteractiveCameraFrame)}
 	 * ). In the latter mode the resulting created path will be editable.
 	 * <p>
 	 * This method can also be used if you simply want to save a Camera point of
@@ -2170,9 +2159,6 @@ public class Camera implements Constants, Copyable {
 
 	/**
 	 * Deletes the {@link #keyFrameInterpolator(int)} of index {@code key}.
-	 * <p>
-	 * Check {@link remixlab.proscene.Scene#setDefaultShortcuts()} to see the
-	 * default KeyFrameInterpolators keyboard shortcuts.
 	 */
 	public void deletePath(int key) {
 		if (kfi.containsKey(key)) {
@@ -2334,8 +2320,6 @@ public class Camera implements Constants, Copyable {
 
 	/**
 	 * Fills the projection matrix with the {@code proj} matrix values.
-	 * <p>
-	 * Only meaningful when the camera {@link #isDetachedFromP5Camera()}.
 	 * 
 	 * @see #setModelViewMatrix(Matrix3D)
 	 */
@@ -2426,8 +2410,6 @@ public class Camera implements Constants, Copyable {
 
 	/**
 	 * Fills the modelview matrix with the {@code modelview} matrix values.
-	 * <p>
-	 * Only meaningful when the camera {@link #isDetachedFromP5Camera()}.
 	 * 
 	 * @see #setProjectionMatrix(Matrix3D)
 	 */
@@ -2794,8 +2776,7 @@ public class Camera implements Constants, Copyable {
 	 * Simply calls {@link #fitSphere(Vector3D, float)} on a sphere defined by
 	 * {@link #sceneCenter()} and {@link #sceneRadius()}.
 	 * <p>
-	 * You will typically use this method in
-	 * {@link remixlab.proscene.Scene#init()} after you defined a new
+	 * You will typically use this method at init time after you defined a new
 	 * {@link #sceneRadius()}.
 	 */
 	public void showEntireScene() {
@@ -3101,11 +3082,12 @@ public class Camera implements Constants, Copyable {
 	 * <p>
 	 * i) If {@code scene.mouseGrabberPool().size() > 3 && scene.hasMouseTracking()} then
 	 * {@code (P x M)} is cached so that
-	 * {@link #project(float, float, float, PMatrix3D, PMatrix3D, int[], float[])} is speeded up.
+	 * {@code project(float, float, float, Matrix3D, Matrix3D, int[], float[])} 
+	 * is speeded up.
 	 * <p>
-	 * ii) If {@link #unprojectCacheIsOptimized()} {@code inv (P x M)} is cached (and hence
-	 * {@code (P x M)} is cached too) so that 
-	 * {@link #unproject(float, float, float, PMatrix3D, PMatrix3D, int[], float[])} is speeded up.
+	 * ii) If {@code #unprojectCacheIsOptimized()} {@code inv (P x M)} is cached (and hence
+	 * {@code (P x M)} is cached too) so that {@code unproject(float, float, float, Matrix3D, Matrix3D, int[], float[])}
+	 * is speeded up.
 	 * 
 	 * @see #unprojectCacheIsOptimized()
 	 * @see #optimizeUnprojectCache(boolean)
@@ -3142,8 +3124,8 @@ public class Camera implements Constants, Copyable {
 	
 	/**
 	 * Cache {@code inv (P x M)} (and also {@code (P x M)} ) so that
-	 * {@link #project(float, float, float, PMatrix3D, PMatrix3D, int[], float[])}
-	 * (and also {@link #unproject(float, float, float, PMatrix3D, PMatrix3D, int[], float[])})
+	 * {@code project(float, float, float, Matrx3D, Matrx3D, int[], float[])}
+	 * (and also {@code unproject(float, float, float, Matrx3D, Matrx3D, int[], float[])})
 	 * is optimised.
 	 * 
 	 * @see #unprojectCacheIsOptimized()

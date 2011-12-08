@@ -36,8 +36,7 @@ import remixlab.remixcam.geom.Point;
  * If you want to implement your own MouseGrabber objects you should derive from this
  * class (instead of implementing the MouseGrabbable interface), and implement the
  * {@link #checkIfGrabsMouse(int, int, Camera)} method and some of the provided
- * callback methods, such {@link #mouseClicked(Scene.Button, int, Camera)} and/or
- * {@link #mouseWheelMoved(int, Camera)}. 
+ * callback methods, such {@link #mouseWheelMoved(int, Camera)}. 
  * <p>
  * <b>Note:</b> The InteractiveFrame object implements the MouseGrabbable interface.
  */
@@ -47,8 +46,9 @@ public class DeviceGrabber implements DeviceGrabbable {
 	protected boolean keepsGrabbingMouse;
 	
 	/**
-	 * The constructor takes a scene instance and
-	 * {@link remixlab.proscene.Scene#addInMouseGrabberPool(DeviceGrabbable)} this MouseGrabber object.
+	 * The constructor takes a scene instance and 
+	 * {@link remixlab.remixcam.core.AbstractScene#addInMouseGrabberPool(DeviceGrabbable)}
+	 * this MouseGrabber object.
 	 * 
 	 * @param scn Scene instance
 	 */

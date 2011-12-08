@@ -698,7 +698,7 @@ public class Vector3D implements Constants {
 
   /**
    * Linear interpolate the vector to another vector
-   * @param Vector3D the vector to lerp to
+   * @param v the vector to lerp to
    * @param amt  The amt parameter is the amount to interpolate between the two vectors where 1.0 equal to the new vector
    * 0.1 is very near the new vector, 0.5 is half-way in between.
    */

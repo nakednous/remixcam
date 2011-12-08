@@ -38,8 +38,8 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * <p>
  * An InteractiveDrivableFrame basically moves forward, and turns according to
  * the mouse motion. See {@link #flySpeed()}, {@link #flyUpVector()} and the
- * {@link Scene.MouseAction#MOVE_FORWARD} and
- * {@link Scene.MouseAction#MOVE_BACKWARD}.
+ * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_FORWARD} and
+ * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_BACKWARD}.
  */
 public class InteractiveDrivableFrame extends InteractiveFrame implements Copyable {	
 	@Override
@@ -135,16 +135,16 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * <p>
 	 * It corresponds to the incremental displacement that is periodically applied
 	 * to the InteractiveDrivableFrame position when a
-	 * {@link Scene.MouseAction#MOVE_FORWARD} or
-	 * {@link Scene.MouseAction#MOVE_BACKWARD} Scene.MouseAction is proceeded.
+	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_FORWARD} or
+	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_BACKWARD} Scene.MouseAction is proceeded.
 	 * <p>
 	 * <b>Attention:</b> When the InteractiveDrivableFrame is set as the
 	 * {@link remixlab.remixcam.core.Camera#frame()} (which indeed is an instance of
 	 * the InteractiveCameraFrame class) or when it is set as the
-	 * {@link remixlab.proscene.Scene#avatar()} (which indeed is an instance of
+	 * {@link remixlab.remixcam.core.AbstractScene#avatar()} (which indeed is an instance of
 	 * the InteractiveAvatarFrame class), this value is set according to the
-	 * {@link remixlab.proscene.Scene#radius()} by
-	 * {@link remixlab.proscene.Scene#setRadius(float)}.
+	 * {@link remixlab.remixcam.core.AbstractScene#radius()} by
+	 * {@link remixlab.remixcam.core.AbstractScene#setRadius(float)}.
 	 */
 	public float flySpeed() {
 		return flySpd;
@@ -154,11 +154,11 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * Sets the {@link #flySpeed()}, defined in processing scene units.
 	 * <p>
 	 * Default value is 0.0, but it is modified according to the
-	 * {@link remixlab.proscene.Scene#radius()} when the InteractiveDrivableFrame
+	 * {@link remixlab.remixcam.core.AbstractScene#radius()} when the InteractiveDrivableFrame
 	 * is set as the {@link remixlab.remixcam.core.Camera#frame()} (which indeed is an
 	 * instance of the InteractiveCameraFrame class) or when the
 	 * InteractiveDrivableFrame is set as the
-	 * {@link remixlab.proscene.Scene#avatar()} (which indeed is an instance of
+	 * {@link remixlab.remixcam.core.AbstractScene#avatar()} (which indeed is an instance of
 	 * the InteractiveAvatarFrame class).
 	 */
 	public void setFlySpeed(float speed) {
@@ -170,8 +170,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * system.
 	 * <p>
 	 * Fly mode corresponds to the
-	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_FORWARD} and
-	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_BACKWARD} Scene.MouseAction
+	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_FORWARD} and
+	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_BACKWARD} Scene.MouseAction
 	 * bindings. In these modes, horizontal displacements of the mouse rotate the
 	 * InteractiveDrivableFrame around this vector. Vertical displacements rotate
 	 * always around the frame {@code X} axis.
@@ -199,7 +199,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 
 	/**
 	 * Called for continuous frame motion in first person mode (see
-	 * {@link Scene.MouseAction#MOVE_FORWARD}).
+	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_FORWARD}).
 	 */
 	public void flyUpdate() {
 		flyDisp.set(0.0f, 0.0f, 0.0f);
@@ -338,10 +338,10 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseWheelMoved(int, Camera)}.
 	 * <p>
 	 * The wheel behavior depends on the wheel binded action. Current possible
-	 * actions are {@link remixlab.proscene.Scene.MouseAction#ZOOM},
-	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_FORWARD} and
-	 * {@link remixlab.proscene.Scene.MouseAction#MOVE_BACKWARD}.
-	 * {@link remixlab.proscene.Scene.MouseAction#ZOOM} speed depends on
+	 * actions are {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM},
+	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_FORWARD} and
+	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_BACKWARD}.
+	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	public void mouseWheelMoved(int rotation, Camera camera) {

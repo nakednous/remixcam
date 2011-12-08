@@ -109,9 +109,9 @@ public abstract class AbstractDevice {
 	/**
 	 * Convenience constructor that simply calls {@code this(scn, Mode.RELATIVE)}.
 	 * 
-	 * @param scn The Scene object this HIDevice belongs to.
+	 * @param scn The Scene object this Device belongs to.
 	 * 
-	 * @see #HIDevice(Scene, Mode)
+	 * @see #AbstractDevice(AbstractScene)
 	 */
 	public AbstractDevice(AbstractScene scn) {
 		this(scn, Mode.RELATIVE);

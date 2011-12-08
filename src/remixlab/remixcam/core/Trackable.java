@@ -33,12 +33,11 @@ import remixlab.remixcam.geom.*;
  * <p>
  * <h3>How does it work ?</h3>
  * All objects that are to be tracked by the
- * {@link remixlab.proscene.Scene#camera()} (known as avatars) should implement
+ * {@link remixlab.remixcam.core.AbstractScene#camera()} (known as avatars) should implement
  * this interface. To setup an avatar you should then call
- * {@link remixlab.proscene.Scene#setAvatar(Trackable)}. The avatar will be
- * tracked by the {@link remixlab.proscene.Scene#camera()} when
- * {@link remixlab.proscene.Scene#currentCameraProfile()} is an instance of
- * ThirdPersonCameraProfile.
+ * {@link remixlab.remixcam.core.AbstractScene#setAvatar(Trackable)}. The avatar will be
+ * tracked by the {@link remixlab.remixcam.core.AbstractScene#camera()} when the camera
+ * is in Third Person mode.
  */
 
 public interface Trackable {

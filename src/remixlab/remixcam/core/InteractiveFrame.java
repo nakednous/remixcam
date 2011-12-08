@@ -46,7 +46,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * applications.
  * <p>
  * <b>Note:</b> Once created, the InteractiveFrame is automatically added to
- * the {@link remixlab.proscene.Scene#mouseGrabberPool()}.
+ * the {@link remixlab.remixcam.core.AbstractScene#mouseGrabberPool()}.
  */
 
 public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Copyable {
@@ -154,7 +154,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * {@link #spinningSensitivity()} and {@link #wheelSensitivity()}).
 	 * <p>
 	 * <b>Note:</b> the InteractiveFrame is automatically added to
-	 * the {@link remixlab.proscene.Scene#mouseGrabberPool()}.
+	 * the {@link remixlab.remixcam.core.AbstractScene#mouseGrabberPool()}.
 	 */
 	public InteractiveFrame(AbstractScene scn) {
 		scene = scn;		
@@ -288,9 +288,9 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	}
 
 	/**
-	 * Convenience function that simply calls {@code applyTransformation(scene)}.
+	 * Convenience function that simply calls {@code applyTransformation(AbstractScene)}.
 	 * 
-	 * @see remixlab.remixcam.core.SimpleFrame#applyTransformation(Scene)
+	 * @see remixlab.remixcam.core.SimpleFrame#applyTransformation(AbstractScene)
 	 */
 	public void applyTransformation() {
 		applyTransformation(scene);
@@ -365,7 +365,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	/**
 	 * Convenience wrapper function that simply returns {@code scene.isInMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.proscene.Scene#isInMouseGrabberPool(DeviceGrabbable)
+	 * @see remixlab.remixcam.core.AbstractScene#isInMouseGrabberPool(DeviceGrabbable)
 	 */
 	public boolean isInMouseGrabberPool() {
 		return scene.isInMouseGrabberPool(this);
@@ -374,7 +374,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	/**
 	 * Convenience wrapper function that simply calls {@code scene.addInMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.proscene.Scene#addInMouseGrabberPool(DeviceGrabbable)
+	 * @see remixlab.remixcam.core.AbstractScene#addInMouseGrabberPool(DeviceGrabbable)
 	 */
 	public void addInMouseGrabberPool() {
 		scene.addInMouseGrabberPool(this);
@@ -383,7 +383,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	/**
 	 * Convenience wrapper function that simply calls {@code scene.removeFromMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.proscene.Scene#removeFromMouseGrabberPool(DeviceGrabbable)
+	 * @see remixlab.remixcam.core.AbstractScene#removeFromMouseGrabberPool(DeviceGrabbable)
 	 */
 	public void removeFromMouseGrabberPool() {
 		scene.removeFromMouseGrabberPool(this);
@@ -580,10 +580,10 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.devices.DeviceGrabbable#mouseClicked(remixlab.proscene.Scene.Button, int, Camera)}.
+	 * {@link remixlab.remixcam.devices.DeviceGrabbable#mouseClicked(remixlab.remixcam.core.AbstractScene.Button, int, Camera)}.
 	 * <p>
 	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(SimpleFrame)}
-	 * and {@link remixlab.proscene.Scene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
+	 * and {@link remixlab.remixcam.core.AbstractScene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
 	 * the camera view direction.
 	 */
 	public void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, Camera camera) {
@@ -787,7 +787,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * Overloading of
 	 * {@link remixlab.remixcam.devices.DeviceGrabbable#mouseWheelMoved(int, Camera)}.
 	 * <p>
-	 * Using the wheel is equivalent to a {@link remixlab.proscene.Scene.MouseAction#ZOOM}.
+	 * Using the wheel is equivalent to a {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM}.
 	 * 
 	 * @see #setWheelSensitivity(float)
 	 */

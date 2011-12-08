@@ -73,11 +73,11 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 
 	/**
 	 * Constructs an InteractiveAvatarFrame and sets its
-	 * {@link #trackingDistance()} to {@link remixlab.proscene.Scene#radius()}/5,
+	 * {@link #trackingDistance()} to {@link remixlab.remixcam.core.AbstractScene#radius()}/5,
 	 * {@link #azimuth()} to 0, and {@link #inclination()} to 0.
 	 * 
-	 * @see remixlab.proscene.Scene#setAvatar(Trackable)
-	 * @see remixlab.proscene.Scene#setInteractiveFrame(InteractiveFrame)
+	 * @see remixlab.remixcam.core.AbstractScene#setAvatar(Trackable)
+	 * @see remixlab.remixcam.core.AbstractScene#setInteractiveFrame(InteractiveFrame)
 	 */
 	public InteractiveAvatarFrame(AbstractScene scn) {
 		super(scn);
