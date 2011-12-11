@@ -853,10 +853,10 @@ public class SimpleFrame implements Copyable {
 		if (constraint() != null) {
 			o = constraint().constrainRotation(q, this);
 			if (!keepArg) {
-				q.x(o.x());
-				q.y(o.y());
-				q.z(o.z());
-				q.w(o.w());
+				q.quat[0] = o.quat[0];
+				q.quat[1] = o.quat[1];
+				q.quat[2] = o.quat[2];
+				q.quat[3] = o.quat[3];
 			}
 		}
 		kernel().rotation().multiply(o);
@@ -925,10 +925,10 @@ public class SimpleFrame implements Copyable {
 		if (constraint() != null) {
 			q = constraint().constrainRotation(rotation, this);
 			if (!keepArg) {
-				rotation.x(q.x());
-				rotation.y(q.y());
-				rotation.z(q.z());
-				rotation.w(q.w());
+				rotation.quat[0] = q.quat[0];
+				rotation.quat[1] = q.quat[1];
+				rotation.quat[2] = q.quat[2];
+				rotation.quat[3] = q.quat[3];
 			}
 		}
 		this.kernel().rotation().multiply(q);

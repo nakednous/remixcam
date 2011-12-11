@@ -79,9 +79,9 @@ public class LocalConstraint extends AxisPlaneConstraint {
 			break;
 		case AXIS: {
 			Vector3D axis = rotationConstraintDirection();
-			Vector3D quat = new Vector3D(rotation.x(), rotation.y(), rotation.z());
+			Vector3D quat = new Vector3D(rotation.quat[0], rotation.quat[1], rotation.quat[2]);
 			quat = Vector3D.projectVectorOnAxis(quat, axis);
-			res = new Quaternion(quat, 2.0f * (float) Math.acos(rotation.w()));
+			res = new Quaternion(quat, 2.0f * (float) Math.acos(rotation.quat[3]));
 		}
 			break;
 		case FORBIDDEN:

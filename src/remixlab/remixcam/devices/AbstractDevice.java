@@ -475,12 +475,12 @@ public abstract class AbstractDevice {
       // B. Rotate the iFrame
       t = camera.projectedCoordinatesOf(iFrame.position());    
       q.fromEulerAngles(roll, pitch, -yaw);
-      t.set(-q.x(), -q.y(), -q.z());
+      t.set(-q.quat[0], -q.quat[1], -q.quat[2]);
       t = cameraFrame.orientation().rotate(t);
       t = iFrame.transformOf(t);
-      q.x(t.x);
-      q.y(t.y);
-      q.z(t.y);
+      q.quat[0] = t.x;
+      q.quat[1] = t.y;
+      q.quat[2] = t.y;
       iFrame.rotate(q);
 			break;			
     case WORLD:

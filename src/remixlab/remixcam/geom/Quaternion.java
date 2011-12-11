@@ -70,7 +70,7 @@ public class Quaternion implements Constants, Copyable {
 	 * The x coordinate, i.e., the x coordinate of the vector part of the
 	 * Quaternion.
 	 */
-	private float quat[] = new float[4];	
+	public float quat[] = new float[4];	
 	
 
 	/**

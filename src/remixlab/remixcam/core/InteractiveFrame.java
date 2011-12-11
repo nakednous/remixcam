@@ -729,12 +729,12 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 		case ROTATE: {
 			Vector3D trans = camera.projectedCoordinatesOf(position());
 			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.x, trans.y, camera);
-			trans.set(-rot.x(), -rot.y(), -rot.z());
+			trans.set(-rot.quat[0], -rot.quat[1], -rot.quat[2]);
 			trans = camera.frame().orientation().rotate(trans);
 			trans = transformOf(trans);
-			rot.x(trans.x);
-			rot.y(trans.y);
-			rot.z(trans.z);
+			rot.quat[0] = trans.x;
+			rot.quat[1] = trans.y;
+			rot.quat[2] = trans.z;
 			// #CONNECTION# These two methods should go together (spinning detection
 			// and activation)
 			computeMouseSpeed(eventPoint);

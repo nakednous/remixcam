@@ -2373,17 +2373,17 @@ public class Camera implements Constants, Copyable {
 	public void computeModelViewMatrix() {
 		Quaternion q = frame().orientation();
 
-		float q00 = 2.0f * q.x() * q.x();
-		float q11 = 2.0f * q.y() * q.y();
-		float q22 = 2.0f * q.z() * q.z();
+		float q00 = 2.0f * q.quat[0] * q.quat[0];
+		float q11 = 2.0f * q.quat[1] * q.quat[1];
+		float q22 = 2.0f * q.quat[2] * q.quat[2];
 
-		float q01 = 2.0f * q.x() * q.y();
-		float q02 = 2.0f * q.x() * q.z();
-		float q03 = 2.0f * q.x() * q.w();
+		float q01 = 2.0f * q.quat[0] * q.quat[1];
+		float q02 = 2.0f * q.quat[0] * q.quat[2];
+		float q03 = 2.0f * q.quat[0] * q.quat[3];
 
-		float q12 = 2.0f * q.y() * q.z();
-		float q13 = 2.0f * q.y() * q.w();
-		float q23 = 2.0f * q.z() * q.w();
+		float q12 = 2.0f * q.quat[1] * q.quat[2];
+		float q13 = 2.0f * q.quat[1] * q.quat[3];
+		float q23 = 2.0f * q.quat[2] * q.quat[3];
 
 		modelViewMat.m00 = 1.0f - q11 - q22;
 		modelViewMat.m10 = q01 - q23;
