@@ -40,11 +40,11 @@ import remixlab.remixcam.core.Copyable;
 public class Quaternion implements Constants, Copyable {
 	@Override
 	public int hashCode() {
-    return new HashCodeBuilder(17, 37).
-    append(w).
-    append(x).
-    append(y).
-    append(z).    
+    return new HashCodeBuilder(17, 37).    
+    append(this.quat[0]).
+    append(this.quat[1]).
+    append(this.quat[2]).
+    append(this.quat[3]).
     toHashCode();    
 	}
 
@@ -58,46 +58,30 @@ public class Quaternion implements Constants, Copyable {
 			return false;
 		Quaternion other = (Quaternion) obj;
 		return new EqualsBuilder()
-		.appendSuper(super.equals(obj))
-		.append(w,  other.w)
-		.append(x,  other.x)
-		.append(y,  other.y)
-		.append(z,  other.z)
+		.appendSuper(super.equals(obj))		
+		.append(this.quat[0],  other.quat[0])
+		.append(this.quat[1],  other.quat[1])
+		.append(this.quat[2],  other.quat[2])
+		.append(this.quat[3],  other.quat[3])
 		.isEquals();						
-	}	
+	}
 	
 	/**
 	 * The x coordinate, i.e., the x coordinate of the vector part of the
 	 * Quaternion.
 	 */
-	public float x;
-
-	/**
-	 * The y coordinate, i.e., the y coordinate of the vector part of the
-	 * Quaternion.
-	 */
-	public float y;
-
-	/**
-	 * The z coordinate, i.e., the z coordinate of the vector part of the
-	 * Quaternion.
-	 */
-	public float z;
-
-	/**
-	 * The w coordinate which corresponds to the scalar part of the Quaternion.
-	 */
-	public float w;
+	private float quat[] = new float[4];	
+	
 
 	/**
 	 * Constructs and initializes a Quaternion to (0.0,0.0,0.0,1.0), i.e., an
 	 * identity rotation.
 	 */
 	public Quaternion() {
-		this.x = 0;
-		this.y = 0;
-		this.z = 0;
-		this.w = 1;
+		this.quat[0] = 0;
+		this.quat[1] = 0;
+		this.quat[2] = 0;
+		this.quat[3] = 1;
 	}
 
 	/**
@@ -129,21 +113,21 @@ public class Quaternion implements Constants, Copyable {
 		if (normalize) {
 			float mag = (float) Math.sqrt(x * x + y * y + z * z + w * w);
 			if (mag > 0.0f) {
-				this.x = x / mag;
-				this.y = y / mag;
-				this.z = z / mag;
-				this.w = w / mag;
+				this.quat[0] = x / mag;
+				this.quat[1] = y / mag;
+				this.quat[2] = z / mag;
+				this.quat[3] = w / mag;
 			} else {
-				this.x = 0;
-				this.y = 0;
-				this.z = 0;
-				this.w = 1;
+				this.quat[0] = 0;
+				this.quat[1] = 0;
+				this.quat[2] = 0;
+				this.quat[3] = 1;
 			}
 		} else {
-			this.x = x;
-			this.y = y;
-			this.z = z;
-			this.w = w;
+			this.quat[0] = x;
+			this.quat[1] = y;
+			this.quat[2] = z;
+			this.quat[3] = w;
 		}
 	}
 
@@ -167,21 +151,21 @@ public class Quaternion implements Constants, Copyable {
 			float mag = (float) Math.sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3]
 					* q[3]);
 			if (mag > 0.0f) {
-				this.x = q[0] / mag;
-				this.y = q[1] / mag;
-				this.z = q[2] / mag;
-				this.w = q[3] / mag;
+				this.quat[0] = q[0] / mag;
+				this.quat[1] = q[1] / mag;
+				this.quat[2] = q[2] / mag;
+				this.quat[3] = q[3] / mag;
 			} else {
-				this.x = 0;
-				this.y = 0;
-				this.z = 0;
-				this.w = 1;
+				this.quat[0] = 0;
+				this.quat[1] = 0;
+				this.quat[2] = 0;
+				this.quat[3] = 1;
 			}
 		} else {
-			this.x = q[0];
-			this.y = q[1];
-			this.z = q[2];
-			this.w = q[3];
+			this.quat[0] = q[0];
+			this.quat[1] = q[1];
+			this.quat[2] = q[2];
+			this.quat[3] = q[3];
 		}
 	}
 
@@ -217,35 +201,35 @@ public class Quaternion implements Constants, Copyable {
 	}
 	
 	public float x() {
-		return this.x;
+		return this.quat[0];
 	}
 	
 	public float y() {
-		return this.y;
+		return this.quat[1];
 	}
 	
 	public float z() {
-		return this.z;
+		return this.quat[2];
 	}
 	
 	public float w() {
-		return this.w;
+		return this.quat[3];
 	}
 	
 	public float x(float x) {
-		return this.x = x;
+		return this.quat[0] = x;
 	}
 	
 	public float y(float y) {
-		return this.y = y;
+		return this.quat[1] = y;
 	}
 	
 	public float z(float z) {
-		return this.z = z;
+		return this.quat[2] = z;
 	}
 	
 	public float w(float w) {
-		return this.w = w;
+		return this.quat[3] = w;
 	}
 
 	/**
@@ -262,10 +246,10 @@ public class Quaternion implements Constants, Copyable {
 	 * {@code true} this Quaternion is {@link #normalize()}.
 	 */
 	public void set(Quaternion q1, boolean normalize) {
-		this.x = q1.x;
-		this.y = q1.y;
-		this.z = q1.z;
-		this.w = q1.w;
+		this.quat[0] = q1.quat[0];
+		this.quat[1] = q1.quat[1];
+		this.quat[2] = q1.quat[2];
+		this.quat[3] = q1.quat[3];
 		if (normalize)
 			this.normalize();
 	}
@@ -304,9 +288,9 @@ public class Quaternion implements Constants, Copyable {
 	 * Sets the value of this Quaternion to the conjugate of itself.
 	 */
 	public final void conjugate() {
-		this.x = -this.x;
-		this.y = -this.y;
-		this.z = -this.z;
+		this.quat[0] = -this.quat[0];
+		this.quat[1] = -this.quat[1];
+		this.quat[2] = -this.quat[2];
 	}
 
 	/**
@@ -316,38 +300,38 @@ public class Quaternion implements Constants, Copyable {
 	 *          the source vector
 	 */
 	public final void conjugate(Quaternion q1) {
-		this.x = -q1.x;
-		this.y = -q1.y;
-		this.z = -q1.z;
-		this.w = q1.w;
+		this.quat[0] = -q1.quat[0];
+		this.quat[1] = -q1.quat[1];
+		this.quat[2] = -q1.quat[2];
+		this.quat[3] = q1.quat[3];
 	}
 
 	/**
 	 * Negates all the coefficients of the Quaternion.
 	 */
 	public final void negate() {
-		this.x = -this.x;
-		this.y = -this.y;
-		this.z = -this.z;
-		this.w = -this.w;
+		this.quat[0] = -this.quat[0];
+		this.quat[1] = -this.quat[1];
+		this.quat[2] = -this.quat[2];
+		this.quat[3] = -this.quat[3];
 	}
 
 	/**
 	 * Returns the "dot" product of this Quaternion and {@code b}:
 	 * <p>
-	 * {@code this.x * b.x + this.y * b.y + this.z * b.z + this.w * b.w}
+	 * {@code this.quat[0] * b.x + this.quat[1] * b.y + this.quat[2] * b.z + this.quat[3] * b.quat[3]}
 	 * 
 	 * @param b
 	 *          the Quaternion
 	 */
 	public final float dotProduct(Quaternion b) {
-		return this.x * b.x + this.y * b.y + this.z * b.z + this.w * b.w;
+		return this.quat[0] * b.quat[0] + this.quat[1] * b.quat[1] + this.quat[2] * b.quat[2] + this.quat[3] * b.quat[3];
 	}
 
 	/**
 	 * Returns the "dot" product of {@code a} and {@code b}:
 	 * <p>
-	 * {@code a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w}
+	 * {@code a.x * b.x + a.y * b.y + a.z * b.z + a.quat[3] * b.quat[3]}
 	 * 
 	 * @param a
 	 *          the first Quaternion
@@ -355,7 +339,7 @@ public class Quaternion implements Constants, Copyable {
 	 *          the second Quaternion
 	 */
 	public final static float dotProduct(Quaternion a, Quaternion b) {
-		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+		return a.quat[0] * b.quat[0] + a.quat[1] * b.quat[1] + a.quat[2] * b.quat[2] + a.quat[3] * b.quat[3];
 	}
 
 	/**
@@ -368,13 +352,13 @@ public class Quaternion implements Constants, Copyable {
 	public final void multiply(Quaternion q1) {
 		float x, y, w;
 
-		w = this.w * q1.w - this.x * q1.x - this.y * q1.y - this.z * q1.z;
-		x = this.w * q1.x + q1.w * this.x + this.y * q1.z - this.z * q1.y;
-		y = this.w * q1.y + q1.w * this.y - this.x * q1.z + this.z * q1.x;
-		this.z = this.w * q1.z + q1.w * this.z + this.x * q1.y - this.y * q1.x;
-		this.w = w;
-		this.x = x;
-		this.y = y;
+		w = this.quat[3] * q1.quat[3] - this.quat[0] * q1.quat[0] - this.quat[1] * q1.quat[1] - this.quat[2] * q1.quat[2];
+		x = this.quat[3] * q1.quat[0] + q1.quat[3] * this.quat[0] + this.quat[1] * q1.quat[2] - this.quat[2] * q1.quat[1];
+		y = this.quat[3] * q1.quat[1] + q1.quat[3] * this.quat[1] - this.quat[0] * q1.quat[2] + this.quat[2] * q1.quat[0];
+		this.quat[2] = this.quat[3] * q1.quat[2] + q1.quat[3] * this.quat[2] + this.quat[0] * q1.quat[1] - this.quat[1] * q1.quat[0];
+		this.quat[3] = w;
+		this.quat[0] = x;
+		this.quat[1] = y;
 	}
 
 	/**
@@ -388,10 +372,10 @@ public class Quaternion implements Constants, Copyable {
 	 */
 	public final static Quaternion multiply(Quaternion q1, Quaternion q2) {
 		float x, y, z, w;
-		w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
-		x = q1.w * q2.x + q2.w * q1.x + q1.y * q2.z - q1.z * q2.y;
-		y = q1.w * q2.y + q2.w * q1.y - q1.x * q2.z + q1.z * q2.x;
-		z = q1.w * q2.z + q2.w * q1.z + q1.x * q2.y - q1.y * q2.x;
+		w = q1.quat[3] * q2.quat[3] - q1.quat[0] * q2.quat[0] - q1.quat[1] * q2.quat[1] - q1.quat[2] * q2.quat[2];
+		x = q1.quat[3] * q2.quat[0] + q2.quat[3] * q1.quat[0] + q1.quat[1] * q2.quat[2] - q1.quat[2] * q2.quat[1];
+		y = q1.quat[3] * q2.quat[1] + q2.quat[3] * q1.quat[1] - q1.quat[0] * q2.quat[2] + q1.quat[2] * q2.quat[0];
+		z = q1.quat[3] * q2.quat[2] + q2.quat[3] * q1.quat[2] + q1.quat[0] * q2.quat[1] - q1.quat[1] * q2.quat[0];
 		return new Quaternion(x, y, z, w);
 	}
 
@@ -480,10 +464,10 @@ public class Quaternion implements Constants, Copyable {
 	 */
 	public final void invert() {
 		float sqNorm = squaredNorm(this);
-		this.w /= sqNorm;
-		this.x /= -sqNorm;
-		this.y /= -sqNorm;
-		this.z /= -sqNorm;
+		this.quat[3] /= sqNorm;
+		this.quat[0] /= -sqNorm;
+		this.quat[1] /= -sqNorm;
+		this.quat[2] /= -sqNorm;
 	}
 
 	/**
@@ -494,10 +478,10 @@ public class Quaternion implements Constants, Copyable {
 	 */
 	public final void invert(Quaternion q1) {
 		float sqNorm = squaredNorm(q1);
-		this.w = q1.w / sqNorm;
-		this.x = -q1.x / sqNorm;
-		this.y = -q1.y / sqNorm;
-		this.z = -q1.z / sqNorm;
+		this.quat[3] = q1.quat[3] / sqNorm;
+		this.quat[0] = -q1.quat[0] / sqNorm;
+		this.quat[1] = -q1.quat[1] / sqNorm;
+		this.quat[2] = -q1.quat[2] / sqNorm;
 	}
 
 	/**
@@ -505,18 +489,18 @@ public class Quaternion implements Constants, Copyable {
 	 * norm}.
 	 */
 	public final float normalize() {
-		float norm = (float) Math.sqrt(this.x * this.x + this.y * this.y + this.z
-				* this.z + this.w * this.w);
+		float norm = (float) Math.sqrt(this.quat[0] * this.quat[0] + this.quat[1] * this.quat[1] + this.quat[2]
+				* this.quat[2] + this.quat[3] * this.quat[3]);
 		if (norm > 0.0f) {
-			this.x /= norm;
-			this.y /= norm;
-			this.z /= norm;
-			this.w /= norm;
+			this.quat[0] /= norm;
+			this.quat[1] /= norm;
+			this.quat[2] /= norm;
+			this.quat[3] /= norm;
 		} else {
-			this.x = (float) 0.0;
-			this.y = (float) 0.0;
-			this.z = (float) 0.0;
-			this.w = (float) 1.0;
+			this.quat[0] = (float) 0.0;
+			this.quat[1] = (float) 0.0;
+			this.quat[2] = (float) 0.0;
+			this.quat[3] = (float) 1.0;
 		}
 		return norm;
 	}
@@ -528,18 +512,18 @@ public class Quaternion implements Constants, Copyable {
 	 *          the Vector3D
 	 */
 	public final Vector3D rotate(Vector3D v) {
-		float q00 = 2.0f * x * x;
-		float q11 = 2.0f * y * y;
-		float q22 = 2.0f * z * z;
+		float q00 = 2.0f * this.quat[0] * this.quat[0];
+		float q11 = 2.0f * this.quat[1] * this.quat[1];
+		float q22 = 2.0f * this.quat[2] * this.quat[2];
 
-		float q01 = 2.0f * x * y;
-		float q02 = 2.0f * x * z;
-		float q03 = 2.0f * x * w;
+		float q01 = 2.0f * this.quat[0] * this.quat[1];
+		float q02 = 2.0f * this.quat[0] * this.quat[2];
+		float q03 = 2.0f * this.quat[0] * this.quat[3];
 
-		float q12 = 2.0f * y * z;
-		float q13 = 2.0f * y * w;
+		float q12 = 2.0f * this.quat[1] * this.quat[2];
+		float q13 = 2.0f * this.quat[1] * this.quat[3];
 
-		float q23 = 2.0f * z * w;
+		float q23 = 2.0f * this.quat[2] * this.quat[3];
 
 		return new Vector3D((1.0f - q11 - q22) * v.x + (q01 - q23) * v.y
 				+ (q02 + q13) * v.z, (q01 + q23) * v.x + (1.0f - q22 - q00) * v.y
@@ -557,7 +541,7 @@ public class Quaternion implements Constants, Copyable {
 	 *          the Vector3D
 	 */
 	public final Vector3D inverseRotate(Vector3D v) {
-		Quaternion tempQuat = new Quaternion(x, y, z, w);
+		Quaternion tempQuat = new Quaternion(this.quat[0], this.quat[1], this.quat[2], this.quat[3]);
 		tempQuat.invert();
 		return tempQuat.rotate(v);
 	}
@@ -578,16 +562,16 @@ public class Quaternion implements Constants, Copyable {
 		float norm = axis.mag();
 		if (norm < 1E-8f) {
 			// Null rotation
-			this.x = 0.0f;
-			this.y = 0.0f;
-			this.z = 0.0f;
-			this.w = 1.0f;
+			this.quat[0] = 0.0f;
+			this.quat[1] = 0.0f;
+			this.quat[2] = 0.0f;
+			this.quat[3] = 1.0f;
 		} else {
 			float sin_half_angle = (float) Math.sin(angle / 2.0f);
-			this.x = sin_half_angle * axis.x / norm;
-			this.y = sin_half_angle * axis.y / norm;
-			this.z = sin_half_angle * axis.z / norm;
-			this.w = (float) Math.cos(angle / 2.0f);
+			this.quat[0] = sin_half_angle * axis.x / norm;
+			this.quat[1] = sin_half_angle * axis.y / norm;
+			this.quat[2] = sin_half_angle * axis.z / norm;
+			this.quat[3] = (float) Math.cos(angle / 2.0f);
 		}
 	}
 
@@ -622,8 +606,8 @@ public class Quaternion implements Constants, Copyable {
 	 * convention used here these angles represent a composition of extrinsic
 	 * rotations (rotations about the reference frame axes), which is also known
 	 * as {@link #taitBryanAngles()} (See
-	 * http://en.wikipedia.org/wiki/Euler_angles and
-	 * http://en.wikipedia.org/wiki/Tait-Bryan_angles). {@link #eulerAngles()}
+	 * http://en.quat[3]ikipedia.org/wiki/Euler_angles and
+	 * http://en.quat[3]ikipedia.org/wiki/Tait-Bryan_angles). {@link #eulerAngles()}
 	 * performs the inverse operation.
 	 * <p>
 	 * Each rotation angle is converted to an axis-angle pair, with the axis
@@ -670,25 +654,25 @@ public class Quaternion implements Constants, Copyable {
 	 */
 	public Vector3D eulerAngles() {
 		float roll, pitch, yaw;
-		float test = x * y + z * w;
+		float test = this.quat[0] * this.quat[1] + this.quat[2] * this.quat[3];
 		if (test > 0.499) { // singularity at north pole
-			pitch = 2 * (float) Math.atan2(x, w);
+			pitch = 2 * (float) Math.atan2(this.quat[0], this.quat[3]);
 			yaw = PI / 2;
 			roll = 0;
 			return new Vector3D(roll, pitch, yaw);
 		}
 		if (test < -0.499) { // singularity at south pole
-			pitch = -2 * (float) Math.atan2(x, w);
+			pitch = -2 * (float) Math.atan2(this.quat[0], this.quat[3]);
 			yaw = - PI / 2;
 			roll = 0;
 			return new Vector3D(roll, pitch, yaw);
 		}
-		float sqx = x * x;
-		float sqy = y * y;
-		float sqz = z * z;
-		pitch = (float) Math.atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz);
+		float sqx = this.quat[0] * this.quat[0];
+		float sqy = this.quat[1] * this.quat[1];
+		float sqz = this.quat[2] * this.quat[2];
+		pitch = (float) Math.atan2(2 * this.quat[1] * this.quat[3] - 2 * this.quat[0] * this.quat[2], 1 - 2 * sqy - 2 * sqz);
 		yaw = (float) Math.asin(2 * test);
-		roll = (float) Math.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz);
+		roll = (float) Math.atan2(2 * this.quat[0] * this.quat[3] - 2 * this.quat[1] * this.quat[2], 1 - 2 * sqx - 2 * sqz);
 		return new Vector3D(roll, pitch, yaw);
 	}
 
@@ -725,8 +709,8 @@ public class Quaternion implements Constants, Copyable {
 		float toSqNorm = to.squaredNorm();
 		// Identity Quaternion when one vector is null
 		if ((fromSqNorm < 1E-10f) || (toSqNorm < 1E-10f)) {
-			this.x = this.y = this.z = 0.0f;
-			this.w = 1.0f;
+			this.quat[0] = this.quat[1] = this.quat[2] = 0.0f;
+			this.quat[3] = 1.0f;
 		} else {
 
 			Vector3D axis = from.cross(to);
@@ -767,30 +751,30 @@ public class Quaternion implements Constants, Copyable {
 		if (onePlusTrace > 1E-5f) {
 			// Direct computation
 			float s = (float) Math.sqrt(onePlusTrace) * 2.0f;
-			this.x = (m[2][1] - m[1][2]) / s;
-			this.y = (m[0][2] - m[2][0]) / s;
-			this.z = (m[1][0] - m[0][1]) / s;
-			this.w = 0.25f * s;
+			this.quat[0] = (m[2][1] - m[1][2]) / s;
+			this.quat[1] = (m[0][2] - m[2][0]) / s;
+			this.quat[2] = (m[1][0] - m[0][1]) / s;
+			this.quat[3] = 0.25f * s;
 		} else {
 			// Computation depends on major diagonal term
 			if ((m[0][0] > m[1][1]) & (m[0][0] > m[2][2])) {
 				float s = (float) Math.sqrt(1.0f + m[0][0] - m[1][1] - m[2][2]) * 2.0f;
-				this.x = 0.25f * s;
-				this.y = (m[0][1] + m[1][0]) / s;
-				this.z = (m[0][2] + m[2][0]) / s;
-				this.w = (m[1][2] - m[2][1]) / s;
+				this.quat[0] = 0.25f * s;
+				this.quat[1] = (m[0][1] + m[1][0]) / s;
+				this.quat[2] = (m[0][2] + m[2][0]) / s;
+				this.quat[3] = (m[1][2] - m[2][1]) / s;
 			} else if (m[1][1] > m[2][2]) {
 				float s = (float) Math.sqrt(1.0f + m[1][1] - m[0][0] - m[2][2]) * 2.0f;
-				this.x = (m[0][1] + m[1][0]) / s;
-				this.y = 0.25f * s;
-				this.z = (m[1][2] + m[2][1]) / s;
-				this.w = (m[0][2] - m[2][0]) / s;
+				this.quat[0] = (m[0][1] + m[1][0]) / s;
+				this.quat[1] = 0.25f * s;
+				this.quat[2] = (m[1][2] + m[2][1]) / s;
+				this.quat[3] = (m[0][2] - m[2][0]) / s;
 			} else {
 				float s = (float) Math.sqrt(1.0f + m[2][2] - m[0][0] - m[1][1]) * 2.0f;
-				this.x = (m[0][2] + m[2][0]) / s;
-				this.y = (m[1][2] + m[2][1]) / s;
-				this.z = 0.25f * s;
-				this.w = (m[0][1] - m[1][0]) / s;
+				this.quat[0] = (m[0][2] + m[2][0]) / s;
+				this.quat[1] = (m[1][2] + m[2][1]) / s;
+				this.quat[2] = 0.25f * s;
+				this.quat[3] = (m[0][1] - m[1][0]) / s;
 			}
 		}
 		normalize();
@@ -847,11 +831,11 @@ public class Quaternion implements Constants, Copyable {
 	 * @see #angle()
 	 */
 	public final Vector3D axis() {
-		Vector3D res = new Vector3D(this.x, this.y, this.z);
+		Vector3D res = new Vector3D(this.quat[0], this.quat[1], this.quat[2]);
 		float sinus = res.mag();
 		if (sinus > 1E-8f)
 			res.div(sinus);
-		if ((float) Math.acos(this.w) <= HALF_PI)
+		if ((float) Math.acos(this.quat[3]) <= HALF_PI)
 			return res;
 		else {
 			res.x = -res.x;
@@ -871,7 +855,7 @@ public class Quaternion implements Constants, Copyable {
 	 * @see #axis()
 	 */
 	public final float angle() {
-		float angle = 2.0f * (float) Math.acos(this.w);
+		float angle = 2.0f * (float) Math.acos(this.quat[3]);
 		return (angle <= PI) ? angle : 2.0f * PI - angle;
 	}
 
@@ -896,18 +880,18 @@ public class Quaternion implements Constants, Copyable {
 	 */
 	public final Matrix3D matrix() {
 
-		float q00 = 2.0f * this.x * this.x;
-		float q11 = 2.0f * this.y * this.y;
-		float q22 = 2.0f * this.z * this.z;
+		float q00 = 2.0f * this.quat[0] * this.quat[0];
+		float q11 = 2.0f * this.quat[1] * this.quat[1];
+		float q22 = 2.0f * this.quat[2] * this.quat[2];
 
-		float q01 = 2.0f * this.x * this.y;
-		float q02 = 2.0f * this.x * this.z;
-		float q03 = 2.0f * this.x * this.w;
+		float q01 = 2.0f * this.quat[0] * this.quat[1];
+		float q02 = 2.0f * this.quat[0] * this.quat[2];
+		float q03 = 2.0f * this.quat[0] * this.quat[3];
 
-		float q12 = 2.0f * this.y * this.z;
-		float q13 = 2.0f * this.y * this.w;
+		float q12 = 2.0f * this.quat[1] * this.quat[2];
+		float q13 = 2.0f * this.quat[1] * this.quat[3];
 
-		float q23 = 2.0f * this.z * this.w;
+		float q23 = 2.0f * this.quat[2] * this.quat[3];
 
 		float m00 = 1.0f - q11 - q22;
 		float m01 = q01 - q23;
@@ -943,7 +927,7 @@ public class Quaternion implements Constants, Copyable {
 	 * applyMatrix(q.inverseMatrix())}).
 	 */
 	public final Matrix3D inverseMatrix() {
-		Quaternion tempQuat = new Quaternion(x, y, z, w);
+		Quaternion tempQuat = new Quaternion(this.quat[0], this.quat[1], this.quat[2], this.quat[3]);
 		tempQuat.invert();
 		return tempQuat.matrix();
 	}
@@ -964,14 +948,14 @@ public class Quaternion implements Constants, Copyable {
 	 */
 	public final Quaternion log() {
 		// Warning: this method should not normalize the Quaternion
-		float len = (float) Math.sqrt(this.x * this.x + this.y * this.y + this.z
-				* this.z);
+		float len = (float) Math.sqrt(this.quat[0] * this.quat[0] + this.quat[1] * this.quat[1] + this.quat[2]
+				* this.quat[2]);
 
 		if (len < 1E-6f)
-			return new Quaternion(this.x, this.y, this.z, 0.0f, false);
+			return new Quaternion(this.quat[0], this.quat[1], this.quat[2], 0.0f, false);
 		else {
-			float coef = (float) Math.acos(this.w) / len;
-			return new Quaternion(this.x * coef, this.y * coef, this.z * coef, 0.0f,
+			float coef = (float) Math.acos(this.quat[3]) / len;
+			return new Quaternion(this.quat[0] * coef, this.quat[1] * coef, this.quat[2] * coef, 0.0f,
 					false);
 		}
 	}
@@ -982,15 +966,13 @@ public class Quaternion implements Constants, Copyable {
 	 * @see #log()
 	 */
 	public final Quaternion exp() {
-		float theta = (float) Math.sqrt(this.x * this.x + this.y * this.y + this.z
-				* this.z);
+		float theta = (float) Math.sqrt(this.quat[0] * this.quat[0] + this.quat[1] * this.quat[1] + this.quat[2] * this.quat[2]);
 
 		if (theta < 1E-6f)
-			return new Quaternion(this.x, this.y, this.z, (float) Math.cos(theta));
+			return new Quaternion(this.quat[0], this.quat[1], this.quat[2], (float) Math.cos(theta));
 		else {
 			float coef = (float) Math.sin(theta) / theta;
-			return new Quaternion(this.x * coef, this.y * coef, this.z * coef,
-					(float) Math.cos(theta));
+			return new Quaternion(this.quat[0] * coef, this.quat[1] * coef, this.quat[2] * coef, (float) Math.cos(theta));
 		}
 	}
 
@@ -1010,8 +992,7 @@ public class Quaternion implements Constants, Copyable {
 		float t1 = 2.0f * PI * (float) Math.random();
 		float t2 = 2.0f * PI * (float) Math.random();
 
-		return new Quaternion((float) Math.sin(t1) * r1, (float) Math.cos(t1) * r1, (float) Math.sin(t2)
-				* r2, (float) Math.cos(t2) * r2);
+		return new Quaternion((float) Math.sin(t1) * r1, (float) Math.cos(t1) * r1, (float) Math.sin(t2) * r2, (float) Math.cos(t2) * r2);
 	}
 
 	/**
@@ -1065,8 +1046,7 @@ public class Quaternion implements Constants, Copyable {
 		if (allowFlip && (cosAngle < 0.0))
 			c1 = -c1;
 
-		return new Quaternion(c1 * a.x + c2 * b.x, c1 * a.y + c2 * b.y, c1 * a.z
-				+ c2 * b.z, c1 * a.w + c2 * b.w, false);
+		return new Quaternion(c1 * a.quat[0] + c2 * b.quat[0], c1 * a.quat[1] + c2 * b.quat[1], c1 * a.quat[2] + c2 * b.quat[2], c1 * a.quat[3] + c2 * b.quat[3], false);
 	}
 
 	/**
@@ -1090,8 +1070,7 @@ public class Quaternion implements Constants, Copyable {
 	 * @param t
 	 *          the t interpolation parameter
 	 */
-	public static final Quaternion squad(Quaternion a, Quaternion tgA,
-			Quaternion tgB, Quaternion b, float t) {
+	public static final Quaternion squad(Quaternion a, Quaternion tgA, Quaternion tgB, Quaternion b, float t) {
 		Quaternion ab = Quaternion.slerp(a, b, t);
 		Quaternion tg = Quaternion.slerp(tgA, tgB, t, false);
 		return Quaternion.slerp(ab, tg, 2.0f * t * (1.0f - t), false);
@@ -1132,10 +1111,10 @@ public class Quaternion implements Constants, Copyable {
 		Quaternion l2 = Quaternion.lnDif(center, after);
 		Quaternion e = new Quaternion();
 
-		e.x = -0.25f * (l1.x + l2.x);
-		e.y = -0.25f * (l1.y + l2.y);
-		e.z = -0.25f * (l1.z + l2.z);
-		e.w = -0.25f * (l1.w + l2.w);
+		e.quat[0] = -0.25f * (l1.quat[0] + l2.quat[0]);
+		e.quat[1] = -0.25f * (l1.quat[1] + l2.quat[1]);
+		e.quat[2] = -0.25f * (l1.quat[2] + l2.quat[2]);
+		e.quat[3] = -0.25f * (l1.quat[3] + l2.quat[3]);
 
 		return Quaternion.multiply(center, e.exp());
 	}
@@ -1144,6 +1123,6 @@ public class Quaternion implements Constants, Copyable {
 	 * Utility function that returns the squared norm of the Quaternion.
 	 */
 	public static float squaredNorm(Quaternion q) {
-		return (q.x * q.x) + (q.y * q.y) + (q.z * q.z) + (q.w * q.w);
+		return (q.quat[0] * q.quat[0]) + (q.quat[1] * q.quat[1]) + (q.quat[2] * q.quat[2]) + (q.quat[3] * q.quat[3]);
 	}
 }

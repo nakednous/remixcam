@@ -853,10 +853,10 @@ public class SimpleFrame implements Copyable {
 		if (constraint() != null) {
 			o = constraint().constrainRotation(q, this);
 			if (!keepArg) {
-				q.x = o.x;
-				q.y = o.y;
-				q.z = o.z;
-				q.w = o.w;
+				q.x(o.x());
+				q.y(o.y());
+				q.z(o.z());
+				q.w(o.w());
 			}
 		}
 		kernel().rotation().multiply(o);
@@ -920,16 +920,15 @@ public class SimpleFrame implements Copyable {
 	 * point} is then computed and filtered using
 	 * {@link remixlab.remixcam.constraints.Constraint#constrainTranslation(Vector3D, SimpleFrame)}.
 	 */
-	public final void rotateAroundPoint(Quaternion rotation, Vector3D point,
-			boolean keepArg) {
+	public final void rotateAroundPoint(Quaternion rotation, Vector3D point, boolean keepArg) {
 		Quaternion q = rotation.get();
 		if (constraint() != null) {
 			q = constraint().constrainRotation(rotation, this);
 			if (!keepArg) {
-				rotation.x = q.x;
-				rotation.y = q.y;
-				rotation.z = q.z;
-				rotation.w = q.w;
+				rotation.x(q.x());
+				rotation.y(q.y());
+				rotation.z(q.z());
+				rotation.w(q.w());
 			}
 		}
 		this.kernel().rotation().multiply(q);
