@@ -131,14 +131,14 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	 */
 	public float azimuth() {
 		// azimuth <-> pitch
-		return q.taitBryanAngles().y;
+		return q.taitBryanAngles().vec[1];
 	}
 
 	/**
 	 * Sets the {@link #azimuth()} of the tracking camera.
 	 */
 	public void setAzimuth(float a) {
-		float roll = q.taitBryanAngles().x;
+		float roll = q.taitBryanAngles().vec[0];
 		q.fromTaitBryan(roll, a, 0);
 		computeCameraPosition();
 	}
@@ -149,14 +149,14 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	 */
 	public float inclination() {
 		// inclination <-> roll
-		return q.taitBryanAngles().x;
+		return q.taitBryanAngles().vec[0];
 	}
 
 	/**
 	 * Sets the {@link #inclination()} of the tracking camera.
 	 */
 	public void setInclination(float i) {
-		float pitch = q.taitBryanAngles().y;
+		float pitch = q.taitBryanAngles().vec[1];
 		q.fromTaitBryan(i, pitch, 0);
 		computeCameraPosition();
 	}

@@ -53,7 +53,7 @@ public abstract class Constraint {
 	 * in the world coordinate system if needed.
 	 */
 	public Vector3D constrainTranslation(Vector3D translation, SimpleFrame frame) {
-		return new Vector3D(translation.x, translation.y, translation.z);
+		return new Vector3D(translation.vec[0], translation.vec[1], translation.vec[2]);
 	}
 
 	/**

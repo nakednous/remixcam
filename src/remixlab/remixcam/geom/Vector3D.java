@@ -61,37 +61,32 @@ public class Vector3D implements Constants {
 		
 	   return new EqualsBuilder()
     .appendSuper(super.equals(obj))    
-    .append(this.x, other.x)
-    .append(this.y, other.y)
-    .append(this.z, other.z)
+    .append(this.vec[0], other.vec[0])
+    .append(this.vec[1], other.vec[1])
+    .append(this.vec[2], other.vec[2])
 		.isEquals();
 	}
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37).		
-		append(this.x).
-		append(this.y).
-		append(this.z).
+		append(this.vec[0]).
+		append(this.vec[1]).
+		append(this.vec[2]).
     toHashCode();
   }
-
-  /** The x component of the vector. */
-  public float x;
-
-  /** The y component of the vector. */
-  public float y;
-
-  /** The z component of the vector. */
-  public float z;
-
-  /** Array so that this can be temporarily used in an array context */
-  transient protected float[] array;
+  
+  /**
+	 * The x, y and z coordinates of the Vector3D.
+	 */
+	public float vec[] = new float[3];
+  
 
   /**
    * Constructor for an empty vector: x, y, and z are set to 0.
    */
-  public Vector3D() {
+  public Vector3D() {  	
+  	vec[0] = vec[1] = vec[2] = 0;
   }
   
   /**
@@ -102,9 +97,9 @@ public class Vector3D implements Constants {
    * @param  z the y coordinate.
    */
   public Vector3D(float x, float y, float z) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
+    this.vec[0] = x;
+    this.vec[1] = y;
+    this.vec[2] = z;
   }
 
 
@@ -115,33 +110,33 @@ public class Vector3D implements Constants {
    * @param  y the y coordinate.
    */
   public Vector3D(float x, float y) {
-    this.x = x;
-    this.y = y;
-    this.z = 0;
+    this.vec[0] = x;
+    this.vec[1] = y;
+    this.vec[2] = 0;
   }
   
   public float x() {
-  	return this.x;
+  	return this.vec[0];
   }
   
   public float y() {
-		return this.y;
+		return this.vec[1];
 	}
 	
 	public float z() {
-		return this.z;
+		return this.vec[2];
 	}	
 	
 	public float x(float x) {
-		return this.x = x;
+		return this.vec[0] = x;
 	}
 	
 	public float y(float y) {
-		return this.y = y;
+		return this.vec[1] = y;
 	}
 	
 	public float z(float z) {
-		return this.z = z;
+		return this.vec[2] = z;
 	}  
   
   public Vector3D projectVectorOnAxis(Vector3D direction) {
@@ -188,7 +183,7 @@ public class Vector3D implements Constants {
 	 * Utility function that returns the squared norm of the Vector3D.
 	 */
 	public static float squaredNorm(Vector3D v) {
-		return (v.x * v.x) + (v.y * v.y) + (v.z * v.z);
+		return (v.vec[0] * v.vec[0]) + (v.vec[1] * v.vec[1]) + (v.vec[2] * v.vec[2]);
 	}
 	
 	public Vector3D orthogonalVector() {
@@ -203,14 +198,14 @@ public class Vector3D implements Constants {
 	 */
 	public static Vector3D orthogonalVector(Vector3D v) {
 		// Find smallest component. Keep equal case for null values.
-		if ((Math.abs(v.y) >= 0.9f * Math.abs(v.x))
-				&& (Math.abs(v.z) >= 0.9f * Math.abs(v.x)))
-			return new Vector3D(0.0f, -v.z, v.y);
-		else if ((Math.abs(v.x) >= 0.9f * Math.abs(v.y))
-				&& (Math.abs(v.z) >= 0.9f * Math.abs(v.y)))
-			return new Vector3D(-v.z, 0.0f, v.x);
+		if ((Math.abs(v.vec[1]) >= 0.9f * Math.abs(v.vec[0]))
+				&& (Math.abs(v.vec[2]) >= 0.9f * Math.abs(v.vec[0])))
+			return new Vector3D(0.0f, -v.vec[2], v.vec[1]);
+		else if ((Math.abs(v.vec[0]) >= 0.9f * Math.abs(v.vec[1]))
+				&& (Math.abs(v.vec[2]) >= 0.9f * Math.abs(v.vec[1])))
+			return new Vector3D(-v.vec[2], 0.0f, v.vec[0]);
 		else
-			return new Vector3D(-v.y, v.x, 0.0f);
+			return new Vector3D(-v.vec[1], v.vec[0], 0.0f);
 	}
   
   // end new
@@ -225,9 +220,9 @@ public class Vector3D implements Constants {
    * @param z the z coordinate.
    */
   public void set(float x, float y, float z) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
+    this.vec[0] = x;
+    this.vec[1] = y;
+    this.vec[2] = z;
   }
 
 
@@ -237,9 +232,9 @@ public class Vector3D implements Constants {
    * @param v the Vector3D object to be copied
    */
   public void set(Vector3D v) {
-  	this.x = v.x;
-  	this.y = v.y;
-  	this.z = v.z;
+  	this.vec[0] = v.vec[0];
+  	this.vec[1] = v.vec[1];
+  	this.vec[2] = v.vec[2];
   }
 
 
@@ -249,11 +244,11 @@ public class Vector3D implements Constants {
    */
   public void set(float[] source) {
     if (source.length >= 2) {
-    	this.x = source[0];
-    	this.y = source[1];
+    	this.vec[0] = source[0];
+    	this.vec[1] = source[1];
     }
     if (source.length >= 3) {
-    	this.z = source[2];
+    	this.vec[2] = source[2];
     }
   }
 
@@ -262,20 +257,20 @@ public class Vector3D implements Constants {
    * Get a copy of this vector.
    */
   public Vector3D get() {
-    return new Vector3D(this.x, this.y, this.z);
+    return new Vector3D(this.vec[0], this.vec[1], this.vec[2]);
   }
 
 
   public float[] get(float[] target) {
     if (target == null) {
-      return new float[] { this.x, this.y,this. z };
+      return new float[] { this.vec[0], this.vec[1], this.vec[2] };
     }
     if (target.length >= 2) {
-      target[0] = this.x;
-      target[1] = this.y;
+      target[0] = this.vec[0];
+      target[1] = this.vec[1];
     }
     if (target.length >= 3) {
-      target[2] = this.z;
+      target[2] = this.vec[2];
     }
     return target;
   }
@@ -285,7 +280,7 @@ public class Vector3D implements Constants {
    * @return the magnitude of the vector
    */
   public float mag() {
-    return (float) Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
+    return (float) Math.sqrt(this.vec[0]*this.vec[0] + this.vec[1]*this.vec[1] + this.vec[2]*this.vec[2]);
   }
 
   /**
@@ -296,7 +291,7 @@ public class Vector3D implements Constants {
    * @return squared magnitude of the vector
    */
   public float magSq() {
-    return (this.x*this.x + this.y*this.y + this.z*this.z);
+    return (this.vec[0]*this.vec[0] + this.vec[1]*this.vec[1] + this.vec[2]*this.vec[2]);
   }
 
   /**
@@ -304,16 +299,16 @@ public class Vector3D implements Constants {
    * @param v the vector to be added
    */
   public void add(Vector3D v) {
-  	this.x += v.x;
-  	this.y += v.y;
-  	this.z += v.z;
+  	this.vec[0] += v.vec[0];
+  	this.vec[1] += v.vec[1];
+  	this.vec[2] += v.vec[2];
   }
 
 
   public void add(float x, float y, float z) {
-    this.x += x;
-    this.y += y;
-    this.z += z;
+    this.vec[0] += x;
+    this.vec[1] += y;
+    this.vec[2] += z;
   }
 
 
@@ -337,9 +332,9 @@ public class Vector3D implements Constants {
    */
   static public Vector3D add(Vector3D v1, Vector3D v2, Vector3D target) {
     if (target == null) {
-      target = new Vector3D(v1.x + v2.x,v1.y + v2.y, v1.z + v2.z);
+      target = new Vector3D(v1.vec[0] + v2.vec[0],v1.vec[1] + v2.vec[1], v1.vec[2] + v2.vec[2]);
     } else {
-      target.set(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+      target.set(v1.vec[0] + v2.vec[0], v1.vec[1] + v2.vec[1], v1.vec[2] + v2.vec[2]);
     }
     return target;
   }
@@ -350,16 +345,16 @@ public class Vector3D implements Constants {
    * @param v the vector to be subtracted
    */
   public void sub(Vector3D v) {
-  	this.x -= v.x;
-  	this.y -= v.y;
-  	this.z -= v.z;
+  	this.vec[0] -= v.vec[0];
+  	this.vec[1] -= v.vec[1];
+  	this.vec[2] -= v.vec[2];
   }
 
 
   public void sub(float x, float y, float z) {
-    this.x -= x;
-    this.y -= y;
-    this.z -= z;
+    this.vec[0] -= x;
+    this.vec[1] -= y;
+    this.vec[2] -= z;
   }
 
 
@@ -376,9 +371,9 @@ public class Vector3D implements Constants {
 
   static public Vector3D sub(Vector3D v1, Vector3D v2, Vector3D target) {
     if (target == null) {
-      target = new Vector3D(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+      target = new Vector3D(v1.vec[0] - v2.vec[0], v1.vec[1] - v2.vec[1], v1.vec[2] - v2.vec[2]);
     } else {
-      target.set(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+      target.set(v1.vec[0] - v2.vec[0], v1.vec[1] - v2.vec[1], v1.vec[2] - v2.vec[2]);
     }
     return target;
   }
@@ -389,9 +384,9 @@ public class Vector3D implements Constants {
    * @param n the value to multiply by
    */
   public void mult(float n) {
-  	this.x *= n;
-  	this.y *= n;
-  	this.z *= n;
+  	this.vec[0] *= n;
+  	this.vec[1] *= n;
+  	this.vec[2] *= n;
   }
 
 
@@ -415,9 +410,9 @@ public class Vector3D implements Constants {
    */
   static public Vector3D mult(Vector3D v, float n, Vector3D target) {
     if (target == null) {
-      target = new Vector3D(v.x*n, v.y*n, v.z*n);
+      target = new Vector3D(v.vec[0]*n, v.vec[1]*n, v.vec[2]*n);
     } else {
-      target.set(v.x*n, v.y*n, v.z*n);
+      target.set(v.vec[0]*n, v.vec[1]*n, v.vec[2]*n);
     }
     return target;
   }
@@ -428,9 +423,9 @@ public class Vector3D implements Constants {
    * @param v the vector to multiply by
    */
   public void mult(Vector3D v) {
-  	this.x *= v.x;
-  	this.y *= v.y;
-  	this.z *= v.z;
+  	this.vec[0] *= v.vec[0];
+  	this.vec[1] *= v.vec[1];
+  	this.vec[2] *= v.vec[2];
   }
 
 
@@ -452,9 +447,9 @@ public class Vector3D implements Constants {
    */
   static public Vector3D mult(Vector3D v1, Vector3D v2, Vector3D target) {
     if (target == null) {
-      target = new Vector3D(v1.x*v2.x, v1.y*v2.y, v1.z*v2.z);
+      target = new Vector3D(v1.vec[0]*v2.vec[0], v1.vec[1]*v2.vec[1], v1.vec[2]*v2.vec[2]);
     } else {
-      target.set(v1.x*v2.x, v1.y*v2.y, v1.z*v2.z);
+      target.set(v1.vec[0]*v2.vec[0], v1.vec[1]*v2.vec[1], v1.vec[2]*v2.vec[2]);
     }
     return target;
   }
@@ -465,9 +460,9 @@ public class Vector3D implements Constants {
    * @param n the value to divide by
    */
   public void div(float n) {
-  	this.x /= n;
-  	this.y /= n;
-  	this.z /= n;
+  	this.vec[0] /= n;
+  	this.vec[1] /= n;
+  	this.vec[2] /= n;
   }
 
 
@@ -484,9 +479,9 @@ public class Vector3D implements Constants {
 
   static public Vector3D div(Vector3D v, float n, Vector3D target) {
     if (target == null) {
-      target = new Vector3D(v.x/n, v.y/n, v.z/n);
+      target = new Vector3D(v.vec[0]/n, v.vec[1]/n, v.vec[2]/n);
     } else {
-      target.set(v.x/n, v.y/n, v.z/n);
+      target.set(v.vec[0]/n, v.vec[1]/n, v.vec[2]/n);
     }
     return target;
   }
@@ -496,9 +491,9 @@ public class Vector3D implements Constants {
    * Divide each element of one vector by the elements of another vector.
    */
   public void div(Vector3D v) {
-  	this.x /= v.x;
-  	this.y /= v.y;
-  	this.z /= v.z;
+  	this.vec[0] /= v.vec[0];
+  	this.vec[1] /= v.vec[1];
+  	this.vec[2] /= v.vec[2];
   }
 
 
@@ -520,9 +515,9 @@ public class Vector3D implements Constants {
    */
   static public Vector3D div(Vector3D v1, Vector3D v2, Vector3D target) {
     if (target == null) {
-      target = new Vector3D(v1.x/v2.x, v1.y/v2.y, v1.z/v2.z);
+      target = new Vector3D(v1.vec[0]/v2.vec[0], v1.vec[1]/v2.vec[1], v1.vec[2]/v2.vec[2]);
     } else {
-      target.set(v1.x/v2.x, v1.y/v2.y, v1.z/v2.z);
+      target.set(v1.vec[0]/v2.vec[0], v1.vec[1]/v2.vec[1], v1.vec[2]/v2.vec[2]);
     }
     return target;
   }
@@ -534,9 +529,9 @@ public class Vector3D implements Constants {
    * @return the Euclidean distance between
    */
   public float dist(Vector3D v) {
-    float dx = this.x - v.x;
-    float dy = this.y - v.y;
-    float dz = this.z - v.z;
+    float dx = this.vec[0] - v.vec[0];
+    float dy = this.vec[1] - v.vec[1];
+    float dz = this.vec[2] - v.vec[2];
     return (float) Math.sqrt(dx*dx + dy*dy + dz*dz);
   }
 
@@ -548,9 +543,9 @@ public class Vector3D implements Constants {
    * @return the Euclidean distance between v1 and v2
    */
   static public float dist(Vector3D v1, Vector3D v2) {
-    float dx = v1.x - v2.x;
-    float dy = v1.y - v2.y;
-    float dz = v1.z - v2.z;
+    float dx = v1.vec[0] - v2.vec[0];
+    float dy = v1.vec[1] - v2.vec[1];
+    float dz = v1.vec[2] - v2.vec[2];
     return (float) Math.sqrt(dx*dx + dy*dy + dz*dz);
   }
 
@@ -560,17 +555,17 @@ public class Vector3D implements Constants {
    * @return the dot product
    */
   public float dot(Vector3D v) {
-    return this.x*v.x + this.y*v.y + this.z*v.z;
+    return this.vec[0]*v.vec[0] + this.vec[1]*v.vec[1] + this.vec[2]*v.vec[2];
   }
 
 
   public float dot(float x, float y, float z) {
-    return this.x*x + this.y*y + this.z*z;
+    return this.vec[0]*x + this.vec[1]*y + this.vec[2]*z;
   }
 
 
   static public float dot(Vector3D v1, Vector3D v2) {
-    return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+    return v1.vec[0]*v2.vec[0] + v1.vec[1]*v2.vec[1] + v1.vec[2]*v2.vec[2];
   }
 
 
@@ -587,9 +582,9 @@ public class Vector3D implements Constants {
    * result in 'target'. If target is null, a new vector is created.
    */
   public Vector3D cross(Vector3D v, Vector3D target) {
-    float crossX = this.y * v.z - v.y * this.z;
-    float crossY = this.z * v.x - v.z * this.x;
-    float crossZ = this.x * v.y - v.x * this.y;
+    float crossX = this.vec[1] * v.vec[2] - v.vec[1] * this.vec[2];
+    float crossY = this.vec[2] * v.vec[0] - v.vec[2] * this.vec[0];
+    float crossZ = this.vec[0] * v.vec[1] - v.vec[0] * this.vec[1];
 
     if (target == null) {
       target = new Vector3D(crossX, crossY, crossZ);
@@ -601,9 +596,9 @@ public class Vector3D implements Constants {
 
 
   static public Vector3D cross(Vector3D v1, Vector3D v2, Vector3D target) {
-    float crossX = v1.y * v2.z - v2.y * v1.z;
-    float crossY = v1.z * v2.x - v2.z * v1.x;
-    float crossZ = v1.x * v2.y - v2.x * v1.y;
+    float crossX = v1.vec[1] * v2.vec[2] - v2.vec[1] * v1.vec[2];
+    float crossY = v1.vec[2] * v2.vec[0] - v2.vec[2] * v1.vec[0];
+    float crossZ = v1.vec[0] * v2.vec[1] - v2.vec[0] * v1.vec[1];
 
     if (target == null) {
       target = new Vector3D(crossX, crossY, crossZ);
@@ -636,9 +631,9 @@ public class Vector3D implements Constants {
     }
     float m = mag();
     if (m > 0) {
-      target.set(x/m, y/m, z/m);
+      target.set(vec[0]/m, vec[1]/m, vec[02]/m);
     } else {
-      target.set(x, y, z);
+      target.set(vec[0], vec[1], vec[2]);
     }
     return target;
   }
@@ -681,7 +676,7 @@ public class Vector3D implements Constants {
    * @return the angle of rotation
    */
   public float heading2D() {
-    float angle = (float) Math.atan2(-this.y, this.x);
+    float angle = (float) Math.atan2(-this.vec[1], this.vec[0]);
     return -1*angle;
   }
 
@@ -690,10 +685,10 @@ public class Vector3D implements Constants {
    * @param theta the angle of rotation
    */
   public void rotate(float theta) {
-    float xTemp = this.x;
+    float xTemp = this.vec[0];
     // Might need to check for rounding errors like with angleBetween function?
-    this.x = this.x*(float) Math.cos(theta) - this.y*(float) Math.sin(theta);
-    this.y = xTemp*(float) Math.sin(theta) + this.y*(float) Math.cos(theta);
+    this.vec[0] = this.vec[0]*(float) Math.cos(theta) - this.vec[1]*(float) Math.sin(theta);
+    this.vec[1] = xTemp*(float) Math.sin(theta) + this.vec[1]*(float) Math.cos(theta);
   }
 
   /**
@@ -703,13 +698,13 @@ public class Vector3D implements Constants {
    * 0.1 is very near the new vector, 0.5 is half-way in between.
    */
   public void lerp(Vector3D v, float amt) {
-  	this.x = lerp(this.x,v.x,amt);
-  	this.y = lerp(this.y,v.y,amt);
+  	this.vec[0] = lerp(this.vec[0],v.vec[0],amt);
+  	this.vec[1] = lerp(this.vec[1],v.vec[1],amt);
   }
 
   public void lerp(float x, float y, float z, float amt) {
-    this.x = lerp(this.x,x,amt);
-    this.y = lerp(this.y,y,amt);
+    this.vec[0] = lerp(this.vec[0],x,amt);
+    this.vec[1] = lerp(this.vec[1],y,amt);
   }
 
 
@@ -720,9 +715,9 @@ public class Vector3D implements Constants {
    * @return the angle between the vectors
    */
   static public float angleBetween(Vector3D v1, Vector3D v2) {
-    double dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-    double v1mag = Math.sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z);
-    double v2mag = Math.sqrt(v2.x * v2.x + v2.y * v2.y + v2.z * v2.z);
+    double dot = v1.vec[0] * v2.vec[0] + v1.vec[1] * v2.vec[1] + v1.vec[2] * v2.vec[2];
+    double v1mag = Math.sqrt(v1.vec[0] * v1.vec[0] + v1.vec[1] * v1.vec[1] + v1.vec[2] * v1.vec[2]);
+    double v2mag = Math.sqrt(v2.vec[0] * v2.vec[0] + v2.vec[1] * v2.vec[1] + v2.vec[2] * v2.vec[2]);
     // This should be a number between -1 and 1, since it's "normalized"
     double amt = dot / (v1mag * v2mag);
     // But if it's not due to rounding error, then we need to fix it
@@ -740,22 +735,6 @@ public class Vector3D implements Constants {
 
 
   public String toString() {
-    return "[ " + this.x + ", " + this.y + ", " + this.z + " ]";
-  }
-
-
-  /**
-   * Return a representation of this vector as a float array. This is only for
-   * temporary use. If used in any other fashion, the contents should be copied
-   * by using the get() command to copy into your own array.
-   */
-  public float[] array() {
-    if (array == null) {
-      array = new float[3];
-    }
-    array[0] = this.x;
-    array[1] = this.y;
-    array[2] = this.z;
-    return array;
+    return "[ " + this.vec[0] + ", " + this.vec[1] + ", " + this.vec[2] + " ]";
   }  
 }

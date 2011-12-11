@@ -205,15 +205,15 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		flyDisp.set(0.0f, 0.0f, 0.0f);
 		switch (action) {
 		case MOVE_FORWARD:
-			flyDisp.z = -flySpeed();
+			flyDisp.vec[2] = -flySpeed();
 			translate(localInverseTransformOf(flyDisp));
 			break;
 		case MOVE_BACKWARD:
-			flyDisp.z = flySpeed();
+			flyDisp.vec[2] = flySpeed();
 			translate(localInverseTransformOf(flyDisp));
 			break;
 		case DRIVE:
-			flyDisp.z = flySpeed() * drvSpd;
+			flyDisp.vec[2] = flySpeed() * drvSpd;
 			translate(localInverseTransformOf(flyDisp));
 			break;
 		default:

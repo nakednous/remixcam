@@ -67,8 +67,7 @@ public class Quaternion implements Constants, Copyable {
 	}
 	
 	/**
-	 * The x coordinate, i.e., the x coordinate of the vector part of the
-	 * Quaternion.
+	 * The x, y, z, and w coordinates of the Quaternion represented as a  public array.
 	 */
 	public float quat[] = new float[4];	
 	
@@ -525,10 +524,10 @@ public class Quaternion implements Constants, Copyable {
 
 		float q23 = 2.0f * this.quat[2] * this.quat[3];
 
-		return new Vector3D((1.0f - q11 - q22) * v.x + (q01 - q23) * v.y
-				+ (q02 + q13) * v.z, (q01 + q23) * v.x + (1.0f - q22 - q00) * v.y
-				+ (q12 - q03) * v.z, (q02 - q13) * v.x + (q12 + q03) * v.y
-				+ (1.0f - q11 - q00) * v.z);
+		return new Vector3D((1.0f - q11 - q22) * v.vec[0] + (q01 - q23) * v.vec[1]
+				+ (q02 + q13) * v.vec[2], (q01 + q23) * v.vec[0] + (1.0f - q22 - q00) * v.vec[1]
+				+ (q12 - q03) * v.vec[2], (q02 - q13) * v.vec[0] + (q12 + q03) * v.vec[1]
+				+ (1.0f - q11 - q00) * v.vec[2]);
 	}
 
 	/**
@@ -568,9 +567,9 @@ public class Quaternion implements Constants, Copyable {
 			this.quat[3] = 1.0f;
 		} else {
 			float sin_half_angle = (float) Math.sin(angle / 2.0f);
-			this.quat[0] = sin_half_angle * axis.x / norm;
-			this.quat[1] = sin_half_angle * axis.y / norm;
-			this.quat[2] = sin_half_angle * axis.z / norm;
+			this.quat[0] = sin_half_angle * axis.vec[0] / norm;
+			this.quat[1] = sin_half_angle * axis.vec[1] / norm;
+			this.quat[2] = sin_half_angle * axis.vec[2] / norm;
 			this.quat[3] = (float) Math.cos(angle / 2.0f);
 		}
 	}
@@ -597,7 +596,7 @@ public class Quaternion implements Constants, Copyable {
 	 * @see #eulerAngles()
 	 */
 	public void fromEulerAngles(Vector3D angles) {
-		fromEulerAngles(angles.x, angles.y, angles.z);
+		fromEulerAngles(angles.vec[0], angles.vec[1], angles.vec[2]);
 	}
 
 	/**
@@ -814,9 +813,9 @@ public class Quaternion implements Constants, Copyable {
 		float normZ = Z.mag();
 
 		for (int i = 0; i < 3; ++i) {
-			m[i][0] = (X.array())[i] / normX;
-			m[i][1] = (Y.array())[i] / normY;
-			m[i][2] = (Z.array())[i] / normZ;
+			m[i][0] = X.vec[i] / normX;
+			m[i][1] = Y.vec[i] / normY;
+			m[i][2] = Z.vec[i] / normZ;
 		}
 
 		fromRotationMatrix(m);
@@ -838,9 +837,9 @@ public class Quaternion implements Constants, Copyable {
 		if ((float) Math.acos(this.quat[3]) <= HALF_PI)
 			return res;
 		else {
-			res.x = -res.x;
-			res.y = -res.y;
-			res.z = -res.z;
+			res.vec[0] = -res.vec[0];
+			res.vec[1] = -res.vec[1];
+			res.vec[2] = -res.vec[2];
 			return res;
 		}
 	}

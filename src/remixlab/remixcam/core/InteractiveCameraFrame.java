@@ -184,13 +184,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					trans.mult(2.0f
 							* (float) Math.tan(camera.fieldOfView() / 2.0f)
 							* Math.abs((camera.frame()
-									.coordinatesOf(arcballReferencePoint())).z)
+									.coordinatesOf(arcballReferencePoint())).vec[2])
 							/ camera.screenHeight());
 					break;
 				case ORTHOGRAPHIC: {
 					float[] wh = camera.getOrthoWidthHeight();
-					trans.x *= 2.0f * wh[0] / camera.screenWidth();
-					trans.y *= 2.0f * wh[1] / camera.screenHeight();
+					trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
+					trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 					break;
 				}
 				}
@@ -203,7 +203,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			case ZOOM: {
 				// #CONNECTION# wheelEvent() ZOOM case
 				float coef = Math.max(Math.abs((camera.frame()
-						.coordinatesOf(camera.arcballReferencePoint())).z), 0.2f * camera
+						.coordinatesOf(camera.arcballReferencePoint())).vec[2]), 0.2f * camera
 						.sceneRadius());
 				// Warning: same for left and right CoordinateSystemConvention:
 				Vector3D trans = new Vector3D(0.0f, 0.0f, -coef
@@ -216,7 +216,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			case ROTATE: {
 				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
 				Quaternion rot = deformedBallQuaternion((int) eventPoint.x,
-						(int) eventPoint.y, trans.x, trans.y, camera);
+						(int) eventPoint.y, trans.vec[0], trans.vec[1], camera);
 				// #CONNECTION# These two methods should go together (spinning detection
 				// and activation)
 				computeMouseSpeed(eventPoint);
@@ -228,10 +228,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 			case SCREEN_ROTATE: {
 				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
-				float angle = (float) Math.atan2((int) eventPoint.y - trans.y,
-						(int) eventPoint.x - trans.x)
-						- (float) Math.atan2((int) prevPos.y - trans.y, (int) prevPos.x
-								- trans.x);
+				float angle = (float) Math.atan2((int) eventPoint.y - trans.vec[1],
+						(int) eventPoint.x - trans.vec[0])
+						- (float) Math.atan2((int) prevPos.y - trans.vec[1], (int) prevPos.x
+								- trans.vec[0]);
 
 				// lef-handed coordinate system correction
 				angle = -angle;
@@ -259,13 +259,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					trans.mult(2.0f
 							* (float) Math.tan(camera.fieldOfView() / 2.0f)
 							* Math.abs((camera.frame()
-									.coordinatesOf(arcballReferencePoint())).z)
+									.coordinatesOf(arcballReferencePoint())).vec[2])
 							/ camera.screenHeight());
 					break;
 				case ORTHOGRAPHIC: {
 					float[] wh = camera.getOrthoWidthHeight();
-					trans.x *= 2.0f * wh[0] / camera.screenWidth();
-					trans.y *= 2.0f * wh[1] / camera.screenHeight();
+					trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
+					trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 					break;
 				}
 				}
@@ -327,7 +327,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			float wheelSensitivityCoef = 8E-4f;
 			// #CONNECTION# mouseMoveEvent() ZOOM case
 			float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera
-					.arcballReferencePoint())).z), 0.2f * camera.sceneRadius());
+					.arcballReferencePoint())).vec[2]), 0.2f * camera.sceneRadius());
 			Vector3D trans = new Vector3D(0.0f, 0.0f, coef * (-rotation)
 					* wheelSensitivity() * wheelSensitivityCoef);
 			// right_handed coordinate system should go like this:

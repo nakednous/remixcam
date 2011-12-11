@@ -427,7 +427,7 @@ public class Camera implements Constants, Copyable {
 		this.unprojectCacheOptimized = oCam.unprojectCacheOptimized;
 		
 		for (int i = 0; i < normal.length; i++)
-			this.normal[i] = new Vector3D(oCam.normal[i].x, oCam.normal[i].y, oCam.normal[i].z );
+			this.normal[i] = new Vector3D(oCam.normal[i].vec[0], oCam.normal[i].vec[1], oCam.normal[i].vec[2] );
 		
 		this.fldOfView = oCam.fldOfView;
 		
@@ -989,7 +989,7 @@ public class Camera implements Constants, Copyable {
 			target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);
 		} else {
 			float dist = orthoCoef
-					* Math.abs(cameraCoordinatesOf(arcballReferencePoint()).z);
+					* Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);
 			// #CONNECTION# fitScreenRegion
 			// 1. halfWidth
 			target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
@@ -1290,7 +1290,7 @@ public class Camera implements Constants, Copyable {
 	public float pixelP5Ratio(Vector3D position) {
 		switch (type()) {
 		case PERSPECTIVE:
-			return 2.0f * Math.abs((frame().coordinatesOf(position)).z)
+			return 2.0f * Math.abs((frame().coordinatesOf(position)).vec[2])
 					* (float) Math.tan(fieldOfView() / 2.0f) / screenHeight();
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
@@ -1431,8 +1431,8 @@ public class Camera implements Constants, Copyable {
 		for (int i = 0; i < 6; ++i) {
 			boolean allOut = true;
 			for (int c = 0; c < 8; ++c) {
-				Vector3D pos = new Vector3D(((c & 4) != 0) ? p1.x : p2.x,
-						((c & 2) != 0) ? p1.y : p2.y, ((c & 1) != 0) ? p1.z : p2.z);
+				Vector3D pos = new Vector3D(((c & 4) != 0) ? p1.vec[0] : p2.vec[0],
+						((c & 2) != 0) ? p1.vec[1] : p2.vec[1], ((c & 1) != 0) ? p1.vec[2] : p2.vec[2]);
 				if (distanceToFrustumPlane(i, pos) > 0.0)
 					allInForAllPlanes = false;
 				else
@@ -1637,9 +1637,9 @@ public class Camera implements Constants, Copyable {
 		dist[3] = posViewDir + zFar();
 
 		for (int i = 0; i < 6; ++i) {
-			coef[i][0] = normal[i].x;
-			coef[i][1] = normal[i].y;
-			coef[i][2] = normal[i].z;
+			coef[i][0] = normal[i].vec[0];
+			coef[i][1] = normal[i].vec[1];
+			coef[i][2] = normal[i].vec[2];
 			coef[i][3] = dist[i];
 		}
 		
@@ -1782,7 +1782,7 @@ public class Camera implements Constants, Copyable {
   public boolean faceIsBackFacing(Vector3D a, Vector3D b, Vector3D c) {
   	Vector3D v1 = Vector3D.sub(projectedCoordinatesOf(a), projectedCoordinatesOf(b));
     Vector3D v2 = Vector3D.sub(projectedCoordinatesOf(b), projectedCoordinatesOf(c));
-    return v1.cross(v2).z <= 0;
+    return v1.cross(v2).vec[2] <= 0;
   }
 
 	// 4. SCENE RADIUS AND CENTER
@@ -1870,7 +1870,7 @@ public class Camera implements Constants, Copyable {
 	 * Used by {@link #zNear()} and {@link #zFar()} to optimize the Z range.
 	 */
 	public float distanceToSceneCenter() {
-		return Math.abs((frame().coordinatesOf(sceneCenter())).z);
+		return Math.abs((frame().coordinatesOf(sceneCenter())).vec[2]);
 	}
 
 	/**
@@ -1902,7 +1902,7 @@ public class Camera implements Constants, Copyable {
 	 * world coordinate system).
 	 */
 	public void setArcballReferencePoint(Vector3D rap) {
-		float prevDist = Math.abs(cameraCoordinatesOf(arcballReferencePoint()).z);
+		float prevDist = Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);
 
 		frame().setArcballReferencePoint(rap);
 
@@ -1910,7 +1910,7 @@ public class Camera implements Constants, Copyable {
 		// arcballReferencePoint, so that the image does
 		// not change when the arcballReferencePoint is changed in ORTHOGRAPHIC
 		// mode.
-		float newDist = Math.abs(cameraCoordinatesOf(arcballReferencePoint()).z);
+		float newDist = Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);
 		// Prevents division by zero when rap is set to camera position
 		if ((prevDist > 1E-9) && (newDist > 1E-9))
 			orthoCoef *= prevDist / newDist;
@@ -2402,9 +2402,9 @@ public class Camera implements Constants, Copyable {
 
 		Vector3D t = q.inverseRotate(frame().position());
 
-		modelViewMat.m03 = -t.x;
-		modelViewMat.m13 = -t.y;
-		modelViewMat.m23 = -t.z;
+		modelViewMat.m03 = -t.vec[0];
+		modelViewMat.m13 = -t.vec[1];
+		modelViewMat.m23 = -t.vec[2];
 		modelViewMat.m33 = 1.0f;
 	}
 
@@ -2524,9 +2524,9 @@ public class Camera implements Constants, Copyable {
 
 		if (frame != null) {
 			Vector3D tmp = frame.inverseCoordinatesOf(src);
-			project(tmp.x, tmp.y, tmp.z, modelViewMat, projectionMat, viewport, xyz);
+			project(tmp.vec[0], tmp.vec[1], tmp.vec[2], modelViewMat, projectionMat, viewport, xyz);
 		} else
-			project(src.x, src.y, src.z, modelViewMat, projectionMat, viewport, xyz);
+			project(src.vec[0], src.vec[1], src.vec[2], modelViewMat, projectionMat, viewport, xyz);
 
   	//lef-handed coordinate system correction
 		xyz[1] = screenHeight() - xyz[1];
@@ -2584,7 +2584,7 @@ public class Camera implements Constants, Copyable {
 		float xyz[] = new float[3];
 		viewport = getViewport();
 		
-		unproject(src.x, (screenHeight() - src.y), src.z, modelViewMat,	projectionMat, viewport, xyz);		
+		unproject(src.vec[0], (screenHeight() - src.vec[1]), src.vec[2], modelViewMat,	projectionMat, viewport, xyz);		
 		//right_handed coordinate system should go like this:
 		//unproject(src.x, src.y, src.z, modelViewMat, projectionMat, viewport, xyz);
 		
@@ -2705,8 +2705,8 @@ public class Camera implements Constants, Copyable {
 	 * {@link #fitSphere(Vector3D, float)}.
 	 */
 	public void fitBoundingBox(Vector3D min, Vector3D max) {
-		float diameter = Math.max(Math.abs(max.y - min.y), Math.abs(max.x - min.x));
-		diameter = Math.max(Math.abs(max.z - min.z), diameter);
+		float diameter = Math.max(Math.abs(max.vec[1] - min.vec[1]), Math.abs(max.vec[0] - min.vec[0]));
+		diameter = Math.max(Math.abs(max.vec[2] - min.vec[2]), diameter);
 		fitSphere(Vector3D.mult(Vector3D.add(min, max), 0.5f), 0.5f * diameter);
 	}
 
@@ -2824,7 +2824,7 @@ public class Camera implements Constants, Copyable {
 		// without modifying frame
 		tempFrame = new InteractiveCameraFrame(this);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().x,	frame().position().y, frame().position().z));
+		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
 		tempFrame.setOrientation( frame().orientation().get() );
 		setFrame(tempFrame);
 		fitScreenRegion(rectangle);
@@ -2909,7 +2909,7 @@ public class Camera implements Constants, Copyable {
 		// without modifying frame
 		tempFrame = new InteractiveCameraFrame(this);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().x,	frame().position().y, frame().position().z));
+		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
 		tempFrame.setOrientation( frame().orientation().get() );
 		setFrame(tempFrame);
 		showEntireScene();

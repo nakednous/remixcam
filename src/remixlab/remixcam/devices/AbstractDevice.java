@@ -135,12 +135,12 @@ public abstract class AbstractDevice {
 		quaternion = new Quaternion();
 		t = new Vector3D();
     q = new Quaternion();
-    tx = translation.x * transSens.x;
-    ty = translation.y * transSens.y;
-    tz = translation.z * transSens.z;
-  	roll = rotation.x * rotSens.x;
-    pitch = rotation.y * rotSens.y;
-    yaw = rotation.z * rotSens.z;
+    tx = translation.vec[0] * transSens.vec[0];
+    ty = translation.vec[1] * transSens.vec[1];
+    tz = translation.vec[2] * transSens.vec[2];
+  	roll = rotation.vec[0] * rotSens.vec[0];
+    pitch = rotation.vec[1] * rotSens.vec[1];
+    yaw = rotation.vec[2] * rotSens.vec[2];
     
     setMode(m);
     setCameraMode(CameraMode.FIRST_PERSON);
@@ -205,8 +205,8 @@ public abstract class AbstractDevice {
 	 */
 	public void feedXTranslation(float t) {
 		if ( mode() == Mode.ABSOLUTE )
-			prevTranslation.x = translation.x; 
-		translation.x = t;
+			prevTranslation.vec[0] = translation.vec[0]; 
+		translation.vec[0] = t;
 	}
 
 	/**
@@ -216,9 +216,9 @@ public abstract class AbstractDevice {
 	 */
 	public void feedYTranslation(float t) {
 		if ( mode() == Mode.ABSOLUTE ) {
-			prevTranslation.y = translation.y; 
+			prevTranslation.vec[1] = translation.vec[1]; 
 		}
-		translation.y = t;
+		translation.vec[1] = t;
 	}
 
 	/**
@@ -228,8 +228,8 @@ public abstract class AbstractDevice {
 	 */
 	public void feedZTranslation(float t) {
 		if ( mode() == Mode.ABSOLUTE )
-			prevTranslation.z = translation.z; 
-		translation.z = t;
+			prevTranslation.vec[2] = translation.vec[2]; 
+		translation.vec[2] = t;
 	}	
 
 	/**
@@ -239,8 +239,8 @@ public abstract class AbstractDevice {
 	 */
 	public void feedXRotation(float t) {
 		if ( mode() == Mode.ABSOLUTE )
-			prevRotation.x = rotation.x; 
-		rotation.x = t;
+			prevRotation.vec[0] = rotation.vec[0]; 
+		rotation.vec[0] = t;
 	}
 
 	/**
@@ -250,8 +250,8 @@ public abstract class AbstractDevice {
 	 */
 	public void feedYRotation(float t) {
 		if ( mode() == Mode.ABSOLUTE )
-			prevRotation.y = rotation.y;
-		rotation.y = t;
+			prevRotation.vec[1] = rotation.vec[1];
+		rotation.vec[1] = t;
 	}
 
 	/**
@@ -261,8 +261,8 @@ public abstract class AbstractDevice {
 	 */
 	public void feedZRotation(float t) {
 		if ( mode() == Mode.ABSOLUTE )
-			prevRotation.z = rotation.z;
-		rotation.z = t;
+			prevRotation.vec[2] = rotation.vec[2];
+		rotation.vec[2] = t;
 	}
 	
 	/**
@@ -345,42 +345,42 @@ public abstract class AbstractDevice {
 	 * Sets the x-axis translation sensitivity.
 	 */
 	public void setXTranslationSensitivity(float sensitivity) {
-		transSens.x = sensitivity;
+		transSens.vec[0] = sensitivity;
 	}
 
 	/**
 	 * Sets the y-axis translation sensitivity.
 	 */
 	public void setYTranslationSensitivity(float sensitivity) {
-		transSens.y = sensitivity;
+		transSens.vec[1] = sensitivity;
 	}
 
 	/**
 	 * Sets the z-axis translation sensitivity.
 	 */
 	public void setZTranslationSensitivity(float sensitivity) {
-		transSens.z = sensitivity;
+		transSens.vec[2] = sensitivity;
 	}	
 
 	/**
 	 * Sets the x-axis rotation sensitivity.
 	 */
 	public void setXRotationSensitivity(float sensitivity) {
-		rotSens.x = sensitivity;
+		rotSens.vec[0] = sensitivity;
 	}
 
 	/**
 	 * Sets the y-axis rotation sensitivity.
 	 */
 	public void setYRotationSensitivity(float sensitivity) {
-		rotSens.y = sensitivity;
+		rotSens.vec[1] = sensitivity;
 	}
 
 	/**
 	 * Sets the z-axis rotation sensitivity.
 	 */
 	public void setZRotationSensitivity(float sensitivity) {
-		rotSens.z = sensitivity;
+		rotSens.vec[2] = sensitivity;
 	}	
 	
 	/**
@@ -430,20 +430,20 @@ public abstract class AbstractDevice {
 		}
 		
 		if ( mode() == Mode.ABSOLUTE ) {
-			tx = (translation.x - prevTranslation.x) * transSens.x;
-			ty = (translation.y - prevTranslation.y) * transSens.y;
-			tz = (translation.z - prevTranslation.z) * transSens.z;
-			roll = (rotation.x - prevRotation.x) * rotSens.x;
-			pitch = (rotation.y - prevRotation.y) * rotSens.y;
-			yaw = (rotation.z - prevRotation.z) * rotSens.z;
+			tx = (translation.vec[0] - prevTranslation.vec[0]) * transSens.vec[0];
+			ty = (translation.vec[1] - prevTranslation.vec[1]) * transSens.vec[1];
+			tz = (translation.vec[2] - prevTranslation.vec[2]) * transSens.vec[2];
+			roll = (rotation.vec[0] - prevRotation.vec[0]) * rotSens.vec[0];
+			pitch = (rotation.vec[1] - prevRotation.vec[1]) * rotSens.vec[1];
+			yaw = (rotation.vec[2] - prevRotation.vec[2]) * rotSens.vec[2];
 		}
 		else {
-			tx = translation.x * transSens.x;
-			ty = translation.y * transSens.y;
-			tz = translation.z * transSens.z;
-			roll = rotation.x * rotSens.x;
-			pitch = rotation.y * rotSens.y;
-			yaw = rotation.z * rotSens.z;
+			tx = translation.vec[0] * transSens.vec[0];
+			ty = translation.vec[1] * transSens.vec[1];
+			tz = translation.vec[2] * transSens.vec[2];
+			roll = rotation.vec[0] * rotSens.vec[0];
+			pitch = rotation.vec[1] * rotSens.vec[1];
+			yaw = rotation.vec[2] * rotSens.vec[2];
 		}
 		
 		if (scene.interactiveFrameIsDrawn() || (scene.mouseGrabber() != null && scene.mouseGrabber() instanceof InteractiveFrame) )
@@ -478,9 +478,9 @@ public abstract class AbstractDevice {
       t.set(-q.quat[0], -q.quat[1], -q.quat[2]);
       t = cameraFrame.orientation().rotate(t);
       t = iFrame.transformOf(t);
-      q.quat[0] = t.x;
-      q.quat[1] = t.y;
-      q.quat[2] = t.y;
+      q.quat[0] = t.vec[0];
+      q.quat[1] = t.vec[1];
+      q.quat[2] = t.vec[1];
       iFrame.rotate(q);
 			break;			
     case WORLD:
@@ -517,10 +517,10 @@ public abstract class AbstractDevice {
       cameraFrame.rotate(q);
 			break;
 		case GOOGLE_EARTH:
-			t = Vector3D.mult(cameraFrame.position(), -tz * ( rotSens.z/transSens.z ) );
+			t = Vector3D.mult(cameraFrame.position(), -tz * ( rotSens.vec[2]/transSens.vec[2] ) );
       cameraFrame.translate(t);
 
-      q.fromEulerAngles(-ty * ( rotSens.y/transSens.y ), tx * ( rotSens.x/transSens.x ), 0);
+      q.fromEulerAngles(-ty * ( rotSens.vec[1]/transSens.vec[1] ), tx * ( rotSens.vec[0]/transSens.vec[0] ), 0);
       cameraFrame.rotateAroundPoint(q, scene.camera().arcballReferencePoint());
 
       q.fromEulerAngles(0, 0, yaw);

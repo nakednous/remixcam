@@ -341,7 +341,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 */
 	public void checkIfGrabsMouse(int x, int y, Camera camera) {
 		Vector3D proj = camera.projectedCoordinatesOf(position());
-		setGrabsMouse(keepsGrabbingMouse || ((Math.abs(x - proj.x) < grabsMouseThreshold()) && (Math.abs(y - proj.y) < grabsMouseThreshold())));
+		setGrabsMouse(keepsGrabbingMouse || ((Math.abs(x - proj.vec[0]) < grabsMouseThreshold()) && (Math.abs(y - proj.vec[1]) < grabsMouseThreshold())));
 	}
 
 	/**
@@ -640,13 +640,13 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 			switch (camera.type()) {
 			case PERSPECTIVE:
 				trans.mult(2.0f * (float) Math.tan(camera.fieldOfView() / 2.0f)
-						* Math.abs((camera.frame().coordinatesOf(position())).z)
+						* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
 						/ camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC: {
 				float[] wh = camera.getOrthoWidthHeight();
-				trans.x *= 2.0 * wh[0] / camera.screenWidth();
-				trans.y *= 2.0 * wh[1] / camera.screenHeight();
+				trans.vec[0] *= 2.0 * wh[0] / camera.screenWidth();
+				trans.vec[1] *= 2.0 * wh[1] / camera.screenHeight();
 				break;
 			}
 			}
@@ -675,9 +675,9 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 		case SCREEN_ROTATE: {
 			// TODO: needs testing to see if it works correctly when left-handed is set
 			Vector3D trans = camera.projectedCoordinatesOf(position());
-			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.y, (int)prevPos.x - trans.x);
-			float angle = (float) Math.atan2((int)eventPoint.y - trans.y, (int)eventPoint.x
-					- trans.x);
+			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.vec[1], (int)prevPos.x - trans.vec[0]);
+			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x
+					- trans.vec[0]);
 			Vector3D axis = transformOf(camera.frame().inverseTransformOf(
 					new Vector3D(0.0f, 0.0f, -1.0f)));
 			 
@@ -705,13 +705,13 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 			switch (camera.type()) {
 			case PERSPECTIVE:
 				trans.mult((float) Math.tan(camera.fieldOfView() / 2.0f)
-						* Math.abs((camera.frame().coordinatesOf(position())).z)
+						* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
 						/ camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC: {
 				float[] wh = camera.getOrthoWidthHeight();
-				trans.x *= 2.0 * wh[0] / camera.screenWidth();
-				trans.y *= 2.0 * wh[1] / camera.screenHeight();
+				trans.vec[0] *= 2.0 * wh[0] / camera.screenWidth();
+				trans.vec[1] *= 2.0 * wh[1] / camera.screenHeight();
 				break;
 			}
 			}
@@ -728,13 +728,13 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 
 		case ROTATE: {
 			Vector3D trans = camera.projectedCoordinatesOf(position());
-			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.x, trans.y, camera);
+			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.vec[0], trans.vec[1], camera);
 			trans.set(-rot.quat[0], -rot.quat[1], -rot.quat[2]);
 			trans = camera.frame().orientation().rotate(trans);
 			trans = transformOf(trans);
-			rot.quat[0] = trans.x;
-			rot.quat[1] = trans.y;
-			rot.quat[2] = trans.z;
+			rot.quat[0] = trans.vec[0];
+			rot.quat[1] = trans.vec[1];
+			rot.quat[2] = trans.vec[2];
 			// #CONNECTION# These two methods should go together (spinning detection
 			// and activation)
 			computeMouseSpeed(eventPoint);
@@ -920,7 +920,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));
 
   	//lef-handed coordinate system correction (next two lines)
-	  axis.y = -axis.y;
+	  axis.vec[1] = -axis.vec[1];
 	  angle = -angle;
 
 		return new Quaternion(axis, angle);

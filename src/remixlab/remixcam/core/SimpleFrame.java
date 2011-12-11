@@ -122,14 +122,14 @@ public class SimpleFrame implements Copyable {
 		}
 		
 		public FrameKernel(Vector3D p, Quaternion r) {
-			trans = new Vector3D(p.x, p.y, p.z);
+			trans = new Vector3D(p.vec[0], p.vec[1], p.vec[2]);
 			rot = r.get();
 			refFrame = null;
 			constr = null;
 		}
 		
 		protected FrameKernel(FrameKernel other) {
-			trans = new Vector3D(other.translation().x, other.translation().y, other.translation().z);
+			trans = new Vector3D(other.translation().vec[0], other.translation().vec[1], other.translation().vec[2]);
 			rot = other.rotation().get();
 			refFrame = other.referenceFrame();
 			constr = other.constraint();
@@ -798,13 +798,13 @@ public class SimpleFrame implements Copyable {
 	 * @see #rotate(Quaternion)
 	 */
 	public final void translate(Vector3D t, boolean keepArg) {
-		Vector3D o = new Vector3D(t.x, t.y, t.z);
+		Vector3D o = new Vector3D(t.vec[0], t.vec[1], t.vec[2]);
 		if (constraint() != null) {
 			o = constraint().constrainTranslation(t, this);
 			if (!keepArg) {
-				t.x = o.x;
-				t.y = o.y;
-				t.z = o.z;
+				t.vec[0] = o.vec[0];
+				t.vec[1] = o.vec[1];
+				t.vec[2] = o.vec[2];
 			}
 		}
 		kernel().translation().add(o);
@@ -1446,9 +1446,9 @@ public class SimpleFrame implements Copyable {
 
 		pM = kernel().rotation().matrix();
 
-		pM.m03 = kernel().translation().x;
-		pM.m13 = kernel().translation().y;
-		pM.m23 = kernel().translation().z;
+		pM.m03 = kernel().translation().vec[0];
+		pM.m13 = kernel().translation().vec[1];
+		pM.m23 = kernel().translation().vec[2];
 
 		return pM;
 	}	
@@ -1531,9 +1531,9 @@ public class SimpleFrame implements Copyable {
 			return;
 		}
 
-		kernel().translation().x = pM.m03 / pM.m33;
-		kernel().translation().y = pM.m13 / pM.m33;
-		kernel().translation().z = pM.m23 / pM.m33;
+		kernel().translation().vec[0] = pM.m03 / pM.m33;
+		kernel().translation().vec[1] = pM.m13 / pM.m33;
+		kernel().translation().vec[2] = pM.m23 / pM.m33;
 
 		float[][] r = new float[3][3];
 

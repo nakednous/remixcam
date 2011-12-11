@@ -163,7 +163,7 @@ public class KeyFrameInterpolator implements Copyable {
 				updateValues();
 			} else {
 				frm = null;
-				p = new Vector3D(fr.position().x, fr.position().y, fr.position().z);
+				p = new Vector3D(fr.position().vec[0], fr.position().vec[1], fr.position().vec[2]);
 				q = fr.orientation().get();
 			}
 		}
@@ -176,7 +176,7 @@ public class KeyFrameInterpolator implements Copyable {
 				this.q = this.frame().orientation();
 			} else {
 				//p = new Vector3D( otherKF.p.x, otherKF.p.y, otherKF.p.z );
-				this.p = new Vector3D(otherKF.position().x, otherKF.position().y, otherKF.position().z);
+				this.p = new Vector3D(otherKF.position().vec[0], otherKF.position().vec[1], otherKF.position().vec[2]);
 				//q = otherKF.q.getCopy();
 				this.q = otherKF.orientation().get();
 			}

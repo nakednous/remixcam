@@ -437,9 +437,9 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
     if (target == null) {
       target = new Vector3D();
     }
-    target.x = m00*source.x + m01*source.y + m02*source.z + m03;
-    target.y = m10*source.x + m11*source.y + m12*source.z + m13;
-    target.z = m20*source.x + m21*source.y + m22*source.z + m23;
+    target.vec[0] = m00*source.vec[0] + m01*source.vec[1] + m02*source.vec[2] + m03;
+    target.vec[1] = m10*source.vec[0] + m11*source.vec[1] + m12*source.vec[2] + m13;
+    target.vec[2] = m20*source.vec[0] + m21*source.vec[1] + m22*source.vec[2] + m23;
 //    float tw = m30*source.x + m31*source.y + m32*source.z + m33;
 //    if (tw != 0 && tw != 1) {
 //      target.div(tw);

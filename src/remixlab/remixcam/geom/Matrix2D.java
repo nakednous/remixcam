@@ -325,8 +325,8 @@ public class Matrix2D implements Matrix {
     if (target == null) {
       target = new Vector3D();
     }
-    target.x = m00*source.x + m01*source.y + m02;
-    target.y = m10*source.x + m11*source.y + m12;
+    target.vec[0] = m00*source.vec[0] + m01*source.vec[1] + m02;
+    target.vec[1] = m10*source.vec[0] + m11*source.vec[1] + m12;
     return target;
   }
 

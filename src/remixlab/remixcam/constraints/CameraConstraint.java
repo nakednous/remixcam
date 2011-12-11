@@ -63,7 +63,7 @@ public class CameraConstraint extends AxisPlaneConstraint {
 	 */
 	@Override
 	public Vector3D constrainTranslation(Vector3D translation, SimpleFrame frame) {
-		Vector3D res = new Vector3D(translation.x, translation.y, translation.z);
+		Vector3D res = new Vector3D(translation.vec[0], translation.vec[1], translation.vec[2]);
 		Vector3D proj;
 		switch (translationConstraintType()) {
 		case FREE:
