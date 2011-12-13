@@ -2294,24 +2294,24 @@ public class Camera implements Constants, Copyable {
 			// #CONNECTION# all non null coefficients were set to 0.0 in
 			// constructor.
 			float f = 1.0f / (float) Math.tan(fieldOfView() / 2.0f);
-			projectionMat.m00 = f / aspectRatio();
-			projectionMat.m11 = f;
-			projectionMat.m22 = (ZNear + ZFar) / (ZNear - ZFar);
-			projectionMat.m32 = -1.0f;
-			projectionMat.m23 = 2.0f * ZNear * ZFar / (ZNear - ZFar);
-			projectionMat.m33 = 0.0f;
+			projectionMat.mat[0] = f / aspectRatio();
+			projectionMat.mat[5] = f;
+			projectionMat.mat[10] = (ZNear + ZFar) / (ZNear - ZFar);
+			projectionMat.mat[14] = -1.0f;
+			projectionMat.mat[11] = 2.0f * ZNear * ZFar / (ZNear - ZFar);
+			projectionMat.mat[15] = 0.0f;
 			// same as gluPerspective( 180.0*fieldOfView()/M_PI, aspectRatio(),
 			// zNear(), zFar() );
 			break;
 		}
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
-			projectionMat.m00 = 1.0f / wh[0];
-			projectionMat.m11 = 1.0f / wh[1];
-			projectionMat.m22 = -2.0f / (ZFar - ZNear);
-			projectionMat.m32 = 0.0f;
-			projectionMat.m23 = -(ZFar + ZNear) / (ZFar - ZNear);
-			projectionMat.m33 = 1.0f;
+			projectionMat.mat[0] = 1.0f / wh[0];
+			projectionMat.mat[5] = 1.0f / wh[1];
+			projectionMat.mat[10] = -2.0f / (ZFar - ZNear);
+			projectionMat.mat[14] = 0.0f;
+			projectionMat.mat[11] = -(ZFar + ZNear) / (ZFar - ZNear);
+			projectionMat.mat[15] = 1.0f;
 			// same as glOrtho( -w, w, -h, h, zNear(), zFar() );
 			break;
 		}
@@ -2385,27 +2385,27 @@ public class Camera implements Constants, Copyable {
 		float q13 = 2.0f * q.quat[1] * q.quat[3];
 		float q23 = 2.0f * q.quat[2] * q.quat[3];
 
-		modelViewMat.m00 = 1.0f - q11 - q22;
-		modelViewMat.m10 = q01 - q23;
-		modelViewMat.m20 = q02 + q13;
-		modelViewMat.m30 = 0.0f;
+		modelViewMat.mat[0] = 1.0f - q11 - q22;
+		modelViewMat.mat[4] = q01 - q23;
+		modelViewMat.mat[8] = q02 + q13;
+		modelViewMat.mat[12] = 0.0f;
 
-		modelViewMat.m01 = q01 + q23;
-		modelViewMat.m11 = 1.0f - q22 - q00;
-		modelViewMat.m21 = q12 - q03;
-		modelViewMat.m31 = 0.0f;
+		modelViewMat.mat[1] = q01 + q23;
+		modelViewMat.mat[5] = 1.0f - q22 - q00;
+		modelViewMat.mat[9] = q12 - q03;
+		modelViewMat.mat[13] = 0.0f;
 
-		modelViewMat.m02 = q02 - q13;
-		modelViewMat.m12 = q12 + q03;
-		modelViewMat.m22 = 1.0f - q11 - q00;
-		modelViewMat.m32 = 0.0f;
+		modelViewMat.mat[2] = q02 - q13;
+		modelViewMat.mat[6] = q12 + q03;
+		modelViewMat.mat[10] = 1.0f - q11 - q00;
+		modelViewMat.mat[14] = 0.0f;
 
 		Vector3D t = q.inverseRotate(frame().position());
 
-		modelViewMat.m03 = -t.vec[0];
-		modelViewMat.m13 = -t.vec[1];
-		modelViewMat.m23 = -t.vec[2];
-		modelViewMat.m33 = 1.0f;
+		modelViewMat.mat[3] = -t.vec[0];
+		modelViewMat.mat[7] = -t.vec[1];
+		modelViewMat.mat[11] = -t.vec[2];
+		modelViewMat.mat[15] = 1.0f;
 	}
 
 	/**
@@ -3165,10 +3165,10 @@ public class Camera implements Constants, Copyable {
 		in[3] = 1.0f;
 		
 		if(projectCacheOptimized) {	
-			out[0]=projectionTimesModelview.m00*in[0] + projectionTimesModelview.m01*in[1] + projectionTimesModelview.m02*in[2] + projectionTimesModelview.m03*in[3];
-			out[1]=projectionTimesModelview.m10*in[0] + projectionTimesModelview.m11*in[1] + projectionTimesModelview.m12*in[2] + projectionTimesModelview.m13*in[3];
-			out[2]=projectionTimesModelview.m20*in[0] + projectionTimesModelview.m21*in[1] + projectionTimesModelview.m22*in[2] + projectionTimesModelview.m23*in[3];
-			out[3]=projectionTimesModelview.m30*in[0] + projectionTimesModelview.m31*in[1] + projectionTimesModelview.m32*in[2] + projectionTimesModelview.m33*in[3];
+			out[0]=projectionTimesModelview.mat[0]*in[0] + projectionTimesModelview.mat[1]*in[1] + projectionTimesModelview.mat[2]*in[2] + projectionTimesModelview.mat[3]*in[3];
+			out[1]=projectionTimesModelview.mat[4]*in[0] + projectionTimesModelview.mat[5]*in[1] + projectionTimesModelview.mat[6]*in[2] + projectionTimesModelview.mat[7]*in[3];
+			out[2]=projectionTimesModelview.mat[8]*in[0] + projectionTimesModelview.mat[9]*in[1] + projectionTimesModelview.mat[10]*in[2] + projectionTimesModelview.mat[11]*in[3];
+			out[3]=projectionTimesModelview.mat[12]*in[0] + projectionTimesModelview.mat[13]*in[1] + projectionTimesModelview.mat[14]*in[2] + projectionTimesModelview.mat[15]*in[3];
 			
 			if (out[3] == 0.0)
 				return false;
@@ -3234,7 +3234,7 @@ public class Camera implements Constants, Copyable {
 	public boolean unproject(float winx, float winy, float winz, Matrix3D modelview,
 			                     Matrix3D projection, int viewport[], float[] objCoordinate) {		
 		if(!unprojectCacheOptimized) {
-			if(!projectCacheOptimized) {		
+			if(!projectCacheOptimized) {	
 				if(projectionTimesModelview == null)
 					projectionTimesModelview = new Matrix3D();
 				Matrix3D.mult(projectionMat, modelViewMat, projectionTimesModelview);

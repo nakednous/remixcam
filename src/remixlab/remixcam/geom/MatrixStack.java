@@ -207,11 +207,6 @@ public class MatrixStack {
   }
 
 
-  public void applyMatrix(Matrix2D source) {
-    applyMatrix(source.m00, source.m01, source.m02,
-                source.m10, source.m11, source.m12);
-  }
-
 
   public void applyMatrix(float n00, float n01, float n02,
                           float n10, float n11, float n12) {
@@ -223,10 +218,10 @@ public class MatrixStack {
 
 
   public void applyMatrix(Matrix3D source) {
-    applyMatrix(source.m00, source.m01, source.m02, source.m03,
-                source.m10, source.m11, source.m12, source.m13,
-                source.m20, source.m21, source.m22, source.m23,
-                source.m30, source.m31, source.m32, source.m33);
+    applyMatrix(source.mat[0], source.mat[1], source.mat[2], source.mat[3],
+                source.mat[4], source.mat[5], source.mat[6], source.mat[7],
+                source.mat[8], source.mat[9], source.mat[10], source.mat[11],
+                source.mat[12], source.mat[13], source.mat[14], source.mat[15]);
   }
 
 
@@ -259,7 +254,7 @@ public class MatrixStack {
   // MATRIX GET/SET/PRINT
 
 
-  public Matrix getMatrix() {
+  public Matrix3D getMatrix() {
     if (matrixMode == PROJECTION) {
       return projection.get();
     } else {
@@ -284,14 +279,7 @@ public class MatrixStack {
   }
 
 
-  //public void setMatrix(Matrix source)
-
-
-  public void setMatrix(Matrix2D source) {
-    // not efficient, but at least handles the inverse stuff.
-    resetMatrix();
-    applyMatrix(source);
-  }
+  //public void setMatrix(Matrix source)  
 
 
   /**

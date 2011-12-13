@@ -1446,9 +1446,9 @@ public class SimpleFrame implements Copyable {
 
 		pM = kernel().rotation().matrix();
 
-		pM.m03 = kernel().translation().vec[0];
-		pM.m13 = kernel().translation().vec[1];
-		pM.m23 = kernel().translation().vec[2];
+		pM.mat[3] = kernel().translation().vec[0];
+		pM.mat[7] = kernel().translation().vec[1];
+		pM.mat[11] = kernel().translation().vec[2];
 
 		return pM;
 	}	
@@ -1526,26 +1526,26 @@ public class SimpleFrame implements Copyable {
 	 */
 	public final void fromMatrix(Matrix3D pM) {
 		// m should be of size [4][4]
-		if (Math.abs(pM.m33) < 1E-8) {
-			System.out.println("Doing nothing: pM.m33 should be non-zero!");
+		if (Math.abs(pM.mat[15]) < 1E-8) {
+			System.out.println("Doing nothing: pM.mat[15] should be non-zero!");
 			return;
 		}
 
-		kernel().translation().vec[0] = pM.m03 / pM.m33;
-		kernel().translation().vec[1] = pM.m13 / pM.m33;
-		kernel().translation().vec[2] = pM.m23 / pM.m33;
+		kernel().translation().vec[0] = pM.mat[3] / pM.mat[15];
+		kernel().translation().vec[1] = pM.mat[7] / pM.mat[15];
+		kernel().translation().vec[2] = pM.mat[11] / pM.mat[15];
 
 		float[][] r = new float[3][3];
 
-		r[0][0] = pM.m00 / pM.m33;
-		r[0][1] = pM.m01 / pM.m33;
-		r[0][2] = pM.m02 / pM.m33;
-		r[1][0] = pM.m10 / pM.m33;
-		r[1][1] = pM.m11 / pM.m33;
-		r[1][2] = pM.m12 / pM.m33;
-		r[2][0] = pM.m20 / pM.m33;
-		r[2][1] = pM.m21 / pM.m33;
-		r[2][2] = pM.m22 / pM.m33;
+		r[0][0] = pM.mat[0] / pM.mat[15];
+		r[0][1] = pM.mat[1] / pM.mat[15];
+		r[0][2] = pM.mat[2] / pM.mat[15];
+		r[1][0] = pM.mat[4] / pM.mat[15];
+		r[1][1] = pM.mat[5] / pM.mat[15];
+		r[1][2] = pM.mat[6] / pM.mat[15];
+		r[2][0] = pM.mat[8] / pM.mat[15];
+		r[2][1] = pM.mat[9] / pM.mat[15];
+		r[2][2] = pM.mat[10] / pM.mat[15];
 
 		kernel().rotation().fromRotationMatrix(r);
 		modified();

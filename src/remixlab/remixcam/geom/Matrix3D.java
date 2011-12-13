@@ -7,13 +7,10 @@ package remixlab.remixcam.geom;
  * 
  * @author pierre
  */
-public class Matrix3D implements Matrix /*, PConstants*/ {
+public class Matrix3D {
 
-  public float m00, m01, m02, m03;
-  public float m10, m11, m12, m13;
-  public float m20, m21, m22, m23;
-  public float m30, m31, m32, m33;
-
+	public float mat [] = new float[16];
+	
 
   // locally allocated version to avoid creating new memory
   protected Matrix3D inverseCopy;
@@ -24,29 +21,30 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
   }
 
 
-  public Matrix3D(float m00, float m01, float m02,
-                   float m10, float m11, float m12) {
-    set(m00, m01, m02, 0,
-        m10, m11, m12, 0,
+  public Matrix3D(float _m00, float _m01, float _m02,
+                  float _m10, float _m11, float _m12) {
+    set(_m00, _m01, _m02, 0,
+        _m10, _m11, _m12, 0,
         0,   0,   1,   0,
         0,   0,   0,   1);
   }
 
 
-  public Matrix3D(float m00, float m01, float m02, float m03,
-                   float m10, float m11, float m12, float m13,
-                   float m20, float m21, float m22, float m23,
-                   float m30, float m31, float m32, float m33) {
-    set(m00, m01, m02, m03,
-        m10, m11, m12, m13,
-        m20, m21, m22, m23,
-        m30, m31, m32, m33);
+  public Matrix3D(float _m00, float _m01, float _m02, float _m03,
+                  float _m10, float _m11, float _m12, float _m13,
+                  float _m20, float _m21, float _m22, float _m23,
+                  float _m30, float _m31, float _m32, float _m33) {
+    set(_m00, _m01, _m02, _m03,
+        _m10, _m11, _m12, _m13,
+        _m20, _m21, _m22, _m23,
+        _m30, _m31, _m32, _m33);
   }
 
 
-  public Matrix3D(Matrix matrix) {
+  public Matrix3D(Matrix3D matrix) {
     set(matrix);
-  }  
+  } 
+  
   
   public final float[][] get3x3UpperLeftMatrixFromMatrix3D() {
   	return get3x3UpperLeftMatrixFromMatrix3D(this);
@@ -58,15 +56,15 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
 	 */
 	public static final float[][] get3x3UpperLeftMatrixFromMatrix3D(Matrix3D pM) {
 		float[][] m = new float[3][3];
-		m[0][0] = pM.m00;
-		m[0][1] = pM.m01;
-		m[0][2] = pM.m02;
-		m[1][0] = pM.m10;
-		m[1][1] = pM.m11;
-		m[1][2] = pM.m12;
-		m[2][0] = pM.m20;
-		m[2][1] = pM.m21;
-		m[2][2] = pM.m22;
+		m[0][0] = pM.mat[0];
+		m[0][1] = pM.mat[1];
+		m[0][2] = pM.mat[2];
+		m[1][0] = pM.mat[4];
+		m[1][1] = pM.mat[5];
+		m[1][2] = pM.mat[6];
+		m[2][0] = pM.mat[8];
+		m[2][1] = pM.mat[9];
+		m[2][2] = pM.mat[10];
 		return m;
 	}
 
@@ -96,44 +94,36 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
     if ((target == null) || (target.length != 16)) {
       target = new float[16];
     }
-    target[0] = m00;
-    target[1] = m01;
-    target[2] = m02;
-    target[3] = m03;
+    target[0] = mat[0];
+    target[1] = mat[1];
+    target[2] = mat[2];
+    target[3] = mat[3];
 
-    target[4] = m10;
-    target[5] = m11;
-    target[6] = m12;
-    target[7] = m13;
+    target[4] = mat[4];
+    target[5] = mat[5];
+    target[6] = mat[6];
+    target[7] = mat[7];
 
-    target[8] = m20;
-    target[9] = m21;
-    target[10] = m22;
-    target[11] = m23;
+    target[8] = mat[8];
+    target[9] = mat[9];
+    target[10] = mat[10];
+    target[11] = mat[11];
 
-    target[12] = m30;
-    target[13] = m31;
-    target[14] = m32;
-    target[15] = m33;
+    target[12] = mat[12];
+    target[13] = mat[13];
+    target[14] = mat[14];
+    target[15] = mat[15];
 
     return target;
   }
 
 
-  public void set(Matrix matrix) {
-    if (matrix instanceof Matrix3D) {
-      Matrix3D src = (Matrix3D) matrix;
-      set(src.m00, src.m01, src.m02, src.m03,
-          src.m10, src.m11, src.m12, src.m13,
-          src.m20, src.m21, src.m22, src.m23,
-          src.m30, src.m31, src.m32, src.m33);
-    } else {
-      Matrix2D src = (Matrix2D) matrix;
-      set(src.m00, src.m01, 0, src.m02,
-          src.m10, src.m11, 0, src.m12,
-          0, 0, 1, 0,
-          0, 0, 0, 1);
-    }
+  public void set(Matrix3D src) {     
+      set(src.mat[0], src.mat[1], src.mat[2], src.mat[3],
+          src.mat[4], src.mat[5], src.mat[6], src.mat[7],
+          src.mat[8], src.mat[9], src.mat[10], src.mat[11],
+          src.mat[12], src.mat[13], src.mat[14], src.mat[15]);
+    
   }
 
 
@@ -143,46 +133,46 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
           source[3], source[4], source[5]);
 
     } else if (source.length == 16) {
-      m00 = source[0];
-      m01 = source[1];
-      m02 = source[2];
-      m03 = source[3];
+      mat[0] = source[0];
+      mat[1] = source[1];
+      mat[2] = source[2];
+      mat[3] = source[3];
 
-      m10 = source[4];
-      m11 = source[5];
-      m12 = source[6];
-      m13 = source[7];
+      mat[4] = source[4];
+      mat[5] = source[5];
+      mat[6] = source[6];
+      mat[7] = source[7];
 
-      m20 = source[8];
-      m21 = source[9];
-      m22 = source[10];
-      m23 = source[11];
+      mat[8] = source[8];
+      mat[9] = source[9];
+      mat[10] = source[10];
+      mat[11] = source[11];
 
-      m30 = source[12];
-      m31 = source[13];
-      m32 = source[14];
-      m33 = source[15];
+      mat[12] = source[12];
+      mat[13] = source[13];
+      mat[14] = source[14];
+      mat[15] = source[15];
     }
   }
 
 
-  public void set(float m00, float m01, float m02,
-                  float m10, float m11, float m12) {
-    set(m00, m01, 0, m02,
-        m10, m11, 0, m12,
+  public void set(float _m00, float _m01, float _m02,
+                  float _m10, float _m11, float _m12) {
+    set(_m00, _m01, 0, _m02,
+        _m10, _m11, 0, _m12,
         0, 0, 1, 0,
         0, 0, 0, 1);
   }
 
 
-  public void set(float m00, float m01, float m02, float m03,
-                  float m10, float m11, float m12, float m13,
-                  float m20, float m21, float m22, float m23,
-                  float m30, float m31, float m32, float m33) {
-    this.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
-    this.m10 = m10; this.m11 = m11; this.m12 = m12; this.m13 = m13;
-    this.m20 = m20; this.m21 = m21; this.m22 = m22; this.m23 = m23;
-    this.m30 = m30; this.m31 = m31; this.m32 = m32; this.m33 = m33;
+  public void set(float _m00, float _m01, float _m02, float _m03,
+                  float _m10, float _m11, float _m12, float _m13,
+                  float _m20, float _m21, float _m22, float _m23,
+                  float _m30, float _m31, float _m32, float _m33) {
+    this.mat[0] = _m00; this.mat[1] = _m01; this.mat[2] = _m02; this.mat[3] = _m03;
+    this.mat[4] = _m10; this.mat[5] = _m11; this.mat[6] = _m12; this.mat[7] = _m13;
+    this.mat[8] = _m20; this.mat[9] = _m21; this.mat[10] = _m22; this.mat[11] = _m23;
+    this.mat[12] = _m30; this.mat[13] = _m31; this.mat[14] = _m32; this.mat[15] = _m33;
   }
 
 
@@ -196,10 +186,10 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
 
 
   public void translate(float tx, float ty, float tz) {
-    m03 += tx*m00 + ty*m01 + tz*m02;
-    m13 += tx*m10 + ty*m11 + tz*m12;
-    m23 += tx*m20 + ty*m21 + tz*m22;
-    m33 += tx*m30 + ty*m31 + tz*m32;
+    mat[3] += tx*mat[0] + ty*mat[1] + tz*mat[2];
+    mat[7] += tx*mat[4] + ty*mat[5] + tz*mat[6];
+    mat[11] += tx*mat[8] + ty*mat[9] + tz*mat[10];
+    mat[15] += tx*mat[12] + ty*mat[13] + tz*mat[14];
   }
 
 
@@ -257,10 +247,10 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
 
   public void scale(float x, float y, float z) {
     //apply(x, 0, 0, 0,  0, y, 0, 0,  0, 0, z, 0,  0, 0, 0, 1);
-    m00 *= x;  m01 *= y;  m02 *= z;
-    m10 *= x;  m11 *= y;  m12 *= z;
-    m20 *= x;  m21 *= y;  m22 *= z;
-    m30 *= x;  m31 *= y;  m32 *= z;
+    mat[0] *= x;  mat[1] *= y;  mat[2] *= z;
+    mat[4] *= x;  mat[5] *= y;  mat[6] *= z;
+    mat[8] *= x;  mat[9] *= y;  mat[10] *= z;
+    mat[12] *= x;  mat[13] *= y;  mat[14] *= z;
   }
 
 
@@ -281,29 +271,11 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
           0, 0, 0, 1);
   }
 
-
-  public void apply(Matrix source) {
-    if (source instanceof Matrix2D) {
-      apply((Matrix2D) source);
-    } else if (source instanceof Matrix3D) {
-      apply((Matrix3D) source);
-    }
-  }
-
-
-  public void apply(Matrix2D source) {
-    apply(source.m00, source.m01, 0, source.m02,
-          source.m10, source.m11, 0, source.m12,
-          0, 0, 1, 0,
-          0, 0, 0, 1);
-  }
-
-
   public void apply(Matrix3D source) {
-    apply(source.m00, source.m01, source.m02, source.m03,
-          source.m10, source.m11, source.m12, source.m13,
-          source.m20, source.m21, source.m22, source.m23,
-          source.m30, source.m31, source.m32, source.m33);
+    apply(source.mat[0], source.mat[1], source.mat[2], source.mat[3],
+          source.mat[4], source.mat[5], source.mat[6], source.mat[7],
+          source.mat[8], source.mat[9], source.mat[10], source.mat[11],
+          source.mat[12], source.mat[13], source.mat[14], source.mat[15]);
   }
 
 
@@ -316,25 +288,25 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
   }
   
   public static void mult(Matrix3D a, Matrix3D b, Matrix3D c) { 
-  	c.m00 = a.m00*b.m00 + a.m01*b.m10 + a.m02*b.m20 + a.m03*b.m30;
-    c.m01 = a.m00*b.m01 + a.m01*b.m11 + a.m02*b.m21 + a.m03*b.m31;
-    c.m02 = a.m00*b.m02 + a.m01*b.m12 + a.m02*b.m22 + a.m03*b.m32;
-    c.m03 = a.m00*b.m03 + a.m01*b.m13 + a.m02*b.m23 + a.m03*b.m33;
+  	c.mat[0] = a.mat[0]*b.mat[0] + a.mat[1]*b.mat[4] + a.mat[2]*b.mat[8] + a.mat[3]*b.mat[12];
+    c.mat[1] = a.mat[0]*b.mat[1] + a.mat[1]*b.mat[5] + a.mat[2]*b.mat[9] + a.mat[3]*b.mat[13];
+    c.mat[2] = a.mat[0]*b.mat[2] + a.mat[1]*b.mat[6] + a.mat[2]*b.mat[10] + a.mat[3]*b.mat[14];
+    c.mat[3] = a.mat[0]*b.mat[3] + a.mat[1]*b.mat[7] + a.mat[2]*b.mat[11] + a.mat[3]*b.mat[15];
 
-    c.m10 = a.m10*b.m00 + a.m11*b.m10 + a.m12*b.m20 + a.m13*b.m30;
-    c.m11 = a.m10*b.m01 + a.m11*b.m11 + a.m12*b.m21 + a.m13*b.m31;
-    c.m12 = a.m10*b.m02 + a.m11*b.m12 + a.m12*b.m22 + a.m13*b.m32;
-    c.m13 = a.m10*b.m03 + a.m11*b.m13 + a.m12*b.m23 + a.m13*b.m33;
+    c.mat[4] = a.mat[4]*b.mat[0] + a.mat[5]*b.mat[4] + a.mat[6]*b.mat[8] + a.mat[7]*b.mat[12];
+    c.mat[5] = a.mat[4]*b.mat[1] + a.mat[5]*b.mat[5] + a.mat[6]*b.mat[9] + a.mat[7]*b.mat[13];
+    c.mat[6] = a.mat[4]*b.mat[2] + a.mat[5]*b.mat[6] + a.mat[6]*b.mat[10] + a.mat[7]*b.mat[14];
+    c.mat[7] = a.mat[4]*b.mat[3] + a.mat[5]*b.mat[7] + a.mat[6]*b.mat[11] + a.mat[7]*b.mat[15];
 
-    c.m20 = a.m20*b.m00 + a.m21*b.m10 + a.m22*b.m20 + a.m23*b.m30;
-    c.m21 = a.m20*b.m01 + a.m21*b.m11 + a.m22*b.m21 + a.m23*b.m31;
-    c.m22 = a.m20*b.m02 + a.m21*b.m12 + a.m22*b.m22 + a.m23*b.m32;
-    c.m23 = a.m20*b.m03 + a.m21*b.m13 + a.m22*b.m23 + a.m23*b.m33;
+    c.mat[8] = a.mat[8]*b.mat[0] + a.mat[9]*b.mat[4] + a.mat[10]*b.mat[8] + a.mat[11]*b.mat[12];
+    c.mat[9] = a.mat[8]*b.mat[1] + a.mat[9]*b.mat[5] + a.mat[10]*b.mat[9] + a.mat[11]*b.mat[13];
+    c.mat[10] = a.mat[8]*b.mat[2] + a.mat[9]*b.mat[6] + a.mat[10]*b.mat[10] + a.mat[11]*b.mat[14];
+    c.mat[11] = a.mat[8]*b.mat[3] + a.mat[9]*b.mat[7] + a.mat[10]*b.mat[11] + a.mat[11]*b.mat[15];
 
-    c.m30 = a.m30*b.m00 + a.m31*b.m10 + a.m32*b.m20 + a.m33*b.m30;
-    c.m31 = a.m30*b.m01 + a.m31*b.m11 + a.m32*b.m21 + a.m33*b.m31;
-    c.m32 = a.m30*b.m02 + a.m31*b.m12 + a.m32*b.m22 + a.m33*b.m32;
-    c.m33 = a.m30*b.m03 + a.m31*b.m13 + a.m32*b.m23 + a.m33*b.m33;
+    c.mat[12] = a.mat[12]*b.mat[0] + a.mat[13]*b.mat[4] + a.mat[14]*b.mat[8] + a.mat[15]*b.mat[12];
+    c.mat[13] = a.mat[12]*b.mat[1] + a.mat[13]*b.mat[5] + a.mat[14]*b.mat[9] + a.mat[15]*b.mat[13];
+    c.mat[14] = a.mat[12]*b.mat[2] + a.mat[13]*b.mat[6] + a.mat[14]*b.mat[10] + a.mat[15]*b.mat[14];
+    c.mat[15] = a.mat[12]*b.mat[3] + a.mat[13]*b.mat[7] + a.mat[14]*b.mat[11] + a.mat[15]*b.mat[15];
   }
 
 
@@ -343,49 +315,40 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
                     float n20, float n21, float n22, float n23,
                     float n30, float n31, float n32, float n33) {
 
-    float r00 = m00*n00 + m01*n10 + m02*n20 + m03*n30;
-    float r01 = m00*n01 + m01*n11 + m02*n21 + m03*n31;
-    float r02 = m00*n02 + m01*n12 + m02*n22 + m03*n32;
-    float r03 = m00*n03 + m01*n13 + m02*n23 + m03*n33;
+    float r00 = mat[0]*n00 + mat[1]*n10 + mat[2]*n20 + mat[3]*n30;
+    float r01 = mat[0]*n01 + mat[1]*n11 + mat[2]*n21 + mat[3]*n31;
+    float r02 = mat[0]*n02 + mat[1]*n12 + mat[2]*n22 + mat[3]*n32;
+    float r03 = mat[0]*n03 + mat[1]*n13 + mat[2]*n23 + mat[3]*n33;
 
-    float r10 = m10*n00 + m11*n10 + m12*n20 + m13*n30;
-    float r11 = m10*n01 + m11*n11 + m12*n21 + m13*n31;
-    float r12 = m10*n02 + m11*n12 + m12*n22 + m13*n32;
-    float r13 = m10*n03 + m11*n13 + m12*n23 + m13*n33;
+    float r10 = mat[4]*n00 + mat[5]*n10 + mat[6]*n20 + mat[7]*n30;
+    float r11 = mat[4]*n01 + mat[5]*n11 + mat[6]*n21 + mat[7]*n31;
+    float r12 = mat[4]*n02 + mat[5]*n12 + mat[6]*n22 + mat[7]*n32;
+    float r13 = mat[4]*n03 + mat[5]*n13 + mat[6]*n23 + mat[7]*n33;
 
-    float r20 = m20*n00 + m21*n10 + m22*n20 + m23*n30;
-    float r21 = m20*n01 + m21*n11 + m22*n21 + m23*n31;
-    float r22 = m20*n02 + m21*n12 + m22*n22 + m23*n32;
-    float r23 = m20*n03 + m21*n13 + m22*n23 + m23*n33;
+    float r20 = mat[8]*n00 + mat[9]*n10 + mat[10]*n20 + mat[11]*n30;
+    float r21 = mat[8]*n01 + mat[9]*n11 + mat[10]*n21 + mat[11]*n31;
+    float r22 = mat[8]*n02 + mat[9]*n12 + mat[10]*n22 + mat[11]*n32;
+    float r23 = mat[8]*n03 + mat[9]*n13 + mat[10]*n23 + mat[11]*n33;
 
-    float r30 = m30*n00 + m31*n10 + m32*n20 + m33*n30;
-    float r31 = m30*n01 + m31*n11 + m32*n21 + m33*n31;
-    float r32 = m30*n02 + m31*n12 + m32*n22 + m33*n32;
-    float r33 = m30*n03 + m31*n13 + m32*n23 + m33*n33;
+    float r30 = mat[12]*n00 + mat[13]*n10 + mat[14]*n20 + mat[15]*n30;
+    float r31 = mat[12]*n01 + mat[13]*n11 + mat[14]*n21 + mat[15]*n31;
+    float r32 = mat[12]*n02 + mat[13]*n12 + mat[14]*n22 + mat[15]*n32;
+    float r33 = mat[12]*n03 + mat[13]*n13 + mat[14]*n23 + mat[15]*n33;
 
-    m00 = r00; m01 = r01; m02 = r02; m03 = r03;
-    m10 = r10; m11 = r11; m12 = r12; m13 = r13;
-    m20 = r20; m21 = r21; m22 = r22; m23 = r23;
-    m30 = r30; m31 = r31; m32 = r32; m33 = r33;
+    mat[0] = r00; mat[1] = r01; mat[2] = r02; mat[3] = r03;
+    mat[4] = r10; mat[5] = r11; mat[6] = r12; mat[7] = r13;
+    mat[8] = r20; mat[9] = r21; mat[10] = r22; mat[11] = r23;
+    mat[12] = r30; mat[13] = r31; mat[14] = r32; mat[15] = r33;
   }
-
-
-  public void preApply(Matrix2D left) {
-    preApply(left.m00, left.m01, 0, left.m02,
-             left.m10, left.m11, 0, left.m12,
-             0, 0, 1, 0,
-             0, 0, 0, 1);
-  }
-
 
   /**
    * Apply another matrix to the left of this one.
    */
   public void preApply(Matrix3D left) {
-    preApply(left.m00, left.m01, left.m02, left.m03,
-             left.m10, left.m11, left.m12, left.m13,
-             left.m20, left.m21, left.m22, left.m23,
-             left.m30, left.m31, left.m32, left.m33);
+    preApply(left.mat[0], left.mat[1], left.mat[2], left.mat[3],
+             left.mat[4], left.mat[5], left.mat[6], left.mat[7],
+             left.mat[8], left.mat[9], left.mat[10], left.mat[11],
+             left.mat[12], left.mat[13], left.mat[14], left.mat[15]);
   }
 
 
@@ -403,30 +366,30 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
                        float n20, float n21, float n22, float n23,
                        float n30, float n31, float n32, float n33) {
 
-    float r00 = n00*m00 + n01*m10 + n02*m20 + n03*m30;
-    float r01 = n00*m01 + n01*m11 + n02*m21 + n03*m31;
-    float r02 = n00*m02 + n01*m12 + n02*m22 + n03*m32;
-    float r03 = n00*m03 + n01*m13 + n02*m23 + n03*m33;
+    float r00 = n00*mat[0] + n01*mat[4] + n02*mat[8] + n03*mat[12];
+    float r01 = n00*mat[1] + n01*mat[5] + n02*mat[9] + n03*mat[13];
+    float r02 = n00*mat[2] + n01*mat[6] + n02*mat[10] + n03*mat[14];
+    float r03 = n00*mat[3] + n01*mat[7] + n02*mat[11] + n03*mat[15];
 
-    float r10 = n10*m00 + n11*m10 + n12*m20 + n13*m30;
-    float r11 = n10*m01 + n11*m11 + n12*m21 + n13*m31;
-    float r12 = n10*m02 + n11*m12 + n12*m22 + n13*m32;
-    float r13 = n10*m03 + n11*m13 + n12*m23 + n13*m33;
+    float r10 = n10*mat[0] + n11*mat[4] + n12*mat[8] + n13*mat[12];
+    float r11 = n10*mat[1] + n11*mat[5] + n12*mat[9] + n13*mat[13];
+    float r12 = n10*mat[2] + n11*mat[6] + n12*mat[10] + n13*mat[14];
+    float r13 = n10*mat[3] + n11*mat[7] + n12*mat[11] + n13*mat[15];
 
-    float r20 = n20*m00 + n21*m10 + n22*m20 + n23*m30;
-    float r21 = n20*m01 + n21*m11 + n22*m21 + n23*m31;
-    float r22 = n20*m02 + n21*m12 + n22*m22 + n23*m32;
-    float r23 = n20*m03 + n21*m13 + n22*m23 + n23*m33;
+    float r20 = n20*mat[0] + n21*mat[4] + n22*mat[8] + n23*mat[12];
+    float r21 = n20*mat[1] + n21*mat[5] + n22*mat[9] + n23*mat[13];
+    float r22 = n20*mat[2] + n21*mat[6] + n22*mat[10] + n23*mat[14];
+    float r23 = n20*mat[3] + n21*mat[7] + n22*mat[11] + n23*mat[15];
 
-    float r30 = n30*m00 + n31*m10 + n32*m20 + n33*m30;
-    float r31 = n30*m01 + n31*m11 + n32*m21 + n33*m31;
-    float r32 = n30*m02 + n31*m12 + n32*m22 + n33*m32;
-    float r33 = n30*m03 + n31*m13 + n32*m23 + n33*m33;
+    float r30 = n30*mat[0] + n31*mat[4] + n32*mat[8] + n33*mat[12];
+    float r31 = n30*mat[1] + n31*mat[5] + n32*mat[9] + n33*mat[13];
+    float r32 = n30*mat[2] + n31*mat[6] + n32*mat[10] + n33*mat[14];
+    float r33 = n30*mat[3] + n31*mat[7] + n32*mat[11] + n33*mat[15];
 
-    m00 = r00; m01 = r01; m02 = r02; m03 = r03;
-    m10 = r10; m11 = r11; m12 = r12; m13 = r13;
-    m20 = r20; m21 = r21; m22 = r22; m23 = r23;
-    m30 = r30; m31 = r31; m32 = r32; m33 = r33;
+    mat[0] = r00; mat[1] = r01; mat[2] = r02; mat[3] = r03;
+    mat[4] = r10; mat[5] = r11; mat[6] = r12; mat[7] = r13;
+    mat[8] = r20; mat[9] = r21; mat[10] = r22; mat[11] = r23;
+    mat[12] = r30; mat[13] = r31; mat[14] = r32; mat[15] = r33;
   }
 
 
@@ -437,10 +400,10 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
     if (target == null) {
       target = new Vector3D();
     }
-    target.vec[0] = m00*source.vec[0] + m01*source.vec[1] + m02*source.vec[2] + m03;
-    target.vec[1] = m10*source.vec[0] + m11*source.vec[1] + m12*source.vec[2] + m13;
-    target.vec[2] = m20*source.vec[0] + m21*source.vec[1] + m22*source.vec[2] + m23;
-//    float tw = m30*source.x + m31*source.y + m32*source.z + m33;
+    target.vec[0] = mat[0]*source.vec[0] + mat[1]*source.vec[1] + mat[2]*source.vec[2] + mat[3];
+    target.vec[1] = mat[4]*source.vec[0] + mat[5]*source.vec[1] + mat[6]*source.vec[2] + mat[7];
+    target.vec[2] = mat[8]*source.vec[0] + mat[9]*source.vec[1] + mat[10]*source.vec[2] + mat[11];
+//    float tw = mat[12]*source.x + mat[13]*source.y + mat[14]*source.z + mat[15];
 //    if (tw != 0 && tw != 1) {
 //      target.div(tw);
 //    }
@@ -453,10 +416,10 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
     if (target == null) {
       target = new Vector3D();
     }
-    target.x = m00*source.x + m10*source.y + m20*source.z + m30;
-    target.y = m01*source.x + m11*source.y + m21*source.z + m31;
-    target.z = m02*source.x + m12*source.y + m22*source.z + m32;
-    float tw = m03*source.x + m13*source.y + m23*source.z + m33;
+    target.x = mat[0]*source.x + mat[4]*source.y + mat[8]*source.z + mat[12];
+    target.y = mat[1]*source.x + mat[5]*source.y + mat[9]*source.z + mat[13];
+    target.z = mat[2]*source.x + mat[6]*source.y + mat[10]*source.z + mat[14];
+    float tw = mat[3]*source.x + mat[7]*source.y + mat[11]*source.z + mat[15];
     if (tw != 0 && tw != 1) {
       target.div(tw);
     }
@@ -478,70 +441,70 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
                                  "Matrix3D.mult() cannot be identical.");
     }
     if (target.length == 3) {
-      target[0] = m00*source[0] + m01*source[1] + m02*source[2] + m03;
-      target[1] = m10*source[0] + m11*source[1] + m12*source[2] + m13;
-      target[2] = m20*source[0] + m21*source[1] + m22*source[2] + m23;
-      //float w = m30*source[0] + m31*source[1] + m32*source[2] + m33;
+      target[0] = mat[0]*source[0] + mat[1]*source[1] + mat[2]*source[2] + mat[3];
+      target[1] = mat[4]*source[0] + mat[5]*source[1] + mat[6]*source[2] + mat[7];
+      target[2] = mat[8]*source[0] + mat[9]*source[1] + mat[10]*source[2] + mat[11];
+      //float w = mat[12]*source[0] + mat[13]*source[1] + mat[14]*source[2] + mat[15];
       //if (w != 0 && w != 1) {
       //  target[0] /= w; target[1] /= w; target[2] /= w;
       //}
     } else if (target.length > 3) {
-      target[0] = m00*source[0] + m01*source[1] + m02*source[2] + m03*source[3];
-      target[1] = m10*source[0] + m11*source[1] + m12*source[2] + m13*source[3];
-      target[2] = m20*source[0] + m21*source[1] + m22*source[2] + m23*source[3];
-      target[3] = m30*source[0] + m31*source[1] + m32*source[2] + m33*source[3];
+      target[0] = mat[0]*source[0] + mat[1]*source[1] + mat[2]*source[2] + mat[3]*source[3];
+      target[1] = mat[4]*source[0] + mat[5]*source[1] + mat[6]*source[2] + mat[7]*source[3];
+      target[2] = mat[8]*source[0] + mat[9]*source[1] + mat[10]*source[2] + mat[11]*source[3];
+      target[3] = mat[12]*source[0] + mat[13]*source[1] + mat[14]*source[2] + mat[15]*source[3];
     }
     return target;
   }
 
 
   public float multX(float x, float y) {
-    return m00*x + m01*y + m03;
+    return mat[0]*x + mat[1]*y + mat[3];
   }
 
 
   public float multY(float x, float y) {
-    return m10*x + m11*y + m13;
+    return mat[4]*x + mat[5]*y + mat[7];
   }
 
 
   public float multX(float x, float y, float z) {
-    return m00*x + m01*y + m02*z + m03;
+    return mat[0]*x + mat[1]*y + mat[2]*z + mat[3];
   }
 
 
   public float multY(float x, float y, float z) {
-    return m10*x + m11*y + m12*z + m13;
+    return mat[4]*x + mat[5]*y + mat[6]*z + mat[7];
   }
 
 
   public float multZ(float x, float y, float z) {
-    return m20*x + m21*y + m22*z + m23;
+    return mat[8]*x + mat[9]*y + mat[10]*z + mat[11];
   }
 
 
   public float multW(float x, float y, float z) {
-    return m30*x + m31*y + m32*z + m33;
+    return mat[12]*x + mat[13]*y + mat[14]*z + mat[15];
   }
 
 
   public float multX(float x, float y, float z, float w) {
-    return m00*x + m01*y + m02*z + m03*w;
+    return mat[0]*x + mat[1]*y + mat[2]*z + mat[3]*w;
   }
 
 
   public float multY(float x, float y, float z, float w) {
-    return m10*x + m11*y + m12*z + m13*w;
+    return mat[4]*x + mat[5]*y + mat[6]*z + mat[7]*w;
   }
 
 
   public float multZ(float x, float y, float z, float w) {
-    return m20*x + m21*y + m22*z + m23*w;
+    return mat[8]*x + mat[9]*y + mat[10]*z + mat[11]*w;
   }
 
 
   public float multW(float x, float y, float z, float w) {
-    return m30*x + m31*y + m32*z + m33*w;
+    return mat[12]*x + mat[13]*y + mat[14]*z + mat[15]*w;
   }
 
 
@@ -550,12 +513,12 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
    */
   public void transpose() {
     float temp;
-    temp = m01; m01 = m10; m10 = temp;
-    temp = m02; m02 = m20; m20 = temp;
-    temp = m03; m03 = m30; m30 = temp;
-    temp = m12; m12 = m21; m21 = temp;
-    temp = m13; m13 = m31; m31 = temp;
-    temp = m23; m23 = m32; m32 = temp;
+    temp = mat[1]; mat[1] = mat[4]; mat[4] = temp;
+    temp = mat[2]; mat[2] = mat[8]; mat[8] = temp;
+    temp = mat[3]; mat[3] = mat[12]; mat[12] = temp;
+    temp = mat[6]; mat[6] = mat[9]; mat[9] = temp;
+    temp = mat[7]; mat[7] = mat[13]; mat[13] = temp;
+    temp = mat[11]; mat[11] = mat[14]; mat[14] = temp;
   }
   
   
@@ -572,49 +535,49 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
     
 
     // first row
-    float t00 =  determinant3x3(m11, m12, m13, m21, m22, m23, m31, m32, m33);
-    float t01 = -determinant3x3(m10, m12, m13, m20, m22, m23, m30, m32, m33);
-    float t02 =  determinant3x3(m10, m11, m13, m20, m21, m23, m30, m31, m33);
-    float t03 = -determinant3x3(m10, m11, m12, m20, m21, m22, m30, m31, m32);
+    float t00 =  determinant3x3(mat[5], mat[6], mat[7], mat[9], mat[10], mat[11], mat[13], mat[14], mat[15]);
+    float t01 = -determinant3x3(mat[4], mat[6], mat[7], mat[8], mat[10], mat[11], mat[12], mat[14], mat[15]);
+    float t02 =  determinant3x3(mat[4], mat[5], mat[7], mat[8], mat[9], mat[11], mat[12], mat[13], mat[15]);
+    float t03 = -determinant3x3(mat[4], mat[5], mat[6], mat[8], mat[9], mat[10], mat[12], mat[13], mat[14]);
 
     // second row
-    float t10 = -determinant3x3(m01, m02, m03, m21, m22, m23, m31, m32, m33);
-    float t11 =  determinant3x3(m00, m02, m03, m20, m22, m23, m30, m32, m33);
-    float t12 = -determinant3x3(m00, m01, m03, m20, m21, m23, m30, m31, m33);
-    float t13 =  determinant3x3(m00, m01, m02, m20, m21, m22, m30, m31, m32);
+    float t10 = -determinant3x3(mat[1], mat[2], mat[3], mat[9], mat[10], mat[11], mat[13], mat[14], mat[15]);
+    float t11 =  determinant3x3(mat[0], mat[2], mat[3], mat[8], mat[10], mat[11], mat[12], mat[14], mat[15]);
+    float t12 = -determinant3x3(mat[0], mat[1], mat[3], mat[8], mat[9], mat[11], mat[12], mat[13], mat[15]);
+    float t13 =  determinant3x3(mat[0], mat[1], mat[2], mat[8], mat[9], mat[10], mat[12], mat[13], mat[14]);
 
     // third row
-    float t20 =  determinant3x3(m01, m02, m03, m11, m12, m13, m31, m32, m33);
-    float t21 = -determinant3x3(m00, m02, m03, m10, m12, m13, m30, m32, m33);
-    float t22 =  determinant3x3(m00, m01, m03, m10, m11, m13, m30, m31, m33);
-    float t23 = -determinant3x3(m00, m01, m02, m10, m11, m12, m30, m31, m32);
+    float t20 =  determinant3x3(mat[1], mat[2], mat[3], mat[5], mat[6], mat[7], mat[13], mat[14], mat[15]);
+    float t21 = -determinant3x3(mat[0], mat[2], mat[3], mat[4], mat[6], mat[7], mat[12], mat[14], mat[15]);
+    float t22 =  determinant3x3(mat[0], mat[1], mat[3], mat[4], mat[5], mat[7], mat[12], mat[13], mat[15]);
+    float t23 = -determinant3x3(mat[0], mat[1], mat[2], mat[4], mat[5], mat[6], mat[12], mat[13], mat[14]);
 
     // fourth row
-    float t30 = -determinant3x3(m01, m02, m03, m11, m12, m13, m21, m22, m23);
-    float t31 =  determinant3x3(m00, m02, m03, m10, m12, m13, m20, m22, m23);
-    float t32 = -determinant3x3(m00, m01, m03, m10, m11, m13, m20, m21, m23);
-    float t33 =  determinant3x3(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    float t30 = -determinant3x3(mat[1], mat[2], mat[3], mat[5], mat[6], mat[7], mat[9], mat[10], mat[11]);
+    float t31 =  determinant3x3(mat[0], mat[2], mat[3], mat[4], mat[6], mat[7], mat[8], mat[10], mat[11]);
+    float t32 = -determinant3x3(mat[0], mat[1], mat[3], mat[4], mat[5], mat[7], mat[8], mat[9], mat[11]);
+    float t33 =  determinant3x3(mat[0], mat[1], mat[2], mat[4], mat[5], mat[6], mat[8], mat[9], mat[10]);
 
      // transpose and divide by the determinant
-     m.m00 = t00 / determinant;
-     m.m01 = t10 / determinant;
-     m.m02 = t20 / determinant;
-     m.m03 = t30 / determinant;
+     m.mat[0] = t00 / determinant;
+     m.mat[1] = t10 / determinant;
+     m.mat[2] = t20 / determinant;
+     m.mat[3] = t30 / determinant;
 
-     m.m10 = t01 / determinant;
-     m.m11 = t11 / determinant;
-     m.m12 = t21 / determinant;
-     m.m13 = t31 / determinant;
+     m.mat[4] = t01 / determinant;
+     m.mat[5] = t11 / determinant;
+     m.mat[6] = t21 / determinant;
+     m.mat[7] = t31 / determinant;
 
-     m.m20 = t02 / determinant;
-     m.m21 = t12 / determinant;
-     m.m22 = t22 / determinant;
-     m.m23 = t32 / determinant;
+     m.mat[8] = t02 / determinant;
+     m.mat[9] = t12 / determinant;
+     m.mat[10] = t22 / determinant;
+     m.mat[11] = t32 / determinant;
 
-     m.m30 = t03 / determinant;
-     m.m31 = t13 / determinant;
-     m.m32 = t23 / determinant;
-     m.m33 = t33 / determinant;
+     m.mat[12] = t03 / determinant;
+     m.mat[13] = t13 / determinant;
+     m.mat[14] = t23 / determinant;
+     m.mat[15] = t33 / determinant;
      
      return true;
   }
@@ -630,49 +593,49 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
     }
 
     // first row
-    float t00 =  determinant3x3(m11, m12, m13, m21, m22, m23, m31, m32, m33);
-    float t01 = -determinant3x3(m10, m12, m13, m20, m22, m23, m30, m32, m33);
-    float t02 =  determinant3x3(m10, m11, m13, m20, m21, m23, m30, m31, m33);
-    float t03 = -determinant3x3(m10, m11, m12, m20, m21, m22, m30, m31, m32);
+    float t00 =  determinant3x3(mat[5], mat[6], mat[7], mat[9], mat[10], mat[11], mat[13], mat[14], mat[15]);
+    float t01 = -determinant3x3(mat[4], mat[6], mat[7], mat[8], mat[10], mat[11], mat[12], mat[14], mat[15]);
+    float t02 =  determinant3x3(mat[4], mat[5], mat[7], mat[8], mat[9], mat[11], mat[12], mat[13], mat[15]);
+    float t03 = -determinant3x3(mat[4], mat[5], mat[6], mat[8], mat[9], mat[10], mat[12], mat[13], mat[14]);
 
     // second row
-    float t10 = -determinant3x3(m01, m02, m03, m21, m22, m23, m31, m32, m33);
-    float t11 =  determinant3x3(m00, m02, m03, m20, m22, m23, m30, m32, m33);
-    float t12 = -determinant3x3(m00, m01, m03, m20, m21, m23, m30, m31, m33);
-    float t13 =  determinant3x3(m00, m01, m02, m20, m21, m22, m30, m31, m32);
+    float t10 = -determinant3x3(mat[1], mat[2], mat[3], mat[9], mat[10], mat[11], mat[13], mat[14], mat[15]);
+    float t11 =  determinant3x3(mat[0], mat[2], mat[3], mat[8], mat[10], mat[11], mat[12], mat[14], mat[15]);
+    float t12 = -determinant3x3(mat[0], mat[1], mat[3], mat[8], mat[9], mat[11], mat[12], mat[13], mat[15]);
+    float t13 =  determinant3x3(mat[0], mat[1], mat[2], mat[8], mat[9], mat[10], mat[12], mat[13], mat[14]);
 
     // third row
-    float t20 =  determinant3x3(m01, m02, m03, m11, m12, m13, m31, m32, m33);
-    float t21 = -determinant3x3(m00, m02, m03, m10, m12, m13, m30, m32, m33);
-    float t22 =  determinant3x3(m00, m01, m03, m10, m11, m13, m30, m31, m33);
-    float t23 = -determinant3x3(m00, m01, m02, m10, m11, m12, m30, m31, m32);
+    float t20 =  determinant3x3(mat[1], mat[2], mat[3], mat[5], mat[6], mat[7], mat[13], mat[14], mat[15]);
+    float t21 = -determinant3x3(mat[0], mat[2], mat[3], mat[4], mat[6], mat[7], mat[12], mat[14], mat[15]);
+    float t22 =  determinant3x3(mat[0], mat[1], mat[3], mat[4], mat[5], mat[7], mat[12], mat[13], mat[15]);
+    float t23 = -determinant3x3(mat[0], mat[1], mat[2], mat[4], mat[5], mat[6], mat[12], mat[13], mat[14]);
 
     // fourth row
-    float t30 = -determinant3x3(m01, m02, m03, m11, m12, m13, m21, m22, m23);
-    float t31 =  determinant3x3(m00, m02, m03, m10, m12, m13, m20, m22, m23);
-    float t32 = -determinant3x3(m00, m01, m03, m10, m11, m13, m20, m21, m23);
-    float t33 =  determinant3x3(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    float t30 = -determinant3x3(mat[1], mat[2], mat[3], mat[5], mat[6], mat[7], mat[9], mat[10], mat[11]);
+    float t31 =  determinant3x3(mat[0], mat[2], mat[3], mat[4], mat[6], mat[7], mat[8], mat[10], mat[11]);
+    float t32 = -determinant3x3(mat[0], mat[1], mat[3], mat[4], mat[5], mat[7], mat[8], mat[9], mat[11]);
+    float t33 =  determinant3x3(mat[0], mat[1], mat[2], mat[4], mat[5], mat[6], mat[8], mat[9], mat[10]);
 
     // transpose and divide by the determinant
-    m00 = t00 / determinant;
-    m01 = t10 / determinant;
-    m02 = t20 / determinant;
-    m03 = t30 / determinant;
+    mat[0] = t00 / determinant;
+    mat[1] = t10 / determinant;
+    mat[2] = t20 / determinant;
+    mat[3] = t30 / determinant;
 
-    m10 = t01 / determinant;
-    m11 = t11 / determinant;
-    m12 = t21 / determinant;
-    m13 = t31 / determinant;
+    mat[4] = t01 / determinant;
+    mat[5] = t11 / determinant;
+    mat[6] = t21 / determinant;
+    mat[7] = t31 / determinant;
 
-    m20 = t02 / determinant;
-    m21 = t12 / determinant;
-    m22 = t22 / determinant;
-    m23 = t32 / determinant;
+    mat[8] = t02 / determinant;
+    mat[9] = t12 / determinant;
+    mat[10] = t22 / determinant;
+    mat[11] = t32 / determinant;
 
-    m30 = t03 / determinant;
-    m31 = t13 / determinant;
-    m32 = t23 / determinant;
-    m33 = t33 / determinant;
+    mat[12] = t03 / determinant;
+    mat[13] = t13 / determinant;
+    mat[14] = t23 / determinant;
+    mat[15] = t33 / determinant;
 
     return true;
   }
@@ -695,26 +658,26 @@ public class Matrix3D implements Matrix /*, PConstants*/ {
    */
   public float determinant() {
     float f =
-      m00
-      * ((m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32)
-         - m13 * m22 * m31
-         - m11 * m23 * m32
-         - m12 * m21 * m33);
-    f -= m01
-      * ((m10 * m22 * m33 + m12 * m23 * m30 + m13 * m20 * m32)
-         - m13 * m22 * m30
-         - m10 * m23 * m32
-         - m12 * m20 * m33);
-    f += m02
-      * ((m10 * m21 * m33 + m11 * m23 * m30 + m13 * m20 * m31)
-         - m13 * m21 * m30
-         - m10 * m23 * m31
-         - m11 * m20 * m33);
-    f -= m03
-      * ((m10 * m21 * m32 + m11 * m22 * m30 + m12 * m20 * m31)
-         - m12 * m21 * m30
-         - m10 * m22 * m31
-         - m11 * m20 * m32);
+      mat[0]
+      * ((mat[5] * mat[10] * mat[15] + mat[6] * mat[11] * mat[13] + mat[7] * mat[9] * mat[14])
+         - mat[7] * mat[10] * mat[13]
+         - mat[5] * mat[11] * mat[14]
+         - mat[6] * mat[9] * mat[15]);
+    f -= mat[1]
+      * ((mat[4] * mat[10] * mat[15] + mat[6] * mat[11] * mat[12] + mat[7] * mat[8] * mat[14])
+         - mat[7] * mat[10] * mat[12]
+         - mat[4] * mat[11] * mat[14]
+         - mat[6] * mat[8] * mat[15]);
+    f += mat[2]
+      * ((mat[4] * mat[9] * mat[15] + mat[5] * mat[11] * mat[12] + mat[7] * mat[8] * mat[13])
+         - mat[7] * mat[9] * mat[12]
+         - mat[4] * mat[11] * mat[13]
+         - mat[5] * mat[8] * mat[15]);
+    f -= mat[3]
+      * ((mat[4] * mat[9] * mat[14] + mat[5] * mat[10] * mat[12] + mat[6] * mat[8] * mat[13])
+         - mat[6] * mat[9] * mat[12]
+         - mat[4] * mat[10] * mat[13]
+         - mat[5] * mat[8] * mat[14]);
     return f;
   }
 
