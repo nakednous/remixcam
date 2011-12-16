@@ -2235,10 +2235,14 @@ public class Camera implements Constants, Copyable {
 	 * Matrix3D())}
 	 * 
 	 * @see #getProjectionMatrix(Matrix3D)
+	 * @see #getProjectionMatrix(float[])
+	 * @see #getModelViewMatrix()
+	 * @see #getModelViewMatrix(float[])
+	 * @see #getModelViewMatrix(Matrix3D)
 	 */
 	public Matrix3D getProjectionMatrix() {
 		return getProjectionMatrix(new Matrix3D());
-	}
+	}	
 
 	/**
 	 * Fills {@code m} with the Camera projection matrix values and returns it. If
@@ -2246,9 +2250,12 @@ public class Camera implements Constants, Copyable {
 	 * <p>
 	 * First calls {@link #computeProjectionMatrix()} to define the Camera
 	 * projection matrix.
-	 * <p>
 	 * 
+	 * @see #getProjectionMatrix()
+	 * @see #getProjectionMatrix(float[])
 	 * @see #getModelViewMatrix()
+	 * @see #getModelViewMatrix(float[])
+	 * @see #getModelViewMatrix(Matrix3D)
 	 */
 	public Matrix3D getProjectionMatrix(Matrix3D m) {
 		if (m == null)
@@ -2259,6 +2266,26 @@ public class Camera implements Constants, Copyable {
 		m.set(projectionMat);
 
 		return m;
+	}
+	
+	/**
+	 * Fills {@code target} (defined in row-major order) with the Camera projection
+	 * matrix values and returns it. If {@code target} is {@code null} a new array
+	 * will be created.
+	 * <p>
+	 * First calls {@link #computeProjectionMatrix()} to define the Camera
+	 * projection matrix. 
+	 * 
+	 * @see #getProjectionMatrix()
+	 * @see #getProjectionMatrix(Matrix3D)
+	 * @see #getModelViewMatrix()
+	 * @see #getModelViewMatrix(float[])
+	 * @see #getModelViewMatrix(Matrix3D)
+	 */
+	public float[] getProjectionMatrix(float[] target) {	
+		computeProjectionMatrix();
+		projectionMat.getTransposed(target);
+		return target;
 	}
 
 	/**
@@ -2297,8 +2324,8 @@ public class Camera implements Constants, Copyable {
 			projectionMat.mat[0] = f / aspectRatio();
 			projectionMat.mat[5] = f;
 			projectionMat.mat[10] = (ZNear + ZFar) / (ZNear - ZFar);
-			projectionMat.mat[14] = -1.0f;
-			projectionMat.mat[11] = 2.0f * ZNear * ZFar / (ZNear - ZFar);
+			projectionMat.mat[11] = -1.0f;
+			projectionMat.mat[14] = 2.0f * ZNear * ZFar / (ZNear - ZFar);
 			projectionMat.mat[15] = 0.0f;
 			// same as gluPerspective( 180.0*fieldOfView()/M_PI, aspectRatio(),
 			// zNear(), zFar() );
@@ -2309,8 +2336,8 @@ public class Camera implements Constants, Copyable {
 			projectionMat.mat[0] = 1.0f / wh[0];
 			projectionMat.mat[5] = 1.0f / wh[1];
 			projectionMat.mat[10] = -2.0f / (ZFar - ZNear);
-			projectionMat.mat[14] = 0.0f;
-			projectionMat.mat[11] = -(ZFar + ZNear) / (ZFar - ZNear);
+			projectionMat.mat[11] = 0.0f;
+			projectionMat.mat[14] = -(ZFar + ZNear) / (ZFar - ZNear);
 			projectionMat.mat[15] = 1.0f;
 			// same as glOrtho( -w, w, -h, h, zNear(), zFar() );
 			break;
@@ -2321,20 +2348,41 @@ public class Camera implements Constants, Copyable {
 	/**
 	 * Fills the projection matrix with the {@code proj} matrix values.
 	 * 
+	 * @see #setProjectionMatrix(float[])
 	 * @see #setModelViewMatrix(Matrix3D)
+	 * @see #setModelViewMatrix(float[])
 	 */
 	public void setProjectionMatrix(Matrix3D proj) {
 		//if (isDetachedFromP5Camera())
 			projectionMat.set(proj);
 	}
+	
+
+	/**
+	 * Fills the projection matrix with the {@code source} matrix values
+	 * (defined in row-major order).
+	 * 
+	 * @see #setProjectionMatrix(Matrix3D)
+	 * @see #setModelViewMatrix(Matrix3D)
+	 * @see #setModelViewMatrix(float[])
+	 */
+	public void setProjectionMatrix(float[] source) {
+			projectionMat.setTransposed(source);
+	}
 
 	/**
 	 * Convenience function that simply returns {@code getModelViewMatrix(new
 	 * Matrix3D())}
+	 *  
+	 * @see #getModelViewMatrix(float[])
+	 * @see #getModelViewMatrix(Matrix3D)
+	 * @see #getProjectionMatrix()
+	 * @see #getProjectionMatrix(float[])
+	 * @see #getProjectionMatrix(Matrix3D)
 	 */
 	public Matrix3D getModelViewMatrix() {
 		return getModelViewMatrix(new Matrix3D());
-	}
+	}	
 
 	/**
 	 * Fills {@code m} with the Camera modelView matrix values and returns it. If
@@ -2343,6 +2391,10 @@ public class Camera implements Constants, Copyable {
 	 * First calls {@link #computeModelViewMatrix()} to define the Camera
 	 * modelView matrix.
 	 * 
+	 * @see #getModelViewMatrix()
+	 * @see #getModelViewMatrix(float[])
+	 * @see #getProjectionMatrix()
+	 * @see #getProjectionMatrix(float[])
 	 * @see #getProjectionMatrix(Matrix3D)
 	 */
 	public Matrix3D getModelViewMatrix(Matrix3D m) {
@@ -2354,6 +2406,26 @@ public class Camera implements Constants, Copyable {
 		computeModelViewMatrix();
 		m.set(modelViewMat);
 		return m;
+	}
+	
+	/**
+	 * Fills {@code target} (defined in row-major order) with the Camera
+	 * modelView matrix values and returns it. If {@code target} is {@code null} a
+	 * new array will be created.
+	 * <p>
+	 * First calls {@link #computeModelViewMatrix()} to define the Camera
+	 * modelView matrix.
+	 * 
+	 * @see #getModelViewMatrix()
+	 * @see #getModelViewMatrix(Matrix3D)
+	 * @see #getProjectionMatrix()
+	 * @see #getProjectionMatrix(float[])
+	 * @see #getProjectionMatrix(Matrix3D)
+	 */
+	public float[] getModelViewMatrix(float[] target) {		
+		computeModelViewMatrix();
+		modelViewMat.getTransposed(target);
+		return target;
 	}
 
 	/**
@@ -2386,36 +2458,50 @@ public class Camera implements Constants, Copyable {
 		float q23 = 2.0f * q.quat[2] * q.quat[3];
 
 		modelViewMat.mat[0] = 1.0f - q11 - q22;
-		modelViewMat.mat[4] = q01 - q23;
-		modelViewMat.mat[8] = q02 + q13;
-		modelViewMat.mat[12] = 0.0f;
+		modelViewMat.mat[1] = q01 - q23;
+		modelViewMat.mat[2] = q02 + q13;
+		modelViewMat.mat[3] = 0.0f;
 
-		modelViewMat.mat[1] = q01 + q23;
+		modelViewMat.mat[4] = q01 + q23;
 		modelViewMat.mat[5] = 1.0f - q22 - q00;
-		modelViewMat.mat[9] = q12 - q03;
-		modelViewMat.mat[13] = 0.0f;
+		modelViewMat.mat[6] = q12 - q03;
+		modelViewMat.mat[7] = 0.0f;
 
-		modelViewMat.mat[2] = q02 - q13;
-		modelViewMat.mat[6] = q12 + q03;
+		modelViewMat.mat[8] = q02 - q13;
+		modelViewMat.mat[9] = q12 + q03;
 		modelViewMat.mat[10] = 1.0f - q11 - q00;
-		modelViewMat.mat[14] = 0.0f;
+		modelViewMat.mat[11] = 0.0f;
 
 		Vector3D t = q.inverseRotate(frame().position());
 
-		modelViewMat.mat[3] = -t.vec[0];
-		modelViewMat.mat[7] = -t.vec[1];
-		modelViewMat.mat[11] = -t.vec[2];
+		modelViewMat.mat[12] = -t.vec[0];
+		modelViewMat.mat[13] = -t.vec[1];
+		modelViewMat.mat[14] = -t.vec[2];
 		modelViewMat.mat[15] = 1.0f;
 	}
 
 	/**
 	 * Fills the modelview matrix with the {@code modelview} matrix values.
 	 * 
+	 * @see #setModelViewMatrix(float[])
 	 * @see #setProjectionMatrix(Matrix3D)
+	 * @see #setProjectionMatrix(float[])
 	 */
 	public void setModelViewMatrix(Matrix3D modelview) {
 		//if (isDetachedFromP5Camera())
 			modelViewMat.set(modelview);
+	}
+	
+	/**
+	 * Fills the modelview matrix with the {@code source} matrix values
+	 * (defined in row-major order).
+	 * 
+	 * @see #setModelViewMatrix(Matrix3D)
+	 * @see #setProjectionMatrix(Matrix3D)
+	 * @see #setProjectionMatrix(float[])
+	 */
+	public void setModelViewMatrix(float [] source) {
+		modelViewMat.setTransposed(source);
 	}
 
 	// 9. WORLD -> CAMERA
@@ -3165,10 +3251,10 @@ public class Camera implements Constants, Copyable {
 		in[3] = 1.0f;
 		
 		if(projectCacheOptimized) {	
-			out[0]=projectionTimesModelview.mat[0]*in[0] + projectionTimesModelview.mat[1]*in[1] + projectionTimesModelview.mat[2]*in[2] + projectionTimesModelview.mat[3]*in[3];
-			out[1]=projectionTimesModelview.mat[4]*in[0] + projectionTimesModelview.mat[5]*in[1] + projectionTimesModelview.mat[6]*in[2] + projectionTimesModelview.mat[7]*in[3];
-			out[2]=projectionTimesModelview.mat[8]*in[0] + projectionTimesModelview.mat[9]*in[1] + projectionTimesModelview.mat[10]*in[2] + projectionTimesModelview.mat[11]*in[3];
-			out[3]=projectionTimesModelview.mat[12]*in[0] + projectionTimesModelview.mat[13]*in[1] + projectionTimesModelview.mat[14]*in[2] + projectionTimesModelview.mat[15]*in[3];
+			out[0]=projectionTimesModelview.mat[0]*in[0] + projectionTimesModelview.mat[4]*in[1] + projectionTimesModelview.mat[8]*in[2] + projectionTimesModelview.mat[12]*in[3];
+			out[1]=projectionTimesModelview.mat[1]*in[0] + projectionTimesModelview.mat[5]*in[1] + projectionTimesModelview.mat[9]*in[2] + projectionTimesModelview.mat[13]*in[3];
+			out[2]=projectionTimesModelview.mat[2]*in[0] + projectionTimesModelview.mat[6]*in[1] + projectionTimesModelview.mat[10]*in[2] + projectionTimesModelview.mat[14]*in[3];
+			out[3]=projectionTimesModelview.mat[3]*in[0] + projectionTimesModelview.mat[7]*in[1] + projectionTimesModelview.mat[11]*in[2] + projectionTimesModelview.mat[15]*in[3];
 			
 			if (out[3] == 0.0)
 				return false;

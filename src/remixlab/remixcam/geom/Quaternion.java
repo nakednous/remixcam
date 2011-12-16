@@ -785,8 +785,15 @@ public class Quaternion implements Constants, Copyable {
 	 * 
 	 * @see #fromRotationMatrix(float[][])
 	 */
-	public final void fromMatrix(Matrix3D pM) {
-		fromRotationMatrix(pM.get3x3UpperLeftMatrixFromMatrix3D());
+	public final void fromMatrix(Matrix3D glMatrix) {
+		float [][] mat = new float [4][4];
+		float [][] threeXthree = new float [3][3];
+		glMatrix.getTransposed(mat);						
+		for (int i=0; i<3; ++i)
+	    for (int j=0; j<3; ++j)
+	      threeXthree[i][j] = mat[i][j];
+		
+		fromRotationMatrix(threeXthree);
 	}
 
 	/**
@@ -868,7 +875,13 @@ public class Quaternion implements Constants, Copyable {
 	 * 
 	 */
 	public final float[][] rotationMatrix() {
-		return matrix().get3x3UpperLeftMatrixFromMatrix3D();
+		float [][] mat = new float [4][4];
+		float [][] result = new float [3][3];
+		matrix().getTransposed(mat);		
+	  for (int i=0; i<3; ++i)
+	    for (int j=0; j<3; ++j)
+	      result[i][j] = mat[i][j];
+	  return result;
 	}
 
 	/**
@@ -877,8 +890,7 @@ public class Quaternion implements Constants, Copyable {
 	 * 
 	 * @see #rotationMatrix()
 	 */
-	public final Matrix3D matrix() {
-
+	public final Matrix3D matrix() {		
 		float q00 = 2.0f * this.quat[0] * this.quat[0];
 		float q11 = 2.0f * this.quat[1] * this.quat[1];
 		float q22 = 2.0f * this.quat[2] * this.quat[2];
@@ -893,28 +905,30 @@ public class Quaternion implements Constants, Copyable {
 		float q23 = 2.0f * this.quat[2] * this.quat[3];
 
 		float m00 = 1.0f - q11 - q22;
-		float m01 = q01 - q23;
-		float m02 = q02 + q13;
+		float m10 = q01 - q23;
+		float m20 = q02 + q13;
 
-		float m10 = q01 + q23;
+		float m01 = q01 + q23;
 		float m11 = 1.0f - q22 - q00;
-		float m12 = q12 - q03;
+		float m21 = q12 - q03;
 
-		float m20 = q02 - q13;
-		float m21 = q12 + q03;
+		float m02 = q02 - q13;
+		float m12 = q12 + q03;
 		float m22 = 1.0f - q11 - q00;
-
-		float m30 = 0.0f;
-		float m31 = 0.0f;
-		float m32 = 0.0f;
 
 		float m03 = 0.0f;
 		float m13 = 0.0f;
 		float m23 = 0.0f;
-		float m33 = 1.0f;
 
-		return new Matrix3D(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22,
-				m23, m30, m31, m32, m33);
+		float m30 = 0.0f;
+		float m31 = 0.0f;
+		float m32 = 0.0f;
+		float m33 = 1.0f;	
+
+		return new Matrix3D(m00, m01, m02, m03,
+				                m10, m11, m12, m13,
+				                m20, m21, m22, m23,
+				                m30, m31, m32, m33);
 	}
 
 	/**
@@ -932,12 +946,19 @@ public class Quaternion implements Constants, Copyable {
 	}
 
 	/**
-	 * Returns the 3x3 inverse rotation matrix associated with the Quaternion.
+	 * Returns the 3x3 inverse rotation matrix (European format) associated with the Quaternion.
 	 * <p>
 	 * <b>Attention:</b> This is the classical mathematical rotation matrix.
 	 */
 	public final float[][] inverseRotationMatrix() {
-		return inverseMatrix().get3x3UpperLeftMatrixFromMatrix3D();
+		float [][] mat = new float [4][4];
+		float [][] result = new float [3][3];
+		inverseMatrix().getTransposed(mat);		
+	  for (int i=0; i<3; ++i)
+	    for (int j=0; j<3; ++j)
+	      result[i][j] = mat[i][j];
+		
+	  return result;
 	}
 
 	/**

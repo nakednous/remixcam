@@ -1446,9 +1446,9 @@ public class SimpleFrame implements Copyable {
 
 		pM = kernel().rotation().matrix();
 
-		pM.mat[3] = kernel().translation().vec[0];
-		pM.mat[7] = kernel().translation().vec[1];
-		pM.mat[11] = kernel().translation().vec[2];
+		pM.mat[12] = kernel().translation().vec[0];
+		pM.mat[13] = kernel().translation().vec[1];
+		pM.mat[14] = kernel().translation().vec[2];
 
 		return pM;
 	}	
@@ -1464,7 +1464,7 @@ public class SimpleFrame implements Copyable {
 	}
 
 	/**
-	 * Returns the processing transformation matrix represented by the Frame.
+	 * Returns the transformation matrix represented by the Frame.
 	 * <p>
 	 * This method should be used in conjunction with {@code applyMatrix()} to
 	 * modify the processing modelview matrix from a Frame:
@@ -1500,7 +1500,7 @@ public class SimpleFrame implements Copyable {
 	}
 
 	/**
-	 * Sets the Frame from a Matrix3D (processing matrix) representation
+	 * Sets the Frame from a Matrix3D representation
 	 * (rotation in the upper left 3x3 matrix and translation on the last column).
 	 * Calls {@link #modified()}.
 	 * <p>
@@ -1531,23 +1531,39 @@ public class SimpleFrame implements Copyable {
 			return;
 		}
 
-		kernel().translation().vec[0] = pM.mat[3] / pM.mat[15];
-		kernel().translation().vec[1] = pM.mat[7] / pM.mat[15];
-		kernel().translation().vec[2] = pM.mat[11] / pM.mat[15];
+		/**
+		kernel().translation().vec[0] = pM.mat[12] / pM.mat[15];
+		kernel().translation().vec[1] = pM.mat[13] / pM.mat[15];
+		kernel().translation().vec[2] = pM.mat[14] / pM.mat[15];
 
 		float[][] r = new float[3][3];
 
 		r[0][0] = pM.mat[0] / pM.mat[15];
-		r[0][1] = pM.mat[1] / pM.mat[15];
-		r[0][2] = pM.mat[2] / pM.mat[15];
-		r[1][0] = pM.mat[4] / pM.mat[15];
+		r[0][1] = pM.mat[4] / pM.mat[15];
+		r[0][2] = pM.mat[8] / pM.mat[15];
+		r[1][0] = pM.mat[1] / pM.mat[15];
 		r[1][1] = pM.mat[5] / pM.mat[15];
-		r[1][2] = pM.mat[6] / pM.mat[15];
-		r[2][0] = pM.mat[8] / pM.mat[15];
-		r[2][1] = pM.mat[9] / pM.mat[15];
+		r[1][2] = pM.mat[9] / pM.mat[15];
+		r[2][0] = pM.mat[2] / pM.mat[15];
+		r[2][1] = pM.mat[6] / pM.mat[15];
 		r[2][2] = pM.mat[10] / pM.mat[15];
 
 		kernel().rotation().fromRotationMatrix(r);
+		// */
+		
+		// /**
+		float [][] m = new float[4][4];
+		pM.get(m);
+		float [][] rot = new float[3][3];
+	  for (int i=0; i<3; ++i) {
+	  	kernel().translation().vec[i] = m[3][i] / m[3][3];
+	  	for (int j=0; j<3; ++j)
+	  	  // Beware of the transposition (OpenGL to European math)
+	  		rot[i][j] = m[j][i] / m[3][3];
+	  }
+	  kernel().rotation().fromRotationMatrix(rot);		
+		// */	
+		
 		modified();
 	}
 
