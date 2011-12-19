@@ -318,6 +318,9 @@ public abstract class AbstractScene {
   //C O N S T R A I N T S
 	protected boolean withConstraint;
 	
+	// LEFT vs RIGHT_HAND
+	protected boolean rightHanded;
+	
   //A N I M A T I O N
 	protected SingleThreadedTimer animationTimer;
 	protected boolean animationStarted;
@@ -354,6 +357,23 @@ public abstract class AbstractScene {
 		devices = new ArrayList<AbstractDevice>();
 		// <- 1
 		
+		setRightHanded();		
+	}
+	
+	public boolean isLeftHanded() {
+		return !this.rightHanded;
+	}
+	
+	public boolean isRightHanded() {
+		return this.rightHanded;
+	}
+	
+	public void setRightHanded() {
+		rightHanded = true;
+	}
+	
+	public void setLeftHanded() {
+		rightHanded = false;
 	}
 	
 	// 0. Optimization stuff

@@ -253,10 +253,12 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 				|| (action == AbstractScene.MouseAction.ROTATE)
 				|| (action == AbstractScene.MouseAction.NO_MOUSE_ACTION))
 			super.mouseDragged(eventPoint, camera);
-		else {		
-			int	deltaY = (int) (eventPoint.y - prevPos.y);
-		  //right_handed coordinate system should go like this:
-			//int deltaY = (int) (prevPos.y - eventPoint.y);
+		else {
+			int deltaY;
+			if ( scene.isRightHanded() )
+				deltaY = (int) (prevPos.y - eventPoint.y);
+			else
+				deltaY = (int) (eventPoint.y - prevPos.y);
 			
 			switch (action) {
 			case MOVE_FORWARD: {
@@ -299,7 +301,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 						/ camera.screenWidth();
 				
 			  //lef-handed coordinate system correction
-				angle = -angle;
+				if ( scene.isLeftHanded() )
+					angle = -angle;
 				
 				Quaternion rot = new Quaternion(new Vector3D(0.0f, 0.0f, 1.0f), angle);
 				rotate(rot);
@@ -349,9 +352,12 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;
 			
-			Vector3D trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
-		  //right_handed coordinate system should go like this:
-			//Vector3D trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
+			Vector3D trans;
+			if( scene.isRightHanded() )
+				trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
+			else
+				trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
+			
 			
 			// #CONNECTION# Cut-pasted from the mouseMoveEvent ZOOM case
 			trans = camera.frame().orientation().rotate(trans);
@@ -405,9 +411,11 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * from the mouse pitch (X axis) and yaw ({@link #flyUpVector()} axis).
 	 */
 	protected final Quaternion pitchYawQuaternion(int x, int y, Camera camera) {
-		int deltaY = (int) (y - prevPos.y);
-  	//right_handed coordinate system should go like this:
-		//deltaY = (int) (prevPos.y - y);
+		int deltaY;
+		if( scene.isRightHanded() )
+			deltaY = (int) (prevPos.y - y);
+		else
+			deltaY = (int) (y - prevPos.y);	
 		
 		Quaternion rotX = new Quaternion(new Vector3D(1.0f, 0.0f, 0.0f),
 				rotationSensitivity() * deltaY / camera.screenHeight());

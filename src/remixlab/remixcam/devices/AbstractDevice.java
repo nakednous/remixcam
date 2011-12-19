@@ -431,18 +431,30 @@ public abstract class AbstractDevice {
 		
 		if ( mode() == Mode.ABSOLUTE ) {
 			tx = (translation.vec[0] - prevTranslation.vec[0]) * transSens.vec[0];
-			ty = (translation.vec[1] - prevTranslation.vec[1]) * transSens.vec[1];
+			if( scene.isRightHanded() )
+				ty = (prevTranslation.vec[1] - translation.vec[1]) * transSens.vec[1];
+			else
+				ty = (translation.vec[1] - prevTranslation.vec[1]) * transSens.vec[1];
 			tz = (translation.vec[2] - prevTranslation.vec[2]) * transSens.vec[2];
-			roll = (rotation.vec[0] - prevRotation.vec[0]) * rotSens.vec[0];
-			pitch = (rotation.vec[1] - prevRotation.vec[1]) * rotSens.vec[1];
+			roll = (rotation.vec[0] - prevRotation.vec[0]) * rotSens.vec[0];			
+			if( scene.isRightHanded() )
+				pitch = (prevRotation.vec[1] - rotation.vec[1]) * rotSens.vec[1];
+			else
+				pitch = (rotation.vec[1] - prevRotation.vec[1]) * rotSens.vec[1];
 			yaw = (rotation.vec[2] - prevRotation.vec[2]) * rotSens.vec[2];
 		}
 		else {
 			tx = translation.vec[0] * transSens.vec[0];
-			ty = translation.vec[1] * transSens.vec[1];
+			if( scene.isRightHanded() )
+				ty = translation.vec[1] * (- transSens.vec[1]);
+			else
+				ty = translation.vec[1] * transSens.vec[1];
 			tz = translation.vec[2] * transSens.vec[2];
-			roll = rotation.vec[0] * rotSens.vec[0];
-			pitch = rotation.vec[1] * rotSens.vec[1];
+			roll = rotation.vec[0] * rotSens.vec[0];		  
+			if( scene.isRightHanded() )
+				pitch = rotation.vec[1] * (- rotSens.vec[1]);
+			else
+				pitch = rotation.vec[1] * rotSens.vec[1];
 			yaw = rotation.vec[2] * rotSens.vec[2];
 		}
 		

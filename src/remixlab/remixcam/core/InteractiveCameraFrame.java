@@ -171,9 +171,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				|| (action == AbstractScene.MouseAction.NO_MOUSE_ACTION))
 			super.mouseDragged(eventPoint, camera);
 		else {
-			int deltaY = (int) (eventPoint.y - prevPos.y);
-			// right_handed coordinate system should go like this:
-			// int deltaY = (int) (prevPos.y - eventPoint.y);
+			int deltaY;
+			if( scene.isRightHanded() )
+				deltaY = (int) (prevPos.y - eventPoint.y);
+			else
+				deltaY = (int) (eventPoint.y - prevPos.y);
 			switch (action) {
 			case TRANSLATE: {
 				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
@@ -183,8 +185,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				case PERSPECTIVE:
 					trans.mult(2.0f
 							* (float) Math.tan(camera.fieldOfView() / 2.0f)
-							* Math.abs((camera.frame()
-									.coordinatesOf(arcballReferencePoint())).vec[2])
+							* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2])
 							/ camera.screenHeight());
 					break;
 				case ORTHOGRAPHIC: {
@@ -202,12 +203,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 			case ZOOM: {
 				// #CONNECTION# wheelEvent() ZOOM case
-				float coef = Math.max(Math.abs((camera.frame()
-						.coordinatesOf(camera.arcballReferencePoint())).vec[2]), 0.2f * camera
-						.sceneRadius());
+				float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).vec[2]),
+						                                                         0.2f * camera.sceneRadius());
 				// Warning: same for left and right CoordinateSystemConvention:
-				Vector3D trans = new Vector3D(0.0f, 0.0f, -coef
-						* ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
+				Vector3D trans = new Vector3D(0.0f, 0.0f,
+																			-coef	* ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
 				translate(inverseTransformOf(trans));
 				prevPos = eventPoint;
 				break;
@@ -215,10 +215,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 			case ROTATE: {
 				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
-				Quaternion rot = deformedBallQuaternion((int) eventPoint.x,
-						(int) eventPoint.y, trans.vec[0], trans.vec[1], camera);
-				// #CONNECTION# These two methods should go together (spinning detection
-				// and activation)
+				Quaternion rot = deformedBallQuaternion((int) eventPoint.x,	(int) eventPoint.y, trans.vec[0], trans.vec[1], camera);
+				// #CONNECTION# These two methods should go together (spinning detection and activation)
 				computeMouseSpeed(eventPoint);
 				setSpinningQuaternion(rot);
 				spin();
@@ -229,12 +227,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			case SCREEN_ROTATE: {
 				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
 				float angle = (float) Math.atan2((int) eventPoint.y - trans.vec[1],
-						(int) eventPoint.x - trans.vec[0])
-						- (float) Math.atan2((int) prevPos.y - trans.vec[1], (int) prevPos.x
-								- trans.vec[0]);
+						                             (int) eventPoint.x - trans.vec[0])
+						                  - (float) Math.atan2((int) prevPos.y - trans.vec[1], (int) prevPos.x
+								              - trans.vec[0]);
 
 				// lef-handed coordinate system correction
-				angle = -angle;
+				if( scene.isLeftHanded() )
+					angle = -angle;
 
 				Quaternion rot = new Quaternion(new Vector3D(0.0f, 0.0f, 1.0f), angle);
 				// #CONNECTION# These two methods should go together (spinning detection
@@ -258,8 +257,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				case PERSPECTIVE:
 					trans.mult(2.0f
 							* (float) Math.tan(camera.fieldOfView() / 2.0f)
-							* Math.abs((camera.frame()
-									.coordinatesOf(arcballReferencePoint())).vec[2])
+							* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2])
 							/ camera.screenHeight());
 					break;
 				case ORTHOGRAPHIC: {
@@ -326,21 +324,19 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;
 			// #CONNECTION# mouseMoveEvent() ZOOM case
-			float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera
-					.arcballReferencePoint())).vec[2]), 0.2f * camera.sceneRadius());
-			Vector3D trans = new Vector3D(0.0f, 0.0f, coef * (-rotation)
-					* wheelSensitivity() * wheelSensitivityCoef);
-			// right_handed coordinate system should go like this:
-			// Vector3D trans = new Vector3D(0.0f, 0.0f, coef * rotation *
-			// wheelSensitivity() * wheelSensitivityCoef);
+			float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).vec[2]), 0.2f * camera.sceneRadius());
+			Vector3D trans;
+			if( scene.isRightHanded() )
+				trans = new Vector3D(0.0f, 0.0f, coef * rotation * wheelSensitivity() * wheelSensitivityCoef);
+			else
+				trans = new Vector3D(0.0f, 0.0f, coef * (-rotation) * wheelSensitivity() * wheelSensitivityCoef);
 			translate(inverseTransformOf(trans));
 			break;
 		}
 		case MOVE_FORWARD:
 		case MOVE_BACKWARD:
 			// #CONNECTION# mouseMoveEvent() MOVE_FORWARD case
-			translate(inverseTransformOf(new Vector3D(0.0f, 0.0f, 0.2f * flySpeed()
-					* (-rotation))));
+			translate(inverseTransformOf(new Vector3D(0.0f, 0.0f, 0.2f * flySpeed()	* (-rotation))));
 			break;
 		default:
 			break;

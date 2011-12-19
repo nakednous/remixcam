@@ -2550,15 +2550,15 @@ public class Camera implements Constants, Copyable {
 		Point pixel = new Point(pixelInput.getX(), pixelInput.getY());
 		
 		//lef-handed coordinate system correction
-		pixel.y = screenHeight() - pixelInput.y;
+		if( scene.isLeftHanded() )
+			pixel.y = screenHeight() - pixelInput.y;
 		
 		switch (type()) {
 		case PERSPECTIVE:
 			orig.set(position());
-			dir.set(new Vector3D(((2.0f * (int)pixel.x / screenWidth()) - 1.0f)
-					* (float) Math.tan(fieldOfView() / 2.0f) * aspectRatio(),
-					((2.0f * (screenHeight() - (int)pixel.y) / screenHeight()) - 1.0f)
-							* (float) Math.tan(fieldOfView() / 2.0f), -1.0f));
+			dir.set(new Vector3D(((2.0f * (int)pixel.x / screenWidth()) - 1.0f)	* (float) Math.tan(fieldOfView() / 2.0f) * aspectRatio(),
+					                 ((2.0f * (screenHeight() - (int)pixel.y) / screenHeight()) - 1.0f) * (float) Math.tan(fieldOfView() / 2.0f),
+					                   -1.0f));
 			dir.set(Vector3D.sub(worldCoordinatesOf(dir), orig));
 			dir.normalize();
 			break;
@@ -2615,7 +2615,8 @@ public class Camera implements Constants, Copyable {
 			project(src.vec[0], src.vec[1], src.vec[2], modelViewMat, projectionMat, viewport, xyz);
 
   	//lef-handed coordinate system correction
-		xyz[1] = screenHeight() - xyz[1];
+		if( scene.isLeftHanded() )
+			xyz[1] = screenHeight() - xyz[1];
 
 		return new Vector3D((float) xyz[0], (float) xyz[1], (float) xyz[2]);
 	}
@@ -2670,9 +2671,10 @@ public class Camera implements Constants, Copyable {
 		float xyz[] = new float[3];
 		viewport = getViewport();
 		
-		unproject(src.vec[0], (screenHeight() - src.vec[1]), src.vec[2], modelViewMat,	projectionMat, viewport, xyz);		
-		//right_handed coordinate system should go like this:
-		//unproject(src.x, src.y, src.z, modelViewMat, projectionMat, viewport, xyz);
+	  if( scene.isRightHanded() )
+	  	unproject(src.vec[0], src.vec[1], src.vec[2], modelViewMat, projectionMat, viewport, xyz);
+	  else
+	  	unproject(src.vec[0], (screenHeight() - src.vec[1]), src.vec[2], modelViewMat,	projectionMat, viewport, xyz);		
 		
 		if (frame != null)
 			return frame.coordinatesOf(new Vector3D((float) xyz[0], (float) xyz[1],

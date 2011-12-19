@@ -628,9 +628,10 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	public void mouseDragged(Point eventPoint, Camera camera) {
 		int deltaY = 0;
 		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION)
-			deltaY = (int) (prevPos.y - eventPoint.y);
-	    //right_handed coordinate system should go like this:
-		  //deltaY = (int) (eventPoint.y - prevPos.y);
+			if( scene.isRightHanded() )
+				deltaY = (int) (eventPoint.y - prevPos.y);
+			else
+				deltaY = (int) (prevPos.y - eventPoint.y);
 
 		switch (action) {
 		case TRANSLATE: {
@@ -676,17 +677,16 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 			// TODO: needs testing to see if it works correctly when left-handed is set
 			Vector3D trans = camera.projectedCoordinatesOf(position());
 			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.vec[1], (int)prevPos.x - trans.vec[0]);
-			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x
-					- trans.vec[0]);
-			Vector3D axis = transformOf(camera.frame().inverseTransformOf(
-					new Vector3D(0.0f, 0.0f, -1.0f)));
-			 
-			Quaternion rot = new Quaternion(axis, prev_angle - angle);
-		  //right_handed coordinate system should go like this:
-			//Quaternion rot = new Quaternion(axis, angle - prev_angle);
+			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);
+			Vector3D axis = transformOf(camera.frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f)));
 			
-			// #CONNECTION# These two methods should go together (spinning detection
-			// and activation)
+			Quaternion rot;
+			if( scene.isRightHanded() )
+				rot = new Quaternion(axis, angle - prev_angle);
+			else
+				rot = new Quaternion(axis, prev_angle - angle);			
+			
+			// #CONNECTION# These two methods should go together (spinning detection and activation)
 			computeMouseSpeed(eventPoint);
 			setSpinningQuaternion(rot);
 			spin();
@@ -735,8 +735,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 			rot.quat[0] = trans.vec[0];
 			rot.quat[1] = trans.vec[1];
 			rot.quat[2] = trans.vec[2];
-			// #CONNECTION# These two methods should go together (spinning detection
-			// and activation)
+			// #CONNECTION# These two methods should go together (spinning detection and activation)
 			computeMouseSpeed(eventPoint);
 			setSpinningQuaternion(rot);
 			spin();
@@ -797,10 +796,12 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 			// Vector3D trans(0.0, 0.0,
 			// -event.delta()*wheelSensitivity()*wheelSensitivityCoef*(camera.position()-position()).norm());
 			
-			Vector3D	trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
-		  //right_handed coordinate system should go like this:
-			//Vector3D trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
-			
+			Vector3D trans;
+			if(scene.isRightHanded())
+				trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
+			else
+				trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
+					
 			// #CONNECTION# Cut-pasted from the mouseMoveEvent ZOOM case
 			trans = camera.frame().orientation().rotate(trans);
 			if (referenceFrame() != null)
@@ -916,12 +917,13 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 		// Approximation of rotation angle
 		// Should be divided by the projectOnBall size, but it is 1.0
 		Vector3D axis = p2.cross(p1);
-
 		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));
 
-  	//lef-handed coordinate system correction (next two lines)
-	  axis.vec[1] = -axis.vec[1];
-	  angle = -angle;
+  	//lef-handed coordinate system correction
+		if( scene.isLeftHanded() ) {
+			axis.vec[1] = -axis.vec[1];
+			angle = -angle;
+	  }
 
 		return new Quaternion(axis, angle);
 	}
