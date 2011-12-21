@@ -92,7 +92,6 @@ public class Camera implements Constants, Copyable {
 		append(zClippingCoef).
 		append(zNearCoef).
     toHashCode();
-
 	}
 
 	@Override

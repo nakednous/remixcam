@@ -1361,7 +1361,15 @@ public abstract class AbstractScene {
 	 * Use {@link #drawArrow(Vector3D, Vector3D, float)} to place the arrow
 	 * in 3D.
 	 */
-	public abstract void drawArrow(float length, float radius);
+	public void drawArrow(float length, float radius) {
+		float head = 2.5f * (radius / length) + 0.1f;
+		float coneRadiusCoef = 4.0f - 5.0f * head;
+
+		cylinder(radius, length * (1.0f - head / coneRadiusCoef));
+		translate(0.0f, 0.0f, length * (1.0f - head));
+		cone(coneRadiusCoef * radius, head * length);
+		translate(0.0f, 0.0f, -length * (1.0f - head));
+	}
 	
 	/**
 	 * Draws a 3D arrow between the 3D point {@code from} and the 3D point {@code
@@ -1369,7 +1377,13 @@ public abstract class AbstractScene {
 	 * 
 	 * @see #drawArrow(float, float)
 	 */
-	public abstract void drawArrow(Vector3D from, Vector3D to,	float radius);
+	public void drawArrow(Vector3D from, Vector3D to,	float radius) {
+		pushMatrix();
+		translate(from.x(), from.y(), from.z());
+		applyMatrix(new Quaternion(new Vector3D(0, 0, 1), Vector3D.sub(to,	from)).matrix());
+		drawArrow(Vector3D.sub(to, from).mag(), radius);
+		popMatrix();
+	}
 	
 	/**
 	 * Convenience function that simply calls {@code drawGrid(100, 10)}
@@ -1498,7 +1512,13 @@ public abstract class AbstractScene {
 	 */
 	protected abstract void drawCameraPathSelectionHints();
 		
-	public abstract void drawCross(float px, float py);
+	/**
+	 * Convenience function that simply calls
+	 * {@code drawCross(pg3d.color(255, 255, 255), px, py, 15, 3)}.
+	 */
+	public void drawCross(float px, float py) {
+		drawCross(px, py, 15);
+	}
 	
 	/**
 	 * Draws a cross on the screen centered under pixel {@code (px, py)}, and edge

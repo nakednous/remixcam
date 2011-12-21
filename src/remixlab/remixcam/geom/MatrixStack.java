@@ -157,17 +157,17 @@ public class MatrixStack implements Constants {
   public void shearX(float angle) {
     float t = (float) Math.tan(angle);
     applyMatrix(1, t, 0, 0,
-                  0, 1, 0, 0,
-                  0, 0, 1, 0,
-                  0, 0, 0, 1);
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1);
   }
 
   public void shearY(float angle) {
     float t = (float) Math.tan(angle);
     applyMatrix(1, 0, 0, 0,
-                  t, 1, 0, 0,
-                  0, 0, 1, 0,
-                  0, 0, 0, 1);
+                t, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1);
   }
 
   //////////////////////////////////////////////////////////////
@@ -192,16 +192,16 @@ public class MatrixStack implements Constants {
   
   public void multiplyMatrix(Matrix3D source) {
   	applyMatrix(source.mat[0], source.mat[4], source.mat[8], source.mat[12],
-                  source.mat[1], source.mat[5], source.mat[9], source.mat[13],
-                  source.mat[2], source.mat[6], source.mat[10], source.mat[14],
-                  source.mat[3], source.mat[7], source.mat[11], source.mat[15]);
+                source.mat[1], source.mat[5], source.mat[9], source.mat[13],
+                source.mat[2], source.mat[6], source.mat[10], source.mat[14],
+                source.mat[3], source.mat[7], source.mat[11], source.mat[15]);
   }
 
   public void applyMatrix(Matrix3D source) {
     applyMatrix(source.mat[0], source.mat[4], source.mat[8], source.mat[12],
-                  source.mat[1], source.mat[5], source.mat[9], source.mat[13],
-                  source.mat[2], source.mat[6], source.mat[10], source.mat[14],
-                  source.mat[3], source.mat[7], source.mat[11], source.mat[15]);
+                source.mat[1], source.mat[5], source.mat[9], source.mat[13],
+                source.mat[2], source.mat[6], source.mat[10], source.mat[14],
+                source.mat[3], source.mat[7], source.mat[11], source.mat[15]);
   }
 
   /**
@@ -281,9 +281,9 @@ public class MatrixStack implements Constants {
     */
   	// TODO: revisar con respecto a la doc de OpenGL
     applyMatrix((2*znear)/(right-left),    0,                         0,                            0,
-                  0,                         (2*znear)/(top-bottom),    0,                            0,
-                  (right+left)/(right-left), (top+bottom)/(top-bottom), -(zfar+znear)/(zfar-znear),  -1,
-                  0,                         0,                         -(2*zfar*znear)/(zfar-znear), 0);
+                0,                         (2*znear)/(top-bottom),    0,                            0,
+                (right+left)/(right-left), (top+bottom)/(top-bottom), -(zfar+znear)/(zfar-znear),  -1,
+                0,                         0,                         -(2*zfar*znear)/(zfar-znear), 0);
   }
 
   /**
