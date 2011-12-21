@@ -609,7 +609,10 @@ public abstract class AbstractScene {
 	 * <b>Attention:</b> When drawing a frame hierarchy as above, this method
 	 * should be used whenever possible.
 	 */
-	public abstract void applyTransformation(SimpleFrame frame);
+	public void applyTransformation(SimpleFrame frame) {
+		translate( frame.translation().vec[0], frame.translation().vec[1], frame.translation().vec[2] );
+		rotate( frame.rotation().angle(), frame.rotation().axis().vec[0], frame.rotation().axis().vec[1], frame.rotation().axis().vec[2]);
+	}
 	
 	/**
 	 * Returns the approximate frame rate of the software as it executes.
@@ -861,14 +864,12 @@ public abstract class AbstractScene {
 			avatarIsInteractiveAvatarFrame = true;
 			avatarIsInteractiveDrivableFrame = true;
 			if (interactiveFrame() != null)
-				((InteractiveDrivableFrame) interactiveFrame())
-						.setFlySpeed(0.01f * radius());
+				((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
 		} else if (avatar() instanceof InteractiveDrivableFrame) {
 			avatarIsInteractiveAvatarFrame = false;
 			avatarIsInteractiveDrivableFrame = true;
 			if (interactiveFrame() != null)
-				((InteractiveDrivableFrame) interactiveFrame())
-						.setFlySpeed(0.01f * radius());
+				((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
 		}
 	}
 
