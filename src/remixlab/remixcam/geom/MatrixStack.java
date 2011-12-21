@@ -7,20 +7,13 @@ import remixlab.remixcam.core.*;
  * 
  * @author pierre
  */
-public class MatrixStack {
-	
-  // types of transformation matrices
-  
-  private static final int PROJECTION = 0;
-  private static final int MODELVIEW  = 1;
-  
+public class MatrixStack implements Constants {  
 	private static final int MATRIX_STACK_DEPTH = 32;
 	
   private static final String ERROR_PUSHMATRIX_OVERFLOW =
     "Too many calls to pushMatrix().";
   private static final String ERROR_PUSHMATRIX_UNDERFLOW =
-    "Too many calls to popMatrix(), and not enough to pushMatrix().";
-  
+    "Too many calls to popMatrix(), and not enough to pushMatrix().";  
   
 	float[][] matrixStack = new float[MATRIX_STACK_DEPTH][16];
   int matrixStackDepth;
@@ -29,13 +22,13 @@ public class MatrixStack {
   float[][] pmatrixStack = new float[MATRIX_STACK_DEPTH][16];
   int pmatrixStackDepth;
   
-  Camera camera;
+  AbstractScene scene;
   Matrix3D projection, modelview;
   
-  public MatrixStack(Camera cam) {
-  	camera = cam;
-  	projection = camera.projection();
-  	modelview = camera.modelview();
+  public MatrixStack(AbstractScene scn) {
+  	scene = scn;
+  	modelview = new Matrix3D();
+  	projection = new Matrix3D();
   }
   
   //////////////////////////////////////////////////////////////
@@ -58,7 +51,6 @@ public class MatrixStack {
     }
   }
 
-
   public void popMatrix() {
     if (matrixMode == PROJECTION) {
       if (pmatrixStackDepth == 0) {
@@ -75,16 +67,13 @@ public class MatrixStack {
     }
   }
 
-
   //////////////////////////////////////////////////////////////
 
   // MATRIX TRANSFORMATIONS
 
-
   public void translate(float tx, float ty) {
     translate(tx, ty, 0);
   }
-
 
   public void translate(float tx, float ty, float tz) {
     if (matrixMode == PROJECTION) {
@@ -93,7 +82,6 @@ public class MatrixStack {
       modelview.translate(tx, ty, tz);
     }
   }
-
 
   /**
    * Two dimensional rotation. Same as rotateZ (this is identical
@@ -105,7 +93,6 @@ public class MatrixStack {
     rotateZ(angle);
   }
 
-
   public void rotateX(float angle) {
     if (matrixMode == PROJECTION) {
       projection.rotateX(angle);
@@ -113,7 +100,6 @@ public class MatrixStack {
       modelview.rotateX(angle);
     }
   }
-
 
   public void rotateY(float angle) {
     if (matrixMode == PROJECTION) {
@@ -123,7 +109,6 @@ public class MatrixStack {
     }
   }
 
-
   public void rotateZ(float angle) {
     if (matrixMode == PROJECTION) {
       projection.rotateZ(angle);
@@ -131,7 +116,6 @@ public class MatrixStack {
       modelview.rotateZ(angle);
     }    
   }
-
 
   /**
    * Rotate around an arbitrary vector, similar to glRotate(),
@@ -145,7 +129,6 @@ public class MatrixStack {
     }
   }
 
-
   /**
    * Same as scale(s, s, s).
    */
@@ -153,14 +136,12 @@ public class MatrixStack {
     scale(s, s, s);
   }
 
-
   /**
    * Same as scale(sx, sy, 1).
    */
   public void scale(float sx, float sy) {
     scale(sx, sy, 1);
   }
-
 
   /**
    * Scale in three dimensions.
@@ -171,32 +152,35 @@ public class MatrixStack {
     } else {    
       modelview.scale(x, y, z);
     }
-  }
-  
+  }  
   
   public void shearX(float angle) {
     float t = (float) Math.tan(angle);
     applyMatrix(1, t, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1);
+                  0, 1, 0, 0,
+                  0, 0, 1, 0,
+                  0, 0, 0, 1);
   }
-
 
   public void shearY(float angle) {
     float t = (float) Math.tan(angle);
     applyMatrix(1, 0, 0, 0,
-                t, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1);
-  }  
-  
-
+                  t, 1, 0, 0,
+                  0, 0, 1, 0,
+                  0, 0, 0, 1);
+  }
 
   //////////////////////////////////////////////////////////////
 
   // MATRIX MORE!
-
+  
+  public void loadIdentity() {
+  	 if (matrixMode == PROJECTION) {
+       projection.reset();
+     } else {        
+       modelview.reset();
+     }
+  }  
 
   public void resetMatrix() {
     if (matrixMode == PROJECTION) {
@@ -205,30 +189,23 @@ public class MatrixStack {
       modelview.reset();
     }
   }
-
-
-
-  public void applyMatrix(float n00, float n01, float n02,
-                          float n10, float n11, float n12) {
-    applyMatrix(n00, n01, n02, 0,
-                n10, n11, n12, 0,
-                0,   0,   1,   0,
-                0,   0,   0,   1);
+  
+  public void multiplyMatrix(Matrix3D source) {
+  	applyMatrix(source.mat[0], source.mat[4], source.mat[8], source.mat[12],
+                  source.mat[1], source.mat[5], source.mat[9], source.mat[13],
+                  source.mat[2], source.mat[6], source.mat[10], source.mat[14],
+                  source.mat[3], source.mat[7], source.mat[11], source.mat[15]);
   }
-
 
   public void applyMatrix(Matrix3D source) {
     applyMatrix(source.mat[0], source.mat[4], source.mat[8], source.mat[12],
-                source.mat[1], source.mat[5], source.mat[9], source.mat[13],
-                source.mat[2], source.mat[6], source.mat[10], source.mat[14],
-                source.mat[3], source.mat[7], source.mat[11], source.mat[15]);
+                  source.mat[1], source.mat[5], source.mat[9], source.mat[13],
+                  source.mat[2], source.mat[6], source.mat[10], source.mat[14],
+                  source.mat[3], source.mat[7], source.mat[11], source.mat[15]);
   }
-
 
   /**
    * Apply a 4x4 transformation matrix. Same as glMultMatrix().
-   * This call will be slow because it will try to calculate the
-   * inverse of the transform. So avoid it whenever possible.
    */
   public void applyMatrix(float n00, float n01, float n02, float n03,
                           float n10, float n11, float n12, float n13,
@@ -247,12 +224,9 @@ public class MatrixStack {
     }
   }
 
-
-
   //////////////////////////////////////////////////////////////
 
   // MATRIX GET/SET/PRINT
-
 
   public Matrix3D getMatrix() {
     if (matrixMode == PROJECTION) {
@@ -260,11 +234,7 @@ public class MatrixStack {
     } else {
       return modelview.get();  
     }    
-  }
-
-
-  //public Matrix2D getMatrix(Matrix2D target)
-
+  }  
 
   public Matrix3D getMatrix(Matrix3D target) {
     if (target == null) {
@@ -277,10 +247,14 @@ public class MatrixStack {
     }
     return target;
   }
-
-
-  //public void setMatrix(Matrix source)  
-
+  
+  public void loadMatrix(Matrix3D source) {
+  	if (matrixMode == PROJECTION) {
+      projection.set(source);
+    } else {        
+      modelview.set(source);
+    }
+  }
 
   /**
    * Set the current transformation to the contents of the specified source.
@@ -290,7 +264,27 @@ public class MatrixStack {
     resetMatrix();
     applyMatrix(source);
   }
-
+  
+  /**
+   * Same as glFrustum().
+   */
+  public void frustum(float left, float right, float bottom, float top, float znear, float zfar) {    
+  	/**
+  	Same as glFrustum(), except that it wipes out (rather than
+    multiplies against) the current perspective matrix.
+    <P>
+   Implementation based on the explanation in the OpenGL blue book.
+    projection.set((2*znear)/(right-left),    0,                      (right+left)/(right-left),  0,
+                   0,                         (2*znear)/(top-bottom), (top+bottom)/(top-bottom),  0,
+                   0,                         0,                      -(zfar+znear)/(zfar-znear), -(2*zfar*znear)/(zfar-znear),
+                   0,                         0,                      -1,                         0);
+    */
+  	// TODO: revisar con respecto a la doc de OpenGL
+    applyMatrix((2*znear)/(right-left),    0,                         0,                            0,
+                  0,                         (2*znear)/(top-bottom),    0,                            0,
+                  (right+left)/(right-left), (top+bottom)/(top-bottom), -(zfar+znear)/(zfar-znear),  -1,
+                  0,                         0,                         -(2*zfar*znear)/(zfar-znear), 0);
+  }
 
   /**
    * Print the current model (or "transformation") matrix.
@@ -313,6 +307,5 @@ public class MatrixStack {
     } else {
       System.out.println("Invalid matrix mode. Use PROJECTION or MODELVIEW");
     }
-  }
-  
+  }  
 }

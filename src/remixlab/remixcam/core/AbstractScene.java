@@ -28,12 +28,9 @@ package remixlab.remixcam.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import remixlab.remixcam.devices.AbstractDevice;
-import remixlab.remixcam.devices.DeviceGrabbable;
-import remixlab.remixcam.geom.Point;
-import remixlab.remixcam.geom.Vector3D;
-import remixlab.remixcam.util.AbstractTimerJob;
-import remixlab.remixcam.util.SingleThreadedTimer;
+import remixlab.remixcam.devices.*;
+import remixlab.remixcam.geom.*;
+import remixlab.remixcam.util.*;
 
 public abstract class AbstractScene {
 	/**
@@ -291,6 +288,9 @@ public abstract class AbstractScene {
     // */
 	}	
 	
+	//M A T R I X S T A C K
+	protected MatrixStack mStack;
+	
   //O B J E C T S	
 	protected Camera cam;
 	protected InteractiveFrame glIFrame;
@@ -357,8 +357,193 @@ public abstract class AbstractScene {
 		devices = new ArrayList<AbstractDevice>();
 		// <- 1
 		
-		setRightHanded();		
+		setRightHanded();
+		
+		mStack = new MatrixStack(this);
 	}
+	
+	// MATRIX STACK WRAPPERS
+	
+	/**
+	 * Push a copy of the current transformation matrix onto the stack.
+   */
+	public void pushMatrix() {
+		mStack.pushMatrix();
+	}
+	
+	/**
+	 * Replace the current transformation matrix with the top of the stack.
+	 */
+	public void popMatrix() {
+		mStack.popMatrix();
+	}	 
+	
+  /**
+   * Translate in X and Y.
+   */
+  public void translate(float tx, float ty) {    
+    mStack.translate(tx, ty);
+  }
+
+  /**
+   * Translate in X, Y, and Z.
+   */
+  public void translate(float tx, float ty, float tz) {    
+    mStack.translate(tx, ty, tz);
+  }
+
+  /**
+   * Two dimensional rotation.
+   *
+   * Same as rotateZ (this is identical to a 3D rotation along the z-axis)
+   * but included for clarity. It'd be weird for people drawing 2D graphics
+   * to be using rotateZ. And they might kick our a-- for the confusion.
+   *
+   * <A HREF="http://www.xkcd.com/c184.html">Additional background</A>.
+   */
+  public void rotate(float angle) {    
+    mStack.rotate(angle);
+  }
+
+  /**
+   * Rotate around the X axis.
+   */
+  public void rotateX(float angle) {    
+    mStack.rotateX(angle);
+  }
+
+  /**
+   * Rotate around the Y axis.
+   */
+  public void rotateY(float angle) {
+  	mStack.rotateY(angle);
+  }
+
+  /**
+   * Rotate around the Z axis.
+   *
+   * The functions rotate() and rotateZ() are identical, it's just that it make
+   * sense to have rotate() and then rotateX() and rotateY() when using 3D;
+   * nor does it make sense to use a function called rotateZ() if you're only
+   * doing things in 2D. so we just decided to have them both be the same.
+   */
+  public void rotateZ(float angle) {
+  	mStack.rotateZ(angle);
+  }
+
+  /**
+   * Rotate about a vector in space. Same as the glRotatef() function.
+   */
+  public void rotate(float angle, float vx, float vy, float vz) {
+  	mStack.rotate(angle, vx, vy, vz);
+  }
+
+  /**
+   * Scale in all dimensions.
+   */
+  public void scale(float s) {
+  	mStack.scale(s);
+  }
+
+  /**
+   * Scale in X and Y. Equivalent to scale(sx, sy, 1).
+   *
+   * Not recommended for use in 3D, because the z-dimension is just
+   * scaled by 1, since there's no way to know what else to scale it by.
+   */
+  public void scale(float sx, float sy) {
+  	mStack.scale(sx, sy);
+  }
+
+  /**
+   * Scale in X, Y, and Z.
+   */
+  public void scale(float x, float y, float z) {
+  	mStack.scale(x, y, z);
+  }
+
+  /**
+   * Shear along X axis
+   */
+  public void shearX(float angle) {
+  	mStack.shearX(angle);
+  }
+
+  /**
+   * Shear along Y axis
+   */
+  public void shearY(float angle) {
+  	mStack.shearY(angle);
+  }
+  
+  public void loadIdentity() {
+  	mStack.loadIdentity();
+  }
+
+  /**
+   * Set the current transformation matrix to identity.
+   */
+  public void resetMatrix() {
+  	mStack.resetMatrix();
+  }
+  
+  public void loadMatrix(Matrix3D source) {
+  	mStack.loadMatrix(source);
+  }
+  
+  public void multiplyMatrix(Matrix3D source) {
+  	mStack.multiplyMatrix(source);
+  }
+  
+  public void applyMatrix(Matrix3D source) {    
+    mStack.applyMatrix(source);
+  }
+
+  /**
+   * Apply a 4x4 transformation matrix.
+   */
+  public void applyMatrix(float n00, float n01, float n02, float n03,
+                          float n10, float n11, float n12, float n13,
+                          float n20, float n21, float n22, float n23,
+                          float n30, float n31, float n32, float n33) {    
+  	mStack.applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
+  }
+  
+  public void frustum(float left, float right, float bottom, float top, float znear, float zfar) {
+  	mStack.frustum(left, right, bottom, top, znear, zfar);
+  }
+
+  public Matrix3D getMatrix() {
+    return mStack.getMatrix();
+  }
+
+  /**
+   * Copy the current transformation matrix into the specified target.
+   * Pass in null to create a new matrix.
+   */
+  public Matrix3D getMatrix(Matrix3D target) {
+    return mStack.getMatrix(target);
+  }
+
+  /**
+   * Set the current transformation matrix to the contents of another.
+   */
+  public void setMatrix(Matrix3D source) {
+  	mStack.setMatrix(source);
+  }
+
+  /**
+   * Print the current model (or "transformation") matrix.
+   */
+  public void printMatrix() {
+  	mStack.printMatrix();
+  }
+  
+  public void matrixMode( int mode  ) {
+  	mStack.matrixMode(mode);
+  }
+	
+	// end matrix stack wrapper
 	
 	public boolean isLeftHanded() {
 		return !this.rightHanded;

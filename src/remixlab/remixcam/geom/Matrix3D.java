@@ -15,7 +15,6 @@ public class Matrix3D {
   // locally allocated version to avoid creating new memory
   protected Matrix3D inverseCopy;
 
-
   public Matrix3D() {
     reset();
   }
@@ -34,19 +33,26 @@ public class Matrix3D {
     set(matrix);
   }
   
-  public Matrix3D(float [] oData) {
-  	this(oData, false);
+  public Matrix3D(float [] data) {
+  	this(data, false);
   }
   
-  public Matrix3D(float [] oData, boolean shared) {
-  	if(shared)
-  		shareData(oData);
+  public Matrix3D(float [] data, boolean transposed) {
+  	if(transposed)
+  		setTransposed(data);  		
   	else
-  		setTransposed(oData);
+  		set(data);  		
   }  
   
-  public Matrix3D(float [][] rowMajor) {
-  	setTransposed(rowMajor);
+  public Matrix3D(float [][] data) {
+  	this(data, false);
+  }
+  
+  public Matrix3D(float [][] data, boolean transposed) {
+  	if(transposed)
+  		setTransposed(data);
+  	else
+  		set(data);
   }
   
   public void m00(float v) { mat[0]=v; }  
@@ -83,8 +89,6 @@ public class Matrix3D {
   public float m32() { return mat[14]; }
   public float m33() { return mat[15]; }  
   
-  // TODO re-add: get3x3UpperLeftMatrixFromMatrix3D  
-
   public void reset() {
     set(1, 0, 0, 0,
         0, 1, 0, 0,
@@ -99,6 +103,7 @@ public class Matrix3D {
   	return mat;
   }
   
+  // TODO: add in an interface
   public void shareData(float [] source) {
   	mat = source;
   }
