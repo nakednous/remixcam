@@ -8,9 +8,16 @@ package remixlab.remixcam.geom;
  * @author pierre
  */
 public class Matrix3D {
-
-	public float mat[] = new float[16];
 	
+	/**
+	 * Array row major representation:
+	 * |	m0	m4	m8	m12	|
+	 * |	m1	m5	m9	m13	|
+	 * |	m2	m6	m10	m14	|
+	 * |	m3	m7	m11	m15	|
+	 */
+
+	public float mat[] = new float[16];	
 
   // locally allocated version to avoid creating new memory
   protected Matrix3D inverseCopy;
