@@ -300,7 +300,7 @@ public abstract class AbstractScene {
 	protected boolean avatarIsInteractiveAvatarFrame;
 	
   // T i m e r P o o l
-  protected boolean prosceneTimers;
+  public boolean prosceneTimers;//TODO add setter and getter
 	protected ArrayList<AbstractTimerJob> timerPool;
 
 	// M o u s e G r a b b e r
@@ -818,9 +818,14 @@ public abstract class AbstractScene {
 	}
 	
 	// TODO need this methods here?
-	public abstract void registerInTimerPool(AbstractTimerJob job);
+  // need it here (or it should just go into proscene.js)? need to be overloaded?
+	// it was previously set in proscene.Scene
+	public void unregisterFromTimerPool(SingleThreadedTimer t) {
+		if( t instanceof SingleThreadedTaskableTimer )
+			timerPool.remove( ((SingleThreadedTaskableTimer) t).timerJob() );
+	}
 	
-	public abstract void unregisterFromTimerPool(SingleThreadedTimer t);
+	public abstract void registerInTimerPool(AbstractTimerJob job);
 	
 	public void unregisterFromTimerPool(AbstractTimerJob job) {
 		if (prosceneTimers) {			

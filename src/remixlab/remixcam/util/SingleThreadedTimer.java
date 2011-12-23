@@ -27,8 +27,6 @@ package remixlab.remixcam.util;
 
 import remixlab.remixcam.core.*;
 
-//import remixlab.proscene.*;
-
 /**
  * this timer should belong to all P5 versions. Don't know yet if it
  * should belong to jogl too.
