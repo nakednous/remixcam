@@ -339,7 +339,14 @@ public abstract class AbstractScene {
 	// S I Z E
 	protected int width, height;
 	
+	protected long frameCount;
+	protected float frameRate;
+	protected long frameRateLastNanos;
+	
 	public AbstractScene() {
+		frameCount = 0;
+		frameRate = 10;
+		frameRateLastNanos = 0;
 	  // 1 ->
 		//drawing timer pool
 		timerPool = new ArrayList<AbstractTimerJob>();
@@ -360,6 +367,345 @@ public abstract class AbstractScene {
 		setRightHanded();
 		
 		mStack = new MatrixStack(this);
+	}
+	
+	// D R A W I N G   M E T H O D S
+	
+	public void preDraw() {
+		/**
+		// TODO: how to handle this?
+		if ((currentCameraProfile().mode() == CameraProfile.Mode.THIRD_PERSON)
+				&& (!camera().anyInterpolationIsStarted())) {
+			camera().setPosition(avatar().cameraPosition());
+			camera().setUpVector(avatar().upVector());
+			camera().lookAt(avatar().target());
+		}
+		*/
+		
+		// TODO if leave it here it gives results very close to P5	  
+		updateFrameRate();
+			
+		bindMatrices();
+		if (frustumEquationsUpdateIsEnable())
+			camera().updateFrustumEquations();
+	}
+	
+	/**
+	 * Internal method. Called by {@link #draw()} and {@link #beginDraw()}.
+	 * <p>
+	 * First performs any scheduled animation, then calls {@link #proscenium()}
+	 * which is the main drawing method that could be overloaded. Then, if
+	 * there's an additional drawing method registered at the Scene, calls it (see
+	 * {@link #addDrawHandler(Object, String)}). Finally, displays the
+	 * {@link #displayGlobalHelp()}, the axis, the grid, the interactive frames' selection
+	 * hints and camera paths, and some visual hints (such {@link #drawZoomWindowHint()},
+	 * {@link #drawScreenRotateLineHint()} and {@link #drawArcballReferencePointHint()})
+	 * according to user interaction and flags.
+	 * 
+	 * @see #proscenium()
+	 * @see #addDrawHandler(Object, String)
+	 * @see #gridIsDrawn()
+	 * @see #axisIsDrwn
+	 * @see #addDrawHandler(Object, String)
+	 * @see #addAnimationHandler(Object, String)
+	 */
+	public void postDraw() {
+		// 0. timers
+		handleTimers();
+		
+		// 1. Animation
+		if( animationIsStarted() )
+			performAnimation(); //abstract
+		
+		// 2. Alternative use only
+		proscenium();
+		
+		// 3. Draw external registered method (only in java sub-classes)
+		invokeRegisteredMethod(); // abstract
+		
+		// 4. HIDevices
+		for (AbstractDevice device : devices)
+			device.handle();
+		
+		// 5. Grid and axis drawing
+		if (gridIsDrawn())
+			drawGrid(camera().sceneRadius());
+		if (axisIsDrawn())
+			drawAxis(camera().sceneRadius());		
+		
+		// 6. Display visual hints
+		displayVisualHints(); // abstract
+		
+		//updateFrameRate();
+	}	
+	
+	private void updateFrameRate() {
+		long now = System.nanoTime();
+		
+		if(frameCount > 1) {
+		  // update the current frameRate
+	     double rate = 1000000.0 / ((now - frameRateLastNanos) / 1000000.0);
+	     float instantaneousRate = (float) rate / 1000.0f;
+	     frameRate = (frameRate * 0.9f) + (instantaneousRate * 0.1f);
+		}
+			
+		frameRateLastNanos = now;
+		frameCount++;
+	}
+	
+	protected abstract void invokeRegisteredMethod();
+	
+	/**
+	 * Bind processing matrices to proscene matrices.
+	 */	
+	protected void bindMatrices() {
+		// We set the processing camera matrices from our remixlab.proscene.Camera
+		// TODO: needs testing
+		setProjectionMatrix(); // abstract
+		setModelViewMatrix(); // abstract
+		// same as the two previous lines:
+		// WARNING: this can produce visual artifacts when using OPENGL and
+		// GLGRAPHICS renderers because
+		// processing will anyway set the matrices at the end of the rendering
+		// loop.
+		// camera().computeProjectionMatrix();
+		// camera().computeModelViewMatrix();
+		camera().cacheMatrices();
+	}
+	
+	/**
+	 * Sets the processing camera projection matrix from {@link #camera()}. Calls
+	 * {@code PApplet.perspective()} or {@code PApplet.orhto()} depending on the
+	 * {@link remixlab.remixcam.core.Camera#type()}.
+	 */
+	protected void setProjectionMatrix() {
+		camera().loadProjectionMatrix();
+	}
+	
+	/**
+	 * Sets the processing camera matrix from {@link #camera()}. Simply calls
+	 * {@code PApplet.camera()}.
+	 */
+	protected void setModelViewMatrix() {
+		camera().loadModelViewMatrix();
+	}
+	
+	protected abstract void displayVisualHints();
+	
+	protected void handleTimers() {		
+		if(prosceneTimers)
+			for ( AbstractTimerJob tJob : timerPool )
+				if (tJob.timer() != null)
+					((SingleThreadedTaskableTimer)tJob.timer()).execute();
+	}
+	
+  //1. Scene overloaded
+	
+	/**
+	 * This method is called before the first drawing happen and should be overloaded to
+	 * initialize stuff not initialized in {@code PApplet.setup()}. The default
+	 * implementation is empty.
+	 * <p>
+	 * Typical usage include {@link #camera()} initialization ({@link #showAll()})
+	 * and Scene state setup ({@link #setAxisIsDrawn(boolean)} and
+	 * {@link #setGridIsDrawn(boolean)}.
+	 */
+	public void init() {}
+	
+	/**
+	 * The method that actually defines the scene.
+	 * <p>
+	 * If you build a class that inherits from Scene, this is the method you
+	 * should overload, but no if you instantiate your own Scene object (in this
+	 * case you should just overload {@code PApplet.draw()} to define your scene).
+	 * <p>
+	 * The processing camera set in {@link #pre()} converts from the world to the
+	 * camera coordinate systems. Vertices given in {@link #draw()} can then be
+	 * considered as being given in the world coordinate system. The camera is
+	 * moved in this world using the mouse. This representation is much more
+	 * intuitive than a camera-centric system (which for instance is the standard
+	 * in OpenGL).
+	 */
+	public void proscenium() {}
+	
+	// ANIMATION
+	
+	protected abstract void performAnimation();
+	
+	/**
+	 * Return {@code true} when the animation loop is started.
+	 * <p>
+	 * Proscene animation loop relies on processing drawing loop. The {@link #draw()} function will
+	 * check when {@link #animationIsStarted()} and then called the animation handler method
+	 * (set with {@link #addAnimationHandler(Object, String)}) or {@link #animate()} (if no handler
+	 * has been added to the scene) every {@link #animationPeriod()} milliseconds. In addition,
+	 * During the drawing loop, the variable {@link #animatedFrameWasTriggered} is set
+   * to {@code true} each time an animated frame is triggered (and {@code false} otherwise),
+   * which is useful to notify to the outside world when an animation event occurs. 
+	 * <p>
+	 * Be sure to call {@code loop()} before an animation is started.
+	 * <p>
+	 * <b>Note:</b> The drawing frame rate may be modified when {@link #startAnimation()} is called,
+	 * depending on the {@link #animationPeriod()}.   
+	 * <p>
+	 * Use {@link #startAnimation()}, {@link #stopAnimation()} or {@link #toggleAnimation()}
+	 * to change this value.
+	 * 
+	 * @see #startAnimation()
+	 * @see #addAnimationHandler(Object, String)
+	 * @see #animate()
+	 */
+	public boolean animationIsStarted() {
+		return animationStarted;
+	}
+	
+	/**
+	 * The animation loop period, in milliseconds. When {@link #animationIsStarted()}, this is
+	 * the delay that takes place between two consecutive iterations of the animation loop.
+	 * <p>
+	 * This delay defines a target frame rate that will only be achieved if your
+	 * {@link #animate()} and {@link #draw()} methods are fast enough. If you want to know
+	 * the maximum possible frame rate of your machine on a given scene,
+	 * {@link #setAnimationPeriod(float)} to {@code 1}, and {@link #startAnimation()}. The display
+	 * will then be updated as often as possible, and the frame rate will be meaningful.  
+	 * <p>
+	 * Default value is 16.6666 milliseconds (60 Hz) which matches <b>processing</b> default
+	 * frame rate.
+	 * <p>
+	 * <b>Note:</b> This value is taken into account only the next time you call
+	 * {@link #startAnimation()}. If {@link #animationIsStarted()}, you should
+	 * {@link #stopAnimation()} first. See {@link #restartAnimation()} and
+	 * {@link #setAnimationPeriod(float, boolean)}.
+	 * 
+	 * @see #setAnimationPeriod(float, boolean)
+	 */
+	public long animationPeriod() {
+		return animationPeriod;
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code setAnimationPeriod(period, true)}.
+	 * 
+	 * @see #setAnimationPeriod(float, boolean)
+	 */
+	public void setAnimationPeriod(long period) {
+		setAnimationPeriod(period, true);
+	}
+	
+	/**
+	 * Sets the {@link #animationPeriod()}, in milliseconds. If restart is {@code true}
+	 * and {@link #animationIsStarted()} then {@link #restartAnimation()} is called.
+	 * <p>
+	 * <b>Note:</b> The drawing frame rate could be modified when {@link #startAnimation()} is called
+	 * depending on the {@link #animationPeriod()}.
+	 * 
+	 * @see #startAnimation()
+	 */
+	public void setAnimationPeriod(long period, boolean restart) {
+		if(period>0) {
+			animationPeriod = period;
+			if(animationIsStarted() && restart)				
+				restartAnimation();
+		}
+	}
+	
+	/**
+	 * Stops animation.
+	 * <p>
+	 * <b>Warning:</b> Restores the {@code PApplet} frame rate to its default value,
+	 * i.e., calls {@code parent.frameRate(60)}. 
+	 * 
+	 * @see #animationIsStarted()
+	 */
+	public void stopAnimation()	{
+		animationStarted = false;
+		animatedFrameWasTriggered = false;
+		animationTimer.stop();
+	}
+	
+	/**
+	 * Starts the animation loop.
+	 * <p>
+	 * Syncs the drawing frame rate according to {@link #animationPeriod()}: If the animation
+	 * frame rate (which value depends on the {@link #animationPeriod()})
+	 * is higher than the current {@link #frameRate()}, the frame rate is modified to match it,
+	 * i.e., each drawing frame will trigger exactly one animation event. If the animation
+	 * frame rate is lower than the {@link #frameRate()}, the frame rate is left unmodified,
+	 * and the animation frames will be interleaved among the drawing frames in intervals
+	 * needed to achieve the target {@link #animationPeriod()} (provided that your
+	 * {@link #animate()} and {@link #draw()} methods are fast enough).
+	 * 
+	 * @see #animationIsStarted()
+	 */
+	public void startAnimation() {
+		animationStarted = true;	
+		animationTimer.run(animationPeriod);
+	}
+	
+	/**
+	 * Restart the animation.
+	 * <p>
+	 * Simply calls {@link #stopAnimation()} and then {@link #startAnimation()}.
+	 */
+  public void restartAnimation() {
+  	stopAnimation();
+  	startAnimation();
+	}
+  
+  /**
+	 * Scene animation method.
+	 * <p>
+	 * When {@link #animationIsStarted()}, this method defines how your scene evolves over time.
+	 * <p>
+	 * Overload it as needed. Default implementation is empty. You may
+	 * {@link #addAnimationHandler(Object, String)} instead.
+	 * <p>
+	 * <b>Note</b> that remixlab.proscene.KeyFrameInterpolator (which regularly updates a Frame)
+	 * do not use this method.
+	 * 
+	 * @see #addAnimationHandler(Object, String).
+	 */
+	public void animate() {
+	}
+	
+	/**
+	 * Calls {@link #startAnimation()} or {@link #stopAnimation()}, depending on
+	 * {@link #animationIsStarted()}.
+	 */
+	public void toggleAnimation() {
+		if (animationIsStarted()) stopAnimation(); else startAnimation();
+	}
+	
+  // Device registration
+	
+	/**
+	 * Adds an HIDevice to the scene.
+	 * 
+	 * @see #removeDevice(AbstractHIDevice)
+	 * @see #removeAllDevices()
+	 */
+	public void addDevice(AbstractDevice device) {
+		devices.add(device);
+	}
+	
+	/**
+	 * Removes the device from the scene.
+	 * 
+	 * @see #addDevice(AbstractHIDevice)
+	 * @see #removeAllDevices()
+	 */
+	public void removeDevice(AbstractDevice device) {
+		devices.remove(device);
+	}
+	
+	/**
+	 * Removes all registered devices from the scene.
+	 * 
+	 * @see #addDevice(AbstractHIDevice)
+	 * @see #removeDevice(AbstractHIDevice)
+	 */
+	public void removeAllDevices() {
+		devices.clear();
 	}
 	
 	// MATRIX STACK WRAPPERS
@@ -620,12 +966,18 @@ public abstract class AbstractScene {
 	 * The value is averaged (integrated) over several frames.
 	 * As such, this value won't be valid until after 5-10 frames.
 	 */
-	public abstract float frameRate();
+	public float frameRate() {
+		return frameRate;
+	}
+	//public abstract float frameRate();
 	
 	/**
 	 * Returns the number of frames displayed since the program started.
 	 */
-	public abstract long frameCount();
+	public long frameCount() {
+		return frameCount;
+	}
+	//public abstract long frameCount();
 	
 	// 1. Associated objects
 	
