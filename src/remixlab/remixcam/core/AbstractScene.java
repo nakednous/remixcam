@@ -32,7 +32,7 @@ import remixlab.remixcam.devices.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.*;
 
-public abstract class AbstractScene {
+public abstract class AbstractScene implements Constants {
 	/**
 	 * Defines the different actions that can be associated with a specific
 	 * keyboard key.
@@ -325,7 +325,7 @@ public abstract class AbstractScene {
 	protected SingleThreadedTimer animationTimer;
 	protected boolean animationStarted;
 	public boolean animatedFrameWasTriggered;
-	protected long animationPeriod;
+	protected long animationPeriod;	
 	
   //D E V I C E S	
 	protected ArrayList<AbstractDevice> devices;
@@ -338,6 +338,16 @@ public abstract class AbstractScene {
 	
 	// S I Z E
 	protected int width, height;
+	
+  //K E Y B O A R D A N D M O U S E
+	protected boolean mouseHandling;
+	protected boolean keyboardHandling;
+	
+	/**
+   * The system variables <b>mouseX</b> and <b>mouseY</b> always contains the current horizontal
+   * and vertical coordinates of the mouse.
+   */ 
+  public int mouseX, mouseY;  
 	
 	protected long frameCount;
 	protected float frameRate;
@@ -367,6 +377,380 @@ public abstract class AbstractScene {
 		setRightHanded();
 		
 		mStack = new MatrixStack(this);
+	}
+	
+	// E V E N T   HA N D L I N G
+	
+	/**
+	 * Internal method. Handles the different global keyboard actions.
+	 */
+	public void handleKeyboardAction(KeyboardAction id) {
+		if( !keyboardIsHandled() )
+			return;
+		switch (id) {
+		case DRAW_AXIS:
+			toggleAxisIsDrawn();
+			break;
+		case DRAW_GRID:
+			toggleGridIsDrawn();
+			break;
+		case CAMERA_PROFILE:
+			nextCameraProfile();// abstract
+			break;
+		case CAMERA_TYPE:
+			toggleCameraType();
+			break;
+		case CAMERA_KIND:
+			toggleCameraKind();
+			break;
+		case ANIMATION:
+			toggleAnimation();
+			break;
+		case ARP_FROM_PIXEL:
+			if (Camera.class == camera().getClass())
+				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
+								+ "See the Point Under Pixel example!");
+			else if (setArcballReferencePointFromPixel(new Point(mouseX, mouseY))) {
+				arpFlag = true;
+				timerFx.runOnce(1000);					
+			}
+			break;
+		case RESET_ARP:
+			camera().setArcballReferencePoint(new Vector3D(0, 0, 0));
+			arpFlag = true;
+			timerFx.runOnce(1000);				
+			break;
+		case GLOBAL_HELP:
+			displayGlobalHelp();
+			break;
+		case CURRENT_CAMERA_PROFILE_HELP:
+			displayCurrentCameraProfileHelp();
+			break;
+		case EDIT_CAMERA_PATH:
+			toggleCameraPathsAreDrawn();
+			break;
+		case FOCUS_INTERACTIVE_FRAME:
+			toggleDrawInteractiveFrame();
+			break;
+		case DRAW_FRAME_SELECTION_HINT:
+			toggleFrameSelectionHintIsDrawn();
+			break;
+		case CONSTRAIN_FRAME:
+			toggleDrawInteractiveFrame();
+			break;
+		}
+	}
+	
+	public abstract void nextCameraProfile();
+	
+	/**
+	 * Convenience funstion that simply calls {@code displayGlobalHelp(true)}.
+	 * 
+	 * @see #displayGlobalHelp(boolean)
+	 */
+	public void displayGlobalHelp() {
+		displayGlobalHelp(true);
+	}
+	
+	public abstract void displayGlobalHelp(boolean onConsole);
+	
+	/**
+	 * Convenience function that simply calls {@code displayCurrentCameraProfileHelp(true)}.
+	 * 
+	 * @see #displayCurrentCameraProfileHelp(boolean)
+	 */
+	public void displayCurrentCameraProfileHelp() {
+		displayCurrentCameraProfileHelp(true);
+	}
+	
+	public abstract void displayCurrentCameraProfileHelp(boolean onConsole);
+	
+	/**
+	 * Returns {@code true} if the keyboard is currently being handled by proscene
+	 * and {@code false} otherwise. Set keyboard handling with
+	 * {@link #enableMouseHandling(boolean)}.
+	 * <p>
+	 * Keyboard handling is enable by default.
+	 */
+	public boolean keyboardIsHandled() {
+		return keyboardHandling;
+	}
+
+	/**
+	 * Toggles the state of {@link #keyboardIsHandled()}
+	 */
+	public void toggleKeyboardHandling() {
+		enableKeyboardHandling(!keyboardHandling);
+	}
+
+	/**
+	 * Enables or disables proscene keyboard handling according to {@code enable}
+	 * 
+	 * @see #keyboardIsHandled()
+	 */
+	public void enableKeyboardHandling(boolean enable) {
+		if (enable)
+			enableKeyboardHandling();
+		else
+			disableKeyboardHandling();
+	}
+	
+	/**
+	 * Enables Proscene keyboard handling.
+	 * 
+	 * @see #keyboardIsHandled()
+	 * @see #enableMouseHandling()
+	 * @see #disableKeyboardHandling()
+	 */
+	public void enableKeyboardHandling() {
+		if( keyboardIsHandled() )
+			return;
+		keyboardHandling = true;
+	}
+
+	/**
+	 * Disables Proscene keyboard handling.
+	 * 
+	 * @see #keyboardIsHandled()
+	 */
+	public void disableKeyboardHandling() {
+		if( !keyboardIsHandled() )
+			return;
+		keyboardHandling = false;
+	}
+	
+	/**
+	 * Toggles the {@link #interactiveFrame()} interactivity on and off.
+	 */
+	public void toggleDrawInteractiveFrame() {
+		if (interactiveFrameIsDrawn())
+			setDrawInteractiveFrame(false);
+		else
+			setDrawInteractiveFrame(true);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code setDrawInteractiveFrame(true)}.
+	 * 
+	 * @see #setDrawInteractiveFrame(boolean)
+	 */
+	public void setDrawInteractiveFrame() {
+		setDrawInteractiveFrame(true);
+	}
+	
+	public abstract void setDrawInteractiveFrame(boolean draw);
+	
+	/**
+	 * Internal method. Handles the different camera keyboard actions.
+	 */
+	public void handleCameraKeyboardAction(CameraKeyboardAction id) {
+		if( !keyboardIsHandled() )
+			return;
+		switch (id) {
+		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
+			if (Camera.class == camera().getClass())
+				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
+								+ "See the Point Under Pixel example!");
+			else {
+				Camera.WorldPoint wP = interpolateToZoomOnPixel(new Point(mouseX, mouseY));
+				if (wP.found) {
+					pupVec = wP.point;
+					pupFlag = true;
+					timerFx.runOnce(1000);						
+				}
+			}
+			break;
+		case INTERPOLATE_TO_FIT_SCENE:
+			camera().interpolateToFitScene();
+			break;
+		case SHOW_ALL:
+			showAll();
+			break;
+		case MOVE_CAMERA_LEFT:
+			camera().frame().translate(
+					camera().frame().inverseTransformOf(new Vector3D(-10.0f * camera().flySpeed(), 0.0f, 0.0f)));
+			break;
+		case MOVE_CAMERA_RIGHT:
+			camera().frame().translate(
+					camera().frame().inverseTransformOf(new Vector3D(10.0f * camera().flySpeed(), 0.0f, 0.0f)));
+			break;
+		case MOVE_CAMERA_UP:
+			camera().frame().translate(
+					camera().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * camera().flySpeed(), 0.0f)));
+			break;
+		case MOVE_CAMERA_DOWN:
+			camera().frame().translate(
+					camera().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * camera().flySpeed(), 0.0f)));
+			break;
+		case INCREASE_ROTATION_SENSITIVITY:
+			camera().setRotationSensitivity(camera().rotationSensitivity() * 1.2f);
+			break;
+		case DECREASE_ROTATION_SENSITIVITY:
+			camera().setRotationSensitivity(camera().rotationSensitivity() / 1.2f);
+			break;
+		case INCREASE_CAMERA_FLY_SPEED:
+			camera().setFlySpeed(camera().flySpeed() * 1.2f);
+			break;
+		case DECREASE_CAMERA_FLY_SPEED:
+			camera().setFlySpeed(camera().flySpeed() / 1.2f);
+			break;
+		case INCREASE_AVATAR_FLY_SPEED:
+			if (avatar() != null)
+				if (avatarIsInteractiveDrivableFrame)
+					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() * 1.2f);
+			break;
+		case DECREASE_AVATAR_FLY_SPEED:
+			if (avatar() != null)
+				if (avatarIsInteractiveDrivableFrame)
+					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() / 1.2f);
+			break;
+		case INCREASE_AZYMUTH:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() + PI / 64);
+			break;
+		case DECREASE_AZYMUTH:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() - PI / 64);
+			break;
+		case INCREASE_INCLINATION:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() + PI / 64);
+			break;
+		case DECREASE_INCLINATION:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() - PI / 64);
+			break;
+		case INCREASE_TRACKING_DISTANCE:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() + radius() / 50);
+			break;
+		case DECREASE_TRACKING_DISTANCE:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() - radius() / 50);
+			break;
+		}
+	}
+	
+	/**
+	 * Internal method. Handles the different mouse click actions.
+	 */
+	public void handleClickAction(ClickAction action) {
+		// public enum ClickAction { NO_CLICK_ACTION, ZOOM_ON_PIXEL, ZOOM_TO_FIT,
+		// SELECT, ARP_FROM_PIXEL, RESET_ARP,
+		// CENTER_FRAME, CENTER_SCENE, SHOW_ALL, ALIGN_FRAME, ALIGN_CAMERA }
+		if( !mouseIsHandled() )
+			return;
+		switch (action) {
+		case NO_CLICK_ACTION:
+			break;
+		case ZOOM_ON_PIXEL:
+			if (Camera.class == camera().getClass())
+				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
+								+ "See the Point Under Pixel example!");
+			else {
+				Camera.WorldPoint wP = interpolateToZoomOnPixel(new Point(mouseX, mouseY));
+				if (wP.found) {
+					pupVec = wP.point;
+					pupFlag = true;
+					timerFx.runOnce(1000);						
+				}
+			}
+			break;
+		case ZOOM_TO_FIT:
+			camera().interpolateToFitScene();
+			break;
+		case ARP_FROM_PIXEL:
+			if (Camera.class == camera().getClass())
+				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
+								+ "See the Point Under Pixel example!");
+			else if (setArcballReferencePointFromPixel(new Point(mouseX, mouseY))) {
+				arpFlag = true;
+				timerFx.runOnce(1000);					
+			}
+			break;
+		case RESET_ARP:
+			camera().setArcballReferencePoint(new Vector3D(0, 0, 0));
+			arpFlag = true;
+			timerFx.runOnce(1000);				
+			break;
+		case CENTER_FRAME:
+			if (interactiveFrame() != null)
+				interactiveFrame().projectOnLine(camera().position(), camera().viewDirection());
+			break;
+		case CENTER_SCENE:
+			camera().centerScene();
+			break;
+		case SHOW_ALL:
+			camera().showEntireScene();
+			break;
+		case ALIGN_FRAME:
+			if (interactiveFrame() != null)
+				interactiveFrame().alignWithFrame(camera().frame());
+			break;
+		case ALIGN_CAMERA:
+			camera().frame().alignWithFrame(null, true);
+			break;
+		}
+	}
+	
+	/**
+	 * Returns {@code true} if the mouse is currently being handled by proscene and
+	 * {@code false} otherwise. Set mouse handling with
+	 * {@link #enableMouseHandling(boolean)}.
+	 * <p>
+	 * Mouse handling is enable by default.
+	 */
+	public boolean mouseIsHandled() {
+		return mouseHandling;
+	}
+
+	/**
+	 * Toggles the state of {@link #mouseIsHandled()}
+	 */
+	public void toggleMouseHandling() {
+		enableMouseHandling(!mouseHandling);
+	}
+
+	/**
+	 * Enables or disables proscene mouse handling according to {@code enable}
+	 * 
+	 * @see #mouseIsHandled()
+	 */
+	public void enableMouseHandling(boolean enable) {
+		if (enable)
+			enableMouseHandling();
+		else
+			disableMouseHandling();
+	}
+
+	/**
+	 * Enables Proscene mouse handling.
+	 * 
+	 * @see #mouseIsHandled()
+	 * @see #disableMouseHandling()
+	 * @see #enableKeyboardHandling()
+	 */
+	public void enableMouseHandling() {
+		if( mouseIsHandled() )
+			return;
+		mouseHandling = true;
+	}
+
+	/**
+	 * Disables Proscene mouse handling.
+	 * 
+	 * @see #mouseIsHandled()
+	 */
+	public void disableMouseHandling() {
+		if( !mouseIsHandled() )
+			return;
+		mouseHandling = false;
 	}
 	
 	// D R A W I N G   M E T H O D S
