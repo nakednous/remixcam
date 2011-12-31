@@ -575,12 +575,16 @@ public abstract class AbstractScene implements Constants {
 					camera().frame().inverseTransformOf(new Vector3D(10.0f * camera().flySpeed(), 0.0f, 0.0f)));
 			break;
 		case MOVE_CAMERA_UP:
-			camera().frame().translate(
-					camera().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * camera().flySpeed(), 0.0f)));
+			if( this.isRightHanded() )
+				camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * camera().flySpeed(), 0.0f)));
+			else
+				camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * camera().flySpeed(), 0.0f)));
 			break;
 		case MOVE_CAMERA_DOWN:
-			camera().frame().translate(
-					camera().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * camera().flySpeed(), 0.0f)));
+			if( this.isRightHanded() )
+				camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * camera().flySpeed(), 0.0f)));
+			else
+				camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * camera().flySpeed(), 0.0f)));
 			break;
 		case INCREASE_ROTATION_SENSITIVITY:
 			camera().setRotationSensitivity(camera().rotationSensitivity() * 1.2f);
