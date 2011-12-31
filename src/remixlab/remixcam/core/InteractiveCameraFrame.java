@@ -326,9 +326,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			// #CONNECTION# mouseMoveEvent() ZOOM case
 			float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).vec[2]), 0.2f * camera.sceneRadius());
 			Vector3D trans;
+			/**
 			if( scene.isRightHanded() )
 				trans = new Vector3D(0.0f, 0.0f, coef * rotation * wheelSensitivity() * wheelSensitivityCoef);
 			else
+			*/
 				trans = new Vector3D(0.0f, 0.0f, coef * (-rotation) * wheelSensitivity() * wheelSensitivityCoef);
 			translate(inverseTransformOf(trans));
 			break;

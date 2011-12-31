@@ -797,9 +797,11 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 			// -event.delta()*wheelSensitivity()*wheelSensitivityCoef*(camera.position()-position()).norm());
 			
 			Vector3D trans;
+			/**
 			if(scene.isRightHanded())
 				trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
 			else
+			*/
 				trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
 					
 			// #CONNECTION# Cut-pasted from the mouseMoveEvent ZOOM case

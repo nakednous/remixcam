@@ -302,10 +302,10 @@ public class MatrixStack implements Constants {
   public void matrixMode(int mode) {    
     if (mode == PROJECTION) {
       matrixMode = PROJECTION;
-    } else if (matrixMode == MODELVIEW) {
+    } else if (mode == MODELVIEW) {
       matrixMode = MODELVIEW;
     } else {
-      System.out.println("Invalid matrix mode. Use PROJECTION or MODELVIEW");
+    	System.out.println("Invalid matrix mode. Use PROJECTION or MODELVIEW");
     }
   }  
 }

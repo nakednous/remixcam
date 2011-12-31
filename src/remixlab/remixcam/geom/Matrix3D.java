@@ -10,7 +10,7 @@ package remixlab.remixcam.geom;
 public class Matrix3D {
 	
 	/**
-	 * Array row major representation:
+	 * Array col major representation:
 	 * |	m0	m4	m8	m12	|
 	 * |	m1	m5	m9	m13	|
 	 * |	m2	m6	m10	m14	|
@@ -854,12 +854,17 @@ public class Matrix3D {
              (t*v0*v2) - (s*v1), (t*v1*v2) + (s*v0), (t*v2*v2) + c, 0,
              0, 0, 0, 1);
   }
-
+  
+  public void print() {
+  	System.out.println(m00() + " " + m01() + " " + m02() + " " + m03() + "\n" +
+                       m10() + " " + m11() + " " + m12() + " " + m13() + "\n" +
+                       m20() + " " + m21() + " " + m22() + " " + m23() + "\n" +
+                       m30() + " " + m31() + " " + m32() + " " + m33() + "\n");
+  }
 
   protected void invScale(float x, float y, float z) {
     preApply(1/x, 0, 0, 0,  0, 1/y, 0, 0,  0, 0, 1/z, 0,  0, 0, 0, 1);
   }
-
 
   protected boolean invApply(float n00, float n01, float n02, float n03,
                              float n10, float n11, float n12, float n13,

@@ -794,15 +794,15 @@ public abstract class AbstractScene implements Constants {
 	 * @see #addAnimationHandler(Object, String)
 	 */
 	public void postDraw() {
-		// 0. timers
+	  // 0. Alternative use only
+		proscenium();
+			
+		// 1. timers
 		handleTimers();
 		
-		// 1. Animation
+		// 2. Animation
 		if( animationIsStarted() )
-			performAnimation(); //abstract
-		
-		// 2. Alternative use only
-		proscenium();
+			performAnimation(); //abstract	
 		
 		// 3. Draw external registered method (only in java sub-classes)
 		invokeRegisteredMethod(); // abstract

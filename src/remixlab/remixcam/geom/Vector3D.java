@@ -732,7 +732,10 @@ public class Vector3D implements Constants {
     }
     return (float) Math.acos(amt);
   }
-
+  
+  public void print() {
+  	System.out.println(x() + " " + y() + " " + z() + "\n");
+  }
 
   public String toString() {
     return "[ " + this.vec[0] + ", " + this.vec[1] + ", " + this.vec[2] + " ]";
