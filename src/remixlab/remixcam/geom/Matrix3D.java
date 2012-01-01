@@ -1,5 +1,8 @@
 package remixlab.remixcam.geom;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 /**
  * 4x4 matrix implementation.
  * <p>
@@ -7,8 +10,7 @@ package remixlab.remixcam.geom;
  * 
  * @author pierre
  */
-public class Matrix3D {
-	
+public class Matrix3D implements Primitivable {	
 	/**
 	 * Array col major representation:
 	 * |	m0	m4	m8	m12	|
@@ -16,6 +18,59 @@ public class Matrix3D {
 	 * |	m2	m6	m10	m14	|
 	 * |	m3	m7	m11	m15	|
 	 */
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Matrix3D other = (Matrix3D) obj;
+		
+	   return new EqualsBuilder()
+    .appendSuper(super.equals(obj))    
+    .append(this.mat[0], other.mat[0])
+    .append(this.mat[1], other.mat[1])
+    .append(this.mat[2], other.mat[2])
+    .append(this.mat[3], other.mat[3])
+    .append(this.mat[4], other.mat[4])
+    .append(this.mat[5], other.mat[5])
+    .append(this.mat[6], other.mat[6])
+    .append(this.mat[7], other.mat[7])
+    .append(this.mat[8], other.mat[8])
+    .append(this.mat[9], other.mat[9])
+    .append(this.mat[10], other.mat[10])
+    .append(this.mat[11], other.mat[11])
+    .append(this.mat[12], other.mat[12])
+    .append(this.mat[13], other.mat[13])
+    .append(this.mat[14], other.mat[14])
+    .append(this.mat[15], other.mat[15])
+		.isEquals();
+	}
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(17, 37).		
+		append(this.mat[0]).
+		append(this.mat[1]).
+		append(this.mat[2]).
+		append(this.mat[3]).
+		append(this.mat[4]).
+		append(this.mat[5]).
+		append(this.mat[6]).
+		append(this.mat[7]).
+		append(this.mat[8]).
+		append(this.mat[9]).
+		append(this.mat[10]).
+		append(this.mat[11]).
+		append(this.mat[12]).
+		append(this.mat[13]).
+		append(this.mat[14]).
+		append(this.mat[15]).
+    toHashCode();
+  }
 
 	public float mat[] = new float[16];	
 
@@ -96,6 +151,7 @@ public class Matrix3D {
   public float m32() { return mat[14]; }
   public float m33() { return mat[15]; }  
   
+  @Override
   public void reset() {
     set(1, 0, 0, 0,
         0, 1, 0, 0,
@@ -110,24 +166,31 @@ public class Matrix3D {
   	return mat;
   }
   
-  // TODO: add in an interface
-  public void shareData(float [] source) {
+  @Override
+  public void link(float [] source) {
   	mat = source;
+  }  
+  
+  @Override
+  public void unLink() {
+  	float [] data = new float [16];
+  	get(data);
+  	set(data);
   }
 
   /**
    * Returns a copy of this Matrix.
-   */
+   */ 
+  @Override
   public Matrix3D get() {
-    Matrix3D outgoing = new Matrix3D();
-    outgoing.set(this);
-    return outgoing;
-  }  
+  	return new Matrix3D(this);
+  }
     
   /**
    * Copies the matrix contents into a 16 entry float array.
    * If target is null (or not the correct size), a new array will be created.
    */
+  @Override
   public float[] get(float[] target) {
     if ((target == null) || (target.length != 16)) {
       target = new float[16];
@@ -205,13 +268,20 @@ public class Matrix3D {
 
     return rowMajor;
   }
+    
+  @Override
+  public void set(Primitivable src) {
+  	if(! (src instanceof Matrix3D) )
+  		throw new RuntimeException("src should be an instance of Matrix3D");
+  	set((Matrix3D) src);
+  }
   
-  public void set(Matrix3D src) {     
+  public void set(Matrix3D src) {
     set(src.mat[0], src.mat[1], src.mat[2], src.mat[3],
         src.mat[4], src.mat[5], src.mat[6], src.mat[7],
         src.mat[8], src.mat[9], src.mat[10], src.mat[11],
         src.mat[12], src.mat[13], src.mat[14], src.mat[15]);
-  }  
+  }
   
   public void set(float[][] source) { 	
   	if( (source.length == 4) && (source[0].length == 4) ) {
@@ -231,6 +301,7 @@ public class Matrix3D {
   	}
   }
 
+  @Override
   public void set(float[] source) {
    if (source.length == 16) {
       mat[0] = source[0];
@@ -299,7 +370,6 @@ public class Matrix3D {
     this.mat[3] = _m30; this.mat[7] = _m31; this.mat[11] = _m32; this.mat[15] = _m33;
   } 
 
-
   public void translate(float tx, float ty) {
     translate(tx, ty, 0);
   }
@@ -308,7 +378,6 @@ public class Matrix3D {
 //    invTranslate(tx, ty, 0);
 //  }
 
-
   public void translate(float tx, float ty, float tz) {
     mat[12] += tx*mat[0] + ty*mat[4] + tz*mat[8];
     mat[13] += tx*mat[1] + ty*mat[5] + tz*mat[9];
@@ -316,11 +385,9 @@ public class Matrix3D {
     mat[15] += tx*mat[3] + ty*mat[7] + tz*mat[11];
   }
 
-
   public void rotate(float angle) {
     rotateZ(angle);
   }
-
 
   public void rotateX(float angle) {
     float c = cos(angle);
@@ -328,20 +395,17 @@ public class Matrix3D {
     apply(1, 0, 0, 0,  0, c, -s, 0,  0, s, c, 0,  0, 0, 0, 1);
   }
 
-
   public void rotateY(float angle) {
     float c = cos(angle);
     float s = sin(angle);
     apply(c, 0, s, 0,  0, 1, 0, 0,  -s, 0, c, 0,  0, 0, 0, 1);
   }
 
-
   public void rotateZ(float angle) {
     float c = cos(angle);
     float s = sin(angle);
     apply(c, -s, 0, 0,  s, c, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1);
   }
-
 
   public void rotate(float angle, float v0, float v1, float v2) {
     // TODO should make sure this vector is normalized
@@ -356,18 +420,15 @@ public class Matrix3D {
           0, 0, 0, 1);
   }
 
-
   public void scale(float s) {
     //apply(s, 0, 0, 0,  0, s, 0, 0,  0, 0, s, 0,  0, 0, 0, 1);
     scale(s, s, s);
   }
 
-
   public void scale(float sx, float sy) {
     //apply(sx, 0, 0, 0,  0, sy, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1);
     scale(sx, sy, 1);
   }
-
 
   public void scale(float x, float y, float z) {
     //apply(x, 0, 0, 0,  0, y, 0, 0,  0, 0, z, 0,  0, 0, 0, 1);
@@ -377,7 +438,6 @@ public class Matrix3D {
     mat[3] *= x;  mat[7] *= y;  mat[11] *= z;
   }
 
-
   public void shearX(float angle) {
     float t = (float) Math.tan(angle);
     apply(1, t, 0, 0,
@@ -385,7 +445,6 @@ public class Matrix3D {
           0, 0, 1, 0,
           0, 0, 0, 1);
   }
-
 
   public void shearY(float angle) {
     float t = (float) Math.tan(angle);
@@ -401,7 +460,6 @@ public class Matrix3D {
           source.mat[2], source.mat[6], source.mat[10], source.mat[14],
           source.mat[3], source.mat[7], source.mat[11], source.mat[15]);
   }
-
 
   public void apply(float n00, float n01, float n02,
                     float n10, float n11, float n12) {
@@ -432,7 +490,6 @@ public class Matrix3D {
     c.mat[11] = a.mat[3]*b.mat[8] + a.mat[7]*b.mat[9] + a.mat[11]*b.mat[10] + a.mat[15]*b.mat[11];
     c.mat[15] = a.mat[3]*b.mat[12] + a.mat[7]*b.mat[13] + a.mat[11]*b.mat[14] + a.mat[15]*b.mat[15];
   }
-
 
   public void apply(float n00, float n01, float n02, float n03,
                     float n10, float n11, float n12, float n13,
@@ -475,7 +532,6 @@ public class Matrix3D {
              left.mat[3], left.mat[7], left.mat[11], left.mat[15]);
   }
 
-
   public void preApply(float n00, float n01, float n02,
                        float n10, float n11, float n12) {
     preApply(n00, n01, 0, n02,
@@ -483,7 +539,6 @@ public class Matrix3D {
              0, 0, 1, 0,
              0, 0, 0, 1);
   }
-
 
   public void preApply(float n00, float n01, float n02, float n03,
                        float n10, float n11, float n12, float n13,
@@ -516,9 +571,7 @@ public class Matrix3D {
     mat[3] = r30; mat[7] = r31; mat[11] = r32; mat[15] = r33;
   }
 
-
   //////////////////////////////////////////////////////////////
-
 
   public Vector3D mult(Vector3D source, Vector3D target) {
     if (target == null) {
@@ -581,56 +634,45 @@ public class Matrix3D {
     return target;
   }
 
-
   public float multX(float x, float y) {
     return mat[0]*x + mat[4]*y + mat[12];
   }
-
 
   public float multY(float x, float y) {
     return mat[1]*x + mat[5]*y + mat[13];
   }
 
-
   public float multX(float x, float y, float z) {
     return mat[0]*x + mat[4]*y + mat[8]*z + mat[12];
   }
-
 
   public float multY(float x, float y, float z) {
     return mat[1]*x + mat[5]*y + mat[9]*z + mat[13];
   }
 
-
   public float multZ(float x, float y, float z) {
     return mat[2]*x + mat[6]*y + mat[10]*z + mat[14];
   }
-
 
   public float multW(float x, float y, float z) {
     return mat[3]*x + mat[7]*y + mat[11]*z + mat[15];
   }
 
-
   public float multX(float x, float y, float z, float w) {
     return mat[0]*x + mat[4]*y + mat[8]*z + mat[12]*w;
   }
-
 
   public float multY(float x, float y, float z, float w) {
     return mat[1]*x + mat[5]*y + mat[9]*z + mat[13]*w;
   }
 
-
   public float multZ(float x, float y, float z, float w) {
     return mat[2]*x + mat[6]*y + mat[10]*z + mat[14]*w;
   }
 
-
   public float multW(float x, float y, float z, float w) {
     return mat[3]*x + mat[7]*y + mat[11]*z + mat[15]*w;
   }
-
 
   /**
    * Transpose this matrix.
@@ -643,8 +685,7 @@ public class Matrix3D {
     temp = mat[9]; mat[9] = mat[6]; mat[6] = temp;
     temp = mat[13]; mat[13] = mat[7]; mat[7] = temp;
     temp = mat[14]; mat[14] = mat[11]; mat[11] = temp;
-  }
-  
+  }  
   
   /**
    * Invert this matrix into {@code m}, i.e., doesn't modify this matrix.
@@ -655,8 +696,7 @@ public class Matrix3D {
   	float determinant = determinant();
     if (determinant == 0) {
       return false;
-    }    
-    
+    }       
 
     // first row
     float t00 =  determinant3x3(mat[5], mat[9], mat[13], mat[6], mat[10], mat[14], mat[7], mat[11], mat[15]);
@@ -776,7 +816,6 @@ public class Matrix3D {
             t02 * (t10 * t21 - t11 * t20));
   }
 
-
   /**
    * @return the determinant of the matrix
    */
@@ -805,13 +844,11 @@ public class Matrix3D {
     return f;
   }
 
-
   //////////////////////////////////////////////////////////////
 
   // REVERSE VERSIONS OF MATRIX OPERATIONS
 
   // These functions should not be used, as they will be removed in the future.
-
 
   protected void invTranslate(float tx, float ty, float tz) {
     preApply(1, 0, 0, -tx,
@@ -892,5 +929,5 @@ public class Matrix3D {
 
   private final float cos(float angle) {
     return (float) Math.cos(angle);
-  }
+  }		
 }

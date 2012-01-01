@@ -29,7 +29,6 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.remixcam.core.Constants;
-import remixlab.remixcam.core.Copyable;
 
 /**
  * A 4 element unit quaternion represented by single precision floating point
@@ -37,7 +36,7 @@ import remixlab.remixcam.core.Copyable;
  * 
  */
 
-public class Quaternion implements Constants, Copyable {
+public class Quaternion implements Constants, Primitivable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).    
@@ -77,10 +76,7 @@ public class Quaternion implements Constants, Copyable {
 	 * identity rotation.
 	 */
 	public Quaternion() {
-		this.quat[0] = 0;
-		this.quat[1] = 0;
-		this.quat[2] = 0;
-		this.quat[3] = 1;
+		reset();
 	}
 
 	/**
@@ -178,12 +174,21 @@ public class Quaternion implements Constants, Copyable {
 		set(q1);
 	}
 	
+	@Override
+	public void reset() {
+		this.quat[0] = 0;
+		this.quat[1] = 0;
+		this.quat[2] = 0;
+		this.quat[3] = 1;
+	}
+	
 	/**
 	 * Calls {@link #Quaternion(Quaternion)} (which is protected) and returns a copy of
 	 * {@code this} object.
 	 * 
 	 * @see #Quaternion(Quaternion)
 	 */	
+	@Override
 	public Quaternion get() {
 		return new Quaternion(this);
 	}
@@ -198,6 +203,41 @@ public class Quaternion implements Constants, Copyable {
 	public Quaternion(Quaternion q1, boolean normalize) {
 		set(q1, normalize);
 	}
+	
+	@Override
+	public void link(float [] src) {
+		quat = src;
+	}
+	
+	@Override
+	public void unLink() {
+		float [] data = new float [4];
+  	get(data);
+  	set(data);
+	}
+	
+	@Override
+	public float [] get(float [] target) {
+		if ((target == null) || (target.length != 4)) {
+      target = new float[4];
+    }
+    target[0] = quat[0];
+    target[1] = quat[1];
+    target[2] = quat[2];
+    target[3] = quat[3];
+
+    return target;
+	}
+	
+	@Override
+	public void set(float[] source) {
+	   if (source.length == 4) {
+	      quat[0] = source[0];
+	      quat[1] = source[1];
+	      quat[2] = source[2];
+	      quat[3] = source[3];
+	    }
+	  }
 	
 	public float x() {
 		return this.quat[0];
@@ -230,6 +270,13 @@ public class Quaternion implements Constants, Copyable {
 	public float w(float w) {
 		return this.quat[3] = w;
 	}
+	
+	@Override
+  public void set(Primitivable q) {
+  	if(! (q instanceof Quaternion) )
+  		throw new RuntimeException("q should be an instance of Vector3D");
+  	set((Quaternion) q);
+  }
 
 	/**
 	 * Convenience function that simply calls {@code set(q1, true);}
