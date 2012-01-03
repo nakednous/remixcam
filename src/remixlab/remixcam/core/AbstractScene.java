@@ -288,10 +288,8 @@ public abstract class AbstractScene implements Constants {
     // */
 	}	
 	
-	//M A T R I X S T A C K
-	protected MatrixStack mStack;
-	
-  //O B J E C T S	
+  //O B J E C T S
+	protected Renderable renderer;
 	protected Camera cam;
 	protected InteractiveFrame glIFrame;
 	protected boolean iFrameIsDrwn;
@@ -353,7 +351,8 @@ public abstract class AbstractScene implements Constants {
 	protected float frameRate;
 	protected long frameRateLastNanos;
 	
-	public AbstractScene() {
+	public AbstractScene(Renderable r) {
+		renderer = r;
 		frameCount = 0;
 		frameRate = 10;
 		frameRateLastNanos = 0;
@@ -375,8 +374,6 @@ public abstract class AbstractScene implements Constants {
 		// <- 1
 		
 		setRightHanded();
-		
-		mStack = new MatrixStack(this);
 	}
 	
 	// E V E N T   HA N D L I N G
@@ -1096,34 +1093,33 @@ public abstract class AbstractScene implements Constants {
 		devices.clear();
 	}
 	
-	// MATRIX STACK WRAPPERS
-	
+	// MATRIX STACK WRAPPERS	
 	/**
 	 * Push a copy of the current transformation matrix onto the stack.
    */
 	public void pushMatrix() {
-		mStack.pushMatrix();
+		renderer.pushMatrix();
 	}
 	
 	/**
 	 * Replace the current transformation matrix with the top of the stack.
 	 */
 	public void popMatrix() {
-		mStack.popMatrix();
+		renderer.popMatrix();
 	}	 
 	
   /**
    * Translate in X and Y.
    */
   public void translate(float tx, float ty) {    
-    mStack.translate(tx, ty);
+    renderer.translate(tx, ty);
   }
 
   /**
    * Translate in X, Y, and Z.
    */
   public void translate(float tx, float ty, float tz) {    
-    mStack.translate(tx, ty, tz);
+    renderer.translate(tx, ty, tz);
   }
 
   /**
@@ -1136,21 +1132,21 @@ public abstract class AbstractScene implements Constants {
    * <A HREF="http://www.xkcd.com/c184.html">Additional background</A>.
    */
   public void rotate(float angle) {    
-    mStack.rotate(angle);
+    renderer.rotate(angle);
   }
 
   /**
    * Rotate around the X axis.
    */
   public void rotateX(float angle) {    
-    mStack.rotateX(angle);
+    renderer.rotateX(angle);
   }
 
   /**
    * Rotate around the Y axis.
    */
   public void rotateY(float angle) {
-  	mStack.rotateY(angle);
+  	renderer.rotateY(angle);
   }
 
   /**
@@ -1162,21 +1158,21 @@ public abstract class AbstractScene implements Constants {
    * doing things in 2D. so we just decided to have them both be the same.
    */
   public void rotateZ(float angle) {
-  	mStack.rotateZ(angle);
+  	renderer.rotateZ(angle);
   }
 
   /**
    * Rotate about a vector in space. Same as the glRotatef() function.
    */
   public void rotate(float angle, float vx, float vy, float vz) {
-  	mStack.rotate(angle, vx, vy, vz);
+  	renderer.rotate(angle, vx, vy, vz);
   }
 
   /**
    * Scale in all dimensions.
    */
   public void scale(float s) {
-  	mStack.scale(s);
+  	renderer.scale(s);
   }
 
   /**
@@ -1186,51 +1182,51 @@ public abstract class AbstractScene implements Constants {
    * scaled by 1, since there's no way to know what else to scale it by.
    */
   public void scale(float sx, float sy) {
-  	mStack.scale(sx, sy);
+  	renderer.scale(sx, sy);
   }
 
   /**
    * Scale in X, Y, and Z.
    */
   public void scale(float x, float y, float z) {
-  	mStack.scale(x, y, z);
+  	renderer.scale(x, y, z);
   }
 
   /**
    * Shear along X axis
    */
   public void shearX(float angle) {
-  	mStack.shearX(angle);
+  	renderer.shearX(angle);
   }
 
   /**
    * Shear along Y axis
    */
   public void shearY(float angle) {
-  	mStack.shearY(angle);
+  	renderer.shearY(angle);
   }
   
   public void loadIdentity() {
-  	mStack.loadIdentity();
+  	renderer.loadIdentity();
   }
 
   /**
    * Set the current transformation matrix to identity.
    */
   public void resetMatrix() {
-  	mStack.resetMatrix();
+  	renderer.resetMatrix();
   }
   
   public void loadMatrix(Matrix3D source) {
-  	mStack.loadMatrix(source);
+  	renderer.loadMatrix(source);
   }
   
   public void multiplyMatrix(Matrix3D source) {
-  	mStack.multiplyMatrix(source);
+  	renderer.multiplyMatrix(source);
   }
   
   public void applyMatrix(Matrix3D source) {    
-    mStack.applyMatrix(source);
+    renderer.applyMatrix(source);
   }
 
   /**
@@ -1240,15 +1236,15 @@ public abstract class AbstractScene implements Constants {
                           float n10, float n11, float n12, float n13,
                           float n20, float n21, float n22, float n23,
                           float n30, float n31, float n32, float n33) {    
-  	mStack.applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
+  	renderer.applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
   }
   
   public void frustum(float left, float right, float bottom, float top, float znear, float zfar) {
-  	mStack.frustum(left, right, bottom, top, znear, zfar);
+  	renderer.frustum(left, right, bottom, top, znear, zfar);
   }
 
   public Matrix3D getMatrix() {
-    return mStack.getMatrix();
+    return renderer.getMatrix();
   }
 
   /**
@@ -1256,25 +1252,25 @@ public abstract class AbstractScene implements Constants {
    * Pass in null to create a new matrix.
    */
   public Matrix3D getMatrix(Matrix3D target) {
-    return mStack.getMatrix(target);
+    return renderer.getMatrix(target);
   }
 
   /**
    * Set the current transformation matrix to the contents of another.
    */
   public void setMatrix(Matrix3D source) {
-  	mStack.setMatrix(source);
+  	renderer.setMatrix(source);
   }
 
   /**
    * Print the current model (or "transformation") matrix.
    */
   public void printMatrix() {
-  	mStack.printMatrix();
+  	renderer.printMatrix();
   }
   
   public void matrixMode( int mode  ) {
-  	mStack.matrixMode(mode);
+  	renderer.matrixMode(mode);
   }
 	
 	// end matrix stack wrapper

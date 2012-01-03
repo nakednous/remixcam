@@ -22,11 +22,11 @@ public class MatrixStack implements Constants {
   float[][] pmatrixStack = new float[MATRIX_STACK_DEPTH][16];
   int pmatrixStackDepth;
   
-  AbstractScene scene;
+  //AbstractScene scene;
   Matrix3D projection, modelview;
   
-  public MatrixStack(AbstractScene scn) {
-  	scene = scn;
+  public MatrixStack(/**AbstractScene scn*/) {
+  	//scene = scn;
   	modelview = new Matrix3D();
   	projection = new Matrix3D();
   }
