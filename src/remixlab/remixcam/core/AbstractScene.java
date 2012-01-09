@@ -1190,21 +1190,7 @@ public abstract class AbstractScene implements Constants {
    */
   public void scale(float x, float y, float z) {
   	renderer.scale(x, y, z);
-  }
-
-  /**
-   * Shear along X axis
-   */
-  public void shearX(float angle) {
-  	renderer.shearX(angle);
-  }
-
-  /**
-   * Shear along Y axis
-   */
-  public void shearY(float angle) {
-  	renderer.shearY(angle);
-  }
+  }  
   
   public void loadIdentity() {
   	renderer.loadIdentity();
@@ -1232,11 +1218,11 @@ public abstract class AbstractScene implements Constants {
   /**
    * Apply a 4x4 transformation matrix.
    */
-  public void applyMatrix(float n00, float n01, float n02, float n03,
-                          float n10, float n11, float n12, float n13,
-                          float n20, float n21, float n22, float n23,
-                          float n30, float n31, float n32, float n33) {    
-  	renderer.applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
+  public void applyMatrixRowMajorOrder(float n00, float n01, float n02, float n03,
+                                       float n10, float n11, float n12, float n13,
+                                       float n20, float n21, float n22, float n23,
+                                       float n30, float n31, float n32, float n33) {    
+  	renderer.applyMatrixRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
   }
   
   public void frustum(float left, float right, float bottom, float top, float znear, float zfar) {

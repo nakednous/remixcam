@@ -2717,9 +2717,9 @@ public class Camera implements Constants, Copyable {
 
 	  computeModelViewMatrix();
 	  if (leftBuffer)
-	    modelviewMat.m30(modelviewMat.m30()-shift);
+	    modelviewMat.mat[12] = modelviewMat.mat[12]-shift;
 	  else
-	  	modelviewMat.m30(modelviewMat.m30()+shift);
+	  	modelviewMat.mat[12] = modelviewMat.mat[12]+shift;
 	  scene.loadMatrix(modelviewMat);
 	}
 

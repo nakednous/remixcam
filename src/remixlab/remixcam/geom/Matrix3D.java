@@ -75,20 +75,23 @@ public class Matrix3D implements Primitivable {
 	public float mat[] = new float[16];	
 
   // locally allocated version to avoid creating new memory
-  protected Matrix3D inverseCopy;
+  //protected Matrix3D inverseCopy;
 
   public Matrix3D() {
     reset();
   }
 
-  public Matrix3D(float _m00, float _m01, float _m02, float _m03,
-                  float _m10, float _m11, float _m12, float _m13,
-                  float _m20, float _m21, float _m22, float _m23,
-                  float _m30, float _m31, float _m32, float _m33) {
-    set(_m00, _m01, _m02, _m03,
-        _m10, _m11, _m12, _m13,
-        _m20, _m21, _m22, _m23,
-        _m30, _m31, _m32, _m33);
+  /**
+   * 16 consecutive values that are used as the elements of a 4 × 4 column-major matrix.
+   */
+  public Matrix3D(float _m0, float _m1, float _m2, float _m3,
+                  float _m4, float _m5, float _m6, float _m7,
+                  float _m8, float _m9, float _m10, float _m11,
+                  float _m12, float _m13, float _m14, float _m15) {
+    set(_m0, _m1, _m2, _m3,
+        _m4, _m5, _m6, _m7,
+        _m8, _m9, _m10, _m11,
+        _m12, _m13, _m14, _m15);
   }
 
   public Matrix3D(Matrix3D matrix) {
@@ -117,6 +120,8 @@ public class Matrix3D implements Primitivable {
   		set(data);
   }
   
+  /**
+  // this is opengl format look at: public float[][] get(float[][] target)
   public void m00(float v) { mat[0]=v; }  
   public void m01(float v) { mat[1]=v; }    
   public void m02(float v) { mat[2]=v; }  
@@ -150,6 +155,7 @@ public class Matrix3D implements Primitivable {
   public float m31() { return mat[13]; }
   public float m32() { return mat[14]; }
   public float m33() { return mat[15]; }  
+  */
   
   @Override
   public void reset() {
@@ -218,6 +224,9 @@ public class Matrix3D implements Primitivable {
     return target;
   }
   
+  /**
+   * target [column] [row] 
+   */
   public float[][] get(float[][] target) {  	
   	if (target == null || (target.length == 0))
 			target = new float[4][4];
@@ -230,6 +239,9 @@ public class Matrix3D implements Primitivable {
 		return target;
   }
   
+  /**
+   * rowMajor [row] [column] 
+   */
   public float[][] getTransposed(float[][] rowMajor) {
   	if (rowMajor == null || (rowMajor.length == 0))
 			rowMajor = new float[4][4];
@@ -283,6 +295,9 @@ public class Matrix3D implements Primitivable {
         src.mat[12], src.mat[13], src.mat[14], src.mat[15]);
   }
   
+  /**
+   * source [column] [row] 
+   */
   public void set(float[][] source) { 	
   	if( (source.length == 4) && (source[0].length == 4) ) {
   		int count = 0;
@@ -292,6 +307,9 @@ public class Matrix3D implements Primitivable {
   	}
   }
   
+  /**
+   * rowMajor [row] [column] 
+   */
   public void setTransposed(float[][] rowMajor) {
   	if( (rowMajor.length == 4) && (rowMajor[0].length == 4) ) {
   		int count = 0;
@@ -350,16 +368,23 @@ public class Matrix3D implements Primitivable {
      }
    }
   
-  public void set(float _m00, float _m01, float _m02, float _m03,
-			float _m10, float _m11, float _m12, float _m13,
-			float _m20, float _m21, float _m22, float _m23,
-			float _m30, float _m31, float _m32, float _m33) {
-  	this.mat[0] = _m00; this.mat[1] = _m01; this.mat[2] = _m02; this.mat[3] = _m03;
-  	this.mat[4] = _m10; this.mat[5] = _m11; this.mat[6] = _m12; this.mat[7] = _m13;
-  	this.mat[8] = _m20; this.mat[9] = _m21; this.mat[10] = _m22; this.mat[11] = _m23;
-  	this.mat[12] = _m30; this.mat[13] = _m31; this.mat[14] = _m32; this.mat[15] = _m33;
-}
+  /**
+   * 16 consecutive values that are used as the elements of a 4 × 4 column-major matrix.
+   */
+  public void set(float _m0, float _m1, float _m2, float _m3,
+			            float _m4, float _m5, float _m6, float _m7,
+			            float _m8, float _m9, float _m10, float _m11,
+			            float _m12, float _m13, float _m14, float _m15) {
+  	this.mat[0] = _m0; this.mat[1] = _m1; this.mat[2] = _m2; this.mat[3] = _m3;
+  	this.mat[4] = _m4; this.mat[5] = _m5; this.mat[6] = _m6; this.mat[7] = _m7;
+  	this.mat[8] = _m8; this.mat[9] = _m9; this.mat[10] = _m10; this.mat[11] = _m11;
+  	this.mat[12] = _m12; this.mat[13] = _m13; this.mat[14] = _m14; this.mat[15] = _m15;
+  }
 
+  /**
+   * first "index" is row, second is column, e.g., _m20 corresponds to the element located
+   * at the third row and first column of the matrix.
+   */
   public void setTransposed(float _m00, float _m01, float _m02, float _m03,
                             float _m10, float _m11, float _m12, float _m13,
                             float _m20, float _m21, float _m22, float _m23,
@@ -392,19 +417,52 @@ public class Matrix3D implements Primitivable {
   public void rotateX(float angle) {
     float c = cos(angle);
     float s = sin(angle);
-    apply(1, 0, 0, 0,  0, c, -s, 0,  0, s, c, 0,  0, 0, 0, 1);
+    /**
+    applyTranspose(1, 0,  0, 0,
+    		           0, c, -s, 0,
+    		           0, s,  c, 0,
+    		           0, 0,  0, 1);
+    // */
+    // /**
+    apply(1, 0,  0, 0,
+          0, c,  s, 0,
+          0, -s, c, 0,
+          0, 0,  0, 1);
+    //*/
   }
 
   public void rotateY(float angle) {
     float c = cos(angle);
     float s = sin(angle);
-    apply(c, 0, s, 0,  0, 1, 0, 0,  -s, 0, c, 0,  0, 0, 0, 1);
+    /**
+    applyTranspose(c, 0, s, 0,
+    		           0, 1, 0, 0,
+    		          -s, 0, c, 0,
+    		           0, 0, 0, 1);
+    // */
+    // /**
+    apply(c, 0, -s, 0,
+          0, 1,  0, 0,
+          s, 0,  c, 0,
+          0, 0,  0, 1);
+          //*/
   }
 
   public void rotateZ(float angle) {
     float c = cos(angle);
     float s = sin(angle);
-    apply(c, -s, 0, 0,  s, c, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1);
+    /**
+    applyTranspose(c, -s, 0, 0,
+    		           s,  c, 0, 0,
+    		           0, 0,  1, 0,
+    		           0, 0,  0, 1);
+    // */
+    // /**
+    apply(c, s, 0, 0,
+         -s, c, 0, 0,
+          0, 0, 1, 0,
+          0, 0, 0, 1);
+    // */
   }
 
   public void rotate(float angle, float v0, float v1, float v2) {
@@ -414,10 +472,18 @@ public class Matrix3D implements Primitivable {
     float s = sin(angle);
     float t = 1.0f - c;
 
-    apply((t*v0*v0) + c, (t*v0*v1) - (s*v2), (t*v0*v2) + (s*v1), 0,
-          (t*v0*v1) + (s*v2), (t*v1*v1) + c, (t*v1*v2) - (s*v0), 0,
-          (t*v0*v2) - (s*v1), (t*v1*v2) + (s*v0), (t*v2*v2) + c, 0,
-          0, 0, 0, 1);
+     /**
+    applyTranspose((t*v0*v0) + c,      (t*v0*v1) - (s*v2), (t*v0*v2) + (s*v1), 0,
+                   (t*v0*v1) + (s*v2), (t*v1*v1) + c,      (t*v1*v2) - (s*v0), 0,
+                   (t*v0*v2) - (s*v1), (t*v1*v2) + (s*v0), (t*v2*v2) + c,      0,
+                    0,                 0,                  0,                  1);
+                    // */
+    // /**
+    apply((t*v0*v0) + c,      (t*v0*v1) + (s*v2), (t*v0*v2) - (s*v1), 0,
+    		  (t*v0*v1) - (s*v2), (t*v1*v1) + c,      (t*v1*v2) + (s*v0), 0,
+    		  (t*v0*v2) + (s*v1), (t*v1*v2) - (s*v0), (t*v2*v2) + c,      0,
+    		  0,                  0,                   0,                 1);
+    // */
   }
 
   public void scale(float s) {
@@ -437,36 +503,41 @@ public class Matrix3D implements Primitivable {
     mat[2] *= x;  mat[6] *= y;  mat[10] *= z;
     mat[3] *= x;  mat[7] *= y;  mat[11] *= z;
   }
-
-  public void shearX(float angle) {
-    float t = (float) Math.tan(angle);
-    apply(1, t, 0, 0,
-          0, 1, 0, 0,
-          0, 0, 1, 0,
-          0, 0, 0, 1);
+  
+  public void apply(float [] source) {
+  	if(source != null) {
+  		if( source.length == 16 ) {
+  			apply(source[0], source[1], source[2], source[3],
+  				    source[4], source[5], source[6], source[7],
+  				    source[8], source[9], source[10], source[11],
+  				    source[12], source[13], source[14], source[15]);
+  		}  		
+  	}
   }
-
-  public void shearY(float angle) {
-    float t = (float) Math.tan(angle);
-    apply(1, 0, 0, 0,
-          t, 1, 0, 0,
-          0, 0, 1, 0,
-          0, 0, 0, 1);
+  
+  public void applyTransposed(float [] rowMajor) {
+  	if(rowMajor != null) {
+  		if( rowMajor.length == 16 ) {
+  			applyTransposed(rowMajor[0], rowMajor[1], rowMajor[2], rowMajor[3],
+  				              rowMajor[4], rowMajor[5], rowMajor[6], rowMajor[7],
+  				              rowMajor[8], rowMajor[9], rowMajor[10], rowMajor[11],
+  				              rowMajor[12], rowMajor[13], rowMajor[14], rowMajor[15]);
+  		}  		
+  	}
   }
 
   public void apply(Matrix3D source) {
-    apply(source.mat[0], source.mat[4], source.mat[8], source.mat[12],
-          source.mat[1], source.mat[5], source.mat[9], source.mat[13],
-          source.mat[2], source.mat[6], source.mat[10], source.mat[14],
-          source.mat[3], source.mat[7], source.mat[11], source.mat[15]);
-  }
-
-  public void apply(float n00, float n01, float n02,
-                    float n10, float n11, float n12) {
-    apply(n00, n01, 0, n02,
-          n10, n11, 0, n12,
-          0, 0, 1, 0,
-          0, 0, 0, 1);
+  	/**
+    applyTranspose(source.mat[0], source.mat[4], source.mat[8], source.mat[12],
+          				 source.mat[1], source.mat[5], source.mat[9], source.mat[13],
+          				 source.mat[2], source.mat[6], source.mat[10], source.mat[14],
+          				 source.mat[3], source.mat[7], source.mat[11], source.mat[15]);
+          				 // */
+    // Same as the previous line:
+    apply(source.mat[0], source.mat[1], source.mat[2], source.mat[3],
+				  source.mat[4], source.mat[5], source.mat[6], source.mat[7],
+				  source.mat[8], source.mat[9], source.mat[10], source.mat[11],
+				  source.mat[12], source.mat[13], source.mat[14], source.mat[15]);
   }
   
   public static void mult(Matrix3D a, Matrix3D b, Matrix3D c) { 
@@ -489,61 +560,150 @@ public class Matrix3D implements Primitivable {
     c.mat[7] = a.mat[3]*b.mat[4] + a.mat[7]*b.mat[5] + a.mat[11]*b.mat[6] + a.mat[15]*b.mat[7];
     c.mat[11] = a.mat[3]*b.mat[8] + a.mat[7]*b.mat[9] + a.mat[11]*b.mat[10] + a.mat[15]*b.mat[11];
     c.mat[15] = a.mat[3]*b.mat[12] + a.mat[7]*b.mat[13] + a.mat[11]*b.mat[14] + a.mat[15]*b.mat[15];
-  }
-
-  public void apply(float n00, float n01, float n02, float n03,
-                    float n10, float n11, float n12, float n13,
-                    float n20, float n21, float n22, float n23,
-                    float n30, float n31, float n32, float n33) {
-
-    float r00 = mat[0]*n00 + mat[4]*n10 + mat[8]*n20 + mat[12]*n30;
-    float r01 = mat[0]*n01 + mat[4]*n11 + mat[8]*n21 + mat[12]*n31;
-    float r02 = mat[0]*n02 + mat[4]*n12 + mat[8]*n22 + mat[12]*n32;
-    float r03 = mat[0]*n03 + mat[4]*n13 + mat[8]*n23 + mat[12]*n33;
-
-    float r10 = mat[1]*n00 + mat[5]*n10 + mat[9]*n20 + mat[13]*n30;
-    float r11 = mat[1]*n01 + mat[5]*n11 + mat[9]*n21 + mat[13]*n31;
-    float r12 = mat[1]*n02 + mat[5]*n12 + mat[9]*n22 + mat[13]*n32;
-    float r13 = mat[1]*n03 + mat[5]*n13 + mat[9]*n23 + mat[13]*n33;
-
-    float r20 = mat[2]*n00 + mat[6]*n10 + mat[10]*n20 + mat[14]*n30;
-    float r21 = mat[2]*n01 + mat[6]*n11 + mat[10]*n21 + mat[14]*n31;
-    float r22 = mat[2]*n02 + mat[6]*n12 + mat[10]*n22 + mat[14]*n32;
-    float r23 = mat[2]*n03 + mat[6]*n13 + mat[10]*n23 + mat[14]*n33;
-
-    float r30 = mat[3]*n00 + mat[7]*n10 + mat[11]*n20 + mat[15]*n30;
-    float r31 = mat[3]*n01 + mat[7]*n11 + mat[11]*n21 + mat[15]*n31;
-    float r32 = mat[3]*n02 + mat[7]*n12 + mat[11]*n22 + mat[15]*n32;
-    float r33 = mat[3]*n03 + mat[7]*n13 + mat[11]*n23 + mat[15]*n33;
-
-    mat[0] = r00; mat[4] = r01; mat[8] = r02; mat[12] = r03;
+  }  
+  
+  /**
+   * 16 consecutive values that are used as the elements of a 4 × 4 column-major matrix.
+   */
+  public void apply(float m0, float m1, float m2, float m3,
+      							float m4, float m5, float m6, float m7,
+      							float m8, float m9, float m10, float m11,
+      							float m12, float m13, float m14, float m15) {
+  	
+  	float r00 = mat[0]*m0 + mat[4]*m1 + mat[8]*m2 + mat[12]*m3;
+  	float r01 = mat[0]*m4 + mat[4]*m5 + mat[8]*m6 + mat[12]*m7;
+  	float r02 = mat[0]*m8 + mat[4]*m9 + mat[8]*m10 + mat[12]*m11;
+  	float r03 = mat[0]*m12 + mat[4]*m13 + mat[8]*m14 + mat[12]*m15;
+  	
+  	float r10 = mat[1]*m0 + mat[5]*m1 + mat[9]*m2 + mat[13]*m3;
+  	float r11 = mat[1]*m4 + mat[5]*m5 + mat[9]*m6 + mat[13]*m7;
+  	float r12 = mat[1]*m8 + mat[5]*m9 + mat[9]*m10 + mat[13]*m11;
+  	float r13 = mat[1]*m12 + mat[5]*m13 + mat[9]*m14 + mat[13]*m15;
+  	
+  	float r20 = mat[2]*m0 + mat[6]*m1 + mat[10]*m2 + mat[14]*m3;
+  	float r21 = mat[2]*m4 + mat[6]*m5 + mat[10]*m6 + mat[14]*m7;
+  	float r22 = mat[2]*m8 + mat[6]*m9 + mat[10]*m10 + mat[14]*m11;
+  	float r23 = mat[2]*m12 + mat[6]*m13 + mat[10]*m14 + mat[14]*m15;
+  	
+  	float r30 = mat[3]*m0 + mat[7]*m1 + mat[11]*m2 + mat[15]*m3;
+  	float r31 = mat[3]*m4 + mat[7]*m5 + mat[11]*m6 + mat[15]*m7;
+  	float r32 = mat[3]*m8 + mat[7]*m9 + mat[11]*m10 + mat[15]*m11;
+  	float r33 = mat[3]*m12 + mat[7]*m13 + mat[11]*m14 + mat[15]*m15;
+  	
+  	mat[0] = r00; mat[4] = r01; mat[8] = r02; mat[12] = r03;
     mat[1] = r10; mat[5] = r11; mat[9] = r12; mat[13] = r13;
     mat[2] = r20; mat[6] = r21; mat[10] = r22; mat[14] = r23;
     mat[3] = r30; mat[7] = r31; mat[11] = r32; mat[15] = r33;
   }
-
+  
+  /**
+   * first "index" is row, second is column, e.g., n20 corresponds to the element located
+   * at the third row and first column of the matrix.
+   */
+  public void applyTransposed(float n00, float n01, float n02, float n03,
+  		                        float n10, float n11, float n12, float n13,
+  		                        float n20, float n21, float n22, float n23,
+  		                        float n30, float n31, float n32, float n33) {
+  	
+  	float r00 = mat[0]*n00 + mat[4]*n10 + mat[8]*n20 + mat[12]*n30;
+  	float r01 = mat[0]*n01 + mat[4]*n11 + mat[8]*n21 + mat[12]*n31;
+  	float r02 = mat[0]*n02 + mat[4]*n12 + mat[8]*n22 + mat[12]*n32;
+  	float r03 = mat[0]*n03 + mat[4]*n13 + mat[8]*n23 + mat[12]*n33;
+  	
+  	float r10 = mat[1]*n00 + mat[5]*n10 + mat[9]*n20 + mat[13]*n30;
+  	float r11 = mat[1]*n01 + mat[5]*n11 + mat[9]*n21 + mat[13]*n31;
+  	float r12 = mat[1]*n02 + mat[5]*n12 + mat[9]*n22 + mat[13]*n32;
+  	float r13 = mat[1]*n03 + mat[5]*n13 + mat[9]*n23 + mat[13]*n33;
+  	
+  	float r20 = mat[2]*n00 + mat[6]*n10 + mat[10]*n20 + mat[14]*n30;
+  	float r21 = mat[2]*n01 + mat[6]*n11 + mat[10]*n21 + mat[14]*n31;
+  	float r22 = mat[2]*n02 + mat[6]*n12 + mat[10]*n22 + mat[14]*n32;
+  	float r23 = mat[2]*n03 + mat[6]*n13 + mat[10]*n23 + mat[14]*n33;
+  	
+  	float r30 = mat[3]*n00 + mat[7]*n10 + mat[11]*n20 + mat[15]*n30;
+  	float r31 = mat[3]*n01 + mat[7]*n11 + mat[11]*n21 + mat[15]*n31;
+  	float r32 = mat[3]*n02 + mat[7]*n12 + mat[11]*n22 + mat[15]*n32;
+  	float r33 = mat[3]*n03 + mat[7]*n13 + mat[11]*n23 + mat[15]*n33;
+  	
+  	mat[0] = r00; mat[4] = r01; mat[8] = r02; mat[12] = r03;
+  	mat[1] = r10; mat[5] = r11; mat[9] = r12; mat[13] = r13;
+  	mat[2] = r20; mat[6] = r21; mat[10] = r22; mat[14] = r23;
+  	mat[3] = r30; mat[7] = r31; mat[11] = r32; mat[15] = r33;
+}
+  
+  public void preApply(float [] source) {
+  	if(source != null) {
+  		if( source.length == 16 ) {
+  			preApply(source[0], source[1], source[2], source[3],
+  					     source[4], source[5], source[6], source[7],
+  					     source[8], source[9], source[10], source[11],
+  					     source[12], source[13], source[14], source[15]);
+  		}  		
+  	}
+  }
+  
+  public void preApplyTransposed(float [] rowMajor) {
+  	if(rowMajor != null) {
+  		if( rowMajor.length == 16 ) {
+  			preApplyTransposed(rowMajor[0], rowMajor[1], rowMajor[2], rowMajor[3],
+  					               rowMajor[4], rowMajor[5], rowMajor[6], rowMajor[7],
+  					               rowMajor[8], rowMajor[9], rowMajor[10], rowMajor[11],
+  					               rowMajor[12], rowMajor[13], rowMajor[14], rowMajor[15]);
+  		}  		
+  	}
+  }
+  
   /**
    * Apply another matrix to the left of this one.
    */
-  public void preApply(Matrix3D left) {
-    preApply(left.mat[0], left.mat[4], left.mat[8], left.mat[12],
-             left.mat[1], left.mat[5], left.mat[9], left.mat[13],
-             left.mat[2], left.mat[6], left.mat[10], left.mat[14],
-             left.mat[3], left.mat[7], left.mat[11], left.mat[15]);
-  }
+  public void preApply(Matrix3D left) {  	
+  	preApply(left.mat[0], left.mat[1], left.mat[2], left.mat[3],
+             left.mat[4], left.mat[5], left.mat[6], left.mat[7],
+             left.mat[8], left.mat[9], left.mat[10], left.mat[11],
+             left.mat[12], left.mat[13], left.mat[14], left.mat[15]);             
+  } 
 
-  public void preApply(float n00, float n01, float n02,
-                       float n10, float n11, float n12) {
-    preApply(n00, n01, 0, n02,
-             n10, n11, 0, n12,
-             0, 0, 1, 0,
-             0, 0, 0, 1);
+  /**
+   * 16 consecutive values that are used as the elements of a 4 × 4 column-major matrix.
+   */
+  public void preApply(float m0, float m1, float m2, float m3,
+                       float m4, float m5, float m6, float m7,
+                       float m8, float m9, float m10, float m11,
+                       float m12, float m13, float m14, float m15) {  	
+  	float r00 = m0*mat[0] + m4*mat[1] + m8*mat[2] + m12*mat[3];
+  	float r01 = m0*mat[4] + m4*mat[5] + m8*mat[6] + m12*mat[7];
+  	float r02 = m0*mat[8] + m4*mat[9] + m8*mat[10] + m12*mat[11];
+  	float r03 = m0*mat[12] + m4*mat[13] + m8*mat[14] + m12*mat[15];
+  	
+  	float r10 = m1*mat[0] + m5*mat[1] + m9*mat[2] + m13*mat[3];
+  	float r11 = m1*mat[4] + m5*mat[5] + m9*mat[6] + m13*mat[7];
+  	float r12 = m1*mat[8] + m5*mat[9] + m9*mat[10] + m13*mat[11];
+  	float r13 = m1*mat[12] + m5*mat[13] + m9*mat[14] + m13*mat[15];
+  	
+  	float r20 = m2*mat[0] + m6*mat[1] + m10*mat[2] + m14*mat[3];
+  	float r21 = m2*mat[4] + m6*mat[5] + m10*mat[6] + m14*mat[7];
+  	float r22 = m2*mat[8] + m6*mat[9] + m10*mat[10] + m14*mat[11];
+  	float r23 = m2*mat[12] + m6*mat[13] + m10*mat[14] + m14*mat[15];
+  	
+  	float r30 = m3*mat[0] + m7*mat[1] + m11*mat[2] + m15*mat[3];
+  	float r31 = m3*mat[4] + m7*mat[5] + m11*mat[6] + m15*mat[7];
+  	float r32 = m3*mat[8] + m7*mat[9] + m11*mat[10] + m15*mat[11];
+  	float r33 = m3*mat[12] + m7*mat[13] + m11*mat[14] + m15*mat[15];
+  	
+  	mat[0] = r00; mat[4] = r01; mat[8] = r02; mat[12] = r03;
+  	mat[1] = r10; mat[5] = r11; mat[9] = r12; mat[13] = r13;
+  	mat[2] = r20; mat[6] = r21; mat[10] = r22; mat[14] = r23;
+  	mat[3] = r30; mat[7] = r31; mat[11] = r32; mat[15] = r33;
   }
-
-  public void preApply(float n00, float n01, float n02, float n03,
-                       float n10, float n11, float n12, float n13,
-                       float n20, float n21, float n22, float n23,
-                       float n30, float n31, float n32, float n33) {
+  
+  /**
+   * first "index" is row, second is column, e.g., n20 corresponds to the element located
+   * at the third row and first column of the matrix.
+   */
+  public void preApplyTransposed(float n00, float n01, float n02, float n03,
+  		                           float n10, float n11, float n12, float n13,
+  		                           float n20, float n21, float n22, float n23,
+  		                           float n30, float n31, float n32, float n33) {
 
     float r00 = n00*mat[0] + n01*mat[1] + n02*mat[2] + n03*mat[3];
     float r01 = n00*mat[4] + n01*mat[5] + n02*mat[6] + n03*mat[7];
@@ -851,33 +1011,70 @@ public class Matrix3D implements Primitivable {
   // These functions should not be used, as they will be removed in the future.
 
   protected void invTranslate(float tx, float ty, float tz) {
-    preApply(1, 0, 0, -tx,
-             0, 1, 0, -ty,
-             0, 0, 1, -tz,
-             0, 0, 0, 1);
+  	/**
+    preApplyTranspose(1, 0, 0, -tx,
+                      0, 1, 0, -ty,
+                      0, 0, 1, -tz,
+                      0, 0, 0, 1);
+                      // */
+    // /**
+    preApply(1,   0,    0, 0,
+    		 		 0,   1,    0, 0,
+    		 		 0,   0,    1, 0,
+    		 		-tx, -ty, -tz, 1);
+    		 		// */
   }
-
 
   protected void invRotateX(float angle) {
     float c = cos(-angle);
     float s = sin(-angle);
-    preApply(1, 0, 0, 0,  0, c, -s, 0,  0, s, c, 0,  0, 0, 0, 1);
+    /**
+    preApplyTranspose(1, 0, 0,  0, 
+    		              0, c, -s, 0,
+    		              0, s, c,  0,
+    		              0, 0, 0,  1);
+    		              // */
+    // /**
+    preApply(1, 0,  0, 0, 
+        		 0, c,  s, 0,
+        		 0, -s, c, 0,
+        		 0, 0,  0, 1);
+        		 // */
   }
-
 
   protected void invRotateY(float angle) {
     float c = cos(-angle);
     float s = sin(-angle);
-    preApply(c, 0, s, 0,  0, 1, 0, 0,  -s, 0, c, 0,  0, 0, 0, 1);
+    /**
+    preApplyTranspose(c, 0, s, 0,
+    									0, 1, 0, 0,
+    								 -s, 0, c, 0,
+    								  0, 0, 0, 1);
+    								  // */
+    // /**
+    preApply(c, 0, -s, 0,
+    		     0, 1,  0, 0,
+    		     s, 0,  c, 0,
+    		     0, 0,  0, 1);
+    		     // */
   }
-
 
   protected void invRotateZ(float angle) {
     float c = cos(-angle);
     float s = sin(-angle);
-    preApply(c, -s, 0, 0,  s, c, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1);
+    /**
+    preApplyTranspose(c, -s, 0, 0,
+    		              s, c, 0, 0,
+    		              0, 0, 1, 0,
+    		              0, 0, 0, 1);
+    		              // */
+    // /**
+    preApply(c, s, 0, 0,
+            -s, c, 0, 0,
+             0, 0, 1, 0,
+             0, 0, 0, 1);
+             // */
   }
-
 
   protected void invRotate(float angle, float v0, float v1, float v2) {
     //TODO should make sure this vector is normalized
@@ -886,23 +1083,43 @@ public class Matrix3D implements Primitivable {
     float s = sin(-angle);
     float t = 1.0f - c;
 
-    preApply((t*v0*v0) + c, (t*v0*v1) - (s*v2), (t*v0*v2) + (s*v1), 0,
-             (t*v0*v1) + (s*v2), (t*v1*v1) + c, (t*v1*v2) - (s*v0), 0,
-             (t*v0*v2) - (s*v1), (t*v1*v2) + (s*v0), (t*v2*v2) + c, 0,
-             0, 0, 0, 1);
+    /**
+    preApplyTranspose((t*v0*v0) + c,      (t*v0*v1) - (s*v2), (t*v0*v2) + (s*v1),  0,
+                      (t*v0*v1) + (s*v2), (t*v1*v1) + c,      (t*v1*v2) - (s*v0),  0,
+                      (t*v0*v2) - (s*v1), (t*v1*v2) + (s*v0), (t*v2*v2) + c,       0,
+                      0,                  0,                  0,                   1);
+                      // */
+    // /**
+    preApply((t*v0*v0) + c,     (t*v0*v1) + (s*v2),(t*v0*v2) - (s*v1),0,
+    		     (t*v0*v1) - (s*v2),(t*v1*v1) + c,     (t*v1*v2) + (s*v0),0,
+    		     (t*v0*v2) + (s*v1),(t*v1*v2) - (s*v0),(t*v2*v2) + c,     0,
+    		      0,                 0,                 0,                1);
+    		      // */
   }
   
   public void print() {
-  	System.out.println(m00() + " " + m01() + " " + m02() + " " + m03() + "\n" +
-                       m10() + " " + m11() + " " + m12() + " " + m13() + "\n" +
-                       m20() + " " + m21() + " " + m22() + " " + m23() + "\n" +
-                       m30() + " " + m31() + " " + m32() + " " + m33() + "\n");
+  	System.out.println(mat[0] + " " + mat[4] + " " + mat[8] + " " + mat[12] + "\n" +
+                       mat[1] + " " + mat[5] + " " + mat[9] + " " + mat[13] + "\n" +
+                       mat[2] + " " + mat[6] + " " + mat[10] + " " + mat[14] + "\n" +
+                       mat[3] + " " + mat[7] + " " + mat[11] + " " + mat[15] + "\n");
   }
 
   protected void invScale(float x, float y, float z) {
-    preApply(1/x, 0, 0, 0,  0, 1/y, 0, 0,  0, 0, 1/z, 0,  0, 0, 0, 1);
+  	/**
+    preApplyTranspose(1/x, 0,   0,   0,
+    		              0,   1/y, 0,   0,
+    		              0,   0,   1/z, 0,
+    		              0,   0,   0,   1);
+    		              // */
+    // /**
+  	preApply(1/x, 0,   0,   0,
+        		 0,   1/y, 0,   0,
+        		 0,   0,   1/z, 0,
+        		 0,   0,   0,   1);
+        		 //*/
   }
-
+  
+  /**
   protected boolean invApply(float n00, float n01, float n02, float n03,
                              float n10, float n11, float n12, float n13,
                              float n20, float n21, float n22, float n23,
@@ -920,6 +1137,7 @@ public class Matrix3D implements Primitivable {
     preApply(inverseCopy);
     return true;
   }
+  */
 
   //////////////////////////////////////////////////////////////
 

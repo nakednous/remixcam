@@ -15,18 +15,17 @@ public interface Renderable {
   public void rotate(float angle, float vx, float vy, float vz);
   public void scale(float s);
   public void scale(float sx, float sy);
-  public void scale(float x, float y, float z);
-  public void shearX(float angle);
-  public void shearY(float angle);
+  public void scale(float x, float y, float z);  
   public void loadIdentity();
   public void resetMatrix();
   public void loadMatrix(Matrix3D source);
-  public void multiplyMatrix(Matrix3D source);
+  public void multiplyMatrix(Matrix3D source);  
   public void applyMatrix(Matrix3D source);
-  public void applyMatrix(float n00, float n01, float n02, float n03,
-                          float n10, float n11, float n12, float n13,
-                          float n20, float n21, float n22, float n23,
-                          float n30, float n31, float n32, float n33);
+  //Row major order
+  public void applyMatrixRowMajorOrder(float n00, float n01, float n02, float n03,
+                                       float n10, float n11, float n12, float n13,
+                                       float n20, float n21, float n22, float n23,
+                                       float n30, float n31, float n32, float n33);
   public void frustum(float left, float right, float bottom, float top, float znear, float zfar);
   public Matrix3D getMatrix();
   public Matrix3D getMatrix(Matrix3D target);
