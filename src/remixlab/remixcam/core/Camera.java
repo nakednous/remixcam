@@ -41,7 +41,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * {@link #position()}, {@link #viewDirection()}, {@link #upVector()}...) and
  * useful positioning tools that ease its placement ({@link #showEntireScene()},
  * {@link #fitSphere(Vector3D, float)}, {@link #lookAt(Vector3D)}...). It exports
- * its associated processing projection and modelview matrices and it can
+ * its associated processing projection and view matrices and it can
  * interactively be modified using the mouse.
  * <p>
  * Camera matrices can be directly set as references to the processing camera
@@ -73,7 +73,7 @@ public class Camera implements Constants, Copyable {
 		append(frm).
 		append(interpolationKfi).
 		append(knd).
-		append(modelviewMat).
+		append(viewMat).
 		append(normal).
 		append(orthoCoef).
 		append(orthoSize).
@@ -120,7 +120,7 @@ public class Camera implements Constants, Copyable {
 		.append(frm,other.frm)
 		.append(interpolationKfi,other.interpolationKfi)
 		.append(knd,other.knd)
-		.append(modelviewMat,other.modelviewMat)
+		.append(viewMat,other.viewMat)
 		.append(normal,other.normal)
 		.append(orthoCoef,other.orthoCoef)
 		.append(orthoSize,other.orthoSize)
@@ -281,15 +281,15 @@ public class Camera implements Constants, Copyable {
 	private float stdZNear;
 	private float stdZFar;
 
-	private Matrix3D modelviewMat;
+	private Matrix3D viewMat;
 	private Matrix3D projectionMat;
 	
   //cache optimization
 	public boolean projectCacheOptimized;
-	private Matrix3D  projectionTimesModelview;
+	private Matrix3D  projectionTimesView;
 	public boolean unprojectCacheOptimized;
-	private boolean projectionTimesModelviewHasInverse;
-	private Matrix3D projectionTimesModelviewInverse;
+	private boolean projectionTimesViewHasInverse;
+	private Matrix3D projectionTimesViewInverse;
 
 	// S t e r e o p a r a m e t e r s
 	private float IODist; // inter-ocular distance, in meters
@@ -315,39 +315,25 @@ public class Camera implements Constants, Copyable {
 	public long lastFrameUpdate = 0;
 	protected long lastFPCoeficientsUpdateIssued = -1;
 
-	// A t t a c h e d S c e n e
-	//private boolean attachedToPCam;
-
 	// S C E N E   O B J E C T 
-	public AbstractScene scene;
-	//public PGraphics3D pg3d;
-	
-	/**
-	public Camera(Scene scn) {
-		this(scn, true);
-	}
-	*/
+	public AbstractScene scene;	
 
 	/**
-	 * Main constructor. {@code p} will be used for rendering purposes.
+	 * Main constructor.
 	 * <p>
 	 * {@link #sceneCenter()} is set to (0,0,0) and {@link #sceneRadius()} is set
 	 * to 100. {@link #type()} Camera.PERSPECTIVE, with a {@code PI/4}
 	 * {@link #fieldOfView()}.
 	 * <p>
-	 * If {@code attachedToScene} is true then the Camera matrices are set as
-	 * references to the processing camera matrices. Otherwise newly matrices are
-	 * created. In both cases the matrices are computed according to remaining
-	 * default Camera parameters.
+	 * Camera matrices (projection and view) are created and computed according
+	 * to remaining default Camera parameters.
 	 * <p>
 	 * See {@link #IODistance()}, {@link #physicalDistanceToScreen()},
 	 * {@link #physicalScreenWidth()} and {@link #focusDistance()} documentations
 	 * for default stereo parameter values. 
 	 */
-	public Camera(AbstractScene scn /**, boolean attachedToScene */) {
+	public Camera(AbstractScene scn) {
 		scene = scn;
-		//pg3d = scene.pg3d;
-		//attachedToPCam = attachedToScene;
 		
 		enableFrustumEquationsUpdate(false);
 		optimizeUnprojectCache(false);
@@ -396,20 +382,11 @@ public class Camera implements Constants, Copyable {
 		setPhysicalDistanceToScreen(0.5f);
 		setPhysicalScreenWidth(0.4f);
 		// focusDistance is set from setFieldOfView()
-
-		/**
-		if (isAttachedToP5Camera()) {
-			projectionMat = pg3d.projection;
-			modelViewMat = pg3d.modelview;
-			computeProjectionMatrix();
-			computeModelViewMatrix();
-		} else {
-		*/
-			modelviewMat = new Matrix3D();
-			projectionMat = new Matrix3D();
-			projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-			computeProjectionMatrix();
-		//}
+		
+		viewMat = new Matrix3D();
+		projectionMat = new Matrix3D();
+		projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		computeProjectionMatrix();
 	}
 	
 	/**
@@ -419,8 +396,6 @@ public class Camera implements Constants, Copyable {
 	 */
 	protected Camera(Camera oCam) {
 		this.scene = oCam.scene;
-		//this.pg3d = oCam.pg3d;
-		//this.attachedToPCam = oCam.attachedToPCam;
 		
 		this.fpCoefficientsUpdate = oCam.fpCoefficientsUpdate;
 		this.unprojectCacheOptimized = oCam.unprojectCacheOptimized;
@@ -461,7 +436,7 @@ public class Camera implements Constants, Copyable {
 		this.setPhysicalDistanceToScreen(oCam.physicalDistanceToScreen());
 		this.setPhysicalScreenWidth( oCam.physicalScreenWidth() );		
 		
-		this.modelviewMat = new Matrix3D(oCam.modelviewMat);
+		this.viewMat = new Matrix3D(oCam.viewMat);
 		this.projectionMat = new Matrix3D(oCam.projectionMat);
 	}
 	
@@ -474,82 +449,6 @@ public class Camera implements Constants, Copyable {
 	public Camera get() {
 		return new Camera(this);
 	}
-
-	// 1. ATTACHED PCAMERA MATRICES
-
-	/**
-	 * Convenience function that simply returns {@code !isAttachedToScene()}
-	 * 
-	 * @see #isAttachedToP5Camera()
-	 */
-	
-	/**
-	public boolean isDetachedFromP5Camera() {
-		return !isAttachedToP5Camera();
-	}
-	*/
-
-	/**
-	 * Returns {@code true} if the Camera matrices are set as references to the
-	 * processing camera matrices and {@code false} if not.
-	 * 
-	 * @see #isDetachedFromP5Camera()
-	 */
-	
-	/**
-	public boolean isAttachedToP5Camera() {
-		return attachedToPCam;
-	}
-	*/
-
-	/**
-	 * Set the Camera matrices as references to the processing camera matrices. If
-	 * the references are already set ({@link #isAttachedToP5Camera()}), silently
-	 * ignores the call.
-	 * <p>
-	 * <b>Note:</b> Since it is only one Scene per PApplet, there's no need to
-	 * specify it.
-	 * 
-	 * @see #detachFromP5Camera()
-	 * @see #isAttachedToP5Camera()
-	 */
-	
-	/**
-	public void attachToP5Camera() {
-		if (!isAttachedToP5Camera()) {
-			attachedToPCam = true;
-			projectionMat = pg3d.projection;
-			modelViewMat = pg3d.modelview;
-			computeProjectionMatrix();
-			computeModelViewMatrix();
-		}
-	}
-	*/
-
-	/**
-	 * Create new independent Camera matrices' objects (i.e., Camera matrices are
-	 * no longer set as references to processing camera matrices). If the Camera
-	 * is already detached, silently ignores the call.
-	 * <p>
-	 * The values of the newly created matrices are set with
-	 * {@link #computeProjectionMatrix()} and {@link #computeModelViewMatrix()}.
-	 * 
-	 * @see #attachToP5Camera()
-	 * @see #isAttachedToP5Camera()
-	 */
-	
-	/**
-	public void detachFromP5Camera() {
-		if (isAttachedToP5Camera()) {
-			attachedToPCam = false;
-			modelViewMat = new Matrix3D();
-			projectionMat = new Matrix3D();
-			projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-			computeProjectionMatrix();
-			computeModelViewMatrix();
-		}
-	}	
-	*/
 
 	// 2. POSITION AND ORIENTATION
 
@@ -2230,74 +2129,43 @@ public class Camera implements Constants, Copyable {
 	// 8. PROCESSING MATRICES
 
 	/**
-	 * Convenience function that simply returns {@code getProjectionMatrix(new
-	 * Matrix3D())}
+	 * Convenience function that simply returns {@code getProjectionMatrix(false)}
 	 * 
-	 * @see #getProjectionMatrix(Matrix3D)
-	 * @see #getProjectionMatrix(float[], boolean)
-	 * @see #getModelViewMatrix()
-	 * @see #getModelViewMatrix(float[], boolean)
-	 * @see #getModelViewMatrix(Matrix3D)
+	 * 
 	 */
 	public Matrix3D getProjectionMatrix() {
-		return getProjectionMatrix(new Matrix3D());
-	}	
+		return getProjectionMatrix(false);
+	}
+	
+	public Matrix3D getProjectionMatrix(boolean recompute) {
+		return getProjectionMatrix(new Matrix3D(), recompute);
+	}
+	
+	public Matrix3D getProjectionMatrix(Matrix3D m) {
+		return getProjectionMatrix(m, false);
+	}
 
 	/**
 	 * Fills {@code m} with the Camera projection matrix values and returns it. If
 	 * {@code m} is {@code null} a new Matrix3D will be created.
 	 * <p>
-	 * First calls {@link #computeProjectionMatrix()} to define the Camera
-	 * projection matrix.
+	 * If {@code recompute} is {@code true} first calls {@link #computeProjectionMatrix()}
+	 * to define the Camera projection matrix. Otherwise it returns the projection matrix
+	 * previously computed, e.g., as with {@link #loadProjectionMatrix()}.
 	 * 
-	 * @see #getProjectionMatrix()
-	 * @see #getProjectionMatrix(float[], boolean)
-	 * @see #getModelViewMatrix()
-	 * @see #getModelViewMatrix(float[], boolean)
-	 * @see #getModelViewMatrix(Matrix3D)
+	 * @see #getViewMatrix(Matrix3D, boolean)
 	 */
-	public Matrix3D getProjectionMatrix(Matrix3D m) {
+	public Matrix3D getProjectionMatrix(Matrix3D m, boolean recompute) {
 		if (m == null)
 			m = new Matrix3D();
 
-		// May not be needed, but easier and more robust like this.
-		computeProjectionMatrix();
+		if(recompute)
+			// May not be needed, but easier and more robust like this.
+			computeProjectionMatrix();
 		m.set(projectionMat);
 
 		return m;
-	}
-	
-	/**
-	 * Convenience function that simply returns {@code getProjectionMatrix(target, false)}.
-	 * 
-	 * @see #getProjectionMatrix(float[], boolean)
-	 */
-	public float[] getProjectionMatrix(float[] target) {
-		return getProjectionMatrix(target, false);
-	}
-	
-	/**
-	 * Fills {@code target} (defined in row-major order) with the Camera projection
-	 * matrix values and returns it. If {@code target} is {@code null} a new array
-	 * will be created.
-	 * <p>
-	 * First calls {@link #computeProjectionMatrix()} to define the Camera
-	 * projection matrix. 
-	 * 
-	 * @see #getProjectionMatrix()
-	 * @see #getProjectionMatrix(Matrix3D)
-	 * @see #getModelViewMatrix()
-	 * @see #getModelViewMatrix(float[], boolean)
-	 * @see #getModelViewMatrix(Matrix3D)
-	 */
-	public float[] getProjectionMatrix(float[] target, boolean transpose) {	
-		computeProjectionMatrix();
-		if(transpose)
-			projectionMat.getTransposed(target);
-		else
-			projectionMat.get(target);
-		return target;
-	}
+	}	
 
 	/**
 	 * Computes the projection matrix associated with the Camera.
@@ -2359,19 +2227,24 @@ public class Camera implements Constants, Copyable {
 	/**
 	 * Fills the projection matrix with the {@code proj} matrix values.
 	 * 
+	 * @see #setProjectionMatrix(float[])
 	 * @see #setProjectionMatrix(float[], boolean)
-	 * @see #setModelViewMatrix(Matrix3D)
-	 * @see #setModelViewMatrix(float[], boolean)
+	 * @see #setViewMatrix(Matrix3D)
+	 * @see #setViewMatrix(float[])
+	 * @see #setViewMatrix(float[], boolean)
 	 */
 	public void setProjectionMatrix(Matrix3D proj) {
-		//if (isDetachedFromP5Camera())
-			projectionMat.set(proj);
+		projectionMat.set(proj);
 	}
 	
 	/**
 	 * Convenience function that simply calls {@code setProjectionMatrix(source, false)}.
 	 * 
-	 * @see #setProjectionMatrix(float[], boolean)
+	 * @see #setProjectionMatrix(Matrix3D)
+	 * @see #setProjectionMatrix(float[], boolean) 
+	 * @see #setViewMatrix(Matrix3D)
+	 * @see #setViewMatrix(float[])
+	 * @see #setViewMatrix(float[], boolean)
 	 */
 	public void setProjectionMatrix(float[] source) {
 		setProjectionMatrix(source, false);
@@ -2382,101 +2255,104 @@ public class Camera implements Constants, Copyable {
 	 * (defined in row-major order).
 	 * 
 	 * @see #setProjectionMatrix(Matrix3D)
-	 * @see #setModelViewMatrix(Matrix3D)
-	 * @see #setModelViewMatrix(float[], boolean)
+	 * @see #setProjectionMatrix(float[]) 
+	 * @see #setViewMatrix(Matrix3D)
+	 * @see #setViewMatrix(float[])
+	 * @see #setViewMatrix(float[], boolean)
 	 */
 	public void setProjectionMatrix(float[] source, boolean transpose) {
 		if(transpose)
 			projectionMat.setTransposed(source);
 		else
 			projectionMat.set(source);
-	}
-
-	/**
-	 * Convenience function that simply returns {@code getModelViewMatrix(new
-	 * Matrix3D())}
-	 *  
-	 * @see #getModelViewMatrix(float[], boolean)
-	 * @see #getModelViewMatrix(Matrix3D)
-	 * @see #getProjectionMatrix()
-	 * @see #getProjectionMatrix(float[], boolean)
-	 * @see #getProjectionMatrix(Matrix3D)
-	 */
-	public Matrix3D getModelViewMatrix() {
-		return getModelViewMatrix(new Matrix3D());
 	}	
 
 	/**
-	 * Fills {@code m} with the Camera modelView matrix values and returns it. If
-	 * {@code m} is {@code null} a new Matrix3D will be created.
-	 * <p>
-	 * First calls {@link #computeModelViewMatrix()} to define the Camera
-	 * modelView matrix.
+	 * Convenience function that simply returns {@code getViewMatrix(false)}
 	 * 
-	 * @see #getModelViewMatrix()
-	 * @see #getModelViewMatrix(float[], boolean)
+	 * @see #getViewMatrix(boolean)
+	 * @see #getViewMatrix(Matrix3D)
+	 * @see #getViewMatrix(Matrix3D, boolean)
 	 * @see #getProjectionMatrix()
-	 * @see #getProjectionMatrix(float[], boolean)
+	 * @see #getProjectionMatrix(boolean)
 	 * @see #getProjectionMatrix(Matrix3D)
+	 * @see #getProjectionMatrix(Matrix3D, boolean) 
 	 */
-	public Matrix3D getModelViewMatrix(Matrix3D m) {
-		if (m == null)
-			m = new Matrix3D();
-		// May not be needed, but easier like this.
-		// Prevents from retrieving matrix in stereo mode -> overwrites shifted
-		// value.
-		computeModelViewMatrix();
-		m.set(modelviewMat);
-		return m;
+	public Matrix3D getViewMatrix() {
+		return getViewMatrix(false);
 	}
 	
 	/**
-	 * Convenience function that simply returns {@code getModelViewMatrix(target, false)}.
+	 * Convenience function that simply returns {@code getViewMatrix(new Matrix3D(), recompute)}
 	 * 
-	 * @see #getModelViewMatrix(float[], boolean)
+	 * @see #getViewMatrix()
+	 * @see #getViewMatrix(Matrix3D)
+	 * @see #getViewMatrix(Matrix3D, boolean)
+	 * @see #getProjectionMatrix()
+	 * @see #getProjectionMatrix(boolean)
+	 * @see #getProjectionMatrix(Matrix3D)
+	 * @see #getProjectionMatrix(Matrix3D, boolean)
 	 */
-	public float[] getModelViewMatrix(float[] target) {
-		return getModelViewMatrix(target, false);
+	public Matrix3D getViewMatrix(boolean recompute) {
+		return getViewMatrix(new Matrix3D(), recompute);
 	}
 	
 	/**
-	 * Fills {@code target} (defined in row-major order) with the Camera
-	 * modelView matrix values and returns it. If {@code target} is {@code null} a
-	 * new array will be created.
-	 * <p>
-	 * First calls {@link #computeModelViewMatrix()} to define the Camera
-	 * modelView matrix.
+	 * Convenience function that simply returns {@code getViewMatrix(m, false)}
 	 * 
-	 * @see #getModelViewMatrix()
-	 * @see #getModelViewMatrix(Matrix3D)
+	 * @see #getViewMatrix()
+	 * @see #getViewMatrix(boolean)
+	 * @see #getViewMatrix(Matrix3D, boolean)
 	 * @see #getProjectionMatrix()
-	 * @see #getProjectionMatrix(float[], boolean)
+	 * @see #getProjectionMatrix(boolean)
 	 * @see #getProjectionMatrix(Matrix3D)
+	 * @see #getProjectionMatrix(Matrix3D, boolean)
 	 */
-	public float[] getModelViewMatrix(float[] target, boolean transpose) {		
-		computeModelViewMatrix();
-		if(transpose)
-			modelviewMat.getTransposed(target);
-		else
-			modelviewMat.get(target);
-		return target;
+	public Matrix3D getViewMatrix(Matrix3D m) {
+		return getViewMatrix(m, false);
 	}
 
 	/**
-	 * Computes the modelView matrix associated with the Camera's
+	 * Fills {@code m} with the Camera View matrix values and returns it. If
+	 * {@code m} is {@code null} a new Matrix3D will be created.
+	 * <p>
+	 * If {@code recompute} is {@code true} first calls {@link #computeViewMatrix()}
+	 * to define the Camera view matrix. Otherwise it returns the view matrix
+	 * previously computed, e.g., as with {@link #loadViewMatrix()}.
+	 * 
+	 * @see #getViewMatrix()
+	 * @see #getViewMatrix(boolean)
+	 * @see #getViewMatrix(Matrix3D)
+	 * @see #getProjectionMatrix()
+	 * @see #getProjectionMatrix(boolean)
+	 * @see #getProjectionMatrix(Matrix3D, boolean) 
+	 */
+	public Matrix3D getViewMatrix(Matrix3D m, boolean recompute) {
+		if (m == null)
+			m = new Matrix3D();
+		if(recompute)
+			// May not be needed, but easier like this.
+			// Prevents from retrieving matrix in stereo mode -> overwrites shifted value.
+			computeViewMatrix();
+		m.set(viewMat);
+		return m;
+	}		
+
+	/**
+	 * Computes the View matrix associated with the Camera's
 	 * {@link #position()} and {@link #orientation()}.
 	 * <p>
 	 * This matrix converts from the world coordinates system to the Camera
 	 * coordinates system, so that coordinates can then be projected on screen
 	 * using the projection matrix (see {@link #computeProjectionMatrix()}).
 	 * <p>
-	 * Use {@link #getModelViewMatrix()} to retrieve this matrix.
+	 * Use {@link #getViewMatrix()} to retrieve this matrix.
 	 * <p>
 	 * <b>Note:</b> You must call this method if your Camera is not associated
 	 * with a Scene and is used for offscreen computations (using {@code
 	 * projectedCoordinatesOf()} for instance).
 	 */
-	public void computeModelViewMatrix() {
+	public void computeViewMatrix() {
 		Quaternion q = frame().orientation();
 
 		float q00 = 2.0f * q.quat[0] * q.quat[0];
@@ -2491,67 +2367,80 @@ public class Camera implements Constants, Copyable {
 		float q13 = 2.0f * q.quat[1] * q.quat[3];
 		float q23 = 2.0f * q.quat[2] * q.quat[3];
 
-		modelviewMat.mat[0] = 1.0f - q11 - q22;
-		modelviewMat.mat[1] = q01 - q23;
-		modelviewMat.mat[2] = q02 + q13;
-		modelviewMat.mat[3] = 0.0f;
+		viewMat.mat[0] = 1.0f - q11 - q22;
+		viewMat.mat[1] = q01 - q23;
+		viewMat.mat[2] = q02 + q13;
+		viewMat.mat[3] = 0.0f;
 
-		modelviewMat.mat[4] = q01 + q23;
-		modelviewMat.mat[5] = 1.0f - q22 - q00;
-		modelviewMat.mat[6] = q12 - q03;
-		modelviewMat.mat[7] = 0.0f;
+		viewMat.mat[4] = q01 + q23;
+		viewMat.mat[5] = 1.0f - q22 - q00;
+		viewMat.mat[6] = q12 - q03;
+		viewMat.mat[7] = 0.0f;
 
-		modelviewMat.mat[8] = q02 - q13;
-		modelviewMat.mat[9] = q12 + q03;
-		modelviewMat.mat[10] = 1.0f - q11 - q00;
-		modelviewMat.mat[11] = 0.0f;
+		viewMat.mat[8] = q02 - q13;
+		viewMat.mat[9] = q12 + q03;
+		viewMat.mat[10] = 1.0f - q11 - q00;
+		viewMat.mat[11] = 0.0f;
 
 		Vector3D t = q.inverseRotate(frame().position());
 
-		modelviewMat.mat[12] = -t.vec[0];
-		modelviewMat.mat[13] = -t.vec[1];
-		modelviewMat.mat[14] = -t.vec[2];
-		modelviewMat.mat[15] = 1.0f;
+		viewMat.mat[12] = -t.vec[0];
+		viewMat.mat[13] = -t.vec[1];
+		viewMat.mat[14] = -t.vec[2];
+		viewMat.mat[15] = 1.0f;
 	}
 
 	/**
-	 * Fills the modelview matrix with the {@code modelview} matrix values.
+	 * Fills the view matrix with the {@code view} matrix values.
 	 * 
-	 * @see #setModelViewMatrix(float[], boolean)
 	 * @see #setProjectionMatrix(Matrix3D)
-	 * @see #setProjectionMatrix(float[], boolean)
+	 * @see #setProjectionMatrix(float[]) 
+	 * @see #setViewMatrix(float[])
+	 * @see #setViewMatrix(float[], boolean)
+	 * @see #setViewMatrix(Matrix3D, boolean)
 	 */
-	public void setModelViewMatrix(Matrix3D modelview) {
-		//if (isDetachedFromP5Camera())
-			modelviewMat.set(modelview);
+	public void setViewMatrix(Matrix3D view) {
+			viewMat.set(view);
 	}
 	
 	/**
-	 * Convenience function that simply calls {@code setModelViewMatrix(source, false)}.
+	 * Convenience function that simply calls {@code setViewMatrix(source, false)}.
 	 * 
-	 * @see #setModelViewMatrix(float[], boolean)
+	 * @see #setProjectionMatrix(Matrix3D)
+	 * @see #setProjectionMatrix(float[]) 
+	 * @see #setViewMatrix(float[], boolean)
+	 * @see #setViewMatrix(Matrix3D, boolean)
+	 * @see #setViewMatrix(Matrix3D)
 	 */
-	public void setModelViewMatrix(float [] source) {
-		setModelViewMatrix(source, false);
+	public void setViewMatrix(float [] source) {
+		setViewMatrix(source, false);
 	}
 	
 	/**
-	 * Fills the modelview matrix with the {@code source} matrix values
+	 * Fills the view matrix with the {@code source} matrix values
 	 * (defined in row-major order).
 	 * 
-	 * @see #setModelViewMatrix(Matrix3D)
 	 * @see #setProjectionMatrix(Matrix3D)
-	 * @see #setProjectionMatrix(float[], boolean)
+	 * @see #setProjectionMatrix(float[]) 
+	 * @see #setViewMatrix(float[])
+	 * @see #setViewMatrix(Matrix3D, boolean)
+	 * @see #setViewMatrix(Matrix3D)
 	 */
-	public void setModelViewMatrix(float [] source, boolean transpose) {
+	public void setViewMatrix(float [] source, boolean transpose) {
 		if(transpose)
-			modelviewMat.setTransposed(source);
+			viewMat.setTransposed(source);
 		else
-			modelviewMat.set(source);
+			viewMat.set(source);
 	}
 	
 	/**
 	 * Convinience function that simply calls {@code loadProjectionMatrix(true)}.
+	 * 
+	 * @see #loadProjectionMatrix(boolean)
+	 * @see #loadProjectionMatrixStereo(boolean)
+	 * @see #loadViewMatrix()
+	 * @see #loadViewMatrix(boolean)
+	 * @see #loadViewMatrixStereo(boolean)
 	 */
 	public void loadProjectionMatrix() {
 		loadProjectionMatrix(true);
@@ -2579,7 +2468,11 @@ public class Camera implements Constants, Copyable {
 	 * \attention If you use several OpenGL contexts and bypass the Qt main refresh loop, you should call
 	 * QGLWidget::makeCurrent() before this method in order to activate the right OpenGL context.
 	 *
-	 * @see #loadModelViewMatrix()
+	 * @see #loadProjectionMatrix()
+	 * @see #loadProjectionMatrixStereo(boolean)
+	 * @see #loadViewMatrix()
+	 * @see #loadViewMatrix(boolean)
+	 * @see #loadViewMatrixStereo(boolean)
 	 */
 	public void loadProjectionMatrix(boolean reset) {
 	  scene.matrixMode(PROJECTION);
@@ -2589,13 +2482,19 @@ public class Camera implements Constants, Copyable {
 
 	  computeProjectionMatrix();
 	  scene.multiplyMatrix(projectionMat);
-	}
+	}	
 	
 	/**
-	 * Convenience funtion that simply calls {@code loadModelViewMatrix(true)}.
+	 * Convenience funtion that simply calls {@code loadViewMatrix(true)}.
+	 * 
+	 * @see #loadProjectionMatrix()
+	 * @see #loadProjectionMatrix(boolean)
+	 * @see #loadProjectionMatrixStereo(boolean)
+	 * @see #loadViewMatrix(boolean)
+	 * @see #loadViewMatrixStereo(boolean)
 	 */
-	public void loadModelViewMatrix() {
-		loadModelViewMatrix(true);
+	public void loadViewMatrix() {
+		loadViewMatrix(true);
 	}
 	
 	/*! Loads the OpenGL \c GL_MODELVIEW matrix with the modelView matrix corresponding to the Camera.
@@ -2622,13 +2521,20 @@ public class Camera implements Constants, Copyable {
 
 	 \attention If you use several OpenGL contexts and bypass the Qt main refresh loop, you should call
 	 QGLWidget::makeCurrent() before this method in order to activate the right OpenGL context. */
-	public void loadModelViewMatrix(boolean reset) {
+	public void loadViewMatrix(boolean reset) {
 	  scene.matrixMode(MODELVIEW);
-	  computeModelViewMatrix();
+	  computeViewMatrix();
 	  if (reset)
-	    scene.loadMatrix(modelviewMat);
+	    scene.loadMatrix(viewMat);
 	  else
-	    scene.multiplyMatrix(modelviewMat);
+	    scene.multiplyMatrix(viewMat);
+	}
+	
+  //TODO find a better name for this:
+	public void resetViewMatrix() {
+		computeViewMatrix();
+	  scene.matrixMode(MODELVIEW);	  
+	  scene.loadIdentity();	  
 	}
 	
 	/*! Same as loadProjectionMatrix() but for a stereo setup.
@@ -2640,7 +2546,7 @@ public class Camera implements Constants, Copyable {
 	 offset and asymmetric frustums.
 
 	 When \p leftBuffer is \c true, computes the projection matrix associated to the left eye (right eye
-	 otherwise). See also loadModelViewMatrixStereo().
+	 otherwise). See also loadViewMatrixStereo().
 
 	 See the <a href="../examples/stereoViewer.html">stereoViewer</a> and the <a
 	 href="../examples/contribs.html#anaglyph">anaglyph</a> examples for an illustration.
@@ -2709,18 +2615,18 @@ public class Camera implements Constants, Copyable {
 	 href="../examples/contribs.html#anaglyph">anaglyph</a> examples for an illustration.
 
 	 \attention glMatrixMode is set to \c GL_MODELVIEW. */
-	public void loadModelViewMatrixStereo(boolean leftBuffer) {	  
+	public void loadViewMatrixStereo(boolean leftBuffer) {	  
 	  scene.matrixMode(MODELVIEW);
 
 	  float halfWidth = focusDistance() * (float) Math.tan(horizontalFieldOfView() / 2.0f);
 	  float shift     = halfWidth * IODistance() / physicalScreenWidth(); // * current window width / full screen width
 
-	  computeModelViewMatrix();
+	  computeViewMatrix();
 	  if (leftBuffer)
-	    modelviewMat.mat[12] = modelviewMat.mat[12]-shift;
+	    viewMat.mat[12] = viewMat.mat[12]-shift;
 	  else
-	  	modelviewMat.mat[12] = modelviewMat.mat[12]+shift;
-	  scene.loadMatrix(modelviewMat);
+	  	viewMat.mat[12] = viewMat.mat[12]+shift;
+	  scene.loadMatrix(viewMat);
 	}
 
 	// 9. WORLD -> CAMERA
@@ -2816,7 +2722,7 @@ public class Camera implements Constants, Copyable {
 	 * gluProject} man page for details.
 	 * <p>
 	 * <b>Attention:</b> This method only uses the intrinsic Camera parameters
-	 * (see {@link #getModelViewMatrix()}, {@link #getProjectionMatrix()} and
+	 * (see {@link #getViewMatrix()}, {@link #getProjectionMatrix()} and
 	 * {@link #getViewport()}) and is completely independent of the processing
 	 * matrices. You can hence define a virtual Camera and use this method to
 	 * compute projections out of a classical rendering context.
@@ -2829,9 +2735,9 @@ public class Camera implements Constants, Copyable {
 
 		if (frame != null) {
 			Vector3D tmp = frame.inverseCoordinatesOf(src);
-			project(tmp.vec[0], tmp.vec[1], tmp.vec[2], modelviewMat, projectionMat, viewport, xyz);
+			project(tmp.vec[0], tmp.vec[1], tmp.vec[2], viewMat, projectionMat, viewport, xyz);
 		} else
-			project(src.vec[0], src.vec[1], src.vec[2], modelviewMat, projectionMat, viewport, xyz);
+			project(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
 
   	//lef-handed coordinate system correction
 		if( scene.isLeftHanded() )
@@ -2868,19 +2774,19 @@ public class Camera implements Constants, Copyable {
 	 * transformation.
 	 * <p>
 	 * This method only uses the intrinsic Camera parameters (see
-	 * {@link #getModelViewMatrix()}, {@link #getProjectionMatrix()} and
+	 * {@link #getViewMatrix()}, {@link #getProjectionMatrix()} and
 	 * {@link #getViewport()}) and is completely independent of the Processing
 	 * matrices. You can hence define a virtual Camera and use this method to
 	 * compute un-projections out of a classical rendering context.
 	 * <p>
 	 * <b>Attention:</b> However, if your Camera is not attached to a Scene (used
 	 * for offscreen computations for instance), make sure the Camera matrices are
-	 * updated before calling this method (use {@link #computeModelViewMatrix()},
+	 * updated before calling this method (use {@link #computeViewMatrix()},
 	 * {@link #computeProjectionMatrix()}).
 	 * <p>
 	 * This method is not computationally optimized. If you call it several times
 	 * with no change in the matrices, you should buffer the entire inverse
-	 * projection matrix (modelview, projection and then viewport) to speed-up the
+	 * projection matrix (view, projection and then viewport) to speed-up the
 	 * queries. See the gluUnProject man page for details.
 	 * 
 	 * @see #projectedCoordinatesOf(Vector3D, SimpleFrame)
@@ -2891,9 +2797,9 @@ public class Camera implements Constants, Copyable {
 		viewport = getViewport();
 		
 	  if( scene.isRightHanded() )
-	  	unproject(src.vec[0], src.vec[1], src.vec[2], modelviewMat, projectionMat, viewport, xyz);
+	  	unproject(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
 	  else
-	  	unproject(src.vec[0], (screenHeight() - src.vec[1]), src.vec[2], modelviewMat,	projectionMat, viewport, xyz);		
+	  	unproject(src.vec[0], (screenHeight() - src.vec[1]), src.vec[2], viewMat,	projectionMat, viewport, xyz);		
 		
 		if (frame != null)
 			return frame.coordinatesOf(new Vector3D((float) xyz[0], (float) xyz[1],
@@ -3403,18 +3309,18 @@ public class Camera implements Constants, Copyable {
 		// 1. project
 		if( ( (scene.mouseGrabberPool().size() > 3) && scene.hasMouseTracking() ) || unprojectCacheIsOptimized()) {
 			projectCacheOptimized = true;
-			if(projectionTimesModelview == null)
-				projectionTimesModelview = new Matrix3D();
-			Matrix3D.mult(projectionMat, modelviewMat, projectionTimesModelview);
+			if(projectionTimesView == null)
+				projectionTimesView = new Matrix3D();
+			Matrix3D.mult(projectionMat, viewMat, projectionTimesView);
 		}
 		else
 			projectCacheOptimized = false;
 		
 		// 2. unproject
 		if(unprojectCacheIsOptimized()) {
-			if(projectionTimesModelviewInverse == null)
-				projectionTimesModelviewInverse = new Matrix3D();
-			projectionTimesModelviewHasInverse = projectionTimesModelview.invert(projectionTimesModelviewInverse);
+			if(projectionTimesViewInverse == null)
+				projectionTimesViewInverse = new Matrix3D();
+			projectionTimesViewHasInverse = projectionTimesView.invert(projectionTimesViewInverse);
 		}
 	}
 	
@@ -3452,8 +3358,8 @@ public class Camera implements Constants, Copyable {
 	 *          Specify the object y coordinate.
 	 * @param objz
 	 *          Specify the object z coordinate.
-	 * @param modelview
-	 *          Specifies the current modelview matrix.
+	 * @param view
+	 *          Specifies the current view matrix.
 	 * @param projection
 	 *          Specifies the current projection matrix.
 	 * @param viewport
@@ -3461,7 +3367,7 @@ public class Camera implements Constants, Copyable {
 	 * @param windowCoordinate
 	 *          Return the computed window coordinates.
 	 */
-	public boolean project(float objx, float objy, float objz, Matrix3D modelview,
+	public boolean project(float objx, float objy, float objz, Matrix3D view,
 			                   Matrix3D projection, int[] viewport, float[] windowCoordinate) {
 		float in[] = new float[4];
 		float out[] = new float[4];
@@ -3472,10 +3378,10 @@ public class Camera implements Constants, Copyable {
 		in[3] = 1.0f;
 		
 		if(projectCacheOptimized) {	
-			out[0]=projectionTimesModelview.mat[0]*in[0] + projectionTimesModelview.mat[4]*in[1] + projectionTimesModelview.mat[8]*in[2] + projectionTimesModelview.mat[12]*in[3];
-			out[1]=projectionTimesModelview.mat[1]*in[0] + projectionTimesModelview.mat[5]*in[1] + projectionTimesModelview.mat[9]*in[2] + projectionTimesModelview.mat[13]*in[3];
-			out[2]=projectionTimesModelview.mat[2]*in[0] + projectionTimesModelview.mat[6]*in[1] + projectionTimesModelview.mat[10]*in[2] + projectionTimesModelview.mat[14]*in[3];
-			out[3]=projectionTimesModelview.mat[3]*in[0] + projectionTimesModelview.mat[7]*in[1] + projectionTimesModelview.mat[11]*in[2] + projectionTimesModelview.mat[15]*in[3];
+			out[0]=projectionTimesView.mat[0]*in[0] + projectionTimesView.mat[4]*in[1] + projectionTimesView.mat[8]*in[2] + projectionTimesView.mat[12]*in[3];
+			out[1]=projectionTimesView.mat[1]*in[0] + projectionTimesView.mat[5]*in[1] + projectionTimesView.mat[9]*in[2] + projectionTimesView.mat[13]*in[3];
+			out[2]=projectionTimesView.mat[2]*in[0] + projectionTimesView.mat[6]*in[1] + projectionTimesView.mat[10]*in[2] + projectionTimesView.mat[14]*in[3];
+			out[3]=projectionTimesView.mat[3]*in[0] + projectionTimesView.mat[7]*in[1] + projectionTimesView.mat[11]*in[2] + projectionTimesView.mat[15]*in[3];
 			
 			if (out[3] == 0.0)
 				return false;
@@ -3498,7 +3404,7 @@ public class Camera implements Constants, Copyable {
 			return true;	
 		}		
 		else {
-			modelview.mult(in, out);
+			view.mult(in, out);
 			projection.mult(out, in);
 			if (in[3] == 0.0)
 				return false;
@@ -3529,8 +3435,8 @@ public class Camera implements Constants, Copyable {
 	 *          Specify the window y coordinate.
 	 * @param winz
 	 *          Specify the window z coordinate.
-	 * @param modelview
-	 *          Specifies the current modelview matrix.
+	 * @param view
+	 *          Specifies the current view matrix.
 	 * @param projection
 	 *          Specifies the current projection matrix.
 	 * @param viewport
@@ -3538,20 +3444,20 @@ public class Camera implements Constants, Copyable {
 	 * @param objCoordinate
 	 *          Return the computed object coordinates.
 	 */
-	public boolean unproject(float winx, float winy, float winz, Matrix3D modelview,
+	public boolean unproject(float winx, float winy, float winz, Matrix3D view,
 			                     Matrix3D projection, int viewport[], float[] objCoordinate) {		
 		if(!unprojectCacheOptimized) {
 			if(!projectCacheOptimized) {	
-				if(projectionTimesModelview == null)
-					projectionTimesModelview = new Matrix3D();
-				Matrix3D.mult(projectionMat, modelviewMat, projectionTimesModelview);
+				if(projectionTimesView == null)
+					projectionTimesView = new Matrix3D();
+				Matrix3D.mult(projectionMat, viewMat, projectionTimesView);
 			}
-			if(projectionTimesModelviewInverse == null)
-				projectionTimesModelviewInverse = new Matrix3D();
-			projectionTimesModelviewHasInverse = projectionTimesModelview.invert(projectionTimesModelviewInverse);						
+			if(projectionTimesViewInverse == null)
+				projectionTimesViewInverse = new Matrix3D();
+			projectionTimesViewHasInverse = projectionTimesView.invert(projectionTimesViewInverse);						
 		}		
 		
-		if (!projectionTimesModelviewHasInverse)
+		if (!projectionTimesViewHasInverse)
 			return false;
 		
 		float in[] = new float[4];
@@ -3571,7 +3477,7 @@ public class Camera implements Constants, Copyable {
 		in[1] = in[1] * 2 - 1;
 		in[2] = in[2] * 2 - 1;
 
-		projectionTimesModelviewInverse.mult(in, out);
+		projectionTimesViewInverse.mult(in, out);
 		if (out[3] == 0.0)
 			return false;
 
@@ -3592,7 +3498,7 @@ public class Camera implements Constants, Copyable {
 		return projectionMat;
 	}
 	
-	public Matrix3D modelview() {
-		return modelviewMat;
+	public Matrix3D view() {
+		return viewMat;
 	}
 }

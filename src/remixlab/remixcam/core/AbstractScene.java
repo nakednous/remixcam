@@ -350,6 +350,7 @@ public abstract class AbstractScene implements Constants {
 	protected long frameCount;
 	protected float frameRate;
 	protected long frameRateLastNanos;
+	protected boolean modelSeparatedFromView;
 	
 	public AbstractScene(Renderable r) {
 		renderer = r;
@@ -374,6 +375,8 @@ public abstract class AbstractScene implements Constants {
 		// <- 1
 		
 		setRightHanded();
+		// TODO
+		separateModelFromView(false);
 	}
 	
 	// E V E N T   HA N D L I N G
@@ -844,8 +847,8 @@ public abstract class AbstractScene implements Constants {
 	 * Bind processing matrices to proscene matrices.
 	 */	
 	protected void bindMatrices() {
+		// TODO implement stereo
 		// We set the processing camera matrices from our remixlab.proscene.Camera
-		// TODO: needs testing
 		setProjectionMatrix(); // abstract
 		setModelViewMatrix(); // abstract
 		// same as the two previous lines:
@@ -872,7 +875,11 @@ public abstract class AbstractScene implements Constants {
 	 * {@code PApplet.camera()}.
 	 */
 	protected void setModelViewMatrix() {
-		camera().loadModelViewMatrix();
+		if( modelIsSeparatedFromView() )
+		// TODO find a better name for this:
+			camera().resetViewMatrix();
+		else
+			camera().loadViewMatrix();	  
 	}
 	
 	protected abstract void displayVisualHints();
@@ -882,6 +889,15 @@ public abstract class AbstractScene implements Constants {
 			for ( AbstractTimerJob tJob : timerPool )
 				if (tJob.timer() != null)
 					((SingleThreadedTaskableTimer)tJob.timer()).execute();
+	}
+	
+	// TODO: move this to the renderer?
+	public void separateModelFromView(boolean separate) {
+		this.modelSeparatedFromView = separate;
+	}
+	
+	public boolean modelIsSeparatedFromView() {
+		return modelSeparatedFromView;
 	}
 	
   //1. Scene overloaded
