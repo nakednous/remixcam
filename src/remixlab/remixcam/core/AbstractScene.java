@@ -350,7 +350,6 @@ public abstract class AbstractScene implements Constants {
 	protected long frameCount;
 	protected float frameRate;
 	protected long frameRateLastNanos;
-	protected boolean modelSeparatedFromView;
 	
 	public AbstractScene(Renderable r) {
 		renderer = r;
@@ -375,8 +374,6 @@ public abstract class AbstractScene implements Constants {
 		// <- 1
 		
 		setRightHanded();
-		// TODO
-		separateModelFromView(false);
 	}
 	
 	// E V E N T   HA N D L I N G
@@ -874,12 +871,63 @@ public abstract class AbstractScene implements Constants {
 	 * Sets the processing camera matrix from {@link #camera()}. Simply calls
 	 * {@code PApplet.camera()}.
 	 */
-	protected void setModelViewMatrix() {
-		if( modelIsSeparatedFromView() )
+	protected void setModelViewMatrix() {		
 		// TODO find a better name for this:
-			camera().resetViewMatrix();
-		else
-			camera().loadViewMatrix();	  
+		camera().resetViewMatrix(); // model is separated from view always
+		//  alternative is
+			//camera().loadViewMatrix();	  
+	}
+	
+	// TODO try to optimize assignments in all three matrix getters?
+	// Requires allowing returning references as well as copies of the matrices,
+	// but it seems overkill. 
+	public Matrix3D getModelViewMatrix() {		
+		int mode = getMatrixMode();
+		Matrix3D modelview;
+  	matrixMode(MODELVIEW);
+  	modelview = getMatrix();
+  	modelview.preApply(getViewMatrix());
+  	matrixMode(mode);
+  	return modelview;
+	}
+	
+	public Matrix3D getViewMatrix() {		
+		int mode = getMatrixMode();
+		Matrix3D view = camera().getViewMatrix();
+  	matrixMode(mode);
+  	return view;
+	}
+	
+	public Matrix3D getModelMatrix() {
+		int mode = getMatrixMode();
+		Matrix3D model;
+  	matrixMode(MODELVIEW);
+  	model = getMatrix();
+  	matrixMode(mode);
+  	return model;
+	}
+	
+	public Matrix3D getProjectionMatrix() {
+		int mode = getMatrixMode();
+		Matrix3D projection;
+  	matrixMode(PROJECTION);
+  	projection = getMatrix();
+  	matrixMode(mode);
+  	return projection;
+	}
+	
+	/**
+	 * This method restores the matrix mode.
+	 */
+	public Matrix3D getModelViewProjectionMatrix() {		
+		int mode = getMatrixMode();
+		Matrix3D PVM;
+  	matrixMode(MODELVIEW);
+  	PVM = getMatrix();//model  	
+    //PVM.preApply(camera().projectionViewMat);
+  	PVM.preApply(camera().getProjectionViewMatrix());
+  	matrixMode(mode);
+  	return PVM;
 	}
 	
 	protected abstract void displayVisualHints();
@@ -889,16 +937,7 @@ public abstract class AbstractScene implements Constants {
 			for ( AbstractTimerJob tJob : timerPool )
 				if (tJob.timer() != null)
 					((SingleThreadedTaskableTimer)tJob.timer()).execute();
-	}
-	
-	// TODO: move this to the renderer?
-	public void separateModelFromView(boolean separate) {
-		this.modelSeparatedFromView = separate;
-	}
-	
-	public boolean modelIsSeparatedFromView() {
-		return modelSeparatedFromView;
-	}
+	}	
 	
   //1. Scene overloaded
 	
@@ -1273,6 +1312,10 @@ public abstract class AbstractScene implements Constants {
   
   public void matrixMode( int mode  ) {
   	renderer.matrixMode(mode);
+  }
+  
+  public int getMatrixMode() {
+  	return renderer.getMatrixMode();
   }
 	
 	// end matrix stack wrapper

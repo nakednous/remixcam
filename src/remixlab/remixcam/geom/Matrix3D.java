@@ -119,9 +119,43 @@ public class Matrix3D implements Primitivable {
   	else
   		set(data);
   }
+    
+  // first index is row, second is column  
+  public void m00(float v) { mat[0]=v; }  
+  public void m01(float v) { mat[4]=v; }    
+  public void m02(float v) { mat[8]=v; }  
+  public void m03(float v) { mat[12]=v; }  
+  public void m10(float v) { mat[1]=v; }  
+  public void m11(float v) { mat[5]=v; }
+  public void m12(float v) { mat[9]=v; }
+  public void m13(float v) { mat[13]=v; }
+  public void m20(float v) { mat[2]=v; }
+  public void m21(float v) { mat[6]=v; }
+  public void m22(float v) { mat[10]=v; }
+  public void m23(float v) { mat[14]=v; }
+  public void m30(float v) { mat[3]=v; }
+  public void m31(float v) { mat[7]=v; }
+  public void m32(float v) { mat[11]=v; }
+  public void m33(float v) { mat[15]=v; }
+  
+  public float m00() { return mat[0]; }
+  public float m01() { return mat[4]; }
+  public float m02() { return mat[8]; }
+  public float m03() { return mat[12]; }
+  public float m10() { return mat[1]; }
+  public float m11() { return mat[5]; }
+  public float m12() { return mat[9]; }
+  public float m13() { return mat[13]; }
+  public float m20() { return mat[2]; }
+  public float m21() { return mat[6]; }
+  public float m22() { return mat[10]; }
+  public float m23() { return mat[14]; }
+  public float m30() { return mat[3]; }
+  public float m31() { return mat[7]; }
+  public float m32() { return mat[11]; }
+  public float m33() { return mat[15]; } 
   
   /**
-  // this is opengl format look at: public float[][] get(float[][] target)
   public void m00(float v) { mat[0]=v; }  
   public void m01(float v) { mat[1]=v; }    
   public void m02(float v) { mat[2]=v; }  
@@ -732,6 +766,10 @@ public class Matrix3D implements Primitivable {
   }
 
   //////////////////////////////////////////////////////////////
+  
+  public Vector3D mult(Vector3D source) {
+  	return mult(source, null);
+  }
 
   public Vector3D mult(Vector3D source, Vector3D target) {
     if (target == null) {

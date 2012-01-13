@@ -281,15 +281,13 @@ public class Camera implements Constants, Copyable {
 	private float stdZNear;
 	private float stdZFar;
 
-	private Matrix3D viewMat;
-	private Matrix3D projectionMat;
+	protected Matrix3D viewMat;
+	protected Matrix3D projectionMat;
+	protected Matrix3D projectionViewMat;  
 	
-  //cache optimization
-	public boolean projectCacheOptimized;
-	private Matrix3D  projectionTimesView;
+	protected Matrix3D projectionViewInverseMat;
 	public boolean unprojectCacheOptimized;
-	private boolean projectionTimesViewHasInverse;
-	private Matrix3D projectionTimesViewInverse;
+	private boolean projectionViewMatHasInverse;
 
 	// S t e r e o p a r a m e t e r s
 	private float IODist; // inter-ocular distance, in meters
@@ -387,6 +385,7 @@ public class Camera implements Constants, Copyable {
 		projectionMat = new Matrix3D();
 		projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		computeProjectionMatrix();
+		projectionViewMat = new Matrix3D();
 	}
 	
 	/**
@@ -1682,6 +1681,38 @@ public class Camera implements Constants, Copyable {
     Vector3D v2 = Vector3D.sub(projectedCoordinatesOf(b), projectedCoordinatesOf(c));
     return v1.cross(v2).vec[2] <= 0;
   }
+    
+  /**
+  // Only works in ortho mode. Perspective needs to take into account the
+  // translation of the vector and hence needs more info 
+  public boolean faceIsBackFacing(Vector3D normal) {
+  	// http://stackoverflow.com/questions/724219/how-to-convert-a-3d-point-into-2d-perspective-projection
+  	
+  	getProjectionViewMatrix(true); //TODO testing
+  	float [] normal_array = new float [3];
+  	float [] normal_array_homogeneous = new float [4];
+  	normal.get(normal_array);
+  	normal_array_homogeneous[0] = normal_array[0];
+  	normal_array_homogeneous[1] = normal_array[1];
+  	normal_array_homogeneous[2] = normal_array[2];
+  	normal_array_homogeneous[3] = 0;// key is the value of 0 here
+  	float [] result = new float [4];  	
+  	projectionViewMat.mult(normal_array_homogeneous, result);  	
+  	
+  	if(result[2] >= 0)
+  		return true;
+  	else
+  		return false;
+  	  	
+  	// same as above  	
+  	//if(projectionViewMat.mat[2]*normal.x() +
+  		// projectionViewMat.mat[6]*normal.y() +
+  		// projectionViewMat.mat[10]*normal.z() >= 0)
+  		//return true;
+  	//else
+  		//return false;
+  }
+  */
 
 	// 4. SCENE RADIUS AND CENTER
 
@@ -2388,6 +2419,32 @@ public class Camera implements Constants, Copyable {
 		viewMat.mat[13] = -t.vec[1];
 		viewMat.mat[14] = -t.vec[2];
 		viewMat.mat[15] = 1.0f;
+	}
+	
+	public Matrix3D getProjectionViewMatrix() {
+		return getProjectionViewMatrix(false);
+	}
+	
+	public Matrix3D getProjectionViewMatrix(boolean recompute) {
+		return getProjectionViewMatrix(new Matrix3D(), recompute);
+	}
+	
+	public Matrix3D getProjectionViewMatrix(Matrix3D m) {
+		return getProjectionViewMatrix(m, false);
+	}
+	
+	public Matrix3D getProjectionViewMatrix(Matrix3D m, boolean recompute) {
+		if (m == null)
+			m = new Matrix3D();
+		if(recompute) {
+			// May not be needed, but easier like this.
+			// Prevents from retrieving matrix in stereo mode -> overwrites shifted value.
+			computeProjectionMatrix();
+			computeViewMatrix();
+			cacheMatrices();
+		}
+		m.set(projectionViewMat);
+		return m;
 	}
 
 	/**
@@ -3307,20 +3364,13 @@ public class Camera implements Constants, Copyable {
 	 */
 	public void cacheMatrices() {
 		// 1. project
-		if( ( (scene.mouseGrabberPool().size() > 3) && scene.hasMouseTracking() ) || unprojectCacheIsOptimized()) {
-			projectCacheOptimized = true;
-			if(projectionTimesView == null)
-				projectionTimesView = new Matrix3D();
-			Matrix3D.mult(projectionMat, viewMat, projectionTimesView);
-		}
-		else
-			projectCacheOptimized = false;
+		Matrix3D.mult(projectionMat, viewMat, projectionViewMat);		
 		
 		// 2. unproject
 		if(unprojectCacheIsOptimized()) {
-			if(projectionTimesViewInverse == null)
-				projectionTimesViewInverse = new Matrix3D();
-			projectionTimesViewHasInverse = projectionTimesView.invert(projectionTimesViewInverse);
+			if(projectionViewInverseMat == null)
+				projectionViewInverseMat = new Matrix3D();
+			projectionViewMatHasInverse = projectionViewMat.invert(projectionViewInverseMat);
 		}
 	}
 	
@@ -3376,34 +3426,34 @@ public class Camera implements Constants, Copyable {
 		in[1] = objy;
 		in[2] = objz;
 		in[3] = 1.0f;
+					
+		out[0]=projectionViewMat.mat[0]*in[0] + projectionViewMat.mat[4]*in[1] + projectionViewMat.mat[8]*in[2] + projectionViewMat.mat[12]*in[3];
+		out[1]=projectionViewMat.mat[1]*in[0] + projectionViewMat.mat[5]*in[1] + projectionViewMat.mat[9]*in[2] + projectionViewMat.mat[13]*in[3];
+		out[2]=projectionViewMat.mat[2]*in[0] + projectionViewMat.mat[6]*in[1] + projectionViewMat.mat[10]*in[2] + projectionViewMat.mat[14]*in[3];
+		out[3]=projectionViewMat.mat[3]*in[0] + projectionViewMat.mat[7]*in[1] + projectionViewMat.mat[11]*in[2] + projectionViewMat.mat[15]*in[3];
+			
+		if (out[3] == 0.0)
+			return false;
 		
-		if(projectCacheOptimized) {	
-			out[0]=projectionTimesView.mat[0]*in[0] + projectionTimesView.mat[4]*in[1] + projectionTimesView.mat[8]*in[2] + projectionTimesView.mat[12]*in[3];
-			out[1]=projectionTimesView.mat[1]*in[0] + projectionTimesView.mat[5]*in[1] + projectionTimesView.mat[9]*in[2] + projectionTimesView.mat[13]*in[3];
-			out[2]=projectionTimesView.mat[2]*in[0] + projectionTimesView.mat[6]*in[1] + projectionTimesView.mat[10]*in[2] + projectionTimesView.mat[14]*in[3];
-			out[3]=projectionTimesView.mat[3]*in[0] + projectionTimesView.mat[7]*in[1] + projectionTimesView.mat[11]*in[2] + projectionTimesView.mat[15]*in[3];
+		out[0] /= out[3];
+		out[1] /= out[3];
+		out[2] /= out[3];
+		// Map x, y and z to range 0-1
+		out[0] = out[0] * 0.5f + 0.5f;
+		out[1] = out[1] * 0.5f + 0.5f;
+		out[2] = out[2] * 0.5f + 0.5f;
 			
-			if (out[3] == 0.0)
-				return false;
+		// Map x,y to viewport
+		out[0] = out[0] * viewport[2] + viewport[0];
+		out[1] = out[1] * viewport[3] + viewport[1];
 			
-			out[0] /= out[3];
-			out[1] /= out[3];
-			out[2] /= out[3];
-			// Map x, y and z to range 0-1
-			out[0] = out[0] * 0.5f + 0.5f;
-			out[1] = out[1] * 0.5f + 0.5f;
-			out[2] = out[2] * 0.5f + 0.5f;
-			
-			// Map x,y to viewport
-			out[0] = out[0] * viewport[2] + viewport[0];
-			out[1] = out[1] * viewport[3] + viewport[1];
-			
-			windowCoordinate[0] = out[0];
-			windowCoordinate[1] = out[1];
-			windowCoordinate[2] = out[2];
-			return true;	
-		}		
-		else {
+		windowCoordinate[0] = out[0];
+		windowCoordinate[1] = out[1];
+		windowCoordinate[2] = out[2];
+		
+		return true;		
+		/**
+		  // compute without projectionViewMat
 			view.mult(in, out);
 			projection.mult(out, in);
 			if (in[3] == 0.0)
@@ -3422,7 +3472,7 @@ public class Camera implements Constants, Copyable {
 			windowCoordinate[1] = in[1];
 			windowCoordinate[2] = in[2];
 			return true;
-		}
+		// */
 	}
 
 	/**
@@ -3446,18 +3496,13 @@ public class Camera implements Constants, Copyable {
 	 */
 	public boolean unproject(float winx, float winy, float winz, Matrix3D view,
 			                     Matrix3D projection, int viewport[], float[] objCoordinate) {		
-		if(!unprojectCacheOptimized) {
-			if(!projectCacheOptimized) {	
-				if(projectionTimesView == null)
-					projectionTimesView = new Matrix3D();
-				Matrix3D.mult(projectionMat, viewMat, projectionTimesView);
-			}
-			if(projectionTimesViewInverse == null)
-				projectionTimesViewInverse = new Matrix3D();
-			projectionTimesViewHasInverse = projectionTimesView.invert(projectionTimesViewInverse);						
+		if(!unprojectCacheOptimized) {			
+			if(projectionViewInverseMat == null)
+				projectionViewInverseMat = new Matrix3D();
+			projectionViewMatHasInverse = projectionViewMat.invert(projectionViewInverseMat);						
 		}		
 		
-		if (!projectionTimesViewHasInverse)
+		if (!projectionViewMatHasInverse)
 			return false;
 		
 		float in[] = new float[4];
@@ -3477,7 +3522,7 @@ public class Camera implements Constants, Copyable {
 		in[1] = in[1] * 2 - 1;
 		in[2] = in[2] * 2 - 1;
 
-		projectionTimesViewInverse.mult(in, out);
+		projectionViewInverseMat.mult(in, out);
 		if (out[3] == 0.0)
 			return false;
 

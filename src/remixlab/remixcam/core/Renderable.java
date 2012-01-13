@@ -32,6 +32,7 @@ public interface Renderable {
   public void setMatrix(Matrix3D source);
   public void printMatrix();
   public void matrixMode(int mode);
+  public int getMatrixMode();
   // dimensions
   int getWidth();
   int getHeight();

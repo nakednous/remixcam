@@ -304,5 +304,9 @@ public class MatrixStack implements Constants {
     } else {
     	System.out.println("Invalid matrix mode. Use PROJECTION or MODELVIEW");
     }
-  }  
+  }
+  
+  public int getMatrixMode() {
+  	return matrixMode;
+  }
 }
