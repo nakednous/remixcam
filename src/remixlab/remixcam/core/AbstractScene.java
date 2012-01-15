@@ -298,7 +298,6 @@ public abstract class AbstractScene implements Constants {
 	protected boolean avatarIsInteractiveAvatarFrame;
 	
   // T i m e r P o o l
-  public boolean singleThreadedTaskableTimers;//TODO add setter and getter
 	protected ArrayList<AbstractTimerJob> timerPool;
 
 	// M o u s e G r a b b e r
@@ -370,10 +369,7 @@ public abstract class AbstractScene implements Constants {
 	  // otherwise need to be set from here
 		// bug2: poor performance when doing: animation + camera kfi interpolation + drawing the cam path
 	  // but luckyly seems to be only for P3D
-		singleThreadedTaskableTimers = true;
-	  //singleThreadedTaskableTimers = false;
-		registerJob(timerFx);		
-		//singleThreadedTaskableTimers = true;
+		registerJob(timerFx);
 		
 		//mouse grabber pool
 		msGrabberPool = new ArrayList<DeviceGrabbable>();
@@ -389,7 +385,7 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Internal method. Handles the different global keyboard actions.
 	 */
-	public void handleKeyboardAction(KeyboardAction id) {
+	public void handleKeyboardAction(KeyboardAction id) {			
 		if( !keyboardIsHandled() )
 			return;
 		switch (id) {
@@ -678,12 +674,12 @@ public abstract class AbstractScene implements Constants {
 			if (Camera.class == camera().getClass())
 				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
 								+ "See the Point Under Pixel example!");
-			else if (setArcballReferencePointFromPixel(new Point(mouseX, mouseY))) {
+			else if (setArcballReferencePointFromPixel(new Point(mouseX, mouseY))) {			  
 				arpFlag = true;
 				timerFx.runOnce(1000);					
 			}
 			break;
-		case RESET_ARP:
+		case RESET_ARP:		  
 			camera().setArcballReferencePoint(new Vector3D(0, 0, 0));
 			arpFlag = true;
 			timerFx.runOnce(1000);				
@@ -940,11 +936,10 @@ public abstract class AbstractScene implements Constants {
 	
 	protected abstract void displayVisualHints();
 	
-	protected void handleTimers() {		
-		if(singleThreadedTaskableTimers)
-			for ( AbstractTimerJob tJob : timerPool )
-				if (tJob.timer() != null)
-					((SingleThreadedTaskableTimer)tJob.timer()).execute();
+	protected void handleTimers() {
+		for ( AbstractTimerJob tJob : timerPool )
+			if (tJob.timer() != null)
+				((SingleThreadedTaskableTimer)tJob.timer()).execute();
 	}	
 	
   //1. Scene overloaded
@@ -1609,23 +1604,26 @@ public abstract class AbstractScene implements Constants {
 	// TODO need this methods here?
   // need it here (or it should just go into proscene.js)? need to be overloaded?
 	// it was previously set in proscene.Scene
-	public void unregisterFromTimerPool(SingleThreadedTimer t) {
-		if( t instanceof SingleThreadedTaskableTimer )
-			timerPool.remove( ((SingleThreadedTaskableTimer) t).timerJob() );
+	public void unregisterFromTimerPool(SingleThreadedTaskableTimer t) {		
+			timerPool.remove( t.timerJob() );
 	}
 	
-	public abstract void registerJob(AbstractTimerJob job);
+	public void registerJob(AbstractTimerJob job) {
+		registerJobInTimerPool(job);
+	}
+	
+	public boolean isJobRegistered(AbstractTimerJob job) {
+		return timerPool.contains(job);
+	}
 	
 	// only jobs belonging to SingleThreadedTaskableTimer
-	public void registerJobInTimerPool(AbstractTimerJob job) {					
-			job.setTimer(new SingleThreadedTaskableTimer(this, job));
-			timerPool.add(job);
+	public void registerJobInTimerPool(AbstractTimerJob job) {
+		job.setTimer(new SingleThreadedTaskableTimer(this, job));
+		timerPool.add(job);
 	}	
 	
 	public void unregisterFromTimerPool(AbstractTimerJob job) {
-		if (singleThreadedTaskableTimers) {			
-			timerPool.remove(job);
-		}
+		timerPool.remove(job);		
 	}	
 	
   //2. Associated objects

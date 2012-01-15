@@ -81,18 +81,22 @@ public class SingleThreadedTimer implements Timable {
 		create();
 	}
 	
+	@Override
 	public void cancel() {
 		stop();
 	}	
 
+	@Override
 	public void create() {
 		inactivate();		
 	}
 	
+	@Override
 	public void run(long period) {
 		run(period, false);
 	}	
 
+	@Override
 	public void runOnce(long period) {
 		run(period, true);
 	}
@@ -112,19 +116,21 @@ public class SingleThreadedTimer implements Timable {
   	startTime = System.currentTimeMillis();
 	}
 
+	@Override
 	public void stop() {
 		inactivate();
+	}
+	
+	@Override
+	public boolean isActive() {
+		return active;
 	}
 	
 	// others
 	
 	public void inactivate() {  	
   	active = false;
-  }
-	
-	public boolean isActive() {
-		return active;
-	}
+  }	
 	
 	public boolean isTrigggered() {
   	if(!active)

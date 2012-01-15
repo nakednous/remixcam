@@ -31,4 +31,5 @@ public interface Timable {
 	public void stop();
 	public void cancel();
 	public void create();
+	public boolean isActive();
 }
