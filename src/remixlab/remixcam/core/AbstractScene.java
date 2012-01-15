@@ -298,7 +298,7 @@ public abstract class AbstractScene implements Constants {
 	protected boolean avatarIsInteractiveAvatarFrame;
 	
   // T i m e r P o o l
-  public boolean prosceneTimers;//TODO add setter and getter
+  public boolean singleThreadedTaskableTimers;//TODO add setter and getter
 	protected ArrayList<AbstractTimerJob> timerPool;
 
 	// M o u s e G r a b b e r
@@ -364,8 +364,16 @@ public abstract class AbstractScene implements Constants {
 				unSetTimerFlag();
 				}
 			};
-		prosceneTimers = false;
-		registerInTimerPool(timerFx);
+		// TODO 
+	  // bug 1: registration of this timer vs singleThreadedTaskableTimers state
+		// has to do with calling abstract methods from here!
+	  // otherwise need to be set from here
+		// bug2: poor performance when doing: animation + camera kfi interpolation + drawing the cam path
+	  // but luckyly seems to be only for P3D
+		singleThreadedTaskableTimers = true;
+	  //singleThreadedTaskableTimers = false;
+		registerJob(timerFx);		
+		//singleThreadedTaskableTimers = true;
 		
 		//mouse grabber pool
 		msGrabberPool = new ArrayList<DeviceGrabbable>();
@@ -933,7 +941,7 @@ public abstract class AbstractScene implements Constants {
 	protected abstract void displayVisualHints();
 	
 	protected void handleTimers() {		
-		if(prosceneTimers)
+		if(singleThreadedTaskableTimers)
 			for ( AbstractTimerJob tJob : timerPool )
 				if (tJob.timer() != null)
 					((SingleThreadedTaskableTimer)tJob.timer()).execute();
@@ -1606,10 +1614,16 @@ public abstract class AbstractScene implements Constants {
 			timerPool.remove( ((SingleThreadedTaskableTimer) t).timerJob() );
 	}
 	
-	public abstract void registerInTimerPool(AbstractTimerJob job);
+	public abstract void registerJob(AbstractTimerJob job);
+	
+	// only jobs belonging to SingleThreadedTaskableTimer
+	public void registerJobInTimerPool(AbstractTimerJob job) {					
+			job.setTimer(new SingleThreadedTaskableTimer(this, job));
+			timerPool.add(job);
+	}	
 	
 	public void unregisterFromTimerPool(AbstractTimerJob job) {
-		if (prosceneTimers) {			
+		if (singleThreadedTaskableTimers) {			
 			timerPool.remove(job);
 		}
 	}	

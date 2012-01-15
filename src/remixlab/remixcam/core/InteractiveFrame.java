@@ -182,7 +182,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 				spin();
 			}
 		};	
-		scene.registerInTimerPool(spinningTimerJob);
+		scene.registerJob(spinningTimerJob);
 		
 		// delay = 10;
 	}
@@ -225,7 +225,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 				spin();
 			}
 		};		
-		scene.registerInTimerPool(spinningTimerJob);
+		scene.registerJob(spinningTimerJob);
 	}
   
 	/**
@@ -284,7 +284,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 				spin();
 			}
 		};		
-		scene.registerInTimerPool(spinningTimerJob);
+		scene.registerJob(spinningTimerJob);
 	}
 
 	/**
