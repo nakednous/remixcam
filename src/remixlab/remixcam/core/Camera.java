@@ -437,6 +437,7 @@ public class Camera implements Constants, Copyable {
 		
 		this.viewMat = new Matrix3D(oCam.viewMat);
 		this.projectionMat = new Matrix3D(oCam.projectionMat);
+		this.projectionViewMat = new Matrix3D(oCam.projectionViewMat);
 	}
 	
 	/**
