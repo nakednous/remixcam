@@ -253,7 +253,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * 
 	 * @see remixlab.remixcam.core.Camera#addKeyFrameToPath(int)
 	 */
-	protected InteractiveFrame(AbstractScene scn, InteractiveCameraFrame iFrame) {
+	public InteractiveFrame(AbstractScene scn, InteractiveCameraFrame iFrame) {
 		super(iFrame.translation(), iFrame.rotation());
 		scene = scn;
 		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;

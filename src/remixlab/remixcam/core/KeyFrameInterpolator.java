@@ -696,6 +696,26 @@ public class KeyFrameInterpolator implements Copyable {
 		currentFrmValid = false;
 		resetInterpolation();
 	}
+	
+	/**
+	 * Remove KeyFrame according to {@code index} in the list and {@link #stopInterpolation()}
+	 * if {@link #interpolationIsStarted()}. If {@code index < 0 || index >= keyFr.size()}
+	 * the call is silently ignored. 
+	 */
+	public void removeKeyFrame(int index) {
+		if (index < 0 || index >= keyFr.size())
+			return;
+		valuesAreValid = false;
+		pathIsValid = false;
+		currentFrmValid = false;
+		if( interpolationIsStarted() )
+			stopInterpolation();
+		KeyFrame kf = keyFr.remove(index);
+		if (kf.frm  instanceof InteractiveFrame)
+			if (((InteractiveFrame) kf.frm).isInMouseGrabberPool())
+				((InteractiveFrame) kf.frm).removeFromMouseGrabberPool();
+		setInterpolationTime(firstTime());		
+	}
 
 	/**
 	 * Removes all keyFrames from the path. Calls
