@@ -298,6 +298,8 @@ public abstract class AbstractScene implements Constants {
 	protected boolean avatarIsInteractiveAvatarFrame;
 	
   // T i m e r P o o l
+  //T I M E R S
+  protected boolean singleThreadedTaskableTimers;
 	protected ArrayList<AbstractTimerJob> timerPool;
 
 	// M o u s e G r a b b e r
@@ -356,6 +358,9 @@ public abstract class AbstractScene implements Constants {
 		frameRate = 10;
 		frameRateLastNanos = 0;
 	  // 1 ->
+	  //TODO testing
+		//To define the timers to be used pass the flag in the constructor?
+		singleThreadedTaskableTimers = true;
 		//drawing timer pool
 		timerPool = new ArrayList<AbstractTimerJob>();
 		timerFx = new AbstractTimerJob() {
@@ -803,7 +808,8 @@ public abstract class AbstractScene implements Constants {
 		proscenium();
 			
 		// 1. timers
-		handleTimers();
+		if (timersAreSingleThreaded())
+			handleTimers();
 		
 		// 2. Animation
 		if( animationIsStarted() )
@@ -939,7 +945,8 @@ public abstract class AbstractScene implements Constants {
 	protected void handleTimers() {
 		for ( AbstractTimerJob tJob : timerPool )
 			if (tJob.timer() != null)
-				((SingleThreadedTaskableTimer)tJob.timer()).execute();
+				if (tJob.timer() instanceof SingleThreadedTaskableTimer)
+					((SingleThreadedTaskableTimer)tJob.timer()).execute();
 	}	
 	
   //1. Scene overloaded
@@ -1413,6 +1420,10 @@ public abstract class AbstractScene implements Constants {
 	
 	// 1. Associated objects
 	
+	public boolean timersAreSingleThreaded() {
+		return singleThreadedTaskableTimers;
+	}
+	
 	/**
 	 * Returns the associated Camera, never {@code null}.
 	 */
@@ -1608,17 +1619,17 @@ public abstract class AbstractScene implements Constants {
 			timerPool.remove( t.timerJob() );
 	}
 	
+  //only jobs belonging to SingleThreadedTaskableTimer
 	public void registerJob(AbstractTimerJob job) {
+		job.setTimer(new SingleThreadedTaskableTimer(this, job));
 		registerJobInTimerPool(job);
 	}
 	
 	public boolean isJobRegistered(AbstractTimerJob job) {
 		return timerPool.contains(job);
-	}
+	}	
 	
-	// only jobs belonging to SingleThreadedTaskableTimer
-	public void registerJobInTimerPool(AbstractTimerJob job) {
-		job.setTimer(new SingleThreadedTaskableTimer(this, job));
+	public void registerJobInTimerPool(AbstractTimerJob job) {		
 		timerPool.add(job);
 	}	
 	
