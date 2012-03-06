@@ -27,9 +27,13 @@ package remixlab.remixcam.util;
 
 public interface Timable { 
 	public void run(long period);
-	public void runOnce(long period);
+	public void run();
 	public void stop();
 	public void cancel();
 	public void create();
 	public boolean isActive();
+	public long period();
+	public void setPeriod(long period);
+	public boolean isSingleShot();
+	public void setSingleShot(boolean singleShot);
 }

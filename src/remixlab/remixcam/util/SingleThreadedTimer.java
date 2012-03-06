@@ -41,7 +41,7 @@ public class SingleThreadedTimer implements Timable {
 		int result = 1;
 		result = prime * result + (active ? 1231 : 1237);
 		result = prime * result + (int) (counter ^ (counter >>> 32));
-		result = prime * result + (int) (period ^ (period >>> 32));
+		result = prime * result + (int) (prd ^ (prd >>> 32));
 		result = prime * result + (runOnlyOnce ? 1231 : 1237);
 		result = prime * result + (int) (startTime ^ (startTime >>> 32));
 		return result;
@@ -60,7 +60,7 @@ public class SingleThreadedTimer implements Timable {
 			return false;
 		if (counter != other.counter)
 			return false;
-		if (period != other.period)
+		if (prd != other.prd)
 			return false;
 		if (runOnlyOnce != other.runOnlyOnce)
 			return false;
@@ -73,11 +73,16 @@ public class SingleThreadedTimer implements Timable {
 	protected boolean active;
 	protected boolean runOnlyOnce;
 	private long counter;
-	private long period;
+	private long prd;
 	private long startTime;	
 	
 	public SingleThreadedTimer(AbstractScene scn) {
+		this(scn, false);
+	}
+	
+	public SingleThreadedTimer(AbstractScene scn, boolean singleShot) {
 		scene = scn;
+		runOnlyOnce = singleShot;
 		create();
 	}
 	
@@ -93,26 +98,18 @@ public class SingleThreadedTimer implements Timable {
 	
 	@Override
 	public void run(long period) {
-		run(period, false);
+		prd = period;
+		run();
 	}	
-
-	@Override
-	public void runOnce(long period) {
-		run(period, true);
-	}
 	
-	protected void run(long p, boolean rOnce) {
-		if(p <= 0)
+	@Override
+	public void run() {
+		if(prd <= 0)
   		return;
   	
-  	inactivate(); 	
-  	
-  	period = p;
-  	counter = 1;
-  	
-  	active = true;
-  	runOnlyOnce = rOnce;
-  	
+  	inactivate();  	
+  	counter = 1;  	
+  	active = true;  	
   	startTime = System.currentTimeMillis();
 	}
 
@@ -128,7 +125,11 @@ public class SingleThreadedTimer implements Timable {
 	
 	// others
 	
-	public void inactivate() {  	
+	public void inactivate() {
+		/**
+		prd = 0;
+		runOnlyOnce = false;
+		*/
   	active = false;
   }	
 	
@@ -139,7 +140,7 @@ public class SingleThreadedTimer implements Timable {
   	long elapsedTime = System.currentTimeMillis() - startTime;  	
   	
   	float timePerFrame = (1 / scene.frameRate()) * 1000;  	
-  	long threshold = counter * period;  	
+  	long threshold = counter * prd;  	
   	
   	boolean result = false;
   	if( threshold >= elapsedTime) {
@@ -156,14 +157,34 @@ public class SingleThreadedTimer implements Timable {
   	
   	if(result) {
   		counter++;
-  		if( period < timePerFrame )
+  		if( prd < timePerFrame )
   		System.out.println("Your current frame rate (~" + scene.frameRate() + " fps) is not high enough " +
-          "to run the timer and reach the specified " + period + " ms period, " + timePerFrame
+          "to run the timer and reach the specified " + prd + " ms period, " + timePerFrame
           + " ms period will be used instead. If you want to sustain a lower timer " +
-          "period, define a higher frame rate (minimum of " + 1000f/period + " fps) " +
+          "period, define a higher frame rate (minimum of " + 1000f/prd + " fps) " +
           "before running the timer (you may need to simplify your drawing to achieve it.)");
   	}
   	
   	return result;  	
+	}
+
+	@Override
+	public long period() {
+		return prd;
+	}
+	
+	@Override
+	public void setPeriod(long period) {
+		prd = period;		
+	}
+	
+	@Override
+	public boolean isSingleShot() {
+		return runOnlyOnce;
+	}	
+
+	@Override
+	public void setSingleShot(boolean singleShot) {
+		runOnlyOnce = singleShot;		
 	}
 }

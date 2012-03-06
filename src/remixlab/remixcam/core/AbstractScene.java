@@ -1611,31 +1611,26 @@ public abstract class AbstractScene implements Constants {
 	public void toggleMouseTracking() {
 		setMouseTracking(!hasMouseTracking());
 	}
+	  
+	public void registerJob(AbstractTimerJob job) {
+		job.setTimer(new SingleThreadedTaskableTimer(this, job));
+		timerPool.add(job);
+	}
 	
 	// TODO need this methods here?
   // need it here (or it should just go into proscene.js)? need to be overloaded?
 	// it was previously set in proscene.Scene
-	public void unregisterFromTimerPool(SingleThreadedTaskableTimer t) {		
+	public void unregisterJob(SingleThreadedTaskableTimer t) {		
 			timerPool.remove( t.timerJob() );
 	}
 	
-  //only jobs belonging to SingleThreadedTaskableTimer
-	public void registerJob(AbstractTimerJob job) {
-		job.setTimer(new SingleThreadedTaskableTimer(this, job));
-		registerJobInTimerPool(job);
-	}
+	public void unregisterJob(AbstractTimerJob job) {
+		timerPool.remove(job);		
+	}  
 	
 	public boolean isJobRegistered(AbstractTimerJob job) {
 		return timerPool.contains(job);
-	}	
-	
-	public void registerJobInTimerPool(AbstractTimerJob job) {		
-		timerPool.add(job);
-	}	
-	
-	public void unregisterFromTimerPool(AbstractTimerJob job) {
-		timerPool.remove(job);		
-	}	
+	}		
 	
   //2. Associated objects
 	

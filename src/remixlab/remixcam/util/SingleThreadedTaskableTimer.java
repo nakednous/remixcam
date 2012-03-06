@@ -17,7 +17,7 @@ public class SingleThreadedTaskableTimer extends SingleThreadedTimer {
 	@Override
 	public void cancel() {
 		super.cancel();
-		scene.unregisterFromTimerPool(this);
+		scene.unregisterJob(this);
 	}
 	
 	public boolean execute() {

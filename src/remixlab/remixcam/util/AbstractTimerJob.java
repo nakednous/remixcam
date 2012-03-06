@@ -26,7 +26,7 @@
 package remixlab.remixcam.util;
 
 public abstract class AbstractTimerJob implements Taskable {
-	protected Timable tmr;	
+	protected Timable tmr;
 	
 	public Timable timer() {
 		return tmr;
@@ -40,13 +40,15 @@ public abstract class AbstractTimerJob implements Taskable {
 	
 	public void run(long period) {
 		if(timer()!=null) {
+			timer().setSingleShot(false);
 			timer().run(period);			
 		}
 	}
 	
 	public void runOnce(long period) {
 		if(timer()!=null) {
-			timer().runOnce(period);			
+			timer().setSingleShot(true);
+			timer().run(period);			
 		} 
 	}
 	
@@ -74,4 +76,22 @@ public abstract class AbstractTimerJob implements Taskable {
 		}
 		return false;
 	}
+		
+	public long period() {
+		return timer().period();
+	}
+	
+	/**
+	public void setPeriod(long period) {
+		timer().setPeriod(period);
+	}
+	
+	public boolean isSingleShot() {
+		return timer().isSingleShot();
+	}
+	
+	public void setSingleShot(boolean singleShot) {
+		timer().setSingleShot(singleShot);
+	}
+	*/
 }

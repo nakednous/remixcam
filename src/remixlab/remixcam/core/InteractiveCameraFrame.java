@@ -352,7 +352,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 		// Starts (or prolungates) the timer.
 		if( flyTimerJob.timer() != null )
-			flyTimerJob.timer().runOnce(finalDrawAfterWheelEventDelay);
+			flyTimerJob.runOnce(finalDrawAfterWheelEventDelay);
 
 		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
 	}
