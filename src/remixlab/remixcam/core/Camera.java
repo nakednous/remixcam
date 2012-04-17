@@ -2797,9 +2797,12 @@ public class Camera implements Constants, Copyable {
 		} else
 			project(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
 
-  	//lef-handed coordinate system correction
+		/**
+		// TODO needs further testing
+  	//left-handed coordinate system correction
 		if( scene.isLeftHanded() )
 			xyz[1] = screenHeight() - xyz[1];
+		*/
 
 		return new Vector3D((float) xyz[0], (float) xyz[1], (float) xyz[2]);
 	}
@@ -2854,10 +2857,15 @@ public class Camera implements Constants, Copyable {
 		float xyz[] = new float[3];
 		viewport = getViewport();
 		
+		/**
+		// TODO needs further testing
 	  if( scene.isRightHanded() )
 	  	unproject(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
 	  else
-	  	unproject(src.vec[0], (screenHeight() - src.vec[1]), src.vec[2], viewMat,	projectionMat, viewport, xyz);		
+	  	unproject(src.vec[0], (screenHeight() - src.vec[1]), src.vec[2], viewMat,	projectionMat, viewport, xyz);
+	  */
+		
+		unproject(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
 		
 		if (frame != null)
 			return frame.coordinatesOf(new Vector3D((float) xyz[0], (float) xyz[1],
