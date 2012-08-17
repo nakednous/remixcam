@@ -288,6 +288,8 @@ public abstract class AbstractScene implements Constants {
     // */
 	}	
 	
+	private boolean dottedGrid;
+	
   //O B J E C T S
 	protected Renderable renderer;
 	protected Camera cam;
@@ -382,7 +384,16 @@ public abstract class AbstractScene implements Constants {
 		devices = new ArrayList<AbstractDevice>();
 		// <- 1
 		
+		setGridDotted(true);
 		setRightHanded();
+	}
+	
+	public boolean gridIsDotted() {
+		return dottedGrid;
+	}
+	
+	public void setGridDotted(boolean dotted) {
+		dottedGrid = dotted;
 	}
 	
 	// E V E N T   HA N D L I N G
@@ -2197,7 +2208,7 @@ public abstract class AbstractScene implements Constants {
 	public void drawGrid() {
 		drawGrid(100, 10);
 	}	
-	
+		
 	/**
 	 * Convenience function that simply calls {@code drawGrid(size, 10)}
 	 * 
@@ -2205,17 +2216,16 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void drawGrid(float size) {
 		drawGrid(size, 10);
-	}
+	}	
 	
 	/**
-	 * Convenience function that simply calls {@code drawGrid(100,
-	 * nbSubdivisions)}
+	 * Convenience function that simply calls {@code drawGrid(100, nbSubdivisions)}
 	 * 
 	 * @see #drawGrid(float, int)
 	 */
 	public void drawGrid(int nbSubdivisions) {
 		drawGrid(100, nbSubdivisions);
-	}
+	}	
 	
 	/**
 	 * Draws a grid in the XY plane, centered on (0,0,0) (defined in the current

@@ -139,8 +139,7 @@ public class Camera implements Constants, Copyable {
 		.append(zClippingCoef,other.zClippingCoef)
 		.append(zNearCoef,other.zNearCoef)
 		.isEquals();
-	}
-	
+	}	
 	
 	/**
 	 * Internal class that represents/holds a cone of normals.
@@ -2254,7 +2253,7 @@ public class Camera implements Constants, Copyable {
 			break;
 		}
 		}
-	}
+	}	
 
 	/**
 	 * Fills the projection matrix with the {@code proj} matrix values.
