@@ -2237,8 +2237,7 @@ public class Camera implements Constants, Copyable {
 			projectionMat.mat[11] = -1.0f;
 			projectionMat.mat[14] = 2.0f * ZNear * ZFar / (ZNear - ZFar);
 			projectionMat.mat[15] = 0.0f;
-			// same as gluPerspective( 180.0*fieldOfView()/M_PI, aspectRatio(),
-			// zNear(), zFar() );
+			// same as gluPerspective( 180.0*fieldOfView()/M_PI, aspectRatio(), zNear(), zFar() );
 			break;
 		}
 		case ORTHOGRAPHIC: {
@@ -2254,6 +2253,109 @@ public class Camera implements Constants, Copyable {
 		}
 		}
 	}	
+	
+  //TODO needed for screen drawing
+	public void ortho(float left, float right, float bottom, float top,   float near, float far) {
+		float x = +2.0f / (right - left);
+		float y = +2.0f / (top - bottom);
+		float z = -2.0f / (far - near);
+		
+		float tx = -(right + left) / (right - left);
+		float ty = -(top + bottom) / (top - bottom);
+		float tz = -(far + near)   / (far - near);
+				
+		projectionMat.set(x,  0, 0, tx,
+                      0,  y, 0, ty,
+                      0,  0, z, tz,
+                      0,  0, 0,  1);
+	}
+	
+	public void perspective(float fov, float aspect, float zNear, float zFar) {
+    float ymax = zNear * (float) Math.tan(fov / 2);
+    float ymin = -ymax;
+    float xmin = ymin * aspect;
+    float xmax = ymax * aspect;
+    frustum(xmin, xmax, ymin, ymax, zNear, zFar);
+  }
+	
+	public void frustum(float left, float right, float bottom, float top,  float znear, float zfar) {
+		float n2 = 2 * znear;
+		float w = right - left;
+		float h = top - bottom;
+		float d = zfar - znear;
+			  
+		projectionMat.set(n2 / w,       0,  (right + left) / w,                0,
+                           0,  n2 / h,  (top + bottom) / h,                0,
+                           0,       0, -(zfar + znear) / d, -(n2 * zfar) / d,
+                           0,       0,                  -1,                0);
+	}
+	
+	//TODO needed for screen drawing
+	/**
+	public void camera() {
+    camera(cameraX, cameraY, cameraZ, cameraX, cameraY, 0, 0, 1, 0);
+  }
+	
+	public void camera(float eyeX, float eyeY, float eyeZ,
+			               float centerX, float centerY, float centerZ,
+                     float upX, float upY, float upZ) {
+		
+		// Calculating Z vector
+		float z0 = eyeX - centerX;
+		float z1 = eyeY - centerY;
+		float z2 = eyeZ - centerZ;
+		float mag = (float)Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+		if (nonZero(mag)) {
+			z0 /= mag;
+			z1 /= mag;
+			z2 /= mag;
+		}
+		cameraEyeX = eyeX;
+		cameraEyeY = eyeY;
+		cameraEyeZ = eyeZ;
+		
+		// Calculating Y vector
+		float y0 = upX;
+		float y1 = upY;
+		float y2 = upZ;
+		
+		// Computing X vector as Y cross Z
+		float x0 =  y1 * z2 - y2 * z1;
+		float x1 = -y0 * z2 + y2 * z0;
+		float x2 =  y0 * z1 - y1 * z0;
+		
+		// Recompute Y = Z cross X
+		y0 =  z1 * x2 - z2 * x1;
+		y1 = -z0 * x2 + z2 * x0;
+		y2 =  z0 * x1 - z1 * x0;
+		
+		// Cross product gives area of parallelogram, which is < 1.0 for
+		// non-perpendicular unit-length vectors; so normalize x, y here:
+		mag = (float) Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
+		if (nonZero(mag)) {
+			x0 /= mag;
+			x1 /= mag;
+			x2 /= mag;
+		}
+		
+		mag = (float) Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
+		if (nonZero(mag)) {
+			y0 /= mag;
+			y1 /= mag;
+			y2 /= mag;
+		}
+		
+		modelview.set(x0, x1, x2, 0,
+				          y0, y1, y2, 0,
+				          z0, z1, z2, 0,
+				          0,  0,  0, 1);
+		
+		float tx = -eyeX;
+		float ty = -eyeY;
+		float tz = -eyeZ;
+		modelview.translate(tx, ty, tz);
+	}
+	*/
 
 	/**
 	 * Fills the projection matrix with the {@code proj} matrix values.
@@ -2532,10 +2634,8 @@ public class Camera implements Constants, Copyable {
 	 * @see #loadViewMatrixStereo(boolean)
 	 */
 	public void loadProjectionMatrix(boolean reset) {
-	  scene.matrixMode(PROJECTION);
-
 	  if (reset)
-	  	scene.loadIdentity();
+	  	scene.resetProjection();
 
 	  computeProjectionMatrix();
 	  scene.multiplyMatrix(projectionMat);
@@ -2578,8 +2678,7 @@ public class Camera implements Constants, Copyable {
 
 	 \attention If you use several OpenGL contexts and bypass the Qt main refresh loop, you should call
 	 QGLWidget::makeCurrent() before this method in order to activate the right OpenGL context. */
-	public void loadViewMatrix(boolean reset) {
-	  scene.matrixMode(MODELVIEW);
+	public void loadViewMatrix(boolean reset) {	  
 	  computeViewMatrix();
 	  if (reset)
 	    scene.loadMatrix(viewMat);
@@ -2589,9 +2688,8 @@ public class Camera implements Constants, Copyable {
 	
   //TODO find a better name for this:
 	public void resetViewMatrix() {
-		computeViewMatrix();
-	  scene.matrixMode(MODELVIEW);	  
-	  scene.loadIdentity();	  
+		computeViewMatrix();	  	  
+	  scene.resetMatrix();	  
 	}
 	
 	/*! Same as loadProjectionMatrix() but for a stereo setup.
@@ -2623,8 +2721,7 @@ public class Camera implements Constants, Copyable {
 	  float left, right, bottom, top;
 	  float screenHalfWidth, halfWidth, side, shift, delta;
 
-	  scene.matrixMode(PROJECTION);
-	  scene.loadIdentity();
+	  scene.resetProjection();
 
 	  switch (type())  {
 	    case PERSPECTIVE:
@@ -2673,8 +2770,6 @@ public class Camera implements Constants, Copyable {
 
 	 \attention glMatrixMode is set to \c GL_MODELVIEW. */
 	public void loadViewMatrixStereo(boolean leftBuffer) {	  
-	  scene.matrixMode(MODELVIEW);
-
 	  float halfWidth = focusDistance() * (float) Math.tan(horizontalFieldOfView() / 2.0f);
 	  float shift     = halfWidth * IODistance() / physicalScreenWidth(); // * current window width / full screen width
 

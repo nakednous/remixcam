@@ -26,11 +26,6 @@
 package remixlab.remixcam.core;
 
 public interface Constants {	
-	
- //types of transformation matrices  
- static final int PROJECTION = 0;
- static final int MODELVIEW  = 1;
-	
 	/**
    * PI is a mathematical constant with the value 3.14159265358979323846.
    * It is the ratio of the circumference of a circle to its diameter.

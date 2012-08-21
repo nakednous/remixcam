@@ -903,37 +903,26 @@ public abstract class AbstractScene implements Constants {
 	// Requires allowing returning references as well as copies of the matrices,
 	// but it seems overkill. 
 	public Matrix3D getModelViewMatrix() {		
-		int mode = getMatrixMode();
 		Matrix3D modelview;
-  	matrixMode(MODELVIEW);
   	modelview = getMatrix();
   	modelview.preApply(getViewMatrix());
-  	matrixMode(mode);
   	return modelview;
 	}
 	
-	public Matrix3D getViewMatrix() {		
-		int mode = getMatrixMode();
-		Matrix3D view = camera().getViewMatrix();
-  	matrixMode(mode);
+	public Matrix3D getViewMatrix() {
+		Matrix3D view = camera().getViewMatrix();  	
   	return view;
 	}
 	
-	public Matrix3D getModelMatrix() {
-		int mode = getMatrixMode();
+	public Matrix3D getModelMatrix() {		
 		Matrix3D model;
-  	matrixMode(MODELVIEW);
-  	model = getMatrix();
-  	matrixMode(mode);
+  	model = getMatrix();  	
   	return model;
 	}
 	
-	public Matrix3D getProjectionMatrix() {
-		int mode = getMatrixMode();
-		Matrix3D projection;
-  	matrixMode(PROJECTION);
-  	projection = getMatrix();
-  	matrixMode(mode);
+	public Matrix3D getProjectionMatrix() {		
+		Matrix3D projection;  	
+  	projection = getProjection();
   	return projection;
 	}
 	
@@ -941,13 +930,10 @@ public abstract class AbstractScene implements Constants {
 	 * This method restores the matrix mode.
 	 */
 	public Matrix3D getModelViewProjectionMatrix() {		
-		int mode = getMatrixMode();
-		Matrix3D PVM;
-  	matrixMode(MODELVIEW);
+		Matrix3D PVM;  	
   	PVM = getMatrix();//model  	
     //PVM.preApply(camera().projectionViewMat);
-  	PVM.preApply(camera().getProjectionViewMatrix());
-  	matrixMode(mode);
+  	PVM.preApply(camera().getProjectionViewMatrix());  	
   	return PVM;
 	}
 	
@@ -1169,20 +1155,35 @@ public abstract class AbstractScene implements Constants {
 		devices.clear();
 	}
 	
-	// MATRIX STACK WRAPPERS	
+	// MATRIX STACK WRAPPERS
+	
 	/**
-	 * Push a copy of the current transformation matrix onto the stack.
+	 * Push a copy of the modelview matrix onto the stack.
    */
 	public void pushMatrix() {
 		renderer.pushMatrix();
 	}
 	
 	/**
-	 * Replace the current transformation matrix with the top of the stack.
+	 * Replace the current modelview matrix with the top of the stack.
 	 */
 	public void popMatrix() {
 		renderer.popMatrix();
-	}	 
+	}
+	
+	/**
+	 * Push a copy of the projection matrix onto the stack.
+   */
+	public void pushProjection() {
+		renderer.pushProjection();
+	}
+	
+	/**
+	 * Replace the current projection matrix with the top of the stack.
+	 */
+	public void popProjection() {
+		renderer.popProjection();
+	}
 	
   /**
    * Translate in X and Y.
@@ -1268,37 +1269,62 @@ public abstract class AbstractScene implements Constants {
   	renderer.scale(x, y, z);
   }  
   
-  public void loadIdentity() {
-  	renderer.loadIdentity();
-  }
-
   /**
-   * Set the current transformation matrix to identity.
+   * Set the current modelview matrix to identity.
    */
   public void resetMatrix() {
   	renderer.resetMatrix();
   }
   
+  /**
+   * Set the current projection matrix to identity.
+   */
+  public void resetProjection() {
+  	renderer.resetProjection();
+  }  
+  
   public void loadMatrix(Matrix3D source) {
   	renderer.loadMatrix(source);
+  }
+  
+  public void loadProjection(Matrix3D source) {
+  	renderer.loadProjection(source);
   }
   
   public void multiplyMatrix(Matrix3D source) {
   	renderer.multiplyMatrix(source);
   }
   
+  public void multiplyProjection(Matrix3D source) {
+  	renderer.multiplyProjection(source);
+  }
+  
   public void applyMatrix(Matrix3D source) {    
     renderer.applyMatrix(source);
   }
+  
+  public void applyProjection(Matrix3D source) {    
+    renderer.applyProjection(source);
+  }
 
   /**
-   * Apply a 4x4 transformation matrix.
+   * Apply a 4x4 modelview matrix.
    */
   public void applyMatrixRowMajorOrder(float n00, float n01, float n02, float n03,
                                        float n10, float n11, float n12, float n13,
                                        float n20, float n21, float n22, float n23,
                                        float n30, float n31, float n32, float n33) {    
   	renderer.applyMatrixRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
+  }
+  
+  /**
+   * Apply a 4x4 projection matrix.
+   */
+  public void applyProjectionRowMajorOrder(float n00, float n01, float n02, float n03,
+                                       float n10, float n11, float n12, float n13,
+                                       float n20, float n21, float n22, float n23,
+                                       float n30, float n31, float n32, float n33) {    
+  	renderer.applyProjectionRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
   }
   
   public void frustum(float left, float right, float bottom, float top, float znear, float zfar) {
@@ -1308,35 +1334,53 @@ public abstract class AbstractScene implements Constants {
   public Matrix3D getMatrix() {
     return renderer.getMatrix();
   }
+  
+  public Matrix3D getProjection() {
+    return renderer.getProjection();
+  }
 
   /**
-   * Copy the current transformation matrix into the specified target.
+   * Copy the current modelview matrix into the specified target.
    * Pass in null to create a new matrix.
    */
   public Matrix3D getMatrix(Matrix3D target) {
     return renderer.getMatrix(target);
   }
+  
+  /**
+   * Copy the current projection matrix into the specified target.
+   * Pass in null to create a new matrix.
+   */
+  public Matrix3D getProjection(Matrix3D target) {
+    return renderer.getProjection(target);
+  }
 
   /**
-   * Set the current transformation matrix to the contents of another.
+   * Set the current modelview matrix to the contents of another.
    */
   public void setMatrix(Matrix3D source) {
   	renderer.setMatrix(source);
   }
+  
+  /**
+   * Set the current projection matrix to the contents of another.
+   */
+  public void setProjection(Matrix3D source) {
+  	renderer.setProjection(source);
+  }
 
   /**
-   * Print the current model (or "transformation") matrix.
+   * Print the current modelview matrix.
    */
   public void printMatrix() {
   	renderer.printMatrix();
   }
   
-  public void matrixMode( int mode  ) {
-  	renderer.matrixMode(mode);
-  }
-  
-  public int getMatrixMode() {
-  	return renderer.getMatrixMode();
+  /**
+   * Print the current projection matrix.
+   */
+  public void printProjection() {
+  	renderer.printProjection();
   }
 	
 	// end matrix stack wrapper
@@ -2385,4 +2429,9 @@ public abstract class AbstractScene implements Constants {
 	public abstract void drawShooterTarget(Vector3D center, float length);
 		
 	public abstract void drawPath(List<SimpleFrame> path, int mask, int nbFrames, int nbSteps, float scale);
+	
+  //dimensions
+  public abstract int getWidth();
+  
+  public abstract int getHeight();
 }
