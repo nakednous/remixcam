@@ -39,42 +39,48 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public enum KeyboardAction {
 		/** Toggles the display of the world axis. */
-		DRAW_AXIS("Toggles the display of the world axis"),
+		DRAW_AXIS("Toggles the display of the world axis", true),
 		/** Toggles the display of the XY grid. */
-		DRAW_GRID("Toggles the display of the XY grid"),
+		DRAW_GRID("Toggles the display of the XY grid", true),
 		/** Cycles to the registered camera profiles. */
-		CAMERA_PROFILE("Cycles to the registered camera profiles"),
+		CAMERA_PROFILE("Cycles to the registered camera profiles", true),
 		/** Toggles camera type (orthographic or perspective. */
-		CAMERA_TYPE("Toggles camera type (orthographic or perspective)"),
+		CAMERA_TYPE("Toggles camera type (orthographic or perspective)", false),
 		/** Toggles camera kind (proscene or standard). */
-		CAMERA_KIND("Toggles camera kind (proscene or standard)"),
+		CAMERA_KIND("Toggles camera kind (proscene or standard)", false),
 		/** Toggles animation. */
-		ANIMATION("Toggles animation"),
+		ANIMATION("Toggles animation", true),
 		/** Set the arcball reference point from the pixel under the mouse. */
-		ARP_FROM_PIXEL("Set the arcball reference point from the pixel under the mouse"),
+		ARP_FROM_PIXEL("Set the arcball reference point from the pixel under the mouse", true),
 		/** Reset the arcball reference point to the 3d frame world origin. */
-		RESET_ARP("Reset the arcball reference point to the 3d frame world origin"),
+		RESET_ARP("Reset the arcball reference point to the 3d frame world origin", true),
 		/** Displays the global help. */
-		GLOBAL_HELP("Displays the global help"),
+		GLOBAL_HELP("Displays the global help", true),
 		/** Displays the current camera profile help. */
-		CURRENT_CAMERA_PROFILE_HELP("Displays the current camera profile help"),
+		CURRENT_CAMERA_PROFILE_HELP("Displays the current camera profile help", true),
 		/** Toggles the key frame camera paths (if any) for edition. */
-		EDIT_CAMERA_PATH("Toggles the key frame camera paths (if any) for edition"),
+		EDIT_CAMERA_PATH("Toggles the key frame camera paths (if any) for edition", true),
 		/** Toggle interactivity between camera and interactive frame (if any). */
-		FOCUS_INTERACTIVE_FRAME("Toggle interactivity between camera and interactive frame (if any)"),
+		FOCUS_INTERACTIVE_FRAME("Toggle interactivity between camera and interactive frame (if any)", true),
 		/** Toggle interactive frame selection region drawing. */
-		DRAW_FRAME_SELECTION_HINT("Toggle interactive frame selection region drawing"),
+		DRAW_FRAME_SELECTION_HINT("Toggle interactive frame selection region drawing", true),
 		/** Toggles on and off frame constraints (if any). */
-		CONSTRAIN_FRAME("Toggles on and off frame constraints (if any)");
+		CONSTRAIN_FRAME("Toggles on and off frame constraints (if any)", true);
 		
 		private String description;
+		private boolean twoD;
 		
-		KeyboardAction(String description) {
+		KeyboardAction(String description, boolean td) {
        this.description = description;
+       this.twoD = td;
     }
     
     public String description() {
       return description;
+    }
+    
+    public boolean isTwoD() {
+    	return twoD;
     }
 	}
 
@@ -85,52 +91,58 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public enum CameraKeyboardAction {
 		/** Interpolate the camera to zoom on pixel. */
-		INTERPOLATE_TO_ZOOM_ON_PIXEL("Interpolate the camera to zoom on pixel"),
+		INTERPOLATE_TO_ZOOM_ON_PIXEL("Interpolate the camera to zoom on pixel", true),
 		/** Interpolate the camera to fit the whole scene. */
-		INTERPOLATE_TO_FIT_SCENE("Interpolate the camera to fit the whole scene"),
+		INTERPOLATE_TO_FIT_SCENE("Interpolate the camera to fit the whole scene", true),
 		/** Show the whole scene. */
-		SHOW_ALL("Show the whole scene"),
+		SHOW_ALL("Show the whole scene", true),
 		/** Move camera to the left. */
-		MOVE_CAMERA_LEFT("Move camera to the left"),
+		MOVE_CAMERA_LEFT("Move camera to the left", true),
 		/** Move camera to the right. */
-		MOVE_CAMERA_RIGHT("Move camera to the right"),
+		MOVE_CAMERA_RIGHT("Move camera to the right", true),
 		/** Move camera up. */
-		MOVE_CAMERA_UP("Move camera up"),
+		MOVE_CAMERA_UP("Move camera up", true),
 		/** Move camera down. */
-		MOVE_CAMERA_DOWN("Move camera down"),
+		MOVE_CAMERA_DOWN("Move camera down", true),
 		/** Increase camera rotation sensitivity (only meaningful in arcball mode). */
-		INCREASE_ROTATION_SENSITIVITY("Increase camera rotation sensitivity (only meaningful in arcball mode)"),
+		INCREASE_ROTATION_SENSITIVITY("Increase camera rotation sensitivity (only meaningful in arcball mode)", true),
 		/** Decrease camera rotation sensitivity (only meaningful in arcball mode). */
-		DECREASE_ROTATION_SENSITIVITY("Decrease camera rotation sensitivity (only meaningful in arcball mode)"),
+		DECREASE_ROTATION_SENSITIVITY("Decrease camera rotation sensitivity (only meaningful in arcball mode)", true),
 		/** Increase camera fly speed (only meaningful in first-person mode). */
-		INCREASE_CAMERA_FLY_SPEED("Increase camera fly speed (only meaningful in first-person mode)"),
+		INCREASE_CAMERA_FLY_SPEED("Increase camera fly speed (only meaningful in first-person mode)", false),
 		/** Decrease camera fly speed (only meaningful in first-person mode). */
-		DECREASE_CAMERA_FLY_SPEED("Decrease camera fly speed (only meaningful in first-person mode)"),
+		DECREASE_CAMERA_FLY_SPEED("Decrease camera fly speed (only meaningful in first-person mode)", false),
 		/** Increase avatar fly speed (only meaningful in third-person mode). */
-		INCREASE_AVATAR_FLY_SPEED("Increase avatar fly speed (only meaningful in third-person mode)"),
+		INCREASE_AVATAR_FLY_SPEED("Increase avatar fly speed (only meaningful in third-person mode)", false),
 		/** Decrease avatar fly speed (only meaningful in third-person mode). */
-		DECREASE_AVATAR_FLY_SPEED("Decrease avatar fly speed (only meaningful in third-person mode)"),
+		DECREASE_AVATAR_FLY_SPEED("Decrease avatar fly speed (only meaningful in third-person mode)", false),
 		/** Increase camera azymuth respect to the avatar (only meaningful in third-person mode). */
-		INCREASE_AZYMUTH("Increase camera azymuth respect to the avatar (only meaningful in third-person mode)"),
+		INCREASE_AZYMUTH("Increase camera azymuth respect to the avatar (only meaningful in third-person mode)", false),
 		/** Decrease camera azymuth respect to the avatar (only meaningful in third-person mode). */
-		DECREASE_AZYMUTH("Decrease camera azymuth respect to the avatar (only meaningful in third-person mode)"),
+		DECREASE_AZYMUTH("Decrease camera azymuth respect to the avatar (only meaningful in third-person mode)", false),
 		/** Increase camera inclination respect to the avatar (only meaningful in third-person mode). */
-		INCREASE_INCLINATION("Increase camera inclination respect to the avatar (only meaningful in third-person mode)"),
+		INCREASE_INCLINATION("Increase camera inclination respect to the avatar (only meaningful in third-person mode)", false),
 		/** Decrease camera inclination respect to the avatar (only meaningful in third-person mode). */
-		DECREASE_INCLINATION("Decrease camera inclination respect to the avatar (only meaningful in third-person mode)"),
+		DECREASE_INCLINATION("Decrease camera inclination respect to the avatar (only meaningful in third-person mode)", false),
 		/** Increase camera tracking distance respect to the avatar (only meaningful in third-person mode). */
-		INCREASE_TRACKING_DISTANCE("Increase camera tracking distance respect to the avatar (only meaningful in third-person mode)"),
+		INCREASE_TRACKING_DISTANCE("Increase camera tracking distance respect to the avatar (only meaningful in third-person mode)", false),
 		/** Decrease camera tracking distance respect to the avatar (only meaningful in third-person mode). */
-		DECREASE_TRACKING_DISTANCE("Decrease camera tracking distance respect to the avatar (only meaningful in third-person mode)");
+		DECREASE_TRACKING_DISTANCE("Decrease camera tracking distance respect to the avatar (only meaningful in third-person mode)", false);
 		
 		private String description;
+		private boolean twoD;
 		
-		CameraKeyboardAction(String description) {
+		CameraKeyboardAction(String description, boolean td) {
        this.description = description;
+       this.twoD = td;
     }
 		
     public String description() {
         return description;
+    }
+    
+    public boolean isTwoD() {
+    	return twoD;
     }
 	}
 
@@ -141,34 +153,40 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public enum ClickAction {
 		/** No click action. */
-		NO_CLICK_ACTION("No click action"),
+		NO_CLICK_ACTION("No click action", true),
 		/** Zoom on pixel */
-		ZOOM_ON_PIXEL("Zoom on pixel"),
+		ZOOM_ON_PIXEL("Zoom on pixel", true),
 		/** Zoom to fit the scene */
-		ZOOM_TO_FIT("Zoom to fit the scene"),
+		ZOOM_TO_FIT("Zoom to fit the scene", true),
 		/** Set the arcball reference point from the pixel under the mouse */
-		ARP_FROM_PIXEL("Set the arcball reference point from the pixel under the mouse"),
+		ARP_FROM_PIXEL("Set the arcball reference point from the pixel under the mouse", true),
 		/** Reset the arcball reference point to the 3d frame world origin */
-		RESET_ARP("Reset the arcball reference point to the 3d frame world origin"),
+		RESET_ARP("Reset the arcball reference point to the 3d frame world origin", true),
 		/** Center frame */
-		CENTER_FRAME("Center frame"),
+		CENTER_FRAME("Center frame", true),
 		/** Center scene */
-		CENTER_SCENE("Center scene"),
+		CENTER_SCENE("Center scene", true),
 		/** Show the whole scene */
-		SHOW_ALL("Show the whole scene"),
+		SHOW_ALL("Show the whole scene", true),
 		/** Align interactive frame (if any) with world */
-		ALIGN_FRAME("Align interactive frame (if any) with world"),
+		ALIGN_FRAME("Align interactive frame (if any) with world", true),
 		/** Align camera with world */
-		ALIGN_CAMERA("Align camera with world");
+		ALIGN_CAMERA("Align camera with world", true);
 
 		private String description;
+		private boolean twoD;
 		
-		ClickAction(String description) {
+		ClickAction(String description, boolean td) {
        this.description = description;
+       this.twoD = td;
     }
 		
     public String description() {
         return description;
+    }
+    
+    public boolean isTwoD() {
+    	return twoD;
     }
 	}
 
@@ -179,38 +197,44 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public enum MouseAction {
 		/** No mouse action. */
-		NO_MOUSE_ACTION("No mouse action"),
+		NO_MOUSE_ACTION("No mouse action", true),
 		/** Rotate frame (camera or interactive frame. */
-		ROTATE("Rotate frame (camera or interactive frame)"),
+		ROTATE("Rotate frame (camera or interactive frame)", false),
 		/** Zoom. */
-		ZOOM("Zoom"),
+		ZOOM("Zoom", true),
 		/** Translate frame (camera or interactive frame). */
-		TRANSLATE("Translate frame (camera or interactive frame)"),
+		TRANSLATE("Translate frame (camera or interactive frame)", true),
 		/** Move forward frame (camera or interactive frame). */
-		MOVE_FORWARD("Move forward frame (camera or interactive frame)"),
+		MOVE_FORWARD("Move forward frame (camera or interactive frame)", false),
 		/** move backward frame (camera or interactive frame). */
-		MOVE_BACKWARD("move backward frame (camera or interactive frame)"),
+		MOVE_BACKWARD("move backward frame (camera or interactive frame)", false),
 		/** Look around with frame (camera or interactive drivable frame). */
-		LOOK_AROUND("Look around with frame (camera or interactive drivable frame)"),
+		LOOK_AROUND("Look around with frame (camera or interactive drivable frame)", false),
 		/** Screen rotate (camera or interactive frame). */
-		SCREEN_ROTATE("Screen rotate (camera or interactive frame)"),
+		SCREEN_ROTATE("Screen rotate (camera or interactive frame)", true),
 		/** Roll frame (camera or interactive drivable frame). */
-		ROLL("Roll frame (camera or interactive drivable frame)"),
+		ROLL("Roll frame (camera or interactive drivable frame)", true),
 		/** Drive (camera or interactive drivable frame). */
-		DRIVE("Drive (camera or interactive drivable frame)"),
+		DRIVE("Drive (camera or interactive drivable frame)", false),
 		/** Screen translate frame (camera or interactive frame). */
-		SCREEN_TRANSLATE("Screen translate frame (camera or interactive frame)"),
+		SCREEN_TRANSLATE("Screen translate frame (camera or interactive frame)", true),
 		/** Zoom on region (camera or interactive drivable frame). */
-		ZOOM_ON_REGION("Zoom on region (camera or interactive drivable frame)");		
+		ZOOM_ON_REGION("Zoom on region (camera or interactive drivable frame)", true);
 
 		private String description;
+		private boolean twoD;
 		
-		MouseAction(String description) {
+		MouseAction(String description, boolean td) {
        this.description = description;
+       this.twoD = td;
     }
 		
     public String description() {
         return description;
+    }
+    
+    public boolean isTwoD() {
+    	return twoD;
     }
 	}
 
@@ -288,10 +312,10 @@ public abstract class AbstractScene implements Constants {
     // */
 	}	
 	
-	private boolean dottedGrid;
+	protected boolean dottedGrid;	
 	
   //O B J E C T S
-	protected Renderable renderer;
+	protected Scenable renderer;
 	protected Camera cam;
 	protected InteractiveFrame glIFrame;
 	protected boolean iFrameIsDrwn;
@@ -354,7 +378,7 @@ public abstract class AbstractScene implements Constants {
 	protected float frameRate;
 	protected long frameRateLastNanos;
 	
-	public AbstractScene(Renderable r) {
+	public AbstractScene(Scenable r) {
 		renderer = r;
 		frameCount = 0;
 		frameRate = 10;
@@ -386,6 +410,12 @@ public abstract class AbstractScene implements Constants {
 		
 		setGridDotted(true);
 		setRightHanded();
+	}
+	
+	public abstract boolean is2D();
+	
+	public boolean is3D() {
+		return !is2D();
 	}
 	
 	public boolean gridIsDotted() {
@@ -1155,7 +1185,7 @@ public abstract class AbstractScene implements Constants {
 		devices.clear();
 	}
 	
-	// MATRIX STACK WRAPPERS
+	// WRAPPERS
 	
 	/**
 	 * Push a copy of the modelview matrix onto the stack.
@@ -1382,8 +1412,76 @@ public abstract class AbstractScene implements Constants {
   public void printProjection() {
   	renderer.printProjection();
   }
+  
+  /**
+	 * Draws a cylinder of width {@code w} and height {@code h}, along the 
+	 * positive {@code z} axis. 
+	 */
+  public void cylinder(float w, float h) {
+  	renderer.cylinder(w, h);
+  }
+  
+  public void cone(int detail, float x, float y, float r, float h) {
+  	renderer.cone(detail, x, y, r, h);
+  }
+  
+  public void cone(int detail, float x, float y, float r1, float r2, float h) {
+  	renderer.cone(detail, x, y, r1, r2, h);
+  }
+  
+  public void drawAxis(float length) {
+  	renderer.drawAxis(length);
+  }
+  
+  public void drawGrid(float size, int nbSubdivisions) {
+  	renderer.drawGrid(size, nbSubdivisions);
+  }
+  
+  public void drawViewPort(ViewPort camera, float scale) {
+  	renderer.drawViewPort(camera, scale);
+  }
+  
+  public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
+  	renderer.drawCamera(camera, drawFarPlane, scale);
+  }
+  
+  public void drawKFIViewport(float scale) {
+  	renderer.drawKFIViewport(scale);
+  }
+  
+  public void drawZoomWindowHint() {
+  	renderer.drawZoomWindowHint();
+  }
+  
+  public void drawScreenRotateLineHint() {
+  	renderer.drawScreenRotateLineHint();
+  }
+  
+  public void drawArcballReferencePointHint() {
+  	renderer.drawArcballReferencePointHint();
+  }
+  
+  public void drawCross(float px, float py, float size) {
+  	renderer.drawCross(px, py, size);
+  }
+  
+  public void drawFilledCircle(int subdivisions, Vector3D center, float radius) {
+  	renderer.drawFilledCircle(subdivisions, center, radius);
+  }
+  
+  public void drawFilledSquare(Vector3D center, float edge) {
+  	renderer.drawFilledSquare(center, edge);
+  }
+  
+  public void drawShooterTarget(Vector3D center, float length) {
+		renderer.drawShooterTarget(center, length);
+	}
 	
-	// end matrix stack wrapper
+	public void drawPath(List<SimpleFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
+		renderer.drawPath(path, mask, nbFrames, nbSteps, scale);
+	}
+	
+	// end wrapper
 	
 	public boolean isLeftHanded() {
 		return !this.rightHanded;
@@ -2128,13 +2226,7 @@ public abstract class AbstractScene implements Constants {
 	}
 	
 	// * Abstract drawing methods
-	
-	/**
-	 * Draws a cylinder of width {@code w} and height {@code h}, along the 
-	 * positive {@code z} axis. 
-	 */
-	public abstract void cylinder(float w, float h);
-	
+		
 	/**
 	 * Same as {@code cone(det, 0, 0, r, h);}
 	 * 
@@ -2151,15 +2243,7 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void cone(float r, float h) {
 		cone(12, 0, 0, r, h);
-	}
-	
-	/**
-	 * Draws a cone along the positive {@code z} axis, with its base centered
-	 * at {@code (x,y)}, height {@code h}, and radius {@code r}. 
-	 * 
-	 * @see #cone(int, float, float, float, float, float)
-	 */
-	public abstract void cone(int detail, float x, float y, float r, float h);
+	}	
 	
 	/**
 	 * Same as {@code cone(det, 0, 0, r1, r2, h);}
@@ -2177,31 +2261,14 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void cone(float r1, float r2, float h) {
 		cone(18, 0, 0, r1, r2, h);
-	}
-	
-	/**
-	 * Draws a truncated cone along the positive {@code z} axis,
-	 * with its base centered at {@code (x,y)}, height {@code h}, and radii
-	 * {@code r1} and {@code r2} (basis and height respectively).
-	 * 
-	 * @see #cone(int, float, float, float, float)
-	 */
-	public abstract void cone(int detail, float x, float y,	float r1, float r2, float h);
+	}	
 	
 	/**
 	 * Convenience function that simply calls {@code drawAxis(100)}.
 	 */
 	public void drawAxis() {
 		drawAxis(100);
-	}
-	
-	/**
-	 * Draws an axis of length {@code length} which origin correspond to the
-	 * world coordinate system origin.
-	 * 
-	 * @see #drawGrid(float, int)
-	 */
-	public abstract void drawAxis(float length);
+	}	
 	
 	/**
 	 * Simply calls {@code drawArrow(length, 0.05f * length)}
@@ -2269,17 +2336,7 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void drawGrid(int nbSubdivisions) {
 		drawGrid(100, nbSubdivisions);
-	}	
-	
-	/**
-	 * Draws a grid in the XY plane, centered on (0,0,0) (defined in the current
-	 * coordinate system).
-	 * <p>
-	 * {@code size} and {@code nbSubdivisions} define its geometry.
-	 * 
-	 * @see #drawAxis(float)
-	 */
-	public abstract void drawGrid(float size, int nbSubdivisions);
+	}
 	
 	/**
 	 * Convenience function that simply calls {@code drawCamera(camera, true, 1.0f)}
@@ -2307,49 +2364,7 @@ public abstract class AbstractScene implements Constants {
 	public void drawCamera(Camera camera, boolean drawFarPlane) {
 		drawCamera(camera, drawFarPlane, 1.0f);
 	}
-	
-	/**
-	 * Draws a representation of the {@code camera} in the 3D virtual world.
-	 * <p>
-	 * The near and far planes are drawn as quads, the frustum is drawn using
-	 * lines and the camera up vector is represented by an arrow to disambiguate
-	 * the drawing.
-	 * <p>
-	 * When {@code drawFarPlane} is {@code false}, only the near plane is drawn.
-	 * {@code scale} can be used to scale the drawing: a value of 1.0 (default)
-	 * will draw the Camera's frustum at its actual size.
-	 * <p>
-	 * <b>Note:</b> The drawing of a Scene's own Scene.camera() should not be
-	 * visible, but may create artifacts due to numerical imprecisions.
-	 */
-	public abstract void drawCamera(Camera camera, boolean drawFarPlane, float scale);
-	
-	public abstract void drawKFICamera(float scale);
-	
-	/**
-	 * Draws a rectangle on the screen showing the region where a zoom operation
-	 * is taking place.
-	 */	
-	protected abstract void drawZoomWindowHint();
-	
-	/**
-	 * Draws visual hint (a line on the screen) when a screen rotation is taking
-	 * place.
-	 */
-	protected abstract void drawScreenRotateLineHint();
-	
-	/**
-	 * Draws visual hint (a cross on the screen) when the
-	 * {@link #arcballReferencePoint()} is being set.
-	 * <p>
-	 * Simply calls {@link #drawCross(float, float)} on {@code
-	 * camera().projectedCoordinatesOf(arcballReferencePoint())} {@code x} and
-	 * {@code y} coordinates.
-	 * 
-	 * @see #drawCross(float, float)
-	 */	
-	public abstract void drawArcballReferencePointHint();
-	
+		
 	/**
 	 * Draws all InteractiveFrames' selection regions: a shooter target
 	 * visual hint of {@link remixlab.remixcam.core.InteractiveFrame#grabsMouseThreshold()} pixels size.
@@ -2377,15 +2392,7 @@ public abstract class AbstractScene implements Constants {
 	public void drawCross(float px, float py) {
 		drawCross(px, py, 15);
 	}
-	
-	/**
-	 * Draws a cross on the screen centered under pixel {@code (px, py)}, and edge
-	 * of size {@code size}.
-	 * 
-	 * @see #drawArcballReferencePointHint()
-	 */
-	public abstract void drawCross(float px, float py, float size);
-	
+		
 	/**
 	 * Convenience function that simply calls
 	 * {@code drawFilledCircle(40, center, radius)}.
@@ -2394,41 +2401,7 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void drawFilledCircle(Vector3D center, float radius) {
 		drawFilledCircle(40, center, radius);
-	}
-	
-	/**
-	 * Draws a filled circle using screen coordinates.
-	 * 
-	 * @param subdivisions
-	 *          Number of triangles approximating the circle. 
-	 * @param center
-	 *          Circle screen center.
-	 * @param radius
-	 *          Circle screen radius.
-	 */	
-	public abstract void drawFilledCircle(int subdivisions, Vector3D center, float radius);
-	
-	/**
-	 * Draws a filled square using screen coordinates.
-	 * 
-	 * @param center
-	 *          Square screen center.
-	 * @param edge
-	 *          Square edge length.
-	 */
-	public abstract void drawFilledSquare(Vector3D center, float edge);
-	
-	/**
-	 * Draws the classical shooter target on the screen.
-	 * 
-	 * @param center
-	 *          Center of the target on the screen
-	 * @param length
-	 *          Length of the target in pixels
-	 */
-	public abstract void drawShooterTarget(Vector3D center, float length);
-		
-	public abstract void drawPath(List<SimpleFrame> path, int mask, int nbFrames, int nbSteps, float scale);
+	}	
 	
   //dimensions
   public abstract int getWidth();

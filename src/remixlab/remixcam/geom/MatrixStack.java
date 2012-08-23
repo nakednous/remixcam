@@ -132,15 +132,6 @@ public class MatrixStack implements Constants {
 
   // MATRIX MORE!
   
-  /**
-  public void loadIdentity() {
-  	if (matrixMode == PROJECTION)
-  		projection.reset();
-  	else
-  		modelview.reset();
-  }  
-  */
-
   public void resetMatrix() {
   	modelview.reset();
   }

@@ -55,7 +55,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * and {@link #setStandardZFar(float)}).
  * 
  */
-public class Camera implements Constants, Copyable {
+public class Camera extends ViewPort implements Constants, Copyable {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
@@ -95,16 +95,24 @@ public class Camera implements Constants, Copyable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj) {		
+		/**
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		*/
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
 		Camera other = (Camera) obj;
 		
-	   return new EqualsBuilder()
+	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
     //.append(attachedToPCam, other.attachedToPCam)
     .append(fpCoefficientsUpdate, other.fpCoefficientsUpdate)
