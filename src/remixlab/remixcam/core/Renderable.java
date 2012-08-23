@@ -4,7 +4,7 @@ import java.util.List;
 
 import remixlab.remixcam.geom.*;
 
-public interface Scenable {
+public interface Renderable {
 	// matrix
 	/**
 	 * Push a copy of the modelview matrix onto the stack.

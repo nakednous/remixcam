@@ -315,7 +315,7 @@ public abstract class AbstractScene implements Constants {
 	protected boolean dottedGrid;	
 	
   //O B J E C T S
-	protected Scenable renderer;
+	protected Renderable renderer;
 	protected Camera cam;
 	protected InteractiveFrame glIFrame;
 	protected boolean iFrameIsDrwn;
@@ -378,7 +378,7 @@ public abstract class AbstractScene implements Constants {
 	protected float frameRate;
 	protected long frameRateLastNanos;
 	
-	public AbstractScene(Scenable r) {
+	public AbstractScene(Renderable r) {
 		renderer = r;
 		frameCount = 0;
 		frameRate = 10;
