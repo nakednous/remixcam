@@ -5,6 +5,42 @@ import java.util.List;
 import remixlab.remixcam.geom.*;
 
 public interface Renderable {
+	//public void setScene(AbstractScene scn);
+	
+	public AbstractScene scene();
+	
+	public boolean is2D();
+	
+	public boolean is3D();
+	
+	/**
+	 * Computes the world coordinates of an screen object so that drawing can be
+	 * done directly with 2D screen coordinates.
+	 * <p>
+	 * All screen drawing should be enclosed between {@link #beginScreenDrawing()}
+	 * and {@link #endScreenDrawing()}. Then you can just begin drawing your
+	 * screen shapes (defined between {@code PApplet.beginShape()} and {@code
+	 * PApplet.endShape()}).
+	 * <p>
+	 * <b>Note:</b> To specify a {@code (x,y)} vertex screen coordinate you should 
+	 * first call {@code Vector3D p = coords(new Point(x, y))} then do your
+	 * drawing as {@code vertex(p.x, p.y, p.z)}.
+	 * <p>
+	 * <b>Attention:</b> If you want your screen drawing to appear on top of your
+	 * 3d scene then draw first all your 3d before doing any call to a 
+	 * {@link #beginScreenDrawing()} and {@link #endScreenDrawing()} pair.  
+	 * 
+	 * @see #endScreenDrawing()	 
+	 */
+  public void beginScreenDrawing();
+	
+  /**
+	 * Ends screen drawing. See {@link #beginScreenDrawing()} for details.
+	 * 
+	 * @see #beginScreenDrawing()
+	 */
+	public void endScreenDrawing();
+	
 	// matrix
 	/**
 	 * Push a copy of the modelview matrix onto the stack.
@@ -199,6 +235,8 @@ public interface Renderable {
 	 * @see #drawAxis(float)
 	 */
 	public void drawGrid(float size, int nbSubdivisions);
+	
+	public void drawDottedGrid(float size, int nbSubdivisions);
 	
 	public void drawViewPort(ViewPort camera, float scale);
 	

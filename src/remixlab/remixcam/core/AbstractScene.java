@@ -323,6 +323,9 @@ public abstract class AbstractScene implements Constants {
 	public boolean avatarIsInteractiveDrivableFrame;
 	protected boolean avatarIsInteractiveAvatarFrame;
 	
+  //E X C E P T I O N H A N D L I N G
+	protected int startCoordCalls;
+	
   // T i m e r P o o l
   //T I M E R S
   protected boolean singleThreadedTaskableTimers;
@@ -378,11 +381,14 @@ public abstract class AbstractScene implements Constants {
 	protected float frameRate;
 	protected long frameRateLastNanos;
 	
-	public AbstractScene(Renderable r) {
-		renderer = r;
+	public AbstractScene() {		
 		frameCount = 0;
 		frameRate = 10;
 		frameRateLastNanos = 0;
+		
+	  // E X C E P T I O N H A N D L I N G
+	  startCoordCalls = 0;
+			
 	  // 1 ->
 	  //TODO testing
 		//To define the timers to be used pass the flag in the constructor?
@@ -410,6 +416,14 @@ public abstract class AbstractScene implements Constants {
 		
 		setGridDotted(true);
 		setRightHanded();
+	}
+	
+	protected void setRenderer(Renderable r) {
+		renderer = r;
+	}
+		
+	public Renderable renderer() {
+		return renderer;
 	}
 	
 	public abstract boolean is2D();
@@ -864,8 +878,12 @@ public abstract class AbstractScene implements Constants {
 			device.handle();
 		
 		// 5. Grid and axis drawing
-		if (gridIsDrawn())
-			drawGrid(camera().sceneRadius());
+		if (gridIsDrawn()) {
+			if(gridIsDotted())
+				drawDottedGrid(camera().sceneRadius());
+			else
+				drawGrid(camera().sceneRadius());
+		}
 		if (axisIsDrawn())
 			drawAxis(camera().sceneRadius());		
 		
@@ -1437,6 +1455,10 @@ public abstract class AbstractScene implements Constants {
   	renderer.drawGrid(size, nbSubdivisions);
   }
   
+  public void drawDottedGrid(float size, int nbSubdivisions) {
+  	renderer.drawDottedGrid(size, nbSubdivisions);
+  }
+  
   public void drawViewPort(ViewPort camera, float scale) {
   	renderer.drawViewPort(camera, scale);
   }
@@ -1481,6 +1503,25 @@ public abstract class AbstractScene implements Constants {
 		renderer.drawPath(path, mask, nbFrames, nbSteps, scale);
 	}
 	
+  public void beginScreenDrawing() {
+  	if (startCoordCalls != 0)
+			throw new RuntimeException("There should be exactly one beginScreenDrawing() call followed by a "
+							                 + "endScreenDrawing() and they cannot be nested. Check your implementation!");
+		
+		startCoordCalls++;
+		
+  	renderer.beginScreenDrawing();
+  }
+	
+	public void endScreenDrawing() {
+		startCoordCalls--;
+		if (startCoordCalls != 0)
+			throw new RuntimeException("There should be exactly one beginScreenDrawing() call followed by a "
+							                 + "endScreenDrawing() and they cannot be nested. Check your implementation!");
+		
+		renderer.endScreenDrawing();
+	}
+	
 	// end wrapper
 	
 	public boolean isLeftHanded() {
@@ -1497,7 +1538,7 @@ public abstract class AbstractScene implements Constants {
 	
 	public void setLeftHanded() {
 		rightHanded = false;
-	}
+	}	
 	
 	// 0. Optimization stuff
 	
@@ -2311,6 +2352,10 @@ public abstract class AbstractScene implements Constants {
 		popMatrix();
 	}
 	
+	public void drawDottedGrid() {
+		drawDottedGrid(100, 10);
+	}
+	
 	/**
 	 * Convenience function that simply calls {@code drawGrid(100, 10)}
 	 * 
@@ -2318,7 +2363,11 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void drawGrid() {
 		drawGrid(100, 10);
-	}	
+	}
+	
+	public void drawDottedGrid(float size) {
+		drawDottedGrid(size, 10);
+	}
 		
 	/**
 	 * Convenience function that simply calls {@code drawGrid(size, 10)}
@@ -2327,7 +2376,11 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void drawGrid(float size) {
 		drawGrid(size, 10);
-	}	
+	}
+	
+	public void drawDottedGrid(int nbSubdivisions) {
+		drawDottedGrid(100, nbSubdivisions);
+	}
 	
 	/**
 	 * Convenience function that simply calls {@code drawGrid(100, nbSubdivisions)}
@@ -2401,7 +2454,9 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void drawFilledCircle(Vector3D center, float radius) {
 		drawFilledCircle(40, center, radius);
-	}	
+	}
+	
+	protected abstract Camera.WorldPoint pointUnderPixel(Point pixel);
 	
   //dimensions
   public abstract int getWidth();

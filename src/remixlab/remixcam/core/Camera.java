@@ -252,6 +252,18 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	public enum Type {
 		PERSPECTIVE, ORTHOGRAPHIC
 	};
+	
+	// TODO: find better way: hardcoded
+	
+	protected boolean p5Cam = true;
+	
+	public boolean isP5Cam () {
+		return p5Cam;
+	}
+	
+	public void setP5Cam(boolean flag) {
+		p5Cam = flag;
+	}
 
 	/**
 	 * Enumerates the different visibility state an object may have respect to the
@@ -1899,7 +1911,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	 * (dummy value), meaning that no point was found under pixel.
 	 */
 	public WorldPoint pointUnderPixel(Point pixel) {
-		return new WorldPoint(new Vector3D(0, 0, 0), false);
+		return scene.pointUnderPixel(pixel);
 	}
 
 	// 6. ASSOCIATED FRAME AND FRAME WRAPPER FUNCTIONS
@@ -2240,7 +2252,11 @@ public class Camera extends ViewPort implements Constants, Copyable {
 			// constructor.
 			float f = 1.0f / (float) Math.tan(fieldOfView() / 2.0f);
 			projectionMat.mat[0] = f / aspectRatio();
-			projectionMat.mat[5] = f;
+			//TODO HACK!
+			if( isP5Cam() )
+				projectionMat.mat[5] = -f;
+			else
+				projectionMat.mat[5] = f;
 			projectionMat.mat[10] = (ZNear + ZFar) / (ZNear - ZFar);
 			projectionMat.mat[11] = -1.0f;
 			projectionMat.mat[14] = 2.0f * ZNear * ZFar / (ZNear - ZFar);
@@ -2251,7 +2267,10 @@ public class Camera extends ViewPort implements Constants, Copyable {
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
 			projectionMat.mat[0] = 1.0f / wh[0];
-			projectionMat.mat[5] = 1.0f / wh[1];
+			if( isP5Cam() )
+				projectionMat.mat[5] = -1.0f / wh[1];
+			else
+				projectionMat.mat[5] = 1.0f / wh[1];
 			projectionMat.mat[10] = -2.0f / (ZFar - ZNear);
 			projectionMat.mat[11] = 0.0f;
 			projectionMat.mat[14] = -(ZFar + ZNear) / (ZFar - ZNear);
@@ -2271,12 +2290,19 @@ public class Camera extends ViewPort implements Constants, Copyable {
 		float tx = -(right + left) / (right - left);
 		float ty = -(top + bottom) / (top - bottom);
 		float tz = -(far + near)   / (far - near);
-				
-		projectionMat.set(x,  0, 0, tx,
-                      0,  y, 0, ty,
-                      0,  0, z, tz,
-                      0,  0, 0,  1);
-	}
+			
+		if( isP5Cam() )
+		  // The minus sign is needed to invert the Y axis.
+			projectionMat.set(x,  0, 0, tx,
+                        0, -y, 0, ty,
+                        0,  0, z, tz,
+                        0,  0, 0,  1);
+		else
+			projectionMat.set(x,  0, 0, tx,
+                        0,  y, 0, ty,
+                        0,  0, z, tz,
+                        0,  0, 0,  1);
+	}	
 	
 	public void perspective(float fov, float aspect, float zNear, float zFar) {
     float ymax = zNear * (float) Math.tan(fov / 2);
@@ -2291,11 +2317,17 @@ public class Camera extends ViewPort implements Constants, Copyable {
 		float w = right - left;
 		float h = top - bottom;
 		float d = zfar - znear;
-			  
-		projectionMat.set(n2 / w,       0,  (right + left) / w,                0,
-                           0,  n2 / h,  (top + bottom) / h,                0,
-                           0,       0, -(zfar + znear) / d, -(n2 * zfar) / d,
-                           0,       0,                  -1,                0);
+		
+		if( isP5Cam() )
+			projectionMat.set(n2 / w,       0,  (right + left) / w,                0,
+                             0, -n2 / h,  (top + bottom) / h,                0,
+                             0,       0, -(zfar + znear) / d, -(n2 * zfar) / d,
+                             0,       0,                  -1,                0);
+		else
+			projectionMat.set(n2 / w,       0,  (right + left) / w,                0,
+                             0,  n2 / h,  (top + bottom) / h,                0,
+                             0,       0, -(zfar + znear) / d, -(n2 * zfar) / d,
+                             0,       0,                  -1,                0);
 	}
 	
 	//TODO needed for screen drawing
