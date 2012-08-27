@@ -424,13 +424,7 @@ public abstract class AbstractScene implements Constants {
 		
 	public Renderable renderer() {
 		return renderer;
-	}
-	
-	public abstract boolean is2D();
-	
-	public boolean is3D() {
-		return !is2D();
-	}
+	}	
 	
 	public boolean gridIsDotted() {
 		return dottedGrid;
@@ -1204,6 +1198,14 @@ public abstract class AbstractScene implements Constants {
 	}
 	
 	// WRAPPERS
+	
+  public boolean is2D() {
+  	return renderer.is2D();
+  }
+	
+	public boolean is3D() {
+		return renderer.is3D();
+	}
 	
 	/**
 	 * Push a copy of the modelview matrix onto the stack.
