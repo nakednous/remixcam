@@ -312,6 +312,8 @@ public abstract class AbstractScene implements Constants {
     // */
 	}	
 	
+	protected boolean p5Scene = false;
+	
 	protected boolean dottedGrid;	
 	
   //O B J E C T S
@@ -907,18 +909,14 @@ public abstract class AbstractScene implements Constants {
 	 * Bind processing matrices to proscene matrices.
 	 */	
 	protected void bindMatrices() {
-		// TODO implement stereo
-		// We set the processing camera matrices from our remixlab.proscene.Camera
-		setProjectionMatrix();
-		setModelViewMatrix();
-		// same as the two previous lines:
-		// WARNING: this can produce visual artifacts when using OPENGL and
-		// GLGRAPHICS renderers because
-		// processing will anyway set the matrices at the end of the rendering
-		// loop.
-		// camera().computeProjectionMatrix();
-		// camera().computeModelViewMatrix();
-		camera().cacheMatrices();
+	  // TODO implement stereo
+		if(this.isAP5Scene())
+			renderer.bindMatrices();
+		else {
+			setProjectionMatrix();
+			setModelViewMatrix();
+			camera().cacheMatrices();
+		}
 	}
 	
 	/**
@@ -1515,7 +1513,40 @@ public abstract class AbstractScene implements Constants {
 		
 		startCoordCalls++;
 		
-  	renderer.beginScreenDrawing();
+		if( this.isAP5Scene() )
+			renderer.beginScreenDrawing();
+		else { // TODO needs implementation and testing
+			/**
+			glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	if (tileRegion_ != NULL)
+	  if (upward)
+	    glOrtho(tileRegion_->xMin, tileRegion_->xMax, tileRegion_->yMin, tileRegion_->yMax, 0.0, -1.0);
+	  else
+	    glOrtho(tileRegion_->xMin, tileRegion_->xMax, tileRegion_->yMax, tileRegion_->yMin, 0.0, -1.0);
+	else
+	  if (upward)
+	    glOrtho(0, width(), 0, height(), 0.0, -1.0);
+	  else
+	    glOrtho(0, width(), height(), 0, 0.0, -1.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+			 */
+			pushProjection();
+			/**
+			resetProjection();
+			camera().ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
+			multiplyProjection(camera().getProjectionMatrix());
+			*/
+			// next two same as the prv three?
+			camera().ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
+			loadProjection(camera().getProjectionMatrix());
+			pushMatrix();
+			resetMatrix();
+		}
   }
 	
 	public void endScreenDrawing() {
@@ -1524,7 +1555,19 @@ public abstract class AbstractScene implements Constants {
 			throw new RuntimeException("There should be exactly one beginScreenDrawing() call followed by a "
 							                 + "endScreenDrawing() and they cannot be nested. Check your implementation!");
 		
-		renderer.endScreenDrawing();
+		if( this.isAP5Scene() )
+			renderer.endScreenDrawing();
+		else {
+			/**
+			 glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+			 */
+			popProjection();
+			popMatrix();			
+		}		
 	}
 	
 	// end wrapper
@@ -2464,7 +2507,11 @@ public abstract class AbstractScene implements Constants {
 	protected abstract Camera.WorldPoint pointUnderPixel(Point pixel);
 	
   //dimensions
-  public abstract int getWidth();
+  public abstract int width();
   
-  public abstract int getHeight();
+  public abstract int height();	
+	
+	public boolean isAP5Scene () {
+		return p5Scene;
+	}	
 }

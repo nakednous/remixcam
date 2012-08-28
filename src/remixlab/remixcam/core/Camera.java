@@ -252,19 +252,7 @@ public class Camera implements Constants, Copyable {
 	 */
 	public enum Type {
 		PERSPECTIVE, ORTHOGRAPHIC
-	};
-	
-	// TODO: find better way: hardcoded
-	
-	protected boolean p5Cam = true;
-	
-	public boolean isP5Cam () {
-		return p5Cam;
-	}
-	
-	public void setP5Cam(boolean flag) {
-		p5Cam = flag;
-	}
+	};	
 
 	/**
 	 * Enumerates the different visibility state an object may have respect to the
@@ -2272,8 +2260,7 @@ public class Camera implements Constants, Copyable {
 			// constructor.
 			float f = 1.0f / (float) Math.tan(fieldOfView() / 2.0f);
 			projectionMat.mat[0] = f / aspectRatio();
-			//TODO HACK!
-			if( isP5Cam() )
+			if( scene.isAP5Scene() )
 				projectionMat.mat[5] = -f;
 			else
 				projectionMat.mat[5] = f;
@@ -2287,7 +2274,7 @@ public class Camera implements Constants, Copyable {
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
 			projectionMat.mat[0] = 1.0f / wh[0];
-			if( isP5Cam() )
+			if( scene.isAP5Scene() )
 				projectionMat.mat[5] = -1.0f / wh[1];
 			else
 				projectionMat.mat[5] = 1.0f / wh[1];
@@ -2302,7 +2289,7 @@ public class Camera implements Constants, Copyable {
 	}	
 	
   //TODO needed for screen drawing
-	public void ortho(float left, float right, float bottom, float top,   float near, float far) {
+	public void ortho(float left, float right, float bottom, float top, float near, float far) {
 		float x = +2.0f / (right - left);
 		float y = +2.0f / (top - bottom);
 		float z = -2.0f / (far - near);
@@ -2311,7 +2298,7 @@ public class Camera implements Constants, Copyable {
 		float ty = -(top + bottom) / (top - bottom);
 		float tz = -(far + near)   / (far - near);
 			
-		if( isP5Cam() )
+		if( scene.isAP5Scene() )
 		  // The minus sign is needed to invert the Y axis.
 			projectionMat.set(x,  0, 0, tx,
                         0, -y, 0, ty,
@@ -2338,7 +2325,7 @@ public class Camera implements Constants, Copyable {
 		float h = top - bottom;
 		float d = zfar - znear;
 		
-		if( isP5Cam() )
+		if( scene.isAP5Scene() )
 			projectionMat.set(n2 / w,       0,  (right + left) / w,                0,
                              0, -n2 / h,  (top + bottom) / h,                0,
                              0,       0, -(zfar + znear) / d, -(n2 * zfar) / d,
@@ -2698,7 +2685,7 @@ public class Camera implements Constants, Copyable {
 	  	scene.resetProjection();
 
 	  computeProjectionMatrix();
-	  scene.multiplyMatrix(projectionMat);
+	  scene.multiplyProjection(projectionMat);
 	}	
 	
 	/**

@@ -13,6 +13,8 @@ public interface Renderable {
 	
 	public boolean is3D();
 	
+	public void bindMatrices();
+	
 	/**
 	 * Computes the world coordinates of an screen object so that drawing can be
 	 * done directly with 2D screen coordinates.
