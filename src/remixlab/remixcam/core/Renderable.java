@@ -238,7 +238,8 @@ public interface Renderable {
 	
 	public void drawDottedGrid(float size, int nbSubdivisions);
 	
-	public void drawViewPort(ViewPort camera, float scale);
+	//TODO pend
+	//public void drawViewPort(ViewPort camera, float scale);
 	
 	/**
 	 * Draws a representation of the {@code camera} in the 3D virtual world.

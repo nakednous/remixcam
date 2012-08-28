@@ -909,8 +909,8 @@ public abstract class AbstractScene implements Constants {
 	protected void bindMatrices() {
 		// TODO implement stereo
 		// We set the processing camera matrices from our remixlab.proscene.Camera
-		setProjectionMatrix(); // abstract
-		setModelViewMatrix(); // abstract
+		setProjectionMatrix();
+		setModelViewMatrix();
 		// same as the two previous lines:
 		// WARNING: this can produce visual artifacts when using OPENGL and
 		// GLGRAPHICS renderers because
@@ -1461,9 +1461,12 @@ public abstract class AbstractScene implements Constants {
   	renderer.drawDottedGrid(size, nbSubdivisions);
   }
   
+  /**
+  //TODO pend
   public void drawViewPort(ViewPort camera, float scale) {
   	renderer.drawViewPort(camera, scale);
   }
+  */
   
   public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
   	renderer.drawCamera(camera, drawFarPlane, scale);

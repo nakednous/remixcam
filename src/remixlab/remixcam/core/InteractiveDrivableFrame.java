@@ -202,6 +202,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_FORWARD}).
 	 */
 	public void flyUpdate() {
+		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+			return;
+		
 		flyDisp.set(0.0f, 0.0f, 0.0f);
 		switch (action) {
 		case MOVE_FORWARD:
@@ -246,6 +249,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * and turning actions are implemented.
 	 */
 	public void mouseDragged(Point eventPoint, Camera camera) {
+		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+			return;
+		
 		if ((action == AbstractScene.MouseAction.TRANSLATE)
 				|| (action == AbstractScene.MouseAction.ZOOM)
 				|| (action == AbstractScene.MouseAction.SCREEN_ROTATE)
@@ -327,6 +333,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseReleased(Point, Camera)}.
 	 */
 	public void mouseReleased(Point eventPoint, Camera camera) {
+		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+			return;
+		
 		if ((action == AbstractScene.MouseAction.MOVE_FORWARD)
 				|| (action == AbstractScene.MouseAction.MOVE_BACKWARD)
 				|| (action == AbstractScene.MouseAction.DRIVE)) {
@@ -348,6 +357,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	public void mouseWheelMoved(int rotation, Camera camera) {
+		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+			return;
+		
 		switch (action) {
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;

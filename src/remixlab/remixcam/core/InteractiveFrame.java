@@ -626,6 +626,9 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * @see remixlab.remixcam.core.Camera#fieldOfView()
 	 */
 	public void mouseDragged(Point eventPoint, Camera camera) {
+		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+			return;
+		
 		int deltaY = 0;
 		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION)
 			if( scene.isRightHanded() )
@@ -791,6 +794,9 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * @see #setWheelSensitivity(float)
 	 */
 	public void mouseWheelMoved(int rotation, Camera camera) {
+		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+			return;
+		
 		if (action == AbstractScene.MouseAction.ZOOM) {
 			float wheelSensitivityCoef = 8E-4f;
 			// Vector3D trans(0.0, 0.0,
@@ -832,6 +838,9 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 */
 	public void startAction(AbstractScene.MouseAction act, boolean withConstraint) {
 		action = act;
+		
+		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+			return;
 
 		if (withConstraint)
 			prevConstraint = null;

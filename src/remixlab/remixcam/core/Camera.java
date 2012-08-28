@@ -55,7 +55,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * and {@link #setStandardZFar(float)}).
  * 
  */
-public class Camera extends ViewPort implements Constants, Copyable {
+public class Camera implements Constants, Copyable {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
@@ -95,7 +95,8 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {		
+	public boolean equals(Object obj) {
+		//TODO check me
 		/**
 		if (this == obj)
 			return true;
@@ -386,7 +387,10 @@ public class Camera extends ViewPort implements Constants, Copyable {
 
 		// Requires fieldOfView() when called with ORTHOGRAPHIC. Attention to
 		// projectionMat below.
-		setType(Camera.Type.PERSPECTIVE);
+		if( scene.is2D() )
+			setType(Camera.Type.ORTHOGRAPHIC);
+		else
+			setType(Camera.Type.PERSPECTIVE);
 
 		setZNearCoefficient(0.005f);
 		setZClippingCoefficient((float) Math.sqrt(3.0f));
@@ -691,6 +695,8 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	 * Sets the kind of the Camera: PROSCENE or STANDARD.
 	 */
 	public void setKind(Kind k) {
+		if ((scene.is2D()) && k==Kind.STANDARD)
+			return;
 		if(k!=knd)
 			lastFrameUpdate = scene.frameCount();
 		knd = k;		
@@ -786,6 +792,8 @@ public class Camera extends ViewPort implements Constants, Copyable {
 		// through RAP). Done only when CHANGING type since orthoCoef may have
 		// been changed with a
 		// setArcballReferencePoint in the meantime.
+		if(( scene.is2D() ) && ( type == Camera.Type.PERSPECTIVE ) )
+			return;
 		if( type != type() )
 			lastFrameUpdate = scene.frameCount();
 		if ((type == Camera.Type.ORTHOGRAPHIC) && (type() == Camera.Type.PERSPECTIVE))
@@ -1877,10 +1885,16 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	 * was set.
 	 */
 	public boolean setArcballReferencePointFromPixel(Point pixel) {
-		WorldPoint wP = pointUnderPixel(pixel);
-		if (wP.found)
-			setArcballReferencePoint(wP.point);
-		return wP.found;
+		if( scene.is2D() ) {
+			setArcballReferencePoint(new Vector3D(pixel.x, pixel.y, 0));
+			return true;
+		}
+		else {
+			WorldPoint wP = pointUnderPixel(pixel);
+			if (wP.found)
+				setArcballReferencePoint(wP.point);
+			return wP.found;
+		}
 	}
 
 	/**
@@ -1895,10 +1909,16 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	 * was set.
 	 */
 	public boolean setSceneCenterFromPixel(Point pixel) {
-		WorldPoint wP = pointUnderPixel(pixel);
-		if (wP.found)
-			setSceneCenter(wP.point);
-		return wP.found;
+		if( scene.is2D() ) {
+			setSceneCenter(new Vector3D(pixel.x, pixel.y, 0));
+			return true;
+		}
+		else {
+			WorldPoint wP = pointUnderPixel(pixel);
+			if (wP.found)
+				setSceneCenter(wP.point);
+			return wP.found;
+		}
 	}
 
 	/**

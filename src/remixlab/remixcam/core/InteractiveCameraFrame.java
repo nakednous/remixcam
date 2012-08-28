@@ -162,6 +162,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * inverted from those of an InteractiveFrame.
 	 */
 	public void mouseDragged(Point eventPoint, Camera camera) {
+		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+			return;
+		
 		if ((action == AbstractScene.MouseAction.MOVE_FORWARD)
 				|| (action == AbstractScene.MouseAction.MOVE_BACKWARD)
 				|| (action == AbstractScene.MouseAction.DRIVE)
@@ -206,9 +209,12 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).vec[2]),
 						                                                         0.2f * camera.sceneRadius());
 				// Warning: same for left and right CoordinateSystemConvention:
-				Vector3D trans = new Vector3D(0.0f, 0.0f,
-																			-coef	* ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
-				translate(inverseTransformOf(trans));
+				Vector3D trans = new Vector3D(0.0f, 0.0f,	-coef	* ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
+			  //TODO check 2d hack
+				float wh[] = camera.getOrthoWidthHeight();
+				if( ( (wh[0] > camera.sceneRadius()) && (wh[1] > camera.sceneRadius()) ) ||
+						(trans.z() > 0) || scene.is3D() )
+					translate(inverseTransformOf(trans));
 				prevPos = eventPoint;
 				break;
 			}
@@ -286,6 +292,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseReleased(Point, Camera)}.
 	 */
 	public void mouseReleased(Point eventPoint, Camera camera) {
+		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+			return;
+		
 		// Added by pierre: #CONNECTION# seems that startAction should always be
 		// called before :)
 		if (action == AbstractScene.MouseAction.ZOOM_ON_REGION) {
@@ -320,19 +329,29 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	public void mouseWheelMoved(int rotation, Camera camera) {
+		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+			return;
+		
 		switch (action) {
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;
 			// #CONNECTION# mouseMoveEvent() ZOOM case
 			float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).vec[2]), 0.2f * camera.sceneRadius());
 			Vector3D trans;
+			
+			//TODO check rhanded
 			/**
 			if( scene.isRightHanded() )
 				trans = new Vector3D(0.0f, 0.0f, coef * rotation * wheelSensitivity() * wheelSensitivityCoef);
 			else
 			*/
 				trans = new Vector3D(0.0f, 0.0f, coef * (-rotation) * wheelSensitivity() * wheelSensitivityCoef);
-			translate(inverseTransformOf(trans));
+			
+			//TODO check 2d hack
+			float wh[] = camera.getOrthoWidthHeight();			
+			if( ( (wh[0] > camera.sceneRadius()) && (wh[1] > camera.sceneRadius()) ) || (trans.z() > 0) || scene.is3D() )
+				translate(inverseTransformOf(trans));
+			
 			break;
 		}
 		case MOVE_FORWARD:
