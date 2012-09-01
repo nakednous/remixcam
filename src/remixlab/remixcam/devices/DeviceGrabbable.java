@@ -25,8 +25,7 @@
 
 package remixlab.remixcam.devices;
 
-import remixlab.remixcam.core.AbstractScene;
-import remixlab.remixcam.core.Camera;
+import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.Point;
 
 
@@ -88,7 +87,7 @@ public interface DeviceGrabbable {
 	 * {@code setGrabsMouse((PApplet.abs(x-proj.x) < 5) && (PApplet.(y-proj.y) <
 	 * 2)); // Rectangular region} <br>
 	 */
-	void checkIfGrabsMouse(int x, int y, Camera camera);
+	void checkIfGrabsMouse(int x, int y, ViewPort vp);
 
 	/**
 	 * Should return true when the MouseGrabbable grabs the Scene mouse events.
@@ -106,7 +105,7 @@ public interface DeviceGrabbable {
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a mouse button is clicked.
 	 */
-	void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, Camera camera);
+	void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, ViewPort vp);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a
@@ -118,7 +117,7 @@ public interface DeviceGrabbable {
 	 * {@link #mouseReleased(Point, Camera)} (called when the mouse button is
 	 * released) will terminate this action.
 	 */
-	void mousePressed(Point eventPoint, Camera camera);
+	void mousePressed(Point eventPoint, ViewPort vp);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and the
@@ -128,18 +127,18 @@ public interface DeviceGrabbable {
 	 * mouse displacement. See the {@link #mousePressed(Point, Camera)}
 	 * documentation for details.
 	 */
-	void mouseDragged(Point eventPoint, Camera camera);
+	void mouseDragged(Point eventPoint, ViewPort vp);
 
 	/**
 	 * Mouse release event callback method.
 	 * 
 	 * @see #mousePressed(Point, Camera)
 	 */
-	void mouseReleased(Point eventPoint, Camera camera);
+	void mouseReleased(Point eventPoint, ViewPort vp);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and the
 	 * mouse wheel is used.
 	 */
-	void mouseWheelMoved(int rotation, Camera camera);
+	void mouseWheelMoved(int rotation, ViewPort vp);
 }

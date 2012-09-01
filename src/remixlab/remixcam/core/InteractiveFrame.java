@@ -339,9 +339,14 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * {@link remixlab.remixcam.core.Camera#projectedCoordinatesOf(Vector3D)}
 	 * {@link #position()}.
 	 */
-	public void checkIfGrabsMouse(int x, int y, Camera camera) {
-		Vector3D proj = camera.projectedCoordinatesOf(position());
-		setGrabsMouse(keepsGrabbingMouse || ((Math.abs(x - proj.vec[0]) < grabsMouseThreshold()) && (Math.abs(y - proj.vec[1]) < grabsMouseThreshold())));
+	public void checkIfGrabsMouse(int x, int y, ViewPort camera) {
+		if( scene.is3D() ) {
+			Vector3D proj = ((Camera) camera).projectedCoordinatesOf(position());
+			setGrabsMouse(keepsGrabbingMouse || ((Math.abs(x - proj.vec[0]) < grabsMouseThreshold()) && (Math.abs(y - proj.vec[1]) < grabsMouseThreshold())));
+		}
+		else {
+			//TODO implement 2D case
+		}
 	}
 
 	/**
@@ -586,12 +591,18 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * and {@link remixlab.remixcam.core.AbstractScene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
 	 * the camera view direction.
 	 */
-	public void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, Camera camera) {
+	public void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, ViewPort camera) {
 		if(numberOfClicks != 2)
 			return;
 		switch (button) {
 		case LEFT:  alignWithFrame(camera.frame()); break;
-    case RIGHT: projectOnLine(camera.position(), camera.viewDirection()); break;
+    case RIGHT:
+    	if(scene.is3D())
+    	projectOnLine(camera.position(), ((Camera) camera).viewDirection());
+    	else {
+    		//TODO implement 2D case
+    	}
+    break;
     default: break;
     }
 	}
@@ -605,7 +616,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * @see #mouseDragged(Point, Camera)
 	 * @see #mouseReleased(Point, Camera)
 	 */
-	public void mousePressed(Point eventPoint, Camera camera) {
+	public void mousePressed(Point eventPoint, ViewPort camera) {
 		if (grabsMouse())
 			keepsGrabbingMouse = true;
 
@@ -625,8 +636,8 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * @see remixlab.remixcam.core.Camera#screenHeight()
 	 * @see remixlab.remixcam.core.Camera#fieldOfView()
 	 */
-	public void mouseDragged(Point eventPoint, Camera camera) {
-		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+	public void mouseDragged(Point eventPoint, ViewPort camera) {
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		int deltaY = 0;
@@ -638,12 +649,13 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 
 		switch (action) {
 		case TRANSLATE: {
+			if( scene.is3D() ) {
 			Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
 			Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(), 0.0f);
 			// Scale to fit the screen mouse displacement
-			switch (camera.type()) {
+			switch (((Camera) camera).type()) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan(camera.fieldOfView() / 2.0f)
+				trans.mult(2.0f * (float) Math.tan(((Camera) camera).fieldOfView() / 2.0f)
 						* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
 						/ camera.screenHeight());
 				break;
@@ -661,24 +673,34 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 				trans = referenceFrame().transformOf(trans);
 			translate(trans);
 			prevPos = eventPoint;
+			}
+			else {
+			//TODO implement 2D case
+			}
 			break;
 		}
 
 		case ZOOM: {
+			if(scene.is3D()) {
 			// #CONNECTION# wheelEvent ZOOM case
 		  //Warning: same for left and right CoordinateSystemConvention:
-			Vector3D trans = new Vector3D(0.0f, 0.0f, (Vector3D.sub(camera.position(), position())).mag() * ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
+			Vector3D trans = new Vector3D(0.0f, 0.0f, (Vector3D.sub(((Camera) camera).position(), position())).mag() * ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
 			trans = camera.frame().orientation().rotate(trans);
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
 			translate(trans);
 			prevPos = eventPoint;
+			}
+			else {
+				//TODO implement 2D case
+			}				
 			break;
 		}
 
 		case SCREEN_ROTATE: {
+			if( scene.is3D() ) {
 			// TODO: needs testing to see if it works correctly when left-handed is set
-			Vector3D trans = camera.projectedCoordinatesOf(position());
+			Vector3D trans = ((Camera) camera).projectedCoordinatesOf(position());
 			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.vec[1], (int)prevPos.x - trans.vec[0]);
 			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);
 			Vector3D axis = transformOf(camera.frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f)));
@@ -694,10 +716,15 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 			setSpinningQuaternion(rot);
 			spin();
 			prevPos = eventPoint;
-			break;
+			}
+			else {
+			//TODO implement 2D case
+			}
+			break;			
 		}
 
 		case SCREEN_TRANSLATE: {
+			if( scene.is3D() ) { 
 			// TODO: needs testing to see if it works correctly when left-handed is set
 			Vector3D trans = new Vector3D();
 			int dir = mouseOriginalDirection(eventPoint);
@@ -705,9 +732,9 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 				trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
 			else if (dir == -1)
 				trans.set(0.0f, -deltaY, 0.0f);
-			switch (camera.type()) {
+			switch (((Camera) camera).type()) {
 			case PERSPECTIVE:
-				trans.mult((float) Math.tan(camera.fieldOfView() / 2.0f)
+				trans.mult((float) Math.tan(((Camera) camera).fieldOfView() / 2.0f)
 						* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
 						/ camera.screenHeight());
 				break;
@@ -726,12 +753,17 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 
 			translate(trans);
 			prevPos = eventPoint;
+			}
+			else {
+			//TODO implement 2D case
+			}
 			break;
 		}
 
 		case ROTATE: {
-			Vector3D trans = camera.projectedCoordinatesOf(position());
-			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.vec[0], trans.vec[1], camera);
+			if( scene.is3D() ) {
+			Vector3D trans = ((Camera) camera).projectedCoordinatesOf(position());
+			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.vec[0], trans.vec[1], (Camera) camera);
 			trans.set(-rot.quat[0], -rot.quat[1], -rot.quat[2]);
 			trans = camera.frame().orientation().rotate(trans);
 			trans = transformOf(trans);
@@ -743,6 +775,10 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 			setSpinningQuaternion(rot);
 			spin();
 			prevPos = eventPoint;
+			}
+			else {
+			//TODO implement 2D case
+			}
 			break;
 		}
 
@@ -772,7 +808,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * @see #startSpinning(int)
 	 * @see #isSpinning()
 	 */
-	public void mouseReleased(Point event, Camera camera) {
+	public void mouseReleased(Point event, ViewPort camera) {
 		keepsGrabbingMouse = false;
 
 		if (prevConstraint != null)
@@ -793,11 +829,12 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * 
 	 * @see #setWheelSensitivity(float)
 	 */
-	public void mouseWheelMoved(int rotation, Camera camera) {
-		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+	public void mouseWheelMoved(int rotation, ViewPort camera) {
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		if (action == AbstractScene.MouseAction.ZOOM) {
+			if(scene.is3D()) {
 			float wheelSensitivityCoef = 8E-4f;
 			// Vector3D trans(0.0, 0.0,
 			// -event.delta()*wheelSensitivity()*wheelSensitivityCoef*(camera.position()-position()).norm());
@@ -808,13 +845,17 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 				trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
 			else
 			*/
-				trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
+				trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(((Camera) camera).position(), position())).mag());
 					
 			// #CONNECTION# Cut-pasted from the mouseMoveEvent ZOOM case
 			trans = camera.frame().orientation().rotate(trans);
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
 			translate(trans);
+			}
+			else {
+				//TODO implement 2D case
+			}
 		}
 
 		// #CONNECTION# startAction should always be called before
@@ -839,7 +880,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	public void startAction(AbstractScene.MouseAction act, boolean withConstraint) {
 		action = act;
 		
-		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 
 		if (withConstraint)

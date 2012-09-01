@@ -79,7 +79,7 @@ public abstract class AbstractScene implements Constants {
       return description;
     }
     
-    public boolean isTwoD() {
+    public boolean is2D() {
     	return twoD;
     }
 	}
@@ -141,7 +141,7 @@ public abstract class AbstractScene implements Constants {
         return description;
     }
     
-    public boolean isTwoD() {
+    public boolean is2D() {
     	return twoD;
     }
 	}
@@ -185,7 +185,7 @@ public abstract class AbstractScene implements Constants {
         return description;
     }
     
-    public boolean isTwoD() {
+    public boolean is2D() {
     	return twoD;
     }
 	}
@@ -233,7 +233,7 @@ public abstract class AbstractScene implements Constants {
         return description;
     }
     
-    public boolean isTwoD() {
+    public boolean is2D() {
     	return twoD;
     }
 	}
@@ -318,7 +318,7 @@ public abstract class AbstractScene implements Constants {
 	
   //O B J E C T S
 	protected Renderable renderer;
-	protected Camera cam;
+	protected ViewPort viewport;
 	protected InteractiveFrame glIFrame;
 	protected boolean iFrameIsDrwn;
 	protected Trackable trck;
@@ -464,16 +464,13 @@ public abstract class AbstractScene implements Constants {
 			toggleAnimation();
 			break;
 		case ARP_FROM_PIXEL:
-			if (Camera.class == camera().getClass())
-				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
-								+ "See the Point Under Pixel example!");
-			else if (setArcballReferencePointFromPixel(new Point(mouseX, mouseY))) {
+			if (setArcballReferencePointFromPixel(new Point(mouseX, mouseY))) {
 				arpFlag = true;
 				timerFx.runOnce(1000);					
 			}
 			break;
 		case RESET_ARP:
-			camera().setArcballReferencePoint(new Vector3D(0, 0, 0));
+			viewPort().setArcballReferencePoint(new Vector3D(0, 0, 0));
 			arpFlag = true;
 			timerFx.runOnce(1000);				
 			break;
@@ -603,57 +600,79 @@ public abstract class AbstractScene implements Constants {
 	public void handleCameraKeyboardAction(CameraKeyboardAction id) {
 		if( !keyboardIsHandled() )
 			return;
-		switch (id) {
+		if( !id.is2D() && this.is2D() )
+			return;
+		switch (id) {		
 		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
-			if (Camera.class == camera().getClass())
-				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
-								+ "See the Point Under Pixel example!");
-			else {
+			if( this.is3D() ) {
 				Camera.WorldPoint wP = interpolateToZoomOnPixel(new Point(mouseX, mouseY));
 				if (wP.found) {
 					pupVec = wP.point;
 					pupFlag = true;
-					timerFx.runOnce(1000);						
+					timerFx.runOnce(1000);
 				}
+			}
+			else {
+				//TODO implement 2D case
 			}
 			break;
 		case INTERPOLATE_TO_FIT_SCENE:
-			camera().interpolateToFitScene();
+			viewPort().interpolateToFitScene();
 			break;
 		case SHOW_ALL:
 			showAll();
 			break;
 		case MOVE_CAMERA_LEFT:
-			camera().frame().translate(
-					camera().frame().inverseTransformOf(new Vector3D(-10.0f * camera().flySpeed(), 0.0f, 0.0f)));
+			if( is3D() ) {
+			viewPort().frame().translate(
+					viewPort().frame().inverseTransformOf(new Vector3D(-10.0f * ((Camera) viewPort()).flySpeed(), 0.0f, 0.0f)));
+			}
+			else {
+			 //TODO implement 2D case
+			}
 			break;
 		case MOVE_CAMERA_RIGHT:
-			camera().frame().translate(
-					camera().frame().inverseTransformOf(new Vector3D(10.0f * camera().flySpeed(), 0.0f, 0.0f)));
+			if( is3D() ) {
+			viewPort().frame().translate(
+					viewPort().frame().inverseTransformOf(new Vector3D(10.0f * ((Camera) viewPort()).flySpeed(), 0.0f, 0.0f)));
+			}
+			else {
+				 //TODO implement 2D case
+			}
 			break;
 		case MOVE_CAMERA_UP:
+			if( is3D() ) {
 			if( this.isRightHanded() )
-				camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * camera().flySpeed(), 0.0f)));
+				viewPort().frame().translate(viewPort().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * ((Camera) viewPort()).flySpeed(), 0.0f)));
 			else
-				camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * camera().flySpeed(), 0.0f)));
+				viewPort().frame().translate(viewPort().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * ((Camera) viewPort()).flySpeed(), 0.0f)));
+		  }
+		  else {
+			  //TODO implement 2D case
+		  }
 			break;
 		case MOVE_CAMERA_DOWN:
+			if( is3D() ) {
 			if( this.isRightHanded() )
-				camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * camera().flySpeed(), 0.0f)));
+				viewPort().frame().translate(viewPort().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * ((Camera) viewPort()).flySpeed(), 0.0f)));
 			else
-				camera().frame().translate(camera().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * camera().flySpeed(), 0.0f)));
+				viewPort().frame().translate(viewPort().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * ((Camera) viewPort()).flySpeed(), 0.0f)));
+			}
+			else {
+			  //TODO implement 2D case
+		  }
 			break;
 		case INCREASE_ROTATION_SENSITIVITY:
-			camera().setRotationSensitivity(camera().rotationSensitivity() * 1.2f);
+			viewPort().setRotationSensitivity(viewPort().rotationSensitivity() * 1.2f);
 			break;
 		case DECREASE_ROTATION_SENSITIVITY:
-			camera().setRotationSensitivity(camera().rotationSensitivity() / 1.2f);
+			viewPort().setRotationSensitivity(viewPort().rotationSensitivity() / 1.2f);
 			break;
 		case INCREASE_CAMERA_FLY_SPEED:
-			camera().setFlySpeed(camera().flySpeed() * 1.2f);
+			((Camera) viewPort()).setFlySpeed(((Camera) viewPort()).flySpeed() * 1.2f);
 			break;
 		case DECREASE_CAMERA_FLY_SPEED:
-			camera().setFlySpeed(camera().flySpeed() / 1.2f);
+			((Camera) viewPort()).setFlySpeed(((Camera) viewPort()).flySpeed() / 1.2f);
 			break;
 		case INCREASE_AVATAR_FLY_SPEED:
 			if (avatar() != null)
@@ -707,13 +726,17 @@ public abstract class AbstractScene implements Constants {
 		// CENTER_FRAME, CENTER_SCENE, SHOW_ALL, ALIGN_FRAME, ALIGN_CAMERA }
 		if( !mouseIsHandled() )
 			return;
+		
+		if( !action.is2D() && this.is2D() )
+			return;
+		
 		switch (action) {
 		case NO_CLICK_ACTION:
 			break;
 		case ZOOM_ON_PIXEL:
-			if (Camera.class == camera().getClass())
-				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
-								+ "See the Point Under Pixel example!");
+			if (this.is2D()) {
+			  //TODO implement 2D case
+			}				
 			else {
 				Camera.WorldPoint wP = interpolateToZoomOnPixel(new Point(mouseX, mouseY));
 				if (wP.found) {
@@ -724,38 +747,43 @@ public abstract class AbstractScene implements Constants {
 			}
 			break;
 		case ZOOM_TO_FIT:
-			camera().interpolateToFitScene();
+			viewPort().interpolateToFitScene();
 			break;
 		case ARP_FROM_PIXEL:
-			if (Camera.class == camera().getClass())
-				System.out.println("Override Camera.pointUnderPixel calling gl.glReadPixels() in your own OpenGL Camera derived class. "
-								+ "See the Point Under Pixel example!");
+			if (this.is2D()){
+			//TODO implement 2D case
+			}			
 			else if (setArcballReferencePointFromPixel(new Point(mouseX, mouseY))) {			  
 				arpFlag = true;
 				timerFx.runOnce(1000);					
 			}
 			break;
 		case RESET_ARP:		  
-			camera().setArcballReferencePoint(new Vector3D(0, 0, 0));
+			viewPort().setArcballReferencePoint(new Vector3D(0, 0, 0));
 			arpFlag = true;
 			timerFx.runOnce(1000);				
 			break;
 		case CENTER_FRAME:
+			if( this.is3D() ) {
 			if (interactiveFrame() != null)
-				interactiveFrame().projectOnLine(camera().position(), camera().viewDirection());
+				interactiveFrame().projectOnLine(viewPort().position(), ((Camera) viewPort()).viewDirection());
+			}
+			else {
+			//TODO implement 2D case
+			}
 			break;
 		case CENTER_SCENE:
-			camera().centerScene();
+			viewPort().centerScene();
 			break;
 		case SHOW_ALL:
-			camera().showEntireScene();
+			viewPort().showEntireScene();
 			break;
 		case ALIGN_FRAME:
 			if (interactiveFrame() != null)
-				interactiveFrame().alignWithFrame(camera().frame());
+				interactiveFrame().alignWithFrame(viewPort().frame());
 			break;
 		case ALIGN_CAMERA:
-			camera().frame().alignWithFrame(null, true);
+			viewPort().frame().alignWithFrame(null, true);
 			break;
 		}
 	}
@@ -832,7 +860,7 @@ public abstract class AbstractScene implements Constants {
 			
 		bindMatrices();
 		if (frustumEquationsUpdateIsEnable())
-			camera().updateFrustumEquations();
+			viewPort().updateFrustumEquations();
 	}
 	
 	/**
@@ -876,12 +904,12 @@ public abstract class AbstractScene implements Constants {
 		// 5. Grid and axis drawing
 		if (gridIsDrawn()) {
 			if(gridIsDotted())
-				drawDottedGrid(camera().sceneRadius());
+				drawDottedGrid(viewPort().sceneRadius());
 			else
-				drawGrid(camera().sceneRadius());
+				drawGrid(viewPort().sceneRadius());
 		}
 		if (axisIsDrawn())
-			drawAxis(camera().sceneRadius());		
+			drawAxis(viewPort().sceneRadius());		
 		
 		// 6. Display visual hints
 		displayVisualHints(); // abstract
@@ -915,26 +943,27 @@ public abstract class AbstractScene implements Constants {
 		else {
 			setProjectionMatrix();
 			setModelViewMatrix();
-			camera().cacheMatrices();
+			if( this.is3D() )
+				((Camera) viewPort()).cacheMatrices();
 		}
 	}
 	
 	/**
-	 * Sets the processing camera projection matrix from {@link #camera()}. Calls
+	 * Sets the processing camera projection matrix from {@link #viewPort()}. Calls
 	 * {@code PApplet.perspective()} or {@code PApplet.orhto()} depending on the
 	 * {@link remixlab.remixcam.core.Camera#type()}.
 	 */
 	protected void setProjectionMatrix() {
-		camera().loadProjectionMatrix();
+		viewPort().loadProjectionMatrix();
 	}
 	
 	/**
-	 * Sets the processing camera matrix from {@link #camera()}. Simply calls
+	 * Sets the processing camera matrix from {@link #viewPort()}. Simply calls
 	 * {@code PApplet.camera()}.
 	 */
 	protected void setModelViewMatrix() {		
 		// TODO find a better name for this:
-		camera().resetViewMatrix(); // model is separated from view always
+		viewPort().resetViewMatrix(); // model is separated from view always
 		//  alternative is
 			//camera().loadViewMatrix();	  
 	}
@@ -950,7 +979,7 @@ public abstract class AbstractScene implements Constants {
 	}
 	
 	public Matrix3D getViewMatrix() {
-		Matrix3D view = camera().getViewMatrix();  	
+		Matrix3D view = viewPort().getViewMatrix();  	
   	return view;
 	}
 	
@@ -973,7 +1002,7 @@ public abstract class AbstractScene implements Constants {
 		Matrix3D PVM;  	
   	PVM = getMatrix();//model  	
     //PVM.preApply(camera().projectionViewMat);
-  	PVM.preApply(camera().getProjectionViewMatrix());  	
+  	PVM.preApply(viewPort().getProjectionViewMatrix());  	
   	return PVM;
 	}
 	
@@ -993,7 +1022,7 @@ public abstract class AbstractScene implements Constants {
 	 * initialize stuff not initialized in {@code PApplet.setup()}. The default
 	 * implementation is empty.
 	 * <p>
-	 * Typical usage include {@link #camera()} initialization ({@link #showAll()})
+	 * Typical usage include {@link #viewPort()} initialization ({@link #showAll()})
 	 * and Scene state setup ({@link #setAxisIsDrawn(boolean)} and
 	 * {@link #setGridIsDrawn(boolean)}.
 	 */
@@ -1458,13 +1487,10 @@ public abstract class AbstractScene implements Constants {
   public void drawDottedGrid(float size, int nbSubdivisions) {
   	renderer.drawDottedGrid(size, nbSubdivisions);
   }
-  
-  /**
-  //TODO pend
-  public void drawViewPort(ViewPort camera, float scale) {
-  	renderer.drawViewPort(camera, scale);
+    
+  public void drawViewWindow(ViewWindow window, float scale) {
+  	renderer.drawViewWindow(window, scale);
   }
-  */
   
   public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
   	renderer.drawCamera(camera, drawFarPlane, scale);
@@ -1515,35 +1541,19 @@ public abstract class AbstractScene implements Constants {
 		
 		if( this.isAP5Scene() )
 			renderer.beginScreenDrawing();
-		else { // TODO needs implementation and testing
-			/**
-			glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	if (tileRegion_ != NULL)
-	  if (upward)
-	    glOrtho(tileRegion_->xMin, tileRegion_->xMax, tileRegion_->yMin, tileRegion_->yMax, 0.0, -1.0);
-	  else
-	    glOrtho(tileRegion_->xMin, tileRegion_->xMax, tileRegion_->yMax, tileRegion_->yMin, 0.0, -1.0);
-	else
-	  if (upward)
-	    glOrtho(0, width(), 0, height(), 0.0, -1.0);
-	  else
-	    glOrtho(0, width(), height(), 0, 0.0, -1.0);
-
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-			 */
-			pushProjection();
+		else { // TODO needs implementation and testing			pushProjection();
 			/**
 			resetProjection();
 			camera().ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
 			multiplyProjection(camera().getProjectionMatrix());
 			*/
 			// next two same as the prv three?
-			camera().ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
-			loadProjection(camera().getProjectionMatrix());
+			if( this.is3D() )
+				((Camera) viewPort()).ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
+			else {
+			//TODO implement 2D case
+			}
+			loadProjection(viewPort().getProjectionMatrix());
 			pushMatrix();
 			resetMatrix();
 		}
@@ -1558,13 +1568,6 @@ public abstract class AbstractScene implements Constants {
 		if( this.isAP5Scene() )
 			renderer.endScreenDrawing();
 		else {
-			/**
-			 glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-			 */
 			popProjection();
 			popMatrix();			
 		}		
@@ -1669,15 +1672,43 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Returns the associated Camera, never {@code null}.
 	 */
+	public ViewPort viewPort() {
+		return viewport;
+	}
+	
+	/**
+	 * Returns the associated Camera, never {@code null}.
+	 */
 	public Camera camera() {
-		return cam;
+		if (this.is3D())
+			return (Camera) viewport;
+		else 
+			throw new RuntimeException("Camera type is only available in 3D");
+	}
+	
+	public ViewWindow viewWindow() {
+		if (this.is2D())
+			return (ViewWindow) viewport;
+		else 
+			throw new RuntimeException("ViewWindow type is only available in 2D");
 	}
 
 	/**
-	 * Replaces the current {@link #camera()} with {@code camera}
+	 * Replaces the current {@link #viewPort()} with {@code vp}
 	 */
-	// TODO can be implemented here?
-	public abstract void setCamera(Camera camera);
+	public void setViewPort(ViewPort vp)  {
+		if (vp == null)
+			return;
+
+		vp.setSceneRadius(radius());		
+		vp.setSceneCenter(center());
+
+		vp.setScreenWidthAndHeight(width(), height());
+
+		viewport = vp;		
+
+		showAll();
+	}
 	
 	/**
 	 * Returns {@code true} if automatic update of the camera frustum plane
@@ -1691,7 +1722,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see remixlab.remixcam.core.Camera#updateFrustumEquations()
 	 */
 	public boolean frustumEquationsUpdateIsEnable() {
-		return camera().frustumEquationsUpdateIsEnable();
+		return viewPort().frustumEquationsUpdateIsEnable();
 	}
 
 	/**
@@ -1752,61 +1783,89 @@ public abstract class AbstractScene implements Constants {
 	 * @see remixlab.remixcam.core.Camera#updateFrustumEquations()
 	 */
 	public void enableFrustumEquationsUpdate(boolean flag) {
-		camera().enableFrustumEquationsUpdate(flag);
+		viewPort().enableFrustumEquationsUpdate(flag);
 	}
 	
 	/**
-	 * Toggles the {@link #camera()} type between PERSPECTIVE and ORTHOGRAPHIC.
+	 * Toggles the {@link #viewPort()} type between PERSPECTIVE and ORTHOGRAPHIC.
 	 */
 	public void toggleCameraType() {
-		if (camera().type() == Camera.Type.PERSPECTIVE)
+		if( this.is2D() ) {
+			System.out.println("Warning: Camera Type is only available in 3D");
+		}
+		else {
+		if (((Camera) viewPort()).type() == Camera.Type.PERSPECTIVE)
 			setCameraType(Camera.Type.ORTHOGRAPHIC);
 		else
 			setCameraType(Camera.Type.PERSPECTIVE);
+		}
 	}
 
 	/**
-	 * Toggles the {@link #camera()} kind between PROSCENE and STANDARD.
+	 * Toggles the {@link #viewPort()} kind between PROSCENE and STANDARD.
 	 */
 	public void toggleCameraKind() {
-		if (camera().kind() == Camera.Kind.PROSCENE)
+		if( this.is2D() ) {
+			System.out.println("Warning: Camera Kind is only available in 3D");
+		}
+		else {
+		if (((Camera) viewPort()).kind() == Camera.Kind.PROSCENE)
 			setCameraKind(Camera.Kind.STANDARD);
 		else
 			setCameraKind(Camera.Kind.PROSCENE);
+		}
 	}
 	
 	/**
-	 * Returns the current {@link #camera()} type.
+	 * Returns the current {@link #viewPort()} type.
 	 */
 	public final Camera.Type cameraType() {
-		return camera().type();
+		if( this.is2D() ) {
+			System.out.println("Warning: Camera Type is only available in 3D");
+			return null;
+		}
+		else
+			return ((Camera) viewPort()).type();		
 	}
 
 	/**
-	 * Sets the {@link #camera()} type.
+	 * Sets the {@link #viewPort()} type.
 	 */
 	public void setCameraType(Camera.Type type) {
-		if (type != camera().type())
-			camera().setType(type);
+		if( this.is2D() ) {
+			System.out.println("Warning: Camera Type is only available in 3D");			
+		}
+		else
+			if (type != ((Camera) viewPort()).type())
+				((Camera) viewPort()).setType(type);
 	}
 
 	/**
-	 * Returns the current {@link #camera()} kind.
+	 * Returns the current {@link #viewPort()} kind.
 	 */
 	public final Camera.Kind cameraKind() {
-		return camera().kind();
+		if( this.is2D() ) {
+			System.out.println("Warning: Camera Kype is only available in 3D");
+			return null;
+		}
+		return ((Camera) viewPort()).kind();
 	}
 
 	/**
-	 * Sets the {@link #camera()} kind.
+	 * Sets the {@link #viewPort()} kind.
 	 */
 	public void setCameraKind(Camera.Kind kind) {
-		if (kind != camera().kind()) {
-			camera().setKind(kind);
+		if( this.is2D() ) {
+			System.out.println("Warning: Camera Kind is only available in 3D");			
+		}
+		else {
+		if (kind != ((Camera) viewPort()).kind()) {
+			((Camera) viewPort()).setKind(kind);
 			if (kind == Camera.Kind.PROSCENE)
 				System.out.println("Changing camera kind to Proscene");
 			else
 				System.out.println("Changing camera kind to Standard");
+		}
 		}
 	}
 	
@@ -1953,7 +2012,7 @@ public abstract class AbstractScene implements Constants {
 	 * <p>
 	 * When {@link remixlab.remixcam.devices.DeviceGrabbable#grabsMouse()}, the different
 	 * mouse events are sent to it instead of their usual targets (
-	 * {@link #camera()} or {@link #interactiveFrame()}).
+	 * {@link #viewPort()} or {@link #interactiveFrame()}).
 	 */
 	public DeviceGrabbable mouseGrabber() {
 		return mouseGrbbr;
@@ -2046,7 +2105,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #center()
 	 */
 	public float radius() {
-		return camera().sceneRadius();
+		return viewPort().sceneRadius();
 	}
 
 	/**
@@ -2058,7 +2117,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #setCenter(Vector3D) {@link #radius()}
 	 */
 	public Vector3D center() {
-		return camera().sceneCenter();
+		return viewPort().sceneCenter();
 	}
 
 	/**
@@ -2070,7 +2129,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #setCenter(Vector3D) {@link #radius()}
 	 */
 	public Vector3D arcballReferencePoint() {
-		return camera().arcballReferencePoint();
+		return viewPort().arcballReferencePoint();
 	}
 
 	/**
@@ -2082,7 +2141,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #setCenter(Vector3D)
 	 */
 	public void setRadius(float radius) {
-		camera().setSceneRadius(radius);
+		viewPort().setSceneRadius(radius);
 	}
 
 	/**
@@ -2093,7 +2152,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #setRadius(float)
 	 */
 	public void setCenter(Vector3D center) {
-		camera().setSceneCenter(center);
+		viewPort().setSceneCenter(center);
 	}
 
 	/**
@@ -2107,7 +2166,17 @@ public abstract class AbstractScene implements Constants {
 	 * @see #setCenter(Vector3D)
 	 */
 	public void setBoundingBox(Vector3D min, Vector3D max) {
-		camera().setSceneBoundingBox(min, max);
+		if( this.is2D() )
+			System.out.println("setBoundingBox is available only in 3D. Use setBoundingRect instead");
+		else
+			((Camera) viewPort()).setSceneBoundingBox(min, max);
+	}
+	
+	public void setBoundingRect(Vector3D min, Vector3D max) {
+		if( this.is3D() )
+			System.out.println("setBoundingRect is available only in 2D. Use setBoundingBox instead");
+		else
+			((ViewWindow) viewPort()).setSceneBoundingRect(min, max);
 	}
 
 	/**
@@ -2117,7 +2186,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see remixlab.remixcam.core.Camera#showEntireScene()
 	 */
 	public void showAll() {
-		camera().showEntireScene();
+		viewPort().showEntireScene();
 	}
 
 	/**
@@ -2133,7 +2202,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see remixlab.remixcam.core.Camera#pointUnderPixel(Point)
 	 */
 	public boolean setArcballReferencePointFromPixel(Point pixel) {
-		return camera().setArcballReferencePointFromPixel(pixel);
+		return viewPort().setArcballReferencePointFromPixel(pixel);
 	}
 
 	/**
@@ -2148,7 +2217,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see remixlab.remixcam.core.Camera#pointUnderPixel(Point)
 	 */
 	public Camera.WorldPoint interpolateToZoomOnPixel(Point pixel) {
-		return camera().interpolateToZoomOnPixel(pixel);
+		return viewPort().interpolateToZoomOnPixel(pixel);
 	}
 
 	/**
@@ -2164,7 +2233,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see remixlab.remixcam.core.Camera#pointUnderPixel(Point)
 	 */
 	public boolean setCenterFromPixel(Point pixel) {
-		return camera().setSceneCenterFromPixel(pixel);
+		return viewPort().setSceneCenterFromPixel(pixel);
 	}
 	
 	// * Control what is drawing

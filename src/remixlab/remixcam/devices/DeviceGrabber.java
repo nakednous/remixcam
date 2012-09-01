@@ -25,8 +25,7 @@
 
 package remixlab.remixcam.devices;
 
-import remixlab.remixcam.core.AbstractScene;
-import remixlab.remixcam.core.Camera;
+import remixlab.remixcam.core.*;
 import remixlab.remixcam.core.AbstractScene.Button;
 import remixlab.remixcam.geom.Point;
 
@@ -64,7 +63,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * 
 	 * @see remixlab.remixcam.devices.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)
 	 */
-	public void checkIfGrabsMouse(int x, int y, Camera camera) { }
+	public void checkIfGrabsMouse(int x, int y, ViewPort vp) { }
 
 	/**
 	 * Returns true when the MouseGrabbable grabs the Scene mouse events.
@@ -78,7 +77,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void mouseClicked(Button button, int numberOfClicks, Camera camera) { }
+	public void mouseClicked(Button button, int numberOfClicks, ViewPort vp) { }
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and the
@@ -86,7 +85,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void mouseDragged(Point eventPoint, Camera camera) { }
+	public void mouseDragged(Point eventPoint, ViewPort vp) { }
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a
@@ -113,7 +112,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * 
 	 * @see #mouseReleased(Point, Camera)
 	 */
-	public void mousePressed(Point eventPoint, Camera camera) {
+	public void mousePressed(Point eventPoint, ViewPort vp) {
 		if (grabsMouse())
 			keepsGrabbingMouse = true;
 	}
@@ -122,7 +121,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * Mouse release event callback method.
 	 * <p>
 	 */
-	public void mouseReleased(Point eventPoint, Camera camera) {
+	public void mouseReleased(Point eventPoint, ViewPort vp) {
 		keepsGrabbingMouse = false;
 	}
 
@@ -132,7 +131,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void mouseWheelMoved(int rotation, Camera camera) { }
+	public void mouseWheelMoved(int rotation, ViewPort vp) { }
 
 	/**
 	 * Sets the {@link #grabsMouse()} flag. Normally used by

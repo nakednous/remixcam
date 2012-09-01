@@ -71,7 +71,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		.isEquals();
 	}
 	
-	protected Camera camera;
+	protected ViewPort viewport;
 	protected Vector3D arcballRefPnt;
 
 	/**
@@ -82,9 +82,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * <p>
 	 * <b>Attention:</b> Created object is {@link #removeFromMouseGrabberPool()}.
 	 */
-	public InteractiveCameraFrame(Camera cam) {
-		super(cam.scene);
-		camera = cam;
+	public InteractiveCameraFrame(ViewPort vp) {
+		super(vp.scene);
+		viewport = vp;
 		removeFromMouseGrabberPool();
 		arcballRefPnt = new Vector3D(0.0f, 0.0f, 0.0f);
 	}
@@ -96,7 +96,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 */
 	protected InteractiveCameraFrame(InteractiveCameraFrame otherFrame) {
 		super(otherFrame);
-		this.camera = otherFrame.camera;
+		this.viewport = otherFrame.viewport;
 		this.arcballRefPnt = new Vector3D();
 		this.arcballRefPnt.set(otherFrame.arcballRefPnt );
 	}
@@ -117,7 +117,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 */
 	@Override
 	protected void modified() {		
-		camera.lastFrameUpdate = scene.frameCount();
+		viewport.lastFrameUpdate = scene.frameCount();
 		super.modified();
 	}
 
@@ -155,14 +155,14 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseDragged(Point, Camera)}
+	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseDragged(Point, ViewPort)}
 	 * .
 	 * <p>
 	 * Motion depends on mouse binding. The resulting displacements are basically
 	 * inverted from those of an InteractiveFrame.
 	 */
-	public void mouseDragged(Point eventPoint, Camera camera) {
-		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+	public void mouseDragged(Point eventPoint, ViewPort vp) {
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		if ((action == AbstractScene.MouseAction.MOVE_FORWARD)
@@ -172,7 +172,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				|| (action == AbstractScene.MouseAction.ROLL)
 				|| (action == AbstractScene.MouseAction.ZOOM_ON_REGION)
 				|| (action == AbstractScene.MouseAction.NO_MOUSE_ACTION))
-			super.mouseDragged(eventPoint, camera);
+			super.mouseDragged(eventPoint, vp);
 		else {
 			int deltaY;
 			if( scene.isRightHanded() )
@@ -181,47 +181,54 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				deltaY = (int) (eventPoint.y - prevPos.y);
 			switch (action) {
 			case TRANSLATE: {
+				if( scene.is3D() ) {
 				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
 				Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
 				// Scale to fit the screen mouse displacement
-				switch (camera.type()) {
+				switch (((Camera) vp).type()) {
 				case PERSPECTIVE:
 					trans.mult(2.0f
-							* (float) Math.tan(camera.fieldOfView() / 2.0f)
-							* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2])
-							/ camera.screenHeight());
+							* (float) Math.tan(((Camera) vp).fieldOfView() / 2.0f)
+							* Math.abs((vp.frame().coordinatesOf(arcballReferencePoint())).vec[2])
+							/ vp.screenHeight());
 					break;
 				case ORTHOGRAPHIC: {
-					float[] wh = camera.getOrthoWidthHeight();
-					trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
-					trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
+					float[] wh = vp.getOrthoWidthHeight();
+					trans.vec[0] *= 2.0f * wh[0] / vp.screenWidth();
+					trans.vec[1] *= 2.0f * wh[1] / vp.screenHeight();
 					break;
 				}
 				}
-				translate(inverseTransformOf(Vector3D.mult(trans,
-						translationSensitivity())));
+				translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
 				prevPos = eventPoint;
+				
+				}
+				else {
+					//TODO implement 2D case
+				}
 				break;
 			}
 
 			case ZOOM: {
 				// #CONNECTION# wheelEvent() ZOOM case
-				float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).vec[2]),
-						                                                         0.2f * camera.sceneRadius());
+				float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]),
+						                                                         0.2f * vp.sceneRadius());
 				// Warning: same for left and right CoordinateSystemConvention:
-				Vector3D trans = new Vector3D(0.0f, 0.0f,	-coef	* ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
-			  //TODO check 2d hack
-				float wh[] = camera.getOrthoWidthHeight();
-				if( ( (wh[0] > camera.sceneRadius()) && (wh[1] > camera.sceneRadius()) ) ||
-						(trans.z() > 0) || scene.is3D() )
+				Vector3D trans = new Vector3D(0.0f, 0.0f,	-coef	* ((int) (eventPoint.y - prevPos.y)) / vp.screenHeight());				
+				if(scene.is3D())
 					translate(inverseTransformOf(trans));
+				else {					
+					//TODO implement 2D case
+					//float wh[] = camera.getOrthoWidthHeight();
+				}			
+					
 				prevPos = eventPoint;
 				break;
 			}
 
 			case ROTATE: {
-				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
-				Quaternion rot = deformedBallQuaternion((int) eventPoint.x,	(int) eventPoint.y, trans.vec[0], trans.vec[1], camera);
+				Vector3D trans = ((Camera) vp).projectedCoordinatesOf(arcballReferencePoint());
+				Quaternion rot = deformedBallQuaternion((int) eventPoint.x,	(int) eventPoint.y, trans.vec[0], trans.vec[1], (Camera) vp);
 				// #CONNECTION# These two methods should go together (spinning detection and activation)
 				computeMouseSpeed(eventPoint);
 				setSpinningQuaternion(rot);
@@ -231,7 +238,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			}
 
 			case SCREEN_ROTATE: {
-				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
+				if( scene.is3D() ) {
+				Vector3D trans = ((Camera) vp).projectedCoordinatesOf(arcballReferencePoint());
 				float angle = (float) Math.atan2((int) eventPoint.y - trans.vec[1],
 						                             (int) eventPoint.x - trans.vec[0])
 						                  - (float) Math.atan2((int) prevPos.y - trans.vec[1], (int) prevPos.x
@@ -248,35 +256,44 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				setSpinningQuaternion(rot);
 				spin();
 				updateFlyUpVector();
-				prevPos = eventPoint;
+				prevPos = eventPoint;				
+				}
+				else {
+					//TODO implement 2D case
+				}
+				
 				break;
 			}
 
 			case SCREEN_TRANSLATE: {
+				if(scene.is3D()) {				
 				Vector3D trans = new Vector3D();
 				int dir = mouseOriginalDirection(eventPoint);
 				if (dir == 1)
 					trans.set(((int) prevPos.x - (int) eventPoint.x), 0.0f, 0.0f);
 				else if (dir == -1)
 					trans.set(0.0f, -deltaY, 0.0f);
-				switch (camera.type()) {
+				switch (((Camera) vp).type()) {
 				case PERSPECTIVE:
 					trans.mult(2.0f
-							* (float) Math.tan(camera.fieldOfView() / 2.0f)
-							* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2])
-							/ camera.screenHeight());
+							* (float) Math.tan(((Camera) vp).fieldOfView() / 2.0f)
+							* Math.abs((vp.frame().coordinatesOf(arcballReferencePoint())).vec[2])
+							/ vp.screenHeight());
 					break;
 				case ORTHOGRAPHIC: {
-					float[] wh = camera.getOrthoWidthHeight();
-					trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
-					trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
+					float[] wh = vp.getOrthoWidthHeight();
+					trans.vec[0] *= 2.0f * wh[0] / vp.screenWidth();
+					trans.vec[1] *= 2.0f * wh[1] / vp.screenHeight();
 					break;
 				}
 				}
 
-				translate(inverseTransformOf(Vector3D.mult(trans,
-						translationSensitivity())));
-				prevPos = eventPoint;
+				translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+				prevPos = eventPoint;				
+			  }
+				else {
+					//TODO implement 2D case
+				}
 				break;
 			}
 
@@ -291,8 +308,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * Overloading of
 	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseReleased(Point, Camera)}.
 	 */
-	public void mouseReleased(Point eventPoint, Camera camera) {
-		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+	public void mouseReleased(Point eventPoint, ViewPort vp) {
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		// Added by pierre: #CONNECTION# seems that startAction should always be
@@ -310,15 +327,15 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			// if (event.getButton() == MouseEvent.BUTTON3)//right button
 			// camera.fitScreenRegion( new Rectangle (tlX, tlY, w, h) );
 			// else
-			camera.interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
+			vp.interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
 		}
 
-		super.mouseReleased(eventPoint, camera);
+		super.mouseReleased(eventPoint, vp);
 	}
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseWheelMoved(int, Camera)}
+	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseWheelMoved(int, ViewPort)}
 	 * .
 	 * <p>
 	 * The wheel behavior depends on the wheel binded action. Current possible
@@ -328,15 +345,15 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
-	public void mouseWheelMoved(int rotation, Camera camera) {
-		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+	public void mouseWheelMoved(int rotation, ViewPort vp) {
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		switch (action) {
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;
 			// #CONNECTION# mouseMoveEvent() ZOOM case
-			float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).vec[2]), 0.2f * camera.sceneRadius());
+			float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
 			Vector3D trans;
 			
 			//TODO check rhanded
@@ -347,10 +364,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			*/
 				trans = new Vector3D(0.0f, 0.0f, coef * (-rotation) * wheelSensitivity() * wheelSensitivityCoef);
 			
-			//TODO check 2d hack
-			float wh[] = camera.getOrthoWidthHeight();			
-			if( ( (wh[0] > camera.sceneRadius()) && (wh[1] > camera.sceneRadius()) ) || (trans.z() > 0) || scene.is3D() )
+			if( scene.is3D() ) {
 				translate(inverseTransformOf(trans));
+			}
+			else {			
+			  //TODO implement 2D case
+				//float wh[] = camera.getOrthoWidthHeight();
+			}
 			
 			break;
 		}

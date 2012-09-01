@@ -202,7 +202,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_FORWARD}).
 	 */
 	public void flyUpdate() {
-		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		flyDisp.set(0.0f, 0.0f, 0.0f);
@@ -242,14 +242,14 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseDragged(Point, Camera)}.
+	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseDragged(Point, ViewPort)}.
 	 * <p>
 	 * Motion depends on mouse binding. The resulting displacements are basically
 	 * the same of those of an InteractiveFrame, but moving forward and backward
 	 * and turning actions are implemented.
 	 */
-	public void mouseDragged(Point eventPoint, Camera camera) {
-		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+	public void mouseDragged(Point eventPoint, ViewPort vp) {
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		if ((action == AbstractScene.MouseAction.TRANSLATE)
@@ -258,7 +258,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 				|| (action == AbstractScene.MouseAction.SCREEN_TRANSLATE)
 				|| (action == AbstractScene.MouseAction.ROTATE)
 				|| (action == AbstractScene.MouseAction.NO_MOUSE_ACTION))
-			super.mouseDragged(eventPoint, camera);
+			super.mouseDragged(eventPoint, vp);
 		else {
 			int deltaY;
 			if ( scene.isRightHanded() )
@@ -268,7 +268,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			
 			switch (action) {
 			case MOVE_FORWARD: {
-				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, camera);
+				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, (Camera) vp);
 				rotate(rot);
 				// #CONNECTION# wheelEvent MOVE_FORWARD case
 				// actual translation is made in flyUpdate().
@@ -278,7 +278,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			}
 
 			case MOVE_BACKWARD: {
-				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, camera);
+				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, (Camera) vp);
 				rotate(rot);
 				// actual translation is made in flyUpdate().
 				// translate(inverseTransformOf(Vec(0.0, 0.0, flySpeed())));
@@ -287,7 +287,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			}
 
 			case DRIVE: {
-				Quaternion rot = turnQuaternion((int)eventPoint.x, camera);
+				Quaternion rot = turnQuaternion((int)eventPoint.x, (Camera) vp);
 				rotate(rot);
 				// actual translation is made in flyUpdate().
 				drvSpd = 0.01f * -deltaY;
@@ -296,7 +296,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			}
 
 			case LOOK_AROUND: {
-				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, camera);
+				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, (Camera) vp);
 				rotate(rot);
 				prevPos = eventPoint;
 				break;
@@ -304,7 +304,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 
 			case ROLL: {
 				float angle = (float) Math.PI * ((int)eventPoint.x - (int)prevPos.x)
-						/ camera.screenWidth();
+						/ vp.screenWidth();
 				
 			  //lef-handed coordinate system correction
 				if ( scene.isLeftHanded() )
@@ -332,8 +332,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * Overloading of
 	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseReleased(Point, Camera)}.
 	 */
-	public void mouseReleased(Point eventPoint, Camera camera) {
-		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+	public void mouseReleased(Point eventPoint, ViewPort vp) {
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		if ((action == AbstractScene.MouseAction.MOVE_FORWARD)
@@ -342,7 +342,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			flyTimerJob.stop();
 		}
 
-		super.mouseReleased(eventPoint, camera);
+		super.mouseReleased(eventPoint, vp);
 	}
 	
 	/**
@@ -356,26 +356,30 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
-	public void mouseWheelMoved(int rotation, Camera camera) {
-		if( ( scene.is2D() ) && ( !action.isTwoD() ) )
+	public void mouseWheelMoved(int rotation, ViewPort vp) {
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		switch (action) {
 		case ZOOM: {
+			if( scene.is3D() ) {
 			float wheelSensitivityCoef = 8E-4f;
 			
 			Vector3D trans;
 			if( scene.isRightHanded() )
-				trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
+				trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(((Camera) vp).position(), position())).mag());
 			else
-				trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
-			
-			
+				trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(((Camera) vp).position(), position())).mag());
+						
 			// #CONNECTION# Cut-pasted from the mouseMoveEvent ZOOM case
-			trans = camera.frame().orientation().rotate(trans);
+			trans = vp.frame().orientation().rotate(trans);
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
 			translate(trans);
+			}
+			else {
+			//TODO implement 2D case
+			}
 			break;
 		}
 		case MOVE_FORWARD:

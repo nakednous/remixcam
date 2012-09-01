@@ -259,6 +259,8 @@ public interface Renderable {
 	 */
 	public void drawCamera(Camera camera, boolean drawFarPlane, float scale);
 	
+	public void drawViewWindow(ViewWindow window, float scale);	
+	
 	public void drawKFIViewport(float scale);
 	
 	/**

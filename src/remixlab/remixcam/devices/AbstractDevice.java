@@ -66,7 +66,7 @@ public abstract class AbstractDevice {
 	public enum IFrameMode {
 		FRAME("FRAME interactive frame control mode set"),
 		CAMERA("CAMERA interactive frame control mode set"),
-		WORLD("WORLD interactive frame control mode set"),
+		WORLD("WORLD interactive frame control mode //TODO implement 2D caseset"),
 		CUSTOM("CUSTOM interactive frame control mode set");
 		private String description;		
 		IFrameMode(String description) {
@@ -85,7 +85,7 @@ public abstract class AbstractDevice {
 	protected String handlerMethodName;
 	
 	protected AbstractScene scene;
-	protected Camera camera;
+	protected ViewPort camera;
 	protected InteractiveCameraFrame cameraFrame;
 	protected InteractiveFrame iFrame;
 
@@ -125,7 +125,7 @@ public abstract class AbstractDevice {
 	 */
 	public AbstractDevice(AbstractScene scn, Mode m) {
 		scene = scn;
-		camera = scene.camera();
+		camera = scene.viewPort();
 		cameraFrame = camera.frame();
 		iFrame = scene.interactiveFrame();
 		translation = new Vector3D();
@@ -485,7 +485,11 @@ public abstract class AbstractDevice {
         t = iFrame.referenceFrame().transformOf(t);
       iFrame.translate(t);
       // B. Rotate the iFrame
-      t = camera.projectedCoordinatesOf(iFrame.position());    
+      if(scene.is3D())
+      	t = ((Camera) camera).projectedCoordinatesOf(iFrame.position());
+      else {
+      //TODO implement 2D case
+      }
       q.fromEulerAngles(roll, pitch, -yaw);
       t.set(-q.quat[0], -q.quat[1], -q.quat[2]);
       t = cameraFrame.orientation().rotate(t);
@@ -517,7 +521,7 @@ public abstract class AbstractDevice {
 	}
 
   /**
-	 * Handles the {@link remixlab.proscene.Scene#camera()} with this HIDevice.
+	 * Handles the {@link remixlab.proscene.Scene#viewPort()} with this HIDevice.
 	 */
 	protected void handleCamera() {
 		switch (camMode) {
@@ -533,10 +537,10 @@ public abstract class AbstractDevice {
       cameraFrame.translate(t);
 
       q.fromEulerAngles(-ty * ( rotSens.vec[1]/transSens.vec[1] ), tx * ( rotSens.vec[0]/transSens.vec[0] ), 0);
-      cameraFrame.rotateAroundPoint(q, scene.camera().arcballReferencePoint());
+      cameraFrame.rotateAroundPoint(q, scene.viewPort().arcballReferencePoint());
 
       q.fromEulerAngles(0, 0, yaw);
-      cameraFrame.rotateAroundPoint(q, scene.camera().arcballReferencePoint());
+      cameraFrame.rotateAroundPoint(q, scene.viewPort().arcballReferencePoint());
 
       q.fromEulerAngles(-roll, 0, 0);
       cameraFrame.rotate(q);
