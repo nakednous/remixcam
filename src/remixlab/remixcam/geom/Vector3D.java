@@ -725,6 +725,37 @@ public class Vector3D implements Constants, Primitivable {
     return (float) Math.acos(amt);
   }
   
+  /**
+   * Make a new 2D unit vector from an angle.
+   *
+   * ( end auto-generated )
+   *
+   * @webref pvector:method
+   * @usage web_application
+   * @brief Make a new 2D unit vector from an angle
+   * @param angle the angle
+   * @return the new unit PVector3D
+   */
+  static public Vector3D fromAngle(float angle) {
+    return fromAngle(angle,null);
+  }
+
+
+  /**
+   * Make a new 2D unit vector from an angle
+   * @param angle the angle
+   * @param target the target vector (if null, a new vector will be created)
+   * @return the Vector3D
+   */
+  static public Vector3D fromAngle(float angle, Vector3D target) {
+    if (target == null) {
+      target = new Vector3D((float)Math.cos(angle),(float)Math.sin(angle),0);
+    } else {
+      target.set((float)Math.cos(angle),(float)Math.sin(angle),0);
+    }
+    return target;
+  }
+  
   public void print() {
   	System.out.println(x() + " " + y() + " " + z() + "\n");
   }

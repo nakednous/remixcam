@@ -538,6 +538,23 @@ public class Matrix3D implements Primitivable {
     mat[3] *= x;  mat[7] *= y;  mat[11] *= z;
   }
   
+  public void shearX(float angle) {
+    float t = (float) Math.tan(angle);
+    apply(1, 0, 0, 0,
+          t, 1, 0, 0,
+          0, 0, 1, 0,
+          0, 0, 0, 1);
+  }
+
+
+  public void shearY(float angle) {
+    float t = (float) Math.tan(angle);
+    apply(1, t, 0, 0,
+          0, 1, 0, 0,
+          0, 0, 1, 0,
+          0, 0, 0, 1);
+  }
+  
   public void apply(float [] source) {
   	if(source != null) {
   		if( source.length == 16 ) {

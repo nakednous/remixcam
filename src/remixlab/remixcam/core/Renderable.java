@@ -202,6 +202,20 @@ public interface Renderable {
   public void cylinder(float w, float h);
   
   /**
+	 * Draws a cylinder whose bases are formed by two cutting planes ({@code m}
+	 * and {@code n}), along the {@link #renderer()} positive {@code z} axis.
+	 * 
+	 * @param detail
+	 * @param w radius of the cylinder and h is its height
+	 * @param h height of the cylinder
+	 * @param m normal of the plane that intersects the cylinder at z=0
+	 * @param n normal of the plane that intersects the cylinder at z=h
+	 * 
+	 * @see #cylinder(float, float)
+	 */
+	public void hollowCylinder(int detail, float w, float h, Vector3D m, Vector3D n);
+  
+  /**
 	 * Draws a cone along the positive {@code z} axis, with its base centered
 	 * at {@code (x,y)}, height {@code h}, and radius {@code r}. 
 	 * 
