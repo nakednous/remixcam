@@ -911,6 +911,13 @@ public class Quaternion implements Constants, Primitivable {
 		float angle = 2.0f * (float) Math.acos(this.quat[3]);
 		return (angle <= PI) ? angle : 2.0f * PI - angle;
 	}
+	
+	//TODO needs testing and DOC
+	public final float angle2D() {
+		float angle = 2.0f * (float) Math.acos(this.quat[3]);
+		if(angle > PI) angle = 2.0f * PI - angle;
+		return (axis().z() > 0) ? angle : -angle;
+	}
 
 	/**
 	 * Returns the 3x3 rotation matrix associated with the Quaternion.

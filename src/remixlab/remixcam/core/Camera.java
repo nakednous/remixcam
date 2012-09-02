@@ -53,7 +53,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * and {@link #setStandardZFar(float)}).
  * 
  */
-public class Camera extends ViewPort implements Constants, Copyable {
+public class Camera extends Pinhole implements Constants, Copyable {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
@@ -73,7 +73,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 		//append(viewMat).
 		append(normal).
 		append(orthoCoef).
-		append(orthoSize).
+		//append(orthoSize).
 		append(physicalDist2Scrn).
 		append(physicalScrnWidth).
 		//append(projectionMat).
@@ -85,7 +85,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 		append(stdZNear).
 		//append(tempFrame).
 		append(tp).
-		append(viewport).
+		//append(viewport).
 		append(zClippingCoef).
 		append(zNearCoef).
     toHashCode();
@@ -131,7 +131,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 		//.append(viewMat,other.viewMat)
 		.append(normal,other.normal)
 		.append(orthoCoef,other.orthoCoef)
-		.append(orthoSize,other.orthoSize)
+		//.append(orthoSize,other.orthoSize)
 		.append(physicalDist2Scrn,other.physicalDist2Scrn)
 		.append(physicalScrnWidth,other.physicalScrnWidth)
 		//.append(projectionMat,other.projectionMat)
@@ -143,7 +143,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 		.append(stdZNear,other.stdZNear)
 		//.append(tempFrame,other.tempFrame)
 		.append(tp,other.tp)
-		.append(viewport,other.viewport)
+		//.append(viewport,other.viewport)
 		.append(zClippingCoef,other.zClippingCoef)
 		.append(zNearCoef,other.zNearCoef)
 		.isEquals();
@@ -237,8 +237,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 		public Vector3D point;
 		public boolean found;
 	}
-
-	int viewport[] = new int[4];
+	
 	// next variables are needed for frustum plane coefficients
 	Vector3D normal[] = new Vector3D[6];
 	float dist[] = new float[6];
@@ -263,11 +262,10 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	// C a m e r a p a r a m e t e r s
 	private float fldOfView; // in radians	
 	private float zNearCoef;
-	private float zClippingCoef;
-	private float orthoCoef;
+	private float zClippingCoef;	
 	private Type tp; // PERSPECTIVE or ORTHOGRAPHIC
 	private Kind knd; // PROSCENE or STANDARD
-	private float orthoSize;
+	private float orthoCoef;
 	private float stdZNear;
 	private float stdZFar;	  
 	
@@ -332,8 +330,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 		setSceneCenter(new Vector3D(0.0f, 0.0f, 0.0f));
 		// */
 
-		setKind(Kind.PROSCENE);
-		orthoSize = 1;// only for standard kind, but we initialize it here
+		setKind(Kind.PROSCENE);		
 		setStandardZNear(0.001f);// only for standard kind, but we initialize it
 															// here
 		setStandardZFar(1000.0f);// only for standard kind, but we initialize it
@@ -384,8 +381,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 		
 		this.fldOfView = oCam.fldOfView;
 		this.orthoCoef = oCam.orthoCoef;		
-		this.setKind(oCam.kind());
-		this.orthoSize = oCam.orthoSize;
+		this.setKind(oCam.kind());		
 		this.setStandardZNear(oCam.standardZNear());
 		this.setStandardZFar(oCam.standardZFar());
 		this.setType(oCam.type());
@@ -629,6 +625,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	 * 
 	 * @see #standardOrthoFrustumSize()
 	 */
+	@Override
 	public void changeStandardOrthoFrustumSize(boolean augment) {
 		if( (kind() == Camera.Kind.STANDARD) && (type() == Camera.Type.ORTHOGRAPHIC) )
 			lastFrameUpdate = scene.frameCount();
@@ -636,18 +633,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 			orthoSize *= 1.01f;
 		else
 			orthoSize /= 1.01f;
-	}
-
-	/**
-	 * Returns the frustum size. This value is used to set
-	 * {@link #getOrthoWidthHeight()}. Meaningful only when the Camera
-	 * {@link #kind()} is STANDARD and the Camera {@link #type()} is ORTHOGRAPHIC.
-	 * 
-	 * @see #getOrthoWidthHeight()
-	 */
-	public float standardOrthoFrustumSize() {
-		return orthoSize;
-	}
+	}	
 
 	/**
 	 * Defines the Camera {@link #type()}.
@@ -808,35 +794,6 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	public void setHorizontalFieldOfView(float hfov) {
 		setFieldOfView(2.0f * (float) Math.atan((float) Math.tan(hfov / 2.0f) / aspectRatio()));
 	}	
-
-	/**
-	 * Convenience function that simply calls {@code return}
-	 * {@link #getViewport(int[])}.
-	 */
-	public int[] getViewport() {
-		return getViewport(new int[4]);
-	}
-
-	/**
-	 * Fills {@code viewport} with the Camera viewport and returns it. If viewport
-	 * is null (or not the correct size), a new array will be created.
-	 * <p>
-	 * This method is mainly used in conjunction with
-	 * {@code project(float, float, float, Matrix3D, Matrix3D, int[], float[])}
-	 * , which requires such a viewport. Returned values are (0,
-	 * {@link #screenHeight()}, {@link #screenWidth()}, -{@link #screenHeight()}),
-	 * so that the origin is located in the upper left corner of the window.
-	 */
-	public int[] getViewport(int[] viewport) {
-		if ((viewport == null) || (viewport.length != 4)) {
-			viewport = new int[4];
-		}
-		viewport[0] = 0;
-		viewport[1] = screenHeight();
-		viewport[2] = screenWidth();
-		viewport[3] = -screenHeight();
-		return viewport;
-	}
 
 	/**
 	 * Returns the near clipping plane distance used by the Camera projection
@@ -1892,56 +1849,6 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	}
 
 	/**
-	 * Convenience function that simply returns {@code projectedCoordinatesOf(src,
-	 * null)}
-	 * 
-	 * @see #projectedCoordinatesOf(Vector3D, SimpleFrame)
-	 */
-	public final Vector3D projectedCoordinatesOf(Vector3D src) {
-		return projectedCoordinatesOf(src, null);
-	}
-
-	/**
-	 * Returns the screen projected coordinates of a point {@code src} defined in
-	 * the {@code frame} coordinate system.
-	 * <p>
-	 * When {@code frame} is {@code null}, {@code src} is expressed in the world
-	 * coordinate system. See {@link #projectedCoordinatesOf(Vector3D)}.
-	 * <p>
-	 * The x and y coordinates of the returned Vector3D are expressed in pixel,
-	 * (0,0) being the upper left corner of the window. The z coordinate ranges
-	 * between 0.0 (near plane) and 1.0 (excluded, far plane). See the {@code
-	 * gluProject} man page for details.
-	 * <p>
-	 * <b>Attention:</b> This method only uses the intrinsic Camera parameters
-	 * (see {@link #getViewMatrix()}, {@link #getProjectionMatrix()} and
-	 * {@link #getViewport()}) and is completely independent of the processing
-	 * matrices. You can hence define a virtual Camera and use this method to
-	 * compute projections out of a classical rendering context.
-	 * 
-	 * @see #unprojectedCoordinatesOf(Vector3D, SimpleFrame)
-	 */
-	public final Vector3D projectedCoordinatesOf(Vector3D src, SimpleFrame frame) {
-		float xyz[] = new float[3];
-		viewport = getViewport();
-
-		if (frame != null) {
-			Vector3D tmp = frame.inverseCoordinatesOf(src);
-			project(tmp.vec[0], tmp.vec[1], tmp.vec[2], viewMat, projectionMat, viewport, xyz);
-		} else
-			project(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
-
-		/**
-		// TODO needs further testing
-  	//left-handed coordinate system correction
-		if( scene.isLeftHanded() )
-			xyz[1] = screenHeight() - xyz[1];
-		*/
-
-		return new Vector3D((float) xyz[0], (float) xyz[1], (float) xyz[2]);
-	}
-
-	/**
 	 * Convenience function that simply returns {@code return
 	 * unprojectedCoordinatesOf(src, null)}
 	 * 
@@ -2051,6 +1958,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	 * @see #fitSphere(Vector3D, float)
 	 * @see #fitBoundingBox(Vector3D, Vector3D)
 	 */
+	@Override
 	public void lookAt(Vector3D target) {
 		setViewDirection(Vector3D.sub(target, position()));
 	}
@@ -2357,9 +2265,10 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	 * @see #unprojectCacheIsOptimized()
 	 * @see #optimizeUnprojectCache(boolean)
 	 */
+	@Override
 	public void cacheMatrices() {
 		// 1. project
-		Matrix3D.mult(projectionMat, viewMat, projectionViewMat);		
+		super.cacheMatrices();		
 		
 		// 2. unproject
 		if(unprojectCacheIsOptimized()) {
@@ -2391,84 +2300,7 @@ public class Camera extends ViewPort implements Constants, Copyable {
 	 */
 	public void optimizeUnprojectCache(boolean optimise) {
 		unprojectCacheOptimized = optimise;
-	}
-	
-	/**
-	 * Similar to {@code gluProject}: map object coordinates to window
-	 * coordinates.
-	 * 
-	 * @param objx
-	 *          Specify the object x coordinate.
-	 * @param objy
-	 *          Specify the object y coordinate.
-	 * @param objz
-	 *          Specify the object z coordinate.
-	 * @param view
-	 *          Specifies the current view matrix.
-	 * @param projection
-	 *          Specifies the current projection matrix.
-	 * @param viewport
-	 *          Specifies the current viewport.
-	 * @param windowCoordinate
-	 *          Return the computed window coordinates.
-	 */
-	public boolean project(float objx, float objy, float objz, Matrix3D view,
-			                   Matrix3D projection, int[] viewport, float[] windowCoordinate) {
-		float in[] = new float[4];
-		float out[] = new float[4];
-		
-		in[0] = objx;
-		in[1] = objy;
-		in[2] = objz;
-		in[3] = 1.0f;
-					
-		out[0]=projectionViewMat.mat[0]*in[0] + projectionViewMat.mat[4]*in[1] + projectionViewMat.mat[8]*in[2] + projectionViewMat.mat[12]*in[3];
-		out[1]=projectionViewMat.mat[1]*in[0] + projectionViewMat.mat[5]*in[1] + projectionViewMat.mat[9]*in[2] + projectionViewMat.mat[13]*in[3];
-		out[2]=projectionViewMat.mat[2]*in[0] + projectionViewMat.mat[6]*in[1] + projectionViewMat.mat[10]*in[2] + projectionViewMat.mat[14]*in[3];
-		out[3]=projectionViewMat.mat[3]*in[0] + projectionViewMat.mat[7]*in[1] + projectionViewMat.mat[11]*in[2] + projectionViewMat.mat[15]*in[3];
-			
-		if (out[3] == 0.0)
-			return false;
-		
-		out[0] /= out[3];
-		out[1] /= out[3];
-		out[2] /= out[3];
-		// Map x, y and z to range 0-1
-		out[0] = out[0] * 0.5f + 0.5f;
-		out[1] = out[1] * 0.5f + 0.5f;
-		out[2] = out[2] * 0.5f + 0.5f;
-			
-		// Map x,y to viewport
-		out[0] = out[0] * viewport[2] + viewport[0];
-		out[1] = out[1] * viewport[3] + viewport[1];
-			
-		windowCoordinate[0] = out[0];
-		windowCoordinate[1] = out[1];
-		windowCoordinate[2] = out[2];
-		
-		return true;		
-		/**
-		  // compute without projectionViewMat
-			view.mult(in, out);
-			projection.mult(out, in);
-			if (in[3] == 0.0)
-				return false;
-			in[0] /= in[3];
-			in[1] /= in[3];
-			in[2] /= in[3];
-			// Map x, y and z to range 0-1
-			in[0] = in[0] * 0.5f + 0.5f;
-			in[1] = in[1] * 0.5f + 0.5f;
-			in[2] = in[2] * 0.5f + 0.5f;			
-			// Map x,y to viewport
-			in[0] = in[0] * viewport[2] + viewport[0];
-			in[1] = in[1] * viewport[3] + viewport[1];
-			windowCoordinate[0] = in[0];
-			windowCoordinate[1] = in[1];
-			windowCoordinate[2] = in[2];
-			return true;
-		// */
-	}
+	}	
 
 	/**
 	 * Similar to {@code gluUnProject}: map window coordinates to object

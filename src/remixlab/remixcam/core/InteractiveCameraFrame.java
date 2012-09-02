@@ -71,7 +71,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		.isEquals();
 	}
 	
-	protected ViewPort viewport;
+	protected Pinhole viewport;
 	protected Vector3D arcballRefPnt;
 
 	/**
@@ -82,7 +82,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * <p>
 	 * <b>Attention:</b> Created object is {@link #removeFromMouseGrabberPool()}.
 	 */
-	public InteractiveCameraFrame(ViewPort vp) {
+	public InteractiveCameraFrame(Pinhole vp) {
 		super(vp.scene);
 		viewport = vp;
 		removeFromMouseGrabberPool();
@@ -155,13 +155,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseDragged(Point, ViewPort)}
+	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseDragged(Point, Pinhole)}
 	 * .
 	 * <p>
 	 * Motion depends on mouse binding. The resulting displacements are basically
 	 * inverted from those of an InteractiveFrame.
 	 */
-	public void mouseDragged(Point eventPoint, ViewPort vp) {
+	public void mouseDragged(Point eventPoint, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -204,25 +204,36 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				
 				}
 				else {
-					//TODO implement 2D case
+					//TODO 2D case needs testing
+					Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
+					Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
+					float[] wh = vp.getOrthoWidthHeight();
+					trans.vec[0] *= 2.0f * wh[0] / vp.screenWidth();
+					trans.vec[1] *= 2.0f * wh[1] / vp.screenHeight();
+					translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+					prevPos = eventPoint;
 				}
 				break;
 			}
 
 			case ZOOM: {
+				if(scene.is3D()) {
 				// #CONNECTION# wheelEvent() ZOOM case
-				float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]),
-						                                                         0.2f * vp.sceneRadius());
+				float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
 				// Warning: same for left and right CoordinateSystemConvention:
-				Vector3D trans = new Vector3D(0.0f, 0.0f,	-coef	* ((int) (eventPoint.y - prevPos.y)) / vp.screenHeight());				
-				if(scene.is3D())
-					translate(inverseTransformOf(trans));
+				Vector3D trans = new Vector3D(0.0f, 0.0f,	-coef	* ((int) (eventPoint.y - prevPos.y)) / vp.screenHeight());
+				translate(inverseTransformOf(trans));
+				prevPos = eventPoint;
+				}
 				else {					
 					//TODO implement 2D case
-					//float wh[] = camera.getOrthoWidthHeight();
-				}			
-					
-				prevPos = eventPoint;
+					float coef = (float) (eventPoint.y - prevPos.y) / (float) vp.screenHeight();
+					if(coef>0)
+						vp.changeStandardOrthoFrustumSize(true);
+					else
+						vp.changeStandardOrthoFrustumSize(false);
+					prevPos = eventPoint;					
+				}
 				break;
 			}
 
@@ -287,12 +298,22 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					break;
 				}
 				}
-
 				translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
 				prevPos = eventPoint;				
 			  }
 				else {
 					//TODO implement 2D case
+					Vector3D trans = new Vector3D();
+					int dir = mouseOriginalDirection(eventPoint);
+					if (dir == 1)
+						trans.set(((int) prevPos.x - (int) eventPoint.x), 0.0f, 0.0f);
+					else if (dir == -1)
+						trans.set(0.0f, -deltaY, 0.0f);
+					float[] wh = vp.getOrthoWidthHeight();
+					trans.vec[0] *= 2.0f * wh[0] / vp.screenWidth();
+					trans.vec[1] *= 2.0f * wh[1] / vp.screenHeight();
+					translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+					prevPos = eventPoint;
 				}
 				break;
 			}
@@ -308,7 +329,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * Overloading of
 	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseReleased(Point, Camera)}.
 	 */
-	public void mouseReleased(Point eventPoint, ViewPort vp) {
+	public void mouseReleased(Point eventPoint, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -335,7 +356,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseWheelMoved(int, ViewPort)}
+	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseWheelMoved(int, Pinhole)}
 	 * .
 	 * <p>
 	 * The wheel behavior depends on the wheel binded action. Current possible
@@ -345,7 +366,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
-	public void mouseWheelMoved(int rotation, ViewPort vp) {
+	public void mouseWheelMoved(int rotation, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -369,7 +390,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			}
 			else {			
 			  //TODO implement 2D case
-				//float wh[] = camera.getOrthoWidthHeight();
+				if(trans.z()>0)
+					vp.changeStandardOrthoFrustumSize(true);
+				else
+					vp.changeStandardOrthoFrustumSize(false);
 			}
 			
 			break;

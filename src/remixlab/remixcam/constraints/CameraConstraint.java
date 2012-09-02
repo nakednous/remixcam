@@ -37,13 +37,13 @@ import remixlab.remixcam.geom.*;
  */
 public class CameraConstraint extends AxisPlaneConstraint {
 
-	private ViewPort camera;
+	private Pinhole camera;
 
 	/**
 	 * Creates a CameraConstraint, whose constrained directions are defined in the
 	 * {@link #camera()} coordinate system.
 	 */
-	public CameraConstraint(ViewPort cam) {
+	public CameraConstraint(Pinhole cam) {
 		super();
 		camera = cam;
 	}
@@ -51,7 +51,7 @@ public class CameraConstraint extends AxisPlaneConstraint {
 	/**
 	 * Returns the associated Camera. Set using the CameraConstraint constructor.
 	 */
-	public ViewPort camera() {
+	public Pinhole camera() {
 		return camera;
 	}
 

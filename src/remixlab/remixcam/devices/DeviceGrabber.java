@@ -63,7 +63,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * 
 	 * @see remixlab.remixcam.devices.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)
 	 */
-	public void checkIfGrabsMouse(int x, int y, ViewPort vp) { }
+	public void checkIfGrabsMouse(int x, int y, Pinhole vp) { }
 
 	/**
 	 * Returns true when the MouseGrabbable grabs the Scene mouse events.
@@ -77,7 +77,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void mouseClicked(Button button, int numberOfClicks, ViewPort vp) { }
+	public void mouseClicked(Button button, int numberOfClicks, Pinhole vp) { }
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and the
@@ -85,7 +85,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void mouseDragged(Point eventPoint, ViewPort vp) { }
+	public void mouseDragged(Point eventPoint, Pinhole vp) { }
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a
@@ -112,7 +112,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * 
 	 * @see #mouseReleased(Point, Camera)
 	 */
-	public void mousePressed(Point eventPoint, ViewPort vp) {
+	public void mousePressed(Point eventPoint, Pinhole vp) {
 		if (grabsMouse())
 			keepsGrabbingMouse = true;
 	}
@@ -121,7 +121,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * Mouse release event callback method.
 	 * <p>
 	 */
-	public void mouseReleased(Point eventPoint, ViewPort vp) {
+	public void mouseReleased(Point eventPoint, Pinhole vp) {
 		keepsGrabbingMouse = false;
 	}
 
@@ -131,7 +131,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void mouseWheelMoved(int rotation, ViewPort vp) { }
+	public void mouseWheelMoved(int rotation, Pinhole vp) { }
 
 	/**
 	 * Sets the {@link #grabsMouse()} flag. Normally used by

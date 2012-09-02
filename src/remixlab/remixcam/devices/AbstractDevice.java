@@ -85,7 +85,7 @@ public abstract class AbstractDevice {
 	protected String handlerMethodName;
 	
 	protected AbstractScene scene;
-	protected ViewPort camera;
+	protected Pinhole camera;
 	protected InteractiveCameraFrame cameraFrame;
 	protected InteractiveFrame iFrame;
 
@@ -125,7 +125,7 @@ public abstract class AbstractDevice {
 	 */
 	public AbstractDevice(AbstractScene scn, Mode m) {
 		scene = scn;
-		camera = scene.viewPort();
+		camera = scene.pinhole();
 		cameraFrame = camera.frame();
 		iFrame = scene.interactiveFrame();
 		translation = new Vector3D();
@@ -521,7 +521,7 @@ public abstract class AbstractDevice {
 	}
 
   /**
-	 * Handles the {@link remixlab.proscene.Scene#viewPort()} with this HIDevice.
+	 * Handles the {@link remixlab.proscene.Scene#pinhole()} with this HIDevice.
 	 */
 	protected void handleCamera() {
 		switch (camMode) {
@@ -537,10 +537,10 @@ public abstract class AbstractDevice {
       cameraFrame.translate(t);
 
       q.fromEulerAngles(-ty * ( rotSens.vec[1]/transSens.vec[1] ), tx * ( rotSens.vec[0]/transSens.vec[0] ), 0);
-      cameraFrame.rotateAroundPoint(q, scene.viewPort().arcballReferencePoint());
+      cameraFrame.rotateAroundPoint(q, scene.pinhole().arcballReferencePoint());
 
       q.fromEulerAngles(0, 0, yaw);
-      cameraFrame.rotateAroundPoint(q, scene.viewPort().arcballReferencePoint());
+      cameraFrame.rotateAroundPoint(q, scene.pinhole().arcballReferencePoint());
 
       q.fromEulerAngles(-roll, 0, 0);
       cameraFrame.rotate(q);

@@ -33,10 +33,10 @@ import remixlab.remixcam.geom.*;
  * <p>
  * <h3>How does it work ?</h3>
  * All objects that are to be tracked by the
- * {@link remixlab.remixcam.core.AbstractScene#viewPort()} (known as avatars) should implement
+ * {@link remixlab.remixcam.core.AbstractScene#pinhole()} (known as avatars) should implement
  * this interface. To setup an avatar you should then call
  * {@link remixlab.remixcam.core.AbstractScene#setAvatar(Trackable)}. The avatar will be
- * tracked by the {@link remixlab.remixcam.core.AbstractScene#viewPort()} when the camera
+ * tracked by the {@link remixlab.remixcam.core.AbstractScene#pinhole()} when the camera
  * is in Third Person mode.
  */
 

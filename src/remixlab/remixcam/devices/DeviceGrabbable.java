@@ -87,7 +87,7 @@ public interface DeviceGrabbable {
 	 * {@code setGrabsMouse((PApplet.abs(x-proj.x) < 5) && (PApplet.(y-proj.y) <
 	 * 2)); // Rectangular region} <br>
 	 */
-	void checkIfGrabsMouse(int x, int y, ViewPort vp);
+	void checkIfGrabsMouse(int x, int y, Pinhole vp);
 
 	/**
 	 * Should return true when the MouseGrabbable grabs the Scene mouse events.
@@ -105,7 +105,7 @@ public interface DeviceGrabbable {
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a mouse button is clicked.
 	 */
-	void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, ViewPort vp);
+	void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, Pinhole vp);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a
@@ -117,7 +117,7 @@ public interface DeviceGrabbable {
 	 * {@link #mouseReleased(Point, Camera)} (called when the mouse button is
 	 * released) will terminate this action.
 	 */
-	void mousePressed(Point eventPoint, ViewPort vp);
+	void mousePressed(Point eventPoint, Pinhole vp);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and the
@@ -127,18 +127,18 @@ public interface DeviceGrabbable {
 	 * mouse displacement. See the {@link #mousePressed(Point, Camera)}
 	 * documentation for details.
 	 */
-	void mouseDragged(Point eventPoint, ViewPort vp);
+	void mouseDragged(Point eventPoint, Pinhole vp);
 
 	/**
 	 * Mouse release event callback method.
 	 * 
 	 * @see #mousePressed(Point, Camera)
 	 */
-	void mouseReleased(Point eventPoint, ViewPort vp);
+	void mouseReleased(Point eventPoint, Pinhole vp);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and the
 	 * mouse wheel is used.
 	 */
-	void mouseWheelMoved(int rotation, ViewPort vp);
+	void mouseWheelMoved(int rotation, Pinhole vp);
 }

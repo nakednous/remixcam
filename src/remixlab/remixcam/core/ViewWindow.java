@@ -6,15 +6,12 @@ import remixlab.remixcam.geom.Quaternion;
 import remixlab.remixcam.geom.Rectangle;
 import remixlab.remixcam.geom.Vector3D;
 
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
-public class ViewWindow extends ViewPort implements Constants, Copyable {
+public class ViewWindow extends Pinhole implements Constants, Copyable {
 	public ViewWindow(AbstractScene scn) {
 		super(scn);
 		if(scene.is3D())
 			throw new RuntimeException("Use ViewWindow only for a 2D Scene");
-		fpCoefficients = new float[4][3];
+		fpCoefficients = new float[4][3];		
 		computeProjectionMatrix();
 	}
 	
@@ -35,21 +32,42 @@ public class ViewWindow extends ViewPort implements Constants, Copyable {
 	
 	@Override
 	public void computeProjectionMatrix() {
-		float ZNear = 0;
-		float ZFar = 100;
-		
 		float[] wh = getOrthoWidthHeight();
 		projectionMat.mat[0] = 1.0f / wh[0];
 		if( scene.isAP5Scene() )
 			projectionMat.mat[5] = -1.0f / wh[1];
 		else
 			projectionMat.mat[5] = 1.0f / wh[1];
-		projectionMat.mat[10] = -2.0f / (ZFar - ZNear);
+		projectionMat.mat[10] = -2.0f / (FAKED_ZFAR - FAKED_ZNEAR);
 		projectionMat.mat[11] = 0.0f;
-		projectionMat.mat[14] = -(ZFar + ZNear) / (ZFar - ZNear);
+		projectionMat.mat[14] = -(FAKED_ZFAR + FAKED_ZNEAR) / (FAKED_ZFAR - FAKED_ZNEAR);
 		projectionMat.mat[15] = 1.0f;
 		// same as glOrtho( -w, w, -h, h, zNear(), zFar() );
 	}	
+	
+	@Override
+	public float[] getOrthoWidthHeight(float[] target) {
+		if ((target == null) || (target.length != 2)) {
+			target = new float[2];
+		}		
+		float dist = sceneRadius() * standardOrthoFrustumSize();
+		// #CONNECTION# fitScreenRegion
+		// 1. halfWidth
+		target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
+		// 2. halfHeight
+		target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);		
+
+		return target;
+	}
+	
+	@Override
+	public void changeStandardOrthoFrustumSize(boolean augment) {
+		lastFrameUpdate = scene.frameCount();
+		if (augment)
+			orthoSize *= 1.01f;
+		else
+			orthoSize /= 1.01f;
+	}
 	
 	@Override
 	public void setSceneRadius(float radius) {
@@ -59,16 +77,6 @@ public class ViewWindow extends ViewPort implements Constants, Copyable {
 		}
 		
 		scnRadius = radius;
-
-		/**
-		setFocusDistance(sceneRadius() / (float) Math.tan(fieldOfView() / 2.0f));
-
-		setFlySpeed(0.01f * sceneRadius());
-
-		// if there's an avatar we change its fly speed as well
-		if (scene.avatarIsInteractiveDrivableFrame)
-			((InteractiveDrivableFrame) scene.avatar()).setFlySpeed(0.01f * scene.radius());
-		*/
 	}
 	
 	@Override
@@ -191,5 +199,10 @@ public class ViewWindow extends ViewPort implements Constants, Copyable {
 	public WorldPoint interpolateToZoomOnPixel(Point pixel) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void lookAt(Vector3D target) {
+		frame().setPosition(target.x(), target.y(), FAKED_ZDISTANCE);
 	}	
 }

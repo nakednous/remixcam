@@ -68,4 +68,10 @@ public interface Constants {
    * @see #QUARTER_PI
    */
   static final float TWO_PI     = PI * 2.0f;
+  
+  static final float FAKED_ZNEAR = 1;
+  
+  static final float FAKED_ZFAR = 100;
+  
+  static final float FAKED_ZDISTANCE = 10;
 }

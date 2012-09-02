@@ -339,7 +339,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * {@link remixlab.remixcam.core.Camera#projectedCoordinatesOf(Vector3D)}
 	 * {@link #position()}.
 	 */
-	public void checkIfGrabsMouse(int x, int y, ViewPort camera) {
+	public void checkIfGrabsMouse(int x, int y, Pinhole camera) {
 		if( scene.is3D() ) {
 			Vector3D proj = ((Camera) camera).projectedCoordinatesOf(position());
 			setGrabsMouse(keepsGrabbingMouse || ((Math.abs(x - proj.vec[0]) < grabsMouseThreshold()) && (Math.abs(y - proj.vec[1]) < grabsMouseThreshold())));
@@ -591,7 +591,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * and {@link remixlab.remixcam.core.AbstractScene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
 	 * the camera view direction.
 	 */
-	public void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, ViewPort camera) {
+	public void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, Pinhole camera) {
 		if(numberOfClicks != 2)
 			return;
 		switch (button) {
@@ -616,7 +616,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * @see #mouseDragged(Point, Camera)
 	 * @see #mouseReleased(Point, Camera)
 	 */
-	public void mousePressed(Point eventPoint, ViewPort camera) {
+	public void mousePressed(Point eventPoint, Pinhole camera) {
 		if (grabsMouse())
 			keepsGrabbingMouse = true;
 
@@ -636,7 +636,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * @see remixlab.remixcam.core.Camera#screenHeight()
 	 * @see remixlab.remixcam.core.Camera#fieldOfView()
 	 */
-	public void mouseDragged(Point eventPoint, ViewPort camera) {
+	public void mouseDragged(Point eventPoint, Pinhole camera) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -808,7 +808,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * @see #startSpinning(int)
 	 * @see #isSpinning()
 	 */
-	public void mouseReleased(Point event, ViewPort camera) {
+	public void mouseReleased(Point event, Pinhole camera) {
 		keepsGrabbingMouse = false;
 
 		if (prevConstraint != null)
@@ -829,7 +829,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * 
 	 * @see #setWheelSensitivity(float)
 	 */
-	public void mouseWheelMoved(int rotation, ViewPort camera) {
+	public void mouseWheelMoved(int rotation, Pinhole camera) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		

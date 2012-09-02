@@ -9,7 +9,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.remixcam.core.Camera.WorldPoint;
 import remixlab.remixcam.geom.*;
 
-public abstract class ViewPort implements Constants  {
+public abstract class Pinhole implements Constants  {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
@@ -29,7 +29,7 @@ public abstract class ViewPort implements Constants  {
 		append(viewMat).
 		//append(normal).
 		//append(orthoCoef).
-		//append(orthoSize).
+		append(orthoSize).
 		//append(physicalDist2Scrn).
 		//append(physicalScrnWidth).
 		append(projectionMat).
@@ -41,7 +41,7 @@ public abstract class ViewPort implements Constants  {
 		//append(stdZNear).
 		append(tempFrame).
 		//append(tp).
-		//append(viewport).
+		append(viewport).
 		//append(zClippingCoef).
 		//append(zNearCoef).
     toHashCode();
@@ -67,7 +67,7 @@ public abstract class ViewPort implements Constants  {
 			return false;
 		// */
 		
-		ViewPort other = (ViewPort) obj;
+		Pinhole other = (Pinhole) obj;
 		
 	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))
@@ -87,7 +87,7 @@ public abstract class ViewPort implements Constants  {
 		.append(viewMat,other.viewMat)
 		//.append(normal,other.normal)
 		//.append(orthoCoef,other.orthoCoef)
-		//.append(orthoSize,other.orthoSize)
+		.append(orthoSize,other.orthoSize)
 		//.append(physicalDist2Scrn,other.physicalDist2Scrn)
 		//.append(physicalScrnWidth,other.physicalScrnWidth)
 		.append(projectionMat,other.projectionMat)
@@ -99,7 +99,7 @@ public abstract class ViewPort implements Constants  {
 		//.append(stdZNear,other.stdZNear)
 		.append(tempFrame,other.tempFrame)
 		//.append(tp,other.tp)
-		//.append(viewport,other.viewport)
+		.append(viewport,other.viewport)
 		//.append(zClippingCoef,other.zClippingCoef)
 		//.append(zNearCoef,other.zNearCoef)
 		.isEquals();
@@ -126,6 +126,8 @@ public abstract class ViewPort implements Constants  {
 	protected int scrnWidth, scrnHeight; // size of the window, in pixels
 	protected Vector3D scnCenter;
 	protected float scnRadius; // processing scene units
+	protected float orthoSize;
+	protected int viewport[] = new int[4];
 	
 	protected Matrix3D viewMat;
 	protected Matrix3D projectionMat;
@@ -150,8 +152,10 @@ public abstract class ViewPort implements Constants  {
 	public long lastFrameUpdate = 0;
 	protected long lastFPCoeficientsUpdateIssued = -1;
 	
-	public ViewPort(AbstractScene scn) {
+	public Pinhole(AbstractScene scn) {
 		scene = scn;
+		
+		orthoSize = 1;// only for standard kind, but we initialize it here
 		
 		// /**
 		//TODO subido
@@ -191,7 +195,7 @@ public abstract class ViewPort implements Constants  {
 	 * 
 	 * @param oVP the viewport object to be copied
 	 */
-	protected ViewPort(ViewPort oVP) {
+	protected Pinhole(Pinhole oVP) {
 		this.scene = oVP.scene;
 		
 		this.fpCoefficientsUpdate = oVP.fpCoefficientsUpdate;
@@ -220,7 +224,8 @@ public abstract class ViewPort implements Constants  {
 		}
 		
 		this.setSceneRadius(oVP.sceneRadius());		
-		this.setSceneCenter( oVP.sceneCenter() );							
+		this.setSceneCenter(oVP.sceneCenter());			
+		this.orthoSize = oVP.orthoSize;
 		this.setScreenWidthAndHeight(oVP.screenWidth(), oVP.screenHeight());		
 		this.viewMat = new Matrix3D(oVP.viewMat);
 		this.projectionMat = new Matrix3D(oVP.projectionMat);
@@ -229,8 +234,8 @@ public abstract class ViewPort implements Constants  {
 
 	/**
 	@Override
-	public Object get() {
-		new ViewPort(this);
+	public Object get(); {
+		new Pinhole(this);
 	}
 	// */
 	
@@ -268,6 +273,8 @@ public abstract class ViewPort implements Constants  {
 		frm = icf;
 		interpolationKfi.setFrame(frame());			
 	}
+	
+	public abstract void lookAt(Vector3D target);
 	
 	// 6. ASSOCIATED FRAME AND FRAME WRAPPER FUNCTIONS
 
@@ -482,7 +489,7 @@ public abstract class ViewPort implements Constants  {
 	 * Note that {@link remixlab.remixcam.core.AbstractScene#center()} (resp.
 	 * remixlab.remixcam.core.AbstractScene{@link #setSceneCenter(Vector3D)}) simply call this
 	 * method (resp. {@link #setSceneCenter(Vector3D)}) on its associated
-	 * {@link remixlab.remixcam.core.AbstractScene#viewPort()}. Default value is (0,0,0) (world
+	 * {@link remixlab.remixcam.core.AbstractScene#pinhole()}. Default value is (0,0,0) (world
 	 * origin). Use {@link #setSceneCenter(Vector3D)} to change it.
 	 * 
 	 * @see #setSceneBoundingBox(Vector3D, Vector3D)
@@ -737,24 +744,7 @@ public abstract class ViewPort implements Constants  {
 	 * <p>
 	 * Overload this method to change this behavior if desired.
 	 */
-	public float[] getOrthoWidthHeight(float[] target) {
-		//TODO need this method here?
-		if ((target == null) || (target.length != 2)) {
-			target = new float[2];
-		}
-
-		//	float dist = orthoCoef * Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);
-					//TODO fix me
-					float dist = 1* Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);
-			// #CONNECTION# fitScreenRegion
-			// 1. halfWidth
-			target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
-			// 2. halfHeight
-			target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);
-		
-
-		return target;
-	}
+	public abstract float[] getOrthoWidthHeight(float[] target);
 	
 	/**
 	 * Returns the Camera frame coordinates of a point {@code src} defined in
@@ -1016,6 +1006,167 @@ public abstract class ViewPort implements Constants  {
 		}
 		m.set(projectionViewMat);
 		return m;
+	}
+	
+	public void cacheMatrices() {
+		// 1. project
+		Matrix3D.mult(projectionMat, viewMat, projectionViewMat);
+	}
+	
+	/**
+	 * Convenience function that simply returns {@code projectedCoordinatesOf(src,
+	 * null)}
+	 * 
+	 * @see #projectedCoordinatesOf(Vector3D, SimpleFrame)
+	 */
+	public final Vector3D projectedCoordinatesOf(Vector3D src) {
+		return projectedCoordinatesOf(src, null);
+	}
+
+	/**
+	 * Returns the screen projected coordinates of a point {@code src} defined in
+	 * the {@code frame} coordinate system.
+	 * <p>
+	 * When {@code frame} is {@code null}, {@code src} is expressed in the world
+	 * coordinate system. See {@link #projectedCoordinatesOf(Vector3D)}.
+	 * <p>
+	 * The x and y coordinates of the returned Vector3D are expressed in pixel,
+	 * (0,0) being the upper left corner of the window. The z coordinate ranges
+	 * between 0.0 (near plane) and 1.0 (excluded, far plane). See the {@code
+	 * gluProject} man page for details.
+	 * <p>
+	 * <b>Attention:</b> This method only uses the intrinsic Camera parameters
+	 * (see {@link #getViewMatrix()}, {@link #getProjectionMatrix()} and
+	 * {@link #getViewport()}) and is completely independent of the processing
+	 * matrices. You can hence define a virtual Camera and use this method to
+	 * compute projections out of a classical rendering context.
+	 * 
+	 * @see #unprojectedCoordinatesOf(Vector3D, SimpleFrame)
+	 */
+	public final Vector3D projectedCoordinatesOf(Vector3D src, SimpleFrame frame) {
+		float xyz[] = new float[3];
+		viewport = getViewport();
+
+		if (frame != null) {
+			Vector3D tmp = frame.inverseCoordinatesOf(src);
+			project(tmp.vec[0], tmp.vec[1], tmp.vec[2], viewMat, projectionMat, viewport, xyz);
+		} else
+			project(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
+
+		/**
+		// TODO needs further testing
+  	//left-handed coordinate system correction
+		if( scene.isLeftHanded() )
+			xyz[1] = screenHeight() - xyz[1];
+		*/
+
+		return new Vector3D((float) xyz[0], (float) xyz[1], (float) xyz[2]);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code return}
+	 * {@link #getViewport(int[])}.
+	 */
+	public int[] getViewport() {
+		return getViewport(new int[4]);
+	}
+
+	/**
+	 * Fills {@code viewport} with the Camera viewport and returns it. If viewport
+	 * is null (or not the correct size), a new array will be created.
+	 * <p>
+	 * This method is mainly used in conjunction with
+	 * {@code project(float, float, float, Matrix3D, Matrix3D, int[], float[])}
+	 * , which requires such a viewport. Returned values are (0,
+	 * {@link #screenHeight()}, {@link #screenWidth()}, -{@link #screenHeight()}),
+	 * so that the origin is located in the upper left corner of the window.
+	 */
+	public int[] getViewport(int[] viewport) {
+		if ((viewport == null) || (viewport.length != 4)) {
+			viewport = new int[4];
+		}
+		viewport[0] = 0;
+		viewport[1] = screenHeight();
+		viewport[2] = screenWidth();
+		viewport[3] = -screenHeight();
+		return viewport;
+	}
+	
+	/**
+	 * Similar to {@code gluProject}: map object coordinates to window
+	 * coordinates.
+	 * 
+	 * @param objx
+	 *          Specify the object x coordinate.
+	 * @param objy
+	 *          Specify the object y coordinate.
+	 * @param objz
+	 *          Specify the object z coordinate.
+	 * @param view
+	 *          Specifies the current view matrix.
+	 * @param projection
+	 *          Specifies the current projection matrix.
+	 * @param viewport
+	 *          Specifies the current viewport.
+	 * @param windowCoordinate
+	 *          Return the computed window coordinates.
+	 */
+	public boolean project(float objx, float objy, float objz, Matrix3D view,
+			                   Matrix3D projection, int[] viewport, float[] windowCoordinate) {
+		float in[] = new float[4];
+		float out[] = new float[4];
+		
+		in[0] = objx;
+		in[1] = objy;
+		in[2] = objz;
+		in[3] = 1.0f;
+					
+		out[0]=projectionViewMat.mat[0]*in[0] + projectionViewMat.mat[4]*in[1] + projectionViewMat.mat[8]*in[2] + projectionViewMat.mat[12]*in[3];
+		out[1]=projectionViewMat.mat[1]*in[0] + projectionViewMat.mat[5]*in[1] + projectionViewMat.mat[9]*in[2] + projectionViewMat.mat[13]*in[3];
+		out[2]=projectionViewMat.mat[2]*in[0] + projectionViewMat.mat[6]*in[1] + projectionViewMat.mat[10]*in[2] + projectionViewMat.mat[14]*in[3];
+		out[3]=projectionViewMat.mat[3]*in[0] + projectionViewMat.mat[7]*in[1] + projectionViewMat.mat[11]*in[2] + projectionViewMat.mat[15]*in[3];
+			
+		if (out[3] == 0.0)
+			return false;
+		
+		out[0] /= out[3];
+		out[1] /= out[3];
+		out[2] /= out[3];
+		// Map x, y and z to range 0-1
+		out[0] = out[0] * 0.5f + 0.5f;
+		out[1] = out[1] * 0.5f + 0.5f;
+		out[2] = out[2] * 0.5f + 0.5f;
+			
+		// Map x,y to viewport
+		out[0] = out[0] * viewport[2] + viewport[0];
+		out[1] = out[1] * viewport[3] + viewport[1];
+			
+		windowCoordinate[0] = out[0];
+		windowCoordinate[1] = out[1];
+		windowCoordinate[2] = out[2];
+		
+		return true;		
+		/**
+		  // compute without projectionViewMat
+			view.mult(in, out);
+			projection.mult(out, in);
+			if (in[3] == 0.0)
+				return false;
+			in[0] /= in[3];
+			in[1] /= in[3];
+			in[2] /= in[3];
+			// Map x, y and z to range 0-1
+			in[0] = in[0] * 0.5f + 0.5f;
+			in[1] = in[1] * 0.5f + 0.5f;
+			in[2] = in[2] * 0.5f + 0.5f;			
+			// Map x,y to viewport
+			in[0] = in[0] * viewport[2] + viewport[0];
+			in[1] = in[1] * viewport[3] + viewport[1];
+			windowCoordinate[0] = in[0];
+			windowCoordinate[1] = in[1];
+			windowCoordinate[2] = in[2];
+			return true;
+		// */
 	}
 	
   //7. KEYFRAMED PATHS
@@ -1469,6 +1620,27 @@ public abstract class ViewPort implements Constants  {
 	public abstract void centerScene();
 	
   //TODO experimental
+	
+	/**
+	 * Changes the size of the frustum. If {@code augment} is true the frustum
+	 * size is augmented, otherwise it is diminished. Meaningful only when the
+	 * Camera {@link #kind()} is STANDARD and the Camera {@link #type()} is
+	 * ORTHOGRAPHIC.
+	 * 
+	 * @see #standardOrthoFrustumSize()
+	 */
+	public abstract void changeStandardOrthoFrustumSize(boolean augment);
+
+	/**
+	 * Returns the frustum size. This value is used to set
+	 * {@link #getOrthoWidthHeight()}. Meaningful only when the Camera
+	 * {@link #kind()} is STANDARD and the Camera {@link #type()} is ORTHOGRAPHIC.
+	 * 
+	 * @see #getOrthoWidthHeight()
+	 */
+	public float standardOrthoFrustumSize() {
+		return orthoSize;
+	}
 	
 	public Matrix3D projection() {
 		return projectionMat;

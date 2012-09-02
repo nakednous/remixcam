@@ -242,13 +242,13 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseDragged(Point, ViewPort)}.
+	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseDragged(Point, Pinhole)}.
 	 * <p>
 	 * Motion depends on mouse binding. The resulting displacements are basically
 	 * the same of those of an InteractiveFrame, but moving forward and backward
 	 * and turning actions are implemented.
 	 */
-	public void mouseDragged(Point eventPoint, ViewPort vp) {
+	public void mouseDragged(Point eventPoint, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -332,7 +332,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * Overloading of
 	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseReleased(Point, Camera)}.
 	 */
-	public void mouseReleased(Point eventPoint, ViewPort vp) {
+	public void mouseReleased(Point eventPoint, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -356,7 +356,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
-	public void mouseWheelMoved(int rotation, ViewPort vp) {
+	public void mouseWheelMoved(int rotation, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
