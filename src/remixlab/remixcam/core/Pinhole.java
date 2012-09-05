@@ -421,46 +421,7 @@ public abstract class Pinhole implements Constants  {
 		return scnRadius;
 	}
 	
-	public abstract void setSceneRadius(float radius);
-	
-	/**
-	 * Returns the distance from the Camera center to {@link #sceneCenter()},
-	 * projected along the Camera Z axis.
-	 * <p>
-	 * Used by {@link #zNear()} and {@link #zFar()} to optimize the Z range.
-	 */
-	public abstract float distanceToSceneCenter();
-	
-	/**
-	 * The point the Camera revolves around with the ROTATE mouse binding. Defined
-	 * in world coordinate system.
-	 * <p>
-	 * Default value is the {@link #sceneCenter()}.
-	 * <p>
-	 * <b>Attention:</b> {@link #setSceneCenter(Vector3D)} changes this value.
-	 */
-	public final Vector3D arcballReferencePoint() {
-		return frame().arcballReferencePoint();
-	}
-
-	/**
-	 * Changes the {@link #arcballReferencePoint()} to {@code rap} (defined in the
-	 * world coordinate system).
-	 */
-	public abstract void setArcballReferencePoint(Vector3D rap);
-
-	/**
-	 * The {@link #arcballReferencePoint()} is set to the point located under
-	 * {@code pixel} on screen. Returns {@code true} if a point was found under
-	 * {@code pixel} and {@code false} if none was found (in this case no
-	 * {@link #arcballReferencePoint()} is set).
-	 * <p>
-	 * Override {@link #pointUnderPixel(Point)} in your jogl-based camera class.
-	 * <p>
-	 * Current implementation always returns {@code false}, meaning that no point
-	 * was set.
-	 */
-	public abstract boolean setArcballReferencePointFromPixel(Point pixel);
+	public abstract void setSceneRadius(float radius);	
 
 	/**
 	 * The {@link #setSceneCenter(Vector3D)} is set to the point located under
@@ -497,7 +458,7 @@ public abstract class Pinhole implements Constants  {
 	public Vector3D sceneCenter() {
 		return scnCenter;
 	}
-
+	
 	/**
 	 * Sets the {@link #sceneCenter()}.
 	 * <p>
@@ -508,6 +469,26 @@ public abstract class Pinhole implements Constants  {
 		scnCenter = center;
 		setArcballReferencePoint(sceneCenter());
 	}
+	
+	/**
+	 * The point the Camera revolves around with the ROTATE mouse binding. Defined
+	 * in world coordinate system.
+	 * <p>
+	 * Default value is the {@link #sceneCenter()}.
+	 * <p>
+	 * <b>Attention:</b> {@link #setSceneCenter(Vector3D)} changes this value.
+	 */
+	public final Vector3D arcballReferencePoint() {
+		return frame().arcballReferencePoint();
+	}	
+	
+	/**
+	 * Changes the {@link #arcballReferencePoint()} to {@code rap} (defined in the
+	 * world coordinate system).
+	 */	
+	public abstract void setArcballReferencePoint(Vector3D rap);
+	
+	public abstract boolean setArcballReferencePointFromPixel(Point pixel);
 	
 	/**
 	 * Returns the Camera aspect ratio defined by {@link #screenWidth()} /
@@ -1504,28 +1485,7 @@ public abstract class Pinhole implements Constants  {
 	 * 
 	 * @see #fitScreenRegion(Rectangle)
 	 */
-	public void interpolateToZoomOnRegion(Rectangle rectangle) {
-		// if (interpolationKfi.interpolationIsStarted())
-		// interpolationKfi.stopInterpolation();
-		if (anyInterpolationIsStarted())
-			stopAllInterpolations();
-
-		interpolationKfi.deletePath();
-		interpolationKfi.addKeyFrame(frame(), false);
-
-		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
-		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(this);
-		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
-		tempFrame.setOrientation( frame().orientation().get() );
-		setFrame(tempFrame);
-		fitScreenRegion(rectangle);
-		setFrame(originalFrame); 	
-
-		interpolationKfi.addKeyFrame(tempFrame, false);
-		interpolationKfi.startInterpolation();		
-	}	
+	public abstract void interpolateToZoomOnRegion(Rectangle rectangle);
 	
 	/**
 	 * Interpolates the Camera on a one second KeyFrameInterpolator path so that
@@ -1538,28 +1498,7 @@ public abstract class Pinhole implements Constants  {
 	 * 
 	 * @see #interpolateToZoomOnPixel(Point)
 	 */
-	public void interpolateToFitScene() {
-		// if (interpolationKfi.interpolationIsStarted())
-		// interpolationKfi.stopInterpolation();
-		if (anyInterpolationIsStarted())
-			stopAllInterpolations();
-
-		interpolationKfi.deletePath();
-		interpolationKfi.addKeyFrame(frame(), false);
-
-		// Small hack: attach a temporary frame to take advantage of showEntireScene
-		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(this);
-		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
-		tempFrame.setOrientation( frame().orientation().get() );
-		setFrame(tempFrame);
-		showEntireScene();
-		setFrame(originalFrame);
-
-		interpolationKfi.addKeyFrame(tempFrame, false);
-		interpolationKfi.startInterpolation();
-	}
+	public abstract void interpolateToFitScene();
 	
 	/**
 	 * Convenience function that simply calls {@code interpolateTo(fr, 1)}.

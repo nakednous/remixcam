@@ -433,10 +433,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		Quaternion q = new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), frame().transformOf(up));
 
 		if (!noMove)
-			frame().setPosition(
-					Vector3D.sub(arcballReferencePoint(), (Quaternion.multiply(frame()
-							.orientation(), q)).rotate(frame().coordinatesOf(
-							arcballReferencePoint()))));
+			frame().setPosition(Vector3D.sub(arcballReferencePoint(), (Quaternion.multiply(frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));
 
 		frame().rotate(q);
 
@@ -1402,8 +1399,13 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		if (scene.avatarIsInteractiveDrivableFrame)
 			((InteractiveDrivableFrame) scene.avatar()).setFlySpeed(0.01f * scene.radius());
 	}
-	
-	@Override
+		
+	/**
+	 * Returns the distance from the Camera center to {@link #sceneCenter()},
+	 * projected along the Camera Z axis.
+	 * <p>
+	 * Used by {@link #zNear()} and {@link #zFar()} to optimize the Z range.
+	 */
 	public float distanceToSceneCenter() {
 		return Math.abs((frame().coordinatesOf(sceneCenter())).vec[2]);
 	}
@@ -1418,7 +1420,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		setSceneRadius(0.5f * (Vector3D.sub(max, min)).mag());
 	}
 
-	// 5. ARCBALL REFERENCE POINT	
+	// 5. ARCBALL REFERENCE POINT		
 
 	/**
 	 * Changes the {@link #arcballReferencePoint()} to {@code rap} (defined in the
@@ -2009,9 +2011,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			distance = Vector3D.dot(Vector3D.sub(center, arcballReferencePoint()),
-					viewDirection())
-					+ (radius / orthoCoef);
+			distance = Vector3D.dot(Vector3D.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoef);
 			break;
 		}
 		}
@@ -2100,6 +2100,54 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	@Override
 	public void centerScene() {
 		frame().projectOnLine(sceneCenter(), viewDirection());
+	}
+	
+	@Override
+	public void interpolateToZoomOnRegion(Rectangle rectangle) {
+		// if (interpolationKfi.interpolationIsStarted())
+		// interpolationKfi.stopInterpolation();
+		if (anyInterpolationIsStarted())
+			stopAllInterpolations();
+
+		interpolationKfi.deletePath();
+		interpolationKfi.addKeyFrame(frame(), false);
+
+		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
+		// without modifying frame
+		tempFrame = new InteractiveCameraFrame(this);
+		InteractiveCameraFrame originalFrame = frame();
+		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
+		tempFrame.setOrientation( frame().orientation().get() );
+		setFrame(tempFrame);
+		fitScreenRegion(rectangle);
+		setFrame(originalFrame); 	
+
+		interpolationKfi.addKeyFrame(tempFrame, false);
+		interpolationKfi.startInterpolation();		
+	}	
+	
+	@Override
+	public void interpolateToFitScene() {
+		// if (interpolationKfi.interpolationIsStarted())
+		// interpolationKfi.stopInterpolation();
+		if (anyInterpolationIsStarted())
+			stopAllInterpolations();
+
+		interpolationKfi.deletePath();
+		interpolationKfi.addKeyFrame(frame(), false);
+
+		// Small hack: attach a temporary frame to take advantage of showEntireScene
+		// without modifying frame
+		tempFrame = new InteractiveCameraFrame(this);
+		InteractiveCameraFrame originalFrame = frame();
+		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
+		tempFrame.setOrientation( frame().orientation().get() );
+		setFrame(tempFrame);
+		showEntireScene();
+		setFrame(originalFrame);
+
+		interpolationKfi.addKeyFrame(tempFrame, false);
+		interpolationKfi.startInterpolation();
 	}
 
 	/**

@@ -13,10 +13,11 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 			throw new RuntimeException("Use ViewWindow only for a 2D Scene");
 		fpCoefficients = new float[4][3];		
 		computeProjectionMatrix();
+		turnUpsideDown();
 	}
 	
 	protected ViewWindow(ViewWindow oVW) {
-		super(oVW);
+		super(oVW);		
 	}
 	
 	/**
@@ -77,14 +78,7 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 		}
 		
 		scnRadius = radius;
-	}
-	
-	@Override
-	public float distanceToSceneCenter() {
-		//TODO implement me
-		return 0.0f;
-		//return Math.abs((frame().coordinatesOf(sceneCenter())).vec[2]);
-	}
+	}	
 	
 	@Override
 	public float[][] computeFrustumEquations() {
@@ -95,18 +89,7 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 	public float[][] computeFrustumEquations(float[][] coef) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-	
-	@Override
-	public void setArcballReferencePoint(Vector3D rap) {
-		frame().setArcballReferencePoint(new Vector3D(rap.x(), rap.y(), 0) );
-	}
-	
-	@Override
-	public boolean setArcballReferencePointFromPixel(Point pixel) {
-		setArcballReferencePoint(new Vector3D(pixel.x, pixel.y, 0));
-		return true;
-	}
+	}	
 	
 	@Override
 	public boolean setSceneCenterFromPixel(Point pixel) {
@@ -180,8 +163,12 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 
 	@Override
 	public void setUpVector(Vector3D up, boolean noMove) {
-		// TODO Auto-generated method stub
-		
+		Quaternion q = new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), frame().transformOf(up));
+
+		if (!noMove)
+			frame().setPosition(Vector3D.sub(arcballReferencePoint(), (Quaternion.multiply(frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));
+
+		frame().rotate(q);
 	}
 
 	@Override
@@ -203,6 +190,43 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 
 	@Override
 	public void lookAt(Vector3D target) {
-		frame().setPosition(target.x(), target.y(), FAKED_ZDISTANCE);
-	}	
+		//frame().setPosition(target.x(), target.y(), FAKED_ZDISTANCE);
+	}
+	
+	@Override
+	public void setArcballReferencePoint(Vector3D rap) {
+		Vector3D vec = new Vector3D(rap.x(), rap.y(), 0);
+		frame().setArcballReferencePoint(vec);
+	}
+
+	@Override
+	public boolean setArcballReferencePointFromPixel(Point pixel) {
+		//TODO implement me
+		return true;
+	}
+
+	@Override
+	public void interpolateToFitScene() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public void turnUpsideDown() {		
+		//setPosition(new Vector3D(0,0,-10));
+		
+		Vector3D direction = new Vector3D(0,0,1);
+		Vector3D xAxis = direction.cross(upVector());
+		if (xAxis.squaredNorm() < 1E-10) {
+			// target is aligned with upVector, this means a rotation around X
+			// axis
+			// X axis is then unchanged, let's keep it !
+			xAxis = frame().inverseTransformOf(new Vector3D(1.0f, 0.0f, 0.0f));
+		}
+
+		Quaternion q = new Quaternion();
+		q.fromRotatedBasis(xAxis, xAxis.cross(direction), Vector3D.mult(direction, -1));
+		frame().setOrientationWithConstraint(q);
+		
+		setUpVector(new Vector3D(0,-1,0));
+	}
 }

@@ -69,9 +69,7 @@ public interface Constants {
    */
   static final float TWO_PI     = PI * 2.0f;
   
-  static final float FAKED_ZNEAR = 1;
+  static final float FAKED_ZNEAR = -10;
   
-  static final float FAKED_ZFAR = 100;
-  
-  static final float FAKED_ZDISTANCE = 10;
+  static final float FAKED_ZFAR = 10;
 }
