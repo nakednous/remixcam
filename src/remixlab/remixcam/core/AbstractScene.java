@@ -943,8 +943,8 @@ public abstract class AbstractScene implements Constants {
 		else {
 			setProjectionMatrix();
 			setModelViewMatrix();
-			pinhole().cacheMatrices();
 		}
+		pinhole().cacheMatrices();
 	}
 	
 	/**

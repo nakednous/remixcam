@@ -248,9 +248,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				break;
 			}
 
-			case SCREEN_ROTATE: {
-				if( scene.is3D() ) {
-				Vector3D trans = ((Camera) vp).projectedCoordinatesOf(arcballReferencePoint());
+			case SCREEN_ROTATE: {				
+				Vector3D trans = vp.projectedCoordinatesOf(arcballReferencePoint());
 				float angle = (float) Math.atan2((int) eventPoint.y - trans.vec[1],
 						                             (int) eventPoint.x - trans.vec[0])
 						                  - (float) Math.atan2((int) prevPos.y - trans.vec[1], (int) prevPos.x
@@ -268,11 +267,6 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				spin();
 				updateFlyUpVector();
 				prevPos = eventPoint;				
-				}
-				else {
-					//TODO implement 2D case
-				}
-				
 				break;
 			}
 

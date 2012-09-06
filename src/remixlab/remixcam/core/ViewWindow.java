@@ -13,7 +13,7 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 			throw new RuntimeException("Use ViewWindow only for a 2D Scene");
 		fpCoefficients = new float[4][3];		
 		computeProjectionMatrix();
-		turnUpsideDown();
+		flip();
 	}
 	
 	protected ViewWindow(ViewWindow oVW) {
@@ -108,22 +108,6 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 		
 	}	
 	
-	@Override
-	public Vector3D cameraCoordinatesOf(Vector3D src) {
-		//TODO needs test
-		Vector3D res = frame().coordinatesOf(src);
-		res.z(0);
-		return res;
-	}
-
-	@Override
-	public Vector3D worldCoordinatesOf(final Vector3D src) {
-		//TODO needs test
-		Vector3D res = frame().inverseCoordinatesOf(src);
-		res.z(0);
-		return res;
-	}	
-	
 	public void fitBoundingRect(Vector3D min, Vector3D max) {
 		float diameter = Math.max(Math.abs(max.vec[1] - min.vec[1]), Math.abs(max.vec[0] - min.vec[0]));
 		diameter = Math.max(Math.abs(max.vec[2] - min.vec[2]), diameter);
@@ -152,28 +136,82 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 	}
 	
 	@Override
-	public void fitScreenRegion(Rectangle rectangle) { 
-		
-	}
+	public void fitScreenRegion(Rectangle rectangle) {
+		/**
+		Vector3D vd = viewDirection();
+		float distToPlane = distanceToSceneCenter();
+
+		Point center = new Point((int) rectangle.getCenterX(), (int) rectangle.getCenterY());
+
+		Vector3D orig = new Vector3D();
+		Vector3D dir = new Vector3D();
+		convertClickToLine(center, orig, dir);
+		Vector3D newCenter = Vector3D.add(orig, Vector3D.mult(dir,
+				(distToPlane / Vector3D.dot(dir, vd))));
+
+		convertClickToLine(new Point(rectangle.x, center.y), orig, dir);
+		final Vector3D pointX = Vector3D.add(orig, Vector3D.mult(dir,
+				(distToPlane / Vector3D.dot(dir, vd))));
+
+		convertClickToLine(new Point(center.x, rectangle.y), orig, dir);
+		final Vector3D pointY = Vector3D.add(orig, Vector3D.mult(dir,
+				(distToPlane / Vector3D.dot(dir, vd))));
+
+		float distance = 0.0f;
+		switch (type()) {
+		case PERSPECTIVE: {
+			final float distX = Vector3D.dist(pointX, newCenter)
+					/ (float) Math.sin(horizontalFieldOfView() / 2.0f);
+			final float distY = Vector3D.dist(pointY, newCenter)
+					/ (float) Math.sin(fieldOfView() / 2.0f);
+
+			distance = Math.max(distX, distY);
+			break;
+		}
+		case ORTHOGRAPHIC: {
+			final float dist = Vector3D.dot(Vector3D.sub(newCenter,
+					arcballReferencePoint()), vd);
+			final float distX = Vector3D.dist(pointX, newCenter) / orthoCoef
+					/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
+			final float distY = Vector3D.dist(pointY, newCenter) / orthoCoef
+					/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
+
+			distance = dist + Math.max(distX, distY);
+
+			break;
+		}
+		}
+
+		frame().setPositionWithConstraint(Vector3D.sub(newCenter, Vector3D.mult(vd, distance)));		
+		// */
+	}	
 	
 	@Override
-	public void centerScene() {
-		//frame().projectOnLine(sceneCenter(), viewDirection());
-	}
-
-	@Override
-	public void setUpVector(Vector3D up, boolean noMove) {
-		Quaternion q = new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), frame().transformOf(up));
-
-		if (!noMove)
-			frame().setPosition(Vector3D.sub(arcballReferencePoint(), (Quaternion.multiply(frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));
-
-		frame().rotate(q);
+	public Vector3D viewDirection() {
+		return new Vector3D(0, 0, ( frame().zAxis().z() > 0 ) ? -1 : 1 );
 	}
 
 	@Override
 	public void setOrientation(Quaternion q) {
-		// TODO Auto-generated method stub
+		Vector3D axis = q.axis();
+		float angle = q.angle();
+		axis.x(0);
+		axis.y(0);
+		if( axis.z() > 0 )
+			axis.z(1);
+		else
+			axis.z(-1);
+		
+		Quaternion quat = new Quaternion(axis, angle);
+		frame().setOrientation(quat);
+		frame().updateFlyUpVector();
+	}
+	
+	public void setOrientation(float angle) {
+		if( viewDirection().z() > 0 )
+			setOrientation(new Quaternion(new Vector3D(0,0,1), angle));
+		else
+			setOrientation(new Quaternion(new Vector3D(0,0,-1), angle));
 	}
 
 	@Override
@@ -211,22 +249,17 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 		
 	}
 	
-	public void turnUpsideDown() {		
-		//setPosition(new Vector3D(0,0,-10));
+	public void flip() {		
+		Vector3D direction = new Vector3D(0, 0, ( frame().zAxis().z() > 0 ) ? 1 : -1 );
 		
-		Vector3D direction = new Vector3D(0,0,1);
 		Vector3D xAxis = direction.cross(upVector());
-		if (xAxis.squaredNorm() < 1E-10) {
-			// target is aligned with upVector, this means a rotation around X
-			// axis
-			// X axis is then unchanged, let's keep it !
-			xAxis = frame().inverseTransformOf(new Vector3D(1.0f, 0.0f, 0.0f));
-		}
 
 		Quaternion q = new Quaternion();
 		q.fromRotatedBasis(xAxis, xAxis.cross(direction), Vector3D.mult(direction, -1));
 		frame().setOrientationWithConstraint(q);
 		
-		setUpVector(new Vector3D(0,-1,0));
+		Vector3D up = upVector();
+		up.y(-up.y());
+		setUpVector(up);
 	}
 }

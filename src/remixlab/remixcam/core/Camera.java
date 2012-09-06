@@ -58,7 +58,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
     //append(fpCoefficientsUpdate).
-    append(unprojectCacheOptimized).
+    //append(unprojectCacheOptimized).
     //append(lastFrameUpdate).
     //append(lastFPCoeficientsUpdateIssued).
     append(zClippingCoef).
@@ -116,7 +116,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))
     //.append(fpCoefficientsUpdate, other.fpCoefficientsUpdate)
-    .append(unprojectCacheOptimized, other.unprojectCacheOptimized)
+    //.append(unprojectCacheOptimized, other.unprojectCacheOptimized)
     //.append(lastFrameUpdate, other.lastFrameUpdate)
     //.append(lastFPCoeficientsUpdateIssued, other.lastFPCoeficientsUpdateIssued)
     .append(zClippingCoef, other.zClippingCoef)
@@ -267,11 +267,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	private Kind knd; // PROSCENE or STANDARD
 	private float orthoCoef;
 	private float stdZNear;
-	private float stdZFar;	  
-	
-	protected Matrix3D projectionViewInverseMat;
-	public boolean unprojectCacheOptimized;
-	private boolean projectionViewMatHasInverse;
+	private float stdZFar;
 
 	// S t e r e o p a r a m e t e r s
 	private float IODist; // inter-ocular distance, in meters
@@ -297,10 +293,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		super(scn);
 		
 		if(scene.is2D())
-			throw new RuntimeException("Use Camera only for a 3D Scene");
-		
-		enableFrustumEquationsUpdate(false);
-		optimizeUnprojectCache(false);
+			throw new RuntimeException("Use Camera only for a 3D Scene");			
 
 		for (int i = 0; i < normal.length; i++)
 			normal[i] = new Vector3D();
@@ -372,9 +365,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * @param oCam the camera object to be copied
 	 */
 	protected Camera(Camera oCam) {
-		super(oCam);
-				
-		this.unprojectCacheOptimized = oCam.unprojectCacheOptimized;
+		super(oCam);	
 		
 		for (int i = 0; i < normal.length; i++)
 			this.normal[i] = new Vector3D(oCam.normal[i].vec[0], oCam.normal[i].vec[1], oCam.normal[i].vec[2] );
@@ -403,43 +394,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		return new Camera(this);
 	}
 
-	// 2. POSITION AND ORIENTATION		
-
-	/**
-	 * Rotates the Camera so that its {@link #upVector()} becomes {@code up}
-	 * (defined in the world coordinate system).
-	 * <p>
-	 * The Camera is rotated around an axis orthogonal to {@code up} and to the
-	 * current {@link #upVector()} direction.
-	 * <p>
-	 * Use this method in order to define the Camera horizontal plane.
-	 * <p>
-	 * When {@code noMove} is set to {@code false}, the orientation modification
-	 * is compensated by a translation, so that the
-	 * {@link #arcballReferencePoint()} stays projected at the same position on
-	 * screen. This is especially useful when the Camera is an observer of the
-	 * scene (default mouse binding).
-	 * <p>
-	 * When {@code noMove} is true, the Camera {@link #position()} is left
-	 * unchanged, which is an intuitive behavior when the Camera is in a
-	 * walkthrough fly mode.
-	 * 
-	 * @see #setViewDirection(Vector3D)
-	 * @see #lookAt(Vector3D)
-	 * @see #setOrientation(Quaternion)
-	 */
-	@Override
-	public void setUpVector(Vector3D up, boolean noMove) {
-		Quaternion q = new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), frame().transformOf(up));
-
-		if (!noMove)
-			frame().setPosition(Vector3D.sub(arcballReferencePoint(), (Quaternion.multiply(frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));
-
-		frame().rotate(q);
-
-		// Useful in fly mode to keep the horizontal direction.
-		frame().updateFlyUpVector();
-	}
+	// 2. POSITION AND ORIENTATION			
 
 	/**
 	 * Returns the normalized view direction of the Camera, defined in the world
@@ -452,6 +407,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * This corresponds to the negative Z axis of the {@link #frame()} ( {@code
 	 * frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f))} ).
 	 */
+	@Override
 	public Vector3D viewDirection() {
 		return frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f));
 	}
@@ -1778,33 +1734,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	  scene.loadMatrix(viewMat);
 	}
 
-	// 9. WORLD -> CAMERA
-
-	/**
-	 * Returns the Camera frame coordinates of a point {@code src} defined in
-	 * world coordinates.
-	 * <p>
-	 * {@link #worldCoordinatesOf(Vector3D)} performs the inverse transformation.
-	 * <p>
-	 * Note that the point coordinates are simply converted in a different
-	 * coordinate system. They are not projected on screen. Use
-	 * {@link #projectedCoordinatesOf(Vector3D, SimpleFrame)} for that.
-	 */
-	@Override
-	public final Vector3D cameraCoordinatesOf(Vector3D src) {
-		return frame().coordinatesOf(src);
-	}
-
-	/**
-	 * Returns the world coordinates of the point whose position {@code src} is
-	 * defined in the Camera coordinate system.
-	 * <p>
-	 * {@link #cameraCoordinatesOf(Vector3D)} performs the inverse transformation.
-	 */
-	@Override
-	public Vector3D worldCoordinatesOf(final Vector3D src) {
-		return frame().inverseCoordinatesOf(src);
-	}
+	// 9. WORLD -> CAMERA	
 
 	// 10. 2D -> 3D
 
@@ -1848,73 +1778,6 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			break;
 		}
 		}
-	}
-
-	/**
-	 * Convenience function that simply returns {@code return
-	 * unprojectedCoordinatesOf(src, null)}
-	 * 
-	 * #see {@link #unprojectedCoordinatesOf(Vector3D, SimpleFrame)}
-	 */
-	public final Vector3D unprojectedCoordinatesOf(Vector3D src) {
-		return this.unprojectedCoordinatesOf(src, null);
-	}
-
-	/**
-	 * Returns the world unprojected coordinates of a point {@code src} defined in
-	 * the screen coordinate system.
-	 * <p>
-	 * The {@code src.x} and {@code src.y} input values are expressed in pixels,
-	 * (0,0) being the upper left corner of the window. {@code src.z} is a depth
-	 * value ranging in [0..1] (near and far plane respectively). See the {@code
-	 * gluUnProject} man page for details.
-	 * <p>
-	 * The result is expressed in the {@code frame} coordinate system. When
-	 * {@code frame} is {@code null}, the result is expressed in the world
-	 * coordinates system. The possible {@code frame}
-	 * {@link remixlab.remixcam.core.SimpleFrame#referenceFrame()} are taken into account.
-	 * <p>
-	 * {@link #projectedCoordinatesOf(Vector3D, SimpleFrame)} performs the inverse
-	 * transformation.
-	 * <p>
-	 * This method only uses the intrinsic Camera parameters (see
-	 * {@link #getViewMatrix()}, {@link #getProjectionMatrix()} and
-	 * {@link #getViewport()}) and is completely independent of the Processing
-	 * matrices. You can hence define a virtual Camera and use this method to
-	 * compute un-projections out of a classical rendering context.
-	 * <p>
-	 * <b>Attention:</b> However, if your Camera is not attached to a Scene (used
-	 * for offscreen computations for instance), make sure the Camera matrices are
-	 * updated before calling this method (use {@link #computeViewMatrix()},
-	 * {@link #computeProjectionMatrix()}).
-	 * <p>
-	 * This method is not computationally optimized. If you call it several times
-	 * with no change in the matrices, you should buffer the entire inverse
-	 * projection matrix (view, projection and then viewport) to speed-up the
-	 * queries. See the gluUnProject man page for details.
-	 * 
-	 * @see #projectedCoordinatesOf(Vector3D, SimpleFrame)
-	 * @see #setScreenWidthAndHeight(int, int)
-	 */
-	public final Vector3D unprojectedCoordinatesOf(Vector3D src, SimpleFrame frame) {
-		float xyz[] = new float[3];
-		viewport = getViewport();
-		
-		/**
-		// TODO needs further testing
-	  if( scene.isRightHanded() )
-	  	unproject(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
-	  else
-	  	unproject(src.vec[0], (screenHeight() - src.vec[1]), src.vec[2], viewMat,	projectionMat, viewport, xyz);
-	  */
-		
-		unproject(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
-		
-		if (frame != null)
-			return frame.coordinatesOf(new Vector3D((float) xyz[0], (float) xyz[1],
-					(float) xyz[2]));
-		else
-			return new Vector3D((float) xyz[0], (float) xyz[1], (float) xyz[2]);
 	}
 
 	// 11. FLYSPEED
@@ -2095,11 +1958,6 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	@Override
 	public void showEntireScene() {
 		fitSphere(sceneCenter(), sceneRadius());
-	}
-	
-	@Override
-	public void centerScene() {
-		frame().projectOnLine(sceneCenter(), viewDirection());
 	}
 	
 	@Override
@@ -2294,121 +2152,5 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		if(distance != focusDist)
 			lastFrameUpdate = scene.frameCount();
 		focusDist = distance;
-	}
-
-	// 14. Implementation of glu utility functions
-	
-	/**
-	 * Cache {@code (P x M)} and {@code inv (P x M)} under the following circumstances:
-	 * <p>
-	 * i) If {@code scene.mouseGrabberPool().size() > 3 && scene.hasMouseTracking()} then
-	 * {@code (P x M)} is cached so that
-	 * {@code project(float, float, float, Matrix3D, Matrix3D, int[], float[])} 
-	 * is speeded up.
-	 * <p>
-	 * ii) If {@code #unprojectCacheIsOptimized()} {@code inv (P x M)} is cached (and hence
-	 * {@code (P x M)} is cached too) so that {@code unproject(float, float, float, Matrix3D, Matrix3D, int[], float[])}
-	 * is speeded up.
-	 * 
-	 * @see #unprojectCacheIsOptimized()
-	 * @see #optimizeUnprojectCache(boolean)
-	 */
-	@Override
-	public void cacheMatrices() {
-		// 1. project
-		super.cacheMatrices();		
-		
-		// 2. unproject
-		if(unprojectCacheIsOptimized()) {
-			if(projectionViewInverseMat == null)
-				projectionViewInverseMat = new Matrix3D();
-			projectionViewMatHasInverse = projectionViewMat.invert(projectionViewInverseMat);
-		}
-	}
-	
-	/**
-	 * Returns {@code true} if {@code P x M} and {@code inv (P x M)} are being cached,
-	 * and {@code false} otherwise.
-	 * 
-	 * @see #cacheMatrices()
-	 * @see #optimizeUnprojectCache(boolean)
-	 */
-	public boolean unprojectCacheIsOptimized() {
-		return unprojectCacheOptimized;
-	}
-	
-	/**
-	 * Cache {@code inv (P x M)} (and also {@code (P x M)} ) so that
-	 * {@code project(float, float, float, Matrx3D, Matrx3D, int[], float[])}
-	 * (and also {@code unproject(float, float, float, Matrx3D, Matrx3D, int[], float[])})
-	 * is optimised.
-	 * 
-	 * @see #unprojectCacheIsOptimized()
-	 * @see #cacheMatrices()
-	 */
-	public void optimizeUnprojectCache(boolean optimise) {
-		unprojectCacheOptimized = optimise;
-	}	
-
-	/**
-	 * Similar to {@code gluUnProject}: map window coordinates to object
-	 * coordinates.
-	 * 
-	 * @param winx
-	 *          Specify the window x coordinate.
-	 * @param winy
-	 *          Specify the window y coordinate.
-	 * @param winz
-	 *          Specify the window z coordinate.
-	 * @param view
-	 *          Specifies the current view matrix.
-	 * @param projection
-	 *          Specifies the current projection matrix.
-	 * @param viewport
-	 *          Specifies the current viewport.
-	 * @param objCoordinate
-	 *          Return the computed object coordinates.
-	 */
-	public boolean unproject(float winx, float winy, float winz, Matrix3D view,
-			                     Matrix3D projection, int viewport[], float[] objCoordinate) {		
-		if(!unprojectCacheOptimized) {			
-			if(projectionViewInverseMat == null)
-				projectionViewInverseMat = new Matrix3D();
-			projectionViewMatHasInverse = projectionViewMat.invert(projectionViewInverseMat);						
-		}		
-		
-		if (!projectionViewMatHasInverse)
-			return false;
-		
-		float in[] = new float[4];
-		float out[] = new float[4];
-
-		in[0] = winx;
-		in[1] = winy;
-		in[2] = winz;
-		in[3] = 1.0f;
-
-		/* Map x and y from window coordinates */
-		in[0] = (in[0] - viewport[0]) / viewport[2];
-		in[1] = (in[1] - viewport[1]) / viewport[3];
-
-		/* Map to range -1 to 1 */
-		in[0] = in[0] * 2 - 1;
-		in[1] = in[1] * 2 - 1;
-		in[2] = in[2] * 2 - 1;
-
-		projectionViewInverseMat.mult(in, out);
-		if (out[3] == 0.0)
-			return false;
-
-		out[0] /= out[3];
-		out[1] /= out[3];
-		out[2] /= out[3];
-
-		objCoordinate[0] = out[0];
-		objCoordinate[1] = out[1];
-		objCoordinate[2] = out[2];
-
-		return true;
 	}  
 }
