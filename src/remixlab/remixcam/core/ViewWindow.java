@@ -1,6 +1,5 @@
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.core.Camera.WorldPoint;
 import remixlab.remixcam.geom.Point;
 import remixlab.remixcam.geom.Quaternion;
 import remixlab.remixcam.geom.Rectangle;
@@ -104,8 +103,25 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 
 	@Override
 	public void interpolateToZoomOnRegion(Rectangle rectangle) {
-		// TODO Auto-generated method stub
-		
+	  //TODO needs fixing
+		if (anyInterpolationIsStarted())
+			stopAllInterpolations();
+
+		interpolationKfi.deletePath();
+		interpolationKfi.addKeyFrame(frame(), false);
+
+		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
+		// without modifying frame
+		tempFrame = new InteractiveCameraFrame(this);
+		InteractiveCameraFrame originalFrame = frame();
+		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
+		tempFrame.setOrientation( frame().orientation().get() );
+		setFrame(tempFrame);
+		fitScreenRegion(rectangle);
+		setFrame(originalFrame); 	
+
+		interpolationKfi.addKeyFrame(tempFrame, false);
+		interpolationKfi.startInterpolation();
 	}	
 	
 	public void fitBoundingRect(Vector3D min, Vector3D max) {
@@ -115,12 +131,13 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 	}
 	
 	public void fitCircle(Vector3D center, float radius) {
-		
+		orthoSize = radius / sceneRadius();				
+		lookAt(center);
 	}
 	
 	@Override
 	public void showEntireScene() {
-		fitCircle(sceneCenter(), sceneRadius());
+		fitCircle(sceneCenter(), sceneRadius());		
 	}
 	
 	/**
@@ -137,53 +154,19 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 	
 	@Override
 	public void fitScreenRegion(Rectangle rectangle) {
-		/**
-		Vector3D vd = viewDirection();
-		float distToPlane = distanceToSceneCenter();
-
-		Point center = new Point((int) rectangle.getCenterX(), (int) rectangle.getCenterY());
-
-		Vector3D orig = new Vector3D();
-		Vector3D dir = new Vector3D();
-		convertClickToLine(center, orig, dir);
-		Vector3D newCenter = Vector3D.add(orig, Vector3D.mult(dir,
-				(distToPlane / Vector3D.dot(dir, vd))));
-
-		convertClickToLine(new Point(rectangle.x, center.y), orig, dir);
-		final Vector3D pointX = Vector3D.add(orig, Vector3D.mult(dir,
-				(distToPlane / Vector3D.dot(dir, vd))));
-
-		convertClickToLine(new Point(center.x, rectangle.y), orig, dir);
-		final Vector3D pointY = Vector3D.add(orig, Vector3D.mult(dir,
-				(distToPlane / Vector3D.dot(dir, vd))));
-
-		float distance = 0.0f;
-		switch (type()) {
-		case PERSPECTIVE: {
-			final float distX = Vector3D.dist(pointX, newCenter)
-					/ (float) Math.sin(horizontalFieldOfView() / 2.0f);
-			final float distY = Vector3D.dist(pointY, newCenter)
-					/ (float) Math.sin(fieldOfView() / 2.0f);
-
-			distance = Math.max(distX, distY);
-			break;
-		}
-		case ORTHOGRAPHIC: {
-			final float dist = Vector3D.dot(Vector3D.sub(newCenter,
-					arcballReferencePoint()), vd);
-			final float distX = Vector3D.dist(pointX, newCenter) / orthoCoef
-					/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
-			final float distY = Vector3D.dist(pointY, newCenter) / orthoCoef
-					/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
-
-			distance = dist + Math.max(distX, distY);
-
-			break;
-		}
-		}
-
-		frame().setPositionWithConstraint(Vector3D.sub(newCenter, Vector3D.mult(vd, distance)));		
-		// */
+		float rectRatio = (float)rectangle.width / (float)rectangle.height;
+		if(aspectRatio() < 1.0f) {
+			if( aspectRatio () < rectRatio )
+				orthoSize = orthoSize * (float)rectangle.width / screenWidth();
+			else
+				orthoSize = orthoSize * (float)rectangle.height / screenHeight();
+		} else {
+			if( aspectRatio () < rectRatio )
+				orthoSize = orthoSize * (float)rectangle.width / screenWidth();
+			else
+				orthoSize = orthoSize * (float)rectangle.height / screenHeight();
+		}		
+		lookAt(unprojectedCoordinatesOf(new Vector3D(rectangle.getCenterX(), rectangle.getCenterY(), 0)));
 	}	
 	
 	@Override
@@ -193,25 +176,13 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 
 	@Override
 	public void setOrientation(Quaternion q) {
-		Vector3D axis = q.axis();
-		float angle = q.angle();
-		axis.x(0);
-		axis.y(0);
-		if( axis.z() > 0 )
-			axis.z(1);
-		else
-			axis.z(-1);
-		
-		Quaternion quat = new Quaternion(axis, angle);
-		frame().setOrientation(quat);
-		frame().updateFlyUpVector();
+		setOrientation(q.angle());
 	}
 	
 	public void setOrientation(float angle) {
-		if( viewDirection().z() > 0 )
-			setOrientation(new Quaternion(new Vector3D(0,0,1), angle));
-		else
-			setOrientation(new Quaternion(new Vector3D(0,0,-1), angle));
+		Quaternion quat = new Quaternion(viewDirection(), angle);
+		frame().setOrientation(quat);
+		frame().updateFlyUpVector();
 	}
 
 	@Override
@@ -219,16 +190,14 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-	@Override
-	public WorldPoint interpolateToZoomOnPixel(Point pixel) {
+	
+	public void interpolateToZoomOnPixel(Point pixel) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
 	public void lookAt(Vector3D target) {
-		//frame().setPosition(target.x(), target.y(), FAKED_ZDISTANCE);
+		frame().setPosition(target.x(), target.y(), 0);
 	}
 	
 	@Override
@@ -238,15 +207,32 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 	}
 
 	@Override
-	public boolean setArcballReferencePointFromPixel(Point pixel) {
-		//TODO implement me
+	public boolean setArcballReferencePointFromPixel(Point pixel) {		
+		setArcballReferencePoint(unprojectedCoordinatesOf(new Vector3D((float) pixel.x, (float) pixel.y, 0.5f)));
 		return true;
 	}
 
 	@Override
 	public void interpolateToFitScene() {
-		// TODO Auto-generated method stub
-		
+		//TODO needs fixing
+		if (anyInterpolationIsStarted())
+			stopAllInterpolations();
+
+		interpolationKfi.deletePath();
+		interpolationKfi.addKeyFrame(frame(), false);
+
+		// Small hack: attach a temporary frame to take advantage of showEntireScene
+		// without modifying frame
+		tempFrame = new InteractiveCameraFrame(this);
+		InteractiveCameraFrame originalFrame = frame();
+		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
+		tempFrame.setOrientation( frame().orientation().get() );
+		setFrame(tempFrame);
+		showEntireScene();
+		setFrame(originalFrame);
+
+		interpolationKfi.addKeyFrame(tempFrame, false);
+		interpolationKfi.startInterpolation();		
 	}
 	
 	public void flip() {		

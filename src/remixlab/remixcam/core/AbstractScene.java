@@ -605,7 +605,7 @@ public abstract class AbstractScene implements Constants {
 		switch (id) {		
 		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
 			if( this.is3D() ) {
-				Camera.WorldPoint wP = interpolateToZoomOnPixel(new Point(mouseX, mouseY));
+				Camera.WorldPoint wP = camera().interpolateToZoomOnPixel(new Point(mouseX, mouseY));
 				if (wP.found) {
 					pupVec = wP.point;
 					pupFlag = true;
@@ -735,10 +735,13 @@ public abstract class AbstractScene implements Constants {
 			break;
 		case ZOOM_ON_PIXEL:
 			if (this.is2D()) {
-			  //TODO implement 2D case
+				viewWindow().interpolateToZoomOnPixel(new Point(mouseX, mouseY));
+				pupVec = viewWindow().unprojectedCoordinatesOf(new Vector3D((float)mouseX, (float)mouseY, 0.5f));
+				pupFlag = true;
+				timerFx.runOnce(1000);
 			}				
 			else {
-				Camera.WorldPoint wP = interpolateToZoomOnPixel(new Point(mouseX, mouseY));
+				Camera.WorldPoint wP = camera().interpolateToZoomOnPixel(new Point(mouseX, mouseY));
 				if (wP.found) {
 					pupVec = wP.point;
 					pupFlag = true;
@@ -750,10 +753,7 @@ public abstract class AbstractScene implements Constants {
 			pinhole().interpolateToFitScene();
 			break;
 		case ARP_FROM_PIXEL:
-			if (this.is2D()){
-			//TODO implement 2D case
-			}			
-			else if (setArcballReferencePointFromPixel(new Point(mouseX, mouseY))) {			  
+			if (setArcballReferencePointFromPixel(new Point(mouseX, mouseY))) {			  
 				arpFlag = true;
 				timerFx.runOnce(1000);					
 			}
@@ -2203,22 +2203,7 @@ public abstract class AbstractScene implements Constants {
 	public boolean setArcballReferencePointFromPixel(Point pixel) {
 		return pinhole().setArcballReferencePointFromPixel(pixel);
 	}
-
-	/**
-	 * Convenience wrapper function that simply returns {@code
-	 * camera().interpolateToZoomOnPixel(pixel)}.
-	 * <p>
-	 * Current implementation does nothing. Override
-	 * {@link remixlab.remixcam.core.Camera#pointUnderPixel(Point)} in your openGL
-	 * based camera for this to work.
-	 * 
-	 * @see remixlab.remixcam.core.Camera#interpolateToZoomOnPixel(Point)
-	 * @see remixlab.remixcam.core.Camera#pointUnderPixel(Point)
-	 */
-	public Camera.WorldPoint interpolateToZoomOnPixel(Point pixel) {
-		return pinhole().interpolateToZoomOnPixel(pixel);
-	}
-
+	
 	/**
 	 * Convenience wrapper function that simply returns {@code
 	 * camera().setSceneCenterFromPixel(pixel)}

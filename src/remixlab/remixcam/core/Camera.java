@@ -2022,7 +2022,6 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * 
 	 * @see #interpolateToFitScene()
 	 */
-	@Override
 	public WorldPoint interpolateToZoomOnPixel(Point pixel) {
 		float coef = 0.1f;
 

@@ -6,7 +6,6 @@ import java.util.Iterator;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.core.Camera.WorldPoint;
 import remixlab.remixcam.geom.*;
 
 public abstract class Pinhole implements Constants  {
@@ -1689,8 +1688,6 @@ public abstract class Pinhole implements Constants  {
 	}
 	
 	public abstract boolean pointIsVisible(Vector3D point);	
-	
-	public abstract WorldPoint interpolateToZoomOnPixel(Point pixel);
 	
 	/**
 	 * Smoothly moves the Camera so that the rectangular screen region defined by

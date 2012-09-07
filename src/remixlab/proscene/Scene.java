@@ -304,13 +304,7 @@ public class Scene extends AbstractScene implements PConstants {
 		else
 			ph = new ViewWindow(this);
 		setViewPort(pinhole());//calls showAll();
-		
-		/**
-		//TODO hack
-		if(is2D())
-			viewWindow().setUpVector(new Vector3D(0,-1,0));
-		// */
-		
+				
 		setInteractiveFrame(null);
 		setAvatar(null);
 		
