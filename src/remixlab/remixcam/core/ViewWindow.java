@@ -1,48 +1,8 @@
 package remixlab.remixcam.core;
 
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
 import remixlab.remixcam.geom.*;
 
-public class ViewWindow extends Pinhole implements /**Constants,*/ Copyable {
-	@Override
-	public int hashCode() {	
-    return new HashCodeBuilder(17, 37).
-    appendSuper(super.hashCode()).
-		append(size).
-    toHashCode();
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		//TODO check me
-		/**
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		*/
-		//*/
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		// */
-		
-		ViewWindow other = (ViewWindow) obj;
-		
-	  return new EqualsBuilder()
-    .appendSuper(super.equals(obj))
-		.append(size,other.size)
-		.isEquals();
-	}
-	
-	protected float size;
+public class ViewWindow extends Pinhole implements Copyable {	
 	
 	static final float FAKED_ZNEAR = -10;  
   static final float FAKED_ZFAR = 10;
@@ -51,7 +11,7 @@ public class ViewWindow extends Pinhole implements /**Constants,*/ Copyable {
 		super(scn);
 		if(scene.is3D())
 			throw new RuntimeException("Use ViewWindow only for a 2D Scene");
-		size = 1;
+		orthoSize = 1;
 		fpCoefficients = new float[4][3];		
 		computeProjectionMatrix();
 		flip();
@@ -103,19 +63,19 @@ public class ViewWindow extends Pinhole implements /**Constants,*/ Copyable {
 	}
 	
 	public float size() {
-		return size;
+		return orthoSize;
 	}
 	
 	public void setSize(float s) {
-		size = s;
+		orthoSize = s;
 	}
 	
 	public void changeSize(boolean augment) {
 		lastFrameUpdate = scene.frameCount();
 		if (augment)
-			size *= 1.01f;
+			orthoSize *= 1.01f;
 		else
-			size /= 1.01f;
+			orthoSize /= 1.01f;
 	}
 	
 	@Override

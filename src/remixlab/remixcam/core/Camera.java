@@ -74,7 +74,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		//append(viewMat).
 		append(normal).
 		append(orthoCoef).
-		append(orthoSize).
+		//append(orthoSize).
 		append(physicalDist2Scrn).
 		append(physicalScrnWidth).
 		//append(projectionMat).
@@ -132,7 +132,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		//.append(viewMat,other.viewMat)
 		.append(normal,other.normal)
 		.append(orthoCoef,other.orthoCoef)
-		.append(orthoSize,other.orthoSize)
+		//.append(orthoSize,other.orthoSize)
 		.append(physicalDist2Scrn,other.physicalDist2Scrn)
 		.append(physicalScrnWidth,other.physicalScrnWidth)
 		//.append(projectionMat,other.projectionMat)
@@ -266,7 +266,6 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	private float zClippingCoef;	
 	private Type tp; // PERSPECTIVE or ORTHOGRAPHIC
 	private Kind knd; // PROSCENE or STANDARD
-	private float orthoSize;
 	private float orthoCoef;
 	private float stdZNear;
 	private float stdZFar;
@@ -375,7 +374,6 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		
 		this.fldOfView = oCam.fldOfView;
 		this.orthoCoef = oCam.orthoCoef;		
-		this.orthoSize = oCam.orthoSize;
 		this.setKind(oCam.kind());		
 		this.setStandardZNear(oCam.standardZNear());
 		this.setStandardZFar(oCam.standardZFar());
