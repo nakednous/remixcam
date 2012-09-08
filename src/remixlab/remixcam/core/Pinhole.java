@@ -8,7 +8,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.remixcam.geom.*;
 
-public abstract class Pinhole implements Constants  {
+public abstract class Pinhole {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
@@ -28,7 +28,7 @@ public abstract class Pinhole implements Constants  {
 		append(viewMat).
 		//append(normal).
 		//append(orthoCoef).
-		append(orthoSize).
+		//append(orthoSize).
 		//append(physicalDist2Scrn).
 		//append(physicalScrnWidth).
 		append(projectionMat).
@@ -86,7 +86,7 @@ public abstract class Pinhole implements Constants  {
 		.append(viewMat,other.viewMat)
 		//.append(normal,other.normal)
 		//.append(orthoCoef,other.orthoCoef)
-		.append(orthoSize,other.orthoSize)
+		//.append(orthoSize,other.orthoSize)
 		//.append(physicalDist2Scrn,other.physicalDist2Scrn)
 		//.append(physicalScrnWidth,other.physicalScrnWidth)
 		.append(projectionMat,other.projectionMat)
@@ -124,8 +124,7 @@ public abstract class Pinhole implements Constants  {
   //C a m e r a p a r a m e t e r s
 	protected int scrnWidth, scrnHeight; // size of the window, in pixels
 	protected Vector3D scnCenter;
-	protected float scnRadius; // processing scene units
-	protected float orthoSize;
+	protected float scnRadius; // processing scene units	
 	protected int viewport[] = new int[4];
 	
 	protected Matrix3D viewMat;
@@ -159,9 +158,7 @@ public abstract class Pinhole implements Constants  {
 		scene = scn;
 		
 		optimizeUnprojectCache(false);
-		enableFrustumEquationsUpdate(false);
-		
-		orthoSize = 1;// only for standard kind, but we initialize it here
+		enableFrustumEquationsUpdate(false);	
 		
 		// /**
 		//TODO subido
@@ -231,8 +228,7 @@ public abstract class Pinhole implements Constants  {
 		}
 		
 		this.setSceneRadius(oVP.sceneRadius());		
-		this.setSceneCenter(oVP.sceneCenter());			
-		this.orthoSize = oVP.orthoSize;
+		this.setSceneCenter(oVP.sceneCenter());		
 		this.setScreenWidthAndHeight(oVP.screenWidth(), oVP.screenHeight());		
 		this.viewMat = new Matrix3D(oVP.viewMat);
 		this.projectionMat = new Matrix3D(oVP.projectionMat);
@@ -1703,7 +1699,26 @@ public abstract class Pinhole implements Constants  {
 	 * 
 	 * @see #fitScreenRegion(Rectangle)
 	 */
-	public abstract void interpolateToZoomOnRegion(Rectangle rectangle);
+	public void interpolateToZoomOnRegion(Rectangle rectangle) {
+		if (anyInterpolationIsStarted())
+			stopAllInterpolations();
+		
+		interpolationKfi.deletePath();
+		interpolationKfi.addKeyFrame(frame(), false);
+		
+		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
+		// without modifying frame
+		tempFrame = new InteractiveCameraFrame(this);
+		InteractiveCameraFrame originalFrame = frame();
+		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
+		tempFrame.setOrientation( frame().orientation().get() );
+		setFrame(tempFrame);
+		fitScreenRegion(rectangle);
+		setFrame(originalFrame);
+		
+		interpolationKfi.addKeyFrame(tempFrame, false);
+		interpolationKfi.startInterpolation();
+	}
 	
 	/**
 	 * Interpolates the Camera on a one second KeyFrameInterpolator path so that
@@ -1716,7 +1731,26 @@ public abstract class Pinhole implements Constants  {
 	 * 
 	 * @see #interpolateToZoomOnPixel(Point)
 	 */
-	public abstract void interpolateToFitScene();
+	public void interpolateToFitScene() {
+		if (anyInterpolationIsStarted())
+			stopAllInterpolations();
+
+		interpolationKfi.deletePath();
+		interpolationKfi.addKeyFrame(frame(), false);
+
+		// Small hack: attach a temporary frame to take advantage of showEntireScene
+		// without modifying frame
+		tempFrame = new InteractiveCameraFrame(this);
+		InteractiveCameraFrame originalFrame = frame();
+		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
+		tempFrame.setOrientation( frame().orientation().get() );
+		setFrame(tempFrame);
+		showEntireScene();
+		setFrame(originalFrame);
+
+		interpolationKfi.addKeyFrame(tempFrame, false);
+		interpolationKfi.startInterpolation();
+	}
 	
 	/**
 	 * Convenience function that simply calls {@code interpolateTo(fr, 1)}.
@@ -1780,28 +1814,7 @@ public abstract class Pinhole implements Constants  {
 	
 	public abstract Vector3D viewDirection();
 	
-  //TODO experimental
-	
-	/**
-	 * Changes the size of the frustum. If {@code augment} is true the frustum
-	 * size is augmented, otherwise it is diminished. Meaningful only when the
-	 * Camera {@link #kind()} is STANDARD and the Camera {@link #type()} is
-	 * ORTHOGRAPHIC.
-	 * 
-	 * @see #standardOrthoFrustumSize()
-	 */
-	public abstract void changeStandardOrthoFrustumSize(boolean augment);
-
-	/**
-	 * Returns the frustum size. This value is used to set
-	 * {@link #getOrthoWidthHeight()}. Meaningful only when the Camera
-	 * {@link #kind()} is STANDARD and the Camera {@link #type()} is ORTHOGRAPHIC.
-	 * 
-	 * @see #getOrthoWidthHeight()
-	 */
-	public float standardOrthoFrustumSize() {
-		return orthoSize;
-	}
+  //TODO experimental	
 	
 	public Matrix3D projection() {
 		return projectionMat;

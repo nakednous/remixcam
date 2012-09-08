@@ -613,7 +613,10 @@ public abstract class AbstractScene implements Constants {
 				}
 			}
 			else {
-				//TODO implement 2D case
+				viewWindow().interpolateToZoomOnPixel(new Point(mouseX, mouseY));
+				pupVec = viewWindow().unprojectedCoordinatesOf(new Vector3D((float)mouseX, (float)mouseY, 0.5f));
+				pupFlag = true;
+				timerFx.runOnce(1000);
 			}
 			break;
 		case INTERPOLATE_TO_FIT_SCENE:
@@ -1690,6 +1693,20 @@ public abstract class AbstractScene implements Constants {
 			return (ViewWindow) ph;
 		else 
 			throw new RuntimeException("ViewWindow type is only available in 2D");
+	}
+	
+	public float viewWindowSize() {
+		if (is2D())
+			return viewWindow().size();
+		else
+			throw new RuntimeException("size is only available in 2D");
+	}
+	
+	public void setViewWindowSize(float s) {
+		if (is2D())
+			viewWindow().setSize(s);
+		else
+			throw new RuntimeException("size is only available in 2D");		
 	}
 
 	/**

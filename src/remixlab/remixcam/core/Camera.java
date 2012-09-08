@@ -57,6 +57,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
+    appendSuper(super.hashCode()).
     //append(fpCoefficientsUpdate).
     //append(unprojectCacheOptimized).
     //append(lastFrameUpdate).
@@ -73,7 +74,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		//append(viewMat).
 		append(normal).
 		append(orthoCoef).
-		//append(orthoSize).
+		append(orthoSize).
 		append(physicalDist2Scrn).
 		append(physicalScrnWidth).
 		//append(projectionMat).
@@ -131,7 +132,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		//.append(viewMat,other.viewMat)
 		.append(normal,other.normal)
 		.append(orthoCoef,other.orthoCoef)
-		//.append(orthoSize,other.orthoSize)
+		.append(orthoSize,other.orthoSize)
 		.append(physicalDist2Scrn,other.physicalDist2Scrn)
 		.append(physicalScrnWidth,other.physicalScrnWidth)
 		//.append(projectionMat,other.projectionMat)
@@ -265,6 +266,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	private float zClippingCoef;	
 	private Type tp; // PERSPECTIVE or ORTHOGRAPHIC
 	private Kind knd; // PROSCENE or STANDARD
+	private float orthoSize;
 	private float orthoCoef;
 	private float stdZNear;
 	private float stdZFar;
@@ -323,7 +325,8 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		setSceneCenter(new Vector3D(0.0f, 0.0f, 0.0f));
 		// */
 
-		setKind(Kind.PROSCENE);		
+		setKind(Kind.PROSCENE);
+		orthoSize = 1;// only for standard kind, but we initialize it here
 		setStandardZNear(0.001f);// only for standard kind, but we initialize it
 															// here
 		setStandardZFar(1000.0f);// only for standard kind, but we initialize it
@@ -372,6 +375,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		
 		this.fldOfView = oCam.fldOfView;
 		this.orthoCoef = oCam.orthoCoef;		
+		this.orthoSize = oCam.orthoSize;
 		this.setKind(oCam.kind());		
 		this.setStandardZNear(oCam.standardZNear());
 		this.setStandardZFar(oCam.standardZFar());
@@ -578,7 +582,6 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * 
 	 * @see #standardOrthoFrustumSize()
 	 */
-	@Override
 	public void changeStandardOrthoFrustumSize(boolean augment) {
 		if( (kind() == Camera.Kind.STANDARD) && (type() == Camera.Type.ORTHOGRAPHIC) )
 			lastFrameUpdate = scene.frameCount();
@@ -586,7 +589,18 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			orthoSize *= 1.01f;
 		else
 			orthoSize /= 1.01f;
-	}	
+	}
+	
+	/**
+	 * Returns the frustum size. This value is used to set
+	 * {@link #getOrthoWidthHeight()}. Meaningful only when the Camera
+	 * {@link #kind()} is STANDARD and the Camera {@link #type()} is ORTHOGRAPHIC.
+	 * 
+	 * @see #getOrthoWidthHeight()
+	 */
+	public float standardOrthoFrustumSize() {
+		return orthoSize;
+	}
 
 	/**
 	 * Defines the Camera {@link #type()}.
@@ -1959,54 +1973,6 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	public void showEntireScene() {
 		fitSphere(sceneCenter(), sceneRadius());
 	}
-	
-	@Override
-	public void interpolateToZoomOnRegion(Rectangle rectangle) {
-		// if (interpolationKfi.interpolationIsStarted())
-		// interpolationKfi.stopInterpolation();
-		if (anyInterpolationIsStarted())
-			stopAllInterpolations();
-
-		interpolationKfi.deletePath();
-		interpolationKfi.addKeyFrame(frame(), false);
-
-		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
-		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(this);
-		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
-		tempFrame.setOrientation( frame().orientation().get() );
-		setFrame(tempFrame);
-		fitScreenRegion(rectangle);
-		setFrame(originalFrame); 	
-
-		interpolationKfi.addKeyFrame(tempFrame, false);
-		interpolationKfi.startInterpolation();		
-	}	
-	
-	@Override
-	public void interpolateToFitScene() {
-		// if (interpolationKfi.interpolationIsStarted())
-		// interpolationKfi.stopInterpolation();
-		if (anyInterpolationIsStarted())
-			stopAllInterpolations();
-
-		interpolationKfi.deletePath();
-		interpolationKfi.addKeyFrame(frame(), false);
-
-		// Small hack: attach a temporary frame to take advantage of showEntireScene
-		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(this);
-		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
-		tempFrame.setOrientation( frame().orientation().get() );
-		setFrame(tempFrame);
-		showEntireScene();
-		setFrame(originalFrame);
-
-		interpolationKfi.addKeyFrame(tempFrame, false);
-		interpolationKfi.startInterpolation();
-	}
 
 	/**
 	 * Makes the Camera smoothly zoom on the {@link #pointUnderPixel(Point)}
@@ -2016,9 +1982,6 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * Nothing happens if no {@link #pointUnderPixel(Point)} is found. Otherwise a
 	 * KeyFrameInterpolator is created that animates the Camera on a one second
 	 * path that brings the Camera closer to the point under {@code pixel}.
-	 * <p>
-	 * <b>Attention:</b> Override this method in your jogl-based camera class. See
-	 * {@link #pointUnderPixel(Point)}.
 	 * 
 	 * @see #interpolateToFitScene()
 	 */
@@ -2046,8 +2009,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		// modifying frame
 		tempFrame = new InteractiveCameraFrame(this);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(Vector3D.add(Vector3D.mult(frame().position(), coef),
-				Vector3D.mult(target.point, (1.0f - coef))));
+		tempFrame.setPosition(Vector3D.add(Vector3D.mult(frame().position(), coef),	Vector3D.mult(target.point, (1.0f - coef))));
 		tempFrame.setOrientation( frame().orientation().get() );
 		setFrame(tempFrame);
 		lookAt(target.point);

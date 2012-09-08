@@ -1,15 +1,57 @@
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.geom.Point;
-import remixlab.remixcam.geom.Quaternion;
-import remixlab.remixcam.geom.Rectangle;
-import remixlab.remixcam.geom.Vector3D;
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-public class ViewWindow extends Pinhole implements Constants, Copyable {
+import remixlab.remixcam.geom.*;
+
+public class ViewWindow extends Pinhole implements /**Constants,*/ Copyable {
+	@Override
+	public int hashCode() {	
+    return new HashCodeBuilder(17, 37).
+    appendSuper(super.hashCode()).
+		append(size).
+    toHashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		//TODO check me
+		/**
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		*/
+		//*/
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		// */
+		
+		ViewWindow other = (ViewWindow) obj;
+		
+	  return new EqualsBuilder()
+    .appendSuper(super.equals(obj))
+		.append(size,other.size)
+		.isEquals();
+	}
+	
+	protected float size;
+	
+	static final float FAKED_ZNEAR = -10;  
+  static final float FAKED_ZFAR = 10;
+	
 	public ViewWindow(AbstractScene scn) {
 		super(scn);
 		if(scene.is3D())
 			throw new RuntimeException("Use ViewWindow only for a 2D Scene");
+		size = 1;
 		fpCoefficients = new float[4][3];		
 		computeProjectionMatrix();
 		flip();
@@ -50,7 +92,7 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 		if ((target == null) || (target.length != 2)) {
 			target = new float[2];
 		}		
-		float dist = sceneRadius() * standardOrthoFrustumSize();
+		float dist = sceneRadius() * size();
 		// #CONNECTION# fitScreenRegion
 		// 1. halfWidth
 		target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
@@ -60,13 +102,20 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 		return target;
 	}
 	
-	@Override
-	public void changeStandardOrthoFrustumSize(boolean augment) {
+	public float size() {
+		return size;
+	}
+	
+	public void setSize(float s) {
+		size = s;
+	}
+	
+	public void changeSize(boolean augment) {
 		lastFrameUpdate = scene.frameCount();
 		if (augment)
-			orthoSize *= 1.01f;
+			size *= 1.01f;
 		else
-			orthoSize /= 1.01f;
+			size /= 1.01f;
 	}
 	
 	@Override
@@ -100,29 +149,6 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 		//TODO implement me	
 		return Visibility.SEMIVISIBLE;
 	}
-
-	@Override
-	public void interpolateToZoomOnRegion(Rectangle rectangle) {
-	  //TODO needs fixing
-		if (anyInterpolationIsStarted())
-			stopAllInterpolations();
-
-		interpolationKfi.deletePath();
-		interpolationKfi.addKeyFrame(frame(), false);
-
-		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
-		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(this);
-		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
-		tempFrame.setOrientation( frame().orientation().get() );
-		setFrame(tempFrame);
-		fitScreenRegion(rectangle);
-		setFrame(originalFrame); 	
-
-		interpolationKfi.addKeyFrame(tempFrame, false);
-		interpolationKfi.startInterpolation();
-	}	
 	
 	public void fitBoundingRect(Vector3D min, Vector3D max) {
 		float diameter = Math.max(Math.abs(max.vec[1] - min.vec[1]), Math.abs(max.vec[0] - min.vec[0]));
@@ -131,7 +157,7 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 	}
 	
 	public void fitCircle(Vector3D center, float radius) {
-		orthoSize = radius / sceneRadius();				
+		setSize(radius / sceneRadius());				
 		lookAt(center);
 	}
 	
@@ -157,21 +183,21 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 		float rectRatio = (float)rectangle.width / (float)rectangle.height;
 		if(aspectRatio() < 1.0f) {
 			if( aspectRatio () < rectRatio )
-				orthoSize = orthoSize * (float)rectangle.width / screenWidth();
+				setSize(size() * (float)rectangle.width / screenWidth());
 			else
-				orthoSize = orthoSize * (float)rectangle.height / screenHeight();
+				setSize(size() * (float)rectangle.height / screenHeight());
 		} else {
 			if( aspectRatio () < rectRatio )
-				orthoSize = orthoSize * (float)rectangle.width / screenWidth();
+				setSize(size() * (float)rectangle.width / screenWidth());
 			else
-				orthoSize = orthoSize * (float)rectangle.height / screenHeight();
+				setSize(size() * (float)rectangle.height / screenHeight());
 		}		
 		lookAt(unprojectedCoordinatesOf(new Vector3D(rectangle.getCenterX(), rectangle.getCenterY(), 0)));
 	}	
 	
 	@Override
 	public Vector3D viewDirection() {
-		return new Vector3D(0, 0, ( frame().zAxis().z() > 0 ) ? -1 : 1 );
+		return new Vector3D( 0, 0, ( frame().zAxis().z() > 0 ) ? -1 : 1 );
 	}
 
 	@Override
@@ -189,11 +215,7 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 	public boolean pointIsVisible(Vector3D point) {
 		// TODO Auto-generated method stub
 		return false;
-	}
-	
-	public void interpolateToZoomOnPixel(Point pixel) {
-		// TODO Auto-generated method stub
-	}
+	}	
 
 	@Override
 	public void lookAt(Vector3D target) {
@@ -211,29 +233,6 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 		setArcballReferencePoint(unprojectedCoordinatesOf(new Vector3D((float) pixel.x, (float) pixel.y, 0.5f)));
 		return true;
 	}
-
-	@Override
-	public void interpolateToFitScene() {
-		//TODO needs fixing
-		if (anyInterpolationIsStarted())
-			stopAllInterpolations();
-
-		interpolationKfi.deletePath();
-		interpolationKfi.addKeyFrame(frame(), false);
-
-		// Small hack: attach a temporary frame to take advantage of showEntireScene
-		// without modifying frame
-		tempFrame = new InteractiveCameraFrame(this);
-		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
-		tempFrame.setOrientation( frame().orientation().get() );
-		setFrame(tempFrame);
-		showEntireScene();
-		setFrame(originalFrame);
-
-		interpolationKfi.addKeyFrame(tempFrame, false);
-		interpolationKfi.startInterpolation();		
-	}
 	
 	public void flip() {		
 		Vector3D direction = new Vector3D(0, 0, ( frame().zAxis().z() > 0 ) ? 1 : -1 );
@@ -247,5 +246,14 @@ public class ViewWindow extends Pinhole implements Constants, Copyable {
 		Vector3D up = upVector();
 		up.y(-up.y());
 		setUpVector(up);
+	}
+	
+	public void interpolateToZoomOnPixel(Point pixel) {
+		float winW = this.screenWidth()/3;
+		float winH = this.screenHeight()/3;
+		float cX = (float)pixel.x - winW/2;
+		float cY = (float)pixel.y - winH/2;
+		Rectangle rect = new Rectangle((int)cX, (int)cY, (int)winW, (int)winH);
+		this.interpolateToZoomOnRegion(rect);		
 	}
 }

@@ -154,6 +154,7 @@ public class KeyFrameInterpolator implements Copyable {
 		private Vector3D p, tgPVec;
 		private Quaternion q, tgQuat;
 		private float tm;
+		private float sz;
 		private SimpleFrame frm;
 
 		KeyFrame(SimpleFrame fr, float t, boolean setRef) {
@@ -166,10 +167,15 @@ public class KeyFrameInterpolator implements Copyable {
 				p = new Vector3D(fr.position().vec[0], fr.position().vec[1], fr.position().vec[2]);
 				q = fr.orientation().get();
 			}
+			if(scene.is2D())
+				sz = scene.viewWindowSize();
+			else
+				sz=1;//dummy
 		}
 		
 		protected KeyFrame(KeyFrame otherKF) {
 			this.tm = otherKF.tm;
+			this.sz = otherKF.sz;
 			this.frm = otherKF.frm;
 			if (this.frm != null) {
 				this.p = this.frame().position();
@@ -189,7 +195,7 @@ public class KeyFrameInterpolator implements Copyable {
 		void updateValues() {
 			if (frame() != null) {
 				p = frame().position();
-				q = frame().orientation();
+				q = frame().orientation();				
 			}
 		}
 
@@ -225,6 +231,13 @@ public class KeyFrameInterpolator implements Copyable {
 		void computeTangent(KeyFrame prev, KeyFrame next) {
 			tgPVec = Vector3D.mult(Vector3D.sub(next.position(), prev.position()), 0.5f);
 			tgQuat = Quaternion.squadTangent(prev.orientation(), q, next.orientation());
+		}
+		
+		public float size() {
+			if (scene.is2D())
+				return sz;
+			else
+				throw new RuntimeException("size is only available in 2D");
 		}
 	}
 
@@ -1055,7 +1068,7 @@ public class KeyFrameInterpolator implements Copyable {
 		if (dt == 0.0f)
 			alpha = 0.0f;
 		else
-			alpha = (time - keyFr.get(currentFrame1.nextIndex()).time()) / dt;
+			alpha = (time - keyFr.get(currentFrame1.nextIndex()).time()) / dt;		
 
 		// Linear interpolation - debug
 		// Vec pos = alpha*(currentFrame2->peekNext()->position()) +
@@ -1069,9 +1082,16 @@ public class KeyFrameInterpolator implements Copyable {
 		Quaternion q = Quaternion.squad(keyFr.get(currentFrame1.nextIndex())
 				.orientation(), keyFr.get(currentFrame1.nextIndex()).tgQ(), keyFr.get(
 				currentFrame2.nextIndex()).tgQ(), keyFr.get(currentFrame2.nextIndex())
-				.orientation(), alpha);
-
+				.orientation(), alpha);		
+		
 		frame().setPositionWithConstraint(pos);
 		frame().setRotationWithConstraint(q);
+		
+		if( scene.is2D() ) {
+			float start = keyFr.get(currentFrame1.nextIndex()).size();
+			float stop = keyFr.get(currentFrame2.nextIndex()).size();
+			//linear interpolation
+			scene.setViewWindowSize(start + (stop-start) * alpha);
+		}
 	}
 }

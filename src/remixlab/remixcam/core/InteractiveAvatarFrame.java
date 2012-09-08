@@ -43,7 +43,8 @@ import remixlab.remixcam.geom.*;
 public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	Constants, Trackable, Copyable {
 	@Override
 	public int hashCode() {
-    return new HashCodeBuilder(17, 37).		
+    return new HashCodeBuilder(17, 37).
+    appendSuper(super.hashCode()).
 		append(q).
 		append(trackingDist).
 		append(camRelPos).

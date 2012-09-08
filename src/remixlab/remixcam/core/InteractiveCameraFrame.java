@@ -52,6 +52,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
+    appendSuper(super.hashCode()).
 		append(arcballRefPnt).
     toHashCode();
 	}
@@ -72,7 +73,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	}
 	
 	protected Pinhole viewport;
-	protected Vector3D arcballRefPnt;
+	protected Vector3D arcballRefPnt;	
 
 	/**
 	 * Default constructor.
@@ -151,7 +152,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 */
 	public void setArcballReferencePoint(Vector3D refP) {
 		arcballRefPnt = refP;
-	}
+	}	
 
 	/**
 	 * Overloading of
@@ -229,9 +230,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					//TODO implement 2D case
 					float coef = (float) (eventPoint.y - prevPos.y) / (float) vp.screenHeight();
 					if(coef>0)
-						vp.changeStandardOrthoFrustumSize(true);
+						((ViewWindow)vp).changeSize(true);
 					else
-						vp.changeStandardOrthoFrustumSize(false);
+						((ViewWindow)vp).changeSize(false);
 					prevPos = eventPoint;					
 				}
 				break;
@@ -385,9 +386,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			else {			
 			  //TODO implement 2D case
 				if(trans.z()>0)
-					vp.changeStandardOrthoFrustumSize(true);
+					((ViewWindow)vp).changeSize(true);
 				else
-					vp.changeStandardOrthoFrustumSize(false);
+					((ViewWindow)vp).changeSize(false);
 			}
 			
 			break;

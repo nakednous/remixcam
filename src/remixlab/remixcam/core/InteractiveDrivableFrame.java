@@ -44,7 +44,8 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 public class InteractiveDrivableFrame extends InteractiveFrame implements Copyable {	
 	@Override
 	public int hashCode() {
-    return new HashCodeBuilder(17, 37).		
+    return new HashCodeBuilder(17, 37).
+    appendSuper(super.hashCode()).    
 		append(drvSpd).
 		append(flyDisp).
 		append(flySpd).

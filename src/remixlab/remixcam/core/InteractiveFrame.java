@@ -53,6 +53,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
+    appendSuper(super.hashCode()).
 		append(action).
 		append(delay).
 		append(dirIsFixed).
@@ -285,7 +286,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 			}
 		};		
 		scene.registerJob(spinningTimerJob);
-	}
+	}	
 
 	/**
 	 * Convenience function that simply calls {@code applyTransformation(AbstractScene)}.
