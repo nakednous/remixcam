@@ -340,8 +340,8 @@ public class Scene extends AbstractScene implements PConstants {
 		
 		disableFrustumEquationsUpdate();		
 
-		parent.registerPre(this);
-		parent.registerDraw(this);
+		parent.registerMethod("pre", this);
+		parent.registerMethod("draw", this);
 		// parent.registerPost(this);
 		enableKeyboardHandling();
 		enableMouseHandling();
@@ -1105,8 +1105,10 @@ public class Scene extends AbstractScene implements PConstants {
 	 */
 	@Override
 	public void enableKeyboardHandling() {
-		super.enableKeyboardHandling();
-		parent.registerKeyEvent(dE);
+		if( !this.keyboardIsHandled() ) {
+			super.enableKeyboardHandling();
+			parent.registerKeyEvent(dE);
+		}
 	}
 
 	/**
@@ -1116,8 +1118,10 @@ public class Scene extends AbstractScene implements PConstants {
 	 */
 	@Override
 	public void disableKeyboardHandling() {
-		super.disableKeyboardHandling();
-		parent.unregisterKeyEvent(dE);
+		if( this.keyboardIsHandled() ) {
+			super.disableKeyboardHandling();
+			parent.unregisterKeyEvent(dE);
+		}
 	}
 
 	/**
@@ -1684,8 +1688,10 @@ public class Scene extends AbstractScene implements PConstants {
 	 */
 	@Override
 	public void enableMouseHandling() {
-		super.enableMouseHandling();
-		parent.registerMouseEvent(dE);
+		if( !this.mouseIsHandled() ) {
+			super.enableMouseHandling();
+			parent.registerMouseEvent(dE);
+		}
 	}
 
 	/**
@@ -1695,8 +1701,10 @@ public class Scene extends AbstractScene implements PConstants {
 	 */
 	@Override
 	public void disableMouseHandling() {
-		super.disableMouseHandling();
-		parent.unregisterMouseEvent(dE);
+		if( this.mouseIsHandled() ) {
+			super.disableMouseHandling();
+			parent.unregisterMouseEvent(dE);
+		}
 	}
 
 	// 10. Draw method registration

@@ -20,11 +20,8 @@ import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.geom.Vector3D;
 
 public class Renderer3D extends Renderer {	
-	protected SimpleFrame tmpFrame;
-	
 	public Renderer3D(AbstractScene scn, PGraphics3D renderer) {
 		super(scn, renderer);
-		tmpFrame = new SimpleFrame();
 	}
 	
 	public PGraphics3D pg3d() {
@@ -434,8 +431,8 @@ public class Renderer3D extends Renderer {
 	@Override
 	public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
 		pg3d().pushMatrix();
-
-		// pg3d().applyMatrix(camera.frame().worldMatrix());
+		
+		//applyMatrix(camera.frame().worldMatrix());
 		// same as the previous line, but maybe more efficient
 		tmpFrame.fromMatrix(camera.frame().worldMatrix());
 		scene().applyTransformation(tmpFrame);
@@ -468,7 +465,9 @@ public class Renderer3D extends Renderer {
 		int farIndex = drawFarPlane ? 1 : 0;
 		
 	  // Frustum lines
+		pg3d().pushStyle();		
 		pg3d().strokeWeight(2);
+		//pg3d().stroke(255,255,0);
 		switch (camera.type()) {
 			case PERSPECTIVE:
 				pg3d().beginShape(PApplet.LINES);
@@ -496,13 +495,13 @@ public class Renderer3D extends Renderer {
 					pg3d().endShape();
 				}
 		}
-
-		// Near and (optionally) far plane(s)
-		pg3d().pushStyle();
+		
+		// Near and (optionally) far plane(s)		
 		pg3d().noStroke();
+		//pg3d().fill(255,255,0,160);
 		pg3d().beginShape(PApplet.QUADS);
 		for (int i = farIndex; i >= 0; --i) {
-			pg3d().normal(0.0f, 0.0f, (i == 0) ? 1.0f : -1.0f);
+			pg3d().normal(0.0f, 0.0f, (i == 0) ? 1.0f : -1.0f);			
 			pg3d().vertex(points[i].x, points[i].y, -points[i].z);
 			pg3d().vertex(-points[i].x, points[i].y, -points[i].z);
 			pg3d().vertex(-points[i].x, -points[i].y, -points[i].z);
@@ -528,8 +527,7 @@ public class Renderer3D extends Renderer {
 		//pg3d().vertex(-baseHalfWidth, points[0].y, -points[0].z);
 		//pg3d().vertex(baseHalfWidth, points[0].y, -points[0].z);
 		//pg3d().vertex(baseHalfWidth, baseHeight, -points[0].z);
-		//pg3d().vertex(-baseHalfWidth, baseHeight, -points[0].z);
-		
+		//pg3d().vertex(-baseHalfWidth, baseHeight, -points[0].z);		
 		pg3d().endShape();
 
 		// Arrow
@@ -541,9 +539,9 @@ public class Renderer3D extends Renderer {
   	//right_handed coordinate system should go like this:
 		//pg3d().vertex(0.0f, arrowHeight, -points[0].z);
 		//pg3d().vertex(-arrowHalfWidth, baseHeight, -points[0].z);
-		//pg3d().vertex(arrowHalfWidth, baseHeight, -points[0].z);
+		//pg3d().vertex(arrowHalfWidth, baseHeight, -points[0].z);		
+		pg3d().endShape();
 		
-		pg3d().endShape();	
 		pg3d().popStyle();
 		pg3d().popMatrix();
 	}
@@ -649,30 +647,5 @@ public class Renderer3D extends Renderer {
 			}
 			pg3d().popStyle();
 		}
-	}
-	
-	@Override
-	public void drawScreenRotateLineHint() {
-		float p1x = (float) ((Scene)scene).dE.fCorner.getX();
-		float p1y = (float) ((Scene)scene).dE.fCorner.getY();
-		Vector3D p2 = scene.camera().projectedCoordinatesOf(scene.arcballReferencePoint());
-		scene.beginScreenDrawing();
-		pg.pushStyle();
-		pg.stroke(255, 255, 255);
-		pg.strokeWeight(2);
-		pg.noFill();
-		pg.line(p2.x(), p2.y(), p1x, p1y);
-		pg.popStyle();
-		scene.endScreenDrawing();
-	}
-
-	@Override
-	public void drawArcballReferencePointHint() {
-		Vector3D p = scene.camera().projectedCoordinatesOf(scene.arcballReferencePoint());
-		pg.pushStyle();
-		pg.stroke(255);
-		pg.strokeWeight(3);
-		scene.drawCross(p.vec[0], p.vec[1]);
-		pg.popStyle();
-	}
+	}	
 }

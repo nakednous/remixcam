@@ -1087,6 +1087,8 @@ public class KeyFrameInterpolator implements Copyable {
 		frame().setPositionWithConstraint(pos);
 		frame().setRotationWithConstraint(q);
 		
+		//TODO there's a broken case: scene is 2D and iFrame is different
+		//from ViewWindow
 		if( scene.is2D() ) {
 			float start = keyFr.get(currentFrame1.nextIndex()).size();
 			float stop = keyFr.get(currentFrame2.nextIndex()).size();

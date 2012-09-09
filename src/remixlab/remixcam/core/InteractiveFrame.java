@@ -341,13 +341,8 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 	 * {@link #position()}.
 	 */
 	public void checkIfGrabsMouse(int x, int y, Pinhole camera) {
-		if( scene.is3D() ) {
-			Vector3D proj = ((Camera) camera).projectedCoordinatesOf(position());
-			setGrabsMouse(keepsGrabbingMouse || ((Math.abs(x - proj.vec[0]) < grabsMouseThreshold()) && (Math.abs(y - proj.vec[1]) < grabsMouseThreshold())));
-		}
-		else {
-			//TODO implement 2D case
-		}
+		Vector3D proj = camera.projectedCoordinatesOf(position());
+		setGrabsMouse(keepsGrabbingMouse || ((Math.abs(x - proj.vec[0]) < grabsMouseThreshold()) && (Math.abs(y - proj.vec[1]) < grabsMouseThreshold())));
 	}
 
 	/**
@@ -676,7 +671,19 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 			prevPos = eventPoint;
 			}
 			else {
-			//TODO implement 2D case
+			  //TODO 2D case needs testing
+				Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
+				Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(), 0.0f);
+				float[] wh = camera.getOrthoWidthHeight();
+				trans.vec[0] *= 2.0 * wh[0] / camera.screenWidth();
+				trans.vec[1] *= 2.0 * wh[1] / camera.screenHeight();
+				// Transform to world coordinate system.
+				trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));
+				// And then down to frame
+				if (referenceFrame() != null)
+					trans = referenceFrame().transformOf(trans);
+				translate(trans);
+				prevPos = eventPoint;
 			}
 			break;
 		}
@@ -694,6 +701,7 @@ public class InteractiveFrame extends SimpleFrame implements DeviceGrabbable, Co
 			}
 			else {
 				//TODO implement 2D case
+				//it just doesn't make any sense in 2D
 			}				
 			break;
 		}

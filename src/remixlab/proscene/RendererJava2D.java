@@ -36,11 +36,14 @@ public class RendererJava2D extends Renderer {
 		Quaternion quat = scene.viewWindow().frame().orientation();
 		
 		translate(scene.width()/2, scene.height()/2);
+		/**
 		if(scene.viewWindow().frame().orientation().axis().z() > 0)
 			rotate(-quat.angle());
 		//TODO: hack! to compensate when axis gets reverted
 		else
 			rotate(quat.angle());
+		*/
+		rotate(quat.angle2D());
 		translate(-pos.x(), -pos.y());
 		scale(wh[0]/(scene.width()/2), wh[1]/(scene.height()/2));
 	}

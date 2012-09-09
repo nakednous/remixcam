@@ -1642,8 +1642,15 @@ public abstract class AbstractScene implements Constants {
 	 * should be used whenever possible.
 	 */
 	public void applyTransformation(SimpleFrame frame) {
-		translate( frame.translation().vec[0], frame.translation().vec[1], frame.translation().vec[2] );
-		rotate( frame.rotation().angle(), frame.rotation().axis().vec[0], frame.rotation().axis().vec[1], frame.rotation().axis().vec[2]);
+		if( is2D() ) {
+			translate(frame.translation().x(), frame.translation().y());
+			//rotate(frame.rotation().angle());
+			rotate(frame.rotation().angle2D());
+		}
+		else {
+			translate( frame.translation().vec[0], frame.translation().vec[1], frame.translation().vec[2] );
+			rotate( frame.rotation().angle(), frame.rotation().axis().vec[0], frame.rotation().axis().vec[1], frame.rotation().axis().vec[2]);
+		}
 	}
 	
 	/**
@@ -2516,7 +2523,7 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void drawCamera(Camera camera) {
 		drawCamera(camera, true, 1.0f);
-	}
+	}		
 
 	/**
 	 * Convenience function that simply calls {@code drawCamera(camera, true, scale)}
@@ -2534,6 +2541,15 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void drawCamera(Camera camera, boolean drawFarPlane) {
 		drawCamera(camera, drawFarPlane, 1.0f);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawViewWindow(camera, 1)}
+	 * 
+	 * @see #drawViewWindow(ViewWindow, float)
+	 */
+	public void drawViewWindow(ViewWindow vWindow) {
+		drawViewWindow(vWindow, 1);
 	}
 		
 	/**

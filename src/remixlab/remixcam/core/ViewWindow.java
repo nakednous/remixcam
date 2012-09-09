@@ -14,7 +14,7 @@ public class ViewWindow extends Pinhole implements Copyable {
 		orthoSize = 1;
 		fpCoefficients = new float[4][3];		
 		computeProjectionMatrix();
-		flip();
+		//flip();
 	}
 	
 	protected ViewWindow(ViewWindow oVW) {
@@ -194,6 +194,8 @@ public class ViewWindow extends Pinhole implements Copyable {
 		return true;
 	}
 	
+	//TODO it breaks some function relating to rotations.
+	// /**
 	public void flip() {		
 		Vector3D direction = new Vector3D(0, 0, ( frame().zAxis().z() > 0 ) ? 1 : -1 );
 		
@@ -207,6 +209,7 @@ public class ViewWindow extends Pinhole implements Copyable {
 		up.y(-up.y());
 		setUpVector(up);
 	}
+	// */
 	
 	public void interpolateToZoomOnPixel(Point pixel) {
 		float winW = this.screenWidth()/3;
