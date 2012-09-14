@@ -25,7 +25,6 @@
 
 package remixlab.remixcam.constraints;
 
-import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
 
 /**
@@ -41,7 +40,7 @@ public class WorldConstraint extends AxisPlaneConstraint {
 	 * world coordinate system by {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public Vector3D constrainTranslation(Vector3D translation, SimpleFrame frame) {
+	public Vector3D constrainTranslation(Vector3D translation, Frame3D frame) {
 		Vector3D res = new Vector3D(translation.vec[0], translation.vec[1], translation.vec[2]);
 		Vector3D proj;
 		switch (translationConstraintType()) {
@@ -74,7 +73,7 @@ public class WorldConstraint extends AxisPlaneConstraint {
 	 * Frame world coordinate system by {@link #rotationConstraintDirection()}.
 	 */
 	@Override
-	public Quaternion constrainRotation(Quaternion rotation, SimpleFrame frame) {
+	public Quaternion constrainRotation(Quaternion rotation, Frame3D frame) {
 		Quaternion res = rotation.get();
 		switch (rotationConstraintType()) {
 		case FREE:

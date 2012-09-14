@@ -25,7 +25,6 @@
 
 package remixlab.remixcam.constraints;
 
-import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
 
 /**
@@ -33,9 +32,9 @@ import remixlab.remixcam.geom.*;
  * <p>
  * This class defines the interface for the constraint that can be applied to a
  * Frame to limit its motion. Use
- * {@link remixlab.remixcam.core.SimpleFrame#setConstraint(Constraint)} to associate a
+ * {@link remixlab.remixcam.geom.Frame3D#setConstraint(Constraint)} to associate a
  * Constraint to a Frame (default is a {@code null}
- * {@link remixlab.remixcam.core.SimpleFrame#constraint()}.
+ * {@link remixlab.remixcam.geom.Frame3D#constraint()}.
  */
 public abstract class Constraint {
 	/**
@@ -45,14 +44,14 @@ public abstract class Constraint {
 	 * Overload this method in your own Constraint class to define a new
 	 * translation constraint. {@code frame} is the Frame to which is applied the
 	 * translation. You should refrain from directly changing its value in the
-	 * constraint. Use its {@link remixlab.remixcam.core.SimpleFrame#position()} and update
+	 * constraint. Use its {@link remixlab.remixcam.geom.Frame3D#position()} and update
 	 * the translation accordingly instead.
 	 * <p>
 	 * {@code translation} is expressed in the local Frame coordinate system. Use
-	 * {@link remixlab.remixcam.core.SimpleFrame#inverseTransformOf(Vector3D)} to express it
+	 * {@link remixlab.remixcam.geom.Frame3D#inverseTransformOf(Vector3D)} to express it
 	 * in the world coordinate system if needed.
 	 */
-	public Vector3D constrainTranslation(Vector3D translation, SimpleFrame frame) {
+	public Vector3D constrainTranslation(Vector3D translation, Frame3D frame) {
 		return new Vector3D(translation.vec[0], translation.vec[1], translation.vec[2]);
 	}
 
@@ -61,13 +60,13 @@ public abstract class Constraint {
 	 * implementation is empty (no filtering).
 	 * <p>
 	 * Overload this method in your own Constraint class to define a new rotation
-	 * constraint. See {@link #constrainTranslation(Vector3D, SimpleFrame)} for details.
+	 * constraint. See {@link #constrainTranslation(Vector3D, Frame3D)} for details.
 	 * <p>
-	 * Use {@link remixlab.remixcam.core.SimpleFrame#inverseTransformOf(Vector3D)} on the
+	 * Use {@link remixlab.remixcam.geom.Frame3D#inverseTransformOf(Vector3D)} on the
 	 * {@code rotation} {@link remixlab.remixcam.geom.Quaternion#axis()} to express
 	 * {@code rotation} in the world coordinate system if needed.
 	 */
-	public Quaternion constrainRotation(Quaternion rotation, SimpleFrame frame) {
+	public Quaternion constrainRotation(Quaternion rotation, Frame3D frame) {
 		return rotation.get();
 	}
 }

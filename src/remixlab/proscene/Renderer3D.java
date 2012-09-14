@@ -12,9 +12,9 @@ import remixlab.remixcam.geom.*;
 // /**
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Camera;
-import remixlab.remixcam.core.SimpleFrame;
 //import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.geom.Matrix3D;
+import remixlab.remixcam.geom.Frame3D;
 //import remixlab.remixcam.geom.Quaternion;
 // */
 import remixlab.remixcam.geom.Vector3D;
@@ -611,7 +611,7 @@ public class Renderer3D extends Renderer {
 	}
 	
 	@Override
-	public void drawPath(List<SimpleFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
+	public void drawPath(List<Frame3D> path, int mask, int nbFrames, int nbSteps, float scale) {
 		if (mask != 0) {
 			pg3d().pushStyle();
 			pg3d().strokeWeight(2);
@@ -620,7 +620,7 @@ public class Renderer3D extends Renderer {
 			
 			if (((mask & 1) != 0) && path.size() > 1 ) {				
 				pg3d().beginShape();
-				for (SimpleFrame myFr : path)
+				for (Frame3D myFr : path)
 					pg3d().vertex(myFr.position().x(), myFr.position().y(), myFr.position().z());
 				pg3d().endShape();
 			}
@@ -630,7 +630,7 @@ public class Renderer3D extends Renderer {
 					nbFrames = nbSteps;
 				float goal = 0.0f;
 
-				for (SimpleFrame myFr : path)
+				for (Frame3D myFr : path)
 					if ((count++) >= goal) {
 						goal += nbSteps / (float) nbFrames;
 						pg3d().pushMatrix();

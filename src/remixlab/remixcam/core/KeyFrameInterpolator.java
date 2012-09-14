@@ -53,7 +53,7 @@ import remixlab.remixcam.util.AbstractTimerJob;
  * {@code kfi = new KeyFrameInterpolator( myFrame, this );} 
  * //or an anonymous Frame may also be given: {@code kfi = new KeyFrameInterpolator( this );}<br>
  * {@code //By default the Frame is provided as a reference to the
- * KeyFrameInterpolator}} (see {@link #addKeyFrame(SimpleFrame)} methods):<br>
+ * KeyFrameInterpolator}} (see {@link #addKeyFrame(Frame3D)} methods):<br>
  * {@code kfi.addKeyFrame( new Frame( new Vector3D(1,0,0), new Quaternion() ) );}<br>
  * {@code kfi.addKeyFrame( new Frame( new Vector3D(2,1,0), new Quaternion() ) );}<br>
  * {@code // ...and so on for all the keyFrames.}<br>
@@ -71,7 +71,7 @@ import remixlab.remixcam.util.AbstractTimerJob;
  * <p>
  * The keyFrames are defined by a Frame and a time, expressed in seconds.
  * Optionally, the Frame can be provided as a reference (see the
- * {@link #addKeyFrame(SimpleFrame)} methods). In this case, the path will
+ * {@link #addKeyFrame(Frame3D)} methods). In this case, the path will
  * automatically be updated when the Frame is modified.
  * <p>
  * The time has to be monotonously increasing over keyFrames. When
@@ -102,7 +102,7 @@ import remixlab.remixcam.util.AbstractTimerJob;
  * to drive the Camera along a path.
  * <p>
  * <b>Attention:</b> If a Constraint is attached to the {@link #frame()} (see
- * {@link remixlab.remixcam.core.SimpleFrame#constraint()}), it should be deactivated
+ * {@link remixlab.remixcam.geom.Frame3D#constraint()}), it should be deactivated
  * before {@link #interpolationIsStarted()}, otherwise the interpolated motion
  * (computed as if there was no constraint) will probably be erroneous.
  */
@@ -155,9 +155,9 @@ public class KeyFrameInterpolator implements Copyable {
 		private Quaternion q, tgQuat;
 		private float tm;
 		private float sz;
-		private SimpleFrame frm;
+		private Frame3D frm;
 
-		KeyFrame(SimpleFrame fr, float t, boolean setRef) {
+		KeyFrame(Frame3D fr, float t, boolean setRef) {
 			tm = t;
 			if (setRef) {
 				frm = fr;
@@ -219,7 +219,7 @@ public class KeyFrameInterpolator implements Copyable {
 			return tm;
 		}
 
-		SimpleFrame frame() {
+		Frame3D frame() {
 			return frm;
 		}
 
@@ -246,10 +246,10 @@ public class KeyFrameInterpolator implements Copyable {
 	private ListIterator<KeyFrame> currentFrame1;
 	private ListIterator<KeyFrame> currentFrame2;
 	private ListIterator<KeyFrame> currentFrame3;
-	private List<SimpleFrame> path;
+	private List<Frame3D> path;
 	// A s s o c i a t e d f r a m e
-	private SimpleFrame fr;
-	private SimpleFrame myFrame;// needed for drawPath
+	private Frame3D fr;
+	private Frame3D myFrame;// needed for drawPath
 
 	// R h y t h m
 	private AbstractTimerJob interpolationTimerJob;
@@ -277,10 +277,10 @@ public class KeyFrameInterpolator implements Copyable {
    * Creates an anonymous {@link #frame()} to be interpolated by this
    * KeyFrameInterpolator.
    * 
-   * @see #KeyFrameInterpolator(AbstractScene, SimpleFrame)
+   * @see #KeyFrameInterpolator(AbstractScene, Frame3D)
    */
   public KeyFrameInterpolator(AbstractScene scn) {
-  	this(scn, new SimpleFrame());
+  	this(scn, new Frame3D());
   }
 
 	/**
@@ -288,16 +288,16 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #frame()}. The {@code p3d} object will be used if
 	 * {@link #drawPath(int, int, float)} is called.
 	 * <p>
-	 * The {@link #frame()} can be set or changed using {@link #setFrame(SimpleFrame)}.
+	 * The {@link #frame()} can be set or changed using {@link #setFrame(Frame3D)}.
 	 * <p>
 	 * {@link #interpolationTime()}, {@link #interpolationSpeed()} and
 	 * {@link #interpolationPeriod()} are set to their default values.
 	 */
-	public KeyFrameInterpolator(AbstractScene scn, SimpleFrame frame) {
+	public KeyFrameInterpolator(AbstractScene scn, Frame3D frame) {
 		scene = scn;
-		myFrame = new SimpleFrame();
+		myFrame = new Frame3D();
 		keyFr = new ArrayList<KeyFrame>();
-		path = new ArrayList<SimpleFrame>();
+		path = new ArrayList<Frame3D>();
 		fr = null;
 		period = 40;
 		interpolationTm = 0.0f;
@@ -326,8 +326,8 @@ public class KeyFrameInterpolator implements Copyable {
 		this.scene = otherKFI.scene;
 		this.myFrame = otherKFI.myFrame.get();		
 		
-		this.path = new ArrayList<SimpleFrame>();
-		ListIterator<SimpleFrame> frameIt = otherKFI.path.listIterator();
+		this.path = new ArrayList<Frame3D>();
+		ListIterator<Frame3D> frameIt = otherKFI.path.listIterator();
 		while (frameIt.hasNext()) {
 			this.path.add(frameIt.next().get());
 		}		
@@ -372,7 +372,7 @@ public class KeyFrameInterpolator implements Copyable {
 	/**
 	 * Sets the {@link #frame()} associated to the KeyFrameInterpolator.
 	 */
-	public void setFrame(SimpleFrame f) {
+	public void setFrame(Frame3D f) {
 		fr = f;
 	}
 
@@ -384,16 +384,16 @@ public class KeyFrameInterpolator implements Copyable {
 	 * orientation will regularly be updated by a timer, so that they follow the
 	 * KeyFrameInterpolator path.
 	 * <p>
-	 * Set using {@link #setFrame(SimpleFrame)} or with the KeyFrameInterpolator
+	 * Set using {@link #setFrame(Frame3D)} or with the KeyFrameInterpolator
 	 * constructor.
 	 */
-	public SimpleFrame frame() {
+	public Frame3D frame() {
 		return fr;
 	}
 
 	/**
 	 * Returns the number of keyFrames used by the interpolation. Use
-	 * {@link #addKeyFrame(SimpleFrame)} to add new keyFrames.
+	 * {@link #addKeyFrame(Frame3D)} to add new keyFrames.
 	 */
 	public int numberOfKeyFrames() {
 		return keyFr.size();
@@ -558,7 +558,7 @@ public class KeyFrameInterpolator implements Copyable {
 		}
 	}
 
-	protected void invalidateValues() {
+	public void invalidateValues() {
 		valuesAreValid = false;
 		pathIsValid = false;
 		splineCacheIsValid = false;
@@ -594,7 +594,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * change the starting {@link #interpolationTime()}.
 	 * <p>
 	 * <b>Attention:</b> The keyFrames must be defined (see
-	 * {@link #addKeyFrame(SimpleFrame, float)}) before you startInterpolation(), or
+	 * {@link #addKeyFrame(Frame3D, float)}) before you startInterpolation(), or
 	 * else the interpolation will naturally immediately stop.
 	 */
 	public void startInterpolation(int myPeriod) {
@@ -638,21 +638,21 @@ public class KeyFrameInterpolator implements Copyable {
 	/**
 	 * Convenience function that simply calls {@code addKeyFrame(frame, false)}.
 	 * 
-	 * @see #addKeyFrame(SimpleFrame, boolean)
+	 * @see #addKeyFrame(Frame3D, boolean)
 	 */
-	public void addKeyFrame(SimpleFrame frame) {
+	public void addKeyFrame(Frame3D frame) {
 		addKeyFrame(frame, true);
 	}
 
 	/**
 	 * Appends a new keyFrame to the path.
 	 * <p>
-	 * Same as {@link #addKeyFrame(SimpleFrame, float, boolean)}, except that the
+	 * Same as {@link #addKeyFrame(Frame3D, float, boolean)}, except that the
 	 * {@link #keyFrameTime(int)} is set to the previous
 	 * {@link #keyFrameTime(int)} plus one second (or 0.0 if there is no previous
 	 * keyFrame).
 	 */
-	public void addKeyFrame(SimpleFrame frame, boolean setRef) {
+	public void addKeyFrame(Frame3D frame, boolean setRef) {
 		float time;
 
 		if (keyFr.isEmpty())
@@ -667,9 +667,9 @@ public class KeyFrameInterpolator implements Copyable {
 	 * Convenience function that simply calls {@code addKeyFrame(frame, time,
 	 * false)}.
 	 * 
-	 * @see #addKeyFrame(SimpleFrame, float, boolean)
+	 * @see #addKeyFrame(Frame3D, float, boolean)
 	 */
-	public void addKeyFrame(SimpleFrame frame, float time) {
+	public void addKeyFrame(Frame3D frame, float time) {
 		addKeyFrame(frame, time, true);
 	}
 
@@ -688,7 +688,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #keyFrameTime(int)} has to be monotonously increasing over
 	 * keyFrames.
 	 */
-	public void addKeyFrame(SimpleFrame frame, float time, boolean setRef) {
+	public void addKeyFrame(Frame3D frame, float time, boolean setRef) {
 		if (frame == null)
 			return;
 
@@ -859,7 +859,7 @@ public class KeyFrameInterpolator implements Copyable {
 				updateModifiedFrameValues();
 
 			if (keyFr.get(0) == keyFr.get(keyFr.size() - 1))
-				path.add(new SimpleFrame(keyFr.get(0).position(), keyFr.get(0).orientation()));
+				path.add(new Frame3D(keyFr.get(0).position(), keyFr.get(0).orientation()));
 			else {
 				KeyFrame[] kf = new KeyFrame[4];
 				kf[0] = keyFr.get(0);
@@ -885,7 +885,7 @@ public class KeyFrameInterpolator implements Copyable {
 										.mult(vec2, alpha)), alpha)), alpha)));
 						myFrame.setOrientation(Quaternion.squad(kf[1].orientation(), kf[1]
 								.tgQ(), kf[2].tgQ(), kf[2].orientation(), alpha));
-						path.add(new SimpleFrame(myFrame));
+						path.add(myFrame.get());
 					}
 
 					// Shift
@@ -897,7 +897,7 @@ public class KeyFrameInterpolator implements Copyable {
 					kf[3] = (index < keyFr.size()) ? keyFr.get(index) : null;
 				}
 				// Add last KeyFrame
-				path.add(new SimpleFrame(kf[1].position(), kf[1].orientation()));
+				path.add(new Frame3D(kf[1].position(), kf[1].orientation()));
 			}
 			pathIsValid = true;
 		}
@@ -912,12 +912,12 @@ public class KeyFrameInterpolator implements Copyable {
 	 * 0..{@link #numberOfKeyFrames()}-1.
 	 * <p>
 	 * <b>Note:</b> If this keyFrame was defined using a reference to a Frame (see
-	 * {@link #addKeyFrame(SimpleFrame, float, boolean)} the current referenced Frame
+	 * {@link #addKeyFrame(Frame3D, float, boolean)} the current referenced Frame
 	 * state is returned.
 	 */
-	public SimpleFrame keyFrame(int index) {
+	public Frame3D keyFrame(int index) {
 		KeyFrame kf = keyFr.get(index);
-		return new SimpleFrame(kf.position(), kf.orientation());
+		return new Frame3D(kf.position(), kf.orientation());
 	}
 
 	/**

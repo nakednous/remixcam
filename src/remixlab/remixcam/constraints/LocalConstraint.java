@@ -25,7 +25,6 @@
 
 package remixlab.remixcam.constraints;
 
-import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
 
 /**
@@ -33,7 +32,7 @@ import remixlab.remixcam.geom.*;
  * <p>
  * The {@link #translationConstraintDirection()} and
  * {@link #rotationConstraintDirection()} are expressed in the Frame local
- * coordinate system (see {@link remixlab.remixcam.core.SimpleFrame#referenceFrame()}).
+ * coordinate system (see {@link remixlab.remixcam.geom.Frame3D#referenceFrame()}).
  */
 public class LocalConstraint extends AxisPlaneConstraint {
 
@@ -43,7 +42,7 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	 * local coordinate system by {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public Vector3D constrainTranslation(Vector3D translation, SimpleFrame frame) {
+	public Vector3D constrainTranslation(Vector3D translation, Frame3D frame) {
 		Vector3D res = new Vector3D(translation.vec[0], translation.vec[1], translation.vec[2]);
 		Vector3D proj;
 		switch (translationConstraintType()) {
@@ -70,7 +69,7 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	 * Frame local coordinate system by {@link #rotationConstraintDirection()}.
 	 */
 	@Override
-	public Quaternion constrainRotation(Quaternion rotation, SimpleFrame frame) {
+	public Quaternion constrainRotation(Quaternion rotation, Frame3D frame) {
 		Quaternion res = rotation.get();
 		switch (rotationConstraintType()) {
 		case FREE:

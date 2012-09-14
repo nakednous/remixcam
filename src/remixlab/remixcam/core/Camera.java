@@ -1999,7 +1999,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		interpolationKfi.deletePath();
 		interpolationKfi.addKeyFrame(frame(), false);
 
-		interpolationKfi.addKeyFrame(new SimpleFrame(Vector3D.add(Vector3D.mult(frame()
+		interpolationKfi.addKeyFrame(new Frame3D(Vector3D.add(Vector3D.mult(frame()
 				.position(), 0.3f), Vector3D.mult(target.point, 0.7f)), frame()
 				.orientation()), 0.4f, false);
 

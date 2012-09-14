@@ -341,5 +341,5 @@ public interface Renderable {
 	 */
 	public void drawShooterTarget(Vector3D center, float length);
 		
-	public void drawPath(List<SimpleFrame> path, int mask, int nbFrames, int nbSteps, float scale);	
+	public void drawPath(List<Frame3D> path, int mask, int nbFrames, int nbSteps, float scale);	
 }

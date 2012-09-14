@@ -12,7 +12,7 @@ import remixlab.remixcam.geom.*;
 // /**
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Camera;
-import remixlab.remixcam.core.SimpleFrame;
+import remixlab.remixcam.geom.Frame3D;
 import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.geom.Quaternion;
@@ -161,7 +161,7 @@ public class RendererJava2D extends Renderer {
 	}
 
 	@Override
-	public void drawPath(List<SimpleFrame> path, int mask, int nbFrames,
+	public void drawPath(List<Frame3D> path, int mask, int nbFrames,
 			int nbSteps, float scale) {
 		// TODO Auto-generated method stub
 		

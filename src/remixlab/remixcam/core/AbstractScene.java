@@ -1530,7 +1530,7 @@ public abstract class AbstractScene implements Constants {
 		renderer.drawShooterTarget(center, length);
 	}
 	
-	public void drawPath(List<SimpleFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
+	public void drawPath(List<Frame3D> path, int mask, int nbFrames, int nbSteps, float scale) {
 		renderer.drawPath(path, mask, nbFrames, nbSteps, scale);
 	}
 	
@@ -1641,7 +1641,7 @@ public abstract class AbstractScene implements Constants {
 	 * <b>Attention:</b> When drawing a frame hierarchy as above, this method
 	 * should be used whenever possible.
 	 */
-	public void applyTransformation(SimpleFrame frame) {
+	public void applyTransformation(Frame3D frame) {
 		if( is2D() ) {
 			translate(frame.translation().x(), frame.translation().y());
 			//rotate(frame.rotation().angle());

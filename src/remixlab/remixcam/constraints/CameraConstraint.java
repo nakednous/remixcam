@@ -62,7 +62,7 @@ public class CameraConstraint extends AxisPlaneConstraint {
 	 * {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public Vector3D constrainTranslation(Vector3D translation, SimpleFrame frame) {
+	public Vector3D constrainTranslation(Vector3D translation, Frame3D frame) {
 		Vector3D res = new Vector3D(translation.vec[0], translation.vec[1], translation.vec[2]);
 		Vector3D proj;
 		switch (translationConstraintType()) {
@@ -94,7 +94,7 @@ public class CameraConstraint extends AxisPlaneConstraint {
 	 * {@link #rotationConstraintDirection()}.
 	 */
 	@Override
-	public Quaternion constrainRotation(Quaternion rotation, SimpleFrame frame) {
+	public Quaternion constrainRotation(Quaternion rotation, Frame3D frame) {
 		Quaternion res = rotation.get();
 		switch (rotationConstraintType()) {
 		case FREE:
