@@ -204,10 +204,10 @@ public class InteractiveFrame extends Frame3D implements DeviceGrabbable, Copyab
 		this.grbsMouse = otherFrame.grbsMouse;
 		
 		if(this.isInCamPath) {
-			this.list = new ArrayList<KeyFrameInterpolator>();
+			this.setListeners(new ArrayList<KeyFrameInterpolator>());
 			Iterator<KeyFrameInterpolator> it = otherFrame.listeners().iterator();
 			while (it.hasNext())
-				this.list.add(it.next());
+				this.listeners().add(it.next());
 		}
 
 		this.setGrabsMouseThreshold( otherFrame.grabsMouseThreshold()  );
@@ -275,10 +275,10 @@ public class InteractiveFrame extends Frame3D implements DeviceGrabbable, Copyab
 		prevConstraint = null;
 		startedTime = 0;
 
-		list = new ArrayList<KeyFrameInterpolator>();
+		setListeners(new ArrayList<KeyFrameInterpolator>());
 		Iterator<KeyFrameInterpolator> it = iFrame.listeners().iterator();
 		while (it.hasNext())
-			list.add(it.next());
+			listeners().add(it.next());
 				
 		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {

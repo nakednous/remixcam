@@ -51,7 +51,7 @@ public class Frame3D implements Copyable {
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
 		append(krnl).
-		append(list).
+		//append(list).
 		append(linkedFramesList).
 		append(srcFrame).
     toHashCode();		
@@ -69,7 +69,7 @@ public class Frame3D implements Copyable {
 	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
 		.append(krnl, other.krnl)
-		.append(list, other.list)
+		//.append(list, other.list)
 		.append(linkedFramesList, other.linkedFramesList)
 		.append(srcFrame, other.srcFrame)
 		.isEquals();
@@ -87,6 +87,7 @@ public class Frame3D implements Copyable {
 			append(rot).
 			append(refFrame).
 			append(constr).
+			append(list).
 	    toHashCode();		
 		}
 
@@ -105,16 +106,18 @@ public class Frame3D implements Copyable {
 			.append(rot, other.rot)
 			.append(refFrame, other.refFrame)
 			.append(constr, other.constr)
+			.append(list, other.list)
 			.isEquals();
 		}		
-
-		// TODO move Frame.modified() here?
+		
+	  protected List<KeyFrameInterpolator> list;		
 		protected Vector3D trans;
 		protected Quaternion rot;
 		protected Frame3D refFrame;
 		protected Constraint constr;
 		
 		public FrameKernel() {
+			list = new ArrayList<KeyFrameInterpolator>();
 			trans = new Vector3D(0, 0, 0);
 			rot = new Quaternion();
 			refFrame = null;
@@ -122,6 +125,7 @@ public class Frame3D implements Copyable {
 		}
 		
 		public FrameKernel(Vector3D p, Quaternion r) {
+			list = new ArrayList<KeyFrameInterpolator>();
 			trans = new Vector3D(p.vec[0], p.vec[1], p.vec[2]);
 			rot = r.get();
 			refFrame = null;
@@ -129,6 +133,10 @@ public class Frame3D implements Copyable {
 		}
 		
 		protected FrameKernel(FrameKernel other) {
+			list = new ArrayList<KeyFrameInterpolator>();
+			Iterator<KeyFrameInterpolator> it = other.listeners().iterator();
+			while (it.hasNext())
+				list.add(it.next());
 			trans = new Vector3D(other.translation().vec[0], other.translation().vec[1], other.translation().vec[2]);
 			rot = other.rotation().get();
 			refFrame = other.referenceFrame();
@@ -144,7 +152,8 @@ public class Frame3D implements Copyable {
 		}
 		
 		public final void setTranslation(Vector3D t) {
-			trans = t;			
+			trans = t;
+			modified();
 		}
 		
 		public final Quaternion rotation() {
@@ -153,6 +162,7 @@ public class Frame3D implements Copyable {
 		
 		public final void setRotation(Quaternion r) {
 			rot = r;
+			modified();
 		}
 		
 		public Constraint constraint() {
@@ -161,19 +171,82 @@ public class Frame3D implements Copyable {
 		
 		public final Frame3D referenceFrame() {
 			return refFrame;
-		}
-		
-		public final void setReferenceFrame(Frame3D rFrame) {
-			refFrame = rFrame;
-		}
+		}		
 		
 		public void setConstraint(Constraint c) {
 			constr = c;
+		}
+		
+		public void setListeners(List<KeyFrameInterpolator> l) {
+			list = l;
+		}
+		
+		public List<KeyFrameInterpolator> listeners() {
+			return list;
 		}		
+				
+		public void addListener(KeyFrameInterpolator kfi) {
+			list.add(kfi);
+		}
+		
+		public void removeListener(KeyFrameInterpolator kfi) {
+			list.remove(kfi);
+		}
+		
+		public void translate(Vector3D t) {
+			translation().add(t);
+			modified();
+		}
+		
+		public void rotate(Quaternion q) {
+			rotation().multiply(q);
+			modified();
+		}
+		
+		/**
+		 * Resets the cache of all KeyFrameInterpolators' associated with this Frame.
+		 */
+		protected void modified() {
+			Iterator<KeyFrameInterpolator> it = list.iterator();
+			while (it.hasNext()) {
+				it.next().invalidateValues();
+			}
+		}
+		
+		/**
+		public final void setReferenceFrame(Frame3D rFrame) {
+			refFrame = rFrame;
+		}
+		*/
+		
+		public final void setReferenceFrame(Frame3D rFrame) {
+			if (settingAsReferenceFrameWillCreateALoop(rFrame))
+				System.out.println("Frame.setReferenceFrame would create a loop in Frame hierarchy");
+			else {
+				boolean identical = (referenceFrame() == rFrame);
+				refFrame = rFrame;
+				if (!identical)
+					modified();
+			}
+		}
+		
+		public final boolean settingAsReferenceFrameWillCreateALoop(Frame3D frame) {
+			Frame3D f = frame;
+			while (f != null) {
+				if (f == Frame3D.this)
+					return true;
+				f = f.referenceFrame();
+			}
+			return false;
+		}
+		
+		public void fromRotationMatrix(float m[][]) {
+		  rotation().fromRotationMatrix(m);
+		  modified();
+		}
 	}	
 
-	protected FrameKernel krnl;
-	protected List<KeyFrameInterpolator> list;
+	protected FrameKernel krnl;	
 	protected List<Frame3D> linkedFramesList;
 	protected Frame3D srcFrame;
 
@@ -185,8 +258,7 @@ public class Frame3D implements Copyable {
 	 * {@link #constraint()} are {@code null}.
 	 */
 	public Frame3D() {
-		krnl = new FrameKernel();
-		list = new ArrayList<KeyFrameInterpolator>();
+		krnl = new FrameKernel();		
 		linkedFramesList = new ArrayList<Frame3D>();
 		srcFrame = null;
 	}
@@ -203,7 +275,7 @@ public class Frame3D implements Copyable {
 	 */
 	public Frame3D(Vector3D p, Quaternion r) {
 		krnl = new FrameKernel(p, r);
-		list = new ArrayList<KeyFrameInterpolator>();
+		//list = new ArrayList<KeyFrameInterpolator>();
 		linkedFramesList = new ArrayList<Frame3D>();
 		srcFrame = null;
 	}
@@ -215,11 +287,7 @@ public class Frame3D implements Copyable {
 	 *          the Frame containing the object to be copied
 	 */
 	protected Frame3D(Frame3D other) {
-		krnl = new FrameKernel( other.kernel() );
-		list = new ArrayList<KeyFrameInterpolator>();
-		Iterator<KeyFrameInterpolator> it = other.listeners().iterator();
-		while (it.hasNext())
-			list.add(it.next());
+		krnl = new FrameKernel( other.kernel() );		
 		linkedFramesList = new ArrayList<Frame3D>();
 		Iterator<Frame3D> iterator = other.linkedFramesList.iterator();
 		while (iterator.hasNext())
@@ -315,6 +383,14 @@ public class Frame3D implements Copyable {
 	public Constraint constraint() {
 		return kernel().constraint();
 	}
+	
+	public void setListeners(List<KeyFrameInterpolator> l) {
+		kernel().setListeners(l);
+	}
+	
+	protected void modified() {
+		kernel().modified();
+	}
 
 	/**
 	 * Returns the list of KeyFrameInterpolators that are currently listening to
@@ -325,7 +401,7 @@ public class Frame3D implements Copyable {
 	 *      boolean)
 	 */
 	public List<KeyFrameInterpolator> listeners() {
-		return list;
+		return kernel().listeners();
 	}
 
 	/**
@@ -333,7 +409,7 @@ public class Frame3D implements Copyable {
 	 * currently listening this frame.
 	 */
 	public void addListener(KeyFrameInterpolator kfi) {
-		list.add(kfi);
+		kernel().addListener(kfi);
 	}
 
 	/**
@@ -346,17 +422,7 @@ public class Frame3D implements Copyable {
 	 *      boolean)
 	 */
 	public void removeListener(KeyFrameInterpolator kfi) {
-		list.remove(kfi);
-	}
-
-	/**
-	 * Resets the cache of all KeyFrameInterpolators' associated with this Frame.
-	 */
-	protected void modified() {
-		Iterator<KeyFrameInterpolator> it = list.iterator();
-		while (it.hasNext()) {
-			it.next().invalidateValues();
-		}
+		kernel().removeListener(kfi);
 	}
 	
 	/**
@@ -527,7 +593,6 @@ public class Frame3D implements Copyable {
 	 */
 	public final void setTranslation(Vector3D t) {
 		kernel().setTranslation(t);
-		modified();
 	}
 
 	/**
@@ -577,7 +642,6 @@ public class Frame3D implements Copyable {
 	 */
 	public final void setRotation(Quaternion r) {
 		kernel().setRotation(r);
-		modified();
 	}
 
 	/**
@@ -629,14 +693,7 @@ public class Frame3D implements Copyable {
 	 * @see #settingAsReferenceFrameWillCreateALoop(Frame3D)
 	 */
 	public final void setReferenceFrame(Frame3D rFrame) {
-		if (settingAsReferenceFrameWillCreateALoop(rFrame))
-			System.out.println("Frame.setReferenceFrame would create a loop in Frame hierarchy");
-		else {
-			boolean identical = (kernel().referenceFrame() == rFrame);
-			kernel().setReferenceFrame(rFrame);
-			if (!identical)
-				modified();
-		}
+		kernel().setReferenceFrame(rFrame);
 	}
 
 	/**
@@ -647,20 +704,7 @@ public class Frame3D implements Copyable {
 	public void setConstraint(Constraint c) {
 		kernel().setConstraint(c);
 	}
-
-	/**
-	 * Returns {@code true} if setting {@code frame} as the Frame's
-	 * {@link #referenceFrame()} would create a loop in the Frame hierarchy.
-	 */
-	public final boolean settingAsReferenceFrameWillCreateALoop(Frame3D frame) {
-		Frame3D f = frame;
-		while (f != null) {
-			if (f == this)
-				return true;
-			f = f.referenceFrame();
-		}
-		return false;
-	}
+	
 
 	/**
 	 * Returns the orientation of the Frame, defined in the world coordinate
@@ -777,10 +821,9 @@ public class Frame3D implements Copyable {
 	 */
 	public final void translate(Vector3D t) {
 		if (constraint() != null)
-			kernel().translation().add(constraint().constrainTranslation(t, this));
+			kernel().translate(constraint().constrainTranslation(t, this));
 		else
-			kernel().translation().add(t);
-		modified();
+			kernel().translate(t);
 	}
 
 	/**
@@ -807,8 +850,7 @@ public class Frame3D implements Copyable {
 				t.vec[2] = o.vec[2];
 			}
 		}
-		kernel().translation().add(o);
-		modified();
+		kernel().translate(o);
 	}
 
 	/**
@@ -826,12 +868,11 @@ public class Frame3D implements Copyable {
 	 */
 	public final void rotate(Quaternion q) {
 		if (constraint() != null)
-			kernel().rotation().multiply(constraint().constrainRotation(q, this));
+			kernel().rotate(constraint().constrainRotation(q, this));
 		else
-			kernel().rotation().multiply(q);
+			kernel().rotate(q);
 
-		kernel().rotation().normalize(); // Prevents numerical drift
-		modified();
+		kernel().rotation().normalize(); // Prevents numerical drift		
 	}
 
 	/**
@@ -858,11 +899,10 @@ public class Frame3D implements Copyable {
 				q.quat[2] = o.quat[2];
 				q.quat[3] = o.quat[3];
 			}
-		}
-		kernel().rotation().multiply(o);
+		}		
+		kernel().rotate(o);
 
 		kernel().rotation().normalize(); // Prevents numerical drift
-		modified();
 	}
 
 	/**
@@ -889,10 +929,9 @@ public class Frame3D implements Copyable {
 		t.sub(kernel().translation());
 
 		if (constraint() != null)
-			kernel().translation().add(constraint().constrainTranslation(t, this));
+			kernel().translate(constraint().constrainTranslation(t, this));
 		else
-			kernel().translation().add(t);
-		modified();
+			kernel().translate(t);
 	}
 
 	/**
@@ -939,10 +978,9 @@ public class Frame3D implements Copyable {
 		t.sub(kernel().translation());
 
 		if (constraint() != null)
-			kernel().translation().add(constraint().constrainTranslation(t, this));
+			kernel().translate(constraint().constrainTranslation(t, this));
 		else
-			kernel().translation().add(t);
-		modified();
+			kernel().translate(t);
 	}
 
 	/**
@@ -1561,10 +1599,7 @@ public class Frame3D implements Copyable {
 	  	  // Beware of the transposition (OpenGL to European math)
 	  		rot[i][j] = m[j][i] / m[3][3];
 	  }
-	  kernel().rotation().fromRotationMatrix(rot);		
-		// */	
-		
-		modified();
+	  kernel().fromRotationMatrix(rot);
 	}
 
 	/**
