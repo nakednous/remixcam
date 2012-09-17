@@ -36,7 +36,7 @@ import remixlab.remixcam.core.Constants;
  * 
  */
 
-public class Quaternion implements Constants, Primitivable {
+public class Quaternion implements Constants, Primitivable, Orientable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).    
@@ -355,6 +355,7 @@ public class Quaternion implements Constants, Primitivable {
 	/**
 	 * Negates all the coefficients of the Quaternion.
 	 */
+	@Override
 	public final void negate() {
 		this.quat[0] = -this.quat[0];
 		this.quat[1] = -this.quat[1];
@@ -387,6 +388,16 @@ public class Quaternion implements Constants, Primitivable {
 	public final static float dotProduct(Quaternion a, Quaternion b) {
 		return a.quat[0] * b.quat[0] + a.quat[1] * b.quat[1] + a.quat[2] * b.quat[2] + a.quat[3] * b.quat[3];
 	}
+	
+	@Override
+	public final void compose(Orientable q) {
+		if(q instanceof Quaternion)
+			multiply((Quaternion)q);
+		else {
+			Quaternion quat = new Quaternion(new Vector3D(0,0,1), q.angle());
+			multiply(quat);
+		}
+	}
 
 	/**
 	 * Sets the value of this Quaternion to the Quaternion product of itself and
@@ -405,6 +416,14 @@ public class Quaternion implements Constants, Primitivable {
 		this.quat[3] = w;
 		this.quat[0] = x;
 		this.quat[1] = y;
+	}
+	
+	public final static Orientable compose(Orientable q1, Orientable q2) {
+		if( q1 instanceof Quaternion && q2 instanceof Quaternion )
+			return multiply((Quaternion)q1, (Quaternion)q2);
+		else
+			return multiply(new Quaternion(new Vector3D(0,0,1), q1.angle()), 
+					            new Quaternion(new Vector3D(0,0,1), q2.angle()));
 	}
 
 	/**
@@ -497,6 +516,7 @@ public class Quaternion implements Constants, Primitivable {
 	 * 
 	 * @see #invert()
 	 */
+	@Override
 	public final Quaternion inverse() {
 		Quaternion tempQuat = new Quaternion(this);
 		tempQuat.invert();
@@ -534,6 +554,7 @@ public class Quaternion implements Constants, Primitivable {
 	 * Normalizes the value of this Quaternion in place and return its {@code
 	 * norm}.
 	 */
+	@Override
 	public final float normalize() {
 		float norm = (float) Math.sqrt(this.quat[0] * this.quat[0] + this.quat[1] * this.quat[1] + this.quat[2]
 				* this.quat[2] + this.quat[3] * this.quat[3]);
@@ -557,6 +578,7 @@ public class Quaternion implements Constants, Primitivable {
 	 * @param v
 	 *          the Vector3D
 	 */
+	@Override
 	public final Vector3D rotate(Vector3D v) {
 		float q00 = 2.0f * this.quat[0] * this.quat[0];
 		float q11 = 2.0f * this.quat[1] * this.quat[1];
@@ -586,6 +608,7 @@ public class Quaternion implements Constants, Primitivable {
 	 * @param v
 	 *          the Vector3D
 	 */
+	@Override
 	public final Vector3D inverseRotate(Vector3D v) {
 		Quaternion tempQuat = new Quaternion(this.quat[0], this.quat[1], this.quat[2], this.quat[3]);
 		tempQuat.invert();
@@ -750,6 +773,7 @@ public class Quaternion implements Constants, Primitivable {
 	 * 
 	 * @see #fromAxisAngle(Vector3D, float)
 	 */
+	@Override
 	public void fromTo(Vector3D from, Vector3D to) {
 		float fromSqNorm = from.squaredNorm();
 		float toSqNorm = to.squaredNorm();
@@ -790,6 +814,7 @@ public class Quaternion implements Constants, Primitivable {
 	 * @param m
 	 *          the 3*3 matrix of float values
 	 */
+	@Override
 	public final void fromRotationMatrix(float m[][]) {
 		// Compute one plus the trace of the matrix
 		float onePlusTrace = 1.0f + m[0][0] + m[1][1] + m[2][2];
@@ -832,6 +857,7 @@ public class Quaternion implements Constants, Primitivable {
 	 * 
 	 * @see #fromRotationMatrix(float[][])
 	 */
+	@Override
 	public final void fromMatrix(Matrix3D glMatrix) {
 		float [][] mat = new float [4][4];
 		float [][] threeXthree = new float [3][3];
@@ -907,17 +933,20 @@ public class Quaternion implements Constants, Primitivable {
 	 * 
 	 * @see #axis()
 	 */
+	@Override
 	public final float angle() {
 		float angle = 2.0f * (float) Math.acos(this.quat[3]);
 		return (angle <= PI) ? angle : 2.0f * PI - angle;
 	}
 	
 	//TODO needs testing and DOC
+	/**
 	public final float angle2D() {
 		float angle = 2.0f * (float) Math.acos(this.quat[3]);
 		if(angle > PI) angle = 2.0f * PI - angle;
 		return (axis().z() > 0) ? angle : -angle;
 	}
+	*/
 
 	/**
 	 * Returns the 3x3 rotation matrix associated with the Quaternion.
@@ -928,6 +957,7 @@ public class Quaternion implements Constants, Primitivable {
 	 * @see #inverseRotationMatrix()
 	 * 
 	 */
+	@Override
 	public final float[][] rotationMatrix() {
 		float [][] mat = new float [4][4];
 		float [][] result = new float [3][3];
@@ -944,6 +974,7 @@ public class Quaternion implements Constants, Primitivable {
 	 * 
 	 * @see #rotationMatrix()
 	 */
+  @Override
 	public final Matrix3D matrix() {		
 		float q00 = 2.0f * this.quat[0] * this.quat[0];
 		float q11 = 2.0f * this.quat[1] * this.quat[1];
@@ -955,7 +986,6 @@ public class Quaternion implements Constants, Primitivable {
 
 		float q12 = 2.0f * this.quat[1] * this.quat[2];
 		float q13 = 2.0f * this.quat[1] * this.quat[3];
-
 		float q23 = 2.0f * this.quat[2] * this.quat[3];
 
 		float m00 = 1.0f - q11 - q22;
@@ -993,6 +1023,7 @@ public class Quaternion implements Constants, Primitivable {
 	 * {@link #inverseMatrix()}. Use it immediately (as in {@code
 	 * applyMatrix(q.inverseMatrix())}).
 	 */
+	@Override
 	public final Matrix3D inverseMatrix() {
 		Quaternion tempQuat = new Quaternion(this.quat[0], this.quat[1], this.quat[2], this.quat[3]);
 		tempQuat.invert();
@@ -1004,6 +1035,7 @@ public class Quaternion implements Constants, Primitivable {
 	 * <p>
 	 * <b>Attention:</b> This is the classical mathematical rotation matrix.
 	 */
+	@Override
 	public final float[][] inverseRotationMatrix() {
 		float [][] mat = new float [4][4];
 		float [][] result = new float [3][3];

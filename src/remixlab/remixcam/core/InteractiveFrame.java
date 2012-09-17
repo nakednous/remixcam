@@ -49,7 +49,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * the {@link remixlab.remixcam.core.AbstractScene#mouseGrabberPool()}.
  */
 
-public class InteractiveFrame extends Frame3D implements DeviceGrabbable, Copyable {
+public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -158,6 +158,7 @@ public class InteractiveFrame extends Frame3D implements DeviceGrabbable, Copyab
 	 * the {@link remixlab.remixcam.core.AbstractScene#mouseGrabberPool()}.
 	 */
 	public InteractiveFrame(AbstractScene scn) {
+		super(scn.is3D());		
 		scene = scn;		
 		
 		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
@@ -291,7 +292,7 @@ public class InteractiveFrame extends Frame3D implements DeviceGrabbable, Copyab
 	/**
 	 * Convenience function that simply calls {@code applyTransformation(AbstractScene)}.
 	 * 
-	 * @see remixlab.remixcam.geom.Frame3D#applyTransformation(AbstractScene)
+	 * @see remixlab.remixcam.geom.VFrame#applyTransformation(AbstractScene)
 	 */
 	public void applyTransformation() {
 		applyTransformation(scene);
@@ -525,7 +526,7 @@ public class InteractiveFrame extends Frame3D implements DeviceGrabbable, Copyab
 	 * <p>
 	 * The {@link #spinningQuaternion()} axis is defined in the InteractiveFrame
 	 * coordinate system. You can use
-	 * {@link remixlab.remixcam.geom.Frame3D#transformOfFrom(Vector3D, Frame3D)} to convert
+	 * {@link remixlab.remixcam.geom.VFrame#transformOfFrom(Vector3D, VFrame)} to convert
 	 * this axis from an other Frame coordinate system.
 	 */
 	public final Quaternion spinningQuaternion() {
@@ -583,7 +584,7 @@ public class InteractiveFrame extends Frame3D implements DeviceGrabbable, Copyab
 	 * Overloading of
 	 * {@link remixlab.remixcam.devices.DeviceGrabbable#mouseClicked(remixlab.remixcam.core.AbstractScene.Button, int, Camera)}.
 	 * <p>
-	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(Frame3D)}
+	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(VFrame)}
 	 * and {@link remixlab.remixcam.core.AbstractScene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
 	 * the camera view direction.
 	 */
@@ -769,9 +770,9 @@ public class InteractiveFrame extends Frame3D implements DeviceGrabbable, Copyab
 			break;
 		}
 
-		case ROTATE: {
+		case ROTATE: {			
 			if( scene.is3D() ) {
-			Vector3D trans = ((Camera) camera).projectedCoordinatesOf(position());
+			Vector3D trans = camera.projectedCoordinatesOf(position());
 			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.vec[0], trans.vec[1], (Camera) camera);
 			trans.set(-rot.quat[0], -rot.quat[1], -rot.quat[2]);
 			trans = camera.frame().orientation().rotate(trans);

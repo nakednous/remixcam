@@ -32,7 +32,7 @@ import remixlab.remixcam.geom.*;
  * <p>
  * The {@link #translationConstraintDirection()} and
  * {@link #rotationConstraintDirection()} are expressed in the Frame local
- * coordinate system (see {@link remixlab.remixcam.geom.Frame3D#referenceFrame()}).
+ * coordinate system (see {@link remixlab.remixcam.geom.VFrame#referenceFrame()}).
  */
 public class LocalConstraint extends AxisPlaneConstraint {
 
@@ -42,7 +42,7 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	 * local coordinate system by {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public Vector3D constrainTranslation(Vector3D translation, Frame3D frame) {
+	public Vector3D constrainTranslation(Vector3D translation, VFrame frame) {
 		Vector3D res = new Vector3D(translation.vec[0], translation.vec[1], translation.vec[2]);
 		Vector3D proj;
 		switch (translationConstraintType()) {
@@ -69,22 +69,26 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	 * Frame local coordinate system by {@link #rotationConstraintDirection()}.
 	 */
 	@Override
-	public Quaternion constrainRotation(Quaternion rotation, Frame3D frame) {
-		Quaternion res = rotation.get();
+	public Orientable constrainRotation(Orientable rotation, VFrame frame) {
+		Orientable res = rotation.get();
 		switch (rotationConstraintType()) {
 		case FREE:
 			break;
 		case PLANE:
 			break;
-		case AXIS: {
-			Vector3D axis = rotationConstraintDirection();
-			Vector3D quat = new Vector3D(rotation.quat[0], rotation.quat[1], rotation.quat[2]);
-			quat = Vector3D.projectVectorOnAxis(quat, axis);
-			res = new Quaternion(quat, 2.0f * (float) Math.acos(rotation.quat[3]));
-		}
-			break;
+		case AXIS:
+			if( rotation instanceof Quaternion) {
+				Vector3D axis = rotationConstraintDirection();
+				Vector3D quat = new Vector3D(((Quaternion)rotation).quat[0], ((Quaternion)rotation).quat[1], ((Quaternion)rotation).quat[2]);
+				quat = Vector3D.projectVectorOnAxis(quat, axis);
+				res = new Quaternion(quat, 2.0f * (float) Math.acos(((Quaternion)rotation).quat[3]));
+			}
+		break;
 		case FORBIDDEN:
-			res = new Quaternion(); // identity
+			if( rotation instanceof Quaternion)
+				res = new Quaternion(); // identity
+			else
+				res = new Rotation(); // identity
 			break;
 		}
 		return res;

@@ -33,6 +33,36 @@ public class ViewWindow extends Pinhole implements Copyable {
 	}
 	
 	@Override
+	public void computeViewMatrix() {
+		Rotation q = (Rotation)frame().orientation();
+
+		float cosB = (float)Math.cos((double)q.angle());
+		float sinB = (float)Math.sin((double)q.angle());		
+		
+		viewMat.mat[0] = cosB;
+		viewMat.mat[1] = -sinB;
+		viewMat.mat[2] = 0.0f;
+		viewMat.mat[3] = 0.0f;
+
+		viewMat.mat[4] = sinB;
+		viewMat.mat[5] = cosB;
+		viewMat.mat[6] = 0.0f;
+		viewMat.mat[7] = 0.0f;
+
+		viewMat.mat[8] = 0.0f;
+		viewMat.mat[9] = 0.0f;
+		viewMat.mat[10] = 1.0f;
+		viewMat.mat[11] = 0.0f;
+
+		Vector3D t = q.inverseRotate(frame().position());
+
+		viewMat.mat[12] = -t.vec[0];
+		viewMat.mat[13] = -t.vec[1];
+		viewMat.mat[14] = -t.vec[2];
+		viewMat.mat[15] = 1.0f;
+	}
+	
+	@Override
 	public void computeProjectionMatrix() {
 		float[] wh = getOrthoWidthHeight();
 		projectionMat.mat[0] = 1.0f / wh[0];

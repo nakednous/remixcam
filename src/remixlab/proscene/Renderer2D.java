@@ -13,7 +13,7 @@ import remixlab.remixcam.geom.*;
 // /*
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Camera;
-import remixlab.remixcam.geom.Frame3D;
+import remixlab.remixcam.geom.VFrame;
 import remixlab.remixcam.geom.Matrix3D;
 //import remixlab.remixcam.geom.Quaternion;
 // */
@@ -315,7 +315,7 @@ public class Renderer2D extends Renderer {
 	}	
 
 	@Override
-	public void drawPath(List<Frame3D> path, int mask, int nbFrames,
+	public void drawPath(List<VFrame> path, int mask, int nbFrames,
 			int nbSteps, float scale) {
 		// TODO Auto-generated method stub
 		

@@ -12,10 +12,10 @@ import remixlab.remixcam.geom.*;
 // /**
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Camera;
-import remixlab.remixcam.geom.Frame3D;
+import remixlab.remixcam.geom.VFrame;
+import remixlab.remixcam.geom.Orientable;
 import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.geom.Matrix3D;
-import remixlab.remixcam.geom.Quaternion;
 // */
 
 public class RendererJava2D extends Renderer {
@@ -33,7 +33,7 @@ public class RendererJava2D extends Renderer {
 		
 		float[] wh = scene.viewWindow().getOrthoWidthHeight();
 		Vector3D pos = scene.viewWindow().position();
-		Quaternion quat = scene.viewWindow().frame().orientation();
+		Orientable quat = scene.viewWindow().frame().orientation();
 		
 		translate(scene.width()/2, scene.height()/2);
 		/**
@@ -43,7 +43,7 @@ public class RendererJava2D extends Renderer {
 		else
 			rotate(quat.angle());
 		*/
-		rotate(quat.angle2D());
+		rotate(quat.angle());
 		translate(-pos.x(), -pos.y());
 		scale(wh[0]/(scene.width()/2), wh[1]/(scene.height()/2));
 	}
@@ -52,14 +52,17 @@ public class RendererJava2D extends Renderer {
 	public void beginScreenDrawing() {
 		float[] wh = scene.viewWindow().getOrthoWidthHeight();
 		Vector3D pos = scene.viewWindow().position();
-		Quaternion quat = scene.viewWindow().frame().orientation();
+		Orientable quat = scene.viewWindow().frame().orientation();
 		scale((scene.width()/2)/wh[0], (scene.height()/2)/wh[1]);
 		translate(pos.x(), pos.y());
+		/**
 		if(scene.viewWindow().frame().orientation().axis().z() > 0)
 			rotate(quat.angle());
 		//TODO: hack! to compensate when axis gets reverted
 		else
 			rotate(-quat.angle());
+		*/
+		rotate(quat.angle());
 		translate(-scene.width()/2, -scene.height()/2);		
 	}
 	
@@ -67,14 +70,19 @@ public class RendererJava2D extends Renderer {
 	public void endScreenDrawing() {
 		float[] wh = scene.viewWindow().getOrthoWidthHeight();
 		Vector3D pos = scene.viewWindow().position();
-		Quaternion quat = scene.viewWindow().frame().orientation();
+		Orientable quat = scene.viewWindow().frame().orientation();
 		
 		translate(scene.width()/2, scene.height()/2);
+		
+		/**
 		if(scene.viewWindow().frame().orientation().axis().z() > 0)
 			rotate(-quat.angle());
 		//TODO: hack! to compensate when axis gets reverted
 		else
 			rotate(quat.angle());
+		*/
+		
+		rotate(quat.angle());
 		translate(-pos.x(), -pos.y());
 		scale(wh[0]/(scene.width()/2), wh[1]/(scene.height()/2));		
 	}
@@ -161,7 +169,7 @@ public class RendererJava2D extends Renderer {
 	}
 
 	@Override
-	public void drawPath(List<Frame3D> path, int mask, int nbFrames,
+	public void drawPath(List<VFrame> path, int mask, int nbFrames,
 			int nbSteps, float scale) {
 		// TODO Auto-generated method stub
 		

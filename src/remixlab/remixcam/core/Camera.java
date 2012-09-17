@@ -448,7 +448,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * {@link #setOrientation(Quaternion)}, {@link #setUpVector(Vector3D)} or
 	 * {@link #lookAt(Vector3D)} to set the Camera orientation.
 	 */
-	public Quaternion orientation() {
+	public Orientable orientation() {
 		return frame().orientation();
 	}
 
@@ -1462,6 +1462,45 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	}
 	
 	// 8. PROCESSING MATRICES
+	
+	@Override
+	public void computeViewMatrix() {
+		Quaternion q = (Quaternion) frame().orientation();
+
+		float q00 = 2.0f * q.quat[0] * q.quat[0];
+		float q11 = 2.0f * q.quat[1] * q.quat[1];
+		float q22 = 2.0f * q.quat[2] * q.quat[2];
+
+		float q01 = 2.0f * q.quat[0] * q.quat[1];
+		float q02 = 2.0f * q.quat[0] * q.quat[2];
+		float q03 = 2.0f * q.quat[0] * q.quat[3];
+
+		float q12 = 2.0f * q.quat[1] * q.quat[2];
+		float q13 = 2.0f * q.quat[1] * q.quat[3];
+		float q23 = 2.0f * q.quat[2] * q.quat[3];
+
+		viewMat.mat[0] = 1.0f - q11 - q22;
+		viewMat.mat[1] = q01 - q23;
+		viewMat.mat[2] = q02 + q13;
+		viewMat.mat[3] = 0.0f;
+
+		viewMat.mat[4] = q01 + q23;
+		viewMat.mat[5] = 1.0f - q22 - q00;
+		viewMat.mat[6] = q12 - q03;
+		viewMat.mat[7] = 0.0f;
+
+		viewMat.mat[8] = q02 - q13;
+		viewMat.mat[9] = q12 + q03;
+		viewMat.mat[10] = 1.0f - q11 - q00;
+		viewMat.mat[11] = 0.0f;
+
+		Vector3D t = q.inverseRotate(frame().position());
+
+		viewMat.mat[12] = -t.vec[0];
+		viewMat.mat[13] = -t.vec[1];
+		viewMat.mat[14] = -t.vec[2];
+		viewMat.mat[15] = 1.0f;
+	}
 
 	/**
 	 * Computes the projection matrix associated with the Camera.
@@ -1999,7 +2038,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		interpolationKfi.deletePath();
 		interpolationKfi.addKeyFrame(frame(), false);
 
-		interpolationKfi.addKeyFrame(new Frame3D(Vector3D.add(Vector3D.mult(frame()
+		interpolationKfi.addKeyFrame(new VFrame(Vector3D.add(Vector3D.mult(frame()
 				.position(), 0.3f), Vector3D.mult(target.point, 0.7f)), frame()
 				.orientation()), 0.4f, false);
 

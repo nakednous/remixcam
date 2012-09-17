@@ -32,9 +32,9 @@ import remixlab.remixcam.geom.*;
  * <p>
  * This class defines the interface for the constraint that can be applied to a
  * Frame to limit its motion. Use
- * {@link remixlab.remixcam.geom.Frame3D#setConstraint(Constraint)} to associate a
+ * {@link remixlab.remixcam.geom.VFrame#setConstraint(Constraint)} to associate a
  * Constraint to a Frame (default is a {@code null}
- * {@link remixlab.remixcam.geom.Frame3D#constraint()}.
+ * {@link remixlab.remixcam.geom.VFrame#constraint()}.
  */
 public abstract class Constraint {
 	/**
@@ -44,14 +44,14 @@ public abstract class Constraint {
 	 * Overload this method in your own Constraint class to define a new
 	 * translation constraint. {@code frame} is the Frame to which is applied the
 	 * translation. You should refrain from directly changing its value in the
-	 * constraint. Use its {@link remixlab.remixcam.geom.Frame3D#position()} and update
+	 * constraint. Use its {@link remixlab.remixcam.geom.VFrame#position()} and update
 	 * the translation accordingly instead.
 	 * <p>
 	 * {@code translation} is expressed in the local Frame coordinate system. Use
-	 * {@link remixlab.remixcam.geom.Frame3D#inverseTransformOf(Vector3D)} to express it
+	 * {@link remixlab.remixcam.geom.VFrame#inverseTransformOf(Vector3D)} to express it
 	 * in the world coordinate system if needed.
 	 */
-	public Vector3D constrainTranslation(Vector3D translation, Frame3D frame) {
+	public Vector3D constrainTranslation(Vector3D translation, VFrame frame) {
 		return new Vector3D(translation.vec[0], translation.vec[1], translation.vec[2]);
 	}
 
@@ -60,13 +60,13 @@ public abstract class Constraint {
 	 * implementation is empty (no filtering).
 	 * <p>
 	 * Overload this method in your own Constraint class to define a new rotation
-	 * constraint. See {@link #constrainTranslation(Vector3D, Frame3D)} for details.
+	 * constraint. See {@link #constrainTranslation(Vector3D, VFrame)} for details.
 	 * <p>
-	 * Use {@link remixlab.remixcam.geom.Frame3D#inverseTransformOf(Vector3D)} on the
+	 * Use {@link remixlab.remixcam.geom.VFrame#inverseTransformOf(Vector3D)} on the
 	 * {@code rotation} {@link remixlab.remixcam.geom.Quaternion#axis()} to express
 	 * {@code rotation} in the world coordinate system if needed.
 	 */
-	public Quaternion constrainRotation(Quaternion rotation, Frame3D frame) {
+	public Orientable constrainRotation(Orientable rotation, VFrame frame) {
 		return rotation.get();
 	}
 }
