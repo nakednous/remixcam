@@ -51,7 +51,7 @@ public class Rotation implements Constants, Orientable {
 	@Override
 	public Vector3D inverseRotate(Vector3D v) {
 		float cosB = (float)Math.cos(-(float)angle());
-		float sinB = (float)Math.cos(-(float)angle());
+		float sinB = (float)Math.sin(-(float)angle());
 		return new Vector3D( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
 	}
 
