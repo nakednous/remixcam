@@ -11,14 +11,22 @@ public class Rotation implements Constants, Orientable {
 	
 	public Rotation(float a) {
 		angle = a;
+		normalize();
 	}
 	
 	public Rotation(Vector3D from, Vector3D to) {
 		fromTo(from, to);
 	}
 	
+	public Rotation(Point center, Point prev, Point curr) {
+		Vector3D from = new Vector3D(prev.x - center.x, prev.y - center.y);
+		Vector3D to = new Vector3D(curr.x - center.x, curr.y - center.y);
+		fromTo(from, to);
+	}
+	
 	protected Rotation(Rotation a1) {
 		this.angle = a1.angle();
+		normalize();
 	}
 	
 	@Override
@@ -114,20 +122,35 @@ public class Rotation implements Constants, Orientable {
 		float res = angle + r.angle();
 		angle = angle + r.angle();
 		angle = res;
+		this.normalize();
 	}
 	
 	public final static Orientable compose(Orientable r1, Orientable r2) {		
 		return new Rotation(r1.angle() + r2.angle());
 	}
+	
+	private float normalize(boolean onlypos) {
+		if(onlypos) {// 0 <-> two_pi
+			if ( Math.abs(angle) > TWO_PI ) {
+				angle = angle % TWO_PI;
+			}
+			if( angle < 0 )
+				angle = TWO_PI + angle;
+		}
+		else {// -pi <-> pi
+			if ( Math.abs(angle) > PI )
+				if(angle >= 0)
+					angle = (angle % PI) - PI;
+				else
+					angle = PI - (angle % PI);
+		}
+		return angle;
+	}
 
 	@Override
 	public float normalize() {
-		if ( Math.abs(angle) > TWO_PI ) {
-			angle = angle % TWO_PI;
-		}
-		if( angle < 0 )
-			angle = TWO_PI + angle;
-		return angle;
+		//return normalize(false);
+		return angle; // dummy
 	}
 
 	@Override
@@ -138,12 +161,13 @@ public class Rotation implements Constants, Orientable {
 			angle = 0;
 		} else {
 			angle = (float) Math.asin((float) Math.sqrt(1	/ (fromSqNorm * toSqNorm)));
+			normalize();
 
 			//TODO check normalization?
 			/**
 			if (from.dot(to) < 0.0)
-				angle = PI - angle;
-			*/
+				angle = PI - angle;			
+			// */
 		}
 	}
 }

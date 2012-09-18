@@ -13,6 +13,7 @@ import remixlab.remixcam.geom.*;
 // /*
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Camera;
+import remixlab.remixcam.core.ViewWindow;
 import remixlab.remixcam.geom.VFrame;
 import remixlab.remixcam.geom.Matrix3D;
 //import remixlab.remixcam.geom.Quaternion;
@@ -321,4 +322,56 @@ public class Renderer2D extends Renderer {
 		
 	}
 
+	@Override
+	public void drawViewWindow(ViewWindow camera, float scale) {
+		pg2d().pushMatrix();
+		
+		// applyMatrix(camera.frame().worldMatrix());
+	  // same as the previous line, but maybe more efficient
+	  // /**
+		tmpFrame.fromMatrix(camera.frame().worldMatrix());
+		scene().applyTransformation(tmpFrame);
+		// */
+
+		//upper left coordinates of the near corner
+		PVector upperLeft = new PVector();
+		
+		pg2d().pushStyle();
+		
+		float[] wh = camera.getOrthoWidthHeight();
+		upperLeft.x = scale * wh[0];
+		upperLeft.y = scale * wh[1];
+						
+		pg2d().noStroke();		
+		pg2d().beginShape(PApplet.QUADS);				
+		pg2d().vertex(upperLeft.x, upperLeft.y);
+		pg2d().vertex(-upperLeft.x, upperLeft.y);
+		pg2d().vertex(-upperLeft.x, -upperLeft.y);
+		pg2d().vertex(upperLeft.x, -upperLeft.y);		
+		pg2d().endShape();
+
+		// Up arrow
+		float arrowHeight = 1.5f * upperLeft.y;
+		float baseHeight = 1.2f * upperLeft.y;
+		float arrowHalfWidth = 0.5f * upperLeft.x;
+		float baseHalfWidth = 0.3f * upperLeft.x;
+		
+		// Base
+		pg2d().beginShape(PApplet.QUADS);		
+		pg2d().vertex(-baseHalfWidth, -upperLeft.y);
+		pg2d().vertex(baseHalfWidth, -upperLeft.y);
+		pg2d().vertex(baseHalfWidth, -baseHeight);
+		pg2d().vertex(-baseHalfWidth, -baseHeight);		
+		pg2d().endShape();
+
+		// Arrow
+		pg2d().beginShape(PApplet.TRIANGLES);		
+		pg2d().vertex(0.0f, -arrowHeight);
+		pg2d().vertex(-arrowHalfWidth, -baseHeight);
+		pg2d().vertex(arrowHalfWidth, -baseHeight);		
+		pg2d().endShape();
+		
+		pg2d().popStyle();
+		pg2d().popMatrix();
+	}
 }

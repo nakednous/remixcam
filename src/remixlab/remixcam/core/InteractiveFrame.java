@@ -122,7 +122,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	private int startedTime;
 	private int delay;
 
-	private Quaternion spngQuat;
+	private Orientable spngQuat;
 
 	// Whether the SCREEN_TRANS direction (horizontal or vertical) is fixed or
 	// not.
@@ -529,7 +529,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * {@link remixlab.remixcam.geom.VFrame#transformOfFrom(Vector3D, VFrame)} to convert
 	 * this axis from an other Frame coordinate system.
 	 */
-	public final Quaternion spinningQuaternion() {
+	public final Orientable spinningQuaternion() {
 		return spngQuat;
 	}
 
@@ -537,7 +537,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * Defines the {@link #spinningQuaternion()}. Its axis is defined in the
 	 * InteractiveFrame coordinate system.
 	 */
-	public final void setSpinningQuaternion(Quaternion spinningQuaternion) {
+	public final void setSpinningQuaternion(Orientable spinningQuaternion) {
 		spngQuat = spinningQuaternion;
 	}
 
@@ -708,33 +708,34 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		}
 
 		case SCREEN_ROTATE: {
-			if( scene.is3D() ) {
 			// TODO: needs testing to see if it works correctly when left-handed is set
-			Vector3D trans = ((Camera) camera).projectedCoordinatesOf(position());
+			Vector3D trans = camera.projectedCoordinatesOf(position());
 			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.vec[1], (int)prevPos.x - trans.vec[0]);
 			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);
 			Vector3D axis = transformOf(camera.frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f)));
 			
-			Quaternion rot;
-			if( scene.isRightHanded() )
-				rot = new Quaternion(axis, angle - prev_angle);
+			Orientable rot;
+			if( scene.is3D() )
+				if( scene.isRightHanded() )
+					rot = new Quaternion(axis, angle - prev_angle);
+				else
+					rot = new Quaternion(axis, prev_angle - angle);
 			else
-				rot = new Quaternion(axis, prev_angle - angle);			
+				if( scene.isRightHanded() )
+					rot = new Rotation(angle - prev_angle);
+				else
+					rot = new Rotation(prev_angle - angle);
 			
 			// #CONNECTION# These two methods should go together (spinning detection and activation)
 			computeMouseSpeed(eventPoint);
 			setSpinningQuaternion(rot);
 			spin();
 			prevPos = eventPoint;
-			}
-			else {
-			//TODO implement 2D case
-			}
 			break;			
 		}
 
 		case SCREEN_TRANSLATE: {
-			if( scene.is3D() ) { 
+			if( scene.is3D() ) {
 			// TODO: needs testing to see if it works correctly when left-handed is set
 			Vector3D trans = new Vector3D();
 			int dir = mouseOriginalDirection(eventPoint);
@@ -765,31 +766,50 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			prevPos = eventPoint;
 			}
 			else {
-			//TODO implement 2D case
+				Vector3D trans = new Vector3D();
+				int dir = mouseOriginalDirection(eventPoint);
+				if (dir == 1)
+					trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
+				else if (dir == -1)
+					trans.set(0.0f, -deltaY, 0.0f);	
+				
+				float[] wh = camera.getOrthoWidthHeight();
+				trans.vec[0] *= 2.0 * wh[0] / camera.screenWidth();
+				trans.vec[1] *= 2.0 * wh[1] / camera.screenHeight();
+				
+				// Transform to world coordinate system.
+				trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));
+				// And then down to frame
+				if (referenceFrame() != null)
+					trans = referenceFrame().transformOf(trans);
+
+				translate(trans);
+				prevPos = eventPoint;
 			}
 			break;
 		}
 
-		case ROTATE: {			
-			if( scene.is3D() ) {
+		case ROTATE: {
 			Vector3D trans = camera.projectedCoordinatesOf(position());
-			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.vec[0], trans.vec[1], (Camera) camera);
-			trans.set(-rot.quat[0], -rot.quat[1], -rot.quat[2]);
-			trans = camera.frame().orientation().rotate(trans);
-			trans = transformOf(trans);
-			rot.quat[0] = trans.vec[0];
-			rot.quat[1] = trans.vec[1];
-			rot.quat[2] = trans.vec[2];
+			Orientable rot;
+			if(scene.is3D()) {
+				rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.vec[0], trans.vec[1], (Camera) camera);
+				trans.set(-((Quaternion)rot).quat[0], -((Quaternion)rot).quat[1], -((Quaternion)rot).quat[2]);
+				trans = camera.frame().orientation().rotate(trans);
+				trans = transformOf(trans);
+				((Quaternion)rot).quat[0] = trans.vec[0];
+				((Quaternion)rot).quat[1] = trans.vec[1];
+				((Quaternion)rot).quat[2] = trans.vec[2];
+			}
+			//TODO 2d case needs lot of testing
+			else {
+				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
+			}			
 			// #CONNECTION# These two methods should go together (spinning detection and activation)
 			computeMouseSpeed(eventPoint);
 			setSpinningQuaternion(rot);
 			spin();
 			prevPos = eventPoint;
-			}
-			else {
-			//TODO implement 2D case
-			}
-			break;
 		}
 
 		case NO_MOUSE_ACTION:

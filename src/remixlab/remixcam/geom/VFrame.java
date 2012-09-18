@@ -945,7 +945,7 @@ public class VFrame implements Copyable, Constants {
 	 */
 	public final void rotate(Orientable q) {				
 		if (constraint() != null)
-			kernel().rotate(constraint().constrainRotation((Quaternion)q, this));
+			kernel().rotate(constraint().constrainRotation(q, this));
 		else
 			kernel().rotate(q);		
 	}
@@ -964,16 +964,20 @@ public class VFrame implements Copyable, Constants {
 	 * 
 	 * @see #translate(Vector3D)
 	 */
-	public final void rotate(Orientable q, boolean keepArg) {
-	  //TODO revisar todo el tema de las constraints
+	public final void rotate(Orientable q, boolean keepArg) {		
 		Orientable o = q.get();
-		if (constraint() != null && is3D()) {			
-			o = constraint().constrainRotation((Quaternion)q, this);
+		if (constraint() != null) {
+			o = constraint().constrainRotation(q, this);
 			if (!keepArg) {
-				((Quaternion)q).quat[0] = ((Quaternion)o).quat[0];
-				((Quaternion)q).quat[1] = ((Quaternion)o).quat[1];
-				((Quaternion)q).quat[2] = ((Quaternion)o).quat[2];
-				((Quaternion)q).quat[3] = ((Quaternion)o).quat[3];
+				if(is3D()) {
+					((Quaternion)q).quat[0] = ((Quaternion)o).quat[0];
+					((Quaternion)q).quat[1] = ((Quaternion)o).quat[1];
+					((Quaternion)q).quat[2] = ((Quaternion)o).quat[2];
+					((Quaternion)q).quat[3] = ((Quaternion)o).quat[3];
+				}
+				else {
+					((Rotation)q).angle = ((Rotation)o).angle;
+				}
 			}
 		}		
 		kernel().rotate(o);
@@ -993,13 +997,12 @@ public class VFrame implements Copyable, Constants {
 	 */
 	public final void rotateAroundPoint(Orientable rotation, Vector3D point) {
 		if (constraint() != null)
-			if(is3D())
-				rotation = constraint().constrainRotation((Quaternion)rotation, this);
+			rotation = constraint().constrainRotation(rotation, this);
 
 		this.kernel().rotation().compose(rotation);
 		if(is3D())
-			((Quaternion) kernel().rotation()).normalize(); // Prevents numerical drift
-
+			this.kernel().rotation().normalize(); // Prevents numerical drift
+		
 		Orientable q;
 		if(is3D())
 			q = new Quaternion(inverseTransformOf(((Quaternion)rotation).axis()), rotation.angle());		  
@@ -1007,7 +1010,7 @@ public class VFrame implements Copyable, Constants {
 			q = new Rotation(rotation.angle());
 		
 		Vector3D t = Vector3D.add(point, q.rotate(Vector3D.sub(position(), point)));
-	  t.sub(kernel().translation());
+		t.sub(kernel().translation());
 
 		if (constraint() != null)
 			kernel().translate(constraint().constrainTranslation(t, this));
@@ -1036,24 +1039,29 @@ public class VFrame implements Copyable, Constants {
 	 * {@link remixlab.remixcam.constraints.Constraint#constrainTranslation(Vector3D, VFrame)}.
 	 */
 	public final void rotateAroundPoint(Orientable rotation, Vector3D point, boolean keepArg) {
-		Orientable q;
-		if(is3D()) {
-			q = (Quaternion)rotation.get();
-			if (constraint() != null) {
-				q = constraint().constrainRotation((Quaternion)rotation, this);
-				if (!keepArg) {
+		Orientable q = rotation.get();
+		if (constraint() != null) {
+			q = constraint().constrainRotation(rotation, this);
+			if (!keepArg) {
+				if(is3D()) {
 					((Quaternion)rotation).quat[0] = ((Quaternion)q).quat[0];
 					((Quaternion)rotation).quat[1] = ((Quaternion)q).quat[1];
 					((Quaternion)rotation).quat[2] = ((Quaternion)q).quat[2];
 					((Quaternion)rotation).quat[3] = ((Quaternion)q).quat[3];
 				}
+				else {
+					((Rotation)rotation).angle = ((Rotation)q).angle;
+				}
 			}
-			this.kernel().rotation().compose(q);
-			((Quaternion)this.kernel().rotation()).normalize(); // Prevents numerical drift			
-			q = new Quaternion(inverseTransformOf(((Quaternion)rotation).axis()), rotation.angle());
 		}
+		this.kernel().rotation().compose(q);
+		if(is3D())
+			this.kernel().rotation().normalize(); // Prevents numerical drift
+
+		if(is3D())
+			q = new Quaternion(inverseTransformOf(((Quaternion)rotation).axis()), rotation.angle());
 		else
-			q = (Rotation)rotation.get();
+			q = new Rotation(rotation.angle());
 		
 		Vector3D t = Vector3D.add(point, q.rotate(Vector3D.sub(position(), point)));
 		t.sub(kernel().translation());
@@ -1072,6 +1080,7 @@ public class VFrame implements Copyable, Constants {
 		if(is3D())
 			alignWithFrame(frame, false, 0.85f);
 		else {
+			//TODO test me!
 			Rotation o = (Rotation)frame.orientation();
 			o.normalize();
 			orientation().normalize();

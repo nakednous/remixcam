@@ -205,7 +205,6 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				
 				}
 				else {
-					//TODO 2D case needs testing
 					Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
 					Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
 					float[] wh = vp.getOrthoWidthHeight();
@@ -239,8 +238,12 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			}
 
 			case ROTATE: {
-				Vector3D trans = ((Camera) vp).projectedCoordinatesOf(arcballReferencePoint());
-				Quaternion rot = deformedBallQuaternion((int) eventPoint.x,	(int) eventPoint.y, trans.vec[0], trans.vec[1], (Camera) vp);
+				Vector3D trans = vp.projectedCoordinatesOf(arcballReferencePoint());
+				Orientable rot;
+				if(scene.is3D())
+					rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], (Camera) vp);
+				else
+					rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
 				// #CONNECTION# These two methods should go together (spinning detection and activation)
 				computeMouseSpeed(eventPoint);
 				setSpinningQuaternion(rot);
@@ -249,7 +252,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				break;
 			}
 
-			case SCREEN_ROTATE: {				
+			case SCREEN_ROTATE: {		
 				Vector3D trans = vp.projectedCoordinatesOf(arcballReferencePoint());
 				float angle = (float) Math.atan2((int) eventPoint.y - trans.vec[1],
 						                             (int) eventPoint.x - trans.vec[0])
@@ -260,7 +263,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				if( scene.isLeftHanded() )
 					angle = -angle;
 
-				Quaternion rot = new Quaternion(new Vector3D(0.0f, 0.0f, 1.0f), angle);
+				Orientable rot;
+				if(scene.is3D())
+					rot = new Quaternion(new Vector3D(0.0f, 0.0f, 1.0f), angle);
+				else
+					rot = new Rotation(angle);
 				// #CONNECTION# These two methods should go together (spinning detection
 				// and activation)
 				computeMouseSpeed(eventPoint);

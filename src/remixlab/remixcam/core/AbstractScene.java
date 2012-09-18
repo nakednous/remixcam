@@ -199,7 +199,7 @@ public abstract class AbstractScene implements Constants {
 		/** No mouse action. */
 		NO_MOUSE_ACTION("No mouse action", true),
 		/** Rotate frame (camera or interactive frame. */
-		ROTATE("Rotate frame (camera or interactive frame)", false),
+		ROTATE("Rotate frame (camera or interactive frame)", true),
 		/** Zoom. */
 		ZOOM("Zoom", true),
 		/** Translate frame (camera or interactive frame). */
@@ -1644,7 +1644,6 @@ public abstract class AbstractScene implements Constants {
 	public void applyTransformation(VFrame frame) {
 		if( is2D() ) {
 			translate(frame.translation().x(), frame.translation().y());
-			//rotate(frame.rotation().angle());
 			rotate(frame.rotation().angle());
 		}
 		else {
