@@ -133,7 +133,7 @@ public class Rotation implements Constants, Orientable {
 		return new Rotation(r1.angle() + r2.angle());
 	}
 	
-	protected float normalize(boolean onlypos) {
+	public float normalize(boolean onlypos) {
 		if(onlypos) {// 0 <-> two_pi
 			if ( Math.abs(angle) > TWO_PI ) {
 				angle = angle % TWO_PI;

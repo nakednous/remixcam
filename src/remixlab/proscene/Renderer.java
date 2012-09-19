@@ -543,8 +543,11 @@ public class Renderer implements Renderable, PConstants {
 	public void drawViewWindow(ViewWindow camera, float scale) {
 		pg().pushMatrix();
 		
+		/**
 		tmpFrame.fromMatrix(camera.frame().worldMatrix());
 		scene().applyTransformation(tmpFrame);
+		*/
+		scene().applyTransformation(camera.frame());
 
 		//upper left coordinates of the near corner
 		PVector upperLeft = new PVector();
