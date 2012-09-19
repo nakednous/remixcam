@@ -307,7 +307,7 @@ public class Vector3D implements Constants, Primitivable {
   }
 
   /**
-   * Calculate  the squared magnitude of the vector
+   * Calculate the squared magnitude of the vector
    * Faster if the real length is not required in the 
    * case of comparing vectors, etc.
    * 

@@ -1077,23 +1077,7 @@ public class VFrame implements Copyable, Constants {
 	 * 0.85f)}
 	 */
 	public final void alignWithFrame(VFrame frame) {
-		if(is3D())
-			alignWithFrame(frame, false, 0.85f);
-		else {
-			//TODO test me!
-			Rotation o = (Rotation)frame.orientation();
-			o.normalize();
-			orientation().normalize();
-			float delta = Math.abs(frame.orientation().angle() - orientation().angle());
-			if( delta < HALF_PI )
-				setOrientation(o);
-			else {
-				float angle = o.angle() + PI;
-				Rotation other = new Rotation(angle);
-				other.normalize();
-				setOrientation(other);
-			}
-		}			
+		alignWithFrame(frame, false, 0.85f);	
 	}
 
 	/**
@@ -1137,95 +1121,120 @@ public class VFrame implements Copyable, Constants {
 	 * {@code frame} may be {@code null} and then represents the world coordinate
 	 * system (same convention than for the {@link #referenceFrame()}).
 	 */
-	public final void alignWithFrame(VFrame frame, boolean move, float threshold) {
-		Vector3D[][] directions = new Vector3D[2][3];
-		for (int d = 0; d < 3; ++d) {
-			Vector3D dir = new Vector3D((d == 0) ? 1.0f : 0.0f, (d == 1) ? 1.0f : 0.0f,
-					(d == 2) ? 1.0f : 0.0f);
-			if (frame != null)
-				directions[0][d] = frame.inverseTransformOf(dir);
-			else
-				directions[0][d] = dir;
-			directions[1][d] = inverseTransformOf(dir);
-		}
-
-		float maxProj = 0.0f;
-		float proj;
-		short[] index = new short[2];
-		index[0] = index[1] = 0;
-
-		Vector3D vec = new Vector3D(0.0f, 0.0f, 0.0f);
-		for (int i = 0; i < 3; ++i) {
-			for (int j = 0; j < 3; ++j) {
-				vec.set(directions[0][i]);
-				proj = Math.abs(vec.dot(directions[1][j]));
-				if ((proj) >= maxProj) {
-					index[0] = (short) i;
-					index[1] = (short) j;
-					maxProj = proj;
-				}
+	public final void alignWithFrame(VFrame frame, boolean move, float threshold) {	
+		if(is3D()) {
+			Vector3D[][] directions = new Vector3D[2][3];
+			
+			for (int d = 0; d < 3; ++d) {
+				Vector3D dir = new Vector3D((d == 0) ? 1.0f : 0.0f, (d == 1) ? 1.0f : 0.0f,	(d == 2) ? 1.0f : 0.0f);
+				if (frame != null)
+					directions[0][d] = frame.inverseTransformOf(dir);
+				else
+					directions[0][d] = dir;
+				directions[1][d] = inverseTransformOf(dir);
 			}
-		}
-
-		//Frame old = new Frame(this);
-		VFrame old = this.get();
-		//Frame old = this.clone();
-
-		vec.set(directions[0][index[0]]);
-		float coef = vec.dot(directions[1][index[1]]);
-
-		if (Math.abs(coef) >= threshold) {
-			vec.set(directions[0][index[0]]);
-			Vector3D axis = vec.cross(directions[1][index[1]]);
-			float angle = (float) Math.asin(axis.mag());
-			if (coef >= 0.0)
-				angle = -angle;
-			// setOrientation(Quaternion(axis, angle) * orientation());
-			Quaternion q = new Quaternion(axis, angle);
-			q = Quaternion.multiply(((Quaternion)rotation()).inverse(), q);
-			q = Quaternion.multiply(q, (Quaternion)orientation());
-			rotate(q);
-
-			// Try to align an other axis direction
-			short d = (short) ((index[1] + 1) % 3);
-			Vector3D dir = new Vector3D((d == 0) ? 1.0f : 0.0f, (d == 1) ? 1.0f : 0.0f,
-					(d == 2) ? 1.0f : 0.0f);
-			dir = inverseTransformOf(dir);
-
-			float max = 0.0f;
+			
+			float maxProj = 0.0f;
+			float proj;
+			short[] index = new short[2];
+			index[0] = index[1] = 0;
+			
+			Vector3D vec = new Vector3D(0.0f, 0.0f, 0.0f);
 			for (int i = 0; i < 3; ++i) {
-				vec.set(directions[0][i]);
-				proj = Math.abs(vec.dot(dir));
-				if (proj > max) {
-					index[0] = (short) i;
-					max = proj;
+				for (int j = 0; j < 3; ++j) {
+					vec.set(directions[0][i]);
+					proj = Math.abs(vec.dot(directions[1][j]));
+					if ((proj) >= maxProj) {
+						index[0] = (short) i;
+						index[1] = (short) j;
+						maxProj = proj;
+					}
 				}
 			}
+			VFrame old = new VFrame(this); // correct line
+			//VFrame old = this.get();// this call the get overloaded method and hence add the frame to the mouse grabber
 
-			if (max >= threshold) {
+			vec.set(directions[0][index[0]]);
+			float coef = vec.dot(directions[1][index[1]]);
+
+			if (Math.abs(coef) >= threshold) {
 				vec.set(directions[0][index[0]]);
-				axis = vec.cross(dir);
-				angle = (float) Math.asin(axis.mag());
-				vec.set(directions[0][index[0]]);
-				if (vec.dot(dir) >= 0.0)
+				Vector3D axis = vec.cross(directions[1][index[1]]);
+				float angle = (float) Math.asin(axis.mag());
+				if (coef >= 0.0)
 					angle = -angle;
 				// setOrientation(Quaternion(axis, angle) * orientation());
-				q.fromAxisAngle(axis, angle);
+				Quaternion q = new Quaternion(axis, angle);
 				q = Quaternion.multiply(((Quaternion)rotation()).inverse(), q);
 				q = Quaternion.multiply(q, (Quaternion)orientation());
 				rotate(q);
+
+				// Try to align an other axis direction
+				short d = (short) ((index[1] + 1) % 3);
+				Vector3D dir = new Vector3D((d == 0) ? 1.0f : 0.0f, (d == 1) ? 1.0f : 0.0f,
+						(d == 2) ? 1.0f : 0.0f);
+				dir = inverseTransformOf(dir);
+
+				float max = 0.0f;
+				for (int i = 0; i < 3; ++i) {
+					vec.set(directions[0][i]);
+					proj = Math.abs(vec.dot(dir));
+					if (proj > max) {
+						index[0] = (short) i;
+						max = proj;
+					}
+				}
+
+				if (max >= threshold) {
+					vec.set(directions[0][index[0]]);
+					axis = vec.cross(dir);
+					angle = (float) Math.asin(axis.mag());
+					vec.set(directions[0][index[0]]);
+					if (vec.dot(dir) >= 0.0)
+						angle = -angle;
+					// setOrientation(Quaternion(axis, angle) * orientation());
+					q.fromAxisAngle(axis, angle);
+					q = Quaternion.multiply(((Quaternion)rotation()).inverse(), q);
+					q = Quaternion.multiply(q, (Quaternion)orientation());
+					rotate(q);
+				}
+			}
+			if (move) {
+				Vector3D center = new Vector3D(0.0f, 0.0f, 0.0f);
+				if (frame != null)
+					center = frame.position();
+
+				vec = Vector3D.sub(center, orientation().rotate(old.coordinatesOf(center)));
+				vec.sub(translation());
+				translate(vec);
 			}
 		}
-
-		if (move) {
-			Vector3D center = new Vector3D(0.0f, 0.0f, 0.0f);
-			if (frame != null)
-				center = frame.position();
-
-			vec = Vector3D.sub(center, orientation().rotate(old.coordinatesOf(center)));
-			vec.sub(translation());
-			translate(vec);
-		}
+		else {
+			Rotation o;
+			if(frame != null)
+				o = (Rotation)frame.orientation();
+			else
+				o = new Rotation();
+			o.normalize(true);
+			((Rotation)orientation()).normalize(true);
+			
+			float angle = 0; //if( (-QUARTER_PI <= delta) && (delta < QUARTER_PI) )
+			float delta = Math.abs(o.angle() - orientation().angle());			
+			
+			if( (QUARTER_PI <= delta) && (delta < (HALF_PI + QUARTER_PI )) )			
+				angle = HALF_PI;
+			else
+				if( ((HALF_PI + QUARTER_PI) <= delta) && (delta < (PI + QUARTER_PI)) )
+					angle = PI;
+				else
+					if( ((PI + QUARTER_PI) <= delta) && (delta < (TWO_PI - QUARTER_PI)) )
+						angle = PI + HALF_PI;		
+			
+			angle += o.angle();
+			Rotation other = new Rotation(angle);
+			other.normalize();
+			setOrientation(other);
+		}		
 	}
 
 	/**

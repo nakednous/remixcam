@@ -272,8 +272,10 @@ public class Scene extends AbstractScene implements PConstants {
 					setRenderer( new Renderer3D(this, (PGraphics3D)pg) );			
 		
 		width = pg.width;
-		height = pg.height;	
+		height = pg.height;
 		
+		if(is2D())
+			this.setGridDotted(false);
 		setAWTTimers();
 		setLeftHanded();
 		

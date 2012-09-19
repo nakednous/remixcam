@@ -22,6 +22,10 @@ public class Rotation implements Constants, Orientable {
 		Vector3D from = new Vector3D(prev.x - center.x, prev.y - center.y);
 		Vector3D to = new Vector3D(curr.x - center.x, curr.y - center.y);
 		fromTo(from, to);
+		/**
+		angle*=10;
+		System.out.println(angle);
+		*/
 	}
 	
 	protected Rotation(Rotation a1) {
@@ -129,7 +133,7 @@ public class Rotation implements Constants, Orientable {
 		return new Rotation(r1.angle() + r2.angle());
 	}
 	
-	private float normalize(boolean onlypos) {
+	protected float normalize(boolean onlypos) {
 		if(onlypos) {// 0 <-> two_pi
 			if ( Math.abs(angle) > TWO_PI ) {
 				angle = angle % TWO_PI;
@@ -153,21 +157,17 @@ public class Rotation implements Constants, Orientable {
 		return angle; // dummy
 	}
 
-	@Override
+	@Override	
 	public void fromTo(Vector3D from, Vector3D to) {
-		float fromSqNorm = from.squaredNorm();
-		float toSqNorm = to.squaredNorm();		
-		if ((fromSqNorm < 1E-10f) || (toSqNorm < 1E-10f)) {
+		//perp dot product. See:
+		//1. http://stackoverflow.com/questions/2150050/finding-signed-angle-between-vectors
+		//2. http://mathworld.wolfram.com/PerpDotProduct.html
+		float fromNorm = from.mag();
+		float toNorm = to.mag();				
+		if ((fromNorm < 1E-10f) || (toNorm < 1E-10f))
 			angle = 0;
-		} else {
-			angle = (float) Math.asin((float) Math.sqrt(1	/ (fromSqNorm * toSqNorm)));
-			normalize();
-
-			//TODO check normalization?
-			/**
-			if (from.dot(to) < 0.0)
-				angle = PI - angle;			
-			// */
-		}
+		else
+			//angle =(float) Math.acos( (double)Vector3D.dot(from, to) / ( fromNorm * toNorm ));
+			angle = (float )Math.atan2( from.x()*to.y() - from.y()*to.x(), from.x()*to.x() + from.y()*to.y() );		
 	}
 }

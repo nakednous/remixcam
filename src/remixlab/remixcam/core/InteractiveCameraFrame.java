@@ -242,8 +242,14 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				Orientable rot;
 				if(scene.is3D())
 					rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], (Camera) vp);
-				else
-					rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
+				else {
+					//rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
+					Vector3D from = Vector3D.mult(new Vector3D(prevPos.x - trans.x(), prevPos.y - trans.y()), rotationSensitivity());
+					Vector3D to = Vector3D.mult(new Vector3D(eventPoint.x - trans.x(), eventPoint.y - trans.y()), rotationSensitivity());
+					rot = new Rotation(from, to);
+					if( scene.isLeftHanded() )
+						rot.negate();
+				}
 				// #CONNECTION# These two methods should go together (spinning detection and activation)
 				computeMouseSpeed(eventPoint);
 				setSpinningQuaternion(rot);
