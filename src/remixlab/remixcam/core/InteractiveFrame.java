@@ -802,9 +802,8 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 				((Quaternion)rot).quat[2] = trans.vec[2];
 			}			
 			else {
-				Vector3D from = Vector3D.mult(new Vector3D(prevPos.x - trans.x(), prevPos.y - trans.y()), rotationSensitivity());
-				Vector3D to = Vector3D.mult(new Vector3D(eventPoint.x - trans.x(), eventPoint.y - trans.y()), rotationSensitivity());
-				rot = new Rotation(from, to);
+				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
+				rot = new Rotation(rot.angle() * rotationSensitivity());
 			}			
 			// #CONNECTION# These two methods should go together (spinning detection and activation)
 			computeMouseSpeed(eventPoint);

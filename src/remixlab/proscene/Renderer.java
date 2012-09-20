@@ -44,13 +44,11 @@ import remixlab.remixcam.geom.Vector3D;
 
 public class Renderer implements Renderable, PConstants {
 	protected AbstractScene scene;
-	protected PGraphics pg;	
-	protected VFrame tmpFrame;
+	protected PGraphics pg;
 
 	public Renderer(AbstractScene scn, PGraphics renderer) {
 		pg = renderer;
-		scene = scn;
-		tmpFrame = new VFrame();
+		scene = scn;		
 	}
 	
 	@Override
@@ -544,9 +542,11 @@ public class Renderer implements Renderable, PConstants {
 		pg().pushMatrix();
 		
 		/**
+		VFrame tmpFrame = new VFrame(scene.is3D());
 		tmpFrame.fromMatrix(camera.frame().worldMatrix());
 		scene().applyTransformation(tmpFrame);
-		*/
+		// */
+		//Same as above, but easier ;)
 		scene().applyTransformation(camera.frame());
 
 		//upper left coordinates of the near corner

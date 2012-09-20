@@ -22,10 +22,6 @@ public class Rotation implements Constants, Orientable {
 		Vector3D from = new Vector3D(prev.x - center.x, prev.y - center.y);
 		Vector3D to = new Vector3D(curr.x - center.x, curr.y - center.y);
 		fromTo(from, to);
-		/**
-		angle*=10;
-		System.out.println(angle);
-		*/
 	}
 	
 	protected Rotation(Rotation a1) {
@@ -113,12 +109,16 @@ public class Rotation implements Constants, Orientable {
 
 	@Override
 	public void fromMatrix(Matrix3D glMatrix) {
-		angle = (float)Math.acos(glMatrix.m00());
+		//"If both sine and cosine of the angle are already known, ATAN2(sin, cos) gives the angle"
+		//http://www.firebirdsql.org/refdocs/langrefupd21-intfunc-atan2.html
+		angle = (float)Math.atan2(glMatrix.m10(), glMatrix.m00());
 	}
 
 	@Override
 	public void fromRotationMatrix(float[][] m) {
-		angle = (float)Math.acos(m[0][0]);		
+		//"If both sine and cosine of the angle are already known, ATAN2(sin, cos) gives the angle"
+		//http://www.firebirdsql.org/refdocs/langrefupd21-intfunc-atan2.html
+		angle = (float)Math.atan2(m[1][0], m[0][0]);
 	}
 	
 	@Override

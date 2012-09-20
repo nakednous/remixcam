@@ -434,9 +434,12 @@ public class Renderer3D extends Renderer {
 		
 		//applyMatrix(camera.frame().worldMatrix());
 		// same as the previous line, but maybe more efficient
-		//tmpFrame.fromMatrix(camera.frame().worldMatrix());
-		//scene().applyTransformation(tmpFrame);
-		//Other:
+		/**
+		VFrame tmpFrame = new VFrame(scene.is3D());
+		tmpFrame.fromMatrix(camera.frame().worldMatrix());
+		scene().applyTransformation(tmpFrame);
+		// */
+		//same as above but easier
 		scene().applyTransformation(camera.frame());
 
 		// 0 is the upper left coordinates of the near corner, 1 for the far one
