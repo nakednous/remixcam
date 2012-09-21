@@ -117,7 +117,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * the frame changes and then calls {@code super.modified()}.
 	 */
 	@Override
-	protected void modified() {		
+	protected void modified() {
 		viewport.lastFrameUpdate = scene.frameCount();
 		super.modified();
 	}

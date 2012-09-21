@@ -169,8 +169,17 @@ public class VFrame implements Copyable, Constants {
 			constr = c;
 		}
 		
+		/**
 		public void setListeners(List<KeyFrameInterpolator> l) {
 			list = l;
+		}
+		*/
+		
+		public void setListeners(VFrame iFrame) {
+			list = new ArrayList<KeyFrameInterpolator>();
+			Iterator<KeyFrameInterpolator> it = iFrame.listeners().iterator();
+			while (it.hasNext())
+				listeners().add(it.next());
 		}
 		
 		public List<KeyFrameInterpolator> listeners() {
@@ -434,8 +443,8 @@ public class VFrame implements Copyable, Constants {
 		return kernel().constraint();
 	}
 	
-	public void setListeners(List<KeyFrameInterpolator> l) {
-		kernel().setListeners(l);
+	public void setListeners(VFrame iFrame) {
+		kernel().setListeners(iFrame);
 	}
 	
 	protected void modified() {

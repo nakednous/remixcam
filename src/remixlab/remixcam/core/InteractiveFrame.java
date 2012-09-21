@@ -30,8 +30,6 @@ import remixlab.remixcam.devices.DeviceGrabbable;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.AbstractTimerJob;
 
-import java.util.*;
-
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
@@ -204,12 +202,16 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		this.isInCamPath = otherFrame.isInCamPath;
 		this.grbsMouse = otherFrame.grbsMouse;
 		
+		/**
+		// TODO need check?
+		// always copy listeners in super
 		if(this.isInCamPath) {
 			this.setListeners(new ArrayList<KeyFrameInterpolator>());
 			Iterator<KeyFrameInterpolator> it = otherFrame.listeners().iterator();
 			while (it.hasNext())
 				this.listeners().add(it.next());
 		}
+		*/
 
 		this.setGrabsMouseThreshold( otherFrame.grabsMouseThreshold()  );
 		this.setRotationSensitivity( otherFrame.rotationSensitivity() );
@@ -276,10 +278,13 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		prevConstraint = null;
 		startedTime = 0;
 
+		/**
 		setListeners(new ArrayList<KeyFrameInterpolator>());
 		Iterator<KeyFrameInterpolator> it = iFrame.listeners().iterator();
 		while (it.hasNext())
 			listeners().add(it.next());
+		*/
+		setListeners(iFrame);
 				
 		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
