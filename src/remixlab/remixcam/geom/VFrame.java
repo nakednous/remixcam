@@ -210,10 +210,12 @@ public class VFrame implements Copyable, Constants {
 		 * Resets the cache of all KeyFrameInterpolators' associated with this Frame.
 		 */
 		protected void modified() {
+			if(VFrame.this instanceof InteractiveCameraFrame)
+				((InteractiveCameraFrame)VFrame.this).pinhole().lastFrameUpdate = ((InteractiveCameraFrame)VFrame.this).scene.frameCount();
 			Iterator<KeyFrameInterpolator> it = list.iterator();
 			while (it.hasNext()) {
 				it.next().invalidateValues();
-			}
+			}						
 		}		
 		
 		public final void setReferenceFrame(VFrame rFrame) {
@@ -447,9 +449,11 @@ public class VFrame implements Copyable, Constants {
 		kernel().setListeners(iFrame);
 	}
 	
+	/**
 	protected void modified() {
 		kernel().modified();
 	}
+	*/
 
 	/**
 	 * Returns the list of KeyFrameInterpolators that are currently listening to

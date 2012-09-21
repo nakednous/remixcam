@@ -111,16 +111,22 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	public InteractiveCameraFrame get() {
 		return new InteractiveCameraFrame(this);
 	}	
+	
+	public Pinhole pinhole() {
+		return viewport;
+	}
 
 	/**
 	 * Updates the {@link remixlab.remixcam.core.Camera#lastFrameUpdate} variable when
 	 * the frame changes and then calls {@code super.modified()}.
 	 */
+	/**
 	@Override
 	protected void modified() {
 		viewport.lastFrameUpdate = scene.frameCount();
 		super.modified();
 	}
+	*/
 
 	/**
 	 * Overloading of {@link remixlab.remixcam.core.InteractiveFrame#spin()}.
