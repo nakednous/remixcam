@@ -599,11 +599,8 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		switch (button) {
 		case LEFT:  alignWithFrame(camera.frame()); break;
     case RIGHT:
-    	if(scene.is3D())
-    	projectOnLine(camera.position(), ((Camera) camera).viewDirection());
-    	else {
-    		//TODO implement 2D case
-    	}
+      //TODO test 2D case
+    	projectOnLine(camera.position(), camera.viewDirection());
     break;
     default: break;
     }

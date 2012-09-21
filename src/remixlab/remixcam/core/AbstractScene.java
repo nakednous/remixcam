@@ -625,45 +625,25 @@ public abstract class AbstractScene implements Constants {
 		case SHOW_ALL:
 			showAll();
 			break;
-		case MOVE_CAMERA_LEFT:
-			if( is3D() ) {
-			pinhole().frame().translate(
-					pinhole().frame().inverseTransformOf(new Vector3D(-10.0f * ((Camera) pinhole()).flySpeed(), 0.0f, 0.0f)));
-			}
-			else {
-			 //TODO implement 2D case
-			}
+		case MOVE_CAMERA_LEFT:			
+			pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(-10.0f * pinhole().flySpeed(), 0.0f, 0.0f)));
+			
 			break;
-		case MOVE_CAMERA_RIGHT:
-			if( is3D() ) {
-			pinhole().frame().translate(
-					pinhole().frame().inverseTransformOf(new Vector3D(10.0f * ((Camera) pinhole()).flySpeed(), 0.0f, 0.0f)));
-			}
-			else {
-				 //TODO implement 2D case
-			}
+		case MOVE_CAMERA_RIGHT:			
+			pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(10.0f * pinhole().flySpeed(), 0.0f, 0.0f)));
+			
 			break;
 		case MOVE_CAMERA_UP:
-			if( is3D() ) {
 			if( this.isRightHanded() )
-				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * ((Camera) pinhole()).flySpeed(), 0.0f)));
+				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * pinhole().flySpeed(), 0.0f)));
 			else
-				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * ((Camera) pinhole()).flySpeed(), 0.0f)));
-		  }
-		  else {
-			  //TODO implement 2D case
-		  }
+				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * pinhole().flySpeed(), 0.0f)));		  
 			break;
-		case MOVE_CAMERA_DOWN:
-			if( is3D() ) {
+		case MOVE_CAMERA_DOWN:			
 			if( this.isRightHanded() )
-				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * ((Camera) pinhole()).flySpeed(), 0.0f)));
+				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * pinhole().flySpeed(), 0.0f)));
 			else
-				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * ((Camera) pinhole()).flySpeed(), 0.0f)));
-			}
-			else {
-			  //TODO implement 2D case
-		  }
+				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * pinhole().flySpeed(), 0.0f)));			
 			break;
 		case INCREASE_ROTATION_SENSITIVITY:
 			pinhole().setRotationSensitivity(pinhole().rotationSensitivity() * 1.2f);
@@ -767,13 +747,9 @@ public abstract class AbstractScene implements Constants {
 			timerFx.runOnce(1000);				
 			break;
 		case CENTER_FRAME:
-			if( this.is3D() ) {
+			// TODO test 2d case
 			if (interactiveFrame() != null)
-				interactiveFrame().projectOnLine(pinhole().position(), ((Camera) pinhole()).viewDirection());
-			}
-			else {
-			//TODO implement 2D case
-			}
+				interactiveFrame().projectOnLine(pinhole().position(), pinhole().viewDirection());
 			break;
 		case CENTER_SCENE:
 			pinhole().centerScene();

@@ -464,7 +464,47 @@ public abstract class Pinhole {
 		return scnRadius;
 	}
 	
-	public abstract void setSceneRadius(float radius);	
+	public void setSceneRadius(float radius) {
+		if (radius <= 0.0f) {
+			System.out.println("Warning: Scene radius must be positive - Ignoring value");
+			return;
+		}
+		
+		scnRadius = radius;	
+
+		setFlySpeed(0.01f * sceneRadius());
+
+		// if there's an avatar we change its fly speed as well
+		if (scene.avatarIsInteractiveDrivableFrame)
+			((InteractiveDrivableFrame) scene.avatar()).setFlySpeed(0.01f * scene.radius());
+	}
+	
+  //11. FLYSPEED
+
+	/**
+	 * Returns the fly speed of the Camera.
+	 * <p>
+	 * Simply returns {@code frame().flySpeed()}. See the
+	 * {@link remixlab.remixcam.core.InteractiveCameraFrame#flySpeed()} documentation.
+	 * This value is only meaningful when the MouseAction bindings is
+	 * Scene.MOVE_FORWARD or is Scene.MOVE_BACKWARD.
+	 * <p>
+	 * Set to 0.5% of the {@link #sceneRadius()} by {@link #setSceneRadius(float)}.
+	 * 
+	 * @see #setFlySpeed(float)
+	 */
+	public float flySpeed() {
+		return frame().flySpeed();
+	}
+
+	/**
+	 * Sets the Camera {@link #flySpeed()}.
+	 * <p>
+	 * <b>Attention:</b> This value is modified by {@link #setSceneRadius(float)}.
+	 */
+	public void setFlySpeed(float speed) {
+		frame().setFlySpeed(speed);
+	}
 
 	/**
 	 * The {@link #setSceneCenter(Vector3D)} is set to the point located under

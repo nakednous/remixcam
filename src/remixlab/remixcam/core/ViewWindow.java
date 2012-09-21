@@ -106,17 +106,7 @@ public class ViewWindow extends Pinhole implements Copyable {
 			orthoSize *= 1.01f;
 		else
 			orthoSize /= 1.01f;
-	}
-	
-	@Override
-	public void setSceneRadius(float radius) {
-		if (radius <= 0.0f) {
-			System.out.println("Warning: Scene radius must be positive - Ignoring value");
-			return;
-		}
-		
-		scnRadius = radius;
-	}	
+	}		
 	
 	@Override
 	public float[][] computeFrustumEquations() {
