@@ -105,7 +105,7 @@ public class Renderer3D extends Renderer {
 	
 	@Override
 	public void beginScreenDrawing() {
-		pg3d().hint(DISABLE_STROKE_PERSPECTIVE);
+		//pg3d().hint(DISABLE_STROKE_PERSPECTIVE);
 		pg3d().hint(DISABLE_DEPTH_TEST);
 		pg3d().pushProjection();
 		float cameraZ = (pg3d().height/2.0f) / PApplet.tan( scene().camera().fieldOfView() /2.0f);
@@ -122,7 +122,7 @@ public class Renderer3D extends Renderer {
 		pg3d().popProjection();  
 		pg3d().popMatrix();		  
 		pg3d().hint(ENABLE_DEPTH_TEST);
-		pg3d().hint(ENABLE_STROKE_PERSPECTIVE);
+		//pg3d().hint(ENABLE_STROKE_PERSPECTIVE);
 	}
 	
 	@Override

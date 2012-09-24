@@ -152,7 +152,7 @@ public class Renderer2D extends Renderer {
     // */
     
     // /**
-		pg2d().hint(DISABLE_STROKE_PERSPECTIVE);
+		//pg2d().hint(DISABLE_STROKE_PERSPECTIVE);
     pg2d().hint(DISABLE_DEPTH_TEST);
     pg2d().pushProjection();
  		//float cameraZ = (pg2d().height/2.0f) / PApplet.tan(scene.viewWindow().fieldOfView() /2.0f);
@@ -180,7 +180,7 @@ public class Renderer2D extends Renderer {
 		pg2d().popProjection();  
 		pg2d().popMatrix();		  
 		pg2d().hint(ENABLE_DEPTH_TEST);
-		pg2d().hint(ENABLE_STROKE_PERSPECTIVE);
+		//pg2d().hint(ENABLE_STROKE_PERSPECTIVE);
 	}
 	
 	@Override
