@@ -250,7 +250,33 @@ public class Renderer implements Renderable, PConstants {
 
 	@Override
 	public void drawAxis(float length) {
-		//pg().hint(DISABLE_STROKE_PERSPECTIVE);
+		final float charWidth = length / 40.0f;
+		final float charHeight = length / 30.0f;
+		final float charShift = 1.05f * length;
+		
+    pg().pushStyle();		
+    pg().strokeWeight(2);
+		pg().beginShape(LINES);	
+		
+		// The X		
+		pg().stroke(200, 0, 0);		
+		pg().vertex(charShift + charWidth, -charHeight);
+		pg().vertex(charShift - charWidth, charHeight);
+		pg().vertex(charShift - charWidth, -charHeight);
+		pg().vertex(charShift + charWidth, charHeight);
+		
+		// The Y
+		pg().stroke(0, 200, 0);
+		pg().vertex(charWidth, charShift + charHeight);
+		pg().vertex(0.0f, charShift + 0.0f);
+		pg().vertex(-charWidth, charShift + charHeight);
+		pg().vertex(0.0f, charShift + 0.0f);
+		pg().vertex(0.0f, charShift + 0.0f);
+		pg().vertex(0.0f, charShift + -charHeight);
+		
+		pg().endShape();		
+		pg().popStyle();		
+		
 		pg().pushStyle();				
 		pg().strokeWeight(2);			  
 		

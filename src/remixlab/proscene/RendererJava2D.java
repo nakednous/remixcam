@@ -43,9 +43,10 @@ public class RendererJava2D extends Renderer {
 		else
 			rotate(quat.angle());
 		*/
-		rotate(quat.angle());
-		translate(-pos.x(), -pos.y());
 		scale(wh[0]/(scene.width()/2), wh[1]/(scene.height()/2));
+		rotate(-quat.angle());
+		translate(-pos.x(), -pos.y());
+		//scale(wh[0]/(scene.width()/2), wh[1]/(scene.height()/2));
 	}
 	
 	@Override

@@ -1628,6 +1628,17 @@ public abstract class AbstractScene implements Constants {
 		}
 	}
 	
+	public void applyWorldTransformation(VFrame frame) {
+		VFrame refFrame = frame.referenceFrame();
+		if(refFrame != null) {
+			applyWorldTransformation(refFrame);
+			applyTransformation(frame);
+		}
+		else {
+			applyTransformation(frame);
+		}
+	}
+	
 	/**
 	 * Returns the approximate frame rate of the software as it executes.
 	 * The initial value is 10 fps and is updated with each frame.

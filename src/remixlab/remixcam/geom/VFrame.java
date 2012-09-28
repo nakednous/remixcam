@@ -830,6 +830,14 @@ public class VFrame implements Copyable, Constants {
 	public final void setPosition(float x, float y, float z) {
 		setPosition(new Vector3D(x, y, z));
 	}
+	
+	/**
+	 * Same as {@link #setPosition(float, float, float)}, but with {@code float}
+	 * parameters.
+	 */
+	public final void setPosition(float x, float y) {
+		setPosition(new Vector3D(x, y));
+	}
 
 	/**
 	 * Same as {@link #setPosition(Vector3D)}, but if there's a
@@ -948,6 +956,13 @@ public class VFrame implements Copyable, Constants {
 	 */
 	public final void translate(float x, float y, float z) {
 		translate(new Vector3D(x, y, z));
+	}
+	
+	/**
+	 * Same as {@link #translate(Vector3D)} but with {@code float} parameters.
+	 */
+	public final void translate(float x, float y) {
+		translate(new Vector3D(x, y));
 	}
 
 	/**
