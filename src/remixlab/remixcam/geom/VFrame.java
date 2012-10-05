@@ -81,6 +81,7 @@ public class VFrame implements Copyable, Constants {
 	    return new HashCodeBuilder(17, 37).		
 			append(trans).
 			append(rot).
+			append(scl).
 			append(refFrame).
 			append(constr).
 			append(list).
@@ -99,6 +100,7 @@ public class VFrame implements Copyable, Constants {
 		  return new EqualsBuilder()
 	    .appendSuper(super.equals(obj))		
 			.append(trans, other.trans)
+			.append(scl, other.scl)
 			.append(rot, other.rot)
 			.append(refFrame, other.refFrame)
 			.append(constr, other.constr)
@@ -108,6 +110,7 @@ public class VFrame implements Copyable, Constants {
 		
 		protected List<KeyFrameInterpolator> list;		
 		protected Vector3D trans;
+		protected Vector3D scl;
 		protected Orientable rot;
 		protected VFrame refFrame;
 		protected Constraint constr;
@@ -115,14 +118,25 @@ public class VFrame implements Copyable, Constants {
 		public AbstractFrameKernel() {
 			list = new ArrayList<KeyFrameInterpolator>();
 			trans = new Vector3D(0, 0, 0);
+			scl =  new Vector3D(1, 1, 1);
 			rot = null;
 			refFrame = null;
 			constr = null;
 		}
 		
-		public AbstractFrameKernel(Vector3D p, Orientable r) {
+		public AbstractFrameKernel(Orientable r, Vector3D p, Vector3D s) {
 			list = new ArrayList<KeyFrameInterpolator>();
 			trans = new Vector3D(p.x(), p.y(), p.z());
+			scl = new Vector3D(s.x(), s.y(), s.z());
+			rot = r.get();
+			refFrame = null;
+			constr = null;
+		}
+		
+		public AbstractFrameKernel(Orientable r, Vector3D p) {
+			list = new ArrayList<KeyFrameInterpolator>();
+			trans = new Vector3D(p.x(), p.y(), p.z());
+			scl =  new Vector3D(1, 1, 1);
 			rot = r.get();
 			refFrame = null;
 			constr = null;
@@ -135,6 +149,8 @@ public class VFrame implements Copyable, Constants {
 				list.add(it.next());
 			trans = new Vector3D(other.translation().vec[0], other.translation().vec[1], other.translation().vec[2]);
 			rot = other.rotation().get();
+			scl = other.scaling().get();
+			//scl = new Vector3D(other.scaling().vec[0], other.scaling().vec[1], other.scaling().vec[2]);
 			refFrame = other.referenceFrame();
 			constr = other.constraint();
 		}		
@@ -148,8 +164,26 @@ public class VFrame implements Copyable, Constants {
 			modified();
 		}
 		
+		public final Vector3D scaling() {
+			return scl;
+		}
+		
+		public final Vector3D inverseScaling() {
+			return new Vector3D(1/scl.x(), 1/scl.y(), 1/scl.z());
+		}
+		
+		public final void setScaling(Vector3D s) {
+			//TODO check for zero values which are forbidden
+			scl = s;
+			modified();
+		}
+		
 		public final Orientable rotation() {
 			return rot;
+		}
+		
+		public final Orientable inverseRotation() {
+			return rot.inverse();
 		}
 		
 		public final void setRotation(Orientable r) {
@@ -206,6 +240,16 @@ public class VFrame implements Copyable, Constants {
 			modified();
 		}
 		
+		public void scale(Vector3D s) {
+			scaling().mult(s);
+			modified();
+		}
+		
+		public void inverseScale(Vector3D s) {
+			scaling().div(s);
+			modified();
+		}
+		
 		/**
 		 * Resets the cache of all KeyFrameInterpolators' associated with this Frame.
 		 */
@@ -254,8 +298,12 @@ public class VFrame implements Copyable, Constants {
 			rot = new Quaternion();
 		}
 		
-		public FrameKernel3D(Vector3D p, Quaternion r) {
-			super(p, r);
+		public FrameKernel3D(Quaternion r, Vector3D p, Vector3D s) {
+			super(r, p, s);
+		}
+		
+		public FrameKernel3D(Quaternion r, Vector3D p) {
+			super(r, p);
 		}
 		
 		protected FrameKernel3D(FrameKernel3D other) {
@@ -272,8 +320,12 @@ public class VFrame implements Copyable, Constants {
 			rot = new Rotation();
 		}
 		
-		public FrameKernel2D(Vector3D p, Rotation r) {
-			super(p, r);
+		public FrameKernel2D(Rotation r, Vector3D p, Vector3D s) {
+			super(r, p, s);
+		}
+		
+		public FrameKernel2D(Rotation r, Vector3D p) {
+			super(r, p);
 		}
 		
 		protected FrameKernel2D(FrameKernel2D other) {
@@ -308,6 +360,17 @@ public class VFrame implements Copyable, Constants {
 		linkedFramesList = new ArrayList<VFrame>();
 		srcFrame = null;
 	}
+	
+	public VFrame(Orientable r, Vector3D p, Vector3D s) {
+		if( r instanceof Quaternion )
+			krnl = new FrameKernel3D((Quaternion)r, p, s);
+		else
+			if( r instanceof Rotation )
+				krnl = new FrameKernel2D((Rotation)r, p, s);
+			
+		linkedFramesList = new ArrayList<VFrame>();
+		srcFrame = null;
+	}
 
 	/**
 	 * Creates a Frame with a {@link #position()} and an {@link #orientation()}.
@@ -319,12 +382,12 @@ public class VFrame implements Copyable, Constants {
 	 * {@link #referenceFrame()} is {@code null}). It has a {@code null}
 	 * associated {@link #constraint()}.
 	 */
-	public VFrame(Vector3D p, Orientable r) {
+	public VFrame(Orientable r, Vector3D p) {
 		if( r instanceof Quaternion )
-			krnl = new FrameKernel3D(p, (Quaternion)r);
+			krnl = new FrameKernel3D((Quaternion)r, p);
 		else
 			if( r instanceof Rotation )
-				krnl = new FrameKernel2D(p, (Rotation)r);
+				krnl = new FrameKernel2D((Rotation)r, p);
 			
 		linkedFramesList = new ArrayList<VFrame>();
 		srcFrame = null;
@@ -373,6 +436,10 @@ public class VFrame implements Copyable, Constants {
 	
 	public boolean is3D() {
 		return kernel().rot instanceof Quaternion;
+	}
+	
+	public final Vector3D scaling() {
+		return kernel().scaling();
 	}
 
 	/**
@@ -576,9 +643,9 @@ public class VFrame implements Copyable, Constants {
 			result = srcFrame.linkedFramesList.remove(this);
 			if(result) {
 				if( is3D() )
-					setKernel(new FrameKernel3D(srcFrame.translation(), (Quaternion)srcFrame.rotation()));
+					setKernel(new FrameKernel3D((Quaternion)srcFrame.rotation(), srcFrame.translation(), srcFrame.scaling()));
 				else
-					setKernel(new FrameKernel2D(srcFrame.translation(), (Rotation)srcFrame.rotation()));
+					setKernel(new FrameKernel2D((Rotation)srcFrame.rotation(), srcFrame.translation(), srcFrame.scaling()));
 				srcFrame = null;
 			}
 		}
@@ -605,9 +672,9 @@ public class VFrame implements Copyable, Constants {
 			result = linkedFramesList.remove(requestedFrame);
 			if (result) {
 				if(is3D())
-					requestedFrame.setKernel(new FrameKernel3D(translation(), (Quaternion)rotation()));
+					requestedFrame.setKernel(new FrameKernel3D((Quaternion)rotation(), translation(), scaling()));
 				else
-					requestedFrame.setKernel(new FrameKernel2D(translation(), (Rotation)rotation()));
+					requestedFrame.setKernel(new FrameKernel2D((Rotation)rotation(), translation(), scaling()));
 				requestedFrame.srcFrame = null;
 			}
 		}
@@ -670,6 +737,23 @@ public class VFrame implements Copyable, Constants {
 	 */
 	public final void setTranslation(float x, float y, float z) {
 		setTranslation(new Vector3D(x, y, z));
+	}
+	
+	public final void setScaling(Vector3D s) {
+		kernel().setScaling(s);
+	}
+	
+	public final void setScaling(float x, float y, float z) {
+		setScaling(new Vector3D(x, y, z));
+	}
+	
+	public final void setScaling(float x, float y) {
+		//TODO check third parameter
+		setScaling(new Vector3D(x, y, 1));
+	}
+	
+	public final void setScaling(float s) {
+		setScaling(new Vector3D(s, s, s));
 	}
 
 	/**
@@ -795,6 +879,8 @@ public class VFrame implements Copyable, Constants {
 	 * @see #rotation()
 	 */
 	public final Orientable orientation() {
+	  //TODO return a reference when referenceFrame is null. Same as with
+  	// absoluteScaling() but no as with position() (which returns a newly created object)
 		Orientable res = rotation();
 		VFrame fr = referenceFrame();
 		while (fr != null) {
@@ -831,6 +917,41 @@ public class VFrame implements Copyable, Constants {
 		setPosition(new Vector3D(x, y, z));
 	}
 	
+	public final void setMagnitude(Vector3D s) {
+		VFrame refFrame = referenceFrame();
+		if(refFrame != null)
+			setScaling(s.x()/refFrame.magnitude().x(), s.y()/refFrame.magnitude().y(), s.z()/refFrame.magnitude().z());
+		else
+			setScaling(s.x(), s.y(), s.z());
+	}
+	
+  public final void setMagnitude(float sx, float sy, float sz) {
+		setMagnitude(new Vector3D(sx, sy, sz));
+	}
+  
+  public final void setMagnitude(float sx, float sy) {
+    //TODO check third parameter
+		setMagnitude(new Vector3D(sx, sy, 1));
+	}
+  
+  public final void setMagnitude(float s) {
+		setMagnitude(new Vector3D(s, s, s));
+	}
+  
+  public Vector3D magnitude() {
+  	//TODO return a reference when referenceFrame is null. Same as with
+  	// orientation() but no as with position() (which returns a newly created object)
+  	if(referenceFrame() != null)
+  		return Vector3D.mult(referenceFrame().magnitude(), scaling());
+  	else
+  		return scaling();
+  }
+  
+  public Vector3D inverseMagnitude() {
+  	Vector3D vec = magnitude();
+  	return new Vector3D(1/vec.x(), 1/vec.y(), 1/vec.z());
+  }
+	
 	/**
 	 * Same as {@link #setPosition(float, float, float)}, but with {@code float}
 	 * parameters.
@@ -852,6 +973,9 @@ public class VFrame implements Copyable, Constants {
 
 		setTranslationWithConstraint(position);
 	}
+	
+	//TODO
+	//setMagnitudeWithConstraint
 
 	/**
 	 * Sets the {@link #orientation()} of the Frame, defined in the world
@@ -908,6 +1032,7 @@ public class VFrame implements Copyable, Constants {
 	 * @see #translation()
 	 */
 	public final Vector3D position() {
+	  // TODO always return a newly created object. No like position() and orientation()
 		return inverseCoordinatesOf(new Vector3D(0, 0, 0));
 	}
 
@@ -963,6 +1088,40 @@ public class VFrame implements Copyable, Constants {
 	 */
 	public final void translate(float x, float y) {
 		translate(new Vector3D(x, y));
+	}
+	
+	public void scale(Vector3D s) {
+		kernel().scale(s);
+	}
+	
+	public void scale(float x, float y, float z) {
+		scale(new Vector3D(x,y,z));
+	}
+	
+	public void scale(float x, float y) {
+		//TODO check third parameter
+		scale(new Vector3D(x,y,1));
+	}
+	
+	public void scale(float s) {
+		scale(new Vector3D(s,s,s));
+	}
+	
+	public void inverseScale(Vector3D s) {
+		kernel().inverseScale(s);
+	}	
+	
+	public void inverseScale(float x, float y, float z) {
+		inverseScale(new Vector3D(x,y,z));
+	}
+	
+	public void inverseScale(float x, float y) {
+		//TODO check third parameter
+		inverseScale(new Vector3D(x,y,1));
+	}
+	
+	public void inverseScale(float s) {
+		inverseScale(new Vector3D(s,s,s));
 	}
 
 	/**
@@ -1328,7 +1487,9 @@ public class VFrame implements Copyable, Constants {
 	 * @see #localTransformOf(Vector3D)
 	 */
 	public final Vector3D localCoordinatesOf(Vector3D src) {
-		return rotation().inverseRotate(Vector3D.sub(src, translation()));
+		//TODO key! take into account scaling
+		//return rotation().inverseRotate(Vector3D.sub(src, translation()));
+		return Vector3D.div(rotation().inverseRotate(Vector3D.sub(src, translation())), scaling());
 	}
 
 	/**
@@ -1341,7 +1502,9 @@ public class VFrame implements Copyable, Constants {
 	 * @see #localInverseTransformOf(Vector3D)
 	 */
 	public final Vector3D localInverseCoordinatesOf(Vector3D src) {
-		return Vector3D.add(rotation().rotate(src), translation());
+	  //TODO key! take into account scaling
+		//return Vector3D.add(rotation().rotate(src), translation());
+		return Vector3D.add(rotation().rotate(Vector3D.mult(src, scaling())), translation());
 	}
 
 	/**
@@ -1528,7 +1691,10 @@ public class VFrame implements Copyable, Constants {
 	 * @see #localCoordinatesOf(Vector3D)
 	 */
 	public final Vector3D localTransformOf(Vector3D src) {
-		return rotation().inverseRotate(src);
+	  //TODO key! take into account scaling
+		//return rotation().inverseRotate(src);
+		//return rotation().inverseRotate(Vector3D.div(src, scaling()));
+		return Vector3D.div(rotation().inverseRotate(src), scaling());
 	}
 
 	/**
@@ -1541,7 +1707,10 @@ public class VFrame implements Copyable, Constants {
 	 * @see #localInverseCoordinatesOf(Vector3D)
 	 */
 	public final Vector3D localInverseTransformOf(Vector3D src) {
-		return rotation().rotate(src);
+	  //TODO key! take into account scaling		
+		//return rotation().rotate(src);
+		return rotation().rotate(Vector3D.mult(src, scaling()));
+		//return Vector3D.mult(rotation().rotate(src), scaling());
 	}
 
 	/**
@@ -1637,6 +1806,7 @@ public class VFrame implements Copyable, Constants {
 	 */
 	// TODO is always inneficient
 	public final Matrix3D matrix() {
+	  //TODO key! take into account scaling
 		Matrix3D pM = new Matrix3D();
 
 		pM = kernel().rotation().matrix();
@@ -1644,6 +1814,23 @@ public class VFrame implements Copyable, Constants {
 		pM.mat[12] = kernel().translation().vec[0];
 		pM.mat[13] = kernel().translation().vec[1];
 		pM.mat[14] = kernel().translation().vec[2];
+		
+		Vector3D s = scaling();
+		if(s.x() != 1) {
+			pM.m00(pM.m00()*s.x());
+			pM.m10(pM.m10()*s.x());
+			pM.m20(pM.m20()*s.x());
+		}
+		if(s.y() != 1) {
+			pM.m01(pM.m01()*s.y());
+			pM.m11(pM.m11()*s.y());
+			pM.m21(pM.m21()*s.y());
+		}
+		if(s.z() != 1) {
+			pM.m02(pM.m02()*s.z());
+			pM.m12(pM.m12()*s.z());
+			pM.m22(pM.m22()*s.z());
+		}
 
 		return pM;
 	}	
@@ -1655,6 +1842,7 @@ public class VFrame implements Copyable, Constants {
 	 * @see remixlab.remixcam.core.AbstractScene#applyTransformation(VFrame)
 	 */
 	public void applyTransformation(AbstractScene scn) {
+	  //TODO key! take into account scaling
 		scn.applyTransformation(this);
 	}
 
@@ -1685,13 +1873,19 @@ public class VFrame implements Copyable, Constants {
 	 * <b>Note:</b> The scaling factor of the 4x4 matrix is 1.0.
 	 */
 	public final Matrix3D worldMatrix() {
+	  //TODO key! take into account scaling
 		if (referenceFrame() != null) {
 			final VFrame fr = new VFrame();
 			fr.setTranslation(position());
 			fr.setRotation(orientation());
+			fr.setScaling(scaling());
 			return fr.matrix();
 		} else
 			return matrix();
+	}
+	
+	public final void fromMatrix(Matrix3D pM) {
+		fromMatrix(pM, new Vector3D(1,1,1));
 	}
 
 	/**
@@ -1719,7 +1913,8 @@ public class VFrame implements Copyable, Constants {
 	 * <b>Attention:</b> A Frame does not contain a scale factor. The possible
 	 * scaling in {@code m} will not be converted into the Frame by this method.
 	 */
-	public final void fromMatrix(Matrix3D pM) {
+	public final void fromMatrix(Matrix3D pM, Vector3D scl) {
+	  //TODO key! take into account scaling
 		// m should be of size [4][4]
 		if (Math.abs(pM.mat[15]) < 1E-8) {
 			System.out.println("Doing nothing: pM.mat[15] should be non-zero!");
@@ -1756,6 +1951,24 @@ public class VFrame implements Copyable, Constants {
 	  	  // Beware of the transposition (OpenGL to European math)
 	  		rot[i][j] = m[j][i] / m[3][3];
 	  }
+	  
+	  setScaling(scl.x(), scl.y(), scl.z());
+	  Vector3D s = scaling();
+	  
+	  if( s.x()!=1 || s.y()!=1 || s.z()!=1 ) {
+	  	rot[0][0] = rot[0][0] / s.x();
+	  	rot[1][0] = rot[1][0] / s.x();
+	  	rot[2][0] = rot[2][0] / s.x();
+	  	
+	  	rot[0][1] = rot[0][1] / s.y();
+	  	rot[1][1] = rot[1][1] / s.y();
+	  	rot[2][1] = rot[2][1] / s.y();
+	  	
+	  	rot[0][2] = rot[0][2] / s.z();
+	  	rot[1][2] = rot[1][2] / s.z();
+	  	rot[2][2] = rot[2][2] / s.z();
+	  }
+	  
 	  kernel().fromRotationMatrix(rot);
 	}
 
@@ -1780,7 +1993,8 @@ public class VFrame implements Copyable, Constants {
 	 * <b>Note:</b> The scaling factor of the 4x4 matrix is 1.0.
 	 */
 	public final VFrame inverse() {
-		VFrame fr = new VFrame(Vector3D.mult(kernel().rotation().inverseRotate(kernel().translation()), -1), kernel().rotation().inverse());
+	  //TODO key! take into account scaling
+		VFrame fr = new VFrame(kernel().rotation().inverse(), Vector3D.mult(kernel().rotation().inverseRotate(kernel().translation()), -1), kernel().inverseScaling() );
 		fr.setReferenceFrame(referenceFrame());
 		return fr;
 	}
@@ -1801,8 +2015,7 @@ public class VFrame implements Copyable, Constants {
 	 * {@link #referenceFrame()}) transformation inverse.
 	 */
 	public final VFrame worldInverse() {
-		return (new VFrame(
-				Vector3D.mult(orientation().inverseRotate(position()), -1),
-				orientation().inverse()));
+	  //TODO key! take into account scaling
+		return ( new VFrame(orientation().inverse(), Vector3D.mult(orientation().inverseRotate(position()), -1), inverseMagnitude() ) );
 	}
 }

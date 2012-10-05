@@ -310,7 +310,36 @@ public abstract class AbstractScene implements Constants {
       return lookup.get(code);
     }
     // */
-	}	
+	}
+	
+	public static float FLOAT_EPS = Float.MIN_VALUE;
+  // Calculation of the Machine Epsilon for float precision. From:
+  // http://en.wikipedia.org/wiki/Machine_epsilon#Approximation_using_Java
+  static {
+    float eps = 1.0f;
+
+    do {
+      eps /= 2.0f;
+    } while ((float)(1.0 + (eps / 2.0)) != 1.0);
+
+    FLOAT_EPS = eps;
+  }
+	
+	public static boolean same(float a, float b) {
+    return Math.abs(a - b) < FLOAT_EPS;
+  }
+
+  public static boolean diff(float a, float b) {
+    return FLOAT_EPS <= Math.abs(a - b);
+  }
+
+  public static boolean zero(float a) {
+    return Math.abs(a) < FLOAT_EPS;
+  }
+
+  public static boolean nonZero(float a) {
+    return FLOAT_EPS <= Math.abs(a);
+  }
 	
 	protected boolean p5Scene = false;
 	
@@ -1621,10 +1650,12 @@ public abstract class AbstractScene implements Constants {
 		if( is2D() ) {
 			translate(frame.translation().x(), frame.translation().y());
 			rotate(frame.rotation().angle());
+			scale(frame.scaling().x(), frame.scaling().y());
 		}
 		else {
 			translate( frame.translation().vec[0], frame.translation().vec[1], frame.translation().vec[2] );
 			rotate( frame.rotation().angle(), ((Quaternion)frame.rotation()).axis().vec[0], ((Quaternion)frame.rotation()).axis().vec[1], ((Quaternion)frame.rotation()).axis().vec[2]);
+			scale(frame.scaling().x(), frame.scaling().y(), frame.scaling().z());
 		}
 	}
 	
@@ -1688,16 +1719,17 @@ public abstract class AbstractScene implements Constants {
 			throw new RuntimeException("ViewWindow type is only available in 2D");
 	}
 	
+	//TODO change review API here
 	public float viewWindowSize() {
 		if (is2D())
-			return viewWindow().size();
+			return viewWindow().scaleFactor();
 		else
 			throw new RuntimeException("size is only available in 2D");
 	}
 	
 	public void setViewWindowSize(float s) {
 		if (is2D())
-			viewWindow().setSize(s);
+			viewWindow().setScaling(s);
 		else
 			throw new RuntimeException("size is only available in 2D");		
 	}

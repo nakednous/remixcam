@@ -258,7 +258,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * @see remixlab.remixcam.core.Camera#addKeyFrameToPath(int)
 	 */
 	public InteractiveFrame(AbstractScene scn, InteractiveCameraFrame iFrame) {
-		super(iFrame.translation(), iFrame.rotation());
+		super(iFrame.rotation(), iFrame.translation(), iFrame.scaling());
 		scene = scn;
 		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
 		horiz = true;
@@ -691,21 +691,13 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			break;
 		}
 
-		case ZOOM: {
-			if(scene.is3D()) {
-			// #CONNECTION# wheelEvent ZOOM case
-		  //Warning: same for left and right CoordinateSystemConvention:
-			Vector3D trans = new Vector3D(0.0f, 0.0f, (Vector3D.sub(((Camera) camera).position(), position())).mag() * ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
-			trans = camera.frame().orientation().rotate(trans);
-			if (referenceFrame() != null)
-				trans = referenceFrame().transformOf(trans);
-			translate(trans);
-			prevPos = eventPoint;
-			}
-			else {
-				//TODO implement 2D case
-				//it just doesn't make any sense in 2D
-			}				
+		case ZOOM: {			
+			float delta = ((float)eventPoint.y - (float)prevPos.y);
+			if(delta >= 0)
+				scale(1 + Math.abs(delta) / (float) scene.height());
+			else
+				inverseScale(1 + Math.abs(delta) / (float) scene.height());			
+			prevPos = eventPoint;					
 			break;
 		}
 
@@ -865,29 +857,12 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
-		if (action == AbstractScene.MouseAction.ZOOM) {
-			if(scene.is3D()) {
-			float wheelSensitivityCoef = 8E-4f;
-			// Vector3D trans(0.0, 0.0,
-			// -event.delta()*wheelSensitivity()*wheelSensitivityCoef*(camera.position()-position()).norm());
-			
-			Vector3D trans;
-			/**
-			if(scene.isRightHanded())
-				trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(camera.position(), position())).mag());
+		if (action == AbstractScene.MouseAction.ZOOM) {			
+			float delta = rotation * wheelSensitivity();
+			if(delta >= 0)
+				scale(1 + Math.abs(delta) / (float) scene.height());
 			else
-			*/
-				trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(((Camera) camera).position(), position())).mag());
-					
-			// #CONNECTION# Cut-pasted from the mouseMoveEvent ZOOM case
-			trans = camera.frame().orientation().rotate(trans);
-			if (referenceFrame() != null)
-				trans = referenceFrame().transformOf(trans);
-			translate(trans);
-			}
-			else {
-				//TODO implement 2D case
-			}
+				inverseScale(1 + Math.abs(delta) / (float) scene.height());
 		}
 
 		// #CONNECTION# startAction should always be called before

@@ -28,7 +28,7 @@ public abstract class Pinhole {
 		append(viewMat).
 		//append(normal).
 		//append(orthoCoef).
-		append(orthoSize).
+		//append(orthoSize).
 		//append(physicalDist2Scrn).
 		//append(physicalScrnWidth).
 		append(projectionMat).
@@ -86,7 +86,7 @@ public abstract class Pinhole {
 		.append(viewMat,other.viewMat)
 		//.append(normal,other.normal)
 		//.append(orthoCoef,other.orthoCoef)
-		.append(orthoSize,other.orthoSize)
+		//.append(orthoSize,other.orthoSize)
 		//.append(physicalDist2Scrn,other.physicalDist2Scrn)
 		//.append(physicalScrnWidth,other.physicalScrnWidth)
 		.append(projectionMat,other.projectionMat)
@@ -123,7 +123,7 @@ public abstract class Pinhole {
 	
   //C a m e r a p a r a m e t e r s
 	protected int scrnWidth, scrnHeight; // size of the window, in pixels
-	protected float orthoSize;
+	//protected float orthoSize;
 	protected Vector3D scnCenter;
 	protected float scnRadius; // processing scene units	
 	protected int viewport[] = new int[4];
@@ -202,7 +202,7 @@ public abstract class Pinhole {
 	protected Pinhole(Pinhole oVP) {
 		this.scene = oVP.scene;
 		
-		this.orthoSize = oVP.orthoSize;
+		//this.orthoSize = oVP.orthoSize;
 		this.unprojectCacheOptimized = oVP.unprojectCacheOptimized;
 		this.fpCoefficientsUpdate = oVP.fpCoefficientsUpdate;
 		
@@ -1401,8 +1401,7 @@ public abstract class Pinhole {
 	}
 
 	/**
-	 * Convenience function that simply calls {@code addKeyFrameToPath(key, true)}
-	 * .
+	 * Convenience function that simply calls {@code addKeyFrameToPath(key, true)}.
 	 * <p>
 	 * The resulting created camera path will be editable.
 	 * 
@@ -1438,8 +1437,21 @@ public abstract class Pinhole {
 			info = false;
 		}
 
-		if (editablePath)
-			kfi.get(key).addKeyFrame(new InteractiveFrame(scene, frame()));
+		//TODO editable is broken again!!
+		//Fix me!
+		if (editablePath) {
+		  kfi.get(key).addKeyFrame(new InteractiveFrame(scene, frame()));
+			/**
+			System.out.println("entered editable");			
+			InteractiveCameraFrame iFrame = frame().get();
+			iFrame.addInMouseGrabberPool();			
+			kfi.get(key).addKeyFrame(iFrame, true);
+			if(iFrame.isInMouseGrabberPool())
+				System.out.println("is in mouse grabber pool");
+			else
+				System.out.println("is NOT in mouse grabber pool");
+			*/
+		}
 		else
 			kfi.get(key).addKeyFrame(frame(), false);
 

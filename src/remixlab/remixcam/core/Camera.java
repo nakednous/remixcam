@@ -74,7 +74,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		//append(viewMat).
 		append(normal).
 		append(orthoCoef).
-		//append(orthoSize).
+		append(orthoSize).
 		append(physicalDist2Scrn).
 		append(physicalScrnWidth).
 		//append(projectionMat).
@@ -132,7 +132,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		//.append(viewMat,other.viewMat)
 		.append(normal,other.normal)
 		.append(orthoCoef,other.orthoCoef)
-		//.append(orthoSize,other.orthoSize)
+		.append(orthoSize,other.orthoSize)
 		.append(physicalDist2Scrn,other.physicalDist2Scrn)
 		.append(physicalScrnWidth,other.physicalScrnWidth)
 		//.append(projectionMat,other.projectionMat)
@@ -266,6 +266,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	private float zClippingCoef;	
 	private Type tp; // PERSPECTIVE or ORTHOGRAPHIC
 	private Kind knd; // PROSCENE or STANDARD
+	private float orthoSize;
 	private float orthoCoef;
 	private float stdZNear;
 	private float stdZFar;
@@ -373,7 +374,8 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			this.normal[i] = new Vector3D(oCam.normal[i].vec[0], oCam.normal[i].vec[1], oCam.normal[i].vec[2] );
 		
 		this.fldOfView = oCam.fldOfView;
-		this.orthoCoef = oCam.orthoCoef;		
+		this.orthoCoef = oCam.orthoCoef;
+		this.orthoSize = oCam.orthoSize;
 		this.setKind(oCam.kind());		
 		this.setStandardZNear(oCam.standardZNear());
 		this.setStandardZFar(oCam.standardZFar());
@@ -703,7 +705,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * When the Camera {@link #kind()} is PROSCENE, these values are proportional
 	 * to the Camera (z projected) distance to the
 	 * {@link #arcballReferencePoint()}. When zooming on the object, the Camera is
-	 * translated forward \e and its frustum is narrowed, making the object appear
+	 * translated forward and its frustum is narrowed, making the object appear
 	 * bigger on screen, as intuitively expected.
 	 * <p>
 	 * When the Camera {@link #kind()} is STANDARD, these values are defined as
@@ -716,22 +718,15 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		if ((target == null) || (target.length != 2)) {
 			target = new float[2];
 		}
-
-		if (kind() == Kind.STANDARD) {
-			float dist = sceneRadius() * standardOrthoFrustumSize();
-			// 1. halfWidth
-			target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
-			// 2. halfHeight
-			target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);
-		} else {
-			float dist = orthoCoef
-					* Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);
-			// #CONNECTION# fitScreenRegion
-			// 1. halfWidth
-			target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
-			// 2. halfHeight
-			target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);
-		}
+		
+		float dist = (kind() == Kind.STANDARD)
+				       ? sceneRadius() * standardOrthoFrustumSize()
+				       : orthoCoef * Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);
+		
+		// 1. halfWidth
+		target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
+		// 2. halfHeight
+		target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);		
 
 		return target;
 	}
@@ -1999,9 +1994,9 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		interpolationKfi.deletePath();
 		interpolationKfi.addKeyFrame(frame(), false);
 
-		interpolationKfi.addKeyFrame(new VFrame(Vector3D.add(Vector3D.mult(frame()
-				.position(), 0.3f), Vector3D.mult(target.point, 0.7f)), frame()
-				.orientation()), 0.4f, false);
+		interpolationKfi.addKeyFrame(new VFrame(frame().orientation(),
+				                                    Vector3D.add(Vector3D.mult(frame().position(),
+				                         0.3f), Vector3D.mult(target.point, 0.7f))), 0.4f, false);
 
 		// Small hack: attach a temporary frame to take advantage of lookAt without
 		// modifying frame

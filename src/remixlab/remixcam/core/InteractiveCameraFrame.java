@@ -213,9 +213,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				else {
 					Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
 					Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
-					float[] wh = vp.getOrthoWidthHeight();
-					trans.vec[0] *= 2.0f * wh[0] / vp.screenWidth();
-					trans.vec[1] *= 2.0f * wh[1] / vp.screenHeight();
+					// No need to scale to fit the screen mouse displacement
 					translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
 					prevPos = eventPoint;
 				}
@@ -231,14 +229,22 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				translate(inverseTransformOf(trans));
 				prevPos = eventPoint;
 				}
-				else {					
-					//TODO implement 2D case
+				else {
+				  //TODO implement 2D case
+					float delta = ((float)eventPoint.y - (float)prevPos.y);
+					if(delta < 0)
+						scale(1 + Math.abs(delta) / (float) scene.height());
+					else
+						inverseScale(1 + Math.abs(delta) / (float) scene.height());			
+					prevPos = eventPoint;
+					/**
 					float coef = (float) (eventPoint.y - prevPos.y) / (float) vp.screenHeight();
 					if(coef>0)
 						((ViewWindow)vp).changeSize(true);
 					else
 						((ViewWindow)vp).changeSize(false);
-					prevPos = eventPoint;					
+					prevPos = eventPoint;
+					*/					
 				}
 				break;
 			}
@@ -401,11 +407,18 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				translate(inverseTransformOf(trans));
 			}
 			else {			
+				float delta = rotation * wheelSensitivity();
+				if(delta < 0)
+					scale(1 + Math.abs(delta) / (float) scene.height());
+				else
+					inverseScale(1 + Math.abs(delta) / (float) scene.height());					
 			  //TODO implement 2D case
+				/**
 				if(trans.z()>0)
 					((ViewWindow)vp).changeSize(true);
 				else
 					((ViewWindow)vp).changeSize(false);
+				*/
 			}
 			
 			break;

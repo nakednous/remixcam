@@ -2,8 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="/home/pierre/workspace/libs/processing-2head/jar/core.jar" sourcepath="/processing-core"/>
-	<classpathentry kind="lib" path="/home/pierre/workspace/libs/processing-2head/jar/gluegen-rt.jar"/>
-	<classpathentry kind="lib" path="/home/pierre/workspace/libs/processing-2head/jar/jogl-all.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/p5-2head"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

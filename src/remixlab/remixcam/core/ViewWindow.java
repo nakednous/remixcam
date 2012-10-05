@@ -11,7 +11,6 @@ public class ViewWindow extends Pinhole implements Copyable {
 		super(scn);
 		if(scene.is3D())
 			throw new RuntimeException("Use ViewWindow only for a 2D Scene");
-		orthoSize = 1;
 		fpCoefficients = new float[4][3];		
 		computeProjectionMatrix();
 		//flip();
@@ -81,17 +80,24 @@ public class ViewWindow extends Pinhole implements Copyable {
 	public float[] getOrthoWidthHeight(float[] target) {
 		if ((target == null) || (target.length != 2)) {
 			target = new float[2];
-		}		
-		float dist = sceneRadius() * size();
-		// #CONNECTION# fitScreenRegion
-		// 1. halfWidth
-		target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
-		// 2. halfHeight
-		target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);		
+		}
+		
+		Vector3D vec = frame().magnitude();
+		target[0] = ( vec.x() * this.screenWidth() )  / 2;
+		target[1] = ( vec.y() * this.screenHeight() ) / 2;		
 
 		return target;
 	}
 	
+	public void setScaling(float s) {
+		frame().setScaling(s);
+	}
+	
+	public float scaleFactor() {
+		return frame().scaling().x();
+	}
+	
+	/**
 	public float size() {
 		return orthoSize;
 	}
@@ -107,6 +113,7 @@ public class ViewWindow extends Pinhole implements Copyable {
 		else
 			orthoSize /= 1.01f;
 	}		
+	*/
 	
 	@Override
 	public float[][] computeFrustumEquations() {
@@ -137,7 +144,7 @@ public class ViewWindow extends Pinhole implements Copyable {
 	}
 	
 	public void fitCircle(Vector3D center, float radius) {
-		setSize(radius / sceneRadius());				
+		setScaling(radius / sceneRadius());				
 		lookAt(center);
 	}
 	
@@ -161,6 +168,20 @@ public class ViewWindow extends Pinhole implements Copyable {
 	@Override
 	public void fitScreenRegion(Rectangle rectangle) {
 		float rectRatio = (float)rectangle.width / (float)rectangle.height;
+		//TODO needs testing	
+		if(aspectRatio() < 1.0f) {
+			if( aspectRatio () < rectRatio )
+				setScaling(scaleFactor() * (float)rectangle.width / screenWidth());
+			else
+				setScaling(scaleFactor() * (float)rectangle.height / screenHeight());
+		} else {
+			if( aspectRatio () < rectRatio )
+				setScaling(scaleFactor() * (float)rectangle.width / screenWidth());
+			else
+				setScaling(scaleFactor() * (float)rectangle.height / screenHeight());
+		}
+	
+		/**
 		if(aspectRatio() < 1.0f) {
 			if( aspectRatio () < rectRatio )
 				setSize(size() * (float)rectangle.width / screenWidth());
@@ -171,7 +192,9 @@ public class ViewWindow extends Pinhole implements Copyable {
 				setSize(size() * (float)rectangle.width / screenWidth());
 			else
 				setSize(size() * (float)rectangle.height / screenHeight());
-		}		
+		}
+		// */
+		
 		lookAt(unprojectedCoordinatesOf(new Vector3D(rectangle.getCenterX(), rectangle.getCenterY(), 0)));
 	}	
 	
