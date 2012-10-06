@@ -152,8 +152,9 @@ public class KeyFrameInterpolator implements Copyable {
 
 	protected abstract class AbstractKeyFrame implements Copyable {
 		protected Vector3D p, tgPVec;
-		protected Vector3D s;
-		//protected Vector3D tgSVec;
+		protected Vector3D s;		
+		//Option 2 (interpolate scaling using a spline)
+		protected Vector3D tgSVec;
 		protected Orientable q;
 		protected float tm;
 		protected VFrame frm;
@@ -180,8 +181,7 @@ public class KeyFrameInterpolator implements Copyable {
 				this.s = this.frame().magnitude();
 			} else {
 				//p = new Vector3D( otherKF.p.x, otherKF.p.y, otherKF.p.z );
-				this.p = new Vector3D(otherKF.position().vec[0], otherKF.position().vec[1], otherKF.position().vec[2]);
-				//q = otherKF.q.getCopy();
+				this.p = new Vector3D(otherKF.position().vec[0], otherKF.position().vec[1], otherKF.position().vec[2]);				
 				this.q = otherKF.orientation().get();
 				this.s = new Vector3D(otherKF.magnitude().vec[0], otherKF.magnitude().vec[1], otherKF.magnitude().vec[2]);
 			}
@@ -219,11 +219,12 @@ public class KeyFrameInterpolator implements Copyable {
 			return tgPVec;
 		}
 		
-		/**
+		// /**
+	  //Option 2 (interpolate scaling using a spline)
 		Vector3D tgS() {
 			return tgSVec;
 		}
-		*/
+		// */
 		
 		abstract void computeTangent(AbstractKeyFrame prev, AbstractKeyFrame next);
 	}
@@ -256,9 +257,8 @@ public class KeyFrameInterpolator implements Copyable {
 		void computeTangent(AbstractKeyFrame prev, AbstractKeyFrame next) {
 			tgPVec = Vector3D.mult(Vector3D.sub(next.position(), prev.position()), 0.5f);
 			tgQuat = Quaternion.squadTangent((Quaternion)prev.orientation(), (Quaternion)q, (Quaternion)next.orientation());
-			//TODO needs thorough testing
-			//tgSVec = Vector3D.mult(Vector3D.sub(next.magnitude(), prev.magnitude()), 0.5f);
-			//tgSVec = new Vector3D();
+			////Option 2 (interpolate scaling using a spline)
+			tgSVec = Vector3D.mult(Vector3D.sub(next.magnitude(), prev.magnitude()), 0.5f);			
 		}
 	}
 	
@@ -273,20 +273,13 @@ public class KeyFrameInterpolator implements Copyable {
 		
 		public KeyFrame2D get() {
 			return new KeyFrame2D(this);
-		}
-		
-		/**
-		float size() {
-			return scene.viewWindowSize();
-		}
-		*/
+		}		
 		
 		@Override
 		void computeTangent(AbstractKeyFrame prev, AbstractKeyFrame next) {
-			tgPVec = Vector3D.mult(Vector3D.sub(next.position(), prev.position()), 0.5f);
-			//TODO needs thorough testing
-			//tgSVec = Vector3D.mult(Vector3D.sub(next.magnitude(), prev.magnitude()), 0.5f);
-			//tgSVec = new Vector3D();
+			tgPVec = Vector3D.mult(Vector3D.sub(next.position(), prev.position()), 0.5f);			
+		  //Option 2 (interpolate scaling using a spline)
+			tgSVec = Vector3D.mult(Vector3D.sub(next.magnitude(), prev.magnitude()), 0.5f);			
 		}
 	}
 
@@ -316,7 +309,8 @@ public class KeyFrameInterpolator implements Copyable {
 	private boolean currentFrmValid;
 	private boolean splineCacheIsValid;
 	private Vector3D pv1, pv2;
-	//private Vector3D sv1, sv2;
+  //Option 2 (interpolate scaling using a spline)
+	private Vector3D sv1, sv2;
 
   //S C E N E
   public AbstractScene scene;
@@ -939,13 +933,14 @@ public class KeyFrameInterpolator implements Copyable {
 					Vector3D pvec2 = Vector3D.add(Vector3D.mult(pdiff, (-2.0f)), kf[1].tgP());
 					pvec2 = Vector3D.add(pvec2, kf[2].tgP());
 					
-					/**
+					// /**
+					//Option 2 (interpolate scaling using a spline)
 					Vector3D sdiff = Vector3D.sub(kf[2].magnitude(), kf[1].magnitude());
 					Vector3D svec1 = Vector3D.add(Vector3D.mult(sdiff, 3.0f), Vector3D.mult(kf[1].tgS(), (-2.0f)));
 					svec1 = Vector3D.sub(svec1, kf[2].tgS());
 					Vector3D svec2 = Vector3D.add(Vector3D.mult(sdiff, (-2.0f)), kf[1].tgS());
 					svec2 = Vector3D.add(svec2, kf[2].tgS());
-					*/
+					// */
 					
 					for (int step = 0; step < nbSteps; ++step) {
 						float alpha = step / (float) nbSteps;
@@ -959,8 +954,9 @@ public class KeyFrameInterpolator implements Copyable {
 							float stop = kf[2].orientation().angle();
 							myFrame.setOrientation(new Rotation(start + (stop-start) * alpha) );
 					  }
-					  //myFrame.setMagnitude(Vector3D.add(kf[1].magnitude(), Vector3D.mult(Vector3D.add(kf[1].tgS(), Vector3D.mult(Vector3D.add(svec1, Vector3D.mult(svec2, alpha)), alpha)), alpha)));
-					  myFrame.setMagnitude(magnitudeLerp(kf[1], kf[2], alpha));
+					  //myFrame.setMagnitude(magnitudeLerp(kf[1], kf[2], alpha));
+					  //Option 2 (interpolate scaling using a spline)
+					  myFrame.setMagnitude(Vector3D.add(kf[1].magnitude(), Vector3D.mult(Vector3D.add(kf[1].tgS(), Vector3D.mult(Vector3D.add(svec1, Vector3D.mult(svec2, alpha)), alpha)), alpha)));					  
 						path.add(myFrame.get());
 					}
 
@@ -1104,18 +1100,20 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 
 	public void updateSplineCache() {
-		Vector3D delta = Vector3D.sub(keyFr.get(currentFrame2.nextIndex()).position(), keyFr.get(currentFrame1.nextIndex()).position());
-		pv1 = Vector3D.add(Vector3D.mult(delta, 3.0f), Vector3D.mult(keyFr.get(currentFrame1.nextIndex()).tgP(), (-2.0f)));
+		Vector3D deltaP = Vector3D.sub(keyFr.get(currentFrame2.nextIndex()).position(), keyFr.get(currentFrame1.nextIndex()).position());
+		pv1 = Vector3D.add(Vector3D.mult(deltaP, 3.0f), Vector3D.mult(keyFr.get(currentFrame1.nextIndex()).tgP(), (-2.0f)));
 		pv1 = Vector3D.sub(pv1, keyFr.get(currentFrame2.nextIndex()).tgP());
-		pv2 = Vector3D.add(Vector3D.mult(delta, (-2.0f)), keyFr.get(currentFrame1.nextIndex()).tgP());
+		pv2 = Vector3D.add(Vector3D.mult(deltaP, (-2.0f)), keyFr.get(currentFrame1.nextIndex()).tgP());
 		pv2 = Vector3D.add(pv2, keyFr.get(currentFrame2.nextIndex()).tgP());
 		
-		/**
-		sv1 = Vector3D.add(Vector3D.mult(delta, 3.0f), Vector3D.mult(keyFr.get(currentFrame1.nextIndex()).tgS(), (-2.0f)));
+		// /**
+		//Option 2 (interpolate scaling using a spline)
+		Vector3D deltaS = Vector3D.sub(keyFr.get(currentFrame2.nextIndex()).magnitude(), keyFr.get(currentFrame1.nextIndex()).magnitude());
+		sv1 = Vector3D.add(Vector3D.mult(deltaS, 3.0f), Vector3D.mult(keyFr.get(currentFrame1.nextIndex()).tgS(), (-2.0f)));
 		sv1 = Vector3D.sub(sv1, keyFr.get(currentFrame2.nextIndex()).tgS());
-		sv2 = Vector3D.add(Vector3D.mult(delta, (-2.0f)), keyFr.get(currentFrame1.nextIndex()).tgS());
+		sv2 = Vector3D.add(Vector3D.mult(deltaS, (-2.0f)), keyFr.get(currentFrame1.nextIndex()).tgS());
 		sv2 = Vector3D.add(sv2, keyFr.get(currentFrame2.nextIndex()).tgS());
-		*/
+		// */
 		
 		splineCacheIsValid = true;
 	}
@@ -1160,14 +1158,19 @@ public class KeyFrameInterpolator implements Copyable {
 						                    Vector3D.mult(Vector3D.add(pv1, Vector3D.mult(pv2, alpha)), alpha)), alpha));
 		
 		/**
-		Vector3D mag = Vector3D.add(keyFr.get(currentFrame1.nextIndex()).magnitude(),
-                                Vector3D.mult(Vector3D.add(keyFr.get(currentFrame1.nextIndex()).tgS(),
-                                Vector3D.mult(Vector3D.add(sv1, Vector3D.mult(sv2, alpha)), alpha)), alpha));
-    */
-		
+		//Option 1
 		Vector3D mag = magnitudeLerp((keyFr.get(currentFrame1.nextIndex())),
                                  (keyFr.get(currentFrame2.nextIndex())),
                                   (alpha));
+		// */
+		
+		// /**
+		//Option 2 (interpolate scaling using a spline)
+		Vector3D mag = Vector3D.add(keyFr.get(currentFrame1.nextIndex()).magnitude(),
+                                Vector3D.mult(Vector3D.add(keyFr.get(currentFrame1.nextIndex()).tgS(),
+                                Vector3D.mult(Vector3D.add(sv1, Vector3D.mult(sv2, alpha)), alpha)), alpha));
+    // */		
+
 		
 	  //TODO 2d Case pending
 		Orientable q;
@@ -1177,12 +1180,6 @@ public class KeyFrameInterpolator implements Copyable {
 			                    ((KeyFrame3D)keyFr.get(currentFrame2.nextIndex())).tgQ(),
 			                     (Quaternion)keyFr.get(currentFrame2.nextIndex()).orientation(), alpha);
 		} else {
-			//linear interpolation
-			/**
-			float start = ((KeyFrame2D)keyFr.get(currentFrame1.nextIndex())).orientation().angle();
-			float stop = ((KeyFrame2D)keyFr.get(currentFrame2.nextIndex())).orientation().angle();
-			q = new Rotation(start + (stop-start) * alpha);
-			*/
 			q =  new Rotation( rotationLerp(keyFr.get(currentFrame1.nextIndex()),
 					                            keyFr.get(currentFrame2.nextIndex()),
 					                            ( alpha)));
@@ -1191,17 +1188,6 @@ public class KeyFrameInterpolator implements Copyable {
 		frame().setPositionWithConstraint(pos);
 		frame().setRotationWithConstraint(q);
 		frame().setMagnitude(mag);
-		
-		/**
-		//TODO there's a broken case: scene is 2D and iFrame is different
-		//from ViewWindow
-		if( scene.is2D() ) {
-			float start = ((KeyFrame2D)keyFr.get(currentFrame1.nextIndex())).size();
-			float stop = ((KeyFrame2D)keyFr.get(currentFrame2.nextIndex())).size();
-			//linear interpolation
-			scene.setViewWindowSize(start + (stop-start) * alpha);
-		}
-		// */
 	}
 	
 	protected float rotationLerp(AbstractKeyFrame kf1, AbstractKeyFrame kf2, float alpha) {
