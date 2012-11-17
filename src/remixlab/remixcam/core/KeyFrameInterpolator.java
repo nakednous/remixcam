@@ -1143,7 +1143,7 @@ public class KeyFrameInterpolator implements Copyable {
 		float alpha;
 		float dt = keyFr.get(currentFrame2.nextIndex()).time()
 				- keyFr.get(currentFrame1.nextIndex()).time();
-		if (dt == 0.0f)
+		if (Geom.zero(dt))
 			alpha = 0.0f;
 		else
 			alpha = (time - keyFr.get(currentFrame1.nextIndex()).time()) / dt;		
@@ -1183,11 +1183,11 @@ public class KeyFrameInterpolator implements Copyable {
 			q =  new Rotation( rotationLerp(keyFr.get(currentFrame1.nextIndex()),
 					                            keyFr.get(currentFrame2.nextIndex()),
 					                            ( alpha)));
-		}	
+		}
 		
 		frame().setPositionWithConstraint(pos);
 		frame().setRotationWithConstraint(q);
-		frame().setMagnitude(mag);
+		frame().setMagnitudeWithConstraint(mag);
 	}
 	
 	protected float rotationLerp(AbstractKeyFrame kf1, AbstractKeyFrame kf2, float alpha) {

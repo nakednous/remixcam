@@ -62,8 +62,10 @@ public abstract class AxisPlaneConstraint extends Constraint {
 
 	private Type transConstraintType;
 	private Type rotConstraintType;
+	private Type sclConstraintType;
 	private Vector3D transConstraintDir;
 	private Vector3D rotConstraintDir;
+	private Vector3D sclConstraintDir;
 
 	/**
 	 * 
@@ -77,8 +79,10 @@ public abstract class AxisPlaneConstraint extends Constraint {
 		// Do not use set since setRotationConstraintType needs a read.
 		this.transConstraintType = AxisPlaneConstraint.Type.FREE;
 		this.rotConstraintType = AxisPlaneConstraint.Type.FREE;
+		this.sclConstraintType = AxisPlaneConstraint.Type.FREE;
 		transConstraintDir = new Vector3D(0.0f, 0.0f, 0.0f);
 		rotConstraintDir = new Vector3D(0.0f, 0.0f, 0.0f);
+		sclConstraintDir = new Vector3D(0.0f, 0.0f, 0.0f);
 	}
 
 	/**
@@ -134,6 +138,14 @@ public abstract class AxisPlaneConstraint extends Constraint {
 	public Vector3D rotationConstraintDirection() {
 		return rotConstraintDir;
 	}
+	
+	public Type scalingConstraintType() {
+		return sclConstraintType;
+	}
+	
+	public Vector3D scalingConstraintDirection() {
+		return sclConstraintDir;
+	}
 
 	/**
 	 * Simply calls {@link #setTranslationConstraintType(Type)} and
@@ -150,10 +162,9 @@ public abstract class AxisPlaneConstraint extends Constraint {
 	 * implementation.
 	 */
 	public void setTranslationConstraintDirection(Vector3D direction) {
-		if ((translationConstraintType() != AxisPlaneConstraint.Type.FREE)
-				&& (translationConstraintType() != AxisPlaneConstraint.Type.FORBIDDEN)) {
+		if ((translationConstraintType() != AxisPlaneConstraint.Type.FREE) && (translationConstraintType() != AxisPlaneConstraint.Type.FORBIDDEN)) {
 			float norm = direction.mag();
-			if (norm < 1E-8) {
+			if (Geom.zero(norm)) {
 				System.out.println("Warning: AxisPlaneConstraint.setTranslationConstraintDir: null vector for translation constraint");
 				transConstraintType = AxisPlaneConstraint.Type.FREE;
 			} else
@@ -175,14 +186,29 @@ public abstract class AxisPlaneConstraint extends Constraint {
 	 * where {@code direction} is expressed depends on your class implementation.
 	 */
 	public void setRotationConstraintDirection(Vector3D direction) {
-		if ((rotationConstraintType() != AxisPlaneConstraint.Type.FREE)
-				&& (rotationConstraintType() != AxisPlaneConstraint.Type.FORBIDDEN)) {
+		if ((rotationConstraintType() != AxisPlaneConstraint.Type.FREE)	&& (rotationConstraintType() != AxisPlaneConstraint.Type.FORBIDDEN)) {
 			float norm = direction.mag();
-			if (norm < 1E-8) {
+			if (Geom.zero(norm)) {
 				System.out.println("Warning: AxisPlaneConstraint.setRotationConstraintDir: null vector for rotation constraint");
 				rotConstraintType = AxisPlaneConstraint.Type.FREE;
 			} else
 				rotConstraintDir = Vector3D.mult(direction, (1.0f / norm));
+		}
+	}
+	
+	public void setScalingConstraint(Type type, Vector3D direction) {
+		setScalingConstraintType(type);
+		setScalingConstraintDirection(direction);
+	}
+	
+	public void setScalingConstraintDirection(Vector3D direction) {
+		if ((scalingConstraintType() != AxisPlaneConstraint.Type.FREE)	&& (scalingConstraintType() != AxisPlaneConstraint.Type.FORBIDDEN)) {
+			float norm = direction.mag();
+			if (Geom.zero(norm)) {
+				System.out.println("Warning: AxisPlaneConstraint.setScalingConstraintDir: null vector for rotation constraint");
+				sclConstraintType = AxisPlaneConstraint.Type.FREE;
+			} else
+				sclConstraintDir = Vector3D.mult(direction, (1.0f / norm));
 		}
 	}
 
@@ -215,5 +241,9 @@ public abstract class AxisPlaneConstraint extends Constraint {
 		}
 
 		rotConstraintType = type;
+	}
+	
+	public void setScalingConstraintType(Type type) {
+		sclConstraintType = type;
 	}
 }

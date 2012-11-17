@@ -46,7 +46,7 @@ import remixlab.remixcam.core.*;
  * {@link #referenceFrame()}, and {@link #constraint()} with the other frame,
  * which can useful for some off-screen scenes.
  */
-public class VFrame implements Copyable, Constants {	
+public class VFrame extends Geom implements Copyable, Constants {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -127,7 +127,8 @@ public class VFrame implements Copyable, Constants {
 		public AbstractFrameKernel(Orientable r, Vector3D p, Vector3D s) {
 			list = new ArrayList<KeyFrameInterpolator>();
 			trans = new Vector3D(p.x(), p.y(), p.z());
-			scl = new Vector3D(s.x(), s.y(), s.z());
+			scl =  new Vector3D(1, 1, 1);
+			setScaling(s);
 			rot = r.get();
 			refFrame = null;
 			constr = null;
@@ -173,7 +174,18 @@ public class VFrame implements Copyable, Constants {
 		}
 		
 		public final void setScaling(Vector3D s) {
-			//TODO check for zero values which are forbidden
+			if( zero(s.x()) ) {
+				System.out.println("Setting x scale value to zero is not allowed");
+				s.x(scl.x());
+			}
+			if( zero(s.y()) ) {
+				System.out.println("Setting y scale value to zero is not allowed");
+				s.y(scl.y());
+			}
+			if( zero(s.z()) ) {
+				System.out.println("Setting z scale value to zero is not allowed");
+				s.z(scl.z());
+			}
 			scl = s;
 			modified();
 		}
@@ -241,13 +253,24 @@ public class VFrame implements Copyable, Constants {
 		}
 		
 		public void scale(Vector3D s) {
-			scaling().mult(s);
-			modified();
+			setScaling( Vector3D.mult(scaling(), s) );
+		}
+		 
+		public void inverseScale(Vector3D s) {
+			setScaling( Vector3D.div(scaling(), s) );
 		}
 		
-		public void inverseScale(Vector3D s) {
-			scaling().div(s);
-			modified();
+		public boolean isInverted() {
+			boolean inverted = true;
+			if(this instanceof FrameKernel3D) {
+				if ( ( scaling().x() > 0 && scaling().y() > 0 && scaling().z() > 0 ) || ( scaling().x() < 0 && scaling().y() < 0 && scaling().z() < 0 ) )
+					inverted = false;
+				}
+			else {
+				if ( ( scaling().x() > 0 && scaling().y() > 0 ) || ( scaling().x() < 0 && scaling().y() < 0 ) )
+					inverted = false;
+			}
+			return inverted;
 		}
 		
 		/**
@@ -310,9 +333,20 @@ public class VFrame implements Copyable, Constants {
 			super(other);
 		}
 				
+		@Override
 		public FrameKernel3D get() {
 			return new FrameKernel3D(this);
 		}
+		
+		/**
+		@Override
+		public boolean isInverted(AbstractScene scene) {
+			boolean allEq = false;
+			if ( ( scaling().x() > 0 && scaling().y() > 0 && scaling().z() > 0 ) || ( scaling().x() < 0 && scaling().y() < 0 && scaling().z() < 0 ) )
+				allEq = true;
+			return (scene.isRightHanded() && allEq) || (scene.isLeftHanded() && !allEq);				
+		}
+		*/
 	}
 	
 	public class FrameKernel2D extends AbstractFrameKernel {		
@@ -331,10 +365,21 @@ public class VFrame implements Copyable, Constants {
 		protected FrameKernel2D(FrameKernel2D other) {
 			super(other);
 		}
-				
+		
+		@Override
 		public FrameKernel2D get() {
 			return new FrameKernel2D(this);
 		}
+		
+		/**
+		@Override
+		public boolean isInverted(AbstractScene scene) {
+			boolean allEq = false;
+			if ( ( scaling().x() > 0 && scaling().y() > 0 ) || ( scaling().x() < 0 && scaling().y() < 0 ) )
+				allEq = true;
+			return (scene.isRightHanded() && allEq) || (scene.isLeftHanded() && !allEq);			
+		}
+		*/
 	}
 
 	protected AbstractFrameKernel krnl;	
@@ -436,6 +481,20 @@ public class VFrame implements Copyable, Constants {
 	
 	public boolean is3D() {
 		return kernel().rot instanceof Quaternion;
+	}
+	
+	/**
+	public boolean isRightHanded(AbstractScene scene) {
+		return kernel().isInverted(scene);
+	}
+	
+	public boolean isLeftHanded(AbstractScene scene) {
+		return kernel().isLeftHanded(scene);
+	}
+	*/
+	
+	public boolean isInverted() {
+		return kernel().isInverted();
 	}
 	
 	public final Vector3D scaling() {
@@ -755,6 +814,15 @@ public class VFrame implements Copyable, Constants {
 	public final void setScaling(float s) {
 		setScaling(new Vector3D(s, s, s));
 	}
+	
+	public final void setScalingWithConstraint(Vector3D sclng) {
+		// TODO test me
+		Vector3D deltaS = Vector3D.div(sclng, this.scaling());
+		if (constraint() != null)
+			deltaS = constraint().constrainScaling(deltaS, this);
+
+		kernel().scale(deltaS);
+	}
 
 	/**
 	 * Same as {@link #setTranslation(Vector3D)}, but if there's a
@@ -812,7 +880,7 @@ public class VFrame implements Copyable, Constants {
 	}
 
 	/**
-	 * Same as {@link #setRotation(Quaternion)}, if there's a
+	 * Same as {@link #setRotation(Quaternion)}, but if there's a
 	 * {@link #constraint()} it's satisfied (without modifying {@code rotation}).
 	 * 
 	 * @see #setTranslationWithConstraint(Vector3D)
@@ -925,6 +993,14 @@ public class VFrame implements Copyable, Constants {
 			setScaling(s.x(), s.y(), s.z());
 	}
 	
+	public final void setMagnitudeWithConstraint(Vector3D mag) {
+		//TODO needs testing
+		if (referenceFrame() != null)
+			mag = Vector3D.div(mag, referenceFrame().magnitude());
+
+		setScalingWithConstraint(mag);
+	}
+	
   public final void setMagnitude(float sx, float sy, float sz) {
 		setMagnitude(new Vector3D(sx, sy, sz));
 	}
@@ -950,7 +1026,7 @@ public class VFrame implements Copyable, Constants {
   public Vector3D inverseMagnitude() {
   	Vector3D vec = magnitude();
   	return new Vector3D(1/vec.x(), 1/vec.y(), 1/vec.z());
-  }
+  }  
 	
 	/**
 	 * Same as {@link #setPosition(float, float, float)}, but with {@code float}
@@ -958,7 +1034,7 @@ public class VFrame implements Copyable, Constants {
 	 */
 	public final void setPosition(float x, float y) {
 		setPosition(new Vector3D(x, y));
-	}
+	}	
 
 	/**
 	 * Same as {@link #setPosition(Vector3D)}, but if there's a
@@ -972,10 +1048,7 @@ public class VFrame implements Copyable, Constants {
 			position = referenceFrame().coordinatesOf(position);
 
 		setTranslationWithConstraint(position);
-	}
-	
-	//TODO
-	//setMagnitudeWithConstraint
+	}	
 
 	/**
 	 * Sets the {@link #orientation()} of the Frame, defined in the world
@@ -1048,7 +1121,7 @@ public class VFrame implements Copyable, Constants {
 		else
 			kernel().translate(t);
 	}
-
+	
 	/**
 	 * Translates the Frame according to {@code t}, locally defined with respect
 	 * to the {@link #referenceFrame()}. Calls {@link #modified()}.
@@ -1063,6 +1136,14 @@ public class VFrame implements Copyable, Constants {
 	 * 
 	 * @see #rotate(Quaternion)
 	 */
+	public final Vector3D filteredTranslate(Vector3D t) {		
+		if (constraint() != null)
+			t = constraint().constrainTranslation(t, this);
+		kernel().translate(t);
+		return t.get();
+	}
+	
+	/**
 	public final void translate(Vector3D t, boolean keepArg) {
 		Vector3D o = new Vector3D(t.vec[0], t.vec[1], t.vec[2]);
 		if (constraint() != null) {
@@ -1075,6 +1156,7 @@ public class VFrame implements Copyable, Constants {
 		}
 		kernel().translate(o);
 	}
+	*/
 
 	/**
 	 * Same as {@link #translate(Vector3D)} but with {@code float} parameters.
@@ -1091,7 +1173,17 @@ public class VFrame implements Copyable, Constants {
 	}
 	
 	public void scale(Vector3D s) {
+		if (constraint() != null)
+			kernel().scale(constraint().constrainScaling(s, this));
+		else
+			kernel().scale(s);
+	}
+	
+	public Vector3D filteredScale(Vector3D s) {
+		if( constraint() != null )
+			s = constraint().constrainScaling(s, this);
 		kernel().scale(s);
+		return s.get();		
 	}
 	
 	public void scale(float x, float y, float z) {
@@ -1107,8 +1199,12 @@ public class VFrame implements Copyable, Constants {
 		scale(new Vector3D(s,s,s));
 	}
 	
+	//TODO provisional: should this go?
 	public void inverseScale(Vector3D s) {
-		kernel().inverseScale(s);
+		if (constraint() != null)
+			kernel().inverseScale(constraint().constrainScaling(s, this));
+		else
+			kernel().inverseScale(s);
 	}	
 	
 	public void inverseScale(float x, float y, float z) {
@@ -1123,18 +1219,39 @@ public class VFrame implements Copyable, Constants {
 	public void inverseScale(float s) {
 		inverseScale(new Vector3D(s,s,s));
 	}
-
+	
 	/**
 	 * Same as {@code rotate(q, true)}. Calls {@link #modified()}.
 	 * 
 	 * @see #rotate(Quaternion, boolean)
 	 * @see #translate(Vector3D)
 	 */
-	public final void rotate(Orientable q) {				
-		if (constraint() != null)
-			kernel().rotate(constraint().constrainRotation(q, this));
+	public final void rotate(Orientable q) {		
+		if (constraint() != null) 			
+			kernel().rotate(constraint().constrainRotation(q, this));		
 		else
-			kernel().rotate(q);		
+			kernel().rotate(q);
+	}
+	
+	/**
+	 * Rotates the Frame by {@code q} (defined in the Frame coordinate system):
+	 * {@code R = R*q}. Calls {@link #modified()}.
+	 * <p>
+	 * If there's a {@link #constraint()} it is satisfied. Hence the rotation
+	 * actually applied to the Frame may differ from {@code q} (since it can be
+	 * filtered by the {@link #constraint()}). Use {@code rotate(q, false)} to
+	 * retrieve the filtered rotation value and {@code rotate(q, true)} to keep
+	 * the original value of {@code q}. Use {@link #setRotation(Quaternion)} to
+	 * directly rotate the Frame without taking the {@link #constraint()} into
+	 * account.
+	 * 
+	 * @see #translate(Vector3D)
+	 */
+	public final Orientable filteredRotate(Orientable q) {		
+		if (constraint() != null)
+			q = constraint().constrainRotation(q, this);
+		kernel().rotate(q);
+		return q.get();
 	}
 
 	/**
@@ -1151,6 +1268,7 @@ public class VFrame implements Copyable, Constants {
 	 * 
 	 * @see #translate(Vector3D)
 	 */
+	/**
 	public final void rotate(Orientable q, boolean keepArg) {		
 		Orientable o = q.get();
 		if (constraint() != null) {
@@ -1169,6 +1287,7 @@ public class VFrame implements Copyable, Constants {
 		}		
 		kernel().rotate(o);
 	}
+	*/
 
 	/**
 	 * Same as {@link #rotate(Quaternion)} but with {@code float} Quaternion
@@ -1204,6 +1323,50 @@ public class VFrame implements Copyable, Constants {
 		else
 			kernel().translate(t);
 	}
+	
+	/**
+	 * Makes the Frame {@link #rotate(Quaternion)} by {@code rotation} around
+	 * {@code point}. Calls {@link #modified()}.
+	 * <p>
+	 * {@code point} is defined in the world coordinate system, while the {@code
+	 * rotation} axis is defined in the Frame coordinate system.
+	 * <p>
+	 * If the Frame has a {@link #constraint()}, {@code rotation} is first
+	 * constrained using
+	 * {@link remixlab.remixcam.constraints.Constraint#constrainRotation(Quaternion, VFrame)}.
+	 * Hence the rotation actually applied to the Frame may differ from {@code
+	 * rotation} (since it can be filtered by the {@link #constraint()}). Use
+	 * {@code rotateAroundPoint(rotation, point, false)} to retrieve the filtered
+	 * rotation value and {@code rotateAroundPoint(rotation, point, true)} to keep
+	 * the original value of {@code rotation}.
+	 * <p>
+	 * The translation which results from the filtered rotation around {@code
+	 * point} is then computed and filtered using
+	 * {@link remixlab.remixcam.constraints.Constraint#constrainTranslation(Vector3D, VFrame)}.
+	 */
+	public final Orientable filteredRotateAroundPoint(Orientable rotation, Vector3D point) {
+		if (constraint() != null)
+			rotation = constraint().constrainRotation(rotation, this);
+
+		this.kernel().rotation().compose(rotation);
+		if(is3D())
+			this.kernel().rotation().normalize(); // Prevents numerical drift
+		
+		Orientable q;
+		if(is3D())
+			q = new Quaternion(inverseTransformOf(((Quaternion)rotation).axis()), rotation.angle());		  
+		else 
+			q = new Rotation(rotation.angle());
+		
+		Vector3D t = Vector3D.add(point, q.rotate(Vector3D.sub(position(), point)));
+		t.sub(kernel().translation());
+
+		if (constraint() != null)
+			kernel().translate(constraint().constrainTranslation(t, this));
+		else
+			kernel().translate(t);
+		return rotation.get();
+	}
 
 	/**
 	 * Makes the Frame {@link #rotate(Quaternion)} by {@code rotation} around
@@ -1225,6 +1388,7 @@ public class VFrame implements Copyable, Constants {
 	 * point} is then computed and filtered using
 	 * {@link remixlab.remixcam.constraints.Constraint#constrainTranslation(Vector3D, VFrame)}.
 	 */
+	/**
 	public final void rotateAroundPoint(Orientable rotation, Vector3D point, boolean keepArg) {
 		Orientable q = rotation.get();
 		if (constraint() != null) {
@@ -1258,6 +1422,7 @@ public class VFrame implements Copyable, Constants {
 		else
 			kernel().translate(t);
 	}
+	*/
 
 	/**
 	 * Convenience function that simply calls {@code alignWithFrame(frame, false,
@@ -1842,8 +2007,17 @@ public class VFrame implements Copyable, Constants {
 	 * @see remixlab.remixcam.core.AbstractScene#applyTransformation(VFrame)
 	 */
 	public void applyTransformation(AbstractScene scn) {
-	  //TODO key! take into account scaling
 		scn.applyTransformation(this);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code scn.applyWorldTransformation(this)}.
+	 * 
+	 * @see #worldMatrix()
+	 * @see remixlab.remixcam.core.AbstractScene#applyWorldTransformation(VFrame)
+	 */
+	public void applyWorldTransformation(AbstractScene scn) {
+		scn.applyWorldTransformation(this);
 	}
 
 	/**
@@ -1916,7 +2090,7 @@ public class VFrame implements Copyable, Constants {
 	public final void fromMatrix(Matrix3D pM, Vector3D scl) {
 	  //TODO key! take into account scaling
 		// m should be of size [4][4]
-		if (Math.abs(pM.mat[15]) < 1E-8) {
+		if (zero(pM.mat[15])) {
 			System.out.println("Doing nothing: pM.mat[15] should be non-zero!");
 			return;
 		}

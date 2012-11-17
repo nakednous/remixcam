@@ -356,11 +356,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		if (action == AbstractScene.MouseAction.ZOOM_ON_REGION) {
 			// the rectangle needs to be normalized!
 			int w = Math.abs((int) eventPoint.x - (int) pressPos.x);
-			int tlX = (int) pressPos.x < (int) eventPoint.x ? (int) pressPos.x
-					: (int) eventPoint.x;
+			int tlX = (int) pressPos.x < (int) eventPoint.x ? (int) pressPos.x : (int) eventPoint.x;
 			int h = Math.abs((int) eventPoint.y - (int) pressPos.y);
-			int tlY = (int) pressPos.y < (int) eventPoint.y ? (int) pressPos.y
-					: (int) eventPoint.y;
+			int tlY = (int) pressPos.y < (int) eventPoint.y ? (int) pressPos.y : (int) eventPoint.y;
 
 			// overkill:
 			// if (event.getButton() == MouseEvent.BUTTON3)//right button

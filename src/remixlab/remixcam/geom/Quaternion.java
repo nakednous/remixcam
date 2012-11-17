@@ -629,7 +629,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 */
 	public void fromAxisAngle(Vector3D axis, float angle) {
 		float norm = axis.mag();
-		if (norm < 1E-8f) {
+		if (Geom.zero(norm)) {
 			// Null rotation
 			this.quat[0] = 0.0f;
 			this.quat[1] = 0.0f;
@@ -778,7 +778,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 		float fromSqNorm = from.squaredNorm();
 		float toSqNorm = to.squaredNorm();
 		// Identity Quaternion when one vector is null
-		if ((fromSqNorm < 1E-10f) || (toSqNorm < 1E-10f)) {
+		if ((Geom.zero(fromSqNorm)) || (Geom.zero(toSqNorm))) {
 			this.quat[0] = this.quat[1] = this.quat[2] = 0.0f;
 			this.quat[3] = 1.0f;
 		} else {
@@ -788,7 +788,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 			float axisSqNorm = axis.squaredNorm();
 
 			// Aligned vectors, pick any axis, not aligned with from or to
-			if (axisSqNorm < 1E-10f)
+			if (Geom.zero(axisSqNorm))
 				axis = from.orthogonalVector();
 
 			float angle = (float) Math.asin((float) Math.sqrt(axisSqNorm
@@ -819,7 +819,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 		// Compute one plus the trace of the matrix
 		float onePlusTrace = 1.0f + m[0][0] + m[1][1] + m[2][2];
 
-		if (onePlusTrace > 1E-5f) {
+		if (Geom.nonZero(onePlusTrace) && onePlusTrace>0) {
 			// Direct computation
 			float s = (float) Math.sqrt(onePlusTrace) * 2.0f;
 			this.quat[0] = (m[2][1] - m[1][2]) / s;
@@ -912,7 +912,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	public final Vector3D axis() {
 		Vector3D res = new Vector3D(this.quat[0], this.quat[1], this.quat[2]);
 		float sinus = res.mag();
-		if (sinus > 1E-8f)
+		if (Geom.nonZero(sinus))
 			res.div(sinus);
 		if ((float) Math.acos(this.quat[3]) <= HALF_PI)
 			return res;
@@ -1057,7 +1057,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 		float len = (float) Math.sqrt(this.quat[0] * this.quat[0] + this.quat[1] * this.quat[1] + this.quat[2]
 				* this.quat[2]);
 
-		if (len < 1E-6f)
+		if (Geom.zero(len))
 			return new Quaternion(this.quat[0], this.quat[1], this.quat[2], 0.0f, false);
 		else {
 			float coef = (float) Math.acos(this.quat[3]) / len;
@@ -1074,7 +1074,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	public final Quaternion exp() {
 		float theta = (float) Math.sqrt(this.quat[0] * this.quat[0] + this.quat[1] * this.quat[1] + this.quat[2] * this.quat[2]);
 
-		if (theta < 1E-6f)
+		if (Geom.zero(theta))
 			return new Quaternion(this.quat[0], this.quat[1], this.quat[2], (float) Math.cos(theta));
 		else {
 			float coef = (float) Math.sin(theta) / theta;

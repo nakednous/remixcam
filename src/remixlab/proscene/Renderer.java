@@ -39,6 +39,7 @@ import remixlab.remixcam.core.Renderable;
 import remixlab.remixcam.core.Camera;
 import remixlab.remixcam.core.ViewWindow;
 import remixlab.remixcam.geom.Matrix3D;
+import remixlab.remixcam.geom.Orientable;
 import remixlab.remixcam.geom.VFrame;
 import remixlab.remixcam.geom.Vector3D;
 
@@ -56,24 +57,55 @@ public class Renderer implements Renderable, PConstants {
 		return scene;
 	}
 	
+	public boolean isRightHanded() {
+		return scene.isRightHanded();
+	}
+	
+	public boolean isLeftHanded() {
+		return scene.isLeftHanded();
+	}
+	
 	public PGraphics pg() {
 		return pg;
 	}
 	
 	@Override
 	public void bindMatrices() {
-		// TODO Auto-generated method stub		
+		scene.viewWindow().computeProjectionMatrix();
+		scene.viewWindow().computeViewMatrix();		
+		scene.viewWindow().computeProjectionViewMatrix();
+		Vector3D pos = scene.viewWindow().position();
+		Orientable quat = scene.viewWindow().frame().orientation();
+		
+		translate(scene.width()/2, scene.height()/2);
+		scale(scene.viewWindow().frame().inverseMagnitude().x(),
+				  scene.viewWindow().frame().inverseMagnitude().y());
+		rotate(-quat.angle());
+		translate(-pos.x(), -pos.y());
+		if(scene.isRightHanded())
+			scale(1,-1);
+	}
+		
+	@Override
+	public void beginScreenDrawing() {
+		Vector3D pos = scene.viewWindow().position();
+		Orientable quat = scene.viewWindow().frame().orientation();		
+		
+		pushMatrix();
+		if(scene.isRightHanded())
+			scale(1,-1);
+		translate(pos.x(), pos.y());
+		rotate(quat.angle());		
+		scale(scene.viewWindow().frame().magnitude().x(),
+		      scene.viewWindow().frame().magnitude().y());		
+		translate(-scene.width()/2, -scene.height()/2);	
+					
 	}
 	
 	@Override
-	public void beginScreenDrawing() {
-		// TODO Auto-generated method stub		
-	}
-
-	@Override
 	public void endScreenDrawing() {
-		// TODO Auto-generated method stub		
-	}
+		popMatrix();
+	}	
 	
 	@Override
   public boolean is2D() {
@@ -288,12 +320,10 @@ public class Renderer implements Renderable, PConstants {
 		pg().line(0, 0, 0, length);		
 
 		pg().popStyle();
-		//pg().hint(ENABLE_STROKE_PERSPECTIVE);
 	}
 
 	@Override
 	public void drawGrid(float size, int nbSubdivisions) {
-		//pg().hint(DISABLE_STROKE_PERSPECTIVE);
 		pg().pushStyle();
 		pg().stroke(170, 170, 170);
 		pg().strokeWeight(1);
@@ -306,14 +336,12 @@ public class Renderer implements Renderable, PConstants {
 			pg().vertex(size, pos);
 		}
 		pg().endShape();
-		pg().popStyle();		
-		//pg().hint(ENABLE_STROKE_PERSPECTIVE);
+		pg().popStyle();
 	}
 	
 	@Override
 	public void drawDottedGrid(float size, int nbSubdivisions) {
 		float posi, posj;
-		//pg().hint(DISABLE_STROKE_PERSPECTIVE);
 		pg().pushStyle();
 		pg().stroke(170);
 		pg().strokeWeight(2);
@@ -344,19 +372,16 @@ public class Renderer implements Renderable, PConstants {
 		}
 		pg().endShape();
 		pg().popStyle();
-		//pg().hint(ENABLE_STROKE_PERSPECTIVE);
 	}	
 
 	@Override
 	public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 	}
 
 	@Override
 	public void drawKFIViewport(float scale) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 	}
 
 	@Override
@@ -569,20 +594,25 @@ public class Renderer implements Renderable, PConstants {
 		
 		/**
 		VFrame tmpFrame = new VFrame(scene.is3D());
-		tmpFrame.fromMatrix(camera.frame().worldMatrix());
+		tmpFrame.fromMatrix(camera.frame().worldMatrix(), camera.frame().magnitude());		
 		scene().applyTransformation(tmpFrame);
 		// */
 		//Same as above, but easier ;)
-		scene().applyTransformation(camera.frame());
+	  scene().applyWorldTransformation(camera.frame());
 
 		//upper left coordinates of the near corner
 		PVector upperLeft = new PVector();
 		
 		pg().pushStyle();
 		
+		/**
 		float[] wh = camera.getOrthoWidthHeight();
 		upperLeft.x = scale * wh[0];
 		upperLeft.y = scale * wh[1];
+		*/
+		
+		upperLeft.x = scale * scene.width() / 2;
+		upperLeft.y = scale * scene.height() / 2;
 						
 		pg().noStroke();		
 		pg().beginShape(PApplet.QUADS);				

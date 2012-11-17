@@ -82,7 +82,7 @@ public class Matrix3D implements Primitivable {
   }
 
   /**
-   * 16 consecutive values that are used as the elements of a 4 × 4 column-major matrix.
+   * 16 consecutive values that are used as the elements of a 4 x 4 column-major matrix.
    */
   public Matrix3D(float _m0, float _m1, float _m2, float _m3,
                   float _m4, float _m5, float _m6, float _m7,
@@ -403,7 +403,7 @@ public class Matrix3D implements Primitivable {
    }
   
   /**
-   * 16 consecutive values that are used as the elements of a 4 × 4 column-major matrix.
+   * 16 consecutive values that are used as the elements of a 4 x 4 column-major matrix.
    */
   public void set(float _m0, float _m1, float _m2, float _m3,
 			            float _m4, float _m5, float _m6, float _m7,
@@ -614,7 +614,7 @@ public class Matrix3D implements Primitivable {
   }  
   
   /**
-   * 16 consecutive values that are used as the elements of a 4 × 4 column-major matrix.
+   * 16 consecutive values that are used as the elements of a 4 x 4 column-major matrix.
    */
   public void apply(float m0, float m1, float m2, float m3,
       							float m4, float m5, float m6, float m7,
@@ -715,7 +715,7 @@ public class Matrix3D implements Primitivable {
   } 
 
   /**
-   * 16 consecutive values that are used as the elements of a 4 × 4 column-major matrix.
+   * 16 consecutive values that are used as the elements of a 4 x 4 column-major matrix.
    */
   public void preApply(float m0, float m1, float m2, float m3,
                        float m4, float m5, float m6, float m7,
@@ -909,7 +909,7 @@ public class Matrix3D implements Primitivable {
    */
   public boolean invert(Matrix3D m) {
   	float determinant = determinant();
-    if (determinant == 0) {
+    if (Geom.zero(determinant)) {
       return false;
     }       
 
@@ -967,7 +967,7 @@ public class Matrix3D implements Primitivable {
    */
   public boolean invert() {
     float determinant = determinant();
-    if (determinant == 0) {
+    if (Geom.zero(determinant)) {
       return false;
     }
 

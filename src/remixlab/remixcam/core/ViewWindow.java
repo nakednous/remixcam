@@ -65,7 +65,7 @@ public class ViewWindow extends Pinhole implements Copyable {
 	public void computeProjectionMatrix() {
 		float[] wh = getOrthoWidthHeight();
 		projectionMat.mat[0] = 1.0f / wh[0];
-		if( scene.isAP5Scene() )
+		if( scene.isLeftHanded() )
 			projectionMat.mat[5] = -1.0f / wh[1];
 		else
 			projectionMat.mat[5] = 1.0f / wh[1];
@@ -93,9 +93,20 @@ public class ViewWindow extends Pinhole implements Copyable {
 		frame().setScaling(s);
 	}
 	
+	public void setScaling(float sx, float sy) {
+		frame().setScaling(sx, sy);
+	}
+	
+	public void setScaling(Vector3D s) {
+		frame().setScaling(s);
+	}
+	
+	/**
 	public float scaleFactor() {
 		return frame().scaling().x();
+		//return frame().scaling().y();
 	}
+	// */
 	
 	/**
 	public float size() {
@@ -144,7 +155,9 @@ public class ViewWindow extends Pinhole implements Copyable {
 	}
 	
 	public void fitCircle(Vector3D center, float radius) {
-		setScaling(radius / sceneRadius());				
+	  Vector3D scl = frame().scaling();
+		setScaling(scl.x() > 0 ? radius / sceneRadius() : -radius / sceneRadius(),
+				       scl.y() > 0 ? radius / sceneRadius() : -radius / sceneRadius());				
 		lookAt(center);
 	}
 	
@@ -168,7 +181,24 @@ public class ViewWindow extends Pinhole implements Copyable {
 	@Override
 	public void fitScreenRegion(Rectangle rectangle) {
 		float rectRatio = (float)rectangle.width / (float)rectangle.height;
-		//TODO needs testing	
+		//TODO needs testing
+		
+		float sclX = frame().scaling().x();
+		float sclY = frame().scaling().y();		
+		
+		if(aspectRatio() < 1.0f) {
+			if( aspectRatio () < rectRatio )
+				setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
+			else
+				setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
+		} else {
+			if( aspectRatio () < rectRatio )
+				setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
+			else
+				setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
+		}
+		
+		/**
 		if(aspectRatio() < 1.0f) {
 			if( aspectRatio () < rectRatio )
 				setScaling(scaleFactor() * (float)rectangle.width / screenWidth());
@@ -180,6 +210,7 @@ public class ViewWindow extends Pinhole implements Copyable {
 			else
 				setScaling(scaleFactor() * (float)rectangle.height / screenHeight());
 		}
+		*/
 	
 		/**
 		if(aspectRatio() < 1.0f) {
@@ -237,20 +268,13 @@ public class ViewWindow extends Pinhole implements Copyable {
 		return true;
 	}
 	
-	//TODO it breaks some function relating to rotations.
+	//TODO needs testing
 	// /**
-	public void flip() {		
-		Vector3D direction = new Vector3D(0, 0, ( frame().zAxis().z() > 0 ) ? 1 : -1 );
-		
-		Vector3D xAxis = direction.cross(upVector());
-
-		Quaternion q = new Quaternion();
-		q.fromRotatedBasis(xAxis, xAxis.cross(direction), Vector3D.mult(direction, -1));
-		frame().setOrientationWithConstraint(q);
-		
-		Vector3D up = upVector();
-		up.y(-up.y());
-		setUpVector(up);
+	public void flip() {
+		if( scene.isLeftHanded() )
+			scene.setRightHanded();
+		else
+			scene.setLeftHanded();
 	}
 	// */
 	

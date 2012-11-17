@@ -137,22 +137,15 @@ public class Renderer2D extends Renderer {
   }
 	// --
 	
+	// /**
+	@Override
+	public void bindMatrices() {
+		setProjectionMatrix();
+		setModelViewMatrix();
+	}
+	
 	@Override
 	public void beginScreenDrawing() {
-		/**
-		pg2d().hint(DISABLE_DEPTH_TEST);
-		pg2d().pushProjection();
-		float cameraZ = (pg2d().height/2.0f) / PApplet.tan(scene().camera().fieldOfView() /2.0f);
-    float cameraNear = cameraZ / 2.0f;
-    float cameraFar = cameraZ * 2.0f;
-    pg2d().ortho(-pg2d().width/2, pg2d().width/2, -pg2d().height/2, pg2d().height/2, cameraNear, cameraFar);		
-    pg2d().pushMatrix();
-	  // Camera needs to be reset!
-    pg2d().camera();
-    // */
-    
-    // /**
-		//pg2d().hint(DISABLE_STROKE_PERSPECTIVE);
     pg2d().hint(DISABLE_DEPTH_TEST);
     pg2d().pushProjection();
  		//float cameraZ = (pg2d().height/2.0f) / PApplet.tan(scene.viewWindow().fieldOfView() /2.0f);
@@ -171,8 +164,7 @@ public class Renderer2D extends Renderer {
     //renderer().camera();
     //TODO check this line:
     //pg2d().modelview.set(((P5Camera)scene.viewWindow()).getCamera());
-    pg2d().modelview.set(get2DModelView());
-    // */
+    pg2d().modelview.set(get2DModelView());    
 	}
 	
 	@Override
@@ -180,14 +172,8 @@ public class Renderer2D extends Renderer {
 		pg2d().popProjection();  
 		pg2d().popMatrix();		  
 		pg2d().hint(ENABLE_DEPTH_TEST);
-		//pg2d().hint(ENABLE_STROKE_PERSPECTIVE);
 	}
-	
-	@Override
-	public void bindMatrices() {
-		setProjectionMatrix();
-		setModelViewMatrix();
-	}
+	// */
 	
 	/**
 	 * Sets the processing camera projection matrix from {@link #camera()}. Calls
@@ -216,7 +202,7 @@ public class Renderer2D extends Renderer {
 	 * {@code PApplet.camera()}.
 	 */	
 	protected void setModelViewMatrix() {
-	  // All options work seamlessly
+	  // Thw two options work seamlessly
 		/**		
 		// Option 1
 		Matrix3D mat = new Matrix3D();		
@@ -229,7 +215,10 @@ public class Renderer2D extends Renderer {
 		// /**		
 		// Option 2
 		pg2d().modelview.set(scene.viewWindow().getViewMatrix(true).getTransposed(new float[16]));
-		// */
+		// */		
+		
+		// Finally, caches projmodelview
+		pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(true).getTransposed(new float[16]));
 	}
 
 	@Override

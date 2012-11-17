@@ -164,10 +164,10 @@ public class Rotation implements Constants, Orientable {
 		//2. http://mathworld.wolfram.com/PerpDotProduct.html
 		float fromNorm = from.mag();
 		float toNorm = to.mag();				
-		if ((fromNorm < 1E-10f) || (toNorm < 1E-10f))
+		if ((Geom.zero(fromNorm)) || (Geom.zero(toNorm)))
 			angle = 0;
 		else
 			//angle =(float) Math.acos( (double)Vector3D.dot(from, to) / ( fromNorm * toNorm ));
-			angle = (float )Math.atan2( from.x()*to.y() - from.y()*to.x(), from.x()*to.x() + from.y()*to.y() );		
+			angle = (float )Math.atan2( from.x()*to.y() - from.y()*to.x(), from.x()*to.x() + from.y()*to.y() );
 	}
 }

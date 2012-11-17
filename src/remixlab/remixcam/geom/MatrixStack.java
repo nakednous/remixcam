@@ -160,21 +160,21 @@ public class MatrixStack implements Constants {
   }  
   
   /**
-   * 16 consecutive values that are used as the elements of a 4 × 4 column-major matrix.
+   * 16 consecutive values that are used as the elements of a 4 x 4 column-major matrix.
    */
   public void applyMatrix(float [] source) {
   	modelview.apply(source);    	
   }
   
   /**
-   * 16 consecutive values that are used as the elements of a 4 × 4 column-major matrix.
+   * 16 consecutive values that are used as the elements of a 4 x 4 column-major matrix.
    */
   public void applyProjection(float [] source) {
   	projection.apply(source);    	
   }
 
   /**
-   * 16 consecutive values that are used as the elements of a 4 × 4 column-major matrix.
+   * 16 consecutive values that are used as the elements of a 4 x 4 column-major matrix.
    */
   public void applyMatrix(float m0, float m1, float m2, float m3,
                           float m4, float m5, float m6, float m7,

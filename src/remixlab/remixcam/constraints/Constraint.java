@@ -69,4 +69,8 @@ public abstract class Constraint {
 	public Orientable constrainRotation(Orientable rotation, VFrame frame) {
 		return rotation.get();
 	}
+	
+	public Vector3D constrainScaling(Vector3D scaling, VFrame frame) {
+		return new Vector3D(scaling.vec[0], scaling.vec[1], scaling.vec[2]);
+	}
 }

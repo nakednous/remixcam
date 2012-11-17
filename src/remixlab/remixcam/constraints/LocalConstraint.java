@@ -49,13 +49,15 @@ public class LocalConstraint extends AxisPlaneConstraint {
 		case FREE:
 			break;
 		case PLANE:
-			proj = frame.rotation().rotate(translationConstraintDirection());
+			//proj = frame.rotation().rotate(translationConstraintDirection());
+			proj = frame.localInverseTransformOf(translationConstraintDirection());
 			res = Vector3D.projectVectorOnPlane(translation, proj);
 			break;
 		case AXIS:
-			proj = frame.rotation().rotate(translationConstraintDirection());
+			//proj = frame.rotation().rotate(translationConstraintDirection());
+			proj = frame.localInverseTransformOf(translationConstraintDirection());
 			res = Vector3D.projectVectorOnAxis(translation, proj);
-			break;
+			break;			
 		case FORBIDDEN:
 			res = new Vector3D(0.0f, 0.0f, 0.0f);
 			break;
@@ -92,5 +94,47 @@ public class LocalConstraint extends AxisPlaneConstraint {
 			break;
 		}
 		return res;
+	}
+	
+	@Override
+	public Vector3D constrainScaling(Vector3D scaling, VFrame frame) {
+	  //TODO debug
+	  System.out.println("...Entering local constraint");
+		System.out.print("Constrain scale vector: ");
+		scaling.print();
+			
+		Vector3D res = new Vector3D(scaling.vec[0], scaling.vec[1], scaling.vec[2]);
+		Vector3D proj;
+		switch (scalingConstraintType()) {
+		case FREE:
+			break;
+		case PLANE:
+			//proj = frame.rotation().rotate(scalingConstraintDirection());
+			//res = Vector3D.projectVectorOnPlane(scaling, proj);
+			res = Vector3D.projectVectorOnPlane(scaling, scalingConstraintDirection());
+			break;
+		case AXIS:
+			//proj = frame.rotation().rotate(scalingConstraintDirection());
+			//res = Vector3D.projectVectorOnAxis(scaling, proj);
+			res = Vector3D.projectVectorOnAxis(scaling, scalingConstraintDirection());
+			break;
+		case FORBIDDEN:
+			res = new Vector3D(1.0f, 1.0f, 1.0f);
+			break;
+		}
+		
+		if(res.x() < 1E-8)
+			res.x(1);
+		if(res.y() < 1E-8)
+			res.y(1);
+		if(res.z() < 1E-8)
+			res.z(1);
+		
+	  //TODO debug
+		System.out.print("Scale vector became (after applying constraint): ");
+		res.print();
+		System.out.println("exiting world constraint...");
+		return res;
+		//return new Vector3D(1.0f, 1.0f, 1.1f);
 	}
 }

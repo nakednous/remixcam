@@ -491,8 +491,9 @@ public abstract class AbstractDevice {
       //TODO implement 2D case
       }
       q.fromEulerAngles(roll, pitch, -yaw);
-      t.set(-q.quat[0], -q.quat[1], -q.quat[2]);
-      t = cameraFrame.orientation().rotate(t);
+      t.set(-q.quat[0], -q.quat[1], -q.quat[2]);      
+      //TODO needs testing:
+      t = cameraFrame.inverseTransformOf(t); // same as: t = cameraFrame.orientation().rotate(t);
       t = iFrame.transformOf(t);
       q.quat[0] = t.vec[0];
       q.quat[1] = t.vec[1];

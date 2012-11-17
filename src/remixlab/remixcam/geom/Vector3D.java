@@ -148,7 +148,7 @@ public class Vector3D implements Constants, Primitivable {
   
   public static Vector3D projectVectorOnAxis(Vector3D src, Vector3D direction) {
 		float directionSquaredNorm = squaredNorm(direction);
-		if (directionSquaredNorm < 1E-10f)
+		if (Geom.zero(directionSquaredNorm))
 			throw new RuntimeException("Direction squared norm is nearly 0");
 
 		float modulation = src.dot(direction) / directionSquaredNorm;
@@ -167,7 +167,7 @@ public class Vector3D implements Constants, Primitivable {
 	 */
 	public static Vector3D projectVectorOnPlane(Vector3D src, Vector3D normal) {
 		float normalSquaredNorm = squaredNorm(normal);
-		if (normalSquaredNorm < 1E-10f)
+		if (Geom.zero(normalSquaredNorm))
 			throw new RuntimeException("Normal squared norm is nearly 0");
 
 		float modulation = src.dot(normal) / normalSquaredNorm;
@@ -503,7 +503,7 @@ public class Vector3D implements Constants, Primitivable {
   }
 
   /**
-   * Multiply each element of one vector by the individual elements of another
+   * Divide each element of one vector by the individual elements of another
    * vector, and return the result as a new Vector3D.
    */
   static public Vector3D div(Vector3D v1, Vector3D v2) {

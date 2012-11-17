@@ -4,19 +4,8 @@ import java.util.List;
 
 import processing.core.*;
 
-/**
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
-*/
-
-// /**
-import remixlab.remixcam.core.AbstractScene;
-import remixlab.remixcam.core.Camera;
-import remixlab.remixcam.geom.VFrame;
-import remixlab.remixcam.geom.Orientable;
-import remixlab.remixcam.geom.Vector3D;
-import remixlab.remixcam.geom.Matrix3D;
-// */
 
 public class RendererJava2D extends Renderer {
 	public RendererJava2D(AbstractScene scn, PGraphicsJava2D renderer) {
@@ -27,66 +16,39 @@ public class RendererJava2D extends Renderer {
 	  return (PGraphicsJava2D) pg();	
 	}
 	
+	/**
+	@Override
 	public void bindMatrices() {
 		scene.viewWindow().computeProjectionMatrix();
-		scene.viewWindow().computeViewMatrix();
-		
-		float[] wh = scene.viewWindow().getOrthoWidthHeight();
+		scene.viewWindow().computeViewMatrix();		
 		Vector3D pos = scene.viewWindow().position();
 		Orientable quat = scene.viewWindow().frame().orientation();
 		
 		translate(scene.width()/2, scene.height()/2);
-		/**
-		if(scene.viewWindow().frame().orientation().axis().z() > 0)
-			rotate(-quat.angle());
-		//TODO: hack! to compensate when axis gets reverted
-		else
-			rotate(quat.angle());
-		*/
-		scale(wh[0]/(scene.width()/2), wh[1]/(scene.height()/2));
+		scale(scene.viewWindow().frame().inverseMagnitude().x(),
+				  scene.viewWindow().frame().inverseMagnitude().y());
 		rotate(-quat.angle());
 		translate(-pos.x(), -pos.y());
-		//scale(wh[0]/(scene.width()/2), wh[1]/(scene.height()/2));
 	}
 	
 	@Override
 	public void beginScreenDrawing() {
-		float[] wh = scene.viewWindow().getOrthoWidthHeight();
 		Vector3D pos = scene.viewWindow().position();
 		Orientable quat = scene.viewWindow().frame().orientation();
-		scale((scene.width()/2)/wh[0], (scene.height()/2)/wh[1]);
+		
+		pushMatrix();
 		translate(pos.x(), pos.y());
-		/**
-		if(scene.viewWindow().frame().orientation().axis().z() > 0)
-			rotate(quat.angle());
-		//TODO: hack! to compensate when axis gets reverted
-		else
-			rotate(-quat.angle());
-		*/
-		rotate(quat.angle());
+		rotate(quat.angle());		
+		scale(scene.viewWindow().frame().magnitude().x(),
+		      scene.viewWindow().frame().magnitude().y());		
 		translate(-scene.width()/2, -scene.height()/2);		
 	}
 	
 	@Override
 	public void endScreenDrawing() {
-		float[] wh = scene.viewWindow().getOrthoWidthHeight();
-		Vector3D pos = scene.viewWindow().position();
-		Orientable quat = scene.viewWindow().frame().orientation();
-		
-		translate(scene.width()/2, scene.height()/2);
-		
-		/**
-		if(scene.viewWindow().frame().orientation().axis().z() > 0)
-			rotate(-quat.angle());
-		//TODO: hack! to compensate when axis gets reverted
-		else
-			rotate(quat.angle());
-		*/
-		
-		rotate(quat.angle());
-		translate(-pos.x(), -pos.y());
-		scale(wh[0]/(scene.width()/2), wh[1]/(scene.height()/2));		
+		popMatrix();
 	}
+	*/
 
 	@Override
 	public void pushProjection() {
@@ -157,11 +119,12 @@ public class RendererJava2D extends Renderer {
 		
 	}
 
+	/**
 	@Override
 	public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 	}
+	// */
 
 	@Override
 	public void drawKFIViewport(float scale) {

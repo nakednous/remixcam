@@ -51,7 +51,7 @@ public class WorldConstraint extends AxisPlaneConstraint {
 				proj = frame.referenceFrame().transformOf(translationConstraintDirection());
 				res = Vector3D.projectVectorOnPlane(translation, proj);
 			} else
-				res = Vector3D.projectVectorOnPlane(translation,	translationConstraintDirection());
+				res = Vector3D.projectVectorOnPlane(translation, translationConstraintDirection());
 			break;
 		case AXIS:
 			if (frame.referenceFrame() != null) {
@@ -95,6 +95,46 @@ public class WorldConstraint extends AxisPlaneConstraint {
 				res = new Rotation(); // identity
 			break;
 		}
+		return res;
+	}
+	
+	@Override
+	public Vector3D constrainScaling(Vector3D scaling, VFrame frame) {
+		//TODO debug
+		System.out.println("...Entering world constriant");
+		System.out.print("Constrain scale vector: ");
+		scaling.print();
+		
+		Vector3D res = new Vector3D(scaling.vec[0], scaling.vec[1], scaling.vec[2]);
+		Vector3D proj;
+		switch (scalingConstraintType()) {
+		case FREE:
+			break;
+		case PLANE:
+			proj = frame.transformOf(scalingConstraintDirection());
+			res = Vector3D.projectVectorOnPlane(scaling, proj);
+			break;
+		case AXIS:
+			proj = frame.transformOf(scalingConstraintDirection());
+			res = Vector3D.projectVectorOnAxis(scaling, proj);
+			break;
+		case FORBIDDEN:
+			res = new Vector3D(1.0f, 1.0f, 1.0f);
+			break;
+		}
+		
+		if(res.x() < 1E-8)
+			res.x(1);
+		if(res.y() < 1E-8)
+			res.y(1);
+		if(res.z() < 1E-8)
+			res.z(1);
+		
+	  //TODO debug
+		System.out.print("Scale vector became (after applying constraint): ");
+		res.print();
+		System.out.println("Exiting world constraint...");
+		
 		return res;
 	}
 }

@@ -67,6 +67,9 @@ public class Renderer3D extends Renderer {
 			pg3d().ortho(-wh[0], wh[0], -wh[1], wh[1], scene.camera().zNear(), scene.camera().zFar());
 			break;
 		}
+		// hack:
+		if(this.isRightHanded())
+			pg3d().projection.m11 = -pg3d().projection.m11;
 		// We cache the processing camera projection matrix into our camera()
 		scene.camera().setProjectionMatrix( pg3d().projection.get(new float[16]), true ); // set it transposed				 
 		// */
@@ -77,7 +80,7 @@ public class Renderer3D extends Renderer {
 	 * {@code PApplet.camera()}.
 	 */	
 	protected void setModelViewMatrix() {
-	  // All options work seamlessly
+	  // All three options work seamlessly
 		/**		
 		// Option 1
 		Matrix3D mat = new Matrix3D();		
@@ -85,27 +88,32 @@ public class Renderer3D extends Renderer {
 		mat.transpose();// experimental
 		float[] target = new float[16];
 		pg3d().modelview.set(mat.get(target));
+		//caches projmodelview
+		pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
 		// */
 			  
-		// /**		
+		/**		
 		// Option 2
 		pg3d().modelview.set(scene.camera().getViewMatrix(true).getTransposed(new float[16]));
+	  //caches projmodelview
+		pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
 		// */	  
 		
-		/**
+		// /**
 	  // Option 3
 		// compute the processing camera modelview matrix from our camera() parameters
 		pg3d().camera(scene.camera().position().x(), scene.camera().position().y(), scene.camera().position().z(),
-				scene.camera().at().x(), scene.camera().at().y(), scene.camera().at().z(),
-				scene.camera().upVector().x(), scene.camera().upVector().y(), scene.camera().upVector().z());
+				          scene.camera().at().x(), scene.camera().at().y(), scene.camera().at().z(),
+				          scene.camera().upVector().x(), scene.camera().upVector().y(), scene.camera().upVector().z());
 		// We cache the processing camera modelview matrix into our camera()
 		scene.camera().setViewMatrix( pg3d().modelview.get(new float[16]), true );// set it transposed
+	  // We cache the processing camera projmodelview matrix into our camera()
+		scene.camera().setProjectionViewMatrix( pg3d().projmodelview.get(new float[16]), true );// set it transposed
 		// */
 	}	
 	
 	@Override
 	public void beginScreenDrawing() {
-		//pg3d().hint(DISABLE_STROKE_PERSPECTIVE);
 		pg3d().hint(DISABLE_DEPTH_TEST);
 		pg3d().pushProjection();
 		float cameraZ = (pg3d().height/2.0f) / PApplet.tan( scene().camera().fieldOfView() /2.0f);
@@ -122,7 +130,6 @@ public class Renderer3D extends Renderer {
 		pg3d().popProjection();  
 		pg3d().popMatrix();		  
 		pg3d().hint(ENABLE_DEPTH_TEST);
-		//pg3d().hint(ENABLE_STROKE_PERSPECTIVE);
 	}
 	
 	@Override
@@ -370,19 +377,22 @@ public class Renderer3D extends Renderer {
 		pg3d().stroke(0, 100, 200);
 		
 		//left_handed
-		pg3d().vertex(-charWidth, -charHeight, charShift);
-		pg3d().vertex(charWidth, -charHeight, charShift);
-		pg3d().vertex(charWidth, -charHeight, charShift);
-		pg3d().vertex(-charWidth, charHeight, charShift);
-		pg3d().vertex(-charWidth, charHeight, charShift);
-		pg3d().vertex(charWidth, charHeight, charShift);
-	  //right_handed coordinate system should go like this:
-		//pg3d().vertex(-charWidth, charHeight, charShift);
-		//pg3d().vertex(charWidth, charHeight, charShift);
-		//pg3d().vertex(charWidth, charHeight, charShift);
-		//pg3d().vertex(-charWidth, -charHeight, charShift);
-		//pg3d().vertex(-charWidth, -charHeight, charShift);
-		//pg3d().vertex(charWidth, -charHeight, charShift);
+		if( isLeftHanded() ) {
+			pg3d().vertex(-charWidth, -charHeight, charShift);
+			pg3d().vertex(charWidth, -charHeight, charShift);
+			pg3d().vertex(charWidth, -charHeight, charShift);
+			pg3d().vertex(-charWidth, charHeight, charShift);
+			pg3d().vertex(-charWidth, charHeight, charShift);
+			pg3d().vertex(charWidth, charHeight, charShift);
+		}
+		else {
+			pg3d().vertex(-charWidth, charHeight, charShift);
+			pg3d().vertex(charWidth, charHeight, charShift);
+			pg3d().vertex(charWidth, charHeight, charShift);
+			pg3d().vertex(-charWidth, -charHeight, charShift);
+			pg3d().vertex(-charWidth, -charHeight, charShift);
+			pg3d().vertex(charWidth, -charHeight, charShift);
+		}
 		
 		pg3d().endShape();
 		
@@ -524,27 +534,33 @@ public class Renderer3D extends Renderer {
 		// Base
 		pg3d().beginShape(PApplet.QUADS);
 		
-		pg3d().vertex(-baseHalfWidth, -points[0].y, -points[0].z);
-		pg3d().vertex(baseHalfWidth, -points[0].y, -points[0].z);
-		pg3d().vertex(baseHalfWidth, -baseHeight, -points[0].z);
-		pg3d().vertex(-baseHalfWidth, -baseHeight, -points[0].z);
-  	//right_handed coordinate system should go like this:
-		//pg3d().vertex(-baseHalfWidth, points[0].y, -points[0].z);
-		//pg3d().vertex(baseHalfWidth, points[0].y, -points[0].z);
-		//pg3d().vertex(baseHalfWidth, baseHeight, -points[0].z);
-		//pg3d().vertex(-baseHalfWidth, baseHeight, -points[0].z);		
+		if( isLeftHanded() ) {
+			pg3d().vertex(-baseHalfWidth, -points[0].y, -points[0].z);
+			pg3d().vertex(baseHalfWidth, -points[0].y, -points[0].z);
+			pg3d().vertex(baseHalfWidth, -baseHeight, -points[0].z);
+			pg3d().vertex(-baseHalfWidth, -baseHeight, -points[0].z);
+		}
+		else {
+			pg3d().vertex(-baseHalfWidth, points[0].y, -points[0].z);
+			pg3d().vertex(baseHalfWidth, points[0].y, -points[0].z);
+			pg3d().vertex(baseHalfWidth, baseHeight, -points[0].z);
+			pg3d().vertex(-baseHalfWidth, baseHeight, -points[0].z);
+		}
 		pg3d().endShape();
 
 		// Arrow
 		pg3d().beginShape(PApplet.TRIANGLES);
 		
-		pg3d().vertex(0.0f, -arrowHeight, -points[0].z);
-		pg3d().vertex(-arrowHalfWidth, -baseHeight, -points[0].z);
-		pg3d().vertex(arrowHalfWidth, -baseHeight, -points[0].z);
-  	//right_handed coordinate system should go like this:
-		//pg3d().vertex(0.0f, arrowHeight, -points[0].z);
-		//pg3d().vertex(-arrowHalfWidth, baseHeight, -points[0].z);
-		//pg3d().vertex(arrowHalfWidth, baseHeight, -points[0].z);		
+		if( isLeftHanded() ) {
+			pg3d().vertex(0.0f, -arrowHeight, -points[0].z);
+			pg3d().vertex(-arrowHalfWidth, -baseHeight, -points[0].z);
+			pg3d().vertex(arrowHalfWidth, -baseHeight, -points[0].z);
+		}
+		else {
+			pg3d().vertex(0.0f, arrowHeight, -points[0].z);
+			pg3d().vertex(-arrowHalfWidth, baseHeight, -points[0].z);
+			pg3d().vertex(arrowHalfWidth, baseHeight, -points[0].z);
+		}
 		pg3d().endShape();
 		
 		pg3d().popStyle();
@@ -588,27 +604,33 @@ public class Renderer3D extends Renderer {
 		// Base
 		pg3d().beginShape(PApplet.QUADS);
 		
-		pg3d().vertex(baseHalfWidth, -halfHeight, -dist);
-		pg3d().vertex(-baseHalfWidth, -halfHeight, -dist);
-		pg3d().vertex(-baseHalfWidth, -baseHeight, -dist);
-		pg3d().vertex(baseHalfWidth, -baseHeight, -dist);
-  	//right_handed coordinate system should go like this:
-		//pg3d().vertex(-baseHalfWidth, halfHeight, -dist);
-		//pg3d().vertex(baseHalfWidth, halfHeight, -dist);
-		//pg3d().vertex(baseHalfWidth, baseHeight, -dist);
-		//pg3d().vertex(-baseHalfWidth, baseHeight, -dist);
+		if( isLeftHanded() ) {
+			pg3d().vertex(baseHalfWidth, -halfHeight, -dist);
+			pg3d().vertex(-baseHalfWidth, -halfHeight, -dist);
+			pg3d().vertex(-baseHalfWidth, -baseHeight, -dist);
+			pg3d().vertex(baseHalfWidth, -baseHeight, -dist);
+		}
+		else {
+			pg3d().vertex(-baseHalfWidth, halfHeight, -dist);
+			pg3d().vertex(baseHalfWidth, halfHeight, -dist);
+			pg3d().vertex(baseHalfWidth, baseHeight, -dist);
+			pg3d().vertex(-baseHalfWidth, baseHeight, -dist);
+		}
 		
 		pg3d().endShape();
 		// Arrow
 		pg3d().beginShape(PApplet.TRIANGLES);
 		
-		pg3d().vertex(0.0f, -arrowHeight, -dist);
-		pg3d().vertex(arrowHalfWidth, -baseHeight, -dist);
-		pg3d().vertex(-arrowHalfWidth, -baseHeight, -dist);
-	  //right_handed coordinate system should go like this:
-		//pg3d().vertex(0.0f, arrowHeight, -dist);
-		//pg3d().vertex(-arrowHalfWidth, baseHeight, -dist);
-		//pg3d().vertex(arrowHalfWidth, baseHeight, -dist);
+		if( isLeftHanded() ) {
+			pg3d().vertex(0.0f, -arrowHeight, -dist);
+			pg3d().vertex(arrowHalfWidth, -baseHeight, -dist);
+			pg3d().vertex(-arrowHalfWidth, -baseHeight, -dist);
+		}
+		else {
+		  pg3d().vertex(0.0f, arrowHeight, -dist);
+		  pg3d().vertex(-arrowHalfWidth, baseHeight, -dist);
+		  pg3d().vertex(arrowHalfWidth, baseHeight, -dist);
+		}
 		
 		pg3d().endShape();
 

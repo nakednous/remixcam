@@ -310,36 +310,7 @@ public abstract class AbstractScene implements Constants {
       return lookup.get(code);
     }
     // */
-	}
-	
-	public static float FLOAT_EPS = Float.MIN_VALUE;
-  // Calculation of the Machine Epsilon for float precision. From:
-  // http://en.wikipedia.org/wiki/Machine_epsilon#Approximation_using_Java
-  static {
-    float eps = 1.0f;
-
-    do {
-      eps /= 2.0f;
-    } while ((float)(1.0 + (eps / 2.0)) != 1.0);
-
-    FLOAT_EPS = eps;
-  }
-	
-	public static boolean same(float a, float b) {
-    return Math.abs(a - b) < FLOAT_EPS;
-  }
-
-  public static boolean diff(float a, float b) {
-    return FLOAT_EPS <= Math.abs(a - b);
-  }
-
-  public static boolean zero(float a) {
-    return Math.abs(a) < FLOAT_EPS;
-  }
-
-  public static boolean nonZero(float a) {
-    return FLOAT_EPS <= Math.abs(a);
-  }
+	}	
 	
 	protected boolean p5Scene = false;
 	
@@ -946,13 +917,18 @@ public abstract class AbstractScene implements Constants {
 	 */	
 	protected void bindMatrices() {
 	  // TODO implement stereo
-		if(this.isAP5Scene())
+		if(this.isAP5Scene()) {
 			renderer.bindMatrices();
+			pinhole().cacheProjViewInvMat();
+		}
 		else {
+			//TODO weird to separate these two cases
+			//maybe these three sets should belong to the renderer even if it's opengl? 
 			setProjectionMatrix();
 			setModelViewMatrix();
+			setProjectionModelViewMatrix();
+			pinhole().cacheProjViewInvMat();
 		}
-		pinhole().cacheMatrices();
 	}
 	
 	/**
@@ -973,6 +949,10 @@ public abstract class AbstractScene implements Constants {
 		pinhole().resetViewMatrix(); // model is separated from view always
 		//  alternative is
 			//camera().loadViewMatrix();	  
+	}
+	
+	protected void setProjectionModelViewMatrix() {
+		pinhole().computeProjectionViewMatrix();
 	}
 	
 	// TODO try to optimize assignments in all three matrix getters?
@@ -1583,11 +1563,11 @@ public abstract class AbstractScene implements Constants {
 	// end wrapper
 	
 	public boolean isLeftHanded() {
-		return !this.rightHanded;
+		return !rightHanded;
 	}
 	
 	public boolean isRightHanded() {
-		return this.rightHanded;
+		return rightHanded;
 	}
 	
 	public void setRightHanded() {
@@ -1720,12 +1700,14 @@ public abstract class AbstractScene implements Constants {
 	}
 	
 	//TODO change review API here
+	/**
 	public float viewWindowSize() {
 		if (is2D())
 			return viewWindow().scaleFactor();
 		else
 			throw new RuntimeException("size is only available in 2D");
 	}
+	*/
 	
 	public void setViewWindowSize(float s) {
 		if (is2D())

@@ -2,6 +2,7 @@ package remixlab.remixcam.geom;
 
 import remixlab.remixcam.core.Copyable;
 
+
 public interface Orientable extends Copyable {	
 	@Override
 	public Orientable get();	

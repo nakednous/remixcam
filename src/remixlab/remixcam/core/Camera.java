@@ -211,7 +211,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 				axis = Vector3D.add(axis, n[i]);
 			}
 			
-			if ( axis.mag() != 0 ) {
+			if ( Geom.nonZero(axis.mag()) ) {
 	      axis.normalize();
 	    }
 	    else {
@@ -427,11 +427,11 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * @see #setUpVector(Vector3D)
 	 */
 	public void setViewDirection(Vector3D direction) {
-		if (direction.squaredNorm() < 1E-10)
+		if (Geom.zero(direction.squaredNorm()))
 			return;
 
 		Vector3D xAxis = direction.cross(upVector());
-		if (xAxis.squaredNorm() < 1E-10) {
+		if (Geom.zero(xAxis.squaredNorm())) {
 			// target is aligned with upVector, this means a rotation around X
 			// axis
 			// X axis is then unchanged, let's keep it !
@@ -1389,7 +1389,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		// mode.
 		float newDist = Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);
 		// Prevents division by zero when rap is set to camera position
-		if ((prevDist > 1E-9) && (newDist > 1E-9))
+		if ((Geom.nonZero(prevDist)) && (Geom.nonZero(newDist)))
 			orthoCoef *= prevDist / newDist;
 	}
 
@@ -1520,7 +1520,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			// constructor.
 			float f = 1.0f / (float) Math.tan(fieldOfView() / 2.0f);
 			projectionMat.mat[0] = f / aspectRatio();
-			if( scene.isAP5Scene() )
+			if( scene.isLeftHanded() )
 				projectionMat.mat[5] = -f;
 			else
 				projectionMat.mat[5] = f;
@@ -1534,7 +1534,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
 			projectionMat.mat[0] = 1.0f / wh[0];
-			if( scene.isAP5Scene() )
+			if( scene.isLeftHanded() )
 				projectionMat.mat[5] = -1.0f / wh[1];
 			else
 				projectionMat.mat[5] = 1.0f / wh[1];
@@ -1558,7 +1558,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		float ty = -(top + bottom) / (top - bottom);
 		float tz = -(far + near)   / (far - near);
 			
-		if( scene.isAP5Scene() )
+		if( scene.isLeftHanded() )
 		  // The minus sign is needed to invert the Y axis.
 			projectionMat.set(x,  0, 0, tx,
                         0, -y, 0, ty,
@@ -1585,7 +1585,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		float h = top - bottom;
 		float d = zfar - znear;
 		
-		if( scene.isAP5Scene() )
+		if( scene.isLeftHanded() )
 			projectionMat.set(n2 / w,       0,  (right + left) / w,                0,
                              0, -n2 / h,  (top + bottom) / h,                0,
                              0,       0, -(zfar + znear) / d, -(n2 * zfar) / d,
@@ -1662,22 +1662,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		float tz = -eyeZ;
 		modelview.translate(tx, ty, tz);
 	}
-	*/
-	
-	@Override
-	public Matrix3D getProjectionViewMatrix(Matrix3D m, boolean recompute) {
-		if (m == null)
-			m = new Matrix3D();
-		if(recompute) {
-			// May not be needed, but easier like this.
-			// Prevents from retrieving matrix in stereo mode -> overwrites shifted value.
-			computeProjectionMatrix();
-			computeViewMatrix();
-			cacheMatrices();
-		}
-		m.set(projectionViewMat);
-		return m;
-	}	
+	*/		
 	
 	/*! Same as loadProjectionMatrix() but for a stereo setup.
 

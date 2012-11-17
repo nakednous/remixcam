@@ -962,7 +962,7 @@ public abstract class Pinhole {
 			viewMat.setTransposed(source);
 		else
 			viewMat.set(source);
-	}
+	}	
 	
 	/**
 	 * Convenience funtion that simply calls {@code loadViewMatrix(true)}.
@@ -1015,6 +1015,21 @@ public abstract class Pinhole {
 	  scene.resetMatrix();	  
 	}
 	
+	public void setProjectionViewMatrix(Matrix3D projviewMat) {
+		projectionViewMat.set(projviewMat);
+}
+	
+	public void setProjectionViewMatrix(float [] source) {
+		setProjectionViewMatrix(source, false);
+	}
+	
+	public void setProjectionViewMatrix(float [] source, boolean transpose) {
+		if(transpose)
+			projectionViewMat.setTransposed(source);
+		else
+			projectionViewMat.set(source);
+	}
+	
 	public Matrix3D getProjectionViewMatrix() {
 		return getProjectionViewMatrix(false);
 	}
@@ -1031,13 +1046,14 @@ public abstract class Pinhole {
 		if (m == null)
 			m = new Matrix3D();
 		if(recompute) {
-			// May not be needed, but easier like this.
-			// Prevents from retrieving matrix in stereo mode -> overwrites shifted value.
-			computeProjectionMatrix();
-			computeViewMatrix();
+			computeProjectionViewMatrix();
 		}
 		m.set(projectionViewMat);
 		return m;
+	}
+	
+	public void computeProjectionViewMatrix() {
+		Matrix3D.mult(projectionMat, viewMat, projectionViewMat);
 	}
 	
 	/**
@@ -1055,11 +1071,7 @@ public abstract class Pinhole {
 	 * @see #unprojectCacheIsOptimized()
 	 * @see #optimizeUnprojectCache(boolean)
 	 */
-	public void cacheMatrices() {
-		// 1. project
-		Matrix3D.mult(projectionMat, viewMat, projectionViewMat);
-		
-		// 2. unproject
+	public void cacheProjViewInvMat() {		
 		if(unprojectCacheIsOptimized()) {
 			if(projectionViewInverseMat == null)
 				projectionViewInverseMat = new Matrix3D();
@@ -1169,11 +1181,11 @@ public abstract class Pinhole {
 		
 		/**
 		// TODO needs further testing
-	  if( scene.isRightHanded() )
-	  	unproject(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
+	  if( frame().isRightHanded() )
+	  	unproject(src.vec[0], (screenHeight() - src.vec[1]), src.vec[2], viewMat,	projectionMat, viewport, xyz);	  	
 	  else
-	  	unproject(src.vec[0], (screenHeight() - src.vec[1]), src.vec[2], viewMat,	projectionMat, viewport, xyz);
-	  */
+	  	unproject(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
+	  // */
 		
 		unproject(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
 		
@@ -1247,7 +1259,7 @@ public abstract class Pinhole {
 		out[2]=projectionViewMat.mat[2]*in[0] + projectionViewMat.mat[6]*in[1] + projectionViewMat.mat[10]*in[2] + projectionViewMat.mat[14]*in[3];
 		out[3]=projectionViewMat.mat[3]*in[0] + projectionViewMat.mat[7]*in[1] + projectionViewMat.mat[11]*in[2] + projectionViewMat.mat[15]*in[3];
 			
-		if (out[3] == 0.0)
+		if (Geom.zero(out[3]))
 			return false;
 		
 		out[0] /= out[3];
@@ -1294,7 +1306,7 @@ public abstract class Pinhole {
 	 * Returns {@code true} if {@code P x M} and {@code inv (P x M)} are being cached,
 	 * and {@code false} otherwise.
 	 * 
-	 * @see #cacheMatrices()
+	 * @see #cacheProjViewInvMat()
 	 * @see #optimizeUnprojectCache(boolean)
 	 */
 	public boolean unprojectCacheIsOptimized() {
@@ -1308,7 +1320,7 @@ public abstract class Pinhole {
 	 * is optimised.
 	 * 
 	 * @see #unprojectCacheIsOptimized()
-	 * @see #cacheMatrices()
+	 * @see #cacheProjViewInvMat()
 	 */
 	public void optimizeUnprojectCache(boolean optimise) {
 		unprojectCacheOptimized = optimise;
@@ -1362,7 +1374,7 @@ public abstract class Pinhole {
 		in[2] = in[2] * 2 - 1;
 
 		projectionViewInverseMat.mult(in, out);
-		if (out[3] == 0.0)
+		if (Geom.zero(out[3]))
 			return false;
 
 		out[0] /= out[3];
@@ -1734,6 +1746,7 @@ public abstract class Pinhole {
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
 		tempFrame.setOrientation( frame().orientation().get() );
+		tempFrame.setMagnitude( frame().magnitude().get() );
 		setFrame(tempFrame);
 		fitScreenRegion(rectangle);
 		setFrame(originalFrame);
@@ -1766,6 +1779,7 @@ public abstract class Pinhole {
 		InteractiveCameraFrame originalFrame = frame();
 		tempFrame.setPosition(new Vector3D(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
 		tempFrame.setOrientation( frame().orientation().get() );
+		tempFrame.setMagnitude( frame().magnitude().get() );
 		setFrame(tempFrame);
 		showEntireScene();
 		setFrame(originalFrame);
