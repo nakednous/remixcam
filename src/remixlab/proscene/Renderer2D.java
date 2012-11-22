@@ -191,10 +191,16 @@ public class Renderer2D extends Renderer {
 		pg2d().projection.set(mat.get(target));		
 		// */	  
 				
-		// /**		
+		/**		
 		// Option 2		
 		pg2d().projection.set(scene.viewWindow().getProjectionMatrix(true).getTransposed(new float[16]));
-		// */		
+		// */
+		
+		// /**
+	  // option 3
+		proj.set((scene.viewWindow().getProjectionMatrix(true).getTransposed(new float[16])));
+		pg2d().setProjection(proj);
+		// */
 	}
 
 	/**

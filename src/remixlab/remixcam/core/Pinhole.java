@@ -1717,6 +1717,8 @@ public abstract class Pinhole {
 		return Vector3D.dot(pos, myVec) - fpCoefficients[index][3];
 	}
 	
+	public abstract float pixelP5Ratio(Vector3D position);
+	
 	public abstract boolean pointIsVisible(Vector3D point);	
 	
 	/**

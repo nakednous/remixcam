@@ -50,13 +50,19 @@ public class Renderer3D extends Renderer {
 		pg3d().projection.set(mat.get(target));		
 		// */	  
 				
-		// /**		
+		/**		
 		// Option 2		
 		pg3d().projection.set(scene.camera().getProjectionMatrix(true).getTransposed(new float[16]));
-		// */		
+		// */
+		
+		// /**
+		// option 3
+		proj.set((scene.camera().getProjectionMatrix(true).getTransposed(new float[16])));
+		pg3d().setProjection(proj);
+		// */
 		
 		/**
-		// Option 3
+		// Option 4
 		// compute the processing camera projection matrix from our camera() parameters
 		switch (scene.camera().type()) {
 		case PERSPECTIVE:

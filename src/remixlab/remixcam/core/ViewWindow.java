@@ -244,6 +244,12 @@ public class ViewWindow extends Pinhole implements Copyable {
 		frame().setOrientation(quat);
 		frame().updateFlyUpVector();
 	}
+	
+	@Override
+	public float pixelP5Ratio(Vector3D position) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 	@Override
 	public boolean pointIsVisible(Vector3D point) {
@@ -285,5 +291,5 @@ public class ViewWindow extends Pinhole implements Copyable {
 		float cY = (float)pixel.y - winH/2;
 		Rectangle rect = new Rectangle((int)cX, (int)cY, (int)winW, (int)winH);
 		this.interpolateToZoomOnRegion(rect);		
-	}
+	}	
 }

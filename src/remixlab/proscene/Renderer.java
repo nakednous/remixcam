@@ -46,10 +46,12 @@ import remixlab.remixcam.geom.Vector3D;
 public class Renderer implements Renderable, PConstants {
 	protected AbstractScene scene;
 	protected PGraphics pg;
+	PMatrix3D proj;
 
 	public Renderer(AbstractScene scn, PGraphics renderer) {
 		pg = renderer;
-		scene = scn;		
+		scene = scn;
+		proj = new PMatrix3D();
 	}
 	
 	@Override
