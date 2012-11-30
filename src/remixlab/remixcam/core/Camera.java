@@ -327,10 +327,8 @@ public class Camera extends Pinhole implements Constants, Copyable {
 
 		setKind(Kind.PROSCENE);
 		orthoSize = 1;// only for standard kind, but we initialize it here
-		setStandardZNear(0.001f);// only for standard kind, but we initialize it
-															// here
-		setStandardZFar(1000.0f);// only for standard kind, but we initialize it
-															// here
+		setStandardZNear(0.001f);// only for standard kind, but we initialize it here
+		setStandardZFar(1000.0f);// only for standard kind, but we initialize it here
 
 		// Requires fieldOfView() when called with ORTHOGRAPHIC. Attention to
 		// projectionMat below.
@@ -413,8 +411,15 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 */
 	@Override
 	public Vector3D viewDirection() {
-		return frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f));
-	}
+			Vector3D mag = frame().magnitude();
+			if( Geom.diff(mag.x(), 1) || Geom.diff(mag.y(), 1) || Geom.diff(mag.z(), 1) ) {
+				Vector3D res = frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f));
+				res.normalize();
+				return res;
+			}
+			else
+				return frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f));
+	}	
 
 	/**
 	 * Rotates the Camera so that its {@link #viewDirection()} is {@code
@@ -432,8 +437,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 
 		Vector3D xAxis = direction.cross(upVector());
 		if (Geom.zero(xAxis.squaredNorm())) {
-			// target is aligned with upVector, this means a rotation around X
-			// axis
+			// target is aligned with upVector, this means a rotation around X axis
 			// X axis is then unchanged, let's keep it !
 			xAxis = frame().inverseTransformOf(new Vector3D(1.0f, 0.0f, 0.0f));
 		}
@@ -721,7 +725,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		
 		float dist = (kind() == Kind.STANDARD)
 				       ? sceneRadius() * standardOrthoFrustumSize()
-				       : orthoCoef * Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);
+				       : orthoCoef * distanceToARP();
 		
 		// 1. halfWidth
 		target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
@@ -804,8 +808,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		float z = distanceToSceneCenter() - zClippingCoefficient() * sceneRadius();
 
 		// Prevents negative or null zNear values.
-		final float zMin = zNearCoefficient() * zClippingCoefficient()
-				* sceneRadius();
+		final float zMin = zNearCoefficient() * zClippingCoefficient() * sceneRadius();
 		if (z < zMin)
 			switch (type()) {
 			case PERSPECTIVE:
@@ -1112,6 +1115,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		Vector3D viewDir = viewDirection();
 		Vector3D up = upVector();
 		Vector3D right = rightVector();
+		
 		float posViewDir = Vector3D.dot(pos, viewDir);
 
 		switch (type()) {
@@ -1356,12 +1360,32 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * Returns the distance from the Camera center to {@link #sceneCenter()},
 	 * projected along the Camera Z axis.
 	 * <p>
-	 * Used by {@link #zNear()} and {@link #zFar()} to optimize the Z range.
+	 * Used by  {@link #zNear()} and {@link #zFar()} to optimize the Z range.
 	 */
 	public float distanceToSceneCenter() {
-		return Math.abs((frame().coordinatesOf(sceneCenter())).vec[2]);
+		//return Math.abs((frame().coordinatesOf(sceneCenter())).vec[2]);//before scln
+		Vector3D zCam = frame().zAxis();
+		zCam.normalize();
+		Vector3D cam2SceneCenter = Vector3D.sub(position(), sceneCenter());
+		return Math.abs(Vector3D.dot(cam2SceneCenter, zCam));
 	}
 
+	/**
+	 * Returns the distance from the Camera center to {@link #arcballReferencePoint()}
+	 * projected along the Camera Z axis.
+	 * <p>
+	 * Used by {@link #getOrthoWidthHeight(float[])} so that when the Camera is
+	 * translated forward then its frustum is narrowed, making the object appear
+	 * bigger on screen, as intuitively expected.
+	 */
+	public float distanceToARP() {
+		//return Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);//before scln
+		Vector3D zCam = frame().zAxis();
+		zCam.normalize();
+		Vector3D cam2arp = Vector3D.sub(position(), arcballReferencePoint());
+		return Math.abs(Vector3D.dot(cam2arp, zCam));
+	}
+		
 	/**
 	 * Similar to {@link #setSceneRadius(float)} and
 	 * {@link #setSceneCenter(Vector3D)}, but the scene limits are defined by a
@@ -1521,10 +1545,8 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			// constructor.
 			float f = 1.0f / (float) Math.tan(fieldOfView() / 2.0f);
 			projectionMat.mat[0] = f / aspectRatio();
-			if( scene.isLeftHanded() )
-				projectionMat.mat[5] = -f;
-			else
-				projectionMat.mat[5] = f;
+			//TODO defaults to LH
+			projectionMat.mat[5] = -f;
 			projectionMat.mat[10] = (ZNear + ZFar) / (ZNear - ZFar);
 			projectionMat.mat[11] = -1.0f;
 			projectionMat.mat[14] = 2.0f * ZNear * ZFar / (ZNear - ZFar);
@@ -1535,10 +1557,8 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
 			projectionMat.mat[0] = 1.0f / wh[0];
-			if( scene.isLeftHanded() )
-				projectionMat.mat[5] = -1.0f / wh[1];
-			else
-				projectionMat.mat[5] = 1.0f / wh[1];
+		  //TODO defaults to LH
+			projectionMat.mat[5] = -1.0f / wh[1];
 			projectionMat.mat[10] = -2.0f / (ZFar - ZNear);
 			projectionMat.mat[11] = 0.0f;
 			projectionMat.mat[14] = -(ZFar + ZNear) / (ZFar - ZNear);
@@ -1587,6 +1607,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		float d = zfar - znear;
 		
 		if( scene.isLeftHanded() )
+		  // The minus sign is needed to invert the Y axis.
 			projectionMat.set(n2 / w,       0,  (right + left) / w,                0,
                              0, -n2 / h,  (top + bottom) / h,                0,
                              0,       0, -(zfar + znear) / d, -(n2 * zfar) / d,

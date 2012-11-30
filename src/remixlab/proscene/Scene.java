@@ -49,6 +49,8 @@ import remixlab.remixcam.devices.Bindings;
 import remixlab.remixcam.util.AbstractTimerJob;
 import remixlab.remixcam.util.SingleThreadedTaskableTimer;
 import remixlab.remixcam.util.SingleThreadedTimer;
+import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.geom.VFrame;
 //import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.geom.Point;
@@ -1839,15 +1841,19 @@ public class Scene extends AbstractScene implements PConstants {
 	 * screen.
 	 */
 	@Override
-	protected Camera.WorldPoint pointUnderPixel(Point pixel) {
-		float[] depth = new float[1];		
-				
+	protected Camera.WorldPoint pointUnderPixel(Point pixel) {float[] depth = new float[1];
 		PGL pgl = pggl().beginPGL();
-		pgl.readPixels((int) pixel.x, (pinhole().screenHeight() - (int) pixel.y), 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, FloatBuffer.wrap(depth));		
-		pggl().endPGL();
-		
-		Vector3D point = new Vector3D((int) pixel.x, (int) pixel.y, depth[0]);
+		pgl.readPixels((int) pixel.x, (camera().screenHeight() - (int) pixel.y), 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, FloatBuffer.wrap(depth));		
+		pggl().endPGL();		
+		Vector3D point = new Vector3D((int) pixel.x, (int) pixel.y, depth[0]);		
 		point = camera().unprojectedCoordinatesOf(point);
-		return camera().new WorldPoint(point, (depth[0] < 1.0f));		
+		return camera().new WorldPoint(point, (depth[0] < 1.0f));
 	}	
+	
+	@Override
+	public void applyTransformation(VFrame frame) {
+		if( renderer() instanceof RendererJava2D && isRightHanded() )
+			scale(1,-1);
+		super.applyTransformation(frame);		
+	}
 }

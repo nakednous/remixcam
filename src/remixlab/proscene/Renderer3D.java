@@ -14,6 +14,7 @@ import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Camera;
 //import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.geom.Matrix3D;
+import remixlab.remixcam.geom.Quaternion;
 import remixlab.remixcam.geom.VFrame;
 //import remixlab.remixcam.geom.Quaternion;
 // */
@@ -56,9 +57,17 @@ public class Renderer3D extends Renderer {
 		// */
 		
 		// /**
-		// option 3
-		proj.set((scene.camera().getProjectionMatrix(true).getTransposed(new float[16])));
-		pg3d().setProjection(proj);
+		// option 3 (new, Andres suggestion)
+	  //TODO: optimize me set per value basis		
+		//proj.set((scene.camera().getProjectionMatrix(true).getTransposed(new float[16])));
+		proj = scene.camera().getProjectionMatrix(true);
+		if( this.isRightHanded() ) {
+			proj.mat[5] = -proj.mat[5];
+		}
+		pg3d().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
+                                        proj.mat[1],  proj.mat[5], proj.mat[9],  proj.mat[13],
+                                        proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
+                                        proj.mat[3],  proj.mat[7], proj.mat[11], proj.mat[15] ));
 		// */
 		
 		/**
@@ -74,8 +83,8 @@ public class Renderer3D extends Renderer {
 			break;
 		}
 		// hack:
-		if(this.isRightHanded())
-			pg3d().projection.m11 = -pg3d().projection.m11;
+		//if(this.isRightHanded())
+			//pg3d().projection.m11 = -pg3d().projection.m11;
 		// We cache the processing camera projection matrix into our camera()
 		scene.camera().setProjectionMatrix( pg3d().projection.get(new float[16]), true ); // set it transposed				 
 		// */
@@ -100,9 +109,11 @@ public class Renderer3D extends Renderer {
 			  
 		/**		
 		// Option 2
-		pg3d().modelview.set(scene.camera().getViewMatrix(true).getTransposed(new float[16]));
-	  //caches projmodelview
-		pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
+		pg3d().modelview.set(scene.camera().getViewMatrix(true).getTransposed(new float[16]));						
+		// Finally, caches projmodelview
+		//pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
+		Matrix3D.mult(proj, scene.camera().view(), scene.camera().projectionView());
+		pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(false).getTransposed(new float[16]));		 
 		// */	  
 		
 		// /**
@@ -456,7 +467,12 @@ public class Renderer3D extends Renderer {
 		scene().applyTransformation(tmpFrame);
 		// */
 		//same as above but easier
-		scene().applyTransformation(camera.frame());
+		
+		//fails due to scaling!
+		//scene().applyTransformation(camera.frame());
+		
+		translate( camera.frame().translation().vec[0], camera.frame().translation().vec[1], camera.frame().translation().vec[2] );
+		rotate( camera.frame().rotation().angle(), ((Quaternion)camera.frame().rotation()).axis().vec[0], ((Quaternion)camera.frame().rotation()).axis().vec[1], ((Quaternion)camera.frame().rotation()).axis().vec[2]);
 
 		// 0 is the upper left coordinates of the near corner, 1 for the far one
 		PVector[] points = new PVector[2];

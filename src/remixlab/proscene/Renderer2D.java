@@ -197,10 +197,16 @@ public class Renderer2D extends Renderer {
 		// */
 		
 		// /**
-	  // option 3
-		proj.set((scene.viewWindow().getProjectionMatrix(true).getTransposed(new float[16])));
-		pg2d().setProjection(proj);
-		// */
+	  // option 3 (new, Andres suggestion)
+		//TODO: optimize me set per value basis
+		proj = scene.viewWindow().getProjectionMatrix(true);
+		if( this.isRightHanded() ) {
+			proj.mat[5] = -proj.mat[5];
+		}
+		pg2d().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
+                                        proj.mat[1],  proj.mat[5], proj.mat[9],  proj.mat[13],
+                                        proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
+                                        proj.mat[3],  proj.mat[7], proj.mat[11], proj.mat[15] ));
 	}
 
 	/**
@@ -208,7 +214,7 @@ public class Renderer2D extends Renderer {
 	 * {@code PApplet.camera()}.
 	 */	
 	protected void setModelViewMatrix() {
-	  // Thw two options work seamlessly
+	  // The two options work seamlessly
 		/**		
 		// Option 1
 		Matrix3D mat = new Matrix3D();		
@@ -220,11 +226,12 @@ public class Renderer2D extends Renderer {
 			  
 		// /**		
 		// Option 2
-		pg2d().modelview.set(scene.viewWindow().getViewMatrix(true).getTransposed(new float[16]));
-		// */		
-		
+		pg2d().modelview.set(scene.viewWindow().getViewMatrix(true).getTransposed(new float[16]));						
 		// Finally, caches projmodelview
-		pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(true).getTransposed(new float[16]));
+		//pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(true).getTransposed(new float[16]));
+		Matrix3D.mult(proj, scene.viewWindow().view(), scene.viewWindow().projectionView());
+		pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(false).getTransposed(new float[16]));
+	  // */
 	}
 
 	@Override

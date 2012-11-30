@@ -611,7 +611,7 @@ public class Matrix3D implements Primitivable {
     c.mat[7] = a.mat[3]*b.mat[4] + a.mat[7]*b.mat[5] + a.mat[11]*b.mat[6] + a.mat[15]*b.mat[7];
     c.mat[11] = a.mat[3]*b.mat[8] + a.mat[7]*b.mat[9] + a.mat[11]*b.mat[10] + a.mat[15]*b.mat[11];
     c.mat[15] = a.mat[3]*b.mat[12] + a.mat[7]*b.mat[13] + a.mat[11]*b.mat[14] + a.mat[15]*b.mat[15];
-  }  
+  }    
   
   /**
    * 16 consecutive values that are used as the elements of a 4 x 4 column-major matrix.
@@ -792,10 +792,10 @@ public class Matrix3D implements Primitivable {
     if (target == null) {
       target = new Vector3D();
     }
-    target.vec[0] = mat[0]*source.vec[0] + mat[4]*source.vec[1] + mat[8]*source.vec[2] + mat[12];
-    target.vec[1] = mat[1]*source.vec[0] + mat[5]*source.vec[1] + mat[9]*source.vec[2] + mat[13];
-    target.vec[2] = mat[2]*source.vec[0] + mat[6]*source.vec[1] + mat[10]*source.vec[2] + mat[14];
-//    float tw = mat[12]*source.x + mat[13]*source.y + mat[14]*source.z + mat[15];
+    target.set(mat[0]*source.x() + mat[4]*source.y() + mat[8]*source.z() + mat[12],
+    		       mat[1]*source.x() + mat[5]*source.y() + mat[9]*source.z() + mat[13],
+    		       mat[2]*source.x() + mat[6]*source.y() + mat[10]*source.z() + mat[14]);
+//    float tw = m30*source.x + m31*source.y + m32*source.z + m33;
 //    if (tw != 0 && tw != 1) {
 //      target.div(tw);
 //    }
@@ -909,9 +909,9 @@ public class Matrix3D implements Primitivable {
    */
   public boolean invert(Matrix3D m) {
   	float determinant = determinant();
-    if (Geom.zero(determinant)) {
+    if (determinant == 0) {
       return false;
-    }       
+    }     
 
     // first row
     float t00 =  determinant3x3(mat[5], mat[9], mat[13], mat[6], mat[10], mat[14], mat[7], mat[11], mat[15]);

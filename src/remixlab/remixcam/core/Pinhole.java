@@ -132,7 +132,7 @@ public abstract class Pinhole {
 	protected Matrix3D projectionMat;
 	protected Matrix3D projectionViewMat;
 	
-	protected Matrix3D projectionViewInverseMat;
+	protected Matrix3D projectionViewInverseMat;	
 	protected boolean unprojectCacheOptimized;
 	protected boolean projectionViewMatHasInverse;
 	
@@ -462,6 +462,7 @@ public abstract class Pinhole {
 	 */
 	public float sceneRadius() {
 		return scnRadius;
+		
 	}
 	
 	public void setSceneRadius(float radius) {
@@ -1053,7 +1054,7 @@ public abstract class Pinhole {
 	}
 	
 	public void computeProjectionViewMatrix() {
-		Matrix3D.mult(projectionMat, viewMat, projectionViewMat);
+		Matrix3D.mult(projectionMat, viewMat, projectionViewMat);		 
 	}
 	
 	/**
@@ -1110,21 +1111,15 @@ public abstract class Pinhole {
 	 * @see #unprojectedCoordinatesOf(Vector3D, VFrame)
 	 */
 	public final Vector3D projectedCoordinatesOf(Vector3D src, VFrame frame) {
-		float xyz[] = new float[3];
-		viewport = getViewport();
+		float xyz[] = new float[3];		
 
 		if (frame != null) {
 			Vector3D tmp = frame.inverseCoordinatesOf(src);
-			project(tmp.vec[0], tmp.vec[1], tmp.vec[2], viewMat, projectionMat, viewport, xyz);
+			//project(tmp.vec[0], tmp.vec[1], tmp.vec[2], viewMat, projectionMat, getViewport(), xyz);
+			project(tmp.vec[0], tmp.vec[1], tmp.vec[2], xyz);
 		} else
-			project(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
-
-		/**
-		// TODO needs further testing
-  	//left-handed coordinate system correction
-		if( scene.isLeftHanded() )
-			xyz[1] = screenHeight() - xyz[1];
-		*/
+			project(src.vec[0], src.vec[1], src.vec[2], xyz);	
+			//project(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, getViewport(), xyz);
 
 		return new Vector3D((float) xyz[0], (float) xyz[1], (float) xyz[2]);
 	}
@@ -1176,24 +1171,17 @@ public abstract class Pinhole {
 	 * @see #setScreenWidthAndHeight(int, int)
 	 */
 	public final Vector3D unprojectedCoordinatesOf(Vector3D src, VFrame frame) {
-		float xyz[] = new float[3];
-		viewport = getViewport();
-		
-		/**
-		// TODO needs further testing
-	  if( frame().isRightHanded() )
-	  	unproject(src.vec[0], (screenHeight() - src.vec[1]), src.vec[2], viewMat,	projectionMat, viewport, xyz);	  	
-	  else
-	  	unproject(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
-	  // */
-		
-		unproject(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, viewport, xyz);
-		
+		float xyz[] = new float[3];				
+		//unproject(src.vec[0], src.vec[1], src.vec[2], this.getViewMatrix(true), this.getProjectionMatrix(true), getViewport(), xyz);		
+		unproject(src.vec[0], src.vec[1], src.vec[2], xyz);		
 		if (frame != null)
-			return frame.coordinatesOf(new Vector3D((float) xyz[0], (float) xyz[1],
-					(float) xyz[2]));
+			return frame.coordinatesOf(new Vector3D((float) xyz[0], (float) xyz[1],	(float) xyz[2]));
 		else
 			return new Vector3D((float) xyz[0], (float) xyz[1], (float) xyz[2]);
+	}
+	
+	protected void updateViewPort() {
+		viewport = getViewport();
 	}
 	
 	/**
@@ -1214,15 +1202,15 @@ public abstract class Pinhole {
 	 * {@link #screenHeight()}, {@link #screenWidth()}, -{@link #screenHeight()}),
 	 * so that the origin is located in the upper left corner of the window.
 	 */
-	public int[] getViewport(int[] viewport) {
-		if ((viewport == null) || (viewport.length != 4)) {
-			viewport = new int[4];
+	public int[] getViewport(int[] vp) {
+		if ((vp == null) || (vp.length != 4)) {
+			vp = new int[4];
 		}
-		viewport[0] = 0;
-		viewport[1] = screenHeight();
-		viewport[2] = screenWidth();
-		viewport[3] = -screenHeight();
-		return viewport;
+		vp[0] = 0;
+		vp[1] = screenHeight();
+		vp[2] = screenWidth();
+		vp[3] = -screenHeight();
+		return vp;
 	}
 	
 	/**
@@ -1239,13 +1227,17 @@ public abstract class Pinhole {
 	 *          Specifies the current view matrix.
 	 * @param projection
 	 *          Specifies the current projection matrix.
-	 * @param viewport
+	 * @param vp
 	 *          Specifies the current viewport.
 	 * @param windowCoordinate
 	 *          Return the computed window coordinates.
 	 */
+	
+	// /**
 	public boolean project(float objx, float objy, float objz, Matrix3D view,
-			                   Matrix3D projection, int[] viewport, float[] windowCoordinate) {
+			                   Matrix3D projection, int[] vp, float[] windowCoordinate) {		
+  	//TODO currently broken, perhaps it shoudl be just removed
+		
 		float in[] = new float[4];
 		float out[] = new float[4];
 		
@@ -1253,54 +1245,71 @@ public abstract class Pinhole {
 		in[1] = objy;
 		in[2] = objz;
 		in[3] = 1.0f;
-					
+		
+		view.mult(in, out);
+		projection.mult(out, in);
+		
+		if (in[3] == 0.0)
+			return false;
+		
+		in[0] /= in[3];
+		in[1] /= in[3];
+		in[2] /= in[3];
+		
+		// Map x, y and z to range 0-1
+		in[0] = in[0] * 0.5f + 0.5f;
+		in[1] = in[1] * 0.5f + 0.5f;
+		in[2] = in[2] * 0.5f + 0.5f;
+		
+		// Map x,y to viewport
+		in[0] = in[0] * vp[2] + vp[0];
+		in[1] = in[1] * vp[3] + vp[1];
+		
+		windowCoordinate[0] = in[0];
+		windowCoordinate[1] = in[1];
+		windowCoordinate[2] = in[2];
+		return true;
+	}
+	// */
+	
+	public boolean project(float objx, float objy, float objz, float[] windowCoordinate) {			
+		float in[] = new float[4];
+		float out[] = new float[4];
+		
+		in[0] = objx;
+		in[1] = objy;
+		in[2] = objz;
+		in[3] = 1.0f;
+		
 		out[0]=projectionViewMat.mat[0]*in[0] + projectionViewMat.mat[4]*in[1] + projectionViewMat.mat[8]*in[2] + projectionViewMat.mat[12]*in[3];
 		out[1]=projectionViewMat.mat[1]*in[0] + projectionViewMat.mat[5]*in[1] + projectionViewMat.mat[9]*in[2] + projectionViewMat.mat[13]*in[3];
 		out[2]=projectionViewMat.mat[2]*in[0] + projectionViewMat.mat[6]*in[1] + projectionViewMat.mat[10]*in[2] + projectionViewMat.mat[14]*in[3];
 		out[3]=projectionViewMat.mat[3]*in[0] + projectionViewMat.mat[7]*in[1] + projectionViewMat.mat[11]*in[2] + projectionViewMat.mat[15]*in[3];
-			
-		if (Geom.zero(out[3]))
+		
+		if (out[3] == 0.0)
 			return false;
+		
+		updateViewPort();
 		
 		out[0] /= out[3];
 		out[1] /= out[3];
 		out[2] /= out[3];
+		
 		// Map x, y and z to range 0-1
 		out[0] = out[0] * 0.5f + 0.5f;
 		out[1] = out[1] * 0.5f + 0.5f;
 		out[2] = out[2] * 0.5f + 0.5f;
-			
+		
 		// Map x,y to viewport
 		out[0] = out[0] * viewport[2] + viewport[0];
 		out[1] = out[1] * viewport[3] + viewport[1];
-			
+		
 		windowCoordinate[0] = out[0];
 		windowCoordinate[1] = out[1];
 		windowCoordinate[2] = out[2];
 		
-		return true;		
-		/**
-		  // compute without projectionViewMat
-			view.mult(in, out);
-			projection.mult(out, in);
-			if (in[3] == 0.0)
-				return false;
-			in[0] /= in[3];
-			in[1] /= in[3];
-			in[2] /= in[3];
-			// Map x, y and z to range 0-1
-			in[0] = in[0] * 0.5f + 0.5f;
-			in[1] = in[1] * 0.5f + 0.5f;
-			in[2] = in[2] * 0.5f + 0.5f;			
-			// Map x,y to viewport
-			in[0] = in[0] * viewport[2] + viewport[0];
-			in[1] = in[1] * viewport[3] + viewport[1];
-			windowCoordinate[0] = in[0];
-			windowCoordinate[1] = in[1];
-			windowCoordinate[2] = in[2];
-			return true;
-		// */
-	}	
+		return true;
+	}
 	
 	/**
 	 * Returns {@code true} if {@code P x M} and {@code inv (P x M)} are being cached,
@@ -1340,20 +1349,23 @@ public abstract class Pinhole {
 	 *          Specifies the current view matrix.
 	 * @param projection
 	 *          Specifies the current projection matrix.
-	 * @param viewport
+	 * @param vp
 	 *          Specifies the current viewport.
 	 * @param objCoordinate
 	 *          Return the computed object coordinates.
 	 */
+	// /**
 	public boolean unproject(float winx, float winy, float winz, Matrix3D view,
-			                     Matrix3D projection, int viewport[], float[] objCoordinate) {		
-		if(!unprojectCacheOptimized) {			
-			if(projectionViewInverseMat == null)
-				projectionViewInverseMat = new Matrix3D();
-			projectionViewMatHasInverse = projectionViewMat.invert(projectionViewInverseMat);						
-		}		
+			                     Matrix3D projection, int vp[], float[] objCoordinate) {
 		
-		if (!projectionViewMatHasInverse)
+		//TODO currently broken, perhaps it shoudl be just removed
+		
+		Matrix3D projectionTimesView = new Matrix3D();		
+		Matrix3D.mult(projection, view, projectionTimesView);
+		Matrix3D projectionTimesViewInverse = new Matrix3D();
+		boolean hasInverse = projectionTimesView.invert(projectionTimesViewInverse);
+
+		if (!hasInverse)
 			return false;
 		
 		float in[] = new float[4];
@@ -1364,17 +1376,18 @@ public abstract class Pinhole {
 		in[2] = winz;
 		in[3] = 1.0f;
 
-		/* Map x and y from window coordinates */
-		in[0] = (in[0] - viewport[0]) / viewport[2];
-		in[1] = (in[1] - viewport[1]) / viewport[3];
+		// Map x and y from window coordinates
+		in[0] = (in[0] - vp[0]) / vp[2];
+		in[1] = (in[1] - vp[1]) / vp[3];
 
-		/* Map to range -1 to 1 */
+		// Map to range -1 to 1
 		in[0] = in[0] * 2 - 1;
 		in[1] = in[1] * 2 - 1;
 		in[2] = in[2] * 2 - 1;
 
 		projectionViewInverseMat.mult(in, out);
-		if (Geom.zero(out[3]))
+		
+		if (out[3] == 0.0)
 			return false;
 
 		out[0] /= out[3];
@@ -1385,6 +1398,51 @@ public abstract class Pinhole {
 		objCoordinate[1] = out[1];
 		objCoordinate[2] = out[2];
 
+		return true;
+	}
+	// */
+	
+	public boolean unproject(float winx, float winy, float winz, float[] objCoordinate) {		
+		if(!unprojectCacheOptimized) {
+			if(projectionViewInverseMat == null)
+				projectionViewInverseMat = new Matrix3D();
+			projectionViewMatHasInverse = projectionViewMat.invert(projectionViewInverseMat);
+		}
+		
+		if (!projectionViewMatHasInverse)
+			return false;		
+		
+		updateViewPort();
+		
+		float in[] = new float[4];
+		float out[] = new float[4];
+		
+		in[0] = winx;
+		in[1] = winy;
+		in[2] = winz;
+		in[3] = 1.0f;
+		
+		/* Map x and y from window coordinates */
+		in[0] = (in[0] - viewport[0]) / viewport[2];
+		in[1] = (in[1] - viewport[1]) / viewport[3];
+		
+		/* Map to range -1 to 1 */
+		in[0] = in[0] * 2 - 1;
+		in[1] = in[1] * 2 - 1;
+		in[2] = in[2] * 2 - 1;
+		
+		projectionViewInverseMat.mult(in, out);
+		if (Geom.zero(out[3]))
+			return false;
+		
+		out[0] /= out[3];
+		out[1] /= out[3];
+		out[2] /= out[3];
+		
+		objCoordinate[0] = out[0];
+		objCoordinate[1] = out[1];
+		objCoordinate[2] = out[2];
+		
 		return true;
 	}
 	
@@ -1860,5 +1918,9 @@ public abstract class Pinhole {
 	
 	public Matrix3D view() {
 		return viewMat;
+	}
+	
+	public Matrix3D projectionView() {
+		return projectionViewMat;
 	}
 }

@@ -2,10 +2,10 @@ package remixlab.remixcam.core;
 
 import remixlab.remixcam.geom.*;
 
-public class ViewWindow extends Pinhole implements Copyable {	
+public class ViewWindow extends Pinhole implements Copyable {
 	
 	static final float FAKED_ZNEAR = -10;  
-  static final float FAKED_ZFAR = 10;
+  static final float FAKED_ZFAR = 10;	
 	
 	public ViewWindow(AbstractScene scn) {
 		super(scn);
@@ -32,11 +32,11 @@ public class ViewWindow extends Pinhole implements Copyable {
 	}
 	
 	@Override
-	public void computeViewMatrix() {
+	public void computeViewMatrix() {		
 		Rotation q = (Rotation)frame().orientation();
-
+		
 		float cosB = (float)Math.cos((double)q.angle());
-		float sinB = (float)Math.sin((double)q.angle());		
+		float sinB = (float)Math.sin((double)q.angle());
 		
 		viewMat.mat[0] = cosB;
 		viewMat.mat[1] = -sinB;
@@ -65,16 +65,27 @@ public class ViewWindow extends Pinhole implements Copyable {
 	public void computeProjectionMatrix() {
 		float[] wh = getOrthoWidthHeight();
 		projectionMat.mat[0] = 1.0f / wh[0];
-		if( scene.isLeftHanded() )
-			projectionMat.mat[5] = -1.0f / wh[1];
-		else
-			projectionMat.mat[5] = 1.0f / wh[1];
+	  //TODO defaults to LH
+		projectionMat.mat[5] = -1.0f / wh[1];
 		projectionMat.mat[10] = -2.0f / (FAKED_ZFAR - FAKED_ZNEAR);
 		projectionMat.mat[11] = 0.0f;
 		projectionMat.mat[14] = -(FAKED_ZFAR + FAKED_ZNEAR) / (FAKED_ZFAR - FAKED_ZNEAR);
 		projectionMat.mat[15] = 1.0f;
 		// same as glOrtho( -w, w, -h, h, zNear(), zFar() );
-	}	
+	}
+	
+	/**
+	public void computeProjectionMatrixJava2D() {
+		float[] wh = getOrthoWidthHeight();
+		projectionMat.mat[0] = 1.0f / wh[0];				
+		projectionMat.mat[5] = -1.0f / wh[1];
+		projectionMat.mat[10] = -2.0f / (FAKED_ZFAR - FAKED_ZNEAR);
+		projectionMat.mat[11] = 0.0f;
+		projectionMat.mat[14] = -(FAKED_ZFAR + FAKED_ZNEAR) / (FAKED_ZFAR - FAKED_ZNEAR);
+		projectionMat.mat[15] = 1.0f;
+		// same as glOrtho( -w, w, -h, h, zNear(), zFar() );
+	}
+	*/
 	
 	@Override
 	public float[] getOrthoWidthHeight(float[] target) {
@@ -272,17 +283,14 @@ public class ViewWindow extends Pinhole implements Copyable {
 	public boolean setArcballReferencePointFromPixel(Point pixel) {		
 		setArcballReferencePoint(unprojectedCoordinatesOf(new Vector3D((float) pixel.x, (float) pixel.y, 0.5f)));
 		return true;
-	}
+	}	
 	
-	//TODO needs testing
-	// /**
 	public void flip() {
 		if( scene.isLeftHanded() )
 			scene.setRightHanded();
 		else
 			scene.setLeftHanded();
 	}
-	// */
 	
 	public void interpolateToZoomOnPixel(Point pixel) {
 		float winW = this.screenWidth()/3;

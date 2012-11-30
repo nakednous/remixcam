@@ -1811,6 +1811,12 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * @see #zAxis()
 	 */
 	public Vector3D xAxis() {
+		Vector3D mag = magnitude();
+		if( Geom.diff(mag.x(), 1) || Geom.diff(mag.y(), 1) || Geom.diff(mag.z(), 1) ) {
+			Vector3D res = inverseTransformOf(new Vector3D(1.0f, 0.0f, 0.0f));
+			res.normalize();
+			return res;
+		}
 		return inverseTransformOf(new Vector3D(1.0f, 0.0f, 0.0f));
 	}
 
@@ -1823,6 +1829,12 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * @see #zAxis()
 	 */
 	public Vector3D yAxis() {
+		Vector3D mag = magnitude();
+		if( Geom.diff(mag.x(), 1) || Geom.diff(mag.y(), 1) || Geom.diff(mag.z(), 1) ) {			
+			Vector3D res = inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f));
+			res.normalize();
+			return res;
+		}
 		return inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f));
 	}
 
@@ -1835,7 +1847,12 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * @see #yAxis()
 	 */
 	public Vector3D zAxis() {
-		//TODO check me!
+		Vector3D mag = magnitude();
+		if( Geom.diff(mag.x(), 1) || Geom.diff(mag.y(), 1) || Geom.diff(mag.z(), 1) ) {
+			Vector3D res = inverseTransformOf(new Vector3D(0.0f, 0.0f, 1.0f));
+			res.normalize();
+			return res;
+		}
 		return inverseTransformOf(new Vector3D(0.0f, 0.0f, 1.0f));
 		/**
 		if(is3D())
