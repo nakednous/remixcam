@@ -650,12 +650,18 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			return;
 		
 		int deltaY = 0;
-		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION)
-			//TODO testing handed
+		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION) {
+			//TODO testing handed		  
+			/**
 			if( scene.isRightHanded() )
 				deltaY = (int) (eventPoint.y - prevPos.y);
 			else
 				deltaY = (int) (prevPos.y - eventPoint.y);
+			*/
+			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
+			if( scene.needsYCorrection() )
+				deltaY = -deltaY;
+		}
 
 		switch (action) {
 		case TRANSLATE: {
@@ -735,7 +741,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 				else
 					rot = new Quaternion(axis, prev_angle - angle);
 			else
-				if( scene.isRightHanded() )
+				if( scene.isFlipped() )
 					rot = new Rotation(angle - prev_angle);
 				else
 					rot = new Rotation(prev_angle - angle);
@@ -823,7 +829,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			else {
 				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
 				rot = new Rotation(rot.angle() * rotationSensitivity());
-				if ( scene.isRightHanded() )
+				if ( scene.isFlipped() )
 						rot.negate();	
 			}			
 			// #CONNECTION# These two methods should go together (spinning detection and activation)
@@ -843,13 +849,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			prevPos = eventPoint;
 			break;
 		}
-	}
-	
-	/**
-	public boolean isFlipped() {
-		return ( scene.isRightHanded() && !this.isInverted() ) || ( scene.isLeftHanded() && this.isInverted() );
-	}
-	*/
+	}		
 
 	/**
 	 * Stops the InteractiveFrame mouse manipulation.

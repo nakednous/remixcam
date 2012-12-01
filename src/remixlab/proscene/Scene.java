@@ -49,7 +49,6 @@ import remixlab.remixcam.devices.Bindings;
 import remixlab.remixcam.util.AbstractTimerJob;
 import remixlab.remixcam.util.SingleThreadedTaskableTimer;
 import remixlab.remixcam.util.SingleThreadedTimer;
-import remixlab.remixcam.geom.Quaternion;
 import remixlab.remixcam.geom.VFrame;
 //import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.geom.Vector3D;
@@ -1841,7 +1840,8 @@ public class Scene extends AbstractScene implements PConstants {
 	 * screen.
 	 */
 	@Override
-	protected Camera.WorldPoint pointUnderPixel(Point pixel) {float[] depth = new float[1];
+	protected Camera.WorldPoint pointUnderPixel(Point pixel) {
+		float[] depth = new float[1];
 		PGL pgl = pggl().beginPGL();
 		pgl.readPixels((int) pixel.x, (camera().screenHeight() - (int) pixel.y), 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, FloatBuffer.wrap(depth));		
 		pggl().endPGL();		
@@ -1852,8 +1852,22 @@ public class Scene extends AbstractScene implements PConstants {
 	
 	@Override
 	public void applyTransformation(VFrame frame) {
-		if( renderer() instanceof RendererJava2D && isRightHanded() )
+		if( renderer() instanceof RendererJava2D && isRightHanded() && frame.referenceFrame() == null )
 			scale(1,-1);
-		super.applyTransformation(frame);		
+		super.applyTransformation(frame);
+	}
+	
+	@Override
+	public boolean isFlipped() {
+		if( renderer() instanceof RendererJava2D )
+			return pinhole().frame().isInverted();
+		return ( isRightHanded() && !pinhole().frame().isInverted() ) || ( isLeftHanded() && pinhole().frame().isInverted() );
+	}
+	
+	@Override
+	public boolean needsYCorrection() {
+		if( renderer() instanceof RendererJava2D )
+			return false;
+		return isRightHanded();
 	}
 }

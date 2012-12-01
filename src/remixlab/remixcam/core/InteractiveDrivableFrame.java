@@ -262,10 +262,14 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			super.mouseDragged(eventPoint, vp);
 		else {
 			int deltaY;
+			/**
 			if ( scene.isRightHanded() )
 				deltaY = (int) (prevPos.y - eventPoint.y);
 			else
-				deltaY = (int) (eventPoint.y - prevPos.y);
+			*/
+				deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
+				if( scene.needsYCorrection() )
+					deltaY = -deltaY;
 			
 			switch (action) {
 			case MOVE_FORWARD: {

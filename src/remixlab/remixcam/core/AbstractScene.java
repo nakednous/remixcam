@@ -634,13 +634,13 @@ public abstract class AbstractScene implements Constants {
 			
 			break;
 		case MOVE_CAMERA_UP:
-			if( this.isRightHanded() )
+			if( needsYCorrection() )
 				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * pinhole().flySpeed(), 0.0f)));
 			else
 				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * pinhole().flySpeed(), 0.0f)));		  
 			break;
 		case MOVE_CAMERA_DOWN:			
-			if( this.isRightHanded() )
+			if( needsYCorrection() )
 				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * pinhole().flySpeed(), 0.0f)));
 			else
 				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * pinhole().flySpeed(), 0.0f)));			
@@ -1649,6 +1649,10 @@ public abstract class AbstractScene implements Constants {
 			applyTransformation(frame);
 		}
 	}
+	
+	public abstract boolean isFlipped();
+	
+	public abstract boolean needsYCorrection();
 	
 	/**
 	 * Returns the approximate frame rate of the software as it executes.

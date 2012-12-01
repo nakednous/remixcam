@@ -182,10 +182,14 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			super.mouseDragged(eventPoint, vp);
 		else {
 			int deltaY;
+			/**
 			if( scene.isRightHanded() )
 				deltaY = (int) (prevPos.y - eventPoint.y);
 			else
-				deltaY = (int) (eventPoint.y - prevPos.y);
+			*/
+				deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
+				if( scene.needsYCorrection() )
+					deltaY = -deltaY;
 			switch (action) {
 			case TRANSLATE: {
 				if( scene.is3D() ) {
@@ -257,7 +261,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				else {
 					rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
 					rot = new Rotation(rot.angle() * rotationSensitivity());
-					if( scene.isLeftHanded() )
+					//if( scene.isLeftHanded() )
+					if( !scene.isFlipped() )
 						rot.negate();
 				}
 				// #CONNECTION# These two methods should go together (spinning detection and activation)
@@ -276,7 +281,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 								              - trans.vec[0]);
 
 				// lef-handed coordinate system correction
-				if( scene.isLeftHanded() )
+				//if( scene.isLeftHanded() )
+				if( !scene.isFlipped() )
 					angle = -angle;
 
 				Orientable rot;
