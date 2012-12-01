@@ -54,6 +54,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
     return new HashCodeBuilder(17, 37).
     appendSuper(super.hashCode()).
 		append(arcballRefPnt).
+		append(worldAxis).
     toHashCode();
 	}
 
@@ -69,11 +70,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
 		.append(arcballRefPnt, other.arcballRefPnt)
+		.append(worldAxis, other.worldAxis)
 		.isEquals();
 	}
 	
 	protected Pinhole viewport;
 	protected Vector3D arcballRefPnt;	
+	protected Vector3D worldAxis;
 
 	/**
 	 * Default constructor.
@@ -88,6 +91,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		viewport = vp;
 		removeFromMouseGrabberPool();
 		arcballRefPnt = new Vector3D(0.0f, 0.0f, 0.0f);
+		worldAxis = new Vector3D(0, 0, 1);
 	}
 	
 	/**
@@ -100,6 +104,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		this.viewport = otherFrame.viewport;
 		this.arcballRefPnt = new Vector3D();
 		this.arcballRefPnt.set(otherFrame.arcballRefPnt );
+		this.worldAxis = new Vector3D();
+		this.worldAxis.set(otherFrame.worldAxis );
 	}
 	
 	/**
@@ -265,6 +271,18 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					if( !scene.isFlipped() )
 						rot.negate();
 				}
+				// #CONNECTION# These two methods should go together (spinning detection and activation)
+				computeMouseSpeed(eventPoint);
+				setSpinningQuaternion(rot);
+				spin();
+				prevPos = eventPoint;
+				break;
+			}
+			
+			case CAD_ROTATE: {
+				Vector3D trans = vp.projectedCoordinatesOf(arcballReferencePoint());				
+				// the following line calls setSpinningQuaternion
+				Quaternion rot = computeCADQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.x(), trans.y(), vp);
 				// #CONNECTION# These two methods should go together (spinning detection and activation)
 				computeMouseSpeed(eventPoint);
 				setSpinningQuaternion(rot);
@@ -447,5 +465,62 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			flyTimerJob.runOnce(finalDrawAfterWheelEventDelay);
 
 		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
+	}
+	
+	/**
+	 * Returns a Quaternion computed according to mouse motion. The Quaternion
+	 * is computed as composition of two rotations (quaternions): 1. Mouse motion along
+	 * the screen X Axis rotates the camera along the {@link #getCADAxis()}. 2.
+	 * Mouse motion along the screen Y axis rotates the camera along its X axis.
+	 * 
+	 * @see #getCADAxis()
+	 */
+	protected Quaternion computeCADQuaternion(int x, int y, float cx,	float cy, Pinhole camera) {
+		if(! (camera instanceof Camera) )
+			throw new RuntimeException("CAD cam is oly available in 3D");
+		// Points on the deformed ball
+		float px = rotationSensitivity() * ((int) prevPos.x - cx)	/ camera.screenWidth();
+		float py = rotationSensitivity() * (cy - (int) prevPos.y)	/ camera.screenHeight();
+		float dx = rotationSensitivity() * (x - cx) / camera.screenWidth();
+		float dy = rotationSensitivity() * (cy - y) / camera.screenHeight();
+		
+		//1,0,0 is given in the camera frame
+		Vector3D axisX = new Vector3D(1, 0, 0);
+		//0,0,1 is given in the world and then transform to the camera frame
+		Vector3D world2camAxis = camera.frame().transformOf(worldAxis);
+
+		float angleWorldAxis = rotationSensitivity() * (dx - px);
+		float angleX = rotationSensitivity() * (dy - py);
+
+		// Coordinate system correction
+		if( scene.isLeftHanded() ) 
+			angleX = -angleX;
+		else
+			angleWorldAxis = -angleWorldAxis;
+
+		Quaternion quatWorld = new Quaternion(world2camAxis, angleWorldAxis);
+		Quaternion quatX = new Quaternion(axisX, angleX);
+		
+		return Quaternion.multiply(quatWorld, quatX);
+	}
+	
+	/**
+	 * Set axis (defined in the world coordinate system) as the main
+	 * rotation axis used in CAD rotation.
+	 */
+	public void setCADAxis(Vector3D axis) {
+		//non-zero
+		if( Geom.zero(axis.mag()) )
+			return;
+		else
+			worldAxis = axis.get();
+		worldAxis.normalize();
+	}
+	
+	/**
+	 * Returns the main CAD rotation axis ((defined in the world coordinate system).
+	 */
+	public Vector3D getCADAxis() {
+		return worldAxis;
 	}
 }

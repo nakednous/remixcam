@@ -60,8 +60,8 @@ import remixlab.remixcam.devices.Bindings;
  * ({@link #unregister()} performs the inverse operation).
  * <p>
  * This class also provide some useful preset bindings which represents some common
- * "camera modes": ARCBALL, WHEELED_ARCBALL, FIRST_PERSON, THIRD_PERSON, and CUSTOM
- * (see {@link #mode()}). A custom camera profiles represents an empty set of camera and
+ * "camera modes": ARCBALL, WHEELED_ARCBALL, CAD, FIRST_PERSON, THIRD_PERSON, and CUSTOM
+ * (see {@link #mode()}). A CUSTOM camera profiles represents an empty set of camera and
  * keyboard shortcuts. Most of the methods of this class provide means to define
  * (or overwrite) custom (or preset bindings). Default keyboard shortcuts and mouse bindings
  * for each CameraProfile preset are defined as follows:
@@ -116,7 +116,7 @@ import remixlab.remixcam.devices.Bindings;
  * </ul>
  * <li><b>Camera mouse bindings</b></li>
  * <ul>
- * <li>Button1 -> Rotate frame (camera or interactive frame)</li>
+ * <li>Button1 -> Rotate frame (camera or interactive frame) as with an ARCBALL</li>
  * <li>Shift+Button1 -> Zoom on region (camera or interactive drivable frame)</li> * 
  * <li>Button2 -> Zoom</li>
  * <li>Button3 -> Translate frame (camera or interactive frame)</li>
@@ -143,7 +143,49 @@ import remixlab.remixcam.devices.Bindings;
  * <li>Wheel -> Zoom</li>
  * </ul>
  * </ol>
- * <p>
+ * <h3>CAD</h3>
+ * <ol>
+ * <li><b>Keyboard shortcuts</b></li>
+ * <ul>
+ * <li>Right -> Move camera to the right</li>
+ * <li>Left -> Move camera to the left</li>
+ * <li>Up -> Move camera up</li>
+ * <li>Down -> Move camera down</li>
+ * <li>S -> Show the whole scene</li>
+ * <li>s -> Interpolate the camera to fit the whole scene</li>
+ * <li>+ -> Increase camera rotation sensitivity</li>
+ * <li>- -> Decrease camera rotation sensitivity</li>
+ * </ul>
+ * <li><b>Camera mouse bindings</b></li>
+ * <ul>
+ * <li>Button1 -> Rotate frame: camera is rotated as in CAD applications; interactive
+ * frame is rotated as with an ARCBALL</li>
+ * <li>Shift+Button1 -> Zoom on region (camera or interactive drivable frame)</li> * 
+ * <li>Button2 -> Zoom</li>
+ * <li>Button3 -> Translate frame (camera or interactive frame)</li>
+ * <li>Shift+Button3 -> Screen rotate (camera or interactive frame)</li>
+ * </ul>
+ * <li><b>Mouse click bindings</b></li>
+ * <ul>
+ * <li>Button1 + 2 clicks -> Align camera with world</li>
+ * <li>Button2 + 2 clicks -> Show the whole scene</li>
+ * <li>Button3 + 2 clicks -> Zoom to fit the scene</li>
+ * </ul>
+ * <li><b>Interactive frame mouse bindings</b></li>
+ * <ul>
+ * <li>Button1 -> Rotate frame (camera or interactive frame)</li>
+ * <li>Button2 -> Zoom</li>
+ * <li>Button3 -> Translate frame (camera or interactive frame)</li>
+ * </ul>
+ * <li><b>Camera mouse wheel bindings</b></li>
+ * <ul>
+ * <li>Wheel -> Zoom</li>
+ * </ul>
+ * <li><b>Interactive frame mouse wheel bindings</b></li>
+ * <ul>
+ * <li>Wheel -> Zoom</li>
+ * </ul>
+ * </ol> 
  * <h3>FIRST_PERSON</h3>
  * <ol>
  * <li><b>Keyboard shortcuts</b></li>
@@ -204,7 +246,7 @@ import remixlab.remixcam.devices.Bindings;
  * least one THIRD_PERSON camera profile to your Scene.
  */
 public class CameraProfile {
-	public enum Mode {ARCBALL, WHEELED_ARCBALL, FIRST_PERSON, THIRD_PERSON, CUSTOM}
+	public enum Mode {ARCBALL, WHEELED_ARCBALL, CAD, FIRST_PERSON, THIRD_PERSON, CUSTOM}
 	protected String name;
 	protected Scene scene;
 	protected Mode mode;
@@ -222,12 +264,12 @@ public class CameraProfile {
 	public CameraProfile(Scene scn, String n) {
 		this(scn, n, Mode.CUSTOM);
 	}
-
+	
 	/**
 	 * Main constructor.
 	 * <p>
 	 * This constructor takes the scene instance, the custom name of the camera profile
-	 * and an enum type defining its mode which can be: ARCBALL, WHEELED_ARCBALL,
+	 * and an enum type defining its mode which can be: ARCBALL, WHEELED_ARCBALL, CAD,
 	 * FIRST_PERSON, THIRD_PERSON, CUSTOM.
 	 * <p>
 	 * If you define a {@link remixlab.proscene.Scene#avatar()} (for instance with 
@@ -257,14 +299,22 @@ public class CameraProfile {
 		
 		switch (mode) {
 		case ARCBALL:
+			setCameraMouseBinding(Scene.Button.LEFT.ID, Scene.MouseAction.ROTATE);
 			arcballDefaultShortcuts();
 			break;
 		case WHEELED_ARCBALL:			
-			arcballDefaultShortcuts();
-			
+			setCameraMouseBinding(Scene.Button.LEFT.ID, Scene.MouseAction.ROTATE);
+			arcballDefaultShortcuts();			
 			setCameraWheelBinding( MouseAction.ZOOM );
 			//should work only iFrame is an instance of drivable
 			setFrameWheelBinding( MouseAction.ZOOM );			
+			break;
+		case CAD:
+			setCameraMouseBinding(Scene.Button.LEFT.ID, MouseAction.CAD_ROTATE);
+			arcballDefaultShortcuts();
+			setCameraWheelBinding( MouseAction.ZOOM );
+			//should work only iFrame is an instance of drivable
+			setFrameWheelBinding( MouseAction.ZOOM );
 			break;
 		case FIRST_PERSON:
 			setCameraMouseBinding(Scene.Button.LEFT.ID, Scene.MouseAction.MOVE_FORWARD);
@@ -313,7 +363,6 @@ public class CameraProfile {
 		setShortcut(KeyEvent.VK_UP, Scene.CameraKeyboardAction.MOVE_CAMERA_UP);
 		setShortcut(KeyEvent.VK_DOWN, Scene.CameraKeyboardAction.MOVE_CAMERA_DOWN);
 
-		setCameraMouseBinding(Scene.Button.LEFT.ID, Scene.MouseAction.ROTATE);
 		setCameraMouseBinding(Scene.Button.MIDDLE.ID, Scene.MouseAction.ZOOM);
 		setCameraMouseBinding(Scene.Button.RIGHT.ID, Scene.MouseAction.TRANSLATE);
 		setFrameMouseBinding(Scene.Button.LEFT.ID, Scene.MouseAction.ROTATE);

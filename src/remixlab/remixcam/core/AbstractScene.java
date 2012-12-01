@@ -200,6 +200,8 @@ public abstract class AbstractScene implements Constants {
 		NO_MOUSE_ACTION("No mouse action", true),
 		/** Rotate frame (camera or interactive frame. */
 		ROTATE("Rotate frame (camera or interactive frame)", true),
+		/** Rotate (only) camera frame as in CAD applications. */
+		CAD_ROTATE("Rotate (only) camera frame as in CAD applications)", false),
 		/** Zoom. */
 		ZOOM("Zoom", true),
 		/** Translate frame (camera or interactive frame). */

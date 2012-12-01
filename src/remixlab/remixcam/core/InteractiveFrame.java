@@ -869,10 +869,9 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		keepsGrabbingMouse = false;
 
 		if (prevConstraint != null)
-			setConstraint(prevConstraint);
-
-		if (((action == AbstractScene.MouseAction.ROTATE) || (action == AbstractScene.MouseAction.SCREEN_ROTATE))
-				&& (mouseSpeed >= spinningSensitivity()))
+			setConstraint(prevConstraint);		
+		
+		if (((action == AbstractScene.MouseAction.ROTATE) || (action == AbstractScene.MouseAction.SCREEN_ROTATE) || (action == AbstractScene.MouseAction.CAD_ROTATE) )	&& (mouseSpeed >= spinningSensitivity()))
 			startSpinning(delay);
 
 		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
@@ -932,6 +931,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 
 		switch (action) {
 		case ROTATE:
+		case CAD_ROTATE:
 		case SCREEN_ROTATE:
 			mouseSpeed = 0.0f;
 			stopSpinning();
