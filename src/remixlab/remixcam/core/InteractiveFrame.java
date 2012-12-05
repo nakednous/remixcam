@@ -608,6 +608,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * and {@link remixlab.remixcam.core.AbstractScene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
 	 * the camera view direction.
 	 */
+	@Override
 	public void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, Pinhole camera) {
 		if(numberOfClicks != 2)
 			return;
@@ -630,6 +631,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * @see #mouseDragged(Point, Camera)
 	 * @see #mouseReleased(Point, Camera)
 	 */
+	@Override
 	public void mousePressed(Point eventPoint, Pinhole camera) {
 		if (grabsMouse())
 			keepsGrabbingMouse = true;
@@ -650,11 +652,116 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * @see remixlab.remixcam.core.Camera#screenHeight()
 	 * @see remixlab.remixcam.core.Camera#fieldOfView()
 	 */
+	@Override
 	public void mouseDragged(Point eventPoint, Pinhole camera) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
+		if( scene.is2D() )
+			deviceDragged2D(eventPoint, (ViewWindow) camera);
+		else
+			deviceDragged3D(eventPoint, (Camera) camera);
+	}
+	
+	protected void deviceDragged2D(Point eventPoint, ViewWindow viewWindow) {
 		int deltaY = 0;
+		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION) {
+			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
+			if( scene.needsYCorrection() )
+				deltaY = -deltaY;
+		}
+		
+		switch (action) {
+		case TRANSLATE: {
+				Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
+				Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(), 0.0f);
+				trans = viewWindow.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));				
+				// And then down to frame
+				if (referenceFrame() != null)
+					trans = referenceFrame().transformOf(trans);
+				translate(trans);
+				prevPos = eventPoint;
+			
+			break;
+		}
+
+		case ZOOM: {			
+			float delta = ((float)eventPoint.y - (float)prevPos.y);
+			if(delta >= 0)
+				scale(1 + Math.abs(delta) / (float) scene.height());
+			else
+				inverseScale(1 + Math.abs(delta) / (float) scene.height());			
+			prevPos = eventPoint;					
+			break;
+		}
+
+		case SCREEN_ROTATE: {
+			Vector3D trans = viewWindow.projectedCoordinatesOf(position());
+			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.vec[1], (int)prevPos.x - trans.vec[0]);
+			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);			
+			Orientable rot;
+			
+			if( scene.isFlipped() )
+				rot = new Rotation(angle - prev_angle);
+			else
+				rot = new Rotation(prev_angle - angle);
+			
+			// #CONNECTION# These two methods should go together (spinning detection and activation)
+			computeMouseSpeed(eventPoint);
+			setSpinningQuaternion(rot);
+			spin();
+			prevPos = eventPoint;
+			break;			
+		}
+
+		case SCREEN_TRANSLATE: {
+				Vector3D trans = new Vector3D();
+				int dir = mouseOriginalDirection(eventPoint);
+				if (dir == 1)
+					trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
+				else if (dir == -1)
+					trans.set(0.0f, -deltaY, 0.0f);				
+				
+				trans = viewWindow.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));				
+				// And then down to frame
+				if (referenceFrame() != null)
+					trans = referenceFrame().transformOf(trans);
+
+				translate(trans);
+				prevPos = eventPoint;
+			
+			break;
+		}
+
+		case ROTATE: {
+			Vector3D trans = viewWindow.projectedCoordinatesOf(position());
+			Orientable rot;
+			rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
+			rot = new Rotation(rot.angle() * rotationSensitivity());
+			if ( scene.isFlipped() )
+				rot.negate();	
+			
+			// #CONNECTION# These two methods should go together (spinning detection and activation)
+			computeMouseSpeed(eventPoint);
+			setSpinningQuaternion(rot);
+			spin();
+			prevPos = eventPoint;
+		}
+
+		case NO_MOUSE_ACTION:
+			// Possible when the InteractiveFrame is a MouseGrabber. This method is
+			// then called without startAction
+			// because of mouseTracking.
+			break;
+
+		default:
+			prevPos = eventPoint;
+			break;
+		}
+	}
+	
+  protected void deviceDragged3D(Point eventPoint, Camera camera) {
+  	int deltaY = 0;
 		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
 			if( scene.needsYCorrection() )
@@ -663,13 +770,12 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 
 		switch (action) {
 		case TRANSLATE: {
-			if( scene.is3D() ) {
 			Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
 			Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(), 0.0f);
 			// Scale to fit the screen mouse displacement
-			switch (((Camera) camera).type()) {
+			switch ( camera.type() ) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan(((Camera) camera).fieldOfView() / 2.0f)
+				trans.mult(2.0f * (float) Math.tan(camera.fieldOfView() / 2.0f)
 						            //* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
 						            * Math.abs((camera.frame().coordinatesOfNoScl(position())).vec[2])
 						            / camera.screenHeight());
@@ -690,28 +796,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
 			translate(trans);
-			prevPos = eventPoint;
-			}
-			else {
-			  //TODO 2D case needs testing
-				Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
-				Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(), 0.0f);				
-				// */
-				// Transform to world coordinate system.
-				// same as, but takes into account scaling
-				/**				
-				float[] wh = camera.getOrthoWidthHeight();
-				trans.vec[0] *= 2.0 * wh[0] / camera.screenWidth();
-				trans.vec[1] *= 2.0 * wh[1] / camera.screenHeight();
-				trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));
-				// */
-				trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));				
-				// And then down to frame
-				if (referenceFrame() != null)
-					trans = referenceFrame().transformOf(trans);
-				translate(trans);
-				prevPos = eventPoint;
-			}
+			prevPos = eventPoint;						
 			break;
 		}
 
@@ -731,20 +816,13 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);			
 			Orientable rot;
 			
-			if( scene.is3D() ) {
-				//Vector3D axis = transformOf(camera.frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f)));
-				Vector3D axis = transformOf(camera.frame().inverseTransformOfNoScl(new Vector3D(0.0f, 0.0f, -1.0f)));
-			  //TODO testing handed
-				if( scene.isRightHanded() )
-					rot = new Quaternion(axis, angle - prev_angle);
-				else
-					rot = new Quaternion(axis, prev_angle - angle);
-			}
+			//Vector3D axis = transformOf(camera.frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f)));
+			Vector3D axis = transformOf(camera.frame().inverseTransformOfNoScl(new Vector3D(0.0f, 0.0f, -1.0f)));
+			//TODO testing handed
+			if( scene.isRightHanded() )
+				rot = new Quaternion(axis, angle - prev_angle);
 			else
-				if( scene.isFlipped() )
-					rot = new Rotation(angle - prev_angle);
-				else
-					rot = new Rotation(prev_angle - angle);
+				rot = new Quaternion(axis, prev_angle - angle);					
 			
 			// #CONNECTION# These two methods should go together (spinning detection and activation)
 			computeMouseSpeed(eventPoint);
@@ -755,7 +833,6 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		}
 
 		case SCREEN_TRANSLATE: {
-			if( scene.is3D() ) {
 			// TODO: needs testing to see if it works correctly when left-handed is set
 			Vector3D trans = new Vector3D();
 			int dir = mouseOriginalDirection(eventPoint);
@@ -763,9 +840,9 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 				trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
 			else if (dir == -1)
 				trans.set(0.0f, -deltaY, 0.0f);
-			switch (((Camera) camera).type()) {
+			switch (camera.type()) {
 			case PERSPECTIVE:
-				trans.mult((float) Math.tan(((Camera) camera).fieldOfView() / 2.0f)
+				trans.mult((float) Math.tan(camera.fieldOfView() / 2.0f)
 						//* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
 						* Math.abs((camera.frame().coordinatesOfNoScl(position())).vec[2])
 						/ camera.screenHeight());
@@ -786,58 +863,25 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 				trans = referenceFrame().transformOf(trans);
 
 			translate(trans);
-			prevPos = eventPoint;
-			}
-			else {
-				Vector3D trans = new Vector3D();
-				int dir = mouseOriginalDirection(eventPoint);
-				if (dir == 1)
-					trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
-				else if (dir == -1)
-					trans.set(0.0f, -deltaY, 0.0f);				
-				
-				// Transform to world coordinate system.
-			  // same as the following line, but takes into account scaling:
-				/**
-				float[] wh = camera.getOrthoWidthHeight();
-				trans.vec[0] *= 2.0 * wh[0] / camera.screenWidth();
-				trans.vec[1] *= 2.0 * wh[1] / camera.screenHeight();
-				trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));				
-				// */
-				trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));				
-				// And then down to frame
-				if (referenceFrame() != null)
-					trans = referenceFrame().transformOf(trans);
-
-				translate(trans);
-				prevPos = eventPoint;
-			}
+			prevPos = eventPoint;			
 			break;
 		}
 
-		case ROTATE: {
+		case ROTATE: {			
 			Vector3D trans = camera.projectedCoordinatesOf(position());
-			Orientable rot;
-			if(scene.is3D()) {
-				rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.vec[0], trans.vec[1], (Camera) camera);					
-				trans.set(-((Quaternion)rot).quat[0], -((Quaternion)rot).quat[1], -((Quaternion)rot).quat[2]);
-			  // Same as: trans = camera.frame().orientation().rotate(trans); but takes into account scaling
-				trans = camera.frame().inverseTransformOfNoScl(trans);
-				//trans = camera.frame().inverseTransformOf(trans);//(camera) frame to world
-				//trans = transformOf(trans);//world to frame
-				//TODO testing
-				trans = transformOfNoScl(trans);//world to frame
-				//trans = transformOf(trans);//world to frame				
-				((Quaternion)rot).quat[0] = trans.vec[0];
-				((Quaternion)rot).quat[1] = trans.vec[1];
-				((Quaternion)rot).quat[2] = trans.vec[2];			
-			}			
-			else {
-				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
-				rot = new Rotation(rot.angle() * rotationSensitivity());
-				if ( scene.isFlipped() )
-						rot.negate();	
-			}			
+			Quaternion rot;
+			rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.vec[0], trans.vec[1], (Camera) camera);
+			trans.set(-rot.quat[0], -rot.quat[1], -rot.quat[2]);
+			// Same as: trans = camera.frame().orientation().rotate(trans); but takes into account scaling
+			//trans = camera.frame().inverseTransformOfNoScl(trans);
+			trans = camera.frame().inverseTransformOf(trans);//(camera) frame to world
+			//trans = transformOf(trans);//world to frame
+			//TODO testing
+			//trans = transformOfNoScl(trans);//world to frame
+			trans = transformOf(trans);//world to frame
+			rot.quat[0] = trans.vec[0];
+			rot.quat[1] = trans.vec[1];
+			rot.quat[2] = trans.vec[2];						
 			// #CONNECTION# These two methods should go together (spinning detection and activation)
 			computeMouseSpeed(eventPoint);
 			setSpinningQuaternion(rot);
@@ -854,8 +898,8 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		default:
 			prevPos = eventPoint;
 			break;
-		}
-	}		
+		}  	
+  }
 
 	/**
 	 * Stops the InteractiveFrame mouse manipulation.
@@ -891,6 +935,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * 
 	 * @see #setWheelSensitivity(float)
 	 */
+	@Override
 	public void mouseWheelMoved(int rotation, Pinhole camera) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;

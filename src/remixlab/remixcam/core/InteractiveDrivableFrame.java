@@ -239,7 +239,12 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		default:
 			break;
 		}
-	}	
+	}
+	
+	@Override	
+	protected void deviceDragged2D(Point eventPoint, ViewWindow viewWindow) {
+		//TODO implement 2d actions
+	}
 	
 	/**
 	 * Overloading of
@@ -249,17 +254,15 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * the same of those of an InteractiveFrame, but moving forward and backward
 	 * and turning actions are implemented.
 	 */
-	public void mouseDragged(Point eventPoint, Pinhole vp) {
-		if( ( scene.is2D() ) && ( !action.is2D() ) )
-			return;
-		
+	@Override
+	protected void deviceDragged3D(Point eventPoint, Camera camera) {		
 		if ((action == AbstractScene.MouseAction.TRANSLATE)
 				|| (action == AbstractScene.MouseAction.ZOOM)
 				|| (action == AbstractScene.MouseAction.SCREEN_ROTATE)
 				|| (action == AbstractScene.MouseAction.SCREEN_TRANSLATE)
 				|| (action == AbstractScene.MouseAction.ROTATE)
 				|| (action == AbstractScene.MouseAction.NO_MOUSE_ACTION))
-			super.mouseDragged(eventPoint, vp);
+			super.deviceDragged3D(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
 			if( scene.needsYCorrection() )
@@ -267,7 +270,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			
 			switch (action) {
 			case MOVE_FORWARD: {
-				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, (Camera) vp);
+				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, camera);
 				rotate(rot);
 				// #CONNECTION# wheelEvent MOVE_FORWARD case
 				// actual translation is made in flyUpdate().
@@ -277,7 +280,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			}
 
 			case MOVE_BACKWARD: {
-				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, (Camera) vp);
+				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, camera);
 				rotate(rot);
 				// actual translation is made in flyUpdate().
 				// translate(inverseTransformOf(Vec(0.0, 0.0, flySpeed())));
@@ -286,7 +289,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			}
 
 			case DRIVE: {
-				Quaternion rot = turnQuaternion((int)eventPoint.x, (Camera) vp);
+				Quaternion rot = turnQuaternion((int)eventPoint.x, camera);
 				rotate(rot);
 				// actual translation is made in flyUpdate().
 				drvSpd = 0.01f * -deltaY;
@@ -295,15 +298,14 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			}
 
 			case LOOK_AROUND: {
-				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, (Camera) vp);
+				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, camera);
 				rotate(rot);
 				prevPos = eventPoint;
 				break;
 			}
 
 			case ROLL: {
-				float angle = (float) Math.PI * ((int)eventPoint.x - (int)prevPos.x)
-						/ vp.screenWidth();
+				float angle = (float) Math.PI * ((int)eventPoint.x - (int)prevPos.x)	/ camera.screenWidth();
 				
 			  //lef-handed coordinate system correction
 				if ( scene.isLeftHanded() )
@@ -325,12 +327,13 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 				break;
 			}
 		}
-	}
+	}	
 
 	/**
 	 * Overloading of
 	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseReleased(Point, Camera)}.
 	 */
+	@Override
 	public void mouseReleased(Point eventPoint, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
@@ -355,6 +358,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
+	@Override
 	public void mouseWheelMoved(int rotation, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
@@ -432,9 +436,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			deltaY = (int) (y - prevPos.y);	
 		
 		Quaternion rotX = new Quaternion(new Vector3D(1.0f, 0.0f, 0.0f),
-				rotationSensitivity() * deltaY / camera.screenHeight());
+		                              	 rotationSensitivity() * deltaY / camera.screenHeight());
 		Quaternion rotY = new Quaternion(transformOf(flyUpVector()),
-				rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());
+				                             rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());
 		return Quaternion.multiply(rotY, rotX);
 	}
 }
