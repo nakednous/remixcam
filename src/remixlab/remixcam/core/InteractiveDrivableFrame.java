@@ -261,15 +261,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 				|| (action == AbstractScene.MouseAction.NO_MOUSE_ACTION))
 			super.mouseDragged(eventPoint, vp);
 		else {
-			int deltaY;
-			/**
-			if ( scene.isRightHanded() )
-				deltaY = (int) (prevPos.y - eventPoint.y);
-			else
-			*/
-				deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
-				if( scene.needsYCorrection() )
-					deltaY = -deltaY;
+			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
+			if( scene.needsYCorrection() )
+				deltaY = -deltaY;
 			
 			switch (action) {
 			case MOVE_FORWARD: {
@@ -390,8 +384,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		case MOVE_FORWARD:
 		case MOVE_BACKWARD:
 			// #CONNECTION# mouseMoveEvent() MOVE_FORWARD case
-			translate(inverseTransformOf(new Vector3D(0.0f, 0.0f, 0.2f * flySpeed()
-					* (-rotation))));
+			translate(inverseTransformOf(new Vector3D(0.0f, 0.0f, 0.2f * flySpeed() * (-rotation))));
 			break;
 		default:
 			break;

@@ -554,6 +554,11 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 */
 	public final void setSpinningQuaternion(Orientable spinningQuaternion) {
 		spngQuat = spinningQuaternion;
+		if( is3D() ) {
+			if(this.magnitude().x() < 0) ((Quaternion)spngQuat).quat[0] *= -1;
+			if(this.magnitude().y() < 0) ((Quaternion)spngQuat).quat[1] *= -1;
+			if(this.magnitude().z() < 0) ((Quaternion)spngQuat).quat[2] *= -1;
+		}			
 	}
 
 	/**
@@ -567,7 +572,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 
 	/**
 	 * Stops the spinning motion started using {@link #startSpinning(int)}.
-	 * {@link #isSpinning()} will return {@code false} after this call.
+	 * {@link #isSpinning()} will return {@code false} after this call.* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
 	 */
 	public final void stopSpinning() {		
 		spinningTimerJob.stop();
@@ -593,7 +598,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 */
 	public void spin() {
 		rotate(spinningQuaternion());
-	}
+	}  
 	
 	/**
 	 * Overloading of
@@ -651,13 +656,6 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		
 		int deltaY = 0;
 		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION) {
-			//TODO testing handed		  
-			/**
-			if( scene.isRightHanded() )
-				deltaY = (int) (eventPoint.y - prevPos.y);
-			else
-				deltaY = (int) (prevPos.y - eventPoint.y);
-			*/
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
 			if( scene.needsYCorrection() )
 				deltaY = -deltaY;
@@ -672,8 +670,9 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			switch (((Camera) camera).type()) {
 			case PERSPECTIVE:
 				trans.mult(2.0f * (float) Math.tan(((Camera) camera).fieldOfView() / 2.0f)
-						* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
-						/ camera.screenHeight());
+						            //* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
+						            * Math.abs((camera.frame().coordinatesOfNoScl(position())).vec[2])
+						            / camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC: {
 				float[] wh = camera.getOrthoWidthHeight();
@@ -682,12 +681,11 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 				break;
 			}
 			}
-			// Transform to world coordinate system.
-			//TODO check why does this work if scaling has not been taken into account?
-			// try adding scaling, see: VFrame.localInverseTransformOf
-			// try to rewrite this in terms of the VFrame API
-		  // same as trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity())); but takes into account scaling
-			trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));  
+			trans = camera.frame().inverseTransformOfNoScl(Vector3D.mult(trans, translationSensitivity()));
+		  // same as:
+			//trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));
+			// but takes into account scaling			
+			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));			
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -730,16 +728,18 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		case SCREEN_ROTATE: {
 			Vector3D trans = camera.projectedCoordinatesOf(position());
 			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.vec[1], (int)prevPos.x - trans.vec[0]);
-			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);
-			Vector3D axis = transformOf(camera.frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f)));
-			
+			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);			
 			Orientable rot;
-			if( scene.is3D() )
+			
+			if( scene.is3D() ) {
+				//Vector3D axis = transformOf(camera.frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f)));
+				Vector3D axis = transformOf(camera.frame().inverseTransformOfNoScl(new Vector3D(0.0f, 0.0f, -1.0f)));
 			  //TODO testing handed
 				if( scene.isRightHanded() )
 					rot = new Quaternion(axis, angle - prev_angle);
 				else
 					rot = new Quaternion(axis, prev_angle - angle);
+			}
 			else
 				if( scene.isFlipped() )
 					rot = new Rotation(angle - prev_angle);
@@ -766,7 +766,8 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			switch (((Camera) camera).type()) {
 			case PERSPECTIVE:
 				trans.mult((float) Math.tan(((Camera) camera).fieldOfView() / 2.0f)
-						* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
+						//* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
+						* Math.abs((camera.frame().coordinatesOfNoScl(position())).vec[2])
 						/ camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC: {
@@ -777,8 +778,9 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			}
 			}
 			// Transform to world coordinate system.
+			trans = camera.frame().inverseTransformOfNoScl(Vector3D.mult(trans, translationSensitivity()));
 			// same as: trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity())); but takes into account scaling
-			trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
+			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -820,11 +822,15 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 				rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.vec[0], trans.vec[1], (Camera) camera);					
 				trans.set(-((Quaternion)rot).quat[0], -((Quaternion)rot).quat[1], -((Quaternion)rot).quat[2]);
 			  // Same as: trans = camera.frame().orientation().rotate(trans); but takes into account scaling
-				trans = camera.frame().inverseTransformOf(trans);
-				trans = transformOf(trans);
+				trans = camera.frame().inverseTransformOfNoScl(trans);
+				//trans = camera.frame().inverseTransformOf(trans);//(camera) frame to world
+				//trans = transformOf(trans);//world to frame
+				//TODO testing
+				trans = transformOfNoScl(trans);//world to frame
+				//trans = transformOf(trans);//world to frame				
 				((Quaternion)rot).quat[0] = trans.vec[0];
 				((Quaternion)rot).quat[1] = trans.vec[1];
-				((Quaternion)rot).quat[2] = trans.vec[2];
+				((Quaternion)rot).quat[2] = trans.vec[2];			
 			}			
 			else {
 				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
@@ -997,24 +1003,18 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 */
 	protected Quaternion deformedBallQuaternion(int x, int y, float cx, float cy,	Camera camera) {
 		// Points on the deformed ball
-		float px = rotationSensitivity() * ((int)prevPos.x - cx) / camera.screenWidth();
-		float py = rotationSensitivity() * (cy - (int)prevPos.y) / camera.screenHeight();
-		float dx = rotationSensitivity() * (x - cx) / camera.screenWidth();
-		float dy = rotationSensitivity() * (cy - y) / camera.screenHeight();
+		//TODO try to set up cam conditions here to use scaling when rotating
+		float px = rotationSensitivity() *                         ((int)prevPos.x - cx)                           / camera.screenWidth();
+		float py = rotationSensitivity() * (scene.isLeftHanded() ? ((int)prevPos.y - cy) : ( cy - (int)prevPos.y)) / camera.screenHeight();
+		float dx = rotationSensitivity() *                         (x - cx)             / camera.screenWidth();
+		float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();
 
 		Vector3D p1 = new Vector3D(px, py, projectOnBall(px, py));
 		Vector3D p2 = new Vector3D(dx, dy, projectOnBall(dx, dy));
 		// Approximation of rotation angle
 		// Should be divided by the projectOnBall size, but it is 1.0
 		Vector3D axis = p2.cross(p1);
-		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));			
- 		
-	  //left-handed coordinate system correction
-		if( scene.isLeftHanded() ) {
-			axis.vec[1] = -axis.vec[1];
-			angle = -angle;
-		}		
-
+		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));
 		return new Quaternion(axis, angle);
 	}
 
@@ -1024,7 +1024,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * For a point outside the ball, it is proportional to the inverse of this
 	 * distance (tends to zero) on the ball, the function is continuous.
 	 */
-	static float projectOnBall(float x, float y) {
+	protected static float projectOnBall(float x, float y) {
 		// If you change the size value, change angle computation in deformedBallQuaternion().
 		float size = 1.0f;
 		float size2 = size * size;

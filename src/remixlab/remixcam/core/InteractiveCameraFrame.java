@@ -187,15 +187,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				|| (action == AbstractScene.MouseAction.NO_MOUSE_ACTION))
 			super.mouseDragged(eventPoint, vp);
 		else {
-			int deltaY;
-			/**
-			if( scene.isRightHanded() )
-				deltaY = (int) (prevPos.y - eventPoint.y);
-			else
-			*/
-				deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
-				if( scene.needsYCorrection() )
-					deltaY = -deltaY;
+			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
+			if( scene.needsYCorrection() )
+				deltaY = -deltaY;
+			
 			switch (action) {
 			case TRANSLATE: {
 				if( scene.is3D() ) {
@@ -206,7 +201,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				case PERSPECTIVE:
 					trans.mult(2.0f
 							* (float) Math.tan(((Camera) vp).fieldOfView() / 2.0f)
-							* Math.abs((vp.frame().coordinatesOf(arcballReferencePoint())).vec[2])
+							//* Math.abs((vp.frame().coordinatesOf(arcballReferencePoint())).vec[2])
+							* Math.abs((vp.frame().coordinatesOfNoScl(arcballReferencePoint())).vec[2])
 							/ vp.screenHeight());
 					break;
 				case ORTHOGRAPHIC: {
@@ -216,7 +212,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					break;
 				}
 				}
-				translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+				translate(orientation().rotate(Vector3D.mult(trans, translationSensitivity())));//no scl
 				prevPos = eventPoint;
 				
 				}
@@ -233,7 +230,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			case ZOOM: {
 				if(scene.is3D()) {
 				// #CONNECTION# wheelEvent() ZOOM case
-				float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
+			  float coef = Math.max(Math.abs((vp.frame().coordinatesOfNoScl(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
+				//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
 				// Warning: same for left and right CoordinateSystemConvention:
 				Vector3D trans = new Vector3D(0.0f, 0.0f,	-coef	* ((int) (eventPoint.y - prevPos.y)) / vp.screenHeight());
 				translate(inverseTransformOf(trans));
@@ -319,7 +317,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			}
 
 			case SCREEN_TRANSLATE: {
-				if(scene.is3D()) {				
+				if(scene.is3D()) {			
 				Vector3D trans = new Vector3D();
 				int dir = mouseOriginalDirection(eventPoint);
 				if (dir == 1)
@@ -330,7 +328,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				case PERSPECTIVE:
 					trans.mult(2.0f
 							* (float) Math.tan(((Camera) vp).fieldOfView() / 2.0f)
-							* Math.abs((vp.frame().coordinatesOf(arcballReferencePoint())).vec[2])
+							//* Math.abs((vp.frame().coordinatesOf(arcballReferencePoint())).vec[2])
+							* Math.abs((vp.frame().coordinatesOfNoScl(arcballReferencePoint())).vec[2])
 							/ vp.screenHeight());
 					break;
 				case ORTHOGRAPHIC: {
@@ -414,7 +413,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;
 			// #CONNECTION# mouseMoveEvent() ZOOM case
-			float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
+			//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
+			float coef = Math.max(Math.abs((vp.frame().coordinatesOfNoScl(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
 			Vector3D trans;
 			
 			//TODO check rhanded
@@ -478,27 +478,23 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	protected Quaternion computeCADQuaternion(int x, int y, float cx,	float cy, Pinhole camera) {
 		if(! (camera instanceof Camera) )
 			throw new RuntimeException("CAD cam is oly available in 3D");
+		
 		// Points on the deformed ball
 		float px = rotationSensitivity() * ((int) prevPos.x - cx)	/ camera.screenWidth();
-		float py = rotationSensitivity() * (cy - (int) prevPos.y)	/ camera.screenHeight();
+		float py = rotationSensitivity() * (scene.isLeftHanded() ? ((int) prevPos.y - cy) : ((cy - (int) prevPos.y))) / camera.screenHeight();
 		float dx = rotationSensitivity() * (x - cx) / camera.screenWidth();
-		float dy = rotationSensitivity() * (cy - y) / camera.screenHeight();
+		float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();
 		
 		//1,0,0 is given in the camera frame
 		Vector3D axisX = new Vector3D(1, 0, 0);
 		//0,0,1 is given in the world and then transform to the camera frame
-		Vector3D world2camAxis = camera.frame().transformOf(worldAxis);
+		//Vector3D world2camAxis = camera.frame().transformOf(worldAxis);
+		Vector3D world2camAxis = camera.frame().transformOfNoScl(worldAxis);
 
-		float angleWorldAxis = rotationSensitivity() * (dx - px);
-		float angleX = rotationSensitivity() * (dy - py);
+		float angleWorldAxis = rotationSensitivity() * (scene.isLeftHanded() ? (dx - px) : (px - dx));
+		float angleX = rotationSensitivity() * (dy - py);	
 
-		// Coordinate system correction
-		if( scene.isLeftHanded() ) 
-			angleX = -angleX;
-		else
-			angleWorldAxis = -angleWorldAxis;
-
-		Quaternion quatWorld = new Quaternion(world2camAxis, angleWorldAxis);
+		Quaternion quatWorld = new Quaternion(world2camAxis, angleWorldAxis);		
 		Quaternion quatX = new Quaternion(axisX, angleX);
 		
 		return Quaternion.multiply(quatWorld, quatX);
@@ -523,4 +519,84 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	public Vector3D getCADAxis() {
 		return worldAxis;
 	}
+	
+	//TODO No Scl
+	//original method was final
+	@Override
+	public final void rotateAroundPoint(Orientable rotation, Vector3D point) {
+		if (constraint() != null)
+			rotation = constraint().constrainRotation(rotation, this);
+
+		this.kernel().rotation().compose(rotation);
+		if(is3D())
+			this.kernel().rotation().normalize(); // Prevents numerical drift
+		
+		Orientable q;
+		if(is3D())
+			//TODO could it be just: frame().orientation().rotate() ?
+			q = new Quaternion(inverseTransformOfNoScl(((Quaternion)rotation).axis()), rotation.angle());		  
+		else 
+			q = new Rotation(rotation.angle());
+		
+		Vector3D t = Vector3D.add(point, q.rotate(Vector3D.sub(position(), point)));
+		t.sub(kernel().translation());
+
+		if (constraint() != null)
+			kernel().translate(constraint().constrainTranslation(t, this));
+		else
+			kernel().translate(t);
+	}
+	
+	/**
+	public final Vector3D coordinatesOfNoScl(Vector3D src) {
+		if (referenceFrame() != null)
+			return localCoordinatesOfNoScl(referenceFrame().coordinatesOfNoScl(src));
+		else
+			return localCoordinatesOfNoScl(src);
+	}
+	
+	public final Vector3D localCoordinatesOfNoScl(Vector3D src) {
+		return rotation().inverseRotate(Vector3D.sub(src, translation()));
+	}
+	
+	public final Vector3D inverseCoordinatesOfNoScl(Vector3D src) {
+		VFrame fr = this;
+		Vector3D res = src;
+		while (fr != null) {
+			res = fr.localInverseCoordinatesOfNoScl(res);
+			fr = fr.referenceFrame();
+		}
+		return res;
+	}
+	
+	public final Vector3D localInverseCoordinatesOfNoScl(Vector3D src) {
+		return Vector3D.add(rotation().rotate(src), translation());
+	}
+	
+	public final Vector3D transformOfNoScl(Vector3D src) {
+		if (referenceFrame() != null)
+			return localTransformOfNoScl(referenceFrame().transformOfNoScl(src));
+		else
+			return localTransformOfNoScl(src);
+
+	}
+	
+	public final Vector3D localTransformOfNoScl(Vector3D src) {
+		return rotation().inverseRotate(src);
+	}
+	
+	public final Vector3D inverseTransformOfNoScl(Vector3D src) {
+		VFrame fr = this;
+		Vector3D res = src;
+		while (fr != null) {
+			res = fr.localInverseTransformOfNoScl(res);
+			fr = fr.referenceFrame();
+		}
+		return res;
+	}
+	
+	public final Vector3D localInverseTransformOfNoScl(Vector3D src) {
+		return rotation().rotate(src);
+	}
+	// */
 }

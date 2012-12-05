@@ -20,9 +20,11 @@ import remixlab.remixcam.geom.VFrame;
 // */
 import remixlab.remixcam.geom.Vector3D;
 
-public class Renderer3D extends Renderer {	
+public class Renderer3D extends Renderer {
+	Vector3D at;
 	public Renderer3D(AbstractScene scn, PGraphics3D renderer) {
 		super(scn, renderer);
+		at = new Vector3D();
 	}
 	
 	public PGraphics3D pg3d() {
@@ -107,7 +109,7 @@ public class Renderer3D extends Renderer {
 		pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
 		// */
 			  
-		/**		
+		 /**		
 		// Option 2
 		pg3d().modelview.set(scene.camera().getViewMatrix(true).getTransposed(new float[16]));						
 		// Finally, caches projmodelview
@@ -119,8 +121,10 @@ public class Renderer3D extends Renderer {
 		// /**
 	  // Option 3
 		// compute the processing camera modelview matrix from our camera() parameters
+		at = scene.camera().at();
 		pg3d().camera(scene.camera().position().x(), scene.camera().position().y(), scene.camera().position().z(),
-				          scene.camera().at().x(), scene.camera().at().y(), scene.camera().at().z(),
+				          //scene.camera().at().x(), scene.camera().at().y(), scene.camera().at().z(),
+				          at.x(), at.y(), at.z(),
 				          scene.camera().upVector().x(), scene.camera().upVector().y(), scene.camera().upVector().z());
 		// We cache the processing camera modelview matrix into our camera()
 		scene.camera().setViewMatrix( pg3d().modelview.get(new float[16]), true );// set it transposed
