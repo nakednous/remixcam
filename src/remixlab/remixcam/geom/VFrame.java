@@ -1301,6 +1301,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Same as {@code rotateAroundPoint(rotation, point, true)}. Calls
 	 * {@link #modified()}.
 	 */
+	//TODO fix me
 	public void rotateAroundPoint(Orientable rotation, Vector3D point) {
 		if (constraint() != null)
 			rotation = constraint().constrainRotation(rotation, this);
@@ -1310,8 +1311,12 @@ public class VFrame extends Geom implements Copyable, Constants {
 			this.kernel().rotation().normalize(); // Prevents numerical drift
 		
 		Orientable q;
-		if(is3D())
-			q = new Quaternion(inverseTransformOf(((Quaternion)rotation).axis()), rotation.angle());		  
+		if(is3D()) {
+			//q = new Quaternion(inverseTransformOf(((Quaternion)rotation).axis()), rotation.angle());
+			Vector3D axis = ((Quaternion)rotation).axis();
+			axis.div(magnitude());
+			q = new Quaternion(inverseTransformOf(axis), rotation.angle());
+		}		  
 		else 
 			q = new Rotation(rotation.angle());
 		
@@ -2212,7 +2217,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	
   //TODO testing arcball
 	
-	// /**
+	/**
 	public final Vector3D coordinatesOfNoScl(Vector3D src) {
 		if (referenceFrame() != null)
 			return localCoordinatesOfNoScl(referenceFrame().coordinatesOfNoScl(src));

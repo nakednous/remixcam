@@ -278,7 +278,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			if( scene.needsYCorrection() )
 				deltaY = -deltaY;
 			
-			switch (action) {
+			switch (action) {			
 			case TRANSLATE: {				
 				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
 				Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
@@ -286,10 +286,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				switch (camera.type()) {
 				case PERSPECTIVE:
 					trans.mult(2.0f
-							* (float) Math.tan( camera.fieldOfView() / 2.0f)
-							//* Math.abs((vp.frame().coordinatesOf(arcballReferencePoint())).vec[2])
-							* Math.abs((camera.frame().coordinatesOfNoScl(arcballReferencePoint())).vec[2])
-							/ camera.screenHeight());
+							       * (float) Math.tan( camera.fieldOfView() / 2.0f)
+							       //* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2])
+							       * Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2] * magnitude().z())
+							       //* Math.abs((camera.frame().coordinatesOfNoScl(arcballReferencePoint())).vec[2])
+							       / camera.screenHeight());
 					break;
 				case ORTHOGRAPHIC: {
 					float[] wh = camera.getOrthoWidthHeight();
@@ -299,17 +300,27 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				}
 				}
 				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
-				translate(orientation().rotate(Vector3D.mult(trans, translationSensitivity())));//no scl
-				prevPos = eventPoint;				
+				
+				trans = Vector3D.mult(trans, translationSensitivity());
+				Vector3D mag = magnitude();
+				trans.div(mag);
+				translate(inverseTransformOf(trans));
+				prevPos = eventPoint;
+				
 				break;
 			}
 
-			case ZOOM: {				
+			case ZOOM: {		
 				// #CONNECTION# wheelEvent() ZOOM case
-			  float coef = Math.max(Math.abs((camera.frame().coordinatesOfNoScl(camera.arcballReferencePoint())).vec[2]), 0.2f * camera.sceneRadius());
+			  float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * camera.sceneRadius());
 				//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
 				// Warning: same for left and right CoordinateSystemConvention:
 				Vector3D trans = new Vector3D(0.0f, 0.0f,	-coef	* ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
+				
+				//No Scl
+				Vector3D mag = magnitude();
+				trans.div(mag);
+				
 				translate(inverseTransformOf(trans));
 				prevPos = eventPoint;				
 				break;
@@ -372,8 +383,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				case PERSPECTIVE:
 					trans.mult(2.0f
 							* (float) Math.tan( camera.fieldOfView() / 2.0f)
-							//* Math.abs((vp.frame().coordinatesOf(arcballReferencePoint())).vec[2])
-							* Math.abs((camera.frame().coordinatesOfNoScl(arcballReferencePoint())).vec[2])
+							* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2] * magnitude().z())
+							//* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2])
+							//* Math.abs((camera.frame().coordinatesOfNoScl(arcballReferencePoint())).vec[2])
 							/ camera.screenHeight());
 					break;
 				case ORTHOGRAPHIC: {
@@ -442,13 +454,18 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		
 		switch (action) {
 		case ZOOM: {
-			float wheelSensitivityCoef = 8E-4f;
-			// #CONNECTION# mouseMoveEvent() ZOOM case
-			//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
-			float coef = Math.max(Math.abs((vp.frame().coordinatesOfNoScl(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
-			Vector3D trans = new Vector3D(0.0f, 0.0f, coef * (-rotation) * wheelSensitivity() * wheelSensitivityCoef);
+			float wheelSensitivityCoef = 8E-4f;			
 			
 			if( scene.is3D() ) {
+			  // #CONNECTION# mouseMoveEvent() ZOOM case
+				//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
+				float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * vp.sceneRadius());
+				Vector3D trans = new Vector3D(0.0f, 0.0f, coef * (-rotation) * wheelSensitivity() * wheelSensitivityCoef);
+				
+			  //No Scl
+				Vector3D mag = magnitude();
+				trans.div(mag);
+				
 				translate(inverseTransformOf(trans));
 			}
 			else {			
@@ -504,8 +521,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		//1,0,0 is given in the camera frame
 		Vector3D axisX = new Vector3D(1, 0, 0);
 		//0,0,1 is given in the world and then transform to the camera frame
-		//Vector3D world2camAxis = camera.frame().transformOf(worldAxis);
-		Vector3D world2camAxis = camera.frame().transformOfNoScl(worldAxis);
+		
+		//TODO broken when cam frame has scaling
+		Vector3D world2camAxis = camera.frame().transformOf(worldAxis);
+		//Vector3D world2camAxis = camera.frame().transformOfNoScl(worldAxis);
 
 		float angleWorldAxis = rotationSensitivity() * (scene.isLeftHanded() ? (dx - px) : (px - dx));
 		float angleX = rotationSensitivity() * (dy - py);	
@@ -536,6 +555,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		return worldAxis;
 	}
 	
+	/**
 	//TODO No Scl
 	//original method was final
 	@Override
@@ -562,6 +582,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		else
 			kernel().translate(t);
 	}
+	*/
 	
 	/**
 	public final Vector3D coordinatesOfNoScl(Vector3D src) {
