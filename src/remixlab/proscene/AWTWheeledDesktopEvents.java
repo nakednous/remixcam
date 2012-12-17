@@ -27,6 +27,9 @@ package remixlab.proscene;
 
 import java.awt.event.*;
 
+import processing.event.MouseEvent;
+import remixlab.remixcam.core.InteractiveFrame;
+
 /**
  * This class provides low level java.awt.* based input event handling.
  * <p>
@@ -37,7 +40,7 @@ import java.awt.event.*;
  * generated via Processing will then be directed to {@link #keyEvent(KeyEvent)} and to
  * {@link #mouseEvent(MouseEvent)}.  
  */
-public class AWTWheeledDesktopEvents extends AWTDesktopEvents implements MouseWheelListener {	
+public class AWTWheeledDesktopEvents extends P5DesktopEvents implements MouseWheelListener {	
 	
 	public AWTWheeledDesktopEvents(Scene s) {
 		super(s);
@@ -55,10 +58,45 @@ public class AWTWheeledDesktopEvents extends AWTDesktopEvents implements MouseWh
 	 * Mouse wheel rotation is interpreted according to the
 	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse wheel bindings.
 	 * 
-	 * @see #awtMousePressed(MouseEvent)
+	 * @see #mousePressed(MouseEvent)
 	 */
 	@Override	
 	public void mouseWheelMoved(MouseWheelEvent event) {
 		awtMouseWheelMoved(event);
+	}
+	
+	/**
+	 * The action generated when the user start rotating the mouse wheel is handled by the
+	 * {@link remixlab.proscene.Scene#mouseGrabber()} (if any), or the
+	 * {@link remixlab.proscene.Scene#interactiveFrame()}
+	 * (if @link remixlab.proscene.Scene#interactiveFrameIsDrawn()), or the
+	 * {@link remixlab.proscene.Scene#pinhole()} (checks are performed in that order).
+	 * <p>
+	 * Mouse wheel rotation is interpreted according to the
+	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse wheel bindings.
+	 * 
+	 * @see #mousePressed(MouseEvent)
+	 */
+	public void awtMouseWheelMoved(MouseWheelEvent event) {
+		/**
+		if(!scene.mouseIsHandled())
+			return;
+		if (scene.mouseGrabber() != null) {
+			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
+				InteractiveFrame iFrame = (InteractiveFrame) scene.mouseGrabber();
+				iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
+				iFrame.mouseWheelMoved(event.getWheelRotation(), scene.pinhole());				
+			} else
+				scene.mouseGrabber().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());
+			return;
+		}
+		if (scene.interactiveFrameIsDrawn()) {
+			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
+			scene.interactiveFrame().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());
+			return;
+		}
+		scene.pinhole().frame().startAction(scene.currentCameraProfile().cameraWheelMouseAction(event), scene.drawIsConstrained());
+		scene.pinhole().frame().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());		
+	  // */
 	}
 }

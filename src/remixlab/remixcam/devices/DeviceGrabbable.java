@@ -105,7 +105,7 @@ public interface DeviceGrabbable {
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a mouse button is clicked.
 	 */
-	void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, Pinhole vp);
+	void mouseClicked(/**Point eventPoint,*/ Integer button, int numberOfClicks, Pinhole vp);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a

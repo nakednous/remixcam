@@ -1,11 +1,11 @@
 /**
- *                     RemixCam (version 1.0.0)      
- *      Copyright (c) 2012 by National University of Colombia
+ *                     ProScene (version 1.1.96)      
+ *    Copyright (c) 2010-2012 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
- *              https://github.com/nakednous/remixcam
+ *           http://www.disi.unal.edu.co/grupos/remixlab/
  *                           
- * This java library provides classes to ease the creation of interactive 3D
- * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
+ * This java package provides classes to ease the creation of interactive 3D
+ * scenes in Processing.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,7 +25,7 @@
 
 package remixlab.remixcam.devices;
 
-import remixlab.remixcam.core.*;
+import remixlab.remixcam.core.Constants;
 
 /**
  * This class represents mouse click shortcuts.
@@ -34,15 +34,14 @@ import remixlab.remixcam.core.*;
  * and can be of one out of two forms: 1. A mouse button; and, 2. A mouse
  * button plus a key-modifier (such as the CTRL key).
  */
-public abstract class AbstractClickBinding {		
+public class ClickBinding implements Constants {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((button == null) ? 0 : button.hashCode());
 		result = prime * result + ((mask == null) ? 0 : mask.hashCode());
-		result = prime * result
-				+ ((numberOfClicks == null) ? 0 : numberOfClicks.hashCode());
+		result = prime * result	+ ((numberOfClicks == null) ? 0 : numberOfClicks.hashCode());
 		return result;
 	}
 
@@ -54,7 +53,7 @@ public abstract class AbstractClickBinding {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AbstractClickBinding other = (AbstractClickBinding) obj;
+		ClickBinding other = (ClickBinding) obj;
 		if (button == null) {
 			if (other.button != null)
 				return false;
@@ -71,43 +70,42 @@ public abstract class AbstractClickBinding {
 		} else if (!numberOfClicks.equals(other.numberOfClicks))
 			return false;
 		return true;
-	}
-
-	protected final Integer mask;
-	protected final Integer numberOfClicks;
-	protected final AbstractScene.Button button;
-
-	/**
-	 * Defines a mouse single click shortcut from the given mouse button. 
-	 * 
-	 * @param b mouse button
-	 */
-	public AbstractClickBinding(AbstractScene.Button b) {
-		this(0, b, 1);
-	}
+	}	
 	
-	/**
-	 * Defines a mouse single click shortcut from the given mouse button
-	 * and modifier mask.
-	 * 	
-	 * @param m modifier mask
-	 * @param b mouse button
-	 */
-	public AbstractClickBinding(Integer m, AbstractScene.Button b) {
-		this(m, b, 1);
-	}
+  /**
+   * Defines a mouse single click shortcut from the given mouse button. 
+   * 
+   * @param b mouse button
+   */
+  public ClickBinding(Integer b) {
+  	this(0, b, 1);
+  }
+  
+  /**
+   * Defines a mouse single click shortcut from the given mouse button
+   * and modifier mask.
+   *      
+   * @param m modifier mask
+   * @param b mouse button
+   */
+  /**
+  public ClickBinding(Integer m, Integer b) {
+  	this(m, b, 1);
+  }
+  */
+  
+  /**
+   * Defines a mouse click shortcut from the given mouse button and
+   * number of clicks. 
+   * 
+   * @param b mouse button
+   * @param c number of clicks
+   */
+  public ClickBinding(Integer b, Integer c) {
+  	this(0, b, c);
+  }
 	
-	/**
-	 * Defines a mouse click shortcut from the given mouse button and
-	 * number of clicks. 
-	 * 
-	 * @param b mouse button
-	 * @param c number of clicks
-	 */
-	public AbstractClickBinding(AbstractScene.Button b, Integer c) {
-		this(0, b, c);
-	}
-	
+		
 	/**
 	 * Defines a mouse click shortcut from the given mouse button,
 	 * modifier mask, and number of clicks.
@@ -116,7 +114,7 @@ public abstract class AbstractClickBinding {
 	 * @param b mouse button
 	 * @param c bumber of clicks
 	 */
-	public AbstractClickBinding(Integer m, AbstractScene.Button b, Integer c) {
+	public ClickBinding(Integer m, Integer b, Integer c) {
 		this.mask = m;
 		this.button = b;
 		if(c <= 0)
@@ -125,5 +123,34 @@ public abstract class AbstractClickBinding {
 			this.numberOfClicks = c;
 	}
 	
-	public abstract String description();
+	/**
+	 * Returns a textual description of this click shortcut.
+	 *  
+	 * @return description
+	 */
+	public String description() {
+		String description = new String();
+		if(mask != 0)
+			description += DesktopEvents.getModifiersText(mask) + " + ";
+		switch (button) {
+		case LEFT :
+			description += "LEFT_BUTTON";
+			break;
+		case CENTER :
+			description += "MIDDLE_BUTTON";
+			break;
+		case RIGHT :
+			description += "RIGHT_BUTTON";
+			break;		
+		}
+		if(numberOfClicks==1)
+		  description += " + " + numberOfClicks.toString() + " click";
+		else
+			description += " + " + numberOfClicks.toString() + " clicks";
+		return description;
+	}
+	
+	private final Integer mask;
+	private final Integer numberOfClicks;
+	private final Integer button;
 }

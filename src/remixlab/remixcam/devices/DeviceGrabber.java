@@ -26,7 +26,6 @@
 package remixlab.remixcam.devices;
 
 import remixlab.remixcam.core.*;
-import remixlab.remixcam.core.AbstractScene.Button;
 import remixlab.remixcam.geom.Point;
 
 /**
@@ -77,7 +76,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void mouseClicked(Button button, int numberOfClicks, Pinhole vp) { }
+	public void mouseClicked(Integer button, int numberOfClicks, Pinhole vp) { }
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and the

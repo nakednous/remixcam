@@ -25,14 +25,14 @@
 
 package remixlab.proscene;
 
-import java.awt.event.*;
+import processing.event.*;
 
-import remixlab.remixcam.core.AbstractScene.Button;
 import remixlab.remixcam.core.AbstractScene.CameraKeyboardAction;
 import remixlab.remixcam.core.AbstractScene.ClickAction;
 import remixlab.remixcam.core.AbstractScene.KeyboardAction;
 import remixlab.remixcam.core.AbstractScene.MouseAction;
 import remixlab.remixcam.core.InteractiveFrame;
+import remixlab.remixcam.devices.DesktopEvents;
 import remixlab.remixcam.devices.DeviceGrabbable;
 import remixlab.remixcam.geom.Point;
 
@@ -46,16 +46,15 @@ import remixlab.remixcam.geom.Point;
  * generated via Processing will then be directed to {@link #keyEvent(KeyEvent)} and to
  * {@link #mouseEvent(MouseEvent)}.  
  */
-public class AWTDesktopEvents {
-	protected Scene scene;
+public class P5DesktopEvents extends DesktopEvents {	
 	protected MouseAction camMouseAction;
 	protected boolean keyHandled;
   //Z O O M _ O N _ R E G I O N
 	public Point fCorner;// also used for SCREEN_ROTATE
 	public Point lCorner;
 	
-	public AWTDesktopEvents(Scene s) {
-		scene = s;
+	public P5DesktopEvents(Scene s) {
+		super(s);
 		camMouseAction = MouseAction.NO_MOUSE_ACTION;
 		keyHandled = false;
 		fCorner = new Point();
@@ -70,18 +69,18 @@ public class AWTDesktopEvents {
 	 * @see remixlab.proscene.Scene#keyboardIsHandled()
 	 * @see remixlab.proscene.Scene#enableKeyboardHandling(boolean)
 	 */
-	public void keyEvent(KeyEvent e) {
+	public void keyEvent(KeyEvent e) {		
 		if( !scene.keyboardIsHandled() )
-			return;
+			return;		
 		keyHandled = false;
-		switch (e.getID()) {		
-		case KeyEvent.KEY_PRESSED:
+		switch (e.getAction() ) {
+		case KeyEvent.PRESS:
 			break;
-		case KeyEvent.KEY_TYPED:
-			awtKeyTyped(e);
+		case KeyEvent.TYPE:
+			keyTyped(e);
 			break;
-		case KeyEvent.KEY_RELEASED:
-			awtKeyReleased(e);
+		case KeyEvent.RELEASE:
+			keyReleased(e);
 			break;
 		}
 	}
@@ -96,7 +95,7 @@ public class AWTDesktopEvents {
 	 * @see #keyTypedCameraKeyboardAction(KeyEvent)
 	 * @see #keyTypedKeyboardAction(KeyEvent)
 	 */
-	protected void awtKeyTyped(KeyEvent e) {
+	protected void keyTyped(KeyEvent e) {
 		boolean handled = false;		
 		if (scene.currentCameraProfile() != null)
 			handled = keyTypedCameraKeyboardAction(e);
@@ -117,7 +116,7 @@ public class AWTDesktopEvents {
 	 * @see #keyReleasedCameraKeyboardAction(KeyEvent)
 	 * @see #keyReleasedKeyboardAction(KeyEvent)
 	 */
-	protected void awtKeyReleased(KeyEvent e) {
+	protected void keyReleased(KeyEvent e) {
 		if(keyHandled)
 			return;
 		boolean handled = false;
@@ -138,7 +137,7 @@ public class AWTDesktopEvents {
 	 */
 	protected boolean keyTypedCameraKeyboardAction(KeyEvent e) {
 		CameraKeyboardAction kba = null;
-		kba = scene.currentCameraProfile().shortcut( e.getKeyChar() );
+		kba = scene.currentCameraProfile().shortcut( e.getKey() );
 		if (kba == null)
 			return false;
 		else {
@@ -156,8 +155,8 @@ public class AWTDesktopEvents {
 	 * @return true if a binding was found 
 	 */
 	protected boolean keyTypedKeyboardAction( KeyEvent e) {
-		if (!e.isAltDown() && !e.isAltGraphDown() && !e.isControlDown()	&& !e.isShiftDown()) {
-			Integer path = scene.path(e.getKeyChar());
+		if (!e.isAltDown() /**&& !e.isAltGraphDown()*/ && !e.isControlDown()	&& !e.isShiftDown()) {
+			Integer path = scene.path(e.getKey());
 			if (path != null) {
 				scene.pinhole().playPath(path);
 				return true;
@@ -165,7 +164,7 @@ public class AWTDesktopEvents {
 		}
 		
 		KeyboardAction kba = null;
-		kba = scene.shortcut(e.getKeyChar());
+		kba = scene.shortcut(e.getKey());
 		if (kba == null)
 			return false;
 		else {
@@ -185,7 +184,7 @@ public class AWTDesktopEvents {
 	 */
 	protected boolean keyReleasedCameraKeyboardAction(KeyEvent e) {
 		CameraKeyboardAction kba = null;
-		kba = scene.currentCameraProfile().shortcut( e.getModifiersEx(), e.getKeyCode() );
+		kba = scene.currentCameraProfile().shortcut( e.getModifiers(), e.getKeyCode() );
 		if (kba == null)
 			return false;
 		else {
@@ -205,10 +204,11 @@ public class AWTDesktopEvents {
 	protected boolean keyReleasedKeyboardAction(KeyEvent e) {
 		// 1. Key-frames
 		// 1.1. Need to add a key-frame?
-		if (((scene.addKeyFrameKeyboardModifier == Scene.Modifier.ALT) && (e.isAltDown()))
-	   || ((scene.addKeyFrameKeyboardModifier == Scene.Modifier.ALT_GRAPH) && (e.isAltGraphDown()))
-		 || ((scene.addKeyFrameKeyboardModifier == Scene.Modifier.CTRL) && (e.isControlDown()))
-		 || ((scene.addKeyFrameKeyboardModifier == Scene.Modifier.SHIFT) && (e.isShiftDown()))) {
+		if (((scene.addKeyFrameKeyboardModifier == ALT) && (e.isAltDown()))
+	   /**|| ((scene.addKeyFrameKeyboardModifier == ALT_GRAPH) && (e.isAltGraphDown()))*/
+		 || ((scene.addKeyFrameKeyboardModifier == META) && (e.isMetaDown()))
+		 || ((scene.addKeyFrameKeyboardModifier == CTRL) && (e.isControlDown()))
+		 || ((scene.addKeyFrameKeyboardModifier == SHIFT) && (e.isShiftDown()))) {
 			Integer path = scene.path(e.getKeyCode());
 			if (path != null) {
 				scene.pinhole().addKeyFrameToPath(path);
@@ -216,10 +216,11 @@ public class AWTDesktopEvents {
 			}
 		}
   	// 1.2. Need to delete a key-frame?
-		if (((scene.deleteKeyFrameKeyboardModifier == Scene.Modifier.ALT) && (e.isAltDown()))
-		 || ((scene.deleteKeyFrameKeyboardModifier == Scene.Modifier.ALT_GRAPH) && (e.isAltGraphDown()))
-		 || ((scene.deleteKeyFrameKeyboardModifier == Scene.Modifier.CTRL) && (e.isControlDown()))
-		 || ((scene.deleteKeyFrameKeyboardModifier == Scene.Modifier.SHIFT) && (e.isShiftDown()))) {
+		if (((scene.deleteKeyFrameKeyboardModifier == ALT) && (e.isAltDown()))
+		 /**|| ((scene.deleteKeyFrameKeyboardModifier == ALT_GRAPH) && (e.isAltGraphDown()))*/
+		 || ((scene.deleteKeyFrameKeyboardModifier == META) && (e.isMetaDown()))
+		 || ((scene.deleteKeyFrameKeyboardModifier == CTRL) && (e.isControlDown()))
+		 || ((scene.deleteKeyFrameKeyboardModifier == SHIFT) && (e.isShiftDown()))) {
 			Integer path = scene.path(e.getKeyCode());
 			if (path != null) {
 				scene.pinhole().deletePath(path);
@@ -228,7 +229,7 @@ public class AWTDesktopEvents {
 		}		
 		// 2. General actions
 		KeyboardAction kba = null;
-		kba = scene.shortcut( e.getModifiersEx(), e.getKeyCode() );
+		kba = scene.shortcut( e.getModifiers(), e.getKeyCode() );
 		if (kba == null)
 			return false;
 		else {
@@ -238,29 +239,6 @@ public class AWTDesktopEvents {
 	}
 	
 	// 2. Mouse Events
-	
-	/**
-	 * Internal use.
-	 * <p>
-	 * Utility function that gets the Scene.Button from this MouseEvent.
-	 */
-	protected Button getButton(MouseEvent e) {
-		Button button = null;
-		switch (e.getButton()) {
-		case MouseEvent.NOBUTTON:
-			break;
-		case MouseEvent.BUTTON1: // left button
-			button = Button.LEFT;
-			break;
-		case MouseEvent.BUTTON2: // middle button
-			button = Button.MIDDLE;
-			break;
-		case MouseEvent.BUTTON3: // right button
-			button = Button.RIGHT;
-			break;
-		}
-		return button;
-	}
 	
 	/**
 	 * Mouse event handler.
@@ -273,23 +251,23 @@ public class AWTDesktopEvents {
 		scene.mouseY = e.getY();
 		if ((scene.currentCameraProfile() == null) || (!scene.mouseIsHandled()) )
 			return;
-		switch (e.getID()) {
-		case MouseEvent.MOUSE_CLICKED:
-			awtMouseClicked(e);
+		switch (e.getAction() ) {
+		case MouseEvent.CLICK:
+			mouseClicked(e);
 			break;
-		case MouseEvent.MOUSE_DRAGGED:
-			awtMouseDragged(e);
+		case MouseEvent.DRAG:
+			mouseDragged(e);
 			break;
-		case MouseEvent.MOUSE_MOVED:
-			awtMouseMoved(e);
+		case MouseEvent.MOVE:
+			mouseMoved(e);
 			break;
-		case MouseEvent.MOUSE_PRESSED:
-			awtMousePressed(e);
+		case MouseEvent.PRESS:
+			mousePressed(e);
 			break;
-		case MouseEvent.MOUSE_RELEASED:
-			awtMouseReleased(e);
+		case MouseEvent.RELEASE:
+			mouseReleased(e);
 			break;
-		}
+		}		
 	}
 	
   /**
@@ -299,23 +277,21 @@ public class AWTDesktopEvents {
    * a binding for this click event, taking into account the button, the modifier mask, and
    * the number of clicks.
    */
-	protected void awtMouseClicked(MouseEvent event) {
-		Button button = getButton(event);
-		int numberOfClicks = event.getClickCount();
+	protected void mouseClicked(MouseEvent event) {		
 		if (scene.mouseGrabber() != null)
-			scene.mouseGrabber().mouseClicked(/**event.getPoint(),*/ button, numberOfClicks, scene.pinhole());
+			scene.mouseGrabber().mouseClicked(/**event.getPoint(),*/ event.getButton(), event.getClickCount(), scene.camera());
 		else {
-			ClickAction ca = scene.currentCameraProfile().clickBinding(event.getModifiersEx(), button, numberOfClicks);
+			ClickAction ca = scene.currentCameraProfile().clickBinding(event.getModifiers(), event.getButton(), event.getClickCount());
 			if (ca != null)
 				scene.handleClickAction(ca);
-		}		
+		}
 	}
 	
 	/**
 	 * {@link remixlab.proscene.Scene#setMouseGrabber(MouseGrabbable)} to the MouseGrabber that grabs the
 	 * mouse (or to {@code null} if none of them grab it).
 	 */
-	public void awtMouseMoved(MouseEvent e) {
+	public void mouseMoved(MouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		scene.setMouseGrabber(null);
 		if( scene.hasMouseTracking() )
@@ -336,11 +312,11 @@ public class AWTDesktopEvents {
 	 * Mouse displacements are interpreted according to the
 	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse bindings.
 	 * 
-	 * @see #awtMouseDragged(MouseEvent)
-	 * @see #awtMouseReleased(MouseEvent)
+	 * @see #mouseDragged(MouseEvent)
+	 * @see #mouseReleased(MouseEvent)
 	 * @see #mouseWheelMoved(MouseWheelEvent)
 	 */
-	public void awtMousePressed(MouseEvent e) {
+	public void mousePressed(MouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		if (scene.mouseGrabber() != null) {
 			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
@@ -371,15 +347,15 @@ public class AWTDesktopEvents {
 	 * The mouse dragged event is sent to the {@link remixlab.proscene.Scene#mouseGrabber()}
 	 * or the {@link remixlab.proscene.Scene#interactiveFrame()}, or to the
 	 * {@link remixlab.proscene.Scene#pinhole()}, according to the action started at
-	 * {@link #awtMousePressed(MouseEvent)}.
+	 * {@link #mousePressed(MouseEvent)}.
 	 * <p>
 	 * Mouse displacements are interpreted according to the
 	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse bindings.
 	 * 
-	 * @see #awtMousePressed(MouseEvent)
-	 * @see #awtMouseReleased(MouseEvent)
+	 * @see #mousePressed(MouseEvent)
+	 * @see #mouseReleased(MouseEvent)
 	 */
-	public void awtMouseDragged(MouseEvent e) {
+	public void mouseDragged(MouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		if (scene.mouseGrabber() != null) {
 			scene.mouseGrabber().checkIfGrabsMouse(event.getX(), event.getY(), scene.pinhole());
@@ -410,15 +386,15 @@ public class AWTDesktopEvents {
 	 * {@link remixlab.proscene.Scene#mouseGrabber()} or the
 	 * {@link remixlab.proscene.Scene#interactiveFrame()}, or to the
 	 * {@link remixlab.proscene.Scene#pinhole()}, according to the action started at
-	 * {@link #awtMousePressed(MouseEvent)}.
+	 * {@link #mousePressed(MouseEvent)}.
 	 * <p>
 	 * Mouse displacements are interpreted according to the
 	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse bindings.
 	 * 
-	 * @see #awtMousePressed(MouseEvent)
-	 * @see #awtMouseDragged(MouseEvent)
+	 * @see #mousePressed(MouseEvent)
+	 * @see #mouseDragged(MouseEvent)
 	 */
-	public void awtMouseReleased(MouseEvent e) {
+	public void mouseReleased(MouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		if (scene.mouseGrabber() != null) {
 			if (scene.mouseGrabberIsAnIFrame) //covers also the case when mouseGrabberIsADrivableFrame
@@ -444,41 +420,6 @@ public class AWTDesktopEvents {
 		scene.pinhole().frame().mouseReleased(new Point(event.getX(), event.getY()), scene.pinhole());
 		camMouseAction = MouseAction.NO_MOUSE_ACTION;
 		// iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
-	}
-	
-	// 2.b Wheel	
-	
-	/**
-	 * The action generated when the user start rotating the mouse wheel is handled by the
-	 * {@link remixlab.proscene.Scene#mouseGrabber()} (if any), or the
-	 * {@link remixlab.proscene.Scene#interactiveFrame()}
-	 * (if @link remixlab.proscene.Scene#interactiveFrameIsDrawn()), or the
-	 * {@link remixlab.proscene.Scene#pinhole()} (checks are performed in that order).
-	 * <p>
-	 * Mouse wheel rotation is interpreted according to the
-	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse wheel bindings.
-	 * 
-	 * @see #awtMousePressed(MouseEvent)
-	 */
-	public void awtMouseWheelMoved(MouseWheelEvent event) {
-		if(!scene.mouseIsHandled())
-			return;
-		if (scene.mouseGrabber() != null) {
-			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
-				InteractiveFrame iFrame = (InteractiveFrame) scene.mouseGrabber();
-				iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
-				iFrame.mouseWheelMoved(event.getWheelRotation(), scene.pinhole());				
-			} else
-				scene.mouseGrabber().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());
-			return;
-		}
-		if (scene.interactiveFrameIsDrawn()) {
-			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
-			scene.interactiveFrame().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());
-			return;
-		}
-		scene.pinhole().frame().startAction(scene.currentCameraProfile().cameraWheelMouseAction(event), scene.drawIsConstrained());
-		scene.pinhole().frame().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());
-	}
+	}	
 }
 

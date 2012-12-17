@@ -58,19 +58,26 @@ public class Renderer3D extends Renderer {
 		pg3d().projection.set(scene.camera().getProjectionMatrix(true).getTransposed(new float[16]));
 		// */
 		
-		// /**
+	  // /**
 		// option 3 (new, Andres suggestion)
-	  //TODO: optimize me set per value basis		
+		//TODO: optimize me set per value basis
 		//proj.set((scene.camera().getProjectionMatrix(true).getTransposed(new float[16])));
 		proj = scene.camera().getProjectionMatrix(true);
-		if( this.isRightHanded() ) {
-			proj.mat[5] = -proj.mat[5];
-		}
 		pg3d().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
-                                        proj.mat[1],  proj.mat[5], proj.mat[9],  proj.mat[13],
-                                        proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
-                                        proj.mat[3],  proj.mat[7], proj.mat[11], proj.mat[15] ));
+	                                      proj.mat[1],  isLeftHanded() ? proj.mat[5] : -proj.mat[5], proj.mat[9],  proj.mat[13],
+	                                      proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
+	                                      proj.mat[3],  proj.mat[7], proj.mat[11], proj.mat[15] ));
 		// */
+		
+	  /**
+		proj = scene.camera().getProjectionMatrix(true);
+		pg3d().flush();
+		pg3d().projection.set( proj.mat[0], proj.mat[4],                                  proj.mat[8],  proj.mat[12],
+	                         proj.mat[1], isLeftHanded() ? proj.mat[5] : -proj.mat[5], proj.mat[9],  proj.mat[13],
+	                         proj.mat[2], proj.mat[6],                                  proj.mat[10], proj.mat[14],
+	                         proj.mat[3], proj.mat[7],                                  proj.mat[11], proj.mat[15] );
+		pg3d().updateProjmodelview();//only in P5-head
+		// */	  
 		
 		/**
 		// Option 4
@@ -140,7 +147,7 @@ public class Renderer3D extends Renderer {
 		float cameraZ = (pg3d().height/2.0f) / PApplet.tan( scene().camera().fieldOfView() /2.0f);
     float cameraNear = cameraZ / 2.0f;
     float cameraFar = cameraZ * 2.0f;
-    pg3d().ortho(-pg3d().width/2, pg3d().width/2, -pg3d().height/2, pg3d().height/2, cameraNear, cameraFar);		
+    pg3d().ortho(0, pg3d().width, 0, pg3d().height, cameraNear, cameraFar);		
     pg3d().pushMatrix();
 	  // Camera needs to be reset!
     pg3d().camera();   

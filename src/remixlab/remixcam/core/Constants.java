@@ -68,4 +68,27 @@ public interface Constants {
    * @see #QUARTER_PI
    */
   static final float TWO_PI     = PI * 2.0f;  
+  
+  //modifier keys
+  /**
+  static final int SHIFT     = 1;
+  static final int CTRL      = 2;
+  static final int META      = 4;
+  static final int ALT       = 8;
+  static final int ALT_GRAPH = 16;
+  */
+  
+  static public final int SHIFT     = 1 << 0;
+  static public final int CTRL      = 1 << 1;
+  static public final int META      = 1 << 2;
+  static public final int ALT       = 1 << 3;
+  static public final int ALT_GRAPH = 1 << 4;
+  
+  static final int CENTER = 3;
+  
+  //Arrows
+  static final int LEFT  = 37;
+  static final int UP    = 38;
+  static final int RIGHT = 39;
+  static final int DOWN  = 40;  
 }

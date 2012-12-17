@@ -282,6 +282,15 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			case TRANSLATE: {				
 				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
 				Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
+				
+				Vector3D mag = magnitude();				
+				if( mag.y() < 0 )
+					trans.y(-trans.y());
+				if( (mag.x() < 0 && mag.y() < 0 && mag.z() > 0) || 
+						(mag.x() > 0 && mag.y() > 0 && mag.z() < 0) ||
+						(mag.x() > 0 && mag.y() < 0 && mag.z() > 0))
+					trans.x(-trans.x());
+				
 				// Scale to fit the screen mouse displacement
 				switch (camera.type()) {
 				case PERSPECTIVE:
@@ -301,9 +310,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				}
 				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
 				
-				trans = Vector3D.mult(trans, translationSensitivity());
-				Vector3D mag = magnitude();
-				trans.div(mag);
+				trans = Vector3D.mult(trans, translationSensitivity());				
+				trans.div(mag);			
+				
 				translate(inverseTransformOf(trans));
 				prevPos = eventPoint;
 				
@@ -328,7 +337,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 			case ROTATE: {
 				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
-				Orientable rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], (Camera) camera);				
+				Orientable rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], camera);				
 				// #CONNECTION# These two methods should go together (spinning detection and activation)
 				computeMouseSpeed(eventPoint);
 				setSpinningQuaternion(rot);

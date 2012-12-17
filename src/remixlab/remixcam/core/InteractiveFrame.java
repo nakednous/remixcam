@@ -555,9 +555,16 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	public final void setSpinningQuaternion(Orientable spinningQuaternion) {
 		spngQuat = spinningQuaternion;
 		if( is3D() ) {
-			if(this.scaling().x() < 0) ((Quaternion)spngQuat).quat[0] *= -1;
-			if(this.scaling().y() < 0) ((Quaternion)spngQuat).quat[1] *= -1;
-			if(this.scaling().z() < 0) ((Quaternion)spngQuat).quat[2] *= -1;
+			if( this instanceof InteractiveCameraFrame ) {
+				if(this.scaling().x() < 0) ((Quaternion)spngQuat).quat[0] *= -1;
+				if(this.scaling().y() < 0) ((Quaternion)spngQuat).quat[1] *= -1;
+				if(this.scaling().z() < 0) ((Quaternion)spngQuat).quat[2] *= -1;
+			}
+			else {
+				if(this.scaling().x() < 0) ((Quaternion)spngQuat).quat[0] *= -1;
+				if(this.scaling().y() < 0) ((Quaternion)spngQuat).quat[1] *= -1;
+				if(this.scaling().z() < 0) ((Quaternion)spngQuat).quat[2] *= -1;
+			}
 		}
 	}
 
@@ -609,7 +616,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * the camera view direction.
 	 */
 	@Override
-	public void mouseClicked(/**Point eventPoint,*/ AbstractScene.Button button, int numberOfClicks, Pinhole camera) {
+	public void mouseClicked(/**Point eventPoint,*/ Integer button, int numberOfClicks, Pinhole camera) {
 		if(numberOfClicks != 2)
 			return;
 		switch (button) {
@@ -772,6 +779,15 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		case TRANSLATE: {
 			Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
 			Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(), 0.0f);
+			
+			Vector3D mag = camera.frame().magnitude(); 
+			if( mag.y() < 0 )
+				trans.y(-trans.y());
+			if( (mag.x() < 0 && mag.y() < 0 && mag.z() > 0) || 
+					(mag.x() > 0 && mag.y() > 0 && mag.z() < 0) ||
+					(mag.x() > 0 && mag.y() < 0 && mag.z() > 0))
+				trans.x(-trans.x());
+			
 			// Scale to fit the screen mouse displacement
 			switch ( camera.type() ) {
 			case PERSPECTIVE:
@@ -795,7 +811,8 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));			
 			// And then down to frame
 			if (referenceFrame() != null)
-				trans = referenceFrame().transformOf(trans);
+				trans = referenceFrame().transformOf(trans);		
+			
 			translate(trans);
 			prevPos = eventPoint;						
 			break;
@@ -1051,20 +1068,67 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	protected Quaternion deformedBallQuaternion(int x, int y, float cx, float cy,	Camera camera) {
 		// First determine how displacements should be interpreted
 		boolean keepX = true;
-		boolean keepY = scene.isLeftHanded();		
+		boolean keepY = scene.isLeftHanded();
+		Vector3D mag;
 		if(referenceFrame() != null) {
-			Vector3D mag = referenceFrame().magnitude();			
-			if( (mag.z() > 0  && mag.y() > 0 && mag.x() < 0) ||  (mag.z() < 0  && mag.y() > 0 && mag.x() > 0) ) 
+			mag = referenceFrame().magnitude();			
+			if( (mag.z() > 0  && mag.y() > 0 && mag.x() < 0) || (mag.z() < 0  && mag.y() > 0 && mag.x() > 0) ) 
 				keepX = !keepX;
-			
-			if( (mag.z() > 0  && mag.y() < 0 && mag.x() > 0) ||  (mag.z() < 0  && mag.y() > 0 && mag.x() > 0) ) 
+			if( (mag.z() > 0  && mag.y() < 0 && mag.x() > 0) || (mag.z() < 0  && mag.y() > 0 && mag.x() > 0) ) 
 				keepY = !keepY;			
-		}		
+		}
+		mag = camera.frame().magnitude();
+		if( this instanceof InteractiveCameraFrame ) {
+			if( mag.x() < 0 && mag.y() > 0 && mag.z() > 0  ) {				
+				keepY = !keepY;
+			}
+			if( mag.x() < 0 && mag.y() < 0 && mag.z() < 0  ) {
+				keepY = !keepY;
+			}
+			if( mag.x() > 0 && mag.y() > 0 && mag.z() < 0  ) {
+				keepY = !keepY;
+			}
+			if( mag.x() > 0 && mag.y() < 0 && mag.z() > 0  ) {
+				keepY = !keepY;
+			}
+		}
+		else {
+			if( mag.x() < 0 && mag.y() < 0 && mag.z() > 0  ) {
+				keepX = !keepX;
+				keepY = !keepY;
+			}
+			if( mag.x() < 0 && mag.y() < 0 && mag.z() < 0  ) {
+				keepX = !keepX;
+			}
+			if( mag.x() > 0 && mag.y() < 0 && mag.z() < 0  ) {
+				keepX = !keepX;
+			}
+			if( mag.x() > 0 && mag.y() > 0 && mag.z() < 0  ) {
+				keepY = !keepY;
+			}
+			if( mag.x() > 0 && mag.y() < 0 && mag.z() > 0  ) {
+				keepX = !keepX;
+				keepY = !keepY;
+			}			
+		}
+		
+		/**
+		if( (mag.z() > 0  && mag.y() < 0 && mag.x() < 0) || (mag.z() < 0  && mag.y() < 0 && mag.x() > 0) ) 
+			keepX = !keepX;		
+		if( (mag.z() > 0  && mag.y() < 0 && mag.x() < 0) || (mag.z() < 0  && mag.y() > 0 && mag.x() < 0) )
+			keepY = !keepY;
+		*/
+		
+		/**
+		if( (mag.z() < 0  && mag.y() < 0 && mag.x() < 0) )
+			keepX = !keepX;
+		*/
+		
 	  // Points on the deformed ball
 		float px = rotationSensitivity() * (keepX ? ((int)prevPos.x - cx) : (cx - (int)prevPos.x)) / camera.screenWidth();
 		float py = rotationSensitivity() * (keepY ? ((int)prevPos.y - cy) : (cy - (int)prevPos.y)) / camera.screenHeight();
 		float dx = rotationSensitivity() * (keepX ? (x - cx) : (cx - x)) / camera.screenWidth();
-		float dy = rotationSensitivity() * (keepY ? (y - cy) : (cy - y)) / camera.screenHeight();
+		float dy = rotationSensitivity() * (keepY ? (y - cy) : (cy - y)) / camera.screenHeight();		
 
 		Vector3D p1 = new Vector3D(px, py, projectOnBall(px, py));
 		Vector3D p2 = new Vector3D(dx, dy, projectOnBall(dx, dy));

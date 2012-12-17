@@ -42,10 +42,12 @@ import remixlab.remixcam.core.InteractiveDrivableFrame;
 import remixlab.remixcam.core.InteractiveFrame;
 import remixlab.remixcam.core.Pinhole;
 import remixlab.remixcam.core.ViewWindow;
+import remixlab.remixcam.devices.DesktopEvents;
 //import remixlab.remixcam.core.SimpleFrame;
 //import remixlab.remixcam.core.KeyFrameInterpolator;
 import remixlab.remixcam.devices.DeviceGrabbable;
 import remixlab.remixcam.devices.Bindings;
+import remixlab.remixcam.devices.KeyboardShortcut;
 import remixlab.remixcam.util.AbstractTimerJob;
 import remixlab.remixcam.util.SingleThreadedTaskableTimer;
 import remixlab.remixcam.util.SingleThreadedTimer;
@@ -121,7 +123,7 @@ import java.util.Map.Entry;
  * otherwise), which is useful to notify the outside world when an animation event
  * occurs. See the example <i>Flock</i>.
  */
-public class Scene extends AbstractScene implements PConstants {
+public class Scene extends AbstractScene /**implements PConstants*/ {
 	// proscene version
 	public static final String version = "1.9.60";
 	/**
@@ -166,8 +168,8 @@ public class Scene extends AbstractScene implements PConstants {
 
 	// K E Y F R A M E S
 	protected Bindings<Integer, Integer> pathKeys;
-	protected Modifier addKeyFrameKeyboardModifier;
-	protected Modifier deleteKeyFrameKeyboardModifier;
+	protected Integer addKeyFrameKeyboardModifier;
+	protected Integer deleteKeyFrameKeyboardModifier;
 
 	// S h o r t c u t k e y s
 	protected Bindings<KeyboardShortcut, KeyboardAction> gProfile;
@@ -519,24 +521,12 @@ public class Scene extends AbstractScene implements PConstants {
 	 */
 	// TODO: try to rewrite and test how resizable works now
 	public void pre() {
-		if (isOffscreen()) return;	
+		if (isOffscreen()) return;		
 		
-		// handle possible resize events
-		// weird: we need to bypass the handling of a resize event when running the
-		// applet from eclipse		
-		if ((parent.frame != null) && (parent.frame.isResizable())) {
-			if ((width != pg().width) || (height != pg().height)) {
-				width = pg().width;
-				height = pg().height;				
-				pinhole().setScreenWidthAndHeight(width, height);				
-			} else {
-				if ((currentCameraProfile().mode() == CameraProfile.Mode.THIRD_PERSON)
-						&& (!pinhole().anyInterpolationIsStarted())) {
-					pinhole().setPosition(avatar().cameraPosition());
-					pinhole().setUpVector(avatar().upVector());
-					pinhole().lookAt(avatar().target());
-				}
-			}
+		if ((width != pg().width) || (height != pg().height)) {
+			width = pg().width;
+			height = pg().height;				
+			pinhole().setScreenWidthAndHeight(width, height);				
 		} else {
 			if ((currentCameraProfile().mode() == CameraProfile.Mode.THIRD_PERSON)
 					&& (!pinhole().anyInterpolationIsStarted())) {
@@ -813,11 +803,11 @@ public class Scene extends AbstractScene implements PConstants {
 		cameraProfileNames = new ArrayList<String>();
 		currentCameraProfile = null;
 		// register here the default profiles
-		//registerCameraProfile(new CameraProfile(this, "ARCBALL", CameraProfile.Mode.ARCBALL));
-		registerCameraProfile( new CameraProfile(this, "WHEELED_ARCBALL", CameraProfile.Mode.WHEELED_ARCBALL) );
+		registerCameraProfile(new CameraProfile(this, "ARCBALL", CameraProfile.Mode.ARCBALL));
+		//registerCameraProfile( new CameraProfile(this, "WHEELED_ARCBALL", CameraProfile.Mode.WHEELED_ARCBALL) );
 		registerCameraProfile( new CameraProfile(this, "FIRST_PERSON", CameraProfile.Mode.FIRST_PERSON) );
-		//setCurrentCameraProfile("ARCBALL");
-		setCurrentCameraProfile("WHEELED_ARCBALL");
+		setCurrentCameraProfile("ARCBALL");
+		//setCurrentCameraProfile("WHEELED_ARCBALL");
 	}
 
 	/**
@@ -1110,7 +1100,7 @@ public class Scene extends AbstractScene implements PConstants {
 	public void enableKeyboardHandling() {
 		if( !this.keyboardIsHandled() ) {
 			super.enableKeyboardHandling();
-			parent.registerKeyEvent(dE);
+			parent.registerMethod("keyEvent", dE);
 		}
 	}
 
@@ -1123,7 +1113,7 @@ public class Scene extends AbstractScene implements PConstants {
 	public void disableKeyboardHandling() {
 		if( this.keyboardIsHandled() ) {
 			super.disableKeyboardHandling();
-			parent.unregisterKeyEvent(dE);
+			parent.unregisterMethod("keyEvent", dE);
 		}
 	}
 
@@ -1160,8 +1150,8 @@ public class Scene extends AbstractScene implements PConstants {
 		setShortcut('r', KeyboardAction.EDIT_CAMERA_PATH);
 
 		// K e y f r a m e s s h o r t c u t k e y s
-		setAddKeyFrameKeyboardModifier(Modifier.CTRL);
-		setDeleteKeyFrameKeyboardModifier(Modifier.ALT);
+		setAddKeyFrameKeyboardModifier(CTRL);
+		setDeleteKeyFrameKeyboardModifier(ALT);
 		setPathKey('1', 1);
 		setPathKey('2', 2);
 		setPathKey('3', 3);
@@ -1179,7 +1169,7 @@ public class Scene extends AbstractScene implements PConstants {
 	 * @see #setPathKey(Integer, Integer)
 	 */
 	public void setPathKey(Character key, Integer path) {
-		setPathKey(ClickBinding.getVKey(key), path);
+		setPathKey(DesktopEvents.getVKey(key), path);
 	}
 	
 	/**
@@ -1208,7 +1198,7 @@ public class Scene extends AbstractScene implements PConstants {
 	 * @see #path(Integer)
 	 */
 	public Integer path(Character key) {
-		return path(ClickBinding.getVKey(key));
+		return path(DesktopEvents.getVKey(key));
 	}
 	
 	/**
@@ -1232,7 +1222,7 @@ public class Scene extends AbstractScene implements PConstants {
 	 * @see #removePathKey(Integer)
 	 */
 	public void removePathKey(Character key) {
-		removePathKey(ClickBinding.getVKey(key));
+		removePathKey(DesktopEvents.getVKey(key));
 	}
 	
 	/**
@@ -1256,7 +1246,7 @@ public class Scene extends AbstractScene implements PConstants {
 	 * @see #isPathKeyInUse(Integer)
 	 */
 	public boolean isPathKeyInUse(Character key) {
-		return isPathKeyInUse(ClickBinding.getVKey(key));
+		return isPathKeyInUse(DesktopEvents.getVKey(key));
 	}
 	
 	/**
@@ -1276,7 +1266,7 @@ public class Scene extends AbstractScene implements PConstants {
 	 * 
 	 * @param modifier
 	 */
-	public void setAddKeyFrameKeyboardModifier(Modifier modifier) {
+	public void setAddKeyFrameKeyboardModifier(Integer modifier) {
 		addKeyFrameKeyboardModifier = modifier;
 	}
 
@@ -1285,7 +1275,7 @@ public class Scene extends AbstractScene implements PConstants {
 	 * 
 	 * @param modifier
 	 */
-	public void setDeleteKeyFrameKeyboardModifier(Modifier modifier) {
+	public void setDeleteKeyFrameKeyboardModifier(Integer modifier) {
 		deleteKeyFrameKeyboardModifier = modifier;
 	}
 
@@ -1314,7 +1304,7 @@ public class Scene extends AbstractScene implements PConstants {
    * @see #setShortcut(Integer, Integer, KeyboardAction)
    */
 	public void setShortcut(Integer mask, Character key, KeyboardAction action) {
-		setShortcut(mask, ClickBinding.getVKey(key), action);
+		setShortcut(mask, DesktopEvents.getVKey(key), action);
 	}
 	
   /**
@@ -1375,7 +1365,7 @@ public class Scene extends AbstractScene implements PConstants {
    * @see #removeShortcut(Integer, Integer)
    */
 	public void removeShortcut(Integer mask, Character key) {
-		removeShortcut(mask, ClickBinding.getVKey(key));
+		removeShortcut(mask, DesktopEvents.getVKey(key));
 	}
 
 	/**
@@ -1419,7 +1409,7 @@ public class Scene extends AbstractScene implements PConstants {
    * @see #shortcut(Integer, Integer)
    */
 	public KeyboardAction shortcut(Integer mask, Character key) {
-		return shortcut(mask, ClickBinding.getVKey(key));
+		return shortcut(mask, DesktopEvents.getVKey(key));
 	}
 
 	/**
@@ -1463,7 +1453,7 @@ public class Scene extends AbstractScene implements PConstants {
    * @see #isKeyInUse(Integer, Integer)
    */
 	public boolean isKeyInUse(Integer mask, Character key) {
-		return isKeyInUse(mask, ClickBinding.getVKey(key));
+		return isKeyInUse(mask, DesktopEvents.getVKey(key));
 	}
 	
 	/**
@@ -1517,13 +1507,8 @@ public class Scene extends AbstractScene implements PConstants {
 			pg().text(globalHelp(), 10, 10, (pg().width-20), (pg().height-20));
 			renderer().endScreenDrawing();
 		}
-	}
+	}	
 	
-	/**
-	 * Returns a String with the global keyboard bindings.
-	 * 
-	 * @see #displayGlobalHelp()
-	 */
 	public String globalHelp() {
 		String description = new String();
 		description += "GLOBAL keyboard shortcuts\n";
@@ -1536,12 +1521,12 @@ public class Scene extends AbstractScene implements PConstants {
 		}
 		
 		for (Entry<Integer, Integer> entry : pathKeys.map().entrySet())
-			description += ClickBinding.getKeyText(entry.getKey()) + " -> plays camera path " + entry.getValue().toString() + "\n";
-		description += ClickBinding.getModifiersExText(addKeyFrameKeyboardModifier.ID) + " + one of the above keys -> adds keyframe to the camera path \n";
-		description += ClickBinding.getModifiersExText(deleteKeyFrameKeyboardModifier.ID) + " + one of the above keys -> deletes the camera path \n";
+			description += DesktopEvents.getKeyText(entry.getKey()) + " -> plays camera path " + entry.getValue().toString() + "\n";
+		description += DesktopEvents.getModifiersText(addKeyFrameKeyboardModifier) + " + one of the above keys -> adds keyframe to the camera path \n";
+		description += DesktopEvents.getModifiersText(deleteKeyFrameKeyboardModifier) + " + one of the above keys -> deletes the camera path \n";
 		
 		return description;		
-	}	
+	}
 	
 	/**
 	 * Displays the {@link #currentCameraProfile()} bindings.
@@ -1601,6 +1586,7 @@ public class Scene extends AbstractScene implements PConstants {
 			description += currentCameraProfile().frameMouseBindingsDescription();
 			index++;
 		}
+		/**
 		if( currentCameraProfile().cameraWheelBindingsDescription().length() != 0 ) {
 			description += index + ". " + "Camera mouse wheel bindings\n";
 			description += currentCameraProfile().cameraWheelBindingsDescription();
@@ -1611,6 +1597,7 @@ public class Scene extends AbstractScene implements PConstants {
 			description += currentCameraProfile().frameWheelBindingsDescription();
 			index++;
 		}
+		*/
 		return description;
 	}
 
@@ -1693,7 +1680,7 @@ public class Scene extends AbstractScene implements PConstants {
 	public void enableMouseHandling() {
 		if( !this.mouseIsHandled() ) {
 			super.enableMouseHandling();
-			parent.registerMouseEvent(dE);
+			parent.registerMethod("mouseEvent", dE);
 		}
 	}
 
@@ -1706,7 +1693,7 @@ public class Scene extends AbstractScene implements PConstants {
 	public void disableMouseHandling() {
 		if( this.mouseIsHandled() ) {
 			super.disableMouseHandling();
-			parent.unregisterMouseEvent(dE);
+			parent.unregisterMethod("mouseEvent", dE);
 		}
 	}
 

@@ -23,7 +23,8 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.proscene;
+package remixlab.remixcam.devices;
+
 
 /**
  * This class represents keyboard shortcuts.
@@ -98,12 +99,8 @@ public final class KeyboardShortcut {
 		.append(key, other.key)
 		.isEquals();
 	}
-	*/
+	*/	
 	
-	private final Integer mask;
-	private final Integer vKey;
-	private final Character key;
-
 	/**
 	 * Defines a keyboard shortcut from the given character.
 	 *  
@@ -147,10 +144,14 @@ public final class KeyboardShortcut {
 			description = key.toString();
 		else {
 			if(mask == 0)
-				description = ClickBinding.getKeyText(vKey);
+				description = DesktopEvents.getKeyText(vKey);
 			else
-				description = ClickBinding.getModifiersExText(mask) + "+" + ClickBinding.getKeyText(vKey);
+				description = DesktopEvents.getModifiersText(mask) + "+" + DesktopEvents.getKeyText(vKey);
 		}			
 		return description;
-	}			
+	}
+
+	protected final Integer mask;
+	protected final Integer vKey;
+	protected final Character key;
 }

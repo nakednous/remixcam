@@ -1313,14 +1313,19 @@ public class VFrame extends Geom implements Copyable, Constants {
 		Orientable q;
 		if(is3D()) {
 			//q = new Quaternion(inverseTransformOf(((Quaternion)rotation).axis()), rotation.angle());
+			
+			// /**
 			Vector3D axis = ((Quaternion)rotation).axis();
 			axis.div(magnitude());
 			q = new Quaternion(inverseTransformOf(axis), rotation.angle());
+			// */			
+			
+			// q = new Quaternion(inverseTransformOfNoScl(((Quaternion)rotation).axis()), rotation.angle());
 		}		  
 		else 
 			q = new Rotation(rotation.angle());
 		
-		Vector3D t = Vector3D.add(point, q.rotate(Vector3D.sub(position(), point)));
+		Vector3D t = Vector3D.add(point, q.rotate(Vector3D.sub(position(), point)));		
 		t.sub(kernel().translation());
 
 		if (constraint() != null)
@@ -2217,7 +2222,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	
   //TODO testing arcball
 	
-	/**
+	// /**
 	public final Vector3D coordinatesOfNoScl(Vector3D src) {
 		if (referenceFrame() != null)
 			return localCoordinatesOfNoScl(referenceFrame().coordinatesOfNoScl(src));
