@@ -416,10 +416,22 @@ public class CameraProfile {
 	 * <p>
 	 * Called by {@link remixlab.proscene.DesktopEvents#mousePressed(MouseEvent)}.
 	 */
-	protected MouseAction cameraMouseAction(MouseEvent e) {
-		MouseAction camMouseAction = cameraMouseBinding( e.getModifiers(), e.getButton() );	
+	protected MouseAction cameraMouseAction(MouseEvent e) {		
+		MouseAction camMouseAction = cameraMouseBinding( e.getModifiers(), e.getButton() );
+		String button = new String();
+		if(e.getButton() == PApplet.RIGHT)
+			button = "RIGHT";
+		else
+			button = "LEFT";
+		System.out.println("button: " + button + " modifiers: " + DesktopEvents.getModifiersText(e.getModifiers()));
 		if (camMouseAction == null)
 			camMouseAction = MouseAction.NO_MOUSE_ACTION;
+		//TODO DEBUG else:
+		else {
+			if( e.getButton() == PApplet.RIGHT ) {
+				System.out.println("right button pressed! action bound: " + camMouseAction.description());				
+			}				
+		}
 		return camMouseAction;
 	}
 	

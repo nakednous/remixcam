@@ -94,26 +94,18 @@ public class Camera extends Pinhole implements Constants, Copyable {
 
 	@Override
 	public boolean equals(Object obj) {
-		//TODO check me
+		//TODO check me		
 		/**
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		*/
-		//*/
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		if (this == obj) return true;
+		if (!super.equals(obj))	return false;
+		if (getClass() != obj.getClass())	return false;
 		// */
 		
-		Camera other = (Camera) obj;
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;
 		
+		Camera other = (Camera) obj;		
 	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))
     //.append(fpCoefficientsUpdate, other.fpCoefficientsUpdate)

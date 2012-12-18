@@ -18,39 +18,7 @@ public class Matrix3D implements Primitivable {
 	 * |	m2	m6	m10	m14	|
 	 * |	m3	m7	m11	m15	|
 	 */
-	
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Matrix3D other = (Matrix3D) obj;
-		
-	   return new EqualsBuilder()
-    .appendSuper(super.equals(obj))    
-    .append(this.mat[0], other.mat[0])
-    .append(this.mat[1], other.mat[1])
-    .append(this.mat[2], other.mat[2])
-    .append(this.mat[3], other.mat[3])
-    .append(this.mat[4], other.mat[4])
-    .append(this.mat[5], other.mat[5])
-    .append(this.mat[6], other.mat[6])
-    .append(this.mat[7], other.mat[7])
-    .append(this.mat[8], other.mat[8])
-    .append(this.mat[9], other.mat[9])
-    .append(this.mat[10], other.mat[10])
-    .append(this.mat[11], other.mat[11])
-    .append(this.mat[12], other.mat[12])
-    .append(this.mat[13], other.mat[13])
-    .append(this.mat[14], other.mat[14])
-    .append(this.mat[15], other.mat[15])
-		.isEquals();
-	}
-
-  @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37).		
 		append(this.mat[0]).
@@ -71,6 +39,33 @@ public class Matrix3D implements Primitivable {
 		append(this.mat[15]).
     toHashCode();
   }
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;
+		
+		Matrix3D other = (Matrix3D) obj;		
+	   return new EqualsBuilder()    
+    .append(this.mat[0], other.mat[0])
+    .append(this.mat[1], other.mat[1])
+    .append(this.mat[2], other.mat[2])
+    .append(this.mat[3], other.mat[3])
+    .append(this.mat[4], other.mat[4])
+    .append(this.mat[5], other.mat[5])
+    .append(this.mat[6], other.mat[6])
+    .append(this.mat[7], other.mat[7])
+    .append(this.mat[8], other.mat[8])
+    .append(this.mat[9], other.mat[9])
+    .append(this.mat[10], other.mat[10])
+    .append(this.mat[11], other.mat[11])
+    .append(this.mat[12], other.mat[12])
+    .append(this.mat[13], other.mat[13])
+    .append(this.mat[14], other.mat[14])
+    .append(this.mat[15], other.mat[15])
+		.isEquals();
+	} 
 
 	public float mat[] = new float[16];	
 

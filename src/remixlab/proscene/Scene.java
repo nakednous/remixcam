@@ -185,7 +185,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public Point upperLeftCorner;	
 
 	// O B J E C T S
-	protected AWTWheeledDesktopEvents dE;
+	//TODO pending
+	//protected AWTWheeledDesktopEvents dE;
+	protected P5DesktopEvents dE;
 
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -292,7 +294,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		*/		
 		
 		//event handler
-		dE = new AWTWheeledDesktopEvents(this);
+		//dE = new AWTWheeledDesktopEvents(this);
+		dE = new P5DesktopEvents(this);
 		
 		// 1 ->   	
 

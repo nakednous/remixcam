@@ -50,24 +50,6 @@ import remixlab.remixcam.core.Constants;
  */
 public class Vector3D implements Constants, Primitivable {
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Vector3D other = (Vector3D) obj;
-		
-	   return new EqualsBuilder()
-    .appendSuper(super.equals(obj))    
-    .append(this.vec[0], other.vec[0])
-    .append(this.vec[1], other.vec[1])
-    .append(this.vec[2], other.vec[2])
-		.isEquals();
-	}
-
-  @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37).		
 		append(this.vec[0]).
@@ -75,6 +57,20 @@ public class Vector3D implements Constants, Primitivable {
 		append(this.vec[2]).
     toHashCode();
   }
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;
+				
+		Vector3D other = (Vector3D) obj;		
+	   return new EqualsBuilder()    
+    .append(this.vec[0], other.vec[0])
+    .append(this.vec[1], other.vec[1])
+    .append(this.vec[2], other.vec[2])
+		.isEquals();
+	} 
   
   /**
 	 * The x, y and z coordinates of the Vector3D.

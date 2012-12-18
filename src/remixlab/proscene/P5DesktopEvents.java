@@ -279,7 +279,7 @@ public class P5DesktopEvents extends DesktopEvents {
    */
 	protected void mouseClicked(MouseEvent event) {		
 		if (scene.mouseGrabber() != null)
-			scene.mouseGrabber().mouseClicked(/**event.getPoint(),*/ event.getButton(), event.getClickCount(), scene.camera());
+			scene.mouseGrabber().mouseClicked(/**event.getPoint(),*/ event.getButton(), event.getClickCount(), scene.pinhole());
 		else {
 			ClickAction ca = scene.currentCameraProfile().clickBinding(event.getModifiers(), event.getButton(), event.getClickCount());
 			if (ca != null)
@@ -312,8 +312,8 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * Mouse displacements are interpreted according to the
 	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse bindings.
 	 * 
-	 * @see #mouseDragged(MouseEvent)
-	 * @see #mouseReleased(MouseEvent)
+	 * @see #awtMouseDragged(MouseEvent)
+	 * @see #awtMouseReleased(MouseEvent)
 	 * @see #mouseWheelMoved(MouseWheelEvent)
 	 */
 	public void mousePressed(MouseEvent e) {
@@ -342,18 +342,18 @@ public class P5DesktopEvents extends DesktopEvents {
 		scene.pinhole().frame().startAction(camMouseAction, scene.drawIsConstrained());
 		scene.pinhole().frame().mousePressed(new Point(event.getX(), event.getY()), scene.pinhole());
 	}
-	
+
 	/**
 	 * The mouse dragged event is sent to the {@link remixlab.proscene.Scene#mouseGrabber()}
 	 * or the {@link remixlab.proscene.Scene#interactiveFrame()}, or to the
 	 * {@link remixlab.proscene.Scene#pinhole()}, according to the action started at
-	 * {@link #mousePressed(MouseEvent)}.
+	 * {@link #awtMousePressed(MouseEvent)}.
 	 * <p>
 	 * Mouse displacements are interpreted according to the
 	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse bindings.
 	 * 
-	 * @see #mousePressed(MouseEvent)
-	 * @see #mouseReleased(MouseEvent)
+	 * @see #awtMousePressed(MouseEvent)
+	 * @see #awtMouseReleased(MouseEvent)
 	 */
 	public void mouseDragged(MouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
@@ -420,6 +420,41 @@ public class P5DesktopEvents extends DesktopEvents {
 		scene.pinhole().frame().mouseReleased(new Point(event.getX(), event.getY()), scene.pinhole());
 		camMouseAction = MouseAction.NO_MOUSE_ACTION;
 		// iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
-	}	
+	}
+	
+	/**
+	 * The action generated when the user start rotating the mouse wheel is handled by the
+	 * {@link remixlab.proscene.Scene#mouseGrabber()} (if any), or the
+	 * {@link remixlab.proscene.Scene#interactiveFrame()}
+	 * (if @link remixlab.proscene.Scene#interactiveFrameIsDrawn()), or the
+	 * {@link remixlab.proscene.Scene#pinhole()} (checks are performed in that order).
+	 * <p>
+	 * Mouse wheel rotation is interpreted according to the
+	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse wheel bindings.
+	 * 
+	 * @see #mousePressed(MouseEvent)
+	 */
+	/**
+	public void awtMouseWheelMoved(MouseWheelEvent event) {		
+		if(!scene.mouseIsHandled())
+			return;
+		if (scene.mouseGrabber() != null) {
+			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
+				InteractiveFrame iFrame = (InteractiveFrame) scene.mouseGrabber();
+				iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
+				iFrame.mouseWheelMoved(event.getWheelRotation(), scene.pinhole());				
+			} else
+				scene.mouseGrabber().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());
+			return;
+		}
+		if (scene.interactiveFrameIsDrawn()) {
+			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
+			scene.interactiveFrame().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());
+			return;
+		}
+		scene.pinhole().frame().startAction(scene.currentCameraProfile().cameraWheelMouseAction(event), scene.drawIsConstrained());
+		scene.pinhole().frame().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());	  
+	}
+	// */
 }
 

@@ -59,13 +59,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+	public boolean equals(Object obj) {		
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;
+		
 		InteractiveCameraFrame other = (InteractiveCameraFrame) obj;
 	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
@@ -175,7 +173,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				|| (action == AbstractScene.MouseAction.ROLL)
 				|| (action == AbstractScene.MouseAction.ZOOM_ON_REGION)
 				|| (action == AbstractScene.MouseAction.NO_MOUSE_ACTION))
-			super.mouseDragged(eventPoint, viewWindow);
+			super.deviceDragged2D(eventPoint, viewWindow);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
 			if( scene.needsYCorrection() )

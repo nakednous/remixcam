@@ -52,13 +52,11 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+	public boolean equals(Object obj) {		
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;
+		
 		InteractiveAvatarFrame other = (InteractiveAvatarFrame) obj;
 	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))		

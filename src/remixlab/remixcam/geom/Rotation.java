@@ -1,8 +1,30 @@
 package remixlab.remixcam.geom;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 import remixlab.remixcam.core.Constants;
 
 public class Rotation implements Constants, Orientable {
+	@Override
+	public int hashCode() {
+    return new HashCodeBuilder(17, 37).  
+    append(this.angle).
+    toHashCode();    
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;
+				
+		Rotation other = (Rotation) obj;
+		return new EqualsBuilder()		
+		.append(this.angle,  other.angle)
+		.isEquals();						
+	}	
+	
 	protected float angle;
 	
 	public Rotation() {

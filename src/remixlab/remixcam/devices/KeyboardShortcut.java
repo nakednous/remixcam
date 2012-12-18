@@ -25,6 +25,7 @@
 
 package remixlab.remixcam.devices;
 
+import com.flipthebird.gwthashcodeequals.*;
 
 /**
  * This class represents keyboard shortcuts.
@@ -33,47 +34,6 @@ package remixlab.remixcam.devices;
  * 2. Virtual keys (e.g., right arrow key); or, 3. Key combinations (e.g., 'a' + CTRL key).
  */
 public final class KeyboardShortcut {
-	// /**
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
-		result = prime * result + ((mask == null) ? 0 : mask.hashCode());
-		result = prime * result + ((vKey == null) ? 0 : vKey.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		KeyboardShortcut other = (KeyboardShortcut) obj;
-		if (key == null) {
-			if (other.key != null)
-				return false;
-		} else if (!key.equals(other.key))
-			return false;
-		if (mask == null) {
-			if (other.mask != null)
-				return false;
-		} else if (!mask.equals(other.mask))
-			return false;
-		if (vKey == null) {
-			if (other.vKey != null)
-				return false;
-		} else if (!vKey.equals(other.vKey))
-			return false;
-		return true;
-	}
-	// */
-	
-	/**
-	// TODO the following code doesn't work (no keyboardshortcut works)
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -82,24 +42,19 @@ public final class KeyboardShortcut {
 		append(key).
     toHashCode();		
 	}
-
-	@Override
+	
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		KeyboardShortcut other = (KeyboardShortcut) obj;
-	  return new EqualsBuilder()
-    .appendSuper(super.equals(obj))		
-		.append(mask, other.mask)
-		.append(vKey, other.vKey)
-		.append(key, other.key)
-		.isEquals();
-	}
-	*/	
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;
+		
+		KeyboardShortcut rhs = (KeyboardShortcut) obj;
+		return new EqualsBuilder()
+    .append(mask, rhs.mask)
+    .append(vKey, rhs.vKey)
+    .append(key, rhs.key)
+    .isEquals();
+	}		
 	
 	/**
 	 * Defines a keyboard shortcut from the given character.

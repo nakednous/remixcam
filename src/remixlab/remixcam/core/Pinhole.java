@@ -48,28 +48,12 @@ public abstract class Pinhole {
 
 	@Override
 	public boolean equals(Object obj) {
-		//TODO check me
-		// /**
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		// */		
-		/**
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		// */
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;
 		
-		Pinhole other = (Pinhole) obj;
-		
+		Pinhole other = (Pinhole) obj;		
 	  return new EqualsBuilder()
-    .appendSuper(super.equals(obj))
     .append(fpCoefficientsUpdate, other.fpCoefficientsUpdate)
     .append(unprojectCacheOptimized, other.unprojectCacheOptimized)
     .append(lastFrameUpdate, other.lastFrameUpdate)

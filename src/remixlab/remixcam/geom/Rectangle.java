@@ -25,10 +25,38 @@
 
 package remixlab.remixcam.geom;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 /**
  * Rectangle class that provides a quick replacement for the java.awt.Rectangle.
  */
 public class Rectangle {
+	@Override
+	public int hashCode() {
+    return new HashCodeBuilder(17, 37).    
+    append(this.x).
+    append(this.y).
+    append(this.width).
+    append(this.height).
+    toHashCode();    
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;
+				
+		Rectangle other = (Rectangle) obj;
+		return new EqualsBuilder()		
+		.append(this.x, other.x)
+		.append(this.y, other.y)
+		.append(this.width, other.width)
+		.append(this.height, other.height)
+		.isEquals();						
+	}
+	
 	/**
 	 * The X coordinate of the upper-left corner of the Rectangle.
 	 */

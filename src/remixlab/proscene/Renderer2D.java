@@ -157,8 +157,8 @@ public class Renderer2D extends Renderer {
     //TODO check this line:  
     //pg2d().projection.set((scene.viewWindow()).getOrtho(-pg2d().width/2, pg2d().width/2, -pg2d().height/2, pg2d().height/2, cameraNear, cameraFar));
     //pg2d().projection.set((scene.viewWindow()).getOrtho(-pg2d().width/2, pg2d().width/2, -pg2d().height/2, pg2d().height/2, cameraNear, cameraFar).getTransposed(new float[16]));
-    //pg2d().projection.set(get2DOrtho(-pg2d().width/2, pg2d().width/2, -pg2d().height/2, pg2d().height/2, cameraNear, cameraFar));
-    pg2d().projection.set(get2DOrtho(0, pg2d().width, 0, pg2d().height, cameraNear, cameraFar));
+    pg2d().projection.set(get2DOrtho(-pg2d().width/2, pg2d().width/2, -pg2d().height/2, pg2d().height/2, cameraNear, cameraFar));
+    //pg2d().projection.set(get2DOrtho(0, pg2d().width, 0, pg2d().height, cameraNear, cameraFar));
     pg2d().pushMatrix();
  	  // Camera needs to be reset!
     //hack: it's trickier, but works ;)
@@ -201,7 +201,7 @@ public class Renderer2D extends Renderer {
 	  // option 3 (new, Andres suggestion)
 		//TODO: optimize me set per value basis
 		// /**		
-		proj = scene.camera().getProjectionMatrix(true);
+		proj = scene.viewWindow().getProjectionMatrix(true);
 		pg2d().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
 	                                      proj.mat[1],  isLeftHanded() ? proj.mat[5] : -proj.mat[5], proj.mat[9],  proj.mat[13],
 	                                      proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
@@ -209,7 +209,7 @@ public class Renderer2D extends Renderer {
 		// */
 		
 		/**
-		proj = scene.camera().getProjectionMatrix(true);
+		proj = scene.viewWindow().getProjectionMatrix(true);
 		pg2d().flush();
 	  pg2d().projection.set( proj.mat[0], proj.mat[4],                                  proj.mat[8],  proj.mat[12],
 		                       proj.mat[1], isLeftHanded() ? proj.mat[5] : -proj.mat[5], proj.mat[9],  proj.mat[13],

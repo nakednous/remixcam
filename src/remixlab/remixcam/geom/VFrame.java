@@ -59,15 +59,12 @@ public class VFrame extends Geom implements Copyable, Constants {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;		
+		
 		VFrame other = (VFrame) obj;
-	  return new EqualsBuilder()
-    .appendSuper(super.equals(obj))		
+	  return new EqualsBuilder()		
 		.append(krnl, other.krnl)
 		//.append(list, other.list)
 		.append(linkedFramesList, other.linkedFramesList)

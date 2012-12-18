@@ -25,6 +25,7 @@
 
 package remixlab.remixcam.devices;
 
+import com.flipthebird.gwthashcodeequals.*;
 import remixlab.remixcam.core.Constants;
 
 /**
@@ -34,42 +35,28 @@ import remixlab.remixcam.core.Constants;
  * and can be of one out of two forms: 1. A mouse button; and, 2. A mouse
  * button plus a key-modifier (such as the CTRL key).
  */
-public class ClickBinding implements Constants {
+public class ClickBinding implements Constants {	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((button == null) ? 0 : button.hashCode());
-		result = prime * result + ((mask == null) ? 0 : mask.hashCode());
-		result = prime * result	+ ((numberOfClicks == null) ? 0 : numberOfClicks.hashCode());
-		return result;
+    return new HashCodeBuilder(17, 37).		
+		append(mask).
+		append(numberOfClicks).
+		append(button).
+    toHashCode();		
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;		
+		
 		ClickBinding other = (ClickBinding) obj;
-		if (button == null) {
-			if (other.button != null)
-				return false;
-		} else if (!button.equals(other.button))
-			return false;
-		if (mask == null) {
-			if (other.mask != null)
-				return false;
-		} else if (!mask.equals(other.mask))
-			return false;
-		if (numberOfClicks == null) {
-			if (other.numberOfClicks != null)
-				return false;
-		} else if (!numberOfClicks.equals(other.numberOfClicks))
-			return false;
-		return true;
+	  return new EqualsBuilder()		
+		.append(mask, other.mask)
+		.append(numberOfClicks, other.numberOfClicks)
+		.append(button, other.button)
+		.isEquals();
 	}	
 	
   /**

@@ -126,13 +126,11 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+	public boolean equals(Object obj) {		
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;
+		
 		KeyFrameInterpolator other = (KeyFrameInterpolator) obj;
 	   return new EqualsBuilder()		
 		.append(currentFrmValid, other.currentFrmValid)
@@ -151,6 +149,25 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 
 	protected abstract class AbstractKeyFrame implements Copyable {
+		@Override
+		public int hashCode() {
+	    return new HashCodeBuilder(17, 37).
+			append(frm).
+	    toHashCode();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {		
+			if (obj == null) return false;
+			if (obj == this) return true;		
+			if (obj.getClass() != getClass()) return false;
+			
+			AbstractKeyFrame other = (AbstractKeyFrame) obj;
+		   return new EqualsBuilder()		
+			.append(frm, other.frm)
+			.isEquals();
+		}
+		
 		protected Vector3D p, tgPVec;
 		protected Vector3D s;		
 		//Option 2 (interpolate scaling using a spline)

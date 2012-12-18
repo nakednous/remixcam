@@ -49,15 +49,12 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;
+				
 		Quaternion other = (Quaternion) obj;
-		return new EqualsBuilder()
-		.appendSuper(super.equals(obj))		
+		return new EqualsBuilder()		
 		.append(this.quat[0],  other.quat[0])
 		.append(this.quat[1],  other.quat[1])
 		.append(this.quat[2],  other.quat[2])
