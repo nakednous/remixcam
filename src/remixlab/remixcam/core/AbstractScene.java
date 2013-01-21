@@ -763,8 +763,7 @@ public abstract class AbstractScene implements Constants {
 		*/
 		
 		// TODO if leave it here it gives results very close to P5	  
-		updateFrameRate();
-			
+		updateFrameRate();		
 		bindMatrices();
 		if (frustumEquationsUpdateIsEnable())
 			pinhole().updateFrustumEquations();
@@ -1578,9 +1577,17 @@ public abstract class AbstractScene implements Constants {
 		}
 	}
 	
-	public abstract boolean isFlipped();
+	//TODO pending too: see frame.isFlipped
+	/**
+	public boolean isFlippedPend() {
+		return ( isRightHanded() && !pinhole().frame().isInverted() ) || ( isLeftHanded() && pinhole().frame().isInverted() );
+	}
+	*/
 	
-	public abstract boolean needsYCorrection();
+	//TODO: check if this is necessary at all
+	public boolean needsYCorrection() {
+		return isRightHanded();
+	}
 	
 	/**
 	 * Returns the approximate frame rate of the software as it executes.

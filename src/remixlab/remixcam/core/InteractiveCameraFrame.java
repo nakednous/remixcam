@@ -205,7 +205,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				Orientable rot;
 				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
 				rot = new Rotation(rot.angle() * rotationSensitivity());
-				if( !scene.isFlipped() )
+				if( !isFlipped() )
 					rot.negate();				
 				// #CONNECTION# These two methods should go together (spinning detection and activation)
 				computeMouseSpeed(eventPoint);
@@ -224,7 +224,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 				// lef-handed coordinate system correction
 				//if( scene.isLeftHanded() )
-				if( !scene.isFlipped() )
+				if( !isFlipped() )
 					angle = -angle;
 
 				Orientable rot = new Rotation(angle);
@@ -365,7 +365,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 				// lef-handed coordinate system correction
 				//if( scene.isLeftHanded() )
-				if( !scene.isFlipped() )
+				if( !isFlipped() )
 					angle = -angle;
 
 				Orientable rot = new Quaternion(new Vector3D(0.0f, 0.0f, 1.0f), angle);

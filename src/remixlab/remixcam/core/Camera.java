@@ -1537,8 +1537,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			// constructor.
 			float f = 1.0f / (float) Math.tan(fieldOfView() / 2.0f);
 			projectionMat.mat[0] = f / aspectRatio();
-			//TODO defaults to LH
-			projectionMat.mat[5] = -f;
+			projectionMat.mat[5] = scene.isLeftHanded() ? -f : f;
 			projectionMat.mat[10] = (ZNear + ZFar) / (ZNear - ZFar);
 			projectionMat.mat[11] = -1.0f;
 			projectionMat.mat[14] = 2.0f * ZNear * ZFar / (ZNear - ZFar);
@@ -1549,8 +1548,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
 			projectionMat.mat[0] = 1.0f / wh[0];
-		  //TODO defaults to LH
-			projectionMat.mat[5] = -1.0f / wh[1];
+			projectionMat.mat[5] = ( scene.isLeftHanded() ? -1.0f : 1.0f ) / wh[1];
 			projectionMat.mat[10] = -2.0f / (ZFar - ZNear);
 			projectionMat.mat[11] = 0.0f;
 			projectionMat.mat[14] = -(ZFar + ZNear) / (ZFar - ZNear);

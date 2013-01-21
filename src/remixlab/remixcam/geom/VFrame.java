@@ -259,14 +259,21 @@ public class VFrame extends Geom implements Copyable, Constants {
 		
 		public boolean isInverted() {
 			boolean inverted = true;
-			if(this instanceof FrameKernel3D) {
-				if ( ( scaling().x() > 0 && scaling().y() > 0 && scaling().z() > 0 ) || ( scaling().x() < 0 && scaling().y() < 0 && scaling().z() < 0 ) )
-					inverted = false;
-				}
+			
+			if( referenceFrame() == null ) {
+				inverted = false;
+			}			
 			else {
-				if ( ( scaling().x() > 0 && scaling().y() > 0 ) || ( scaling().x() < 0 && scaling().y() < 0 ) )
-					inverted = false;
+				if(this instanceof FrameKernel3D) {
+					if ( ( referenceFrame().magnitude().x() > 0 && referenceFrame().magnitude().y() > 0 && referenceFrame().magnitude().z() > 0 ) || ( referenceFrame().magnitude().x() < 0 && referenceFrame().magnitude().y() < 0 && referenceFrame().magnitude().z() < 0 ) )
+						inverted = false;
+				}
+				else {
+					if ( ( referenceFrame().magnitude().x() > 0 && referenceFrame().magnitude().y() > 0 ) || ( referenceFrame().magnitude().x() < 0 && referenceFrame().magnitude().y() < 0 ) )
+						inverted = false;
+				}
 			}
+			
 			return inverted;
 		}
 		

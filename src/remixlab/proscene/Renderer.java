@@ -71,22 +71,22 @@ public class Renderer implements Renderable, PConstants {
 		return pg;
 	}
 	
-	@Override
+	@Override	
 	public void bindMatrices() {
 		scene.viewWindow().computeProjectionMatrix();
-		scene.viewWindow().computeViewMatrix();		
+		scene.viewWindow().computeViewMatrix();
 		scene.viewWindow().computeProjectionViewMatrix();
+
 		Vector3D pos = scene.viewWindow().position();
 		Orientable quat = scene.viewWindow().frame().orientation();
-		
-		translate(scene.width()/2, scene.height()/2);
-		scale(scene.viewWindow().frame().inverseMagnitude().x(),
-				  scene.viewWindow().frame().inverseMagnitude().y());
-		rotate(-quat.angle());
+
+		translate(scene.width() / 2, scene.height() / 2);		
+		if(scene.isRightHanded()) scale(1,-1);		
+		scale(scene.viewWindow().frame().inverseMagnitude().x(), 
+			    scene.viewWindow().frame().inverseMagnitude().y());		
+		rotate(-quat.angle());		
 		translate(-pos.x(), -pos.y());
-		if(scene.isRightHanded())
-			scale(1,-1);
-	}
+	}	
 		
 	@Override
 	public void beginScreenDrawing() {
@@ -94,14 +94,12 @@ public class Renderer implements Renderable, PConstants {
 		Orientable quat = scene.viewWindow().frame().orientation();		
 		
 		pushMatrix();
-		if(scene.isRightHanded())
-			scale(1,-1);
 		translate(pos.x(), pos.y());
 		rotate(quat.angle());		
 		scale(scene.viewWindow().frame().magnitude().x(),
-		      scene.viewWindow().frame().magnitude().y());		
-		translate(-scene.width()/2, -scene.height()/2);	
-					
+		      scene.viewWindow().frame().magnitude().y());
+	  if(scene.isRightHanded()) scale(1,-1);
+		translate(-scene.width()/2, -scene.height()/2);						
 	}
 	
 	@Override

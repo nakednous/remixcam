@@ -51,7 +51,6 @@ import remixlab.remixcam.devices.KeyboardShortcut;
 import remixlab.remixcam.util.AbstractTimerJob;
 import remixlab.remixcam.util.SingleThreadedTaskableTimer;
 import remixlab.remixcam.util.SingleThreadedTimer;
-import remixlab.remixcam.geom.VFrame;
 //import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.geom.Point;
@@ -1839,25 +1838,4 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		point = camera().unprojectedCoordinatesOf(point);
 		return camera().new WorldPoint(point, (depth[0] < 1.0f));
 	}	
-	
-	@Override
-	public void applyTransformation(VFrame frame) {
-		if( renderer() instanceof RendererJava2D && isRightHanded() && frame.referenceFrame() == null )
-			scale(1,-1);
-		super.applyTransformation(frame);
-	}
-	
-	@Override
-	public boolean isFlipped() {
-		if( renderer() instanceof RendererJava2D )
-			return pinhole().frame().isInverted();
-		return ( isRightHanded() && !pinhole().frame().isInverted() ) || ( isLeftHanded() && pinhole().frame().isInverted() );
-	}
-	
-	@Override
-	public boolean needsYCorrection() {
-		if( renderer() instanceof RendererJava2D )
-			return false;
-		return isRightHanded();
-	}
 }

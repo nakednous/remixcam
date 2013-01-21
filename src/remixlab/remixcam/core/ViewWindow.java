@@ -65,27 +65,13 @@ public class ViewWindow extends Pinhole implements Copyable {
 	public void computeProjectionMatrix() {
 		float[] wh = getOrthoWidthHeight();
 		projectionMat.mat[0] = 1.0f / wh[0];
-	  //TODO defaults to LH
-		projectionMat.mat[5] = -1.0f / wh[1];
+		projectionMat.mat[5] = (scene.isLeftHanded() ? -1.0f : 1.0f ) / wh[1];
 		projectionMat.mat[10] = -2.0f / (FAKED_ZFAR - FAKED_ZNEAR);
 		projectionMat.mat[11] = 0.0f;
 		projectionMat.mat[14] = -(FAKED_ZFAR + FAKED_ZNEAR) / (FAKED_ZFAR - FAKED_ZNEAR);
 		projectionMat.mat[15] = 1.0f;
 		// same as glOrtho( -w, w, -h, h, zNear(), zFar() );
-	}
-	
-	/**
-	public void computeProjectionMatrixJava2D() {
-		float[] wh = getOrthoWidthHeight();
-		projectionMat.mat[0] = 1.0f / wh[0];				
-		projectionMat.mat[5] = -1.0f / wh[1];
-		projectionMat.mat[10] = -2.0f / (FAKED_ZFAR - FAKED_ZNEAR);
-		projectionMat.mat[11] = 0.0f;
-		projectionMat.mat[14] = -(FAKED_ZFAR + FAKED_ZNEAR) / (FAKED_ZFAR - FAKED_ZNEAR);
-		projectionMat.mat[15] = 1.0f;
-		// same as glOrtho( -w, w, -h, h, zNear(), zFar() );
-	}
-	*/
+	}	
 	
 	@Override
 	public float[] getOrthoWidthHeight(float[] target) {

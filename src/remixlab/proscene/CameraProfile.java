@@ -335,11 +335,29 @@ public class CameraProfile {
 		setShortcut(PApplet.UP, Scene.CameraKeyboardAction.MOVE_CAMERA_UP);
 		setShortcut(PApplet.DOWN, Scene.CameraKeyboardAction.MOVE_CAMERA_DOWN);
 		
-		setCameraMouseBinding(PApplet.CENTER, Scene.MouseAction.ZOOM);
-		setCameraMouseBinding(PApplet.RIGHT, Scene.MouseAction.TRANSLATE);
+		//TODO hack to prevent P5 java2d bug!
+		if( scene.renderer() instanceof RendererJava2D) {
+			setCameraMouseBinding(Event.ALT, PApplet.LEFT, Scene.MouseAction.ZOOM);
+			setCameraMouseBinding(Event.CTRL, PApplet.LEFT, Scene.MouseAction.ZOOM);
+			setCameraMouseBinding(Event.META, PApplet.RIGHT, Scene.MouseAction.TRANSLATE);
+		}
+		else {
+			setCameraMouseBinding(PApplet.CENTER, Scene.MouseAction.ZOOM);
+			setCameraMouseBinding(PApplet.RIGHT, Scene.MouseAction.TRANSLATE);
+		}		
+		
 		setFrameMouseBinding(PApplet.LEFT, Scene.MouseAction.ROTATE);
-		setFrameMouseBinding(PApplet.CENTER, Scene.MouseAction.ZOOM);
-		setFrameMouseBinding(PApplet.RIGHT, Scene.MouseAction.TRANSLATE);
+		
+	  //TODO hack to prevent P5 java2d bug!
+		if( scene.renderer() instanceof RendererJava2D) {
+			setFrameMouseBinding(Event.ALT, PApplet.LEFT, Scene.MouseAction.ZOOM);
+			setFrameMouseBinding(Event.CTRL, PApplet.LEFT, Scene.MouseAction.ZOOM);
+			setFrameMouseBinding(Event.META, PApplet.RIGHT, Scene.MouseAction.TRANSLATE);
+		}
+		else {
+			setFrameMouseBinding(PApplet.CENTER, Scene.MouseAction.ZOOM);
+			setFrameMouseBinding(PApplet.RIGHT, Scene.MouseAction.TRANSLATE);
+		}
 
 		setCameraMouseBinding(Event.SHIFT, PApplet.LEFT, Scene.MouseAction.ZOOM_ON_REGION);		
 		setCameraMouseBinding(Event.SHIFT, PApplet.RIGHT, Scene.MouseAction.SCREEN_ROTATE);

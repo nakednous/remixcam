@@ -203,7 +203,7 @@ public class Renderer2D extends Renderer {
 		// /**		
 		proj = scene.viewWindow().getProjectionMatrix(true);
 		pg2d().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
-	                                      proj.mat[1],  isLeftHanded() ? proj.mat[5] : -proj.mat[5], proj.mat[9],  proj.mat[13],
+	                                      proj.mat[1],  proj.mat[5], proj.mat[9],  proj.mat[13],
 	                                      proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
 	                                      proj.mat[3],  proj.mat[7], proj.mat[11], proj.mat[15] ));
 		// */
@@ -238,7 +238,7 @@ public class Renderer2D extends Renderer {
 		// Option 2
 		pg2d().modelview.set(scene.viewWindow().getViewMatrix(true).getTransposed(new float[16]));						
 		// Finally, caches projmodelview
-		//pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(true).getTransposed(new float[16]));
+		//pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(true).getTransposed(new float[16]));		
 		Matrix3D.mult(proj, scene.viewWindow().view(), scene.viewWindow().projectionView());
 		pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(false).getTransposed(new float[16]));
 	  // */

@@ -706,7 +706,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);			
 			Orientable rot;
 			
-			if( scene.isFlipped() )
+			if( isFlipped() )
 				rot = new Rotation(angle - prev_angle);
 			else
 				rot = new Rotation(prev_angle - angle);
@@ -743,7 +743,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			Orientable rot;
 			rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
 			rot = new Rotation(rot.angle() * rotationSensitivity());
-			if ( scene.isFlipped() )
+			if ( isFlipped() )
 				rot.negate();	
 			
 			// #CONNECTION# These two methods should go together (spinning detection and activation)
@@ -917,6 +917,10 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			break;
 		}  	
   }
+  
+  public boolean isFlipped() {
+		return ( scene.isRightHanded() && !isInverted() ) || ( scene.isLeftHanded() && isInverted() );
+	}
 
 	/**
 	 * Stops the InteractiveFrame mouse manipulation.
