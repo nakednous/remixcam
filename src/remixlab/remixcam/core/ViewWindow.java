@@ -124,6 +124,26 @@ public class ViewWindow extends Pinhole implements Copyable {
 	*/
 	
 	@Override
+	public Vector3D rightVector() {
+		return frame().xAxis();
+	}
+	
+	@Override
+	public Vector3D upVector() {
+		return frame().yAxis();
+	}
+	
+	@Override
+	public void setUpVector(Vector3D up, boolean noMove) {
+		Quaternion q = new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), frame().transformOf(up));
+
+		if (!noMove) 		
+			frame().setPosition(Vector3D.sub(arcballReferencePoint(), (Rotation.compose((Rotation) frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));		
+
+		frame().rotate(q);
+	}
+	
+	@Override
 	public float[][] computeFrustumEquations() {
 		return computeFrustumEquations(new float[4][3]);
 	}

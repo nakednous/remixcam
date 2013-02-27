@@ -341,5 +341,5 @@ public interface Renderable {
 	 */
 	public void drawShooterTarget(Vector3D center, float length);
 		
-	public void drawPath(List<VFrame> path, int mask, int nbFrames, int nbSteps, float scale);	
+	public void drawPath(List<GeomFrame> path, int mask, int nbFrames, int nbSteps, float scale);	
 }

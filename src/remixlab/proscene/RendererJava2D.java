@@ -133,7 +133,7 @@ public class RendererJava2D extends Renderer {
 	}
 
 	@Override
-	public void drawPath(List<VFrame> path, int mask, int nbFrames,
+	public void drawPath(List<GeomFrame> path, int mask, int nbFrames,
 			int nbSteps, float scale) {
 		// TODO Auto-generated method stub
 		

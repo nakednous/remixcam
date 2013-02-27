@@ -140,7 +140,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 */
 	@Override
 	public void spin() {
+		//TODO test
 		rotateAroundPoint(spinningQuaternion(), arcballReferencePoint());
+		//rap(spinningQuaternion(), arcballReferencePoint());
 	}
 
 	/**
@@ -176,7 +178,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			super.deviceDragged2D(eventPoint, viewWindow);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
-			if( scene.needsYCorrection() )
+			if( scene.isRightHanded() )
 				deltaY = -deltaY;
 			
 			switch (action) {
@@ -273,21 +275,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			super.deviceDragged3D(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
-			if( scene.needsYCorrection() )
+			if( scene.isRightHanded() )
 				deltaY = -deltaY;
 			
 			switch (action) {			
 			case TRANSLATE: {				
 				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
-				Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
-				
-				Vector3D mag = magnitude();				
-				if( mag.y() < 0 )
-					trans.y(-trans.y());
-				if( (mag.x() < 0 && mag.y() < 0 && mag.z() > 0) || 
-						(mag.x() > 0 && mag.y() > 0 && mag.z() < 0) ||
-						(mag.x() > 0 && mag.y() < 0 && mag.z() > 0))
-					trans.x(-trans.x());
+				Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);						
 				
 				// Scale to fit the screen mouse displacement
 				switch (camera.type()) {
@@ -308,10 +302,15 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				}
 				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
 				
+				// /**
 				trans = Vector3D.mult(trans, translationSensitivity());				
-				trans.div(mag);			
-				
+				trans.div(magnitude());
 				translate(inverseTransformOf(trans));
+				// */
+				
+				// not
+				//translate(camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity())));
+				
 				prevPos = eventPoint;
 				
 				break;
@@ -335,7 +334,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 			case ROTATE: {
 				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
-				Orientable rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], camera);				
+				Quaternion rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], camera);				
 				// #CONNECTION# These two methods should go together (spinning detection and activation)
 				computeMouseSpeed(eventPoint);
 				setSpinningQuaternion(rot);
@@ -375,7 +374,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				setSpinningQuaternion(rot);
 				spin();
 				updateFlyUpVector();
-				prevPos = eventPoint;				
+				prevPos = eventPoint;	
 				break;
 			}
 
@@ -386,6 +385,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					trans.set(((int) prevPos.x - (int) eventPoint.x), 0.0f, 0.0f);
 				else if (dir == -1)
 					trans.set(0.0f, -deltaY, 0.0f);
+								
 				switch (camera.type()) {
 				case PERSPECTIVE:
 					trans.mult(2.0f
@@ -402,6 +402,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					break;
 				}
 				}
+				trans = Vector3D.mult(trans, translationSensitivity());				
+				trans.div(magnitude());
 				translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
 				prevPos = eventPoint;			
 			  
@@ -413,8 +415,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				break;
 			}
 		}
-	}
-
+	}	
+  
 	/**
 	 * Overloading of
 	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseReleased(Point, Camera)}.

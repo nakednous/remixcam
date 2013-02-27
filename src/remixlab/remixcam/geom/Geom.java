@@ -31,4 +31,12 @@ public class Geom {
   public static boolean nonZero(float a) {
     return FLOAT_EPS <= Math.abs(a);
   }
+  
+  public static boolean positive(float a) {
+    return FLOAT_EPS <= a;
+  }
+  
+  public static boolean negative(float a) {
+    return a <= -FLOAT_EPS;
+  }
 }

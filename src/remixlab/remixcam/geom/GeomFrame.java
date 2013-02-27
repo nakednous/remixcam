@@ -41,12 +41,12 @@ import remixlab.remixcam.core.*;
  * the Frame is first translated and then rotated around the new translated
  * origin.
  * <p>
- * In rare situations a frame can be {@link #linkTo(VFrame)}, meaning that it
+ * In rare situations a frame can be {@link #linkTo(GeomFrame)}, meaning that it
  * will share its {@link #translation()}, {@link #rotation()},
  * {@link #referenceFrame()}, and {@link #constraint()} with the other frame,
  * which can useful for some off-screen scenes.
  */
-public class VFrame extends Geom implements Copyable, Constants {
+public class GeomFrame extends Geom implements Copyable, Constants {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -63,7 +63,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;		
 		
-		VFrame other = (VFrame) obj;
+		GeomFrame other = (GeomFrame) obj;
 	  return new EqualsBuilder()		
 		.append(krnl, other.krnl)
 		//.append(list, other.list)
@@ -109,7 +109,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 		protected Vector3D trans;
 		protected Vector3D scl;
 		protected Orientable rot;
-		protected VFrame refFrame;
+		protected GeomFrame refFrame;
 		protected Constraint constr;
 		
 		public AbstractFrameKernel() {
@@ -204,7 +204,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 			return constr;
 		}
 		
-		public final VFrame referenceFrame() {
+		public final GeomFrame referenceFrame() {
 			return refFrame;
 		}		
 		
@@ -218,7 +218,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 		}
 		*/
 		
-		public void setListeners(VFrame iFrame) {
+		public void setListeners(GeomFrame iFrame) {
 			list = new ArrayList<KeyFrameInterpolator>();
 			Iterator<KeyFrameInterpolator> it = iFrame.listeners().iterator();
 			while (it.hasNext())
@@ -257,6 +257,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 			setScaling( Vector3D.div(scaling(), s) );
 		}
 		
+		/**
 		public boolean isInverted() {
 			boolean inverted = true;
 			
@@ -275,21 +276,34 @@ public class VFrame extends Geom implements Copyable, Constants {
 			}
 			
 			return inverted;
-		}
+		} //*/		
+		
+		public boolean isInverted() {
+			boolean inverted = false;		
+			
+			if( referenceFrame() != null ) {
+				if(this instanceof FrameKernel2D)
+					inverted = referenceFrame().magnitude().x() * referenceFrame().magnitude().y() < 0;					
+				else
+					inverted = referenceFrame().magnitude().x() * referenceFrame().magnitude().y() * referenceFrame().magnitude().z() < 0;
+			}		
+			
+			return inverted;
+		}		
 		
 		/**
 		 * Resets the cache of all KeyFrameInterpolators' associated with this Frame.
 		 */
 		protected void modified() {
-			if(VFrame.this instanceof InteractiveCameraFrame)
-				((InteractiveCameraFrame)VFrame.this).pinhole().lastFrameUpdate = ((InteractiveCameraFrame)VFrame.this).scene.frameCount();
+			if(GeomFrame.this instanceof InteractiveCameraFrame)
+				((InteractiveCameraFrame)GeomFrame.this).pinhole().lastFrameUpdate = ((InteractiveCameraFrame)GeomFrame.this).scene.frameCount();
 			Iterator<KeyFrameInterpolator> it = list.iterator();
 			while (it.hasNext()) {
 				it.next().invalidateValues();
 			}						
 		}		
 		
-		public final void setReferenceFrame(VFrame rFrame) {
+		public final void setReferenceFrame(GeomFrame rFrame) {
 			if (settingAsReferenceFrameWillCreateALoop(rFrame))
 				System.out.println("Frame.setReferenceFrame would create a loop in Frame hierarchy");
 			else {
@@ -300,10 +314,10 @@ public class VFrame extends Geom implements Copyable, Constants {
 			}
 		}
 		
-		public final boolean settingAsReferenceFrameWillCreateALoop(VFrame frame) {
-			VFrame f = frame;
+		public final boolean settingAsReferenceFrameWillCreateALoop(GeomFrame frame) {
+			GeomFrame f = frame;
 			while (f != null) {
-				if (f == VFrame.this)
+				if (f == GeomFrame.this)
 					return true;
 				f = f.referenceFrame();
 			}
@@ -387,10 +401,10 @@ public class VFrame extends Geom implements Copyable, Constants {
 	}
 
 	protected AbstractFrameKernel krnl;	
-	protected List<VFrame> linkedFramesList;
-	protected VFrame srcFrame;
+	protected List<GeomFrame> linkedFramesList;
+	protected GeomFrame srcFrame;
 	
-	public VFrame() {
+	public GeomFrame() {
 		this(true);
 	}
 
@@ -401,23 +415,23 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * {@link #orientation()} Quaternion. The {@link #referenceFrame()} and the
 	 * {@link #constraint()} are {@code null}.
 	 */
-	public VFrame(boolean three_d) {
+	public GeomFrame(boolean three_d) {
 		if(three_d)
 			krnl = new FrameKernel3D();
 		else
 			krnl = new FrameKernel2D();
-		linkedFramesList = new ArrayList<VFrame>();
+		linkedFramesList = new ArrayList<GeomFrame>();
 		srcFrame = null;
 	}
 	
-	public VFrame(Orientable r, Vector3D p, Vector3D s) {
+	public GeomFrame(Orientable r, Vector3D p, Vector3D s) {
 		if( r instanceof Quaternion )
 			krnl = new FrameKernel3D((Quaternion)r, p, s);
 		else
 			if( r instanceof Rotation )
 				krnl = new FrameKernel2D((Rotation)r, p, s);
 			
-		linkedFramesList = new ArrayList<VFrame>();
+		linkedFramesList = new ArrayList<GeomFrame>();
 		srcFrame = null;
 	}
 
@@ -431,14 +445,14 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * {@link #referenceFrame()} is {@code null}). It has a {@code null}
 	 * associated {@link #constraint()}.
 	 */
-	public VFrame(Orientable r, Vector3D p) {
+	public GeomFrame(Orientable r, Vector3D p) {
 		if( r instanceof Quaternion )
 			krnl = new FrameKernel3D((Quaternion)r, p);
 		else
 			if( r instanceof Rotation )
 				krnl = new FrameKernel2D((Rotation)r, p);
 			
-		linkedFramesList = new ArrayList<VFrame>();
+		linkedFramesList = new ArrayList<GeomFrame>();
 		srcFrame = null;
 	}
 
@@ -448,13 +462,13 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * @param other
 	 *          the Frame containing the object to be copied
 	 */
-	protected VFrame(VFrame other) {		
+	protected GeomFrame(GeomFrame other) {		
 		if ( other.is3D() )
 			krnl = new FrameKernel3D( (FrameKernel3D)other.kernel() );
 		else
 			krnl = new FrameKernel2D( (FrameKernel2D)other.kernel() );
-		linkedFramesList = new ArrayList<VFrame>();
-		Iterator<VFrame> iterator = other.linkedFramesList.iterator();
+		linkedFramesList = new ArrayList<GeomFrame>();
+		Iterator<GeomFrame> iterator = other.linkedFramesList.iterator();
 		while (iterator.hasNext())
 			linkedFramesList.add(iterator.next());
 		srcFrame = other.srcFrame;
@@ -464,10 +478,10 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Calls {@code SimpleFrame(SimpleFrame)} (which is private) and returns a copy of
 	 * {@code this} object.
 	 * 
-	 * @see #SimpleFrame(VFrame)
+	 * @see #SimpleFrame(GeomFrame)
 	 */
-	public VFrame get() {
-		return new VFrame(this);
+	public GeomFrame get() {
+		return new GeomFrame(this);
 	}
 	
 	// TODO document me
@@ -549,17 +563,17 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * world coordinate system. The values match when the reference Frame {@code
 	 * null}.
 	 * <p>
-	 * Use {@link #setReferenceFrame(VFrame)} to set this value and create a Frame
+	 * Use {@link #setReferenceFrame(GeomFrame)} to set this value and create a Frame
 	 * hierarchy. Convenient functions allow you to convert 3D coordinates from
 	 * one Frame to another: see {@link #coordinatesOf(Vector3D)},
 	 * {@link #localCoordinatesOf(Vector3D)} ,
-	 * {@link #coordinatesOfIn(Vector3D, VFrame)} and their inverse functions.
+	 * {@link #coordinatesOfIn(Vector3D, GeomFrame)} and their inverse functions.
 	 * <p>
 	 * Vectors can also be converted using {@link #transformOf(Vector3D)},
-	 * {@link #transformOfIn(Vector3D, VFrame)}, {@link #localTransformOf(Vector3D)}
+	 * {@link #transformOfIn(Vector3D, GeomFrame)}, {@link #localTransformOf(Vector3D)}
 	 * and their inverse functions.
 	 */
-	public final VFrame referenceFrame() {
+	public final GeomFrame referenceFrame() {
 		return kernel().referenceFrame();
 	}
 
@@ -575,7 +589,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 		return kernel().constraint();
 	}
 	
-	public void setListeners(VFrame iFrame) {
+	public void setListeners(GeomFrame iFrame) {
 		kernel().setListeners(iFrame);
 	}
 	
@@ -590,7 +604,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * this frame. Normally, you should not call this method as the
 	 * KeyFrameInterpolator takes care of calling it.
 	 * 
-	 * @see remixlab.remixcam.core.KeyFrameInterpolator#addKeyFrame(VFrame, float,
+	 * @see remixlab.remixcam.core.KeyFrameInterpolator#addKeyFrame(GeomFrame, float,
 	 *      boolean)
 	 */
 	public List<KeyFrameInterpolator> listeners() {
@@ -611,7 +625,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * method, unless you have added {@code kfi} before (by calling
 	 * {@link #addListener(KeyFrameInterpolator)}).
 	 * 
-	 * @see remixlab.remixcam.core.KeyFrameInterpolator#addKeyFrame(VFrame, float,
+	 * @see remixlab.remixcam.core.KeyFrameInterpolator#addKeyFrame(GeomFrame, float,
 	 *      boolean)
 	 */
 	public void removeListener(KeyFrameInterpolator kfi) {
@@ -638,13 +652,13 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * @param sourceFrame the frame to link this frame with.
 	 * @return true if this frame can successfully being linked to the frame. False otherwise.
 	 * 
-	 * @see #linkFrom(VFrame)
+	 * @see #linkFrom(GeomFrame)
 	 * @see #unlink()
-	 * @see #unlinkFrom(VFrame)
+	 * @see #unlinkFrom(GeomFrame)
 	 * @see #isLinked()
-	 * @see #areLinkedTogether(VFrame)
+	 * @see #areLinkedTogether(GeomFrame)
 	 */
-	public boolean linkTo(VFrame sourceFrame) {
+	public boolean linkTo(GeomFrame sourceFrame) {
 		// avoid loops		
 		if( (!linkedFramesList.isEmpty()) || sourceFrame.linkedFramesList.contains(this) || (sourceFrame == this) )
 			return false;		
@@ -661,18 +675,18 @@ public class VFrame extends Geom implements Copyable, Constants {
 	/**
 	 * Attempts to link the {@code requestedFrame} to this frame.
 	 * <p>
-	 * See {@link #linkTo(VFrame)} for the rules and terminology applying to the linking process.
+	 * See {@link #linkTo(GeomFrame)} for the rules and terminology applying to the linking process.
 	 * 
 	 * @param requestedFrame the frame that is requesting a link to this frame.
 	 * @return true if the requested frame can successfully being linked to this frame. False otherwise.
 	 * 
-	 * @see #linkTo(VFrame)
+	 * @see #linkTo(GeomFrame)
 	 * @see #unlink()
-	 * @see #unlinkFrom(VFrame)
+	 * @see #unlinkFrom(GeomFrame)
 	 * @see #isLinked()
-	 * @see #areLinkedTogether(VFrame)
+	 * @see #areLinkedTogether(GeomFrame)
 	 */
-	public boolean linkFrom(VFrame requestedFrame) {
+	public boolean linkFrom(GeomFrame requestedFrame) {
 	  // avoid loops		
 		if( (!requestedFrame.linkedFramesList.isEmpty()) || linkedFramesList.contains(this) || (requestedFrame == this) )
 			return false;		
@@ -690,15 +704,15 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Unlinks this frame from its source frame. Does nothing if this frame is not
 	 * linked to another frame.
 	 * <p>
-	 * See {@link #linkTo(VFrame)} for the rules and terminology applying to the linking process.
+	 * See {@link #linkTo(GeomFrame)} for the rules and terminology applying to the linking process.
 	 * 
 	 * @return true if succeeded otherwise returns false.
 	 * 
-	 * @see #linkTo(VFrame)
-	 * @see #linkFrom(VFrame) 
-	 * @see #unlinkFrom(VFrame)
+	 * @see #linkTo(GeomFrame)
+	 * @see #linkFrom(GeomFrame) 
+	 * @see #unlinkFrom(GeomFrame)
 	 * @see #isLinked()
-	 * @see #areLinkedTogether(VFrame)
+	 * @see #areLinkedTogether(GeomFrame)
 	 */
 	public boolean unlink() {
 		boolean result = false;
@@ -717,19 +731,19 @@ public class VFrame extends Geom implements Copyable, Constants {
 	
 	/**
 	 * Unlinks the requested frame from this frame. Does nothing if the frames are
-	 * not linked together ({@link #areLinkedTogether(VFrame)}).
+	 * not linked together ({@link #areLinkedTogether(GeomFrame)}).
 	 * <p>
-	 * See {@link #linkTo(VFrame)} for the rules and terminology applying to the linking process.
+	 * See {@link #linkTo(GeomFrame)} for the rules and terminology applying to the linking process.
 	 * 
 	 * @return true if succeeded otherwise returns false.
 	 * 
-	 * @see #linkTo(VFrame)
-	 * @see #linkFrom(VFrame)
+	 * @see #linkTo(GeomFrame)
+	 * @see #linkFrom(GeomFrame)
 	 * @see #unlink()
 	 * @see #isLinked()
-	 * @see #areLinkedTogether(VFrame)
+	 * @see #areLinkedTogether(GeomFrame)
 	 */
-	public boolean unlinkFrom(VFrame requestedFrame) {
+	public boolean unlinkFrom(GeomFrame requestedFrame) {
 		boolean result = false;
 		if ( (srcFrame == null) && (requestedFrame != this) ) {
 			result = linkedFramesList.remove(requestedFrame);
@@ -748,13 +762,13 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Returns true if this frame is linked to a source frame or if this frame
 	 * acts as the source frame of other frames. Otherwise returns false.
 	 * <p>
-	 * See {@link #linkTo(VFrame)} for the rules and terminology applying to the linking process.
+	 * See {@link #linkTo(GeomFrame)} for the rules and terminology applying to the linking process.
 	 * 
-	 * @see #linkTo(VFrame)
-	 * @see #linkFrom(VFrame)
+	 * @see #linkTo(GeomFrame)
+	 * @see #linkFrom(GeomFrame)
 	 * @see #unlink()
-	 * @see #unlinkFrom(VFrame)
-	 * @see #areLinkedTogether(VFrame)
+	 * @see #unlinkFrom(GeomFrame)
+	 * @see #areLinkedTogether(GeomFrame)
 	 */
 	public boolean isLinked() {
 		if ((srcFrame != null) || (!linkedFramesList.isEmpty()) )
@@ -766,15 +780,15 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Returns true if this frame is linked with {@code sourceFrame}. Otherwise
 	 * returns false.
 	 * <p>
-	 * See {@link #linkTo(VFrame)} for the rules and terminology applying to the linking process.
+	 * See {@link #linkTo(GeomFrame)} for the rules and terminology applying to the linking process.
 	 * 
-	 * @see #linkTo(VFrame)
-	 * @see #linkFrom(VFrame)
+	 * @see #linkTo(GeomFrame)
+	 * @see #linkFrom(GeomFrame)
 	 * @see #unlink()
-	 * @see #unlinkFrom(VFrame)
+	 * @see #unlinkFrom(GeomFrame)
 	 * @see #isLinked() 
 	 */
-	public boolean areLinkedTogether(VFrame sourceFrame) {
+	public boolean areLinkedTogether(GeomFrame sourceFrame) {
 		if (sourceFrame == srcFrame)			
 			return true;
 		if (linkedFramesList.contains(sourceFrame))
@@ -926,9 +940,9 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * {@code refFrame} as the {@link #referenceFrame()} would create a loop in
 	 * the Frame hierarchy.
 	 * 
-	 * @see #settingAsReferenceFrameWillCreateALoop(VFrame)
+	 * @see #settingAsReferenceFrameWillCreateALoop(GeomFrame)
 	 */
-	public final void setReferenceFrame(VFrame rFrame) {
+	public final void setReferenceFrame(GeomFrame rFrame) {
 		kernel().setReferenceFrame(rFrame);
 	}
 
@@ -954,7 +968,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	  //TODO return a reference when referenceFrame is null. Same as with
   	// absoluteScaling() but no as with position() (which returns a newly created object)
 		Orientable res = rotation();
-		VFrame fr = referenceFrame();
+		GeomFrame fr = referenceFrame();
 		while (fr != null) {
 			if(is3D())
 				res = Quaternion.compose(fr.rotation(), res);
@@ -990,7 +1004,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	}
 	
 	public final void setMagnitude(Vector3D s) {
-		VFrame refFrame = referenceFrame();
+		GeomFrame refFrame = referenceFrame();
 		if(refFrame != null)
 			setScaling(s.x()/refFrame.magnitude().x(), s.y()/refFrame.magnitude().y(), s.z()/refFrame.magnitude().z());
 		else
@@ -1305,7 +1319,6 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Same as {@code rotateAroundPoint(rotation, point, true)}. Calls
 	 * {@link #modified()}.
 	 */
-	//TODO fix me
 	public void rotateAroundPoint(Orientable rotation, Vector3D point) {
 		if (constraint() != null)
 			rotation = constraint().constrainRotation(rotation, this);
@@ -1315,28 +1328,19 @@ public class VFrame extends Geom implements Copyable, Constants {
 			this.kernel().rotation().normalize(); // Prevents numerical drift
 		
 		Orientable q;
-		if(is3D()) {
-			//q = new Quaternion(inverseTransformOf(((Quaternion)rotation).axis()), rotation.angle());
-			
-			// /**
-			Vector3D axis = ((Quaternion)rotation).axis();
-			axis.div(magnitude());
-			q = new Quaternion(inverseTransformOf(axis), rotation.angle());
-			// */			
-			
-			// q = new Quaternion(inverseTransformOfNoScl(((Quaternion)rotation).axis()), rotation.angle());
-		}		  
+		if(is3D()) 
+			//TODO needs further testing
+			//q = new Quaternion(inverseTransformOf(((Quaternion)rotation).axis()), rotation.angle());//orig
+			q = new Quaternion(orientation().rotate(((Quaternion)rotation).axis()), rotation.angle());			
 		else 
 			q = new Rotation(rotation.angle());
-		
 		Vector3D t = Vector3D.add(point, q.rotate(Vector3D.sub(position(), point)));		
 		t.sub(kernel().translation());
-
 		if (constraint() != null)
 			kernel().translate(constraint().constrainTranslation(t, this));
 		else
-			kernel().translate(t);
-	}
+			kernel().translate(t); 	
+	}	
 	
 	/**
 	 * Makes the Frame {@link #rotate(Quaternion)} by {@code rotation} around
@@ -1347,7 +1351,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * <p>
 	 * If the Frame has a {@link #constraint()}, {@code rotation} is first
 	 * constrained using
-	 * {@link remixlab.remixcam.constraints.Constraint#constrainRotation(Quaternion, VFrame)}.
+	 * {@link remixlab.remixcam.constraints.Constraint#constrainRotation(Quaternion, GeomFrame)}.
 	 * Hence the rotation actually applied to the Frame may differ from {@code
 	 * rotation} (since it can be filtered by the {@link #constraint()}). Use
 	 * {@code rotateAroundPoint(rotation, point, false)} to retrieve the filtered
@@ -1356,7 +1360,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * <p>
 	 * The translation which results from the filtered rotation around {@code
 	 * point} is then computed and filtered using
-	 * {@link remixlab.remixcam.constraints.Constraint#constrainTranslation(Vector3D, VFrame)}.
+	 * {@link remixlab.remixcam.constraints.Constraint#constrainTranslation(Vector3D, GeomFrame)}.
 	 */
 	public final Orientable filteredRotateAroundPoint(Orientable rotation, Vector3D point) {
 		if (constraint() != null)
@@ -1442,7 +1446,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Convenience function that simply calls {@code alignWithFrame(frame, false,
 	 * 0.85f)}
 	 */
-	public final void alignWithFrame(VFrame frame) {
+	public final void alignWithFrame(GeomFrame frame) {
 		alignWithFrame(frame, false, 0.85f);	
 	}
 
@@ -1450,7 +1454,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Convenience function that simply calls {@code alignWithFrame(frame, move,
 	 * 0.85f)}
 	 */
-	public final void alignWithFrame(VFrame frame, boolean move) {
+	public final void alignWithFrame(GeomFrame frame, boolean move) {
 		alignWithFrame(frame, move, 0.85f);
 	}
 
@@ -1458,7 +1462,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Convenience function that simply calls {@code alignWithFrame(frame, false,
 	 * threshold)}
 	 */
-	public final void alignWithFrame(VFrame frame, float threshold) {
+	public final void alignWithFrame(GeomFrame frame, float threshold) {
 		alignWithFrame(frame, false, threshold);
 	}
 
@@ -1487,7 +1491,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * {@code frame} may be {@code null} and then represents the world coordinate
 	 * system (same convention than for the {@link #referenceFrame()}).
 	 */
-	public final void alignWithFrame(VFrame frame, boolean move, float threshold) {	
+	public final void alignWithFrame(GeomFrame frame, boolean move, float threshold) {	
 		if(is3D()) {
 			Vector3D[][] directions = new Vector3D[2][3];
 			
@@ -1517,7 +1521,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 					}
 				}
 			}
-			VFrame old = new VFrame(this); // correct line
+			GeomFrame old = new GeomFrame(this); // correct line
 			//VFrame old = this.get();// this call the get overloaded method and hence add the frame to the mouse grabber
 
 			vec.set(directions[0][index[0]]);
@@ -1646,7 +1650,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * coordinates.
 	 */
 	public final Vector3D inverseCoordinatesOf(Vector3D src) {
-		VFrame fr = this;
+		GeomFrame fr = this;
 		Vector3D res = src;
 		while (fr != null) {
 			res = fr.localInverseCoordinatesOf(res);
@@ -1691,10 +1695,10 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * from} coordinate system is {@code src} (converts from {@code from} to
 	 * Frame).
 	 * <p>
-	 * {@link #coordinatesOfIn(Vector3D, VFrame)} performs the inverse
+	 * {@link #coordinatesOfIn(Vector3D, GeomFrame)} performs the inverse
 	 * transformation.
 	 */
-	public final Vector3D coordinatesOfFrom(Vector3D src, VFrame from) {
+	public final Vector3D coordinatesOfFrom(Vector3D src, GeomFrame from) {
 		if (this == from)
 			return src;
 		else if (referenceFrame() != null)
@@ -1707,11 +1711,11 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Returns the {@code in} coordinates of the point whose position in the Frame
 	 * coordinate system is {@code src} (converts from Frame to {@code in}).
 	 * <p>
-	 * {@link #coordinatesOfFrom(Vector3D, VFrame)} performs the inverse
+	 * {@link #coordinatesOfFrom(Vector3D, GeomFrame)} performs the inverse
 	 * transformation.
 	 */
-	public final Vector3D coordinatesOfIn(Vector3D src, VFrame in) {
-		VFrame fr = this;
+	public final Vector3D coordinatesOfIn(Vector3D src, GeomFrame in) {
+		GeomFrame fr = this;
 		Vector3D res = src;
 		while ((fr != null) && (fr != in)) {
 			res = fr.localInverseCoordinatesOf(res);
@@ -1753,7 +1757,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * of 3D vectors.
 	 */
 	public final Vector3D inverseTransformOf(Vector3D src) {
-		VFrame fr = this;
+		GeomFrame fr = this;
 		Vector3D res = src;
 		while (fr != null) {
 			res = fr.localInverseTransformOf(res);
@@ -1815,6 +1819,10 @@ public class VFrame extends Geom implements Copyable, Constants {
 		else
 			System.out.println("There's no point in setting the Z axis in 2D");
 	}
+	
+	public Vector3D xAxis() { 
+		return xAxis(true);
+	}
 
 	/**
 	 * Returns the x-axis of the frame, represented as a normalized vector defined
@@ -1824,14 +1832,23 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * @see #yAxis()
 	 * @see #zAxis()
 	 */
-	public Vector3D xAxis() {
-		Vector3D mag = magnitude();
-		if( Geom.diff(mag.x(), 1) || Geom.diff(mag.y(), 1) || Geom.diff(mag.z(), 1) ) {
-			Vector3D res = inverseTransformOf(new Vector3D(1.0f, 0.0f, 0.0f));
-			res.normalize();
-			return res;
+	public Vector3D xAxis(boolean positive) {
+		Vector3D res;		
+		if(is3D()) {
+			res = inverseTransformOf(new Vector3D(positive ? 1.0f : -1.0f, 0.0f, 0.0f));
+			if( Geom.diff(magnitude().x(), 1) || Geom.diff(magnitude().y(), 1) || Geom.diff(magnitude().z(), 1))
+				res.normalize();
 		}
-		return inverseTransformOf(new Vector3D(1.0f, 0.0f, 0.0f));
+		else {
+			res = inverseTransformOf(new Vector3D(positive ? 1.0f : -1.0f, 0.0f));
+			if( Geom.diff(magnitude().x(), 1) || Geom.diff(magnitude().y(), 1))
+				res.normalize();
+		}		
+		return res;
+	}
+	
+	public Vector3D yAxis() { 
+		return yAxis(true);
 	}
 
 	/**
@@ -1842,14 +1859,23 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * @see #xAxis()
 	 * @see #zAxis()
 	 */
-	public Vector3D yAxis() {
-		Vector3D mag = magnitude();
-		if( Geom.diff(mag.x(), 1) || Geom.diff(mag.y(), 1) || Geom.diff(mag.z(), 1) ) {			
-			Vector3D res = inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f));
-			res.normalize();
-			return res;
+	public Vector3D yAxis(boolean positive) {
+		Vector3D res;		
+		if(is3D()) {
+			res = inverseTransformOf(new Vector3D(0.0f, positive ? 1.0f : -1.0f, 0.0f));
+			if( Geom.diff(magnitude().x(), 1) || Geom.diff(magnitude().y(), 1) || Geom.diff(magnitude().z(), 1))
+				res.normalize();
 		}
-		return inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f));
+		else {
+			res = inverseTransformOf(new Vector3D(0.0f, positive ? 1.0f : -1.0f));
+			if( Geom.diff(magnitude().x(), 1) || Geom.diff(magnitude().y(), 1))
+				res.normalize();
+		}		
+		return res;
+	}
+	
+	public Vector3D zAxis() { 
+		return zAxis(true);
 	}
 
 	/**
@@ -1860,20 +1886,16 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * @see #xAxis()
 	 * @see #yAxis()
 	 */
-	public Vector3D zAxis() {
-		Vector3D mag = magnitude();
-		if( Geom.diff(mag.x(), 1) || Geom.diff(mag.y(), 1) || Geom.diff(mag.z(), 1) ) {
-			Vector3D res = inverseTransformOf(new Vector3D(0.0f, 0.0f, 1.0f));
-			res.normalize();
-			return res;
+	public Vector3D zAxis(boolean positive) {
+		Vector3D res = new Vector3D();
+		if(is3D()) {
+			res = inverseTransformOf(new Vector3D(0.0f, 0.0f, positive ? 1.0f : -1.0f));
+			if( Geom.diff(magnitude().x(), 1) || Geom.diff(magnitude().y(), 1) || Geom.diff(magnitude().z(), 1))
+				res.normalize();			
 		}
-		return inverseTransformOf(new Vector3D(0.0f, 0.0f, 1.0f));
-		/**
-		if(is3D())
-			return inverseTransformOf(new Vector3D(0.0f, 0.0f, 1.0f));
 		else
-			return new Vector3D(0.0f, 0.0f, 1.0f);
-		*/
+			System.out.println("There's no point in setting the Z axis in 2D");
+		return res;
 	}
 
 	/**
@@ -1914,9 +1936,9 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * from} coordinate system is {@code src} (converts vectors from {@code from}
 	 * to Frame).
 	 * <p>
-	 * {@link #transformOfIn(Vector3D, VFrame)} performs the inverse transformation.
+	 * {@link #transformOfIn(Vector3D, GeomFrame)} performs the inverse transformation.
 	 */
-	public final Vector3D transformOfFrom(Vector3D src, VFrame from) {
+	public final Vector3D transformOfFrom(Vector3D src, GeomFrame from) {
 		if (this == from)
 			return src;
 		else if (referenceFrame() != null)
@@ -1930,11 +1952,11 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Frame coordinate system is {@code src} (converts vectors from Frame to
 	 * {@code in}).
 	 * <p>
-	 * {@link #transformOfFrom(Vector3D, VFrame)} performs the inverse
+	 * {@link #transformOfFrom(Vector3D, GeomFrame)} performs the inverse
 	 * transformation.
 	 */
-	public final Vector3D transformOfIn(Vector3D src, VFrame in) {
-		VFrame fr = this;
+	public final Vector3D transformOfIn(Vector3D src, GeomFrame in) {
+		GeomFrame fr = this;
 		Vector3D res = src;
 		while ((fr != null) && (fr != in)) {
 			res = fr.localInverseTransformOf(res);
@@ -2035,7 +2057,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Convenience function that simply calls {@code scn.applyTransformation(this)}.
 	 * 
 	 * @see #matrix()
-	 * @see remixlab.remixcam.core.AbstractScene#applyTransformation(VFrame)
+	 * @see remixlab.remixcam.core.AbstractScene#applyTransformation(GeomFrame)
 	 */
 	public void applyTransformation(AbstractScene scn) {
 		scn.applyTransformation(this);
@@ -2045,7 +2067,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Convenience function that simply calls {@code scn.applyWorldTransformation(this)}.
 	 * 
 	 * @see #worldMatrix()
-	 * @see remixlab.remixcam.core.AbstractScene#applyWorldTransformation(VFrame)
+	 * @see remixlab.remixcam.core.AbstractScene#applyWorldTransformation(GeomFrame)
 	 */
 	public void applyWorldTransformation(AbstractScene scn) {
 		scn.applyWorldTransformation(this);
@@ -2080,7 +2102,7 @@ public class VFrame extends Geom implements Copyable, Constants {
 	public final Matrix3D worldMatrix() {
 	  //TODO key! take into account scaling
 		if (referenceFrame() != null) {
-			final VFrame fr = new VFrame();
+			final GeomFrame fr = new GeomFrame();
 			fr.setTranslation(position());
 			fr.setRotation(orientation());
 			fr.setScaling(scaling());
@@ -2197,9 +2219,9 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * <p>
 	 * <b>Note:</b> The scaling factor of the 4x4 matrix is 1.0.
 	 */
-	public final VFrame inverse() {
+	public final GeomFrame inverse() {
 	  //TODO key! take into account scaling
-		VFrame fr = new VFrame(kernel().rotation().inverse(), Vector3D.mult(kernel().rotation().inverseRotate(kernel().translation()), -1), kernel().inverseScaling() );
+		GeomFrame fr = new GeomFrame(kernel().rotation().inverse(), Vector3D.mult(kernel().rotation().inverseRotate(kernel().translation()), -1), kernel().inverseScaling() );
 		fr.setReferenceFrame(referenceFrame());
 		return fr;
 	}
@@ -2219,63 +2241,8 @@ public class VFrame extends Geom implements Copyable, Constants {
 	 * Use {@link #inverse()} for a local (i.e., with respect to
 	 * {@link #referenceFrame()}) transformation inverse.
 	 */
-	public final VFrame worldInverse() {
+	public final GeomFrame worldInverse() {
 	  //TODO key! take into account scaling
-		return ( new VFrame(orientation().inverse(), Vector3D.mult(orientation().inverseRotate(position()), -1), inverseMagnitude() ) );
-	}
-	
-  //TODO testing arcball
-	
-	// /**
-	public final Vector3D coordinatesOfNoScl(Vector3D src) {
-		if (referenceFrame() != null)
-			return localCoordinatesOfNoScl(referenceFrame().coordinatesOfNoScl(src));
-		else
-			return localCoordinatesOfNoScl(src);
-	}
-	
-	public final Vector3D localCoordinatesOfNoScl(Vector3D src) {
-		return rotation().inverseRotate(Vector3D.sub(src, translation()));
-	}
-	
-	public final Vector3D inverseCoordinatesOfNoScl(Vector3D src) {
-		VFrame fr = this;
-		Vector3D res = src;
-		while (fr != null) {
-			res = fr.localInverseCoordinatesOfNoScl(res);
-			fr = fr.referenceFrame();
-		}
-		return res;
-	}
-	
-	public final Vector3D localInverseCoordinatesOfNoScl(Vector3D src) {
-		return Vector3D.add(rotation().rotate(src), translation());
-	}
-	
-	public final Vector3D transformOfNoScl(Vector3D src) {
-		if (referenceFrame() != null)
-			return localTransformOfNoScl(referenceFrame().transformOfNoScl(src));
-		else
-			return localTransformOfNoScl(src);
-
-	}
-	
-	public final Vector3D localTransformOfNoScl(Vector3D src) {
-		return rotation().inverseRotate(src);
-	}
-	
-	public final Vector3D inverseTransformOfNoScl(Vector3D src) {
-		VFrame fr = this;
-		Vector3D res = src;
-		while (fr != null) {
-			res = fr.localInverseTransformOfNoScl(res);
-			fr = fr.referenceFrame();
-		}
-		return res;
-	}
-	
-	public final Vector3D localInverseTransformOfNoScl(Vector3D src) {
-		return rotation().rotate(src);
-	}
-	// */
+		return ( new GeomFrame(orientation().inverse(), Vector3D.mult(orientation().inverseRotate(position()), -1), inverseMagnitude() ) );
+	}  
 }

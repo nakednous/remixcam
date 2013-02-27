@@ -896,8 +896,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 		}
 
 		fromRotationMatrix(m);
-	}
-
+	}  
 	/**
 	 * Returns the normalized axis direction of the rotation represented by the
 	 * Quaternion.
@@ -907,20 +906,13 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @see #angle()
 	 */
 	public final Vector3D axis() {
-		Vector3D res = new Vector3D(this.quat[0], this.quat[1], this.quat[2]);
+		Vector3D res = new Vector3D(x(), y(), z());
 		float sinus = res.mag();
-		if (Geom.nonZero(sinus))
+		if ( Geom.nonZero(sinus) )
 			res.div(sinus);
-		if ((float) Math.acos(this.quat[3]) <= HALF_PI)
-			return res;
-		else {
-			res.vec[0] = -res.vec[0];
-			res.vec[1] = -res.vec[1];
-			res.vec[2] = -res.vec[2];
-			return res;
-		}
-	}
-
+		return res;
+	}	
+	  	
 	/**
 	 * Returns the {@code angle} (in radians) of the rotation represented by the
 	 * Quaternion.
@@ -932,18 +924,24 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 */
 	@Override
 	public final float angle() {
-		float angle = 2.0f * (float) Math.acos(this.quat[3]);
-		return (angle <= PI) ? angle : 2.0f * PI - angle;
-	}
+		return 2.0f * (float) Math.acos(w());		
+	}	
 	
-	//TODO needs testing and DOC
 	/**
-	public final float angle2D() {
-		float angle = 2.0f * (float) Math.acos(this.quat[3]);
-		if(angle > PI) angle = 2.0f * PI - angle;
-		return (axis().z() > 0) ? angle : -angle;
+	 * Fills params with {@link #axis()} and {@link #angle()}.
+	 * 
+	 * @param axis
+	 * @param angle
+	 */
+	public void axisAngle(Vector3D axis, float angle) {
+		angle = 2 * (float) Math.acos(w());
+	  axis.x(x());
+	  axis.y(y());
+	  axis.z(z());
+	  float sinus = axis.mag();
+	  if ( Geom.nonZero(sinus) )
+	  	axis.div(sinus);
 	}
-	*/
 
 	/**
 	 * Returns the 3x3 rotation matrix associated with the Quaternion.

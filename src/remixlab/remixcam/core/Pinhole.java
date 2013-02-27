@@ -333,7 +333,7 @@ public abstract class Pinhole {
 	 * <p>
 	 * Use {@link #setPosition(Vector3D)} to set the Camera position. Other
 	 * convenient methods are showEntireScene() or fitSphere(). Actually returns
-	 * {@link remixlab.remixcam.geom.VFrame#position()}.
+	 * {@link remixlab.remixcam.geom.GeomFrame#position()}.
 	 * <p>
 	 * This position corresponds to the projection center of a Camera.PERSPECTIVE
 	 * camera. It is not located in the image plane, which is at a zNear()
@@ -362,9 +362,7 @@ public abstract class Pinhole {
 	 * It corresponds to the Y axis of the associated {@link #frame()} (actually
 	 * returns {@code frame().yAxis()}
 	 */
-	public Vector3D upVector() {
-		return frame().yAxis();
-	}
+	public abstract Vector3D upVector();
 	
 	/**
 	 * Convenience function that simply calls {@code setUpVector(up, true)}.
@@ -398,22 +396,7 @@ public abstract class Pinhole {
 	 * @see #lookAt(Vector3D)
 	 * @see #setOrientation(Quaternion)
 	 */
-	public void setUpVector(Vector3D up, boolean noMove) {
-		Quaternion q = new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), frame().transformOf(up));
-
-		if (!noMove) {
-			if( scene.is3D() )
-				frame().setPosition(Vector3D.sub(arcballReferencePoint(), (Quaternion.multiply((Quaternion) frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));
-			else
-				frame().setPosition(Vector3D.sub(arcballReferencePoint(), (Rotation.compose((Rotation) frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));
-		}
-
-		frame().rotate(q);
-
-		// Useful in fly mode to keep the horizontal direction.
-		// not really needed in 2d though
-		frame().updateFlyUpVector();
-	}
+	public abstract void setUpVector(Vector3D up, boolean noMove);
 	
 	/**
 	 * Returns the normalized right vector of the Camera, defined in the world
@@ -426,9 +409,7 @@ public abstract class Pinhole {
 	 * <p>
 	 * Simply returns {@code frame().xAxis()}.
 	 */
-	public Vector3D rightVector() {
-		return frame().xAxis();
-	}
+	public abstract Vector3D rightVector();
 	
 	public abstract void setOrientation(Quaternion q);
 	
@@ -803,9 +784,9 @@ public abstract class Pinhole {
 	 * <p>
 	 * Note that the point coordinates are simply converted in a different
 	 * coordinate system. They are not projected on screen. Use
-	 * {@link #projectedCoordinatesOf(Vector3D, VFrame)} for that.
+	 * {@link #projectedCoordinatesOf(Vector3D, GeomFrame)} for that.
 	 */
-	public final Vector3D cameraCoordinatesOf(Vector3D src) {
+	public Vector3D cameraCoordinatesOf(Vector3D src) {
 		return frame().coordinatesOf(src);
 	}
 
@@ -817,7 +798,7 @@ public abstract class Pinhole {
 	 */
 	public Vector3D worldCoordinatesOf(final Vector3D src) {
 		return frame().inverseCoordinatesOf(src);
-	}
+	}	
 	
 	/**
 	 * Computes the View matrix associated with the Camera's
@@ -1068,7 +1049,7 @@ public abstract class Pinhole {
 	 * Convenience function that simply returns {@code projectedCoordinatesOf(src,
 	 * null)}
 	 * 
-	 * @see #projectedCoordinatesOf(Vector3D, VFrame)
+	 * @see #projectedCoordinatesOf(Vector3D, GeomFrame)
 	 */
 	public final Vector3D projectedCoordinatesOf(Vector3D src) {
 		return projectedCoordinatesOf(src, null);
@@ -1092,9 +1073,9 @@ public abstract class Pinhole {
 	 * matrices. You can hence define a virtual Camera and use this method to
 	 * compute projections out of a classical rendering context.
 	 * 
-	 * @see #unprojectedCoordinatesOf(Vector3D, VFrame)
+	 * @see #unprojectedCoordinatesOf(Vector3D, GeomFrame)
 	 */
-	public final Vector3D projectedCoordinatesOf(Vector3D src, VFrame frame) {
+	public final Vector3D projectedCoordinatesOf(Vector3D src, GeomFrame frame) {
 		float xyz[] = new float[3];		
 
 		if (frame != null) {
@@ -1112,7 +1093,7 @@ public abstract class Pinhole {
 	 * Convenience function that simply returns {@code return
 	 * unprojectedCoordinatesOf(src, null)}
 	 * 
-	 * #see {@link #unprojectedCoordinatesOf(Vector3D, VFrame)}
+	 * #see {@link #unprojectedCoordinatesOf(Vector3D, GeomFrame)}
 	 */
 	public final Vector3D unprojectedCoordinatesOf(Vector3D src) {
 		return this.unprojectedCoordinatesOf(src, null);
@@ -1130,9 +1111,9 @@ public abstract class Pinhole {
 	 * The result is expressed in the {@code frame} coordinate system. When
 	 * {@code frame} is {@code null}, the result is expressed in the world
 	 * coordinates system. The possible {@code frame}
-	 * {@link remixlab.remixcam.geom.VFrame#referenceFrame()} are taken into account.
+	 * {@link remixlab.remixcam.geom.GeomFrame#referenceFrame()} are taken into account.
 	 * <p>
-	 * {@link #projectedCoordinatesOf(Vector3D, VFrame)} performs the inverse
+	 * {@link #projectedCoordinatesOf(Vector3D, GeomFrame)} performs the inverse
 	 * transformation.
 	 * <p>
 	 * This method only uses the intrinsic Camera parameters (see
@@ -1151,10 +1132,10 @@ public abstract class Pinhole {
 	 * projection matrix (view, projection and then viewport) to speed-up the
 	 * queries. See the gluUnProject man page for details.
 	 * 
-	 * @see #projectedCoordinatesOf(Vector3D, VFrame)
+	 * @see #projectedCoordinatesOf(Vector3D, GeomFrame)
 	 * @see #setScreenWidthAndHeight(int, int)
 	 */
-	public final Vector3D unprojectedCoordinatesOf(Vector3D src, VFrame frame) {
+	public final Vector3D unprojectedCoordinatesOf(Vector3D src, GeomFrame frame) {
 		float xyz[] = new float[3];				
 		//unproject(src.vec[0], src.vec[1], src.vec[2], this.getViewMatrix(true), this.getProjectionMatrix(true), getViewport(), xyz);		
 		unproject(src.vec[0], src.vec[1], src.vec[2], xyz);		
@@ -1835,9 +1816,9 @@ public abstract class Pinhole {
 	/**
 	 * Convenience function that simply calls {@code interpolateTo(fr, 1)}.
 	 * 
-	 * @see #interpolateTo(VFrame, float)
+	 * @see #interpolateTo(GeomFrame, float)
 	 */
-	public void interpolateTo(VFrame fr) {
+	public void interpolateTo(GeomFrame fr) {
 		interpolateTo(fr, 1);
 	}
 
@@ -1848,11 +1829,11 @@ public abstract class Pinhole {
 	 * {@code fr} is expressed in world coordinates. {@code duration} tunes the
 	 * interpolation speed.
 	 * 
-	 * @see #interpolateTo(VFrame)
+	 * @see #interpolateTo(GeomFrame)
 	 * @see #interpolateToFitScene()
 	 * @see #interpolateToZoomOnPixel(Point)
 	 */
-	public void interpolateTo(VFrame fr, float duration) {
+	public void interpolateTo(GeomFrame fr, float duration) {
 		// if (interpolationKfi.interpolationIsStarted())
 		// interpolationKfi.stopInterpolation();
 		if (anyInterpolationIsStarted())

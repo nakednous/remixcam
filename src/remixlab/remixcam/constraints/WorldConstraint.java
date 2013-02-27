@@ -40,7 +40,7 @@ public class WorldConstraint extends AxisPlaneConstraint {
 	 * world coordinate system by {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public Vector3D constrainTranslation(Vector3D translation, VFrame frame) {
+	public Vector3D constrainTranslation(Vector3D translation, GeomFrame frame) {
 		Vector3D res = new Vector3D(translation.vec[0], translation.vec[1], translation.vec[2]);
 		Vector3D proj;
 		switch (translationConstraintType()) {
@@ -73,7 +73,7 @@ public class WorldConstraint extends AxisPlaneConstraint {
 	 * Frame world coordinate system by {@link #rotationConstraintDirection()}.
 	 */
 	@Override
-	public Orientable constrainRotation(Orientable rotation, VFrame frame) {
+	public Orientable constrainRotation(Orientable rotation, GeomFrame frame) {
 		Orientable res = rotation.get();
 		switch (rotationConstraintType()) {
 		case FREE:
@@ -99,7 +99,7 @@ public class WorldConstraint extends AxisPlaneConstraint {
 	}
 	
 	@Override
-	public Vector3D constrainScaling(Vector3D scaling, VFrame frame) {
+	public Vector3D constrainScaling(Vector3D scaling, GeomFrame frame) {
 		//TODO debug
 		System.out.println("...Entering world constriant");
 		System.out.print("Constrain scale vector: ");

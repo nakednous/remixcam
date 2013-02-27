@@ -48,7 +48,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * the {@link remixlab.remixcam.core.AbstractScene#mouseGrabberPool()}.
  */
 
-public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyable {
+public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -119,7 +119,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	private int startedTime;
 	private int delay;
 
-	private Orientable spngQuat;
+	protected Orientable spngQuat;
 
 	// Whether the SCREEN_TRANS direction (horizontal or vertical) is fixed or
 	// not.
@@ -296,7 +296,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	/**
 	 * Convenience function that simply calls {@code applyTransformation(AbstractScene)}.
 	 * 
-	 * @see remixlab.remixcam.geom.VFrame#applyTransformation(AbstractScene)
+	 * @see remixlab.remixcam.geom.GeomFrame#applyTransformation(AbstractScene)
 	 */
 	public void applyTransformation() {
 		applyTransformation(scene);
@@ -305,7 +305,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	/**
 	 * Convenience function that simply calls {@code applyWorldTransformation(Abstractscene)}
 	 * 
-	 * @see remixlab.remixcam.geom.VFrame#applyWorldTransformation(AbstractScene)
+	 * @see remixlab.remixcam.geom.GeomFrame#applyWorldTransformation(AbstractScene)
 	 */
 	public void applyWorldTransformation() {
 		applyWorldTransformation(scene);
@@ -539,7 +539,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * <p>
 	 * The {@link #spinningQuaternion()} axis is defined in the InteractiveFrame
 	 * coordinate system. You can use
-	 * {@link remixlab.remixcam.geom.VFrame#transformOfFrom(Vector3D, VFrame)} to convert
+	 * {@link remixlab.remixcam.geom.GeomFrame#transformOfFrom(Vector3D, GeomFrame)} to convert
 	 * this axis from an other Frame coordinate system.
 	 */
 	public final Orientable spinningQuaternion() {
@@ -550,8 +550,10 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * Defines the {@link #spinningQuaternion()}. Its axis is defined in the
 	 * InteractiveFrame coordinate system.
 	 */
-	public final void setSpinningQuaternion(Orientable spinningQuaternion) {
+	//public final void setSpinningQuaternion(Orientable spinningQuaternion) {
+	public void setSpinningQuaternion(Orientable spinningQuaternion) {
 		spngQuat = spinningQuaternion;
+		/**
 		if( is3D() ) {
 			if( this instanceof InteractiveCameraFrame ) {
 				if(this.scaling().x() < 0) ((Quaternion)spngQuat).quat[0] *= -1;
@@ -564,6 +566,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 				if(this.scaling().z() < 0) ((Quaternion)spngQuat).quat[2] *= -1;
 			}
 		}
+		*/
 	}
 
 	/**
@@ -609,7 +612,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * Overloading of
 	 * {@link remixlab.remixcam.devices.DeviceGrabbable#mouseClicked(remixlab.remixcam.core.AbstractScene.Button, int, Camera)}.
 	 * <p>
-	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(VFrame)}
+	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(GeomFrame)}
 	 * and {@link remixlab.remixcam.core.AbstractScene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
 	 * the camera view direction.
 	 */
@@ -672,7 +675,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 		int deltaY = 0;
 		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
-			if( scene.needsYCorrection() )
+			if( scene.isRightHanded() )
 				deltaY = -deltaY;
 		}
 		
@@ -769,30 +772,21 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
   	int deltaY = 0;
 		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
-			if( scene.needsYCorrection() )
+			if( scene.isRightHanded() )
 				deltaY = -deltaY;
 		}
 
 		switch (action) {
 		case TRANSLATE: {
 			Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
-			Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(), 0.0f);
-			
-			Vector3D mag = camera.frame().magnitude(); 
-			if( mag.y() < 0 )
-				trans.y(-trans.y());
-			if( (mag.x() < 0 && mag.y() < 0 && mag.z() > 0) || 
-					(mag.x() > 0 && mag.y() > 0 && mag.z() < 0) ||
-					(mag.x() > 0 && mag.y() < 0 && mag.z() > 0))
-				trans.x(-trans.x());
+			Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(), 0.0f);			
 			
 			// Scale to fit the screen mouse displacement
 			switch ( camera.type() ) {
 			case PERSPECTIVE:
 				trans.mult(2.0f * (float) Math.tan(camera.fieldOfView() / 2.0f)
 						            * Math.abs((camera.frame().coordinatesOf(position())).vec[2] * camera.frame().magnitude().z())
-						            //* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
-						            //* Math.abs((camera.frame().coordinatesOfNoScl(position())).vec[2])
+						            //* Math.abs((camera.frame().coordinatesOf(position())).vec[2])						            
 						            / camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC: {
@@ -802,14 +796,13 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 				break;
 			}
 			}
-			//trans = camera.frame().inverseTransformOfNoScl(Vector3D.mult(trans, translationSensitivity()));
 		  // same as:
 			trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));
 			// but takes into account scaling			
 			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));			
-			// And then down to frame
+			// And then down to frame						
 			if (referenceFrame() != null)
-				trans = referenceFrame().transformOf(trans);		
+				trans = referenceFrame().transformOf(trans);			
 			
 			translate(trans);
 			prevPos = eventPoint;						
@@ -832,8 +825,7 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);			
 			Orientable rot;
 			
-			Vector3D axis = transformOf(camera.frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f)));
-			//Vector3D axis = transformOf(camera.frame().inverseTransformOfNoScl(new Vector3D(0.0f, 0.0f, -1.0f)));
+			Vector3D axis = transformOf(camera.frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f)));			
 			//TODO testing handed
 			if( scene.isRightHanded() )
 				rot = new Quaternion(axis, angle - prev_angle);
@@ -855,12 +847,28 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			if (dir == 1)
 				trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
 			else if (dir == -1)
-				trans.set(0.0f, -deltaY, 0.0f);
+				trans.set(0.0f, -deltaY, 0.0f);			
+			
+			switch ( camera.type() ) {
+			case PERSPECTIVE:
+				trans.mult(2.0f * (float) Math.tan(camera.fieldOfView() / 2.0f)
+						            * Math.abs((camera.frame().coordinatesOf(position())).vec[2] * camera.frame().magnitude().z())
+						            //* Math.abs((camera.frame().coordinatesOf(position())).vec[2])						            
+						            / camera.screenHeight());
+				break;
+			case ORTHOGRAPHIC: {
+				float[] wh = camera.getOrthoWidthHeight();
+				trans.vec[0] *= 2.0 * wh[0] / camera.screenWidth();
+				trans.vec[1] *= 2.0 * wh[1] / camera.screenHeight();
+				break;
+			}
+			}
+			
+			/**
 			switch (camera.type()) {
 			case PERSPECTIVE:
 				trans.mult((float) Math.tan(camera.fieldOfView() / 2.0f)
-						* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
-						//* Math.abs((camera.frame().coordinatesOfNoScl(position())).vec[2])
+						* Math.abs((camera.frame().coordinatesOf(position())).vec[2])						
 						/ camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC: {
@@ -870,8 +878,9 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 				break;
 			}
 			}
-			// Transform to world coordinate system.
-			//trans = camera.frame().inverseTransformOfNoScl(Vector3D.mult(trans, translationSensitivity()));
+			*/
+			
+			// Transform to world coordinate system.			
 			// same as:
 			trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));// but takes into account scaling
 			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
@@ -884,26 +893,15 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 			break;
 		}
 
-		case ROTATE: {			
+		case ROTATE: {
 			Vector3D trans = camera.projectedCoordinatesOf(position());
-			Quaternion rot;
-			rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y,	trans.vec[0], trans.vec[1], (Camera) camera);
-			trans.set(-rot.quat[0], -rot.quat[1], -rot.quat[2]);
-			// Same as:
-			trans = camera.frame().orientation().rotate(trans);//but takes into account scaling			
-			//trans = camera.frame().inverseTransformOfNoScl(trans);
-			//trans = camera.frame().inverseTransformOf(trans);//(camera) frame to world
-			
-			trans = transformOf(trans);//world to frame	
-			
-			rot.quat[0] = trans.vec[0];
-			rot.quat[1] = trans.vec[1];
-			rot.quat[2] = trans.vec[2];						
-			// #CONNECTION# These two methods should go together (spinning detection and activation)
+			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y, trans.x(), trans.y(), camera);
+			rot = iFrameQuaternion(rot, camera);
 			computeMouseSpeed(eventPoint);
 			setSpinningQuaternion(rot);
 			spin();
 			prevPos = eventPoint;
+			break;			
 		}
 
 		case NO_MOUSE_ACTION:
@@ -1067,78 +1065,36 @@ public class InteractiveFrame extends VFrame implements DeviceGrabbable, Copyabl
 	 * Returns a Quaternion computed according to the mouse motion. Mouse positions
 	 * are projected on a deformed ball, centered on ({@code cx}, {@code cy}).
 	 */
-	protected Quaternion deformedBallQuaternion(int x, int y, float cx, float cy,	Camera camera) {
-		// First determine how displacements should be interpreted
-		boolean keepX = true;
-		boolean keepY = scene.isLeftHanded();
-		Vector3D mag;
-		if(referenceFrame() != null) {
-			mag = referenceFrame().magnitude();			
-			if( (mag.z() > 0  && mag.y() > 0 && mag.x() < 0) || (mag.z() < 0  && mag.y() > 0 && mag.x() > 0) ) 
-				keepX = !keepX;
-			if( (mag.z() > 0  && mag.y() < 0 && mag.x() > 0) || (mag.z() < 0  && mag.y() > 0 && mag.x() > 0) ) 
-				keepY = !keepY;			
-		}
-		mag = camera.frame().magnitude();
-		if( this instanceof InteractiveCameraFrame ) {
-			if( mag.x() < 0 && mag.y() > 0 && mag.z() > 0  ) {				
-				keepY = !keepY;
-			}
-			if( mag.x() < 0 && mag.y() < 0 && mag.z() < 0  ) {
-				keepY = !keepY;
-			}
-			if( mag.x() > 0 && mag.y() > 0 && mag.z() < 0  ) {
-				keepY = !keepY;
-			}
-			if( mag.x() > 0 && mag.y() < 0 && mag.z() > 0  ) {
-				keepY = !keepY;
-			}
-		}
-		else {
-			if( mag.x() < 0 && mag.y() < 0 && mag.z() > 0  ) {
-				keepX = !keepX;
-				keepY = !keepY;
-			}
-			if( mag.x() < 0 && mag.y() < 0 && mag.z() < 0  ) {
-				keepX = !keepX;
-			}
-			if( mag.x() > 0 && mag.y() < 0 && mag.z() < 0  ) {
-				keepX = !keepX;
-			}
-			if( mag.x() > 0 && mag.y() > 0 && mag.z() < 0  ) {
-				keepY = !keepY;
-			}
-			if( mag.x() > 0 && mag.y() < 0 && mag.z() > 0  ) {
-				keepX = !keepX;
-				keepY = !keepY;
-			}			
-		}
-		
-		/**
-		if( (mag.z() > 0  && mag.y() < 0 && mag.x() < 0) || (mag.z() < 0  && mag.y() < 0 && mag.x() > 0) ) 
-			keepX = !keepX;		
-		if( (mag.z() > 0  && mag.y() < 0 && mag.x() < 0) || (mag.z() < 0  && mag.y() > 0 && mag.x() < 0) )
-			keepY = !keepY;
-		*/
-		
-		/**
-		if( (mag.z() < 0  && mag.y() < 0 && mag.x() < 0) )
-			keepX = !keepX;
-		*/
-		
-	  // Points on the deformed ball
-		float px = rotationSensitivity() * (keepX ? ((int)prevPos.x - cx) : (cx - (int)prevPos.x)) / camera.screenWidth();
-		float py = rotationSensitivity() * (keepY ? ((int)prevPos.y - cy) : (cy - (int)prevPos.y)) / camera.screenHeight();
-		float dx = rotationSensitivity() * (keepX ? (x - cx) : (cx - x)) / camera.screenWidth();
-		float dy = rotationSensitivity() * (keepY ? (y - cy) : (cy - y)) / camera.screenHeight();		
+	protected Quaternion deformedBallQuaternion(int x, int y, float cx, float cy, Camera camera) {			
+		// Points on the deformed ball		
+    float px = rotationSensitivity() *                         ((int)prevPos.x - cx)                           / camera.screenWidth();
+    float py = rotationSensitivity() * (scene.isLeftHanded() ? ((int)prevPos.y - cy) : ( cy - (int)prevPos.y)) / camera.screenHeight();
+    float dx = rotationSensitivity() *                         (x - cx)             / camera.screenWidth();
+    float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();    
 
 		Vector3D p1 = new Vector3D(px, py, projectOnBall(px, py));
 		Vector3D p2 = new Vector3D(dx, dy, projectOnBall(dx, dy));
 		// Approximation of rotation angle Should be divided by the projectOnBall size, but it is 1.0
 		Vector3D axis = p2.cross(p1);
-		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));
+		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));			
 		return new Quaternion(axis, angle);
 	}
+	
+	protected Quaternion iFrameQuaternion(Quaternion rot, Camera camera) {
+		Vector3D trans = new Vector3D();		
+		trans = rot.axis();
+		trans = camera.frame().orientation().rotate(trans);
+		trans = transformOf(trans);
+		//trans = transformOfFrom(trans, camera.frame());
+		
+		Vector3D res = new Vector3D(trans);			
+		// perform conversion			
+		if (scaling().x() < 0 )	res.x(-trans.x());
+		if (scaling().y() < 0 )	res.y(-trans.y());
+		if (scaling().z() < 0 )	res.z(-trans.z());
+		
+		return new Quaternion(res, isInverted() ? rot.angle() : -rot.angle());						
+	}	
 
 	/**
 	 * Returns "pseudo-distance" from (x,y) to ball of radius size. For a point

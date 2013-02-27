@@ -53,7 +53,7 @@ import remixlab.remixcam.util.AbstractTimerJob;
  * {@code kfi = new KeyFrameInterpolator( myFrame, this );} 
  * //or an anonymous Frame may also be given: {@code kfi = new KeyFrameInterpolator( this );}<br>
  * {@code //By default the Frame is provided as a reference to the
- * KeyFrameInterpolator}} (see {@link #addKeyFrame(VFrame)} methods):<br>
+ * KeyFrameInterpolator}} (see {@link #addKeyFrame(GeomFrame)} methods):<br>
  * {@code kfi.addKeyFrame( new Frame( new Vector3D(1,0,0), new Quaternion() ) );}<br>
  * {@code kfi.addKeyFrame( new Frame( new Vector3D(2,1,0), new Quaternion() ) );}<br>
  * {@code // ...and so on for all the keyFrames.}<br>
@@ -71,7 +71,7 @@ import remixlab.remixcam.util.AbstractTimerJob;
  * <p>
  * The keyFrames are defined by a Frame and a time, expressed in seconds.
  * Optionally, the Frame can be provided as a reference (see the
- * {@link #addKeyFrame(VFrame)} methods). In this case, the path will
+ * {@link #addKeyFrame(GeomFrame)} methods). In this case, the path will
  * automatically be updated when the Frame is modified.
  * <p>
  * The time has to be monotonously increasing over keyFrames. When
@@ -102,7 +102,7 @@ import remixlab.remixcam.util.AbstractTimerJob;
  * to drive the Camera along a path.
  * <p>
  * <b>Attention:</b> If a Constraint is attached to the {@link #frame()} (see
- * {@link remixlab.remixcam.geom.VFrame#constraint()}), it should be deactivated
+ * {@link remixlab.remixcam.geom.GeomFrame#constraint()}), it should be deactivated
  * before {@link #interpolationIsStarted()}, otherwise the interpolated motion
  * (computed as if there was no constraint) will probably be erroneous.
  */
@@ -174,9 +174,9 @@ public class KeyFrameInterpolator implements Copyable {
 		protected Vector3D tgSVec;
 		protected Orientable q;
 		protected float tm;
-		protected VFrame frm;
+		protected GeomFrame frm;
 
-		AbstractKeyFrame(VFrame fr, float t, boolean setRef) {
+		AbstractKeyFrame(GeomFrame fr, float t, boolean setRef) {
 			tm = t;
 			if (setRef) {
 				frm = fr;
@@ -228,7 +228,7 @@ public class KeyFrameInterpolator implements Copyable {
 			return tm;
 		}
 
-		VFrame frame() {
+		GeomFrame frame() {
 			return frm;
 		}
 		
@@ -249,7 +249,7 @@ public class KeyFrameInterpolator implements Copyable {
 	private class KeyFrame3D extends AbstractKeyFrame {
 		protected Quaternion tgQuat;
 		
-		KeyFrame3D(VFrame fr, float t, boolean setRef) {
+		KeyFrame3D(GeomFrame fr, float t, boolean setRef) {
 			super(fr, t, setRef);
 		}
 		
@@ -280,7 +280,7 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 	
 	private class KeyFrame2D extends AbstractKeyFrame {		
-		KeyFrame2D(VFrame fr, float t, boolean setRef) {
+		KeyFrame2D(GeomFrame fr, float t, boolean setRef) {
 			super(fr, t, setRef);			
 		}
 		
@@ -305,10 +305,10 @@ public class KeyFrameInterpolator implements Copyable {
 	private ListIterator<AbstractKeyFrame> currentFrame1;
 	private ListIterator<AbstractKeyFrame> currentFrame2;
 	private ListIterator<AbstractKeyFrame> currentFrame3;
-	private List<VFrame> path;
+	private List<GeomFrame> path;
 	// A s s o c i a t e d f r a m e
-	private VFrame fr;
-	private VFrame myFrame;// needed for drawPath
+	private GeomFrame fr;
+	private GeomFrame myFrame;// needed for drawPath
 
 	// R h y t h m
 	private AbstractTimerJob interpolationTimerJob;
@@ -338,10 +338,10 @@ public class KeyFrameInterpolator implements Copyable {
    * Creates an anonymous {@link #frame()} to be interpolated by this
    * KeyFrameInterpolator.
    * 
-   * @see #KeyFrameInterpolator(AbstractScene, VFrame)
+   * @see #KeyFrameInterpolator(AbstractScene, GeomFrame)
    */
   public KeyFrameInterpolator(AbstractScene scn) {
-  	this(scn, new VFrame());
+  	this(scn, new GeomFrame());
   }
 
 	/**
@@ -349,16 +349,16 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #frame()}. The {@code p3d} object will be used if
 	 * {@link #drawPath(int, int, float)} is called.
 	 * <p>
-	 * The {@link #frame()} can be set or changed using {@link #setFrame(VFrame)}.
+	 * The {@link #frame()} can be set or changed using {@link #setFrame(GeomFrame)}.
 	 * <p>
 	 * {@link #interpolationTime()}, {@link #interpolationSpeed()} and
 	 * {@link #interpolationPeriod()} are set to their default values.
 	 */
-	public KeyFrameInterpolator(AbstractScene scn, VFrame frame) {
+	public KeyFrameInterpolator(AbstractScene scn, GeomFrame frame) {
 		scene = scn;
-		myFrame = new VFrame(scene.is3D());
+		myFrame = new GeomFrame(scene.is3D());
 		keyFr = new ArrayList<AbstractKeyFrame>();
-		path = new ArrayList<VFrame>();
+		path = new ArrayList<GeomFrame>();
 		fr = null;
 		period = 40;
 		interpolationTm = 0.0f;
@@ -387,8 +387,8 @@ public class KeyFrameInterpolator implements Copyable {
 		this.scene = otherKFI.scene;
 		this.myFrame = otherKFI.myFrame.get();		
 		
-		this.path = new ArrayList<VFrame>();
-		ListIterator<VFrame> frameIt = otherKFI.path.listIterator();
+		this.path = new ArrayList<GeomFrame>();
+		ListIterator<GeomFrame> frameIt = otherKFI.path.listIterator();
 		while (frameIt.hasNext()) {
 			this.path.add(frameIt.next().get());
 		}		
@@ -433,7 +433,7 @@ public class KeyFrameInterpolator implements Copyable {
 	/**
 	 * Sets the {@link #frame()} associated to the KeyFrameInterpolator.
 	 */
-	public void setFrame(VFrame f) {
+	public void setFrame(GeomFrame f) {
 		fr = f;
 	}
 
@@ -445,16 +445,16 @@ public class KeyFrameInterpolator implements Copyable {
 	 * orientation will regularly be updated by a timer, so that they follow the
 	 * KeyFrameInterpolator path.
 	 * <p>
-	 * Set using {@link #setFrame(VFrame)} or with the KeyFrameInterpolator
+	 * Set using {@link #setFrame(GeomFrame)} or with the KeyFrameInterpolator
 	 * constructor.
 	 */
-	public VFrame frame() {
+	public GeomFrame frame() {
 		return fr;
 	}
 
 	/**
 	 * Returns the number of keyFrames used by the interpolation. Use
-	 * {@link #addKeyFrame(VFrame)} to add new keyFrames.
+	 * {@link #addKeyFrame(GeomFrame)} to add new keyFrames.
 	 */
 	public int numberOfKeyFrames() {
 		return keyFr.size();
@@ -655,7 +655,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * change the starting {@link #interpolationTime()}.
 	 * <p>
 	 * <b>Attention:</b> The keyFrames must be defined (see
-	 * {@link #addKeyFrame(VFrame, float)}) before you startInterpolation(), or
+	 * {@link #addKeyFrame(GeomFrame, float)}) before you startInterpolation(), or
 	 * else the interpolation will naturally immediately stop.
 	 */
 	public void startInterpolation(int myPeriod) {
@@ -699,21 +699,21 @@ public class KeyFrameInterpolator implements Copyable {
 	/**
 	 * Convenience function that simply calls {@code addKeyFrame(frame, false)}.
 	 * 
-	 * @see #addKeyFrame(VFrame, boolean)
+	 * @see #addKeyFrame(GeomFrame, boolean)
 	 */
-	public void addKeyFrame(VFrame frame) {
+	public void addKeyFrame(GeomFrame frame) {
 		addKeyFrame(frame, true);
 	}
 
 	/**
 	 * Appends a new keyFrame to the path.
 	 * <p>
-	 * Same as {@link #addKeyFrame(VFrame, float, boolean)}, except that the
+	 * Same as {@link #addKeyFrame(GeomFrame, float, boolean)}, except that the
 	 * {@link #keyFrameTime(int)} is set to the previous
 	 * {@link #keyFrameTime(int)} plus one second (or 0.0 if there is no previous
 	 * keyFrame).
 	 */
-	public void addKeyFrame(VFrame frame, boolean setRef) {
+	public void addKeyFrame(GeomFrame frame, boolean setRef) {
 		float time;
 
 		if (keyFr.isEmpty())
@@ -728,9 +728,9 @@ public class KeyFrameInterpolator implements Copyable {
 	 * Convenience function that simply calls {@code addKeyFrame(frame, time,
 	 * false)}.
 	 * 
-	 * @see #addKeyFrame(VFrame, float, boolean)
+	 * @see #addKeyFrame(GeomFrame, float, boolean)
 	 */
-	public void addKeyFrame(VFrame frame, float time) {
+	public void addKeyFrame(GeomFrame frame, float time) {
 		addKeyFrame(frame, time, true);
 	}
 
@@ -749,7 +749,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #keyFrameTime(int)} has to be monotonously increasing over
 	 * keyFrames.
 	 */
-	public void addKeyFrame(VFrame frame, float time, boolean setRef) {
+	public void addKeyFrame(GeomFrame frame, float time, boolean setRef) {
 		if (frame == null)
 			return;
 
@@ -932,7 +932,7 @@ public class KeyFrameInterpolator implements Copyable {
 				updateModifiedFrameValues();
 
 			if (keyFr.get(0) == keyFr.get(keyFr.size() - 1))
-				path.add(new VFrame(keyFr.get(0).orientation(), keyFr.get(0).position(), keyFr.get(0).magnitude()));
+				path.add(new GeomFrame(keyFr.get(0).orientation(), keyFr.get(0).position(), keyFr.get(0).magnitude()));
 			else {
 				AbstractKeyFrame[] kf = new AbstractKeyFrame[4];
 				kf[0] = keyFr.get(0);
@@ -986,7 +986,7 @@ public class KeyFrameInterpolator implements Copyable {
 					kf[3] = (index < keyFr.size()) ? keyFr.get(index) : null;
 				}
 				// Add last KeyFrame
-				path.add(new VFrame(kf[1].orientation(), kf[1].position(), kf[1].magnitude()));
+				path.add(new GeomFrame(kf[1].orientation(), kf[1].position(), kf[1].magnitude()));
 			}
 			pathIsValid = true;
 		}
@@ -1001,12 +1001,12 @@ public class KeyFrameInterpolator implements Copyable {
 	 * 0..{@link #numberOfKeyFrames()}-1.
 	 * <p>
 	 * <b>Note:</b> If this keyFrame was defined using a reference to a Frame (see
-	 * {@link #addKeyFrame(VFrame, float, boolean)} the current referenced Frame
+	 * {@link #addKeyFrame(GeomFrame, float, boolean)} the current referenced Frame
 	 * state is returned.
 	 */
-	public VFrame keyFrame(int index) {
+	public GeomFrame keyFrame(int index) {
 		AbstractKeyFrame kf = keyFr.get(index);
-		return new VFrame(kf.orientation(), kf.position(), kf.magnitude());
+		return new GeomFrame(kf.orientation(), kf.position(), kf.magnitude());
 	}
 
 	/**

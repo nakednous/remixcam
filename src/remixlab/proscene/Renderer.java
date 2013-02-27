@@ -40,7 +40,7 @@ import remixlab.remixcam.core.Camera;
 import remixlab.remixcam.core.ViewWindow;
 import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.geom.Orientable;
-import remixlab.remixcam.geom.VFrame;
+import remixlab.remixcam.geom.GeomFrame;
 import remixlab.remixcam.geom.Vector3D;
 
 public class Renderer implements Renderable, PConstants {
@@ -531,7 +531,7 @@ public class Renderer implements Renderable, PConstants {
 	}
 
 	@Override
-	public void drawPath(List<VFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
+	public void drawPath(List<GeomFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
 		// TODO Auto-generated method stub
 		
 	}

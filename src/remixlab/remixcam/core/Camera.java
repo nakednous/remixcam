@@ -388,7 +388,28 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		return new Camera(this);
 	}
 
-	// 2. POSITION AND ORIENTATION			
+	// 2. POSITION AND ORIENTATION
+	
+	@Override
+	public Vector3D rightVector() {
+		return frame().magnitude().x() > 0 ? frame().xAxis() : frame().xAxis(false);
+	}
+	
+	@Override
+	public Vector3D upVector() {
+		return frame().magnitude().y() > 0 ? frame().yAxis() : frame().yAxis(false);
+	}
+	
+	@Override
+	public void setUpVector(Vector3D up, boolean noMove) {
+		Quaternion q = new Quaternion(new Vector3D(0.0f, frame().magnitude().y() > 0 ? 1.0f : -1.0f, 0.0f), frame().transformOf(up));
+
+		if (!noMove)
+			frame().rotate(q);
+
+		// Useful in fly mode to keep the horizontal direction.
+		frame().updateFlyUpVector();
+	}
 
 	/**
 	 * Returns the normalized view direction of the Camera, defined in the world
@@ -403,14 +424,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 */
 	@Override
 	public Vector3D viewDirection() {
-			Vector3D mag = frame().magnitude();
-			if( Geom.diff(mag.x(), 1) || Geom.diff(mag.y(), 1) || Geom.diff(mag.z(), 1) ) {
-				Vector3D res = frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f));
-				res.normalize();
-				return res;
-			}
-			else
-				return frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f));
+		return frame().magnitude().z() > 0 ? frame().zAxis(false) : frame().zAxis();
 	}	
 
 	/**
@@ -749,7 +763,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 */
 	public void setHorizontalFieldOfView(float hfov) {
 		setFieldOfView(2.0f * (float) Math.atan((float) Math.tan(hfov / 2.0f) / aspectRatio()));
-	}	
+	}
 
 	/**
 	 * Returns the near clipping plane distance used by the Camera projection
@@ -1352,11 +1366,13 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * Returns the distance from the Camera center to {@link #sceneCenter()},
 	 * projected along the Camera Z axis.
 	 * <p>
-	 * Used by  {@link #zNear()} and {@link #zFar()} to optimize the Z range.
+	 * Used by {@link #zNear()} and {@link #zFar()} to optimize the Z range.
 	 */
 	public float distanceToSceneCenter() {
 		//return Math.abs((frame().coordinatesOf(sceneCenter())).vec[2]);//before scln
-		Vector3D zCam = frame().zAxis();
+		//Vector3D zCam = frame().zAxis();
+		//TODO test:
+		Vector3D zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
 		zCam.normalize();
 		Vector3D cam2SceneCenter = Vector3D.sub(position(), sceneCenter());
 		return Math.abs(Vector3D.dot(cam2SceneCenter, zCam));
@@ -1388,7 +1404,33 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		setSceneRadius(0.5f * (Vector3D.sub(max, min)).mag());
 	}
 
-	// 5. ARCBALL REFERENCE POINT		
+	// 5. ARCBALL REFERENCE POINT
+	
+	@Override
+	public Vector3D worldCoordinatesOf(final Vector3D src) {
+		return worldCoordinatesOf(src, true);
+	}
+	
+  //TODO fix API
+	public Vector3D worldCoordinatesOf(final Vector3D src, boolean flag) {
+		if(flag)
+			if( Geom.diff(frame().magnitude().x(), 1) || Geom.diff(frame().magnitude().y(), 1) || Geom.diff(frame().magnitude().z(), 1))
+				return frame().inverseCoordinatesOf(Vector3D.div(src, frame().magnitude()));
+		return frame().inverseCoordinatesOf(src);
+	}
+	
+	@Override
+	public final Vector3D cameraCoordinatesOf(Vector3D src) {
+		return cameraCoordinatesOf(src, true);
+	}
+	
+	//TODO fix API
+	public final Vector3D cameraCoordinatesOf(Vector3D src, boolean flag) {
+		if(flag)
+			if( Geom.diff(frame().magnitude().x(), 1) || Geom.diff(frame().magnitude().y(), 1) || Geom.diff(frame().magnitude().z(), 1))
+				return frame().coordinatesOf(Vector3D.div(src, frame().magnitude()));
+		return frame().coordinatesOf(src);
+	}
 
 	/**
 	 * Changes the {@link #arcballReferencePoint()} to {@code rap} (defined in the
@@ -1912,6 +1954,8 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 */
 	@Override
 	public void fitScreenRegion(Rectangle rectangle) {
+		//TODO fix me
+		System.out.println("calling fit SR");
 		Vector3D vd = viewDirection();
 		float distToPlane = distanceToSceneCenter();
 
@@ -1920,16 +1964,13 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		Vector3D orig = new Vector3D();
 		Vector3D dir = new Vector3D();
 		convertClickToLine(center, orig, dir);
-		Vector3D newCenter = Vector3D.add(orig, Vector3D.mult(dir,
-				(distToPlane / Vector3D.dot(dir, vd))));
+		Vector3D newCenter = Vector3D.add(orig, Vector3D.mult(dir, (distToPlane / Vector3D.dot(dir, vd))));
 
 		convertClickToLine(new Point(rectangle.x, center.y), orig, dir);
-		final Vector3D pointX = Vector3D.add(orig, Vector3D.mult(dir,
-				(distToPlane / Vector3D.dot(dir, vd))));
+		final Vector3D pointX = Vector3D.add(orig, Vector3D.mult(dir,	(distToPlane / Vector3D.dot(dir, vd))));
 
 		convertClickToLine(new Point(center.x, rectangle.y), orig, dir);
-		final Vector3D pointY = Vector3D.add(orig, Vector3D.mult(dir,
-				(distToPlane / Vector3D.dot(dir, vd))));
+		final Vector3D pointY = Vector3D.add(orig, Vector3D.mult(dir,	(distToPlane / Vector3D.dot(dir, vd))));
 
 		float distance = 0.0f;
 		switch (type()) {
@@ -1991,7 +2032,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		interpolationKfi.deletePath();
 		interpolationKfi.addKeyFrame(frame(), false);
 
-		interpolationKfi.addKeyFrame(new VFrame(frame().orientation(),
+		interpolationKfi.addKeyFrame(new GeomFrame(frame().orientation(),
 				                                    Vector3D.add(Vector3D.mult(frame().position(),
 				                         0.3f), Vector3D.mult(target.point, 0.7f))), 0.4f, false);
 

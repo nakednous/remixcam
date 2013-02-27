@@ -530,6 +530,7 @@ public abstract class AbstractScene implements Constants {
 			return;
 		if( !id.is2D() && this.is2D() )
 			return;
+		Vector3D trans;
 		switch (id) {		
 		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
 			if( this.is3D() ) {
@@ -553,25 +554,29 @@ public abstract class AbstractScene implements Constants {
 		case SHOW_ALL:
 			showAll();
 			break;
-		case MOVE_CAMERA_LEFT:			
-			pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(-10.0f * pinhole().flySpeed(), 0.0f, 0.0f)));
-			
+		case MOVE_CAMERA_LEFT:
+			trans = new Vector3D(-10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
+			if(this.is3D())
+				trans.div(camera().frame().magnitude());
+			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
 			break;
-		case MOVE_CAMERA_RIGHT:			
-			pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(10.0f * pinhole().flySpeed(), 0.0f, 0.0f)));
-			
+		case MOVE_CAMERA_RIGHT:
+			trans = new Vector3D(10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
+			if(this.is3D())
+				trans.div(camera().frame().magnitude());
+			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
 			break;
 		case MOVE_CAMERA_UP:
-			if( needsYCorrection() )
-				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * pinhole().flySpeed(), 0.0f)));
-			else
-				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * pinhole().flySpeed(), 0.0f)));		  
+			trans = pinhole().frame().inverseTransformOf(new Vector3D(0.0f, isRightHanded() ? 10.0f : -10.0f * pinhole().flySpeed(), 0.0f));
+			if(this.is3D())
+				trans.div(camera().frame().magnitude());
+			pinhole().frame().translate(trans);					  
 			break;
-		case MOVE_CAMERA_DOWN:			
-			if( needsYCorrection() )
-				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, -10.0f * pinhole().flySpeed(), 0.0f)));
-			else
-				pinhole().frame().translate(pinhole().frame().inverseTransformOf(new Vector3D(0.0f, 10.0f * pinhole().flySpeed(), 0.0f)));			
+		case MOVE_CAMERA_DOWN:
+			trans = pinhole().frame().inverseTransformOf(new Vector3D(0.0f, isRightHanded() ? -10.0f : 10.0f * pinhole().flySpeed(), 0.0f));
+			if(this.is3D())
+				trans.div(camera().frame().magnitude());
+			pinhole().frame().translate(trans);			
 			break;
 		case INCREASE_ROTATION_SENSITIVITY:
 			pinhole().setRotationSensitivity(pinhole().rotationSensitivity() * 1.2f);
@@ -1442,7 +1447,7 @@ public abstract class AbstractScene implements Constants {
 		renderer.drawShooterTarget(center, length);
 	}
 	
-	public void drawPath(List<VFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
+	public void drawPath(List<GeomFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
 		renderer.drawPath(path, mask, nbFrames, nbSteps, scale);
 	}
 	
@@ -1553,7 +1558,7 @@ public abstract class AbstractScene implements Constants {
 	 * <b>Attention:</b> When drawing a frame hierarchy as above, this method
 	 * should be used whenever possible.
 	 */
-	public void applyTransformation(VFrame frame) {
+	public void applyTransformation(GeomFrame frame) {
 		if( is2D() ) {
 			translate(frame.translation().x(), frame.translation().y());
 			rotate(frame.rotation().angle());
@@ -1566,8 +1571,8 @@ public abstract class AbstractScene implements Constants {
 		}
 	}
 	
-	public void applyWorldTransformation(VFrame frame) {
-		VFrame refFrame = frame.referenceFrame();
+	public void applyWorldTransformation(GeomFrame frame) {
+		GeomFrame refFrame = frame.referenceFrame();
 		if(refFrame != null) {
 			applyWorldTransformation(refFrame);
 			applyTransformation(frame);
@@ -1575,19 +1580,7 @@ public abstract class AbstractScene implements Constants {
 		else {
 			applyTransformation(frame);
 		}
-	}
-	
-	//TODO pending too: see frame.isFlipped
-	/**
-	public boolean isFlippedPend() {
-		return ( isRightHanded() && !pinhole().frame().isInverted() ) || ( isLeftHanded() && pinhole().frame().isInverted() );
-	}
-	*/
-	
-	//TODO: check if this is necessary at all
-	public boolean needsYCorrection() {
-		return isRightHanded();
-	}
+	}	
 	
 	/**
 	 * Returns the approximate frame rate of the software as it executes.

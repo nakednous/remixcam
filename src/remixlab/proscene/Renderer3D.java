@@ -15,7 +15,7 @@ import remixlab.remixcam.core.Camera;
 //import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.geom.Quaternion;
-import remixlab.remixcam.geom.VFrame;
+import remixlab.remixcam.geom.GeomFrame;
 //import remixlab.remixcam.geom.Quaternion;
 // */
 import remixlab.remixcam.geom.Vector3D;
@@ -671,7 +671,7 @@ public class Renderer3D extends Renderer {
 	}
 	
 	@Override
-	public void drawPath(List<VFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
+	public void drawPath(List<GeomFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
 		if (mask != 0) {
 			pg3d().pushStyle();
 			pg3d().strokeWeight(2);
@@ -680,7 +680,7 @@ public class Renderer3D extends Renderer {
 			
 			if (((mask & 1) != 0) && path.size() > 1 ) {				
 				pg3d().beginShape();
-				for (VFrame myFr : path)
+				for (GeomFrame myFr : path)
 					pg3d().vertex(myFr.position().x(), myFr.position().y(), myFr.position().z());
 				pg3d().endShape();
 			}
@@ -690,7 +690,7 @@ public class Renderer3D extends Renderer {
 					nbFrames = nbSteps;
 				float goal = 0.0f;
 
-				for (VFrame myFr : path)
+				for (GeomFrame myFr : path)
 					if ((count++) >= goal) {
 						goal += nbSteps / (float) nbFrames;
 						pg3d().pushMatrix();

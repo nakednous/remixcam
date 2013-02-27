@@ -263,7 +263,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			super.deviceDragged3D(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
-			if( scene.needsYCorrection() )
+			if( scene.isRightHanded() )
 				deltaY = -deltaY;
 			
 			switch (action) {
@@ -286,7 +286,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 				break;
 			}
 
-			case DRIVE: {
+			case DRIVE: {				
 				Quaternion rot = turnQuaternion((int)eventPoint.x, camera);
 				rotate(rot);
 				// actual translation is made in flyUpdate().
@@ -418,8 +418,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * proportional to the horizontal mouse position.
 	 */
 	protected final Quaternion turnQuaternion(int x, Camera camera) {
-		return new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), rotationSensitivity()
-				* ((int)prevPos.x - x) / camera.screenWidth());
+		return new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), rotationSensitivity()	* ((int)prevPos.x - x) / camera.screenWidth());
 	}
 
 	/**
@@ -431,12 +430,10 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		if( scene.isRightHanded() )
 			deltaY = (int) (prevPos.y - y);
 		else
-			deltaY = (int) (y - prevPos.y);	
+			deltaY = (int) (y - prevPos.y);
 		
-		Quaternion rotX = new Quaternion(new Vector3D(1.0f, 0.0f, 0.0f),
-		                              	 rotationSensitivity() * deltaY / camera.screenHeight());
-		Quaternion rotY = new Quaternion(transformOf(flyUpVector()),
-				                             rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());
+		Quaternion rotX = new Quaternion(new Vector3D(1.0f, 0.0f, 0.0f), rotationSensitivity() * deltaY / camera.screenHeight());
+		Quaternion rotY = new Quaternion(transformOf(flyUpVector()), rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());				                             
 		return Quaternion.multiply(rotY, rotX);
 	}
 }
