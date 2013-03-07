@@ -208,15 +208,24 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		switch (action) {
 		case MOVE_FORWARD:
 			flyDisp.vec[2] = -flySpeed();
-			translate(localInverseTransformOf(flyDisp));
+			if(scene.is2D())
+				translate(localInverseTransformOf(flyDisp));
+			else
+				translate(rotation().rotate(flyDisp));
 			break;
 		case MOVE_BACKWARD:
 			flyDisp.vec[2] = flySpeed();
-			translate(localInverseTransformOf(flyDisp));
+			if(scene.is2D())
+				translate(localInverseTransformOf(flyDisp));
+			else
+				translate(rotation().rotate(flyDisp));
 			break;
 		case DRIVE:
 			flyDisp.vec[2] = flySpeed() * drvSpd;
-			translate(localInverseTransformOf(flyDisp));
+			if(scene.is2D())
+				translate(localInverseTransformOf(flyDisp));
+			else
+				translate(rotation().rotate(flyDisp));
 			break;
 		default:
 			break;
@@ -410,7 +419,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * should not need to call this method.
 	 */
 	public final void updateFlyUpVector() {
-		flyUpVec = inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f));
+		//flyUpVec = inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f));
+		flyUpVec = inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f), false);
 	}
 
 	/**
@@ -433,7 +443,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			deltaY = (int) (y - prevPos.y);
 		
 		Quaternion rotX = new Quaternion(new Vector3D(1.0f, 0.0f, 0.0f), rotationSensitivity() * deltaY / camera.screenHeight());
-		Quaternion rotY = new Quaternion(transformOf(flyUpVector()), rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());				                             
+		//Quaternion rotY = new Quaternion(transformOf(flyUpVector()), rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());	
+		Quaternion rotY = new Quaternion(transformOf(flyUpVector(), false), rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());
 		return Quaternion.multiply(rotY, rotX);
 	}
 }

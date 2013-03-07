@@ -12,6 +12,7 @@ import remixlab.remixcam.geom.*;
 
 // /*
 import remixlab.remixcam.core.AbstractScene;
+import remixlab.remixcam.geom.Geom;
 import remixlab.remixcam.geom.GeomFrame;
 import remixlab.remixcam.geom.Matrix3D;
 //import remixlab.remixcam.geom.Quaternion;
@@ -56,7 +57,7 @@ public class Renderer2D extends Renderer {
 		float z1 = eyeY - centerY;
 		float z2 = eyeZ - centerZ;
 		float mag = PApplet.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
-		if (nonZero(mag)) {
+		if (Geom.nonZero(mag)) {
 			z0 /= mag;
 			z1 /= mag;
 			z2 /= mag;
@@ -85,14 +86,14 @@ public class Renderer2D extends Renderer {
 		// Cross product gives area of parallelogram, which is < 1.0 for
 		// non-perpendicular unit-length vectors; so normalize x, y here:
 		mag = PApplet.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
-		if (nonZero(mag)) {
+		if (Geom.nonZero(mag)) {
 			x0 /= mag;
 			x1 /= mag;
 			x2 /= mag;
 		}
 		
 		mag = PApplet.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
-		if (nonZero(mag)) {
+		if (Geom.nonZero(mag)) {
 			y0 /= mag;
 			y1 /= mag;
 			y2 /= mag;
@@ -131,10 +132,12 @@ public class Renderer2D extends Renderer {
 		
 		return mv;
 	}
-		
+	
+	/**
 	protected boolean nonZero(float a) {
 		return 0x0.000002P-126f <= Math.abs(a);
   }
+  */
 	// --
 	
 	// /**

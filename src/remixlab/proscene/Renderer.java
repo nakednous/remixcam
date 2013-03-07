@@ -628,20 +628,35 @@ public class Renderer implements Renderable, PConstants {
 		float arrowHalfWidth = 0.5f * upperLeft.x;
 		float baseHalfWidth = 0.3f * upperLeft.x;
 		
-		// Base
+	  // Base
 		pg().beginShape(PApplet.QUADS);		
-		pg().vertex(-baseHalfWidth, -upperLeft.y);
-		pg().vertex(baseHalfWidth, -upperLeft.y);
-		pg().vertex(baseHalfWidth, -baseHeight);
-		pg().vertex(-baseHalfWidth, -baseHeight);		
+		if( camera.scene.isLeftHanded() ) {
+			pg().vertex(-baseHalfWidth, -upperLeft.y);
+			pg().vertex(baseHalfWidth, -upperLeft.y);
+			pg().vertex(baseHalfWidth, -baseHeight);
+			pg().vertex(-baseHalfWidth, -baseHeight);	
+		}
+		else {
+			pg().vertex(-baseHalfWidth, upperLeft.y);
+			pg().vertex(baseHalfWidth, upperLeft.y);
+			pg().vertex(baseHalfWidth, baseHeight);
+			pg().vertex(-baseHalfWidth, baseHeight);
+		}
 		pg().endShape();
-
-		// Arrow
-		pg().beginShape(PApplet.TRIANGLES);		
-		pg().vertex(0.0f, -arrowHeight);
-		pg().vertex(-arrowHalfWidth, -baseHeight);
-		pg().vertex(arrowHalfWidth, -baseHeight);		
-		pg().endShape();
+		
+	  // Arrow
+		pg().beginShape(PApplet.TRIANGLES);
+		if( camera.scene.isLeftHanded() ) {
+			pg().vertex(0.0f, -arrowHeight);
+			pg().vertex(-arrowHalfWidth, -baseHeight);
+			pg().vertex(arrowHalfWidth, -baseHeight);
+		}
+		else {
+			pg().vertex(0.0f, arrowHeight);
+			pg().vertex(-arrowHalfWidth, baseHeight);
+			pg().vertex(arrowHalfWidth, baseHeight);
+		}
+		pg().endShape();		
 		
 		pg().popStyle();
 		pg().popMatrix();

@@ -565,9 +565,8 @@ public class Renderer3D extends Renderer {
 
 		// pg3d().noStroke();
 		// Base
-		pg3d().beginShape(PApplet.QUADS);
-		
-		if( isLeftHanded() ) {
+		pg3d().beginShape(PApplet.QUADS);		
+		if( camera.scene.isLeftHanded() ) {
 			pg3d().vertex(-baseHalfWidth, -points[0].y, -points[0].z);
 			pg3d().vertex(baseHalfWidth, -points[0].y, -points[0].z);
 			pg3d().vertex(baseHalfWidth, -baseHeight, -points[0].z);
@@ -584,7 +583,7 @@ public class Renderer3D extends Renderer {
 		// Arrow
 		pg3d().beginShape(PApplet.TRIANGLES);
 		
-		if( isLeftHanded() ) {
+		if( camera.scene.isLeftHanded() ) {
 			pg3d().vertex(0.0f, -arrowHeight, -points[0].z);
 			pg3d().vertex(-arrowHalfWidth, -baseHeight, -points[0].z);
 			pg3d().vertex(arrowHalfWidth, -baseHeight, -points[0].z);

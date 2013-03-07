@@ -1491,17 +1491,17 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * {@code frame} may be {@code null} and then represents the world coordinate
 	 * system (same convention than for the {@link #referenceFrame()}).
 	 */
-	public final void alignWithFrame(GeomFrame frame, boolean move, float threshold) {	
+	public final void alignWithFrame(GeomFrame frame, boolean move, float threshold) {
 		if(is3D()) {
 			Vector3D[][] directions = new Vector3D[2][3];
 			
 			for (int d = 0; d < 3; ++d) {
 				Vector3D dir = new Vector3D((d == 0) ? 1.0f : 0.0f, (d == 1) ? 1.0f : 0.0f,	(d == 2) ? 1.0f : 0.0f);
 				if (frame != null)
-					directions[0][d] = frame.inverseTransformOf(dir);
+					directions[0][d] = frame.inverseTransformOf(dir, false);
 				else
 					directions[0][d] = dir;
-				directions[1][d] = inverseTransformOf(dir);
+				directions[1][d] = inverseTransformOf(dir, false);		
 			}
 			
 			float maxProj = 0.0f;
@@ -1541,9 +1541,8 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 
 				// Try to align an other axis direction
 				short d = (short) ((index[1] + 1) % 3);
-				Vector3D dir = new Vector3D((d == 0) ? 1.0f : 0.0f, (d == 1) ? 1.0f : 0.0f,
-						(d == 2) ? 1.0f : 0.0f);
-				dir = inverseTransformOf(dir);
+				Vector3D dir = new Vector3D((d == 0) ? 1.0f : 0.0f, (d == 1) ? 1.0f : 0.0f,	(d == 2) ? 1.0f : 0.0f);
+				dir = inverseTransformOf(dir, false);				
 
 				float max = 0.0f;
 				for (int i = 0; i < 3; ++i) {
@@ -1574,7 +1573,7 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 				if (frame != null)
 					center = frame.position();
 
-				vec = Vector3D.sub(center, orientation().rotate(old.coordinatesOf(center)));
+				vec = Vector3D.sub(center, orientation().rotate(old.coordinatesOf(center, false)));
 				vec.sub(translation());
 				translate(vec);
 			}
@@ -1635,10 +1634,14 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * coordinates.
 	 */
 	public final Vector3D coordinatesOf(Vector3D src) {
+		return coordinatesOf(src, true);
+	}
+	
+	public final Vector3D coordinatesOf(Vector3D src, boolean sclng) {
 		if (referenceFrame() != null)
-			return localCoordinatesOf(referenceFrame().coordinatesOf(src));
+			return localCoordinatesOf(referenceFrame().coordinatesOf(src), sclng);
 		else
-			return localCoordinatesOf(src);
+			return localCoordinatesOf(src, sclng);		
 	}
 
 	/**
@@ -1650,10 +1653,14 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * coordinates.
 	 */
 	public final Vector3D inverseCoordinatesOf(Vector3D src) {
+		return inverseCoordinatesOf(src, true);
+	}
+	
+	public final Vector3D inverseCoordinatesOf(Vector3D src, boolean sclng) {
 		GeomFrame fr = this;
 		Vector3D res = src;
 		while (fr != null) {
-			res = fr.localInverseCoordinatesOf(res);
+			res = fr.localInverseCoordinatesOf(res, sclng);
 			fr = fr.referenceFrame();
 		}
 		return res;
@@ -1669,10 +1676,15 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * 
 	 * @see #localTransformOf(Vector3D)
 	 */
-	public final Vector3D localCoordinatesOf(Vector3D src) {
-		//TODO key! take into account scaling
-		//return rotation().inverseRotate(Vector3D.sub(src, translation()));
-		return Vector3D.div(rotation().inverseRotate(Vector3D.sub(src, translation())), scaling());
+	public final Vector3D localCoordinatesOf(Vector3D src) {	
+		return localCoordinatesOf(src, true);
+	}
+	
+	public final Vector3D localCoordinatesOf(Vector3D src, boolean sclng) {
+		if( sclng )
+			return Vector3D.div(rotation().inverseRotate(Vector3D.sub(src, translation())), scaling());
+		else
+			return rotation().inverseRotate(Vector3D.sub(src, translation()));
 	}
 
 	/**
@@ -1685,10 +1697,15 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * @see #localInverseTransformOf(Vector3D)
 	 */
 	public final Vector3D localInverseCoordinatesOf(Vector3D src) {
-	  //TODO key! take into account scaling
-		//return Vector3D.add(rotation().rotate(src), translation());
-		return Vector3D.add(rotation().rotate(Vector3D.mult(src, scaling())), translation());
+		return localInverseCoordinatesOf(src, true);
 	}
+	
+	public final Vector3D localInverseCoordinatesOf(Vector3D src, boolean sclng) {
+		if( sclng )
+			return Vector3D.add(rotation().rotate(Vector3D.mult(src, scaling())), translation());
+		else
+			return Vector3D.add(rotation().rotate(src), translation());
+	} 
 
 	/**
 	 * Returns the Frame coordinates of the point whose position in the {@code
@@ -1741,12 +1758,15 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * account).
 	 */
 	public final Vector3D transformOf(Vector3D src) {
+		return transformOf(src, true);
+	}
+	
+	public final Vector3D transformOf(Vector3D src, boolean sclng) {
 		if (referenceFrame() != null)
-			return localTransformOf(referenceFrame().transformOf(src));
+			return localTransformOf(referenceFrame().transformOf(src), sclng);
 		else
-			return localTransformOf(src);
-
-	}	
+			return localTransformOf(src, sclng);
+	}
 
 	/**
 	 * Returns the world transform of the vector whose coordinates in the Frame
@@ -1757,10 +1777,14 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * of 3D vectors.
 	 */
 	public final Vector3D inverseTransformOf(Vector3D src) {
+		return inverseTransformOf(src, true);
+	}
+	
+	public final Vector3D inverseTransformOf(Vector3D src, boolean sclng) {
 		GeomFrame fr = this;
 		Vector3D res = src;
 		while (fr != null) {
-			res = fr.localInverseTransformOf(res);
+			res = fr.localInverseTransformOf(res, sclng);
 			fr = fr.referenceFrame();
 		}
 		return res;
@@ -1909,10 +1933,14 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * @see #localCoordinatesOf(Vector3D)
 	 */
 	public final Vector3D localTransformOf(Vector3D src) {
-	  //TODO key! take into account scaling
-		//return rotation().inverseRotate(src);
-		//return rotation().inverseRotate(Vector3D.div(src, scaling()));
-		return Vector3D.div(rotation().inverseRotate(src), scaling());
+		return localTransformOf(src, true);
+	}
+	
+	public final Vector3D localTransformOf(Vector3D src, boolean sclng) {
+		if( sclng )
+			return Vector3D.div(rotation().inverseRotate(src), scaling());
+		else
+			return rotation().inverseRotate(src);		
 	}
 
 	/**
@@ -1925,10 +1953,14 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * @see #localInverseCoordinatesOf(Vector3D)
 	 */
 	public final Vector3D localInverseTransformOf(Vector3D src) {
-	  //TODO key! take into account scaling		
-		//return rotation().rotate(src);
-		return rotation().rotate(Vector3D.mult(src, scaling()));
-		//return Vector3D.mult(rotation().rotate(src), scaling());
+	  return localInverseTransformOf(src, true);
+	}
+	
+	public final Vector3D localInverseTransformOf(Vector3D src, boolean sclng) {
+		if( sclng )
+			return rotation().rotate(Vector3D.mult(src, scaling()));		
+		else
+			return rotation().rotate(src);
 	}
 
 	/**
@@ -2245,4 +2277,58 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	  //TODO key! take into account scaling
 		return ( new GeomFrame(orientation().inverse(), Vector3D.mult(orientation().inverseRotate(position()), -1), inverseMagnitude() ) );
 	}  
+	
+	//TODO experimental
+	
+	/**
+	public final Vector3D coordinatesOfNoScl(Vector3D src) {
+		if (referenceFrame() != null)
+			return localCoordinatesOfNoScl(referenceFrame().coordinatesOfNoScl(src));
+		else
+			return localCoordinatesOfNoScl(src);
+	}
+	
+	public final Vector3D localCoordinatesOfNoScl(Vector3D src) {
+		return rotation().inverseRotate(Vector3D.sub(src, translation()));
+	}
+	
+	public final Vector3D inverseCoordinatesOfNoScl(Vector3D src) {
+		GeomFrame fr = this;
+		Vector3D res = src;
+		while (fr != null) {
+			res = fr.localInverseCoordinatesOfNoScl(res);
+			fr = fr.referenceFrame();
+		}
+		return res;
+	}
+	
+	public final Vector3D localInverseCoordinatesOfNoScl(Vector3D src) {
+		return Vector3D.add(rotation().rotate(src), translation());
+	}
+	
+	public final Vector3D transformOfNoScl(Vector3D src) {
+		if (referenceFrame() != null)
+			return localTransformOfNoScl(referenceFrame().transformOfNoScl(src));
+		else
+			return localTransformOfNoScl(src);
+	}
+	
+	public final Vector3D localTransformOfNoScl(Vector3D src) {
+		return rotation().inverseRotate(src);
+	}
+	
+	public final Vector3D inverseTransformOfNoScl(Vector3D src) {
+		GeomFrame fr = this;
+		Vector3D res = src;
+		while (fr != null) {
+			res = fr.localInverseTransformOfNoScl(res);
+			fr = fr.referenceFrame();
+		}
+		return res;
+	}
+	
+	public final Vector3D localInverseTransformOfNoScl(Vector3D src) {
+		return rotation().rotate(src);
+	}
+	// */	
 }

@@ -1080,7 +1080,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		return new Quaternion(axis, angle);
 	}
 	
-	protected Quaternion iFrameQuaternion(Quaternion rot, Camera camera) {
+	protected final Quaternion iFrameQuaternion(Quaternion rot, Camera camera) {
 		Vector3D trans = new Vector3D();		
 		trans = rot.axis();
 		trans = camera.frame().orientation().rotate(trans);

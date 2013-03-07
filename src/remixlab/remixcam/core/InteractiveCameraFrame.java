@@ -279,7 +279,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				deltaY = -deltaY;
 			
 			switch (action) {			
-			case TRANSLATE: {				
+			case TRANSLATE: {		
 				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
 				Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);						
 				
@@ -302,11 +302,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				}
 				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
 				
-				// /**
+				/**
 				trans = Vector3D.mult(trans, translationSensitivity());				
 				trans.div(magnitude());
 				translate(inverseTransformOf(trans));
 				// */
+				
+				translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
 				
 				// not
 				//translate(camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity())));
@@ -624,7 +626,6 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			return localTransformOfNoScl(referenceFrame().transformOfNoScl(src));
 		else
 			return localTransformOfNoScl(src);
-
 	}
 	
 	public final Vector3D localTransformOfNoScl(Vector3D src) {

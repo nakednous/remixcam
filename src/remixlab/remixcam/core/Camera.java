@@ -931,8 +931,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	public float pixelP5Ratio(Vector3D position) {
 		switch (type()) {
 		case PERSPECTIVE:
-			return 2.0f * Math.abs((frame().coordinatesOf(position)).vec[2])
-					* (float) Math.tan(fieldOfView() / 2.0f) / screenHeight();
+			return 2.0f * Math.abs((frame().coordinatesOf(position, false)).vec[2]) * (float) Math.tan(fieldOfView() / 2.0f) / screenHeight();
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
 			return 2.0f * wh[1] / screenHeight();
@@ -1371,11 +1370,10 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	public float distanceToSceneCenter() {
 		//return Math.abs((frame().coordinatesOf(sceneCenter())).vec[2]);//before scln
 		//Vector3D zCam = frame().zAxis();
-		//TODO test:
 		Vector3D zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
 		zCam.normalize();
 		Vector3D cam2SceneCenter = Vector3D.sub(position(), sceneCenter());
-		return Math.abs(Vector3D.dot(cam2SceneCenter, zCam));
+		return Math.abs(Vector3D.dot(cam2SceneCenter, zCam));		
 	}
 
 	/**
@@ -1388,7 +1386,8 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 */
 	public float distanceToARP() {
 		//return Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);//before scln
-		Vector3D zCam = frame().zAxis();
+		//Vector3D zCam = frame().zAxis();
+		Vector3D zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
 		zCam.normalize();
 		Vector3D cam2arp = Vector3D.sub(position(), arcballReferencePoint());
 		return Math.abs(Vector3D.dot(cam2arp, zCam));
@@ -1406,6 +1405,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 
 	// 5. ARCBALL REFERENCE POINT
 	
+	/**
 	@Override
 	public Vector3D worldCoordinatesOf(final Vector3D src) {
 		return worldCoordinatesOf(src, true);
@@ -1431,6 +1431,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 				return frame().coordinatesOf(Vector3D.div(src, frame().magnitude()));
 		return frame().coordinatesOf(src);
 	}
+	*/
 
 	/**
 	 * Changes the {@link #arcballReferencePoint()} to {@code rap} (defined in the
@@ -1438,7 +1439,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 */
 	@Override
 	public void setArcballReferencePoint(Vector3D rap) {
-		float prevDist = Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);
+		float prevDist = Math.abs(frame().coordinatesOf(arcballReferencePoint(), false).vec[2]);
 
 		frame().setArcballReferencePoint(rap);
 
@@ -1446,7 +1447,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		// arcballReferencePoint, so that the image does
 		// not change when the arcballReferencePoint is changed in ORTHOGRAPHIC
 		// mode.
-		float newDist = Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);
+		float newDist = Math.abs(frame().coordinatesOf(arcballReferencePoint(), false).vec[2]);
 		// Prevents division by zero when rap is set to camera position
 		if ((Geom.nonZero(prevDist)) && (Geom.nonZero(newDist)))
 			orthoCoef *= prevDist / newDist;
@@ -1838,7 +1839,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			dir.set(new Vector3D(((2.0f * (int)pixel.x / screenWidth()) - 1.0f)	* (float) Math.tan(fieldOfView() / 2.0f) * aspectRatio(),
 					                 ((2.0f * (screenHeight() - (int)pixel.y) / screenHeight()) - 1.0f) * (float) Math.tan(fieldOfView() / 2.0f),
 					                   -1.0f));
-			dir.set(Vector3D.sub(worldCoordinatesOf(dir), orig));
+			dir.set(Vector3D.sub(frame().inverseCoordinatesOf(dir, false), orig));
 			dir.normalize();
 			break;
 
@@ -1846,7 +1847,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			float[] wh = getOrthoWidthHeight();
 			orig.set(new Vector3D((2.0f * (int)pixel.x / screenWidth() - 1.0f) * wh[0],
 					-(2.0f * (int)pixel.y / screenHeight() - 1.0f) * wh[1], 0.0f));
-			orig.set(worldCoordinatesOf(orig));
+			orig.set(frame().inverseCoordinatesOf(orig, false));
 			dir.set(viewDirection());
 			break;
 		}
