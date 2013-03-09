@@ -135,6 +135,5 @@ public class LocalConstraint extends AxisPlaneConstraint {
 		res.print();
 		System.out.println("exiting world constraint...");
 		return res;
-		//return new Vector3D(1.0f, 1.0f, 1.1f);
 	}
 }

@@ -1331,7 +1331,8 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 		if(is3D()) 
 			//TODO needs further testing
 			//q = new Quaternion(inverseTransformOf(((Quaternion)rotation).axis()), rotation.angle());//orig
-			q = new Quaternion(orientation().rotate(((Quaternion)rotation).axis()), rotation.angle());			
+			q = new Quaternion(inverseTransformOf(((Quaternion)rotation).axis(), false), rotation.angle());
+			//q = new Quaternion(orientation().rotate(((Quaternion)rotation).axis()), rotation.angle());			
 		else 
 			q = new Rotation(rotation.angle());
 		Vector3D t = Vector3D.add(point, q.rotate(Vector3D.sub(position(), point)));		
@@ -2252,7 +2253,6 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * <b>Note:</b> The scaling factor of the 4x4 matrix is 1.0.
 	 */
 	public final GeomFrame inverse() {
-	  //TODO key! take into account scaling
 		GeomFrame fr = new GeomFrame(kernel().rotation().inverse(), Vector3D.mult(kernel().rotation().inverseRotate(kernel().translation()), -1), kernel().inverseScaling() );
 		fr.setReferenceFrame(referenceFrame());
 		return fr;
@@ -2274,7 +2274,6 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * {@link #referenceFrame()}) transformation inverse.
 	 */
 	public final GeomFrame worldInverse() {
-	  //TODO key! take into account scaling
 		return ( new GeomFrame(orientation().inverse(), Vector3D.mult(orientation().inverseRotate(position()), -1), inverseMagnitude() ) );
 	}  
 	
