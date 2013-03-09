@@ -140,9 +140,16 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 */
 	@Override
 	public void spin() {
-		//TODO test
-		rotateAroundPoint(spinningQuaternion(), arcballReferencePoint());
-		//rap(spinningQuaternion(), arcballReferencePoint());
+		if(spinningFriction > 0) {
+			if (mouseSpeed == 0) {
+				stopSpinning();
+				return;
+			}
+			rotateAroundPoint(spinningQuaternion(), arcballReferencePoint());
+			recomputeSpinningQuaternion();						
+		}
+		else
+			rotateAroundPoint(spinningQuaternion(), arcballReferencePoint());
 	}
 
 	/**
@@ -186,7 +193,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
 				Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
 				// No need to scale to fit the screen mouse displacement
-				translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+				
+				computeMouseSpeed(eventPoint);
+				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+				toss();
+				
 				prevPos = eventPoint;				
 				break;
 			}
@@ -250,7 +261,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				float[] wh = viewWindow.getOrthoWidthHeight();
 				trans.vec[0] *= 2.0f * wh[0] / viewWindow.screenWidth();
 				trans.vec[1] *= 2.0f * wh[1] / viewWindow.screenHeight();
-				translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+				computeMouseSpeed(eventPoint);
+				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+				toss();
 				prevPos = eventPoint;
 				
 				break;
@@ -301,18 +314,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				}
 				}
 				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
-				
-				/**
-				trans = Vector3D.mult(trans, translationSensitivity());				
-				trans.div(magnitude());
-				translate(inverseTransformOf(trans));
-				// */
-				
-				translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
-				
-				// not
-				//translate(camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity())));
-				
+								
+				computeMouseSpeed(eventPoint);
+				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
+				toss();
+			
 				prevPos = eventPoint;
 				
 				break;
@@ -406,7 +412,12 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				}
 				trans = Vector3D.mult(trans, translationSensitivity());				
 				trans.div(magnitude());
-				translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+				
+				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));				
+				computeMouseSpeed(eventPoint);
+				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
+				toss();
+				
 				prevPos = eventPoint;			
 			  
 				break;

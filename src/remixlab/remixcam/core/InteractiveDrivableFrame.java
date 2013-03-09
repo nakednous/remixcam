@@ -74,6 +74,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	protected AbstractTimerJob flyTimerJob;
 	protected Vector3D flyUpVec;
 	protected Vector3D flyDisp;
+	protected static final long FLY_UPDATE_PERDIOD = 10;
 
 	/**
 	 * Default constructor.
@@ -205,27 +206,34 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			return;
 		
 		flyDisp.set(0.0f, 0.0f, 0.0f);
+		Vector3D trans;
 		switch (action) {
 		case MOVE_FORWARD:
 			flyDisp.vec[2] = -flySpeed();
 			if(scene.is2D())
-				translate(localInverseTransformOf(flyDisp));
+				trans = localInverseTransformOf(flyDisp);
 			else
-				translate(rotation().rotate(flyDisp));
+				trans = rotation().rotate(flyDisp);
+			translate(trans);
+			setTossingDirection(trans);
 			break;
 		case MOVE_BACKWARD:
 			flyDisp.vec[2] = flySpeed();
 			if(scene.is2D())
-				translate(localInverseTransformOf(flyDisp));
+				trans = localInverseTransformOf(flyDisp);
 			else
-				translate(rotation().rotate(flyDisp));
+				trans = rotation().rotate(flyDisp);
+			translate(trans);
+			setTossingDirection(trans);
 			break;
 		case DRIVE:
 			flyDisp.vec[2] = flySpeed() * drvSpd;
 			if(scene.is2D())
-				translate(localInverseTransformOf(flyDisp));
+				trans = localInverseTransformOf(flyDisp);
 			else
-				translate(rotation().rotate(flyDisp));
+				trans = rotation().rotate(flyDisp);
+			translate(trans);
+			setTossingDirection(trans);
 			break;
 		default:
 			break;
@@ -241,7 +249,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		case MOVE_FORWARD:
 		case MOVE_BACKWARD:
 		case DRIVE:
-			flyTimerJob.run(20);
+			mouseSpeed = 0.0f;
+			stopTossing();
+			flyTimerJob.run(FLY_UPDATE_PERDIOD);
 			break;
 		default:
 			break;
@@ -350,6 +360,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 				|| (action == AbstractScene.MouseAction.DRIVE)) {
 			flyTimerJob.stop();
 		}
+		
+		if (((action == AbstractScene.MouseAction.MOVE_FORWARD) || (action == AbstractScene.MouseAction.MOVE_BACKWARD) || (action == AbstractScene.MouseAction.DRIVE) ) && (mouseSpeed >= tossingSensitivity()) )
+			startTossing(FLY_UPDATE_PERDIOD);
 
 		super.mouseReleased(eventPoint, vp);
 	}

@@ -25,7 +25,6 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.proscene.Scene;
 import remixlab.remixcam.constraints.Constraint;
 import remixlab.remixcam.devices.DeviceGrabbable;
 import remixlab.remixcam.geom.*;
@@ -68,6 +67,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		append(rotSensitivity).
 		append(spngQuat).
 		append(spngSensitivity).
+		append(spinningFriction).
+		append(sFriction).
+		append(tossingSensitivity).
+		append(isTossed).
+		append(tossingDirection).
+		append(tossingFriction).
+		append(tFriction).
 		append(startedTime).
 		append(transSensitivity).
 		append(wheelSensitivity).
@@ -91,6 +97,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		.append(horiz , other.horiz)
 		.append(isInCamPath , other.isInCamPath)
 		.append(isSpng , other.isSpng)
+		.append(spinningFriction, other.spinningFriction)
+		.append(sFriction, other.sFriction)
+		.append(tossingSensitivity, other.tossingSensitivity)
+		.append(isTossed, other.isTossed)
+		.append(tossingDirection, other.tossingDirection)
+		.append(tossingFriction, other.tossingFriction)
+		.append(tFriction, other.tFriction)
 		.append(keepsGrabbingMouse , other.keepsGrabbingMouse)
 		.append(mouseSpeed,other.mouseSpeed)
 		.append(pressPos,other.pressPos )
@@ -108,21 +121,31 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	private int grabsMouseThreshold;
 	private float rotSensitivity;
 	private float transSensitivity;
-	private float spngSensitivity;
 	private float wheelSensitivity;
 
 	// Mouse speed:
-	private float mouseSpeed;
-	// spinning stuff:
-	private boolean isSpng;
-	private AbstractTimerJob spinningTimerJob;
+	protected float mouseSpeed;
 	private int startedTime;
 	private int delay;
+	
+	// spinning stuff:
+	private float spngSensitivity;
+	private boolean isSpng;
+	private AbstractTimerJob spinningTimerJob;
+	private Orientable spngQuat;
+	protected float spinningFriction; //new	
+	private float sFriction; //new
+	
+  //tossing stuff:
+	protected static final float MIN_TOSSING_FRICTION = 0.01f;
+	private float tossingSensitivity;//new	
+	private boolean isTossed;//new	
+	private AbstractTimerJob tossingTimerJob;
+	private Vector3D tossingDirection;//new	
+	protected float tossingFriction;//new	
+	private float tFriction;//new	
 
-	protected Orientable spngQuat;
-
-	// Whether the SCREEN_TRANS direction (horizontal or vertical) is fixed or
-	// not.
+	// Whether the SCREEN_TRANS direction (horizontal or vertical) is fixed or not.
 	private boolean dirIsFixed;
 
 	// MouseGrabber
@@ -168,13 +191,19 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		setGrabsMouseThreshold(10);
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
-		setSpinningSensitivity(0.3f);
 		setWheelSensitivity(20.0f);
 
 		keepsGrabbingMouse = false;
-		isSpng = false;
 		prevConstraint = null;
-		startedTime = 0;
+		startedTime = 0;		
+		
+		isSpng = false;
+		setSpinningSensitivity(0.3f);
+		setSpinningFriction(0.16f);
+		
+		isTossed = false;
+		setTossingSensitivity(0.3f);
+		setTossingFriction(1.0f);
 		
 		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -182,6 +211,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			}
 		};	
 		scene.registerJob(spinningTimerJob);
+		
+		tossingTimerJob = new AbstractTimerJob() {
+			public void execute() {
+				toss();
+			}
+		};	
+		scene.registerJob(tossingTimerJob);
 		
 		// delay = 10;
 	}
@@ -215,13 +251,19 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		this.setGrabsMouseThreshold( otherFrame.grabsMouseThreshold()  );
 		this.setRotationSensitivity( otherFrame.rotationSensitivity() );
 		this.setTranslationSensitivity( otherFrame.translationSensitivity() );
-		this.setSpinningSensitivity( otherFrame.spinningSensitivity() );
 		this.setWheelSensitivity( otherFrame.wheelSensitivity() );
 
-		this.keepsGrabbingMouse = otherFrame.keepsGrabbingMouse;
-		this.isSpng = otherFrame.isSpng;
+		this.keepsGrabbingMouse = otherFrame.keepsGrabbingMouse;		
 		this.prevConstraint = otherFrame.prevConstraint; 
 		this.startedTime = otherFrame.startedTime;
+		
+		this.isSpng = otherFrame.isSpng;
+		this.setSpinningSensitivity( otherFrame.spinningSensitivity() );
+		this.setSpinningFriction( otherFrame.spinningFriction() );
+		
+		this.isTossed = otherFrame.isTossed;
+		this.setTossingSensitivity( otherFrame.tossingSensitivity() );
+		this.setTossingFriction( otherFrame.tossingFriction() );
 		
 		this.spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -229,6 +271,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			}
 		};		
 		scene.registerJob(spinningTimerJob);
+		
+		tossingTimerJob = new AbstractTimerJob() {
+			public void execute() {
+				toss();
+			}
+		};	
+		scene.registerJob(tossingTimerJob);
 	}
   
 	/**
@@ -269,11 +318,9 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		setGrabsMouseThreshold(10);
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
-		setSpinningSensitivity(0.3f);
 		setWheelSensitivity(20.0f);
 
 		keepsGrabbingMouse = false;
-		isSpng = false;
 		prevConstraint = null;
 		startedTime = 0;
 
@@ -284,6 +331,14 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			listeners().add(it.next());
 		*/
 		setListeners(iFrame);
+		
+		isSpng = false;
+		setSpinningSensitivity(0.3f);
+		setSpinningFriction(0.16f);
+		
+		isTossed = false;
+		setTossingSensitivity(0.3f);
+		setTossingFriction(1.0f);
 				
 		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -291,6 +346,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			}
 		};		
 		scene.registerJob(spinningTimerJob);
+		
+		tossingTimerJob = new AbstractTimerJob() {
+			public void execute() {
+				toss();
+			}
+		};	
+		scene.registerJob(tossingTimerJob);
 	}	
 
 	/**
@@ -424,6 +486,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	public final void setSpinningSensitivity(float sensitivity) {
 		spngSensitivity = sensitivity;
 	}
+	
+	/**
+	 * Defines the {@link #tossingSensitivity()}.
+	 */
+	public final void setTossingSensitivity(float sensitivity) {
+		tossingSensitivity = sensitivity;
+	}
 
 	/**
 	 * Defines the {@link #wheelSensitivity()}.
@@ -445,6 +514,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #translationSensitivity()
 	 * @see #spinningSensitivity()
 	 * @see #wheelSensitivity()
+	 * @see #tossingSensitivity()
 	 */
 	public final float rotationSensitivity() {
 		return rotSensitivity;
@@ -474,6 +544,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #rotationSensitivity()
 	 * @see #spinningSensitivity()
 	 * @see #wheelSensitivity()
+	 * @see #tossingSensitivity()
 	 */
 	public final float translationSensitivity() {
 		return transSensitivity;
@@ -484,20 +555,45 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * InteractiveFrame {@link #spin()}.
 	 * <p>
 	 * See {@link #spin()}, {@link #spinningQuaternion()} and
-	 * {@link #startSpinning(int)} for details.
+	 * {@link #startSpinning(long)} for details.
 	 * <p>
 	 * Mouse speed is expressed in pixels per milliseconds. Default value is 0.3
-	 * (300 pixels per second). Use setSpinningSensitivity() to tune this value. A
-	 * higher value will make spinning more difficult (a value of 100.0 forbids
-	 * spinning in practice).
+	 * (300 pixels per second). Use {@link #setSpinningSensitivity(float)} to tune
+	 * this value. A higher value will make spinning more difficult (a value of
+	 * 100.0 forbids spinning in practice).
 	 * 
 	 * @see #setSpinningSensitivity(float)
+	 * @see #setTossingSensitivity(float)
 	 * @see #translationSensitivity()
 	 * @see #rotationSensitivity()
 	 * @see #wheelSensitivity()
+	 * @see #tossingSensitivity()
 	 */
 	public final float spinningSensitivity() {
 		return spngSensitivity;
+	}
+	
+	/**
+	 * Returns the minimum mouse speed required (at button release) to make the
+	 * InteractiveFrame {@link #toss()}.
+	 * <p>
+	 * See {@link #toss()}, {@link #tossingDirection()} and
+	 * {@link #startTossing(long)} for details.
+	 * <p>
+	 * Mouse speed is expressed in pixels per milliseconds. Default value is 0.3
+	 * (300 pixels per second). Use {@link #setTossingSensitivity(float)} to tune
+	 * this value. A higher value will make tossing more difficult (a value of
+	 * 100.0 forbids tossing in practice).
+	 * 
+	 * @see #setTossingSensitivity(float)
+	 * @see #setSpinningSensitivity(float) 
+	 * @see #translationSensitivity()
+	 * @see #rotationSensitivity()
+	 * @see #wheelSensitivity()
+	 * @see #spinningSensitivity()
+	 */
+	public final float tossingSensitivity() {
+		return tossingSensitivity;
 	}
 
 	/**
@@ -511,6 +607,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #translationSensitivity()
 	 * @see #rotationSensitivity()
 	 * @see #spinningSensitivity()
+	 * @see #tossingSensitivity()
 	 */
 	public float wheelSensitivity() {
 		return wheelSensitivity;
@@ -525,6 +622,8 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * <p>
 	 * Use {@link #startSpinning(int)} and {@link #stopSpinning()} to change this
 	 * state. Default value is {@code false}.
+	 * 
+	 * @see #isTossing()
 	 */
 	public final boolean isSpinning() {
 		return isSpng;
@@ -539,8 +638,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * <p>
 	 * The {@link #spinningQuaternion()} axis is defined in the InteractiveFrame
 	 * coordinate system. You can use
-	 * {@link remixlab.remixcam.geom.GeomFrame#transformOfFrom(Vector3D, GeomFrame)} to convert
-	 * this axis from an other Frame coordinate system.
+	 * {@link remixlab.proscene.Frame#transformOfFrom(PVector, Frame)} to convert
+	 * this axis from another Frame coordinate system.
+	 * <p>
+	 * <b>Attention: </b>Spinning may be decelerated according to {@link #spinningFriction()}
+	 * till it stops completely.
+	 * 
+	 * @see #tossingDirection()
 	 */
 	public final Orientable spinningQuaternion() {
 		return spngQuat;
@@ -549,24 +653,56 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	/**
 	 * Defines the {@link #spinningQuaternion()}. Its axis is defined in the
 	 * InteractiveFrame coordinate system.
+	 * 
+	 * @see #setTossingDirection(PVector)
 	 */
-	//public final void setSpinningQuaternion(Orientable spinningQuaternion) {
-	public void setSpinningQuaternion(Orientable spinningQuaternion) {
+	public final void setSpinningQuaternion(Orientable spinningQuaternion) {
 		spngQuat = spinningQuaternion;
-		/**
-		if( is3D() ) {
-			if( this instanceof InteractiveCameraFrame ) {
-				if(this.scaling().x() < 0) ((Quaternion)spngQuat).quat[0] *= -1;
-				if(this.scaling().y() < 0) ((Quaternion)spngQuat).quat[1] *= -1;
-				if(this.scaling().z() < 0) ((Quaternion)spngQuat).quat[2] *= -1;
-			}
-			else {
-				if(this.scaling().x() < 0) ((Quaternion)spngQuat).quat[0] *= -1;
-				if(this.scaling().y() < 0) ((Quaternion)spngQuat).quat[1] *= -1;
-				if(this.scaling().z() < 0) ((Quaternion)spngQuat).quat[2] *= -1;
-			}
-		}
-		*/
+	}
+	
+	/**
+	 * Returns {@code true} when the InteractiveFrame is tossing.
+	 * <p>
+	 * During tossing, {@link #toss()} translates the InteractiveFrame by its
+	 * {@link #tossingDirection()} at a frequency defined when the
+	 * InteractiveFrame {@link #startTossing(long)}.
+	 * <p>
+	 * Use {@link #startTossing(long)} and {@link #stopTossing()} to change this
+	 * state. Default value is {@code false}.
+	 * 
+	 * @see #isSpinning()
+	 */
+	public final boolean isTossing() {
+		return isTossed;
+	}
+	
+	/**
+	 * Returns the incremental translation that is applied by {@link #toss()} to the
+	 * InteractiveFrame translation when it {@link #isTossing()}.
+	 * <p>
+	 * Default value is a {@code null} translation. Use {@link #setTossingDirection(PVector)}
+	 * to change this value.
+	 * <p>
+	 * The direction is defined in the InteractiveFrame coordinate system. You can use
+	 * {@link remixlab.proscene.Frame#transformOfFrom(PVector, Frame)} to convert
+	 * this direction from another Frame coordinate system.
+	 * <p>
+	 * <b>Attention: </b>Tossing may be decelerated according to {@link #tossingFriction()}
+	 * till it stops completely.
+	 * 
+	 * @see #spinningQuaternion()
+	 */
+	public final Vector3D tossingDirection() {
+		return tossingDirection;
+	}
+	
+	/**
+	 * Defines the {@link #tossingDirection()} in the InteractiveFrame coordinate system.
+	 * 
+	 * @see #setSpinningQuaternion(Quaternion)
+	 */
+	public final void setTossingDirection(Vector3D dir) {
+		tossingDirection = dir;
 	}
 
 	/**
@@ -579,10 +715,16 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	}
 
 	/**
-	 * Stops the spinning motion started using {@link #startSpinning(int)}.
-	 * {@link #isSpinning()} will return {@code false} after this call.* Math.abs((camera.frame().coordinatesOf(position())).vec[2])
+	 * Stops the spinning motion started using {@link #startSpinning(long)}.
+	 * {@link #isSpinning()} will return {@code false} after this call.
+	 * <p>
+	 * <b>Attention: </b>This method may be called by {@link #spin()}, since spinning may
+	 * be decelerated according to {@link #spinningFriction()} till it stops completely.
+	 * 
+	 * @see #spinningFriction()
+	 * @see #toss()
 	 */
-	public final void stopSpinning() {		
+	public final void stopSpinning() {
 		spinningTimerJob.stop();
 		isSpng = false;
 	}
@@ -593,20 +735,227 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * This method starts a timer that will call {@link #spin()} every {@code
 	 * updateInterval} milliseconds. The InteractiveFrame {@link #isSpinning()}
 	 * until you call {@link #stopSpinning()}.
+	 * <p>
+	 * <b>Attention: </b>Spinning may be decelerated according to {@link #spinningFriction()}
+	 * till it stops completely.
+	 * 
+	 * @see #spinningFriction()
+	 * @see #toss()
 	 */
 	public void startSpinning(int updateInterval) {
 		isSpng = true;
 		if(updateInterval>0)
 			spinningTimerJob.run(updateInterval);
 	}
-
+	
 	/**
 	 * Rotates the InteractiveFrame by its {@link #spinningQuaternion()}. Called
-	 * by a timer when the InteractiveFrame {@link #isSpinning()}.
+	 * by a timer when the InteractiveFrame {@link #isSpinning()}. 
+	 * <p>
+	 * <b>Attention: </b>Spinning may be decelerated according to
+	 * {@link #spinningFriction()} till it stops completely.
+	 * 
+	 * @see #spinningFriction()
+	 * @see #toss()
 	 */
-	public void spin() {
-		rotate(spinningQuaternion());
-	}  
+	public void spin() {		
+		if(spinningFriction() > 0) {
+			if (mouseSpeed == 0) {
+				stopSpinning();
+				return;
+			}
+			rotate(spinningQuaternion());
+			recomputeSpinningQuaternion();						
+		}
+		else
+			rotate(spinningQuaternion());
+	}
+	
+	/**
+	 * Defines the {@link #spinningFriction()}. Values must be
+	 * in the range [0..1].
+	 */
+	public void setSpinningFriction(float f) {
+		if(f < 0 || f > 1)
+			return;
+		spinningFriction = f;
+		setSpinningFrictionFx(spinningFriction);
+	} 
+	
+	/**
+	 * Defines the spinning deceleration.
+	 * <p>
+	 * Default value is 0.0, i.e., no spinning deceleration. Use
+	 * {@link #setSpinningFriction(float)} to tune this value.
+	 * A higher value will make spinning more difficult (a value of
+	 * 1.0 forbids spinning).
+	 * 
+	 * @see #tossingFriction()
+	 */
+	public float spinningFriction() {
+		return spinningFriction;
+	}
+	
+	/**
+	 * Internal use.
+	 * <p>
+	 * Computes and caches the value of the spinning friction used in
+	 * {@link #recomputeSpinningQuaternion()}.
+	 */
+	protected void setSpinningFrictionFx(float spinningFriction) {
+		sFriction = spinningFriction*spinningFriction*spinningFriction;
+	}
+	
+	/**
+	 * Internal use.
+	 * <p>
+	 * Returns the cached value of the spinning friction used in
+	 * {@link #recomputeSpinningQuaternion()}.
+	 */
+	protected float spinningFrictionFx() {
+		return sFriction;
+	}
+	
+	/**
+	 * Internal method. Recomputes the {@link #spinningQuaternion()}
+	 * according to {@link #spinningFriction()}.
+	 * 
+	 * @see #recomputeTossingDirection()
+	 */
+	protected void recomputeSpinningQuaternion() {
+		float prevSpeed = mouseSpeed;
+		float damping = 1.0f - spinningFrictionFx();
+		mouseSpeed *= damping;
+		if (Math.abs(mouseSpeed) < .001f)
+			mouseSpeed = 0;
+		float currSpeed = mouseSpeed;
+		if( scene.is3D() )
+			((Quaternion)spinningQuaternion()).fromAxisAngle(((Quaternion)spinningQuaternion()).axis(), spinningQuaternion().angle() * (currSpeed / prevSpeed) );
+		else
+			this.setSpinningQuaternion(new Rotation(spinningQuaternion().angle() * (currSpeed / prevSpeed)));
+	}
+	
+	/**
+	 * Stops the tossing motion started using {@link #startTossing(long)}.
+	 * {@link #isTossing()} will return {@code false} after this call.
+	 * <p>
+	 * <b>Attention: </b>This method may be called by {@link #toss()}, since tossing is
+	 * decelerated according to {@link #tossingFriction()} till it stops completely.
+	 * 
+	 * @see #tossingFriction()
+	 * @see #spin()
+	 */
+	public final void stopTossing() {
+		tossingTimerJob.stop();
+		isTossed = false;
+	}
+	
+	/**
+	 * Starts the tossing of the InteractiveFrame.
+	 * <p>
+	 * This method starts a timer that will call {@link #toss()} every {@code
+	 * updateInterval} milliseconds. The InteractiveFrame {@link #isTossing()}
+	 * until you call {@link #stopTossing()}.
+	 * <p>
+	 * <b>Attention: </b>Tossing may be decelerated according to {@link #tossingFriction()}
+	 * till it stops completely.
+	 * 
+	 * @see #tossingFriction()
+	 * @see #spin()
+	 */
+	public void startTossing(long updateInterval) {
+		isTossed = true;
+		if(updateInterval>0)
+			tossingTimerJob.run(updateInterval);
+	}
+	
+	/**
+	 * Translates the InteractiveFrame along its {@link #tossingDirection()}. Called
+	 * by a timer when the InteractiveFrame {@link #isTossing()}. 
+	 * <p>
+	 * <b>Attention: </b>Tossing may be decelerated according to
+	 * {@link #tossingFriction()} till it stops completely.
+	 * 
+	 * @see #tossingFriction()
+	 * @see #spin()
+	 */
+	public void toss() {		
+		if(tossingFriction() > 0) {
+			if (mouseSpeed == 0) {
+				stopTossing();
+				return;
+			}
+			translate(tossingDirection());
+			recomputeTossingDirection();						
+		}		
+		else
+			translate(tossingDirection());
+	}
+		
+	/**
+	 * Defines the {@link #tossingFriction()}. Values must be
+	 * in the range [{@link #MIN_TOSSING_FRICTION}..1].
+	 * {@link #MIN_TOSSING_FRICTION} is currently set to 0.01f.
+	 */
+	public void setTossingFriction(float f) {
+		if(f < 0 || f > 1)
+			return;
+		if(f < MIN_TOSSING_FRICTION) {
+			tossingFriction = MIN_TOSSING_FRICTION;
+			System.out.println("Setting tossing friction to " + MIN_TOSSING_FRICTION + " which is its minimum value");
+		}
+		tossingFriction = f;
+		tFriction = f*f*f;
+	}
+	
+	/**
+	 * Defines the tossing deceleration.
+	 * <p>
+	 * Default value is 1.0, i.e., forbids tossing. Use
+	 * {@link #setTossingFriction(float)} to tune this value.
+	 * A lower value will make tossing easier.
+	 * 
+	 * @see #spinningFriction()
+	 */
+	public float tossingFriction() {
+		return tossingFriction;
+	}
+	
+	/**
+	 * Internal use.
+	 * <p>
+	 * Computes and caches the value of the tossing friction used in
+	 * {@link #recomputeTossingDirection()}.
+	 */
+	protected void setTossingFrictionFx(float tossingFriction) {
+		tFriction = tossingFriction*tossingFriction*tossingFriction;
+	}
+	
+	/**
+	 * Internal use.
+	 * <p>
+	 * Returns the cached value of the tossing friction used in
+	 * {@link #recomputeTossingDirection()}.
+	 */
+	protected float tossingFrictionFx() {
+		return tFriction;
+	} 
+	
+	/**
+	 * Internal method. Recomputes the {@link #tossingDirection()}
+	 * according to {@link #tossingFriction()}.
+	 * 
+	 * @see #recomputeSpinningQuaternion()
+	 */
+	protected void recomputeTossingDirection() {
+		float prevSpeed = mouseSpeed;
+		float damping = 1.0f - tossingFrictionFx();
+		mouseSpeed *= damping;
+		if (Math.abs(mouseSpeed) < .001f)
+			mouseSpeed = 0;
+		float currSpeed = mouseSpeed;
+		setTossingDirection(Vector3D.mult(this.tossingDirection(), currSpeed / prevSpeed));
+	}
 	
 	/**
 	 * Overloading of
@@ -687,7 +1036,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 				// And then down to frame
 				if (referenceFrame() != null)
 					trans = referenceFrame().transformOf(trans);
-				translate(trans);
+				
+				computeMouseSpeed(eventPoint);
+				setTossingDirection(trans);			
+				toss();
+				
 				prevPos = eventPoint;
 			
 			break;
@@ -735,7 +1088,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 				if (referenceFrame() != null)
 					trans = referenceFrame().transformOf(trans);
 
-				translate(trans);
+				computeMouseSpeed(eventPoint);
+				setTossingDirection(trans);			
+				toss();
+				
 				prevPos = eventPoint;
 			
 			break;
@@ -804,7 +1160,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);			
 			
-			translate(trans);
+			computeMouseSpeed(eventPoint);
+			setTossingDirection(trans);			
+			toss();
+			
 			prevPos = eventPoint;						
 			break;
 		}
@@ -888,7 +1247,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
 
-			translate(trans);
+			computeMouseSpeed(eventPoint);
+			setTossingDirection(trans);			
+			toss();
+			
 			prevPos = eventPoint;			
 			break;
 		}
@@ -938,10 +1300,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		keepsGrabbingMouse = false;
 
 		if (prevConstraint != null)
-			setConstraint(prevConstraint);		
+			setConstraint(prevConstraint);
 		
 		if (((action == AbstractScene.MouseAction.ROTATE) || (action == AbstractScene.MouseAction.SCREEN_ROTATE) || (action == AbstractScene.MouseAction.CAD_ROTATE) )	&& (mouseSpeed >= spinningSensitivity()))
 			startSpinning(delay);
+		
+		if (((action == AbstractScene.MouseAction.TRANSLATE) || (action == AbstractScene.MouseAction.SCREEN_TRANSLATE) ) && (mouseSpeed >= tossingSensitivity()) )
+			startTossing(delay);
 
 		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
 	}
@@ -999,18 +1364,20 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			setConstraint(null);
 		}
 
-		switch (action) {
+		switch (action) {		
+		case SCREEN_TRANSLATE:
+			dirIsFixed = false;
+		case ZOOM:		
+		case TRANSLATE:
+			mouseSpeed = 0.0f;
+			stopTossing();
+			break;
 		case ROTATE:
 		case CAD_ROTATE:
 		case SCREEN_ROTATE:
 			mouseSpeed = 0.0f;
 			stopSpinning();
 			break;
-
-		case SCREEN_TRANSLATE:
-			dirIsFixed = false;
-			break;
-
 		default:
 			break;
 		}
