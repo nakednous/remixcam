@@ -118,34 +118,4 @@ public class CameraConstraint extends AxisPlaneConstraint {
 		}
 		return res;
 	}
-	
-	@Override
-	public Vector3D constrainScaling(Vector3D scaling, GeomFrame frame) {
-		Vector3D res = new Vector3D(scaling.vec[0], scaling.vec[1], scaling.vec[2]);
-		Vector3D proj;
-		switch (scalingConstraintType()) {
-		case FREE:
-			break;
-		case PLANE:
-			proj = frame.transformOf(camera().frame().inverseTransformOf(scalingConstraintDirection()));
-			res = Vector3D.projectVectorOnPlane(scaling, proj);
-			break;
-		case AXIS:
-			proj = frame.transformOf(camera().frame().inverseTransformOf(scalingConstraintDirection()));
-			res = Vector3D.projectVectorOnAxis(scaling, proj);
-			break;
-		case FORBIDDEN:
-			res = new Vector3D(1.0f, 1.0f, 1.0f);
-			break;
-		}
-		
-		if(res.x() < 1E-8)
-			res.x(1);
-		if(res.y() < 1E-8)
-			res.y(1);
-		if(res.z() < 1E-8)
-			res.z(1);
-		
-		return res;
-	}
 }

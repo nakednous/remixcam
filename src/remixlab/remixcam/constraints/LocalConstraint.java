@@ -38,7 +38,7 @@ public class LocalConstraint extends AxisPlaneConstraint {
 
 	/**
 	 * Depending on {@link #translationConstraintType()}, {@code constrain}
-	 * translation to be along an axis or limited to a plane defined in the Frame
+	 * translation to be along an axis or limited to a plane defined in the
 	 * local coordinate system by {@link #translationConstraintDirection()}.
 	 */
 	@Override
@@ -49,13 +49,13 @@ public class LocalConstraint extends AxisPlaneConstraint {
 		case FREE:
 			break;
 		case PLANE:
-			//proj = frame.rotation().rotate(translationConstraintDirection());
-			proj = frame.localInverseTransformOf(translationConstraintDirection());
+			proj = frame.rotation().rotate(translationConstraintDirection());
+			//proj = frame.localInverseTransformOf(translationConstraintDirection());
 			res = Vector3D.projectVectorOnPlane(translation, proj);
 			break;
 		case AXIS:
-			//proj = frame.rotation().rotate(translationConstraintDirection());
-			proj = frame.localInverseTransformOf(translationConstraintDirection());
+			proj = frame.rotation().rotate(translationConstraintDirection());
+			//proj = frame.localInverseTransformOf(translationConstraintDirection());
 			res = Vector3D.projectVectorOnAxis(translation, proj);
 			break;			
 		case FORBIDDEN:
@@ -93,47 +93,6 @@ public class LocalConstraint extends AxisPlaneConstraint {
 				res = new Rotation(); // identity
 			break;
 		}
-		return res;
-	}
-	
-	@Override
-	public Vector3D constrainScaling(Vector3D scaling, GeomFrame frame) {
-	  //TODO debug
-	  System.out.println("...Entering local constraint");
-		System.out.print("Constrain scale vector: ");
-		scaling.print();
-			
-		Vector3D res = new Vector3D(scaling.vec[0], scaling.vec[1], scaling.vec[2]);
-		Vector3D proj;
-		switch (scalingConstraintType()) {
-		case FREE:
-			break;
-		case PLANE:
-			//proj = frame.rotation().rotate(scalingConstraintDirection());
-			//res = Vector3D.projectVectorOnPlane(scaling, proj);
-			res = Vector3D.projectVectorOnPlane(scaling, scalingConstraintDirection());
-			break;
-		case AXIS:
-			//proj = frame.rotation().rotate(scalingConstraintDirection());
-			//res = Vector3D.projectVectorOnAxis(scaling, proj);
-			res = Vector3D.projectVectorOnAxis(scaling, scalingConstraintDirection());
-			break;
-		case FORBIDDEN:
-			res = new Vector3D(1.0f, 1.0f, 1.0f);
-			break;
-		}
-		
-		if(res.x() < 1E-8)
-			res.x(1);
-		if(res.y() < 1E-8)
-			res.y(1);
-		if(res.z() < 1E-8)
-			res.z(1);
-		
-	  //TODO debug
-		System.out.print("Scale vector became (after applying constraint): ");
-		res.print();
-		System.out.println("exiting world constraint...");
 		return res;
 	}
 }

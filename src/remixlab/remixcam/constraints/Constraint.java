@@ -70,6 +70,18 @@ public abstract class Constraint {
 		return rotation.get();
 	}
 	
+	/**
+	 * Filters the scaling applied to the Frame. This default implementation
+	 * is empty (no filtering).
+	 * <p>
+	 * Overload this method in your own Constraint class to define a new
+	 * translation constraint. {@code frame} is the Frame to which is applied the
+	 * scaling. You should refrain from directly changing its value in the
+	 * constraint. Use its {@link remixlab.remixcam.geom.GeomFrame#position()} and update
+	 * the translation accordingly instead.
+	 * <p>
+	 * {@code scaling} is expressed in the local Frame coordinate system.
+	 */
 	public Vector3D constrainScaling(Vector3D scaling, GeomFrame frame) {
 		return new Vector3D(scaling.vec[0], scaling.vec[1], scaling.vec[2]);
 	}
