@@ -134,6 +134,8 @@ public abstract class AxisPlaneConstraint extends Constraint {
 	public Vector3D rotationConstraintDirection() {
 		return rotConstraintDir;
 	}
+	
+	
 
 	/**
 	 * Simply calls {@link #setTranslationConstraintType(Type)} and
@@ -211,7 +213,6 @@ public abstract class AxisPlaneConstraint extends Constraint {
 			System.out.println("Warning: AxisPlaneConstraint.setRotationConstraintType: the PLANE type cannot be used for a rotation constraints");
 			return;
 		}
-
 		rotConstraintType = type;
 	}
 }

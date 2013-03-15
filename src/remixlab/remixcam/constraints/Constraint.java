@@ -37,6 +37,8 @@ import remixlab.remixcam.geom.*;
  * {@link remixlab.remixcam.geom.GeomFrame#constraint()}.
  */
 public abstract class Constraint {
+	private Vector3D sclConstraintValues = new Vector3D(1,1,1);
+	
 	/**
 	 * Filters the translation applied to the Frame. This default implementation
 	 * is empty (no filtering).
@@ -70,6 +72,25 @@ public abstract class Constraint {
 		return rotation.get();
 	}
 	
+	public Vector3D scalingConstraintValues() {
+		return sclConstraintValues;
+	}
+	
+	public void setScalingConstraintValues(float x, float y) {
+		setScalingConstraintValues(new Vector3D(x,y,1));
+	}
+	
+	public void setScalingConstraintValues(float x, float y, float z) {
+		setScalingConstraintValues(new Vector3D(x,y,z));
+	}
+	
+	public void setScalingConstraintValues(Vector3D values) {
+		sclConstraintValues.set(Math.abs(values.x()), Math.abs(values.y()), Math.abs(values.z()));
+		float min = Math.min(Math.max(values.x(), values.y()), values.z());
+		if( min != 0 )
+			sclConstraintValues.div(min);
+	}
+	
 	/**
 	 * Filters the scaling applied to the Frame. This default implementation
 	 * is empty (no filtering).
@@ -81,8 +102,35 @@ public abstract class Constraint {
 	 * the translation accordingly instead.
 	 * <p>
 	 * {@code scaling} is expressed in the local Frame coordinate system.
-	 */
+	 */	
 	public Vector3D constrainScaling(Vector3D scaling, GeomFrame frame) {
-		return new Vector3D(scaling.vec[0], scaling.vec[1], scaling.vec[2]);
+		Vector3D res = new Vector3D(scaling.x(), scaling.y(), scaling.z());		
+		// special case
+		if( Geom.zero(res.x()) ) res.x(1);
+		if( Geom.zero(res.y()) ) res.y(1);
+		if( Geom.zero(res.z()) ) res.z(1);
+		
+		//sclConstraintValues is of the shape (0:1:-1, 0:1:-1, 0:1:-1)
+		//forbids scaling		
+		
+		if( sclConstraintValues.x() == 0 ) res.x(1);
+		if( sclConstraintValues.y() == 0 ) res.y(1);
+		if( sclConstraintValues.z() == 0 ) res.z(1);			
+		
+		if( sclConstraintValues.x() == 1 ) {
+			if( sclConstraintValues.y() != 0 && sclConstraintValues.y() != 1 ) res.y(scaling.x() * sclConstraintValues.y());
+			if( sclConstraintValues.z() != 0 && sclConstraintValues.z() != 1 ) res.z(scaling.x() * sclConstraintValues.z());
+		}
+		else
+			if( sclConstraintValues.y() == 1 ) {
+				if( sclConstraintValues.x() != 0 && sclConstraintValues.x() != 1 ) res.x(scaling.y() * sclConstraintValues.x());
+				if( sclConstraintValues.z() != 0 && sclConstraintValues.z() != 1 ) res.z(scaling.y() * sclConstraintValues.z());
+			}
+			else
+				if( sclConstraintValues.z() == 1 ) {
+					if( sclConstraintValues.x() != 0 && sclConstraintValues.x() != 1 ) res.x(scaling.z() * sclConstraintValues.x());
+					if( sclConstraintValues.y() != 0 && sclConstraintValues.y() != 1 ) res.y(scaling.z() * sclConstraintValues.y());
+				}
+		return res;
 	}
 }
