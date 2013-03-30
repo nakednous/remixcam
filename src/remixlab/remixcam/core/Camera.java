@@ -273,8 +273,8 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * Main constructor.
 	 * <p>
 	 * {@link #sceneCenter()} is set to (0,0,0) and {@link #sceneRadius()} is set
-	 * to 100. {@link #type()} Camera.PERSPECTIVE, with a {@code PI/4}
-	 * {@link #fieldOfView()}.
+	 * to 100. {@link #type()} Camera.PERSPECTIVE, with a {@code PI/3}
+	 * {@link #fieldOfView()} (same value used in P5 by default).
 	 * <p>
 	 * Camera matrices (projection and view) are created and computed according
 	 * to remaining default Camera parameters.
@@ -292,7 +292,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		for (int i = 0; i < normal.length; i++)
 			normal[i] = new Vector3D();
 
-		fldOfView = (float) Math.PI / 4.0f;
+		fldOfView = (float) Math.PI / 3.0f; //in Proscene 1.x it was Pi/4
 
 		fpCoefficients = new float[6][4];
 
@@ -1717,96 +1717,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		float tz = -eyeZ;
 		modelview.translate(tx, ty, tz);
 	}
-	*/		
-	
-	/*! Same as loadProjectionMatrix() but for a stereo setup.
-
-	 Only the Camera::PERSPECTIVE type() is supported for stereo mode. See
-	 QGLViewer::setStereoDisplay().
-
-	 Uses focusDistance(), IODistance(), and physicalScreenWidth() to compute cameras
-	 offset and asymmetric frustums.
-
-	 When \p leftBuffer is \c true, computes the projection matrix associated to the left eye (right eye
-	 otherwise). See also loadViewMatrixStereo().
-
-	 See the <a href="../examples/stereoViewer.html">stereoViewer</a> and the <a
-	 href="../examples/contribs.html#anaglyph">anaglyph</a> examples for an illustration.
-
-	 To retrieve this matrix, use a code like:
-	 \code
-	 glMatrixMode(GL_PROJECTION);
-	 glPushMatrix();
-	 loadProjectionMatrixStereo(left_or_right);
-	 glGetFloatv(GL_PROJECTION_MATRIX, m);
-	 glPopMatrix();
-	 \endcode
-	 Note that getProjectionMatrix() always returns the mono-vision matrix.
-
-	 \attention glMatrixMode is set to \c GL_PROJECTION. */
-	public void loadProjectionMatrixStereo(boolean leftBuffer) {
-	  float left, right, bottom, top;
-	  float screenHalfWidth, halfWidth, side, shift, delta;
-
-	  scene.resetProjection();
-
-	  switch (type())  {
-	    case PERSPECTIVE:
-	      // compute half width of screen,
-	      // corresponding to zero parallax plane to deduce decay of cameras
-	      screenHalfWidth = focusDistance() * (float) Math.tan(horizontalFieldOfView() / 2.0f);
-	      shift = screenHalfWidth * IODistance() / physicalScreenWidth();
-	      // should be * current y  / y total
-	      // to take into account that the window doesn't cover the entire screen
-
-	      // compute half width of "view" at znear and the delta corresponding to
-	      // the shifted camera to deduce what to set for asymmetric frustums
-	      halfWidth = zNear() * (float) Math.tan(horizontalFieldOfView() / 2.0f);
-	      delta  = shift * zNear() / focusDistance();
-	      side   = leftBuffer ? -1.0f : 1.0f;
-
-	      left   = -halfWidth + side * delta;
-	      right  =  halfWidth + side * delta;
-	      top    = halfWidth / aspectRatio();
-	      bottom = -top;
-	      scene.frustum(left, right, bottom, top, zNear(), zFar());
-	      break;
-
-	    case ORTHOGRAPHIC:
-	      //qWarning("Camera::setProjectionMatrixStereo: Stereo not available with Ortho mode");
-	      break;
-	    }
-	}  
-
-	/*! Same as loadModelViewMatrix() but for a stereo setup.
-
-	 Only the Camera::PERSPECTIVE type() is supported for stereo mode. See
-	 QGLViewer::setStereoDisplay().
-
-	 The modelView matrix is almost identical to the mono-vision one. It is simply translated along its
-	 horizontal axis by a value that depends on stereo parameters (see focusDistance(),
-	 IODistance(), and physicalScreenWidth()).
-
-	 When \p leftBuffer is \c true, computes the modelView matrix associated to the left eye (right eye
-	 otherwise).
-
-	 loadProjectionMatrixStereo() explains how to retrieve to resulting matrix.
-
-	 See the <a href="../examples/stereoViewer.html">stereoViewer</a> and the <a
-	 href="../examples/contribs.html#anaglyph">anaglyph</a> examples for an illustration.
-
-	 \attention glMatrixMode is set to \c GL_MODELVIEW. */
-	public void loadViewMatrixStereo(boolean leftBuffer) {	  
-	  float halfWidth = focusDistance() * (float) Math.tan(horizontalFieldOfView() / 2.0f);
-	  float shift     = halfWidth * IODistance() / physicalScreenWidth(); // * current window width / full screen width
-
-	  computeViewMatrix();
-	  if (leftBuffer)
-	    viewMat.mat[12] = viewMat.mat[12]-shift;
-	  else
-	  	viewMat.mat[12] = viewMat.mat[12]+shift;
-	  scene.loadMatrix(viewMat);
-	}
+	*/			
 
 	// 9. WORLD -> CAMERA	
 

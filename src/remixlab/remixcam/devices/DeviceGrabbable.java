@@ -140,5 +140,5 @@ public interface DeviceGrabbable {
 	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and the
 	 * mouse wheel is used.
 	 */
-	void mouseWheelMoved(int rotation, Pinhole vp);
+	void mouseWheelMoved(float rotation, Pinhole vp);
 }

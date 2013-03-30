@@ -470,7 +470,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	@Override
-	public void mouseWheelMoved(int rotation, Pinhole vp) {
+	public void mouseWheelMoved(float rotation, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -482,7 +482,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			  // #CONNECTION# mouseMoveEvent() ZOOM case
 				//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
 				float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * vp.sceneRadius());
-				Vector3D trans = new Vector3D(0.0f, 0.0f, coef * (-rotation) * wheelSensitivity() * wheelSensitivityCoef);
+				Vector3D trans = new Vector3D(0.0f, 0.0f, coef * rotation * wheelSensitivity() * wheelSensitivityCoef);
 				
 			  //No Scl
 				Vector3D mag = magnitude();

@@ -608,55 +608,6 @@ public abstract class Pinhole {
 	 */
 	public final int screenHeight() {
 		return scrnHeight;
-	}
-	
-	/**
-	 * Convinience function that simply calls {@code loadProjectionMatrix(true)}.
-	 * 
-	 * @see #loadProjectionMatrix(boolean)
-	 * @see #loadProjectionMatrixStereo(boolean)
-	 * @see #loadViewMatrix()
-	 * @see #loadViewMatrix(boolean)
-	 * @see #loadViewMatrixStereo(boolean)
-	 */
-	public void loadProjectionMatrix() {
-		loadProjectionMatrix(true);
-	} 
-	
-	/**
-	 * // TODO complete the doc
-	 * Loads the PROJECTION matrix with the Camera projection matrix.
-	 * <p>
-	 * The Camera projection matrix is computed using {@link #computeProjectionMatrix()}.
-	 * <p>
-	 * When reset {@code true} (default), the method clears the previous projection matrix
-	 * by calling {@link remixlab.remixcam.core.AbstractScene#loadIdentity()} before setting
-	 * the matrix. Setting reset {@code false} is useful for SELECT mode, to combine the
-	 * pushed matrix with a picking matrix. See Scene.beginSelection() (pending) for details.
-	 * <p>
-	 * This method is used by QGLViewer::preDraw() (called before user's QGLViewer::draw()
-	 * method) to set the PROJECTION matrix according to the viewer's QGLViewer::camera()
-	 * settings.
-	 * <p>
-	 * Use {@link #getProjectionMatrix()} to retrieve this matrix. Overload this method if
-	 * you want your Camera to se an exotic projection matrix.. 
-	 * <p>
-	 * \attention \c glMatrixMode is set to \c GL_PROJECTION.
-	 * \attention If you use several OpenGL contexts and bypass the Qt main refresh loop, you should call
-	 * QGLWidget::makeCurrent() before this method in order to activate the right OpenGL context.
-	 *
-	 * @see #loadProjectionMatrix()
-	 * @see #loadProjectionMatrixStereo(boolean)
-	 * @see #loadViewMatrix()
-	 * @see #loadViewMatrix(boolean)
-	 * @see #loadViewMatrixStereo(boolean)
-	 */
-	public void loadProjectionMatrix(boolean reset) {
-	  if (reset)
-	  	scene.resetProjection();
-
-	  computeProjectionMatrix();
-	  scene.multiplyProjection(projectionMat);
 	}	
 	
 	/**
@@ -929,57 +880,6 @@ public abstract class Pinhole {
 		else
 			viewMat.set(source);
 	}	
-	
-	/**
-	 * Convenience funtion that simply calls {@code loadViewMatrix(true)}.
-	 * 
-	 * @see #loadProjectionMatrix()
-	 * @see #loadProjectionMatrix(boolean)
-	 * @see #loadProjectionMatrixStereo(boolean)
-	 * @see #loadViewMatrix(boolean)
-	 * @see #loadViewMatrixStereo(boolean)
-	 */
-	public void loadViewMatrix() {
-		loadViewMatrix(true);
-	}
-	
-	/*! Loads the OpenGL \c GL_MODELVIEW matrix with the modelView matrix corresponding to the Camera.
-
-	 Calls computeModelViewMatrix() to compute the Camera's modelView matrix.
-
-	 This method is used by QGLViewer::preDraw() (called before user's QGLViewer::draw() method) to
-	 set the \c GL_MODELVIEW matrix according to the viewer's QGLViewer::camera() position() and
-	 orientation().
-
-	 As a result, the vertices used in QGLViewer::draw() can be defined in the so called world
-	 coordinate system. They are multiplied by this matrix to get converted to the Camera coordinate
-	 system, before getting projected using the \c GL_PROJECTION matrix (see loadProjectionMatrix()).
-
-	 When \p reset is \c true (default), the method loads (overwrites) the \c GL_MODELVIEW matrix. Setting
-	 \p reset to \c false simply calls \c glMultMatrixd (might be useful for some applications).
-
-	 Overload this method or simply call glLoadMatrixd() at the beginning of QGLViewer::draw() if you
-	 want your Camera to use an exotic modelView matrix. See also loadProjectionMatrix().
-
-	 getModelViewMatrix() returns the 4x4 modelView matrix.
-
-	 \attention glMatrixMode is set to \c GL_MODELVIEW
-
-	 \attention If you use several OpenGL contexts and bypass the Qt main refresh loop, you should call
-	 QGLWidget::makeCurrent() before this method in order to activate the right OpenGL context. */
-	public void loadViewMatrix(boolean reset) {	  
-	  computeViewMatrix();
-	  if (reset)
-	    scene.loadMatrix(viewMat);
-	  else
-	    scene.multiplyMatrix(viewMat);
-	}
-	
-  //TODO find a better name for this:
-	public void resetViewMatrix() {
-		computeViewMatrix();	  	  
-	  scene.resetMatrix();	  
-	}
 	
 	public void setProjectionViewMatrix(Matrix3D projviewMat) {
 		projectionViewMat.set(projviewMat);

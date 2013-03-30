@@ -199,7 +199,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		
 		isSpng = false;
 		setSpinningSensitivity(0.3f);
-		setSpinningFriction(0.16f);
+		setSpinningFriction(0.0f);
 		
 		isTossed = false;
 		setTossingSensitivity(0.3f);
@@ -334,7 +334,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		
 		isSpng = false;
 		setSpinningSensitivity(0.3f);
-		setSpinningFriction(0.16f);
+		setSpinningFriction(0.0f);
 		
 		isTossed = false;
 		setTossingSensitivity(0.3f);
@@ -1320,12 +1320,12 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #setWheelSensitivity(float)
 	 */
 	@Override
-	public void mouseWheelMoved(int rotation, Pinhole camera) {
+	public void mouseWheelMoved(float rotation, Pinhole camera) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		if (action == AbstractScene.MouseAction.ZOOM) {			
-			float delta = rotation * wheelSensitivity();
+			float delta = -rotation * wheelSensitivity();
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
 			else

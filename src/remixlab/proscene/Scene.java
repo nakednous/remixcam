@@ -264,23 +264,22 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 */
 	public Scene(PApplet p, PGraphics pg, int x, int y) {
 		parent = p;
-		p5Scene = true;
 		
 		if( pg instanceof PGraphicsJava2D )
-			setRenderer( new RendererJava2D(this, (PGraphicsJava2D)pg) );	
+			setRenderer( new P5RendererJava2D(this, (PGraphicsJava2D)pg) );	
 		else
 			if( pg instanceof PGraphics2D )
-				setRenderer( new Renderer2D(this, (PGraphics2D)pg) );
+				setRenderer( new P5Renderer2D(this, (PGraphics2D)pg) );
 			else
 				if( pg instanceof PGraphics3D )
-					setRenderer( new Renderer3D(this, (PGraphics3D)pg) );			
+					setRenderer( new P5Renderer3D(this, (PGraphics3D)pg) );
 		
 		width = pg.width;
 		height = pg.height;
 		
 		if(is2D())
 			this.setGridDotted(false);
-		setAWTTimers();
+		setJavaTimers();
 		setLeftHanded();
 		
 		/**
@@ -293,7 +292,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		*/		
 		
 		//event handler
-		//dE = new AWTWheeledDesktopEvents(this);
 		dE = new P5DesktopEvents(this);
 		
 		// 1 ->   	
@@ -306,6 +304,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		// need it here to properly init the camera
 		avatarIsInteractiveAvatarFrame = false;// also init in setAvatar, but we
 		// need it here to properly init the camera
+		
 		if( is3D() )
 			ph = new Camera(this);
 		else
@@ -404,7 +403,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		PApplet.println("single threaded timers set");
 	}
 	
-	public void setAWTTimers() {
+	public void setJavaTimers() {
 		if( !timersAreSingleThreaded() )
 			return;
 		
@@ -434,7 +433,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	public void switchTimers() {
 		if( timersAreSingleThreaded() )
-			setAWTTimers();
+			setJavaTimers();
 		else
 			setSingleThreadedTimers();
 	}
@@ -521,7 +520,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * the frustum planes equations if {@link #enableFrustumEquationsUpdate(boolean)}
 	 * has been set to {@code true}.
 	 */
-	// TODO: try to rewrite and test how resizable works now
 	public void pre() {
 		if (isOffscreen()) return;		
 		
@@ -697,7 +695,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
   //public int mouseGrabberCameraPathOffSelectionHintColor() {	return cameraPathOffSelectionHintColor;	}
 	
 	public PGraphics pg() {
-		return ((Renderer)renderer()).pg();
+		if( renderer() instanceof P5Renderer )
+			return ((P5Renderer)renderer()).pg();
+		return ((P5RendererJava2D)renderer()).pg();
 	}
 	
 	public PGraphicsJava2D pgj2d() {
@@ -716,16 +716,26 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	public PGraphics2D pg2d() {
 		if (pg() instanceof PGraphics2D)
-			return ((Renderer2D) renderer()).pg2d();
+			return ((P5Renderer2D) renderer()).pg2d();
 		else 
 			throw new RuntimeException("pGraphics is not instance of PGraphics2D");		
 	}
 	
 	public PGraphics3D pg3d() {
 		if (pg() instanceof PGraphics3D)
-			return ((Renderer3D) renderer()).pg3d();
+			return ((P5Renderer3D) renderer()).pg3d();
 		else 
 			throw new RuntimeException("pGraphics is not instance of PGraphics3D");		
+	}
+	
+	@Override
+  public void disableDepthTest() {
+		pg().hint(PApplet.DISABLE_DEPTH_TEST);
+	}
+	
+	@Override
+	public void enableDepthTest() {
+		pg().hint(PApplet.ENABLE_DEPTH_TEST);
 	}
 	
 	@Override
@@ -805,11 +815,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		cameraProfileNames = new ArrayList<String>();
 		currentCameraProfile = null;
 		// register here the default profiles
-		registerCameraProfile(new CameraProfile(this, "ARCBALL", CameraProfile.Mode.ARCBALL));
-		//registerCameraProfile( new CameraProfile(this, "WHEELED_ARCBALL", CameraProfile.Mode.WHEELED_ARCBALL) );
+		//registerCameraProfile(new CameraProfile(this, "ARCBALL", CameraProfile.Mode.ARCBALL));
+		registerCameraProfile( new CameraProfile(this, "WHEELED_ARCBALL", CameraProfile.Mode.WHEELED_ARCBALL) );
 		registerCameraProfile( new CameraProfile(this, "FIRST_PERSON", CameraProfile.Mode.FIRST_PERSON) );
-		setCurrentCameraProfile("ARCBALL");
-		//setCurrentCameraProfile("WHEELED_ARCBALL");
+		//setCurrentCameraProfile("ARCBALL");
+		setCurrentCameraProfile("WHEELED_ARCBALL");
 	}
 
 	/**
@@ -1503,11 +1513,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().textFont(parent.createFont("Arial", 12));
 			//pGraphics().textMode(SCREEN);
 			//TODO test me!
-			renderer().beginScreenDrawing();
+			beginScreenDrawing();
 			pg().fill(0,255,0);
 			pg().textLeading(20);
 			pg().text(globalHelp(), 10, 10, (pg().width-20), (pg().height-20));
-			renderer().endScreenDrawing();
+			endScreenDrawing();
 		}
 	}	
 	
@@ -1546,11 +1556,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().textFont(parent.createFont("Arial", 12));
 			//pGraphics().textMode(SCREEN);
 			//TODO test me!
-			renderer().beginScreenDrawing();
+			beginScreenDrawing();
 			pg().fill(0,255,0);
 			pg().textLeading(20);
 			pg().text(currentCameraProfileHelp(), 10, 10, (pg().width-20), (pg().height-20));
-			renderer().endScreenDrawing();
+			endScreenDrawing();
 		}
 	}
 	
@@ -1588,7 +1598,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			description += currentCameraProfile().frameMouseBindingsDescription();
 			index++;
 		}
-		/**
 		if( currentCameraProfile().cameraWheelBindingsDescription().length() != 0 ) {
 			description += index + ". " + "Camera mouse wheel bindings\n";
 			description += currentCameraProfile().cameraWheelBindingsDescription();
@@ -1599,7 +1608,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			description += currentCameraProfile().frameWheelBindingsDescription();
 			index++;
 		}
-		*/
 		return description;
 	}
 

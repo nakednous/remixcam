@@ -379,7 +379,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	@Override
-	public void mouseWheelMoved(int rotation, Pinhole vp) {
+	public void mouseWheelMoved(float rotation, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -388,11 +388,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			if( scene.is3D() ) {
 			float wheelSensitivityCoef = 8E-4f;
 			
-			Vector3D trans;
-			if( scene.isRightHanded() )
-				trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(((Camera) vp).position(), position())).mag());
-			else
-				trans = new Vector3D(0.0f, 0.0f, rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(((Camera) vp).position(), position())).mag());
+			Vector3D trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(((Camera) vp).position(), position())).mag());
 						
 			// #CONNECTION# Cut-pasted from the mouseMoveEvent ZOOM case
 			trans = vp.frame().orientation().rotate(trans);

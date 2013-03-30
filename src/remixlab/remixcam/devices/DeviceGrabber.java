@@ -130,7 +130,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void mouseWheelMoved(int rotation, Pinhole vp) { }
+	public void mouseWheelMoved(float rotation, Pinhole vp) { }
 
 	/**
 	 * Sets the {@link #grabsMouse()} flag. Normally used by

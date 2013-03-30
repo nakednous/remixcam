@@ -267,6 +267,8 @@ public class P5DesktopEvents extends DesktopEvents {
 		case MouseEvent.RELEASE:
 			mouseReleased(e);
 			break;
+		case MouseEvent.WHEEL:
+			mouseWheelMoved(e);
 		}		
 	}
 	
@@ -434,27 +436,25 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * 
 	 * @see #mousePressed(MouseEvent)
 	 */
-	/**
-	public void awtMouseWheelMoved(MouseWheelEvent event) {		
+	public void mouseWheelMoved(MouseEvent event) {		
 		if(!scene.mouseIsHandled())
 			return;
 		if (scene.mouseGrabber() != null) {
 			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
 				InteractiveFrame iFrame = (InteractiveFrame) scene.mouseGrabber();
 				iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
-				iFrame.mouseWheelMoved(event.getWheelRotation(), scene.pinhole());				
+				iFrame.mouseWheelMoved(event.getAmount(), scene.pinhole());				
 			} else
-				scene.mouseGrabber().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());
+				scene.mouseGrabber().mouseWheelMoved(event.getAmount(), scene.pinhole());
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
 			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
-			scene.interactiveFrame().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());
+			scene.interactiveFrame().mouseWheelMoved(event.getAmount(), scene.pinhole());
 			return;
 		}
 		scene.pinhole().frame().startAction(scene.currentCameraProfile().cameraWheelMouseAction(event), scene.drawIsConstrained());
-		scene.pinhole().frame().mouseWheelMoved(event.getWheelRotation(), scene.pinhole());	  
+		scene.pinhole().frame().mouseWheelMoved(event.getAmount(), scene.pinhole());	  
 	}
-	// */
 }
 

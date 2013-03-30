@@ -586,6 +586,12 @@ public class Matrix3D implements Primitivable {
 				  source.mat[12], source.mat[13], source.mat[14], source.mat[15]);
   }
   
+  public static Matrix3D mult(Matrix3D a, Matrix3D b) {
+  	Matrix3D c = new Matrix3D();
+  	mult(a,b,c);
+  	return c;
+  }
+  
   public static void mult(Matrix3D a, Matrix3D b, Matrix3D c) { 
   	c.mat[0] = a.mat[0]*b.mat[0] + a.mat[4]*b.mat[1] + a.mat[8]*b.mat[2] + a.mat[12]*b.mat[3];
     c.mat[4] = a.mat[0]*b.mat[4] + a.mat[4]*b.mat[5] + a.mat[8]*b.mat[6] + a.mat[12]*b.mat[7];

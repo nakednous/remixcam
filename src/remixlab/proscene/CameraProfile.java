@@ -107,6 +107,48 @@ import remixlab.remixcam.devices.MouseShortcut;
  * </ul>
  * </ol>
  * <p>
+ * <h3>WHEELED_ARCBALL</h3>
+ * <ol>
+ * <li><b>Keyboard shortcuts</b></li>
+ * <ul>
+ * <li>Right -> Move camera to the right</li>
+ * <li>Left -> Move camera to the left</li>
+ * <li>Up -> Move camera up</li>
+ * <li>Down -> Move camera down</li>
+ * <li>S -> Show the whole scene</li>
+ * <li>s -> Interpolate the camera to fit the whole scene</li>
+ * <li>+ -> Increase camera rotation sensitivity</li>
+ * <li>- -> Decrease camera rotation sensitivity</li>
+ * </ul>
+ * <li><b>Camera mouse bindings</b></li>
+ * <ul>
+ * <li>Button1 -> Rotate frame (camera or interactive frame) as with an ARCBALL</li>
+ * <li>Shift+Button1 -> Zoom on region (camera or interactive drivable frame)</li> * 
+ * <li>Button2 -> Zoom</li>
+ * <li>Button3 -> Translate frame (camera or interactive frame)</li>
+ * <li>Shift+Button3 -> Screen rotate (camera or interactive frame)</li>
+ * </ul>
+ * <li><b>Mouse click bindings</b></li>
+ * <ul>
+ * <li>Button1 + 2 clicks -> Align camera with world</li>
+ * <li>Button2 + 2 clicks -> Show the whole scene</li>
+ * <li>Button3 + 2 clicks -> Zoom to fit the scene</li>
+ * </ul>
+ * <li><b>Interactive frame mouse bindings</b></li>
+ * <ul>
+ * <li>Button1 -> Rotate frame (camera or interactive frame)</li>
+ * <li>Button2 -> Zoom</li>
+ * <li>Button3 -> Translate frame (camera or interactive frame)</li>
+ * </ul>
+ * <li><b>Camera mouse wheel bindings</b></li>
+ * <ul>
+ * <li>Wheel -> Zoom</li>
+ * </ul>
+ * <li><b>Interactive frame mouse wheel bindings</b></li>
+ * <ul>
+ * <li>Wheel -> Zoom</li>
+ * </ul>
+ * </ol>
  * <h3>CAD</h3>
  * <ol>
  * <li><b>Keyboard shortcuts</b></li>
@@ -210,7 +252,7 @@ import remixlab.remixcam.devices.MouseShortcut;
  * least one THIRD_PERSON camera profile to your Scene.
  */
 public class CameraProfile {
-	public enum Mode {ARCBALL, /**WHEELED_ARCBALL,*/ CAD, FIRST_PERSON, THIRD_PERSON, CUSTOM}
+	public enum Mode {ARCBALL, WHEELED_ARCBALL, CAD, FIRST_PERSON, THIRD_PERSON, CUSTOM}
 	protected String name;
 	protected Scene scene;
 	protected Mode mode;
@@ -219,11 +261,8 @@ public class CameraProfile {
 	protected Bindings<MouseShortcut, Scene.MouseAction> frameActions;
 	// C L I C K A C T I O N S
 	protected Bindings<ClickBinding, ClickAction> clickActions;
-	
-	/**
 	protected Bindings<Integer, Scene.MouseAction> cameraWheelActions;
 	protected Bindings<Integer, Scene.MouseAction> frameWheelActions;
-	*/
 	
 	/**
 	 * Convenience constructor that simply calls {@code this(scn, n, Mode.CUSTOM)}.
@@ -259,29 +298,21 @@ public class CameraProfile {
 		cameraActions = new Bindings<MouseShortcut, Scene.MouseAction>(scene);
 		frameActions = new Bindings<MouseShortcut, Scene.MouseAction>(scene);		
 		clickActions = new Bindings<ClickBinding, Scene.ClickAction>(scene);
-		
-		/**
 		cameraWheelActions = new Bindings<Integer, Scene.MouseAction>(scene);
 		frameWheelActions = new Bindings<Integer, Scene.MouseAction>(scene);
-		*/
-		
-		//scene.parent.addMouseWheelListener( scene.dE );
 		
 		switch (mode) {
 		case ARCBALL:			
-			//setCameraMouseBinding(Integer.LEFT.ID, Scene.MouseAction.ROTATE);
 			setCameraMouseBinding(PApplet.LEFT, Scene.MouseAction.ROTATE);
 			arcballDefaultShortcuts();
 			break;
-			/**
 		case WHEELED_ARCBALL:
-			setCameraMouseBinding(Integer.LEFT.ID, Scene.MouseAction.ROTATE);
+			setCameraMouseBinding(PApplet.LEFT, Scene.MouseAction.ROTATE);
 			arcballDefaultShortcuts();			
 			setCameraWheelBinding( MouseAction.ZOOM );
 			//should work only iFrame is an instance of drivable
 			setFrameWheelBinding( MouseAction.ZOOM );			
 			break;
-			*/
 		case CAD:
 			setCameraMouseBinding(PApplet.LEFT, Scene.MouseAction.CAD_ROTATE);
 			arcballDefaultShortcuts();
@@ -336,9 +367,8 @@ public class CameraProfile {
 		setShortcut(PApplet.DOWN, Scene.CameraKeyboardAction.MOVE_CAMERA_DOWN);
 		
 		//TODO hack to prevent P5 java2d bug!
-		if( scene.renderer() instanceof RendererJava2D) {
-			setCameraMouseBinding(Event.ALT, PApplet.LEFT, Scene.MouseAction.ZOOM);
-			setCameraMouseBinding(Event.CTRL, PApplet.LEFT, Scene.MouseAction.ZOOM);
+		if( scene.renderer() instanceof P5RendererJava2D ) {
+			setCameraMouseBinding(Event.ALT, PApplet.CENTER, Scene.MouseAction.ZOOM);
 			setCameraMouseBinding(Event.META, PApplet.RIGHT, Scene.MouseAction.TRANSLATE);
 		}
 		else {
@@ -349,9 +379,8 @@ public class CameraProfile {
 		setFrameMouseBinding(PApplet.LEFT, Scene.MouseAction.ROTATE);
 		
 	  //TODO hack to prevent P5 java2d bug!
-		if( scene.renderer() instanceof RendererJava2D) {
-			setFrameMouseBinding(Event.ALT, PApplet.LEFT, Scene.MouseAction.ZOOM);
-			setFrameMouseBinding(Event.CTRL, PApplet.LEFT, Scene.MouseAction.ZOOM);
+		if( scene.renderer() instanceof P5RendererJava2D ) {
+			setFrameMouseBinding(Event.ALT, PApplet.CENTER, Scene.MouseAction.ZOOM);
 			setFrameMouseBinding(Event.META, PApplet.RIGHT, Scene.MouseAction.TRANSLATE);
 		}
 		else {
@@ -434,22 +463,30 @@ public class CameraProfile {
 	 * <p>
 	 * Called by {@link remixlab.proscene.DesktopEvents#mousePressed(MouseEvent)}.
 	 */
-	protected MouseAction cameraMouseAction(MouseEvent e) {		
-		MouseAction camMouseAction = cameraMouseBinding( e.getModifiers(), e.getButton() );
-		String button = new String();
-		if(e.getButton() == PApplet.RIGHT)
-			button = "RIGHT";
-		else
-			button = "LEFT";
-		System.out.println("button: " + button + " modifiers: " + DesktopEvents.getModifiersText(e.getModifiers()));
+	protected MouseAction cameraMouseAction(MouseEvent e) {
+		/**
+		MouseAction camMouseAction = cameraMouseBinding( e.getModifiers(), e.getButton() );	
 		if (camMouseAction == null)
 			camMouseAction = MouseAction.NO_MOUSE_ACTION;
-		//TODO DEBUG else:
-		else {
-			if( e.getButton() == PApplet.RIGHT ) {
-				System.out.println("right button pressed! action bound: " + camMouseAction.description());				
-			}				
-		}
+		return camMouseAction;
+		// */
+		
+	  //TODO debug		
+		MouseAction camMouseAction = cameraMouseBinding( e.getModifiers(), e.getButton() );	
+		if (camMouseAction == null)
+			camMouseAction = MouseAction.NO_MOUSE_ACTION;		
+		
+		String button = new String();
+		if(e.getButton() == PApplet.RIGHT)
+			button = "RIGHT ";
+		else if (e.getButton() == PApplet.LEFT)
+			button = "LEFT ";
+		else if (e.getButton() == PApplet.CENTER)
+			button = "CENTER ";
+		System.out.println("Button: " + button + 
+				               ", modifiers: " + DesktopEvents.getModifiersText(e.getModifiers()) +
+	                     ", action bound: " + camMouseAction.description());
+		
 		return camMouseAction;
 	}
 	
@@ -472,15 +509,12 @@ public class CameraProfile {
 	 * <p>
 	 * Called by {@link remixlab.proscene.DesktopEvents#mouseWheelMoved(MouseWheelEvent)}.
 	 */
-	
-	/**
-	protected MouseAction cameraWheelMouseAction(MouseWheelEvent e) {
-		MouseAction wMouseAction = cameraWheelBinding(e.getModifiersEx());
+	protected MouseAction cameraWheelMouseAction(MouseEvent e) {
+		MouseAction wMouseAction = cameraWheelBinding(e.getModifiers());
 		if (wMouseAction == null)
 			wMouseAction = MouseAction.NO_MOUSE_ACTION;
 		return wMouseAction;
 	}
-	*/
 	
 	/**
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
@@ -488,15 +522,12 @@ public class CameraProfile {
 	 * <p>
 	 * Called by {@link remixlab.proscene.DesktopEvents#mouseWheelMoved(MouseWheelEvent)}.
 	 */
-	
-	/**
-	protected MouseAction frameWheelMouseAction(MouseWheelEvent e) {
-		MouseAction fMouseAction = frameWheelBinding( e.getModifiersEx() );
+	protected MouseAction frameWheelMouseAction(MouseEvent e) {
+		MouseAction fMouseAction = frameWheelBinding( e.getModifiers() );
 		if (fMouseAction == null)
 			fMouseAction = MouseAction.NO_MOUSE_ACTION;
 		return fMouseAction;
 	}
-	*/
 	
 	/**
 	 * Returns a String containing the camera mouse bindings' descriptions.
@@ -541,11 +572,9 @@ public class CameraProfile {
 	/**
 	 * Returns a String containing the camera mouse wheel bindings' descriptions.
 	 */
-	/**
-	// TODO wheel
 	public String cameraWheelBindingsDescription() {
 		String description = new String();
-		for (Entry<Integer, Scene.MouseAction> entry : cameraWheelActions.map.entrySet()) {
+		for (Entry<Integer, Scene.MouseAction> entry : cameraWheelActions.map().entrySet()) {
 			if (DesktopEvents.getModifiersText(entry.getKey()).length() != 0 )
 				description += "Wheel " + DesktopEvents.getModifiersText(entry.getKey()) + " -> " + entry.getValue().description() + "\n";
 			else
@@ -553,23 +582,19 @@ public class CameraProfile {
 		}
 		return description;
 	}
-	*/
 	
 	/**
 	 * Returns a String containing the interactive frame mouse wheel bindings' descriptions.
 	 */
-	/**
-	// TODO wheel
 	public String frameWheelBindingsDescription() {
 		String description = new String();
-		for (Entry<Integer, Scene.MouseAction> entry : frameWheelActions.map.entrySet())
+		for (Entry<Integer, Scene.MouseAction> entry : frameWheelActions.map().entrySet())
 			if (DesktopEvents.getModifiersText(entry.getKey()).length() != 0 )
 				description += "Wheel " + DesktopEvents.getModifiersText(entry.getKey()) + " -> " + entry.getValue().description() + "\n";
 			else
 				description += "Wheel -> " + entry.getValue().description() + "\n";
 		return description;
 	}
-	*/
 
 	// 3. Bindings
 	
@@ -1220,48 +1245,36 @@ public class CameraProfile {
 	/**
 	 * Removes all camera wheel-action bindings.
 	 */
-//TODO wheel
-	/**
 	public void removeAllCameraWheelBindings() {
 		cameraWheelActions.removeAllBindings();
 	}
-	*/
 	
 	/**
 	 * Returns true if the given binding binds a camera wheel-action.
 	 * 
 	 * @param mask binding
 	 */
-//TODO wheel
-	/**
 	public boolean isCameraWheelBindingInUse(Integer mask) {
 		return cameraWheelActions.isShortcutInUse(mask);
 	}
-	*/
 
 	/**
 	 * Returns true if the given camera wheel-action is binded.
 	 * 
 	 * @param action
 	 */
-//TODO wheel
-	/**
 	public boolean isCameraWheelActionBinded(Scene.MouseAction action) {
 		return cameraWheelActions.isActionMapped(action);
 	}
-	*/
 	
 	/**
 	 * Convenience function that simply calls {@code setCameraWheelShortcut(0, action)}
 	 * 
 	 * @see #setCameraWheelBinding(Integer, Scene.MouseAction)
 	 */
-//TODO wheel
-	/**
 	public void setCameraWheelBinding(Scene.MouseAction action) {
 		setCameraWheelBinding(0, action);
 	}
-	*/
 
 	/**
 	 * Binds the camera wheel-action to the given binding.
@@ -1273,8 +1286,6 @@ public class CameraProfile {
 	 * <b>Attention:</b> Mac users should avoid using the CTRL modifier key, since its use is
 	 * reserved to emulate the right button of the mouse.
 	 */
-//TODO wheel
-	/**
 	public void setCameraWheelBinding(Integer mask, Scene.MouseAction action) {
 		if ( isCameraWheelBindingInUse(mask) ) {
 			MouseAction a = cameraWheelBinding(mask);
@@ -1282,19 +1293,15 @@ public class CameraProfile {
 		}
 		cameraWheelActions.setBinding(mask, action);
 	}
-	*/
 	
 	/**
 	 * Convenience function that simply calls {@code removeCameraWheelShortcut(0)}.
 	 * 
 	 * @see #removeCameraWheelBinding(Integer)
 	 */
-//TODO wheel
-	/**
 	public void removeCameraWheelBinding() {
 		removeCameraWheelBinding(0);
 	}
-	*/
 
 	/**
 	 * Removes the camera wheel-action binding.
@@ -1303,24 +1310,18 @@ public class CameraProfile {
 	 * 
 	 * @see #removeCameraWheelBinding()
 	 */
-//TODO wheel
-	/**
 	public void removeCameraWheelBinding(Integer mask) {
 		cameraWheelActions.removeBinding(mask);
 	}
-	*/
 
 	/**
 	 * Convenience function that simply returns {@code cameraWheelActions.binding(0)}.
 	 * 
 	 * @see #cameraWheelBinding(Integer)
 	 */
-//TODO wheel
-	/**
 	public Scene.MouseAction cameraWheelBinding() {
 		return cameraWheelActions.binding(0);
 	}
-	*/
 	
 	/**
 	 * Returns the camera wheel-action associated to the given binding.
@@ -1329,60 +1330,45 @@ public class CameraProfile {
 	 * 
 	 * @see #cameraWheelBinding()
 	 */
-//TODO wheel
-	/**
 	public Scene.MouseAction cameraWheelBinding(Integer mask) {
 		return cameraWheelActions.binding(mask);
 	}
-	*/
 	
   //Frame Wheel
 	
 	/**
 	 * Removes all frame wheel-action bindings.
 	 */
-//TODO wheel
-	/**
 	public void removeAllFrameWheelBindings() {
 		frameWheelActions.removeAllBindings();
 	}
-	*/
 
 	/**
 	 * Returns true if the given binding binds a frame wheel-action.
 	 * 
 	 * @param mask shortcut
 	 */
-//TODO wheel
-	/**
 	public boolean isFrameWheelBindingInUse(Integer mask) {
 		return frameWheelActions.isShortcutInUse(mask);
 	}
-	*/
 
 	/**
 	 * Returns true if the given camera wheel-action is binded.
 	 * 
 	 * @param action
 	 */
-//TODO wheel
-	/**
 	public boolean isFrameWheelActionBinded(Scene.MouseAction action) {
 		return frameWheelActions.isActionMapped(action);
 	}
-	*/
 
 	/**
 	 * Convenience function that simply calls {@code setFrameWheelShortcut(0, action)}
 	 * 
 	 * @see #setCameraWheelBinding(Integer, Scene.MouseAction)
 	 */
-//TODO wheel
-	/**
 	public void setFrameWheelBinding(Scene.MouseAction action) {
 		setFrameWheelBinding(0, action);
 	}
-	*/
 	
 	/**
 	 * Binds the camera wheel-action to the given binding.
@@ -1394,8 +1380,6 @@ public class CameraProfile {
 	 * <b>Attention:</b> Mac users should avoid using the CTRL modifier key, since its use is
 	 * reserved to emulate the right button of the mouse.
 	 */
-//TODO wheel
-	/**
 	public void setFrameWheelBinding(Integer mask, Scene.MouseAction action) {
 		if ( isFrameWheelBindingInUse(mask) ) {
 			MouseAction a = frameWheelBinding(mask);
@@ -1403,19 +1387,15 @@ public class CameraProfile {
 		}
 		frameWheelActions.setBinding(mask, action);
 	}
-	*/
 	
 	/**
 	 * Convenience function that simply calls {@code removeFrameWheelShortcut(0)}.
 	 * 
 	 * @see #removeFrameWheelBinding(Integer)
 	 */
-//TODO wheel
-	/**
 	public void removeFrameWheelBinding() {
 		removeFrameWheelBinding(0);
 	}
-	*/
 
 	/**
 	 * Removes the frame wheel-action binding.
@@ -1424,24 +1404,18 @@ public class CameraProfile {
 	 * 
 	 * @see #removeFrameWheelBinding()
 	 */
-//TODO wheel
-	/**
 	public void removeFrameWheelBinding(Integer mask) {
 		frameWheelActions.removeBinding(mask);
 	}
-	*/
 	
 	/**
 	 * Convenience function that simply returns {@code cameraFrameActions.binding(0)}.
 	 * 
 	 * @see #frameWheelBinding(Integer)
 	 */
-//TODO wheel
-	/**
 	public Scene.MouseAction frameWheelBinding() {
 		return frameWheelBinding(0);
 	}
-	*/
 	
 	/**
 	 * Returns the frame wheel-action associated to the given binding.
@@ -1450,10 +1424,7 @@ public class CameraProfile {
 	 * 
 	 * @see #frameWheelBinding()
 	 */
-//TODO wheel
-	/**
 	public Scene.MouseAction frameWheelBinding(Integer mask) {
 		return frameWheelActions.binding(mask);
 	}
-	*/
 }

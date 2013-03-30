@@ -26,6 +26,7 @@
 package remixlab.remixcam.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import remixlab.remixcam.devices.*;
@@ -239,8 +240,6 @@ public abstract class AbstractScene implements Constants {
     	return twoD;
     }
 	}	
-	
-	protected boolean p5Scene = false;
 	
 	protected boolean dottedGrid;	
 	
@@ -848,6 +847,9 @@ public abstract class AbstractScene implements Constants {
 	 * Bind processing matrices to proscene matrices.
 	 */	
 	protected void bindMatrices() {
+		// we should simply go:
+		renderer.bindMatrices();
+		/**
 	  // TODO implement stereo
 		if(this.isAP5Scene()) {
 			renderer.bindMatrices();
@@ -855,12 +857,14 @@ public abstract class AbstractScene implements Constants {
 		}
 		else {
 			//TODO weird to separate these two cases
-			//maybe these three sets should belong to the renderer even if it's opengl? 
+			//maybe these three sets should belong to the renderer even if it's opengl?
+			// and hence isAP5Scene should be out of the question
 			setProjectionMatrix();
 			setModelViewMatrix();
 			setProjectionModelViewMatrix();
 			pinhole().cacheProjViewInvMat();
 		}
+		*/
 	}
 	
 	/**
@@ -868,20 +872,24 @@ public abstract class AbstractScene implements Constants {
 	 * {@code PApplet.perspective()} or {@code PApplet.orhto()} depending on the
 	 * {@link remixlab.remixcam.core.Camera#type()}.
 	 */
+	/**
 	protected void setProjectionMatrix() {
 		pinhole().loadProjectionMatrix();
 	}
+	*/
 	
 	/**
 	 * Sets the processing camera matrix from {@link #pinhole()}. Simply calls
 	 * {@code PApplet.camera()}.
 	 */
+	/**
 	protected void setModelViewMatrix() {		
 		// TODO find a better name for this:
 		pinhole().resetViewMatrix(); // model is separated from view always
 		//  alternative is
 			//camera().loadViewMatrix();	  
 	}
+	*/
 	
 	protected void setProjectionModelViewMatrix() {
 		pinhole().computeProjectionViewMatrix();
@@ -1458,14 +1466,18 @@ public abstract class AbstractScene implements Constants {
 		
 		startCoordCalls++;
 		
+		disableDepthTest();
+		renderer.beginScreenDrawing();
+		
+		 /**
 		if( this.isAP5Scene() )
 			renderer.beginScreenDrawing();
-		else { // TODO needs implementation and testing			pushProjection();
-			/**
-			resetProjection();
-			camera().ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
-			multiplyProjection(camera().getProjectionMatrix());
-			*/
+		else { // TODO needs implementation and testing pushProjection();
+			
+			//resetProjection();
+			//camera().ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
+			//multiplyProjection(camera().getProjectionMatrix());
+			
 			// next two same as the prv three?
 			if( this.is3D() )
 				((Camera) pinhole()).ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
@@ -1476,6 +1488,7 @@ public abstract class AbstractScene implements Constants {
 			pushMatrix();
 			resetMatrix();
 		}
+		//*/
   }
 	
 	public void endScreenDrawing() {
@@ -1484,13 +1497,22 @@ public abstract class AbstractScene implements Constants {
 			throw new RuntimeException("There should be exactly one beginScreenDrawing() call followed by a "
 							                 + "endScreenDrawing() and they cannot be nested. Check your implementation!");
 		
+		renderer.endScreenDrawing();
+		enableDepthTest();
+		
+		/**
 		if( this.isAP5Scene() )
 			renderer.endScreenDrawing();
 		else {
 			popProjection();
 			popMatrix();			
 		}		
+		*/
 	}
+	
+	public abstract void disableDepthTest();
+	
+	public abstract void enableDepthTest();
 	
 	// end wrapper
 	
@@ -1659,7 +1681,7 @@ public abstract class AbstractScene implements Constants {
 		vp.setSceneCenter(center());
 
 		vp.setScreenWidthAndHeight(width(), height());
-
+    
 		ph = vp;		
 
 		showAll();
@@ -2527,9 +2549,70 @@ public abstract class AbstractScene implements Constants {
   //dimensions
   public abstract int width();
   
-  public abstract int height();	
-	
-	public boolean isAP5Scene () {
-		return p5Scene;
-	}	
+  public abstract int height();
+  
+
+  // WARNINGS and EXCEPTIONS
+     
+  static protected HashMap<String, Object> warnings;
+
+  /**
+   * Show a renderer error, and keep track of it so that it's only shown once.
+   * @param msg the error message (which will be stored for later comparison)
+   */
+  static public void showWarning(String msg) {  // ignore
+    if (warnings == null) {
+      warnings = new HashMap<String, Object>();
+    }
+    if (!warnings.containsKey(msg)) {
+      System.err.println(msg);
+      warnings.put(msg, new Object());
+    }
+  }
+  
+  /**
+   * Display a warning that the specified method is only available with 3D.
+   * @param method The method name (no parentheses)
+   */
+  static public void showDepthWarning(String method) {
+    showWarning(method + "() can only be used with a renderer that supports 3D, such as P3D or OPENGL.");
+  }
+
+  /**
+   * Display a warning that the specified method that takes x, y, z parameters
+   * can only be used with x and y parameters in this renderer.
+   * @param method The method name (no parentheses)
+   */
+  static public void showDepthWarningXYZ(String method) {
+    showWarning(method + "() with x, y, and z coordinates " +
+                "can only be used with a renderer that " +
+                "supports 3D, such as P3D or OPENGL. " +
+                "Use a version without a z-coordinate instead.");
+  }
+
+  /**
+   * Display a warning that the specified method is simply unavailable.
+   */
+  static public void showMethodWarning(String method) {
+    showWarning(method + "() is not available with this renderer.");
+  }
+
+  /**
+   * Error that a particular variation of a method is unavailable (even though
+   * other variations are). For instance, if vertex(x, y, u, v) is not
+   * available, but vertex(x, y) is just fine.
+   */
+  static public void showVariationWarning(String str) {
+    showWarning(str + " is not available with this renderer.");
+  }
+
+  /**
+   * Display a warning that the specified method is not implemented, meaning
+   * that it could be either a completely missing function, although other
+   * variations of it may still work properly.
+   */
+  static public void showMissingWarning(String method) {
+    showWarning(method + "(), or this particular variation of it, " +
+                "is not available with this renderer.");
+  }
 }

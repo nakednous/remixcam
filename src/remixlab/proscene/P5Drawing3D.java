@@ -2,219 +2,24 @@ package remixlab.proscene;
 
 import java.util.List;
 
-import processing.core.*;
-import processing.opengl.*;
-/**
-import remixlab.remixcam.core.*;
-import remixlab.remixcam.geom.*;
-// */
-
-// /**
-import remixlab.remixcam.core.AbstractScene;
+import processing.core.PApplet;
+import processing.opengl.PGraphics3D;
 import remixlab.remixcam.core.Camera;
-//import remixlab.remixcam.geom.Vector3D;
-import remixlab.remixcam.geom.Matrix3D;
-import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.core.ViewWindow;
 import remixlab.remixcam.geom.GeomFrame;
-//import remixlab.remixcam.geom.Quaternion;
-// */
+import remixlab.remixcam.geom.Quaternion;
 import remixlab.remixcam.geom.Vector3D;
+//import remixlab.remixcam.geom.*;
 
-public class Renderer3D extends Renderer {
-	Vector3D at;
-	public Renderer3D(AbstractScene scn, PGraphics3D renderer) {
-		super(scn, renderer);
-		at = new Vector3D();
+public class P5Drawing3D extends P5Drawing2D {
+	public P5Drawing3D(Scene scn) {
+		super(scn);
 	}
 	
 	public PGraphics3D pg3d() {
 	  return (PGraphics3D) pg();	
 	}
 	
-	@Override
-	public void bindMatrices() {
-		setProjectionMatrix();
-		setModelViewMatrix();
-	}
-	
-	/**
-	 * Sets the processing camera projection matrix from {@link #camera()}. Calls
-	 * {@code PApplet.perspective()} or {@code PApplet.orhto()} depending on the
-	 * {@link remixlab.remixcam.core.Camera#type()}.
-	 */
-	protected void setProjectionMatrix() {
-	  // All options work seemlessly
-		/**		
-		// Option 1
-		Matrix3D mat = new Matrix3D();		
-		scene.camera().getProjectionMatrix(mat, true);
-		mat.transpose();		
-		float[] target = new float[16];
-		pg3d().projection.set(mat.get(target));		
-		// */	  
-				
-		/**		
-		// Option 2		
-		pg3d().projection.set(scene.camera().getProjectionMatrix(true).getTransposed(new float[16]));
-		// */
-		
-	  // /**
-		// option 3 (new, Andres suggestion)
-		//TODO: optimize me set per value basis
-		//proj.set((scene.camera().getProjectionMatrix(true).getTransposed(new float[16])));
-		proj = scene.camera().getProjectionMatrix(true);
-		pg3d().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
-	                                      proj.mat[1],  proj.mat[5], proj.mat[9],  proj.mat[13],
-	                                      proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
-	                                      proj.mat[3],  proj.mat[7], proj.mat[11], proj.mat[15] ));
-		// */
-		
-	  /**
-		proj = scene.camera().getProjectionMatrix(true);
-		pg3d().flush();
-		pg3d().projection.set( proj.mat[0], proj.mat[4],                                  proj.mat[8],  proj.mat[12],
-	                         proj.mat[1], isLeftHanded() ? proj.mat[5] : -proj.mat[5], proj.mat[9],  proj.mat[13],
-	                         proj.mat[2], proj.mat[6],                                  proj.mat[10], proj.mat[14],
-	                         proj.mat[3], proj.mat[7],                                  proj.mat[11], proj.mat[15] );
-		pg3d().updateProjmodelview();//only in P5-head
-		// */	  
-		
-		/**
-		// Option 4
-		// compute the processing camera projection matrix from our camera() parameters
-		switch (scene.camera().type()) {
-		case PERSPECTIVE:
-			pg3d().perspective(scene.camera().fieldOfView(), scene.camera().aspectRatio(), scene.camera().zNear(), scene.camera().zFar());
-			break;
-		case ORTHOGRAPHIC:
-			float[] wh = scene.camera().getOrthoWidthHeight();
-			pg3d().ortho(-wh[0], wh[0], -wh[1], wh[1], scene.camera().zNear(), scene.camera().zFar());
-			break;
-		}
-		// hack:
-		//if(this.isRightHanded())
-			//pg3d().projection.m11 = -pg3d().projection.m11;
-		// We cache the processing camera projection matrix into our camera()
-		scene.camera().setProjectionMatrix( pg3d().projection.get(new float[16]), true ); // set it transposed				 
-		// */
-	}
-
-	/**
-	 * Sets the processing camera matrix from {@link #camera()}. Simply calls
-	 * {@code PApplet.camera()}.
-	 */	
-	protected void setModelViewMatrix() {
-	  // All three options work seamlessly
-		/**		
-		// Option 1
-		Matrix3D mat = new Matrix3D();		
-		scene.camera().getViewMatrix(mat, true);
-		mat.transpose();// experimental
-		float[] target = new float[16];
-		pg3d().modelview.set(mat.get(target));
-		//caches projmodelview
-		pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
-		// */
-			  
-		 /**		
-		// Option 2
-		pg3d().modelview.set(scene.camera().getViewMatrix(true).getTransposed(new float[16]));						
-		// Finally, caches projmodelview
-		//pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
-		Matrix3D.mult(proj, scene.camera().view(), scene.camera().projectionView());
-		pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(false).getTransposed(new float[16]));		 
-		// */	  
-		
-		// /**
-	  // Option 3
-		// compute the processing camera modelview matrix from our camera() parameters
-		at = scene.camera().at();
-		pg3d().camera(scene.camera().position().x(), scene.camera().position().y(), scene.camera().position().z(),
-				          //scene.camera().at().x(), scene.camera().at().y(), scene.camera().at().z(),
-				          at.x(), at.y(), at.z(),
-				          scene.camera().upVector().x(), scene.camera().upVector().y(), scene.camera().upVector().z());
-		// We cache the processing camera modelview matrix into our camera()
-		scene.camera().setViewMatrix( pg3d().modelview.get(new float[16]), true );// set it transposed
-	  // We cache the processing camera projmodelview matrix into our camera()
-		scene.camera().setProjectionViewMatrix( pg3d().projmodelview.get(new float[16]), true );// set it transposed
-		// */
-	}	
-	
-	@Override
-	public void beginScreenDrawing() {
-		pg3d().hint(DISABLE_DEPTH_TEST);
-		pg3d().pushProjection();
-		float cameraZ = (pg3d().height/2.0f) / PApplet.tan( scene().camera().fieldOfView() /2.0f);
-    float cameraNear = cameraZ / 2.0f;
-    float cameraFar = cameraZ * 2.0f;
-    pg3d().ortho(0, pg3d().width, 0, pg3d().height, cameraNear, cameraFar);		
-    pg3d().pushMatrix();
-	  // Camera needs to be reset!
-    pg3d().camera();   
-	}
-	
-	@Override
-	public void endScreenDrawing() {
-		pg3d().popProjection();  
-		pg3d().popMatrix();		  
-		pg3d().hint(ENABLE_DEPTH_TEST);
-	}
-	
-	@Override
-	public void pushProjection() {
-		pg3d().pushProjection();		
-	}
-
-	@Override
-	public void popProjection() {
-		pg3d().popProjection();
-	}
-
-	@Override
-	public void resetProjection() {
-		pg3d().projection.reset();		
-	}
-
-	@Override
-	public void loadProjection(Matrix3D source) {
-		PMatrix3D pM = new PMatrix3D();
-    pM.set(source.getTransposed(new float[16]));
-    pg3d().setProjection(pM);
-	}
-
-	@Override
-	public void applyProjection(Matrix3D source) {
-		 PMatrix3D pM = new PMatrix3D();
-     pM.set(source.getTransposed(new float[16]));
-     pg3d().applyProjection(pM);
-	}
-
-	@Override
-	public void applyProjectionRowMajorOrder(float n00, float n01, float n02,
-			float n03, float n10, float n11, float n12, float n13, float n20,
-			float n21, float n22, float n23, float n30, float n31, float n32,
-			float n33) {
-		pg3d().applyProjection(new PMatrix3D(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33));		
-	}
-
-	@Override
-	public Matrix3D getProjection() {
-		PMatrix3D pM = pg3d().projection.get();
-    return new Matrix3D(pM.get(new float[16]), true);// set it transposed
-	}
-
-	@Override
-	public Matrix3D getProjection(Matrix3D target) {
-		PMatrix3D pM = pg3d().projection.get();
-    target.setTransposed(pM.get(new float[16]));
-    return target;
-	}
-	
-	@Override
-	public void frustum(float left, float right, float bottom, float top,	float znear, float zfar) {
-		pg3d().frustum(left, right, bottom, top, znear, zfar);
-	}
-
 	/**
 	 * Overriding of {@link remixlab.remixcam.core.Rendarable#cylinder(float, float)}.
 	 * <p>
@@ -224,7 +29,7 @@ public class Renderer3D extends Renderer {
 	public void cylinder(float w, float h) {
 		float px, py;
 		
-		pg3d().beginShape(QUAD_STRIP);
+		pg3d().beginShape(PApplet.QUAD_STRIP);
 		for (float i = 0; i < 13; i++) {
 			px = (float) Math.cos(PApplet.radians(i * 30)) * w;
 			py = (float) Math.sin(PApplet.radians(i * 30)) * w;
@@ -233,7 +38,7 @@ public class Renderer3D extends Renderer {
 		}
 		pg3d().endShape();
 		
-		pg3d().beginShape(TRIANGLE_FAN);
+		pg3d().beginShape(PApplet.TRIANGLE_FAN);
 		pg3d().vertex(0, 0, 0);
 		for (float i = 12; i > -1; i--) {
 			px = (float) Math.cos(PApplet.radians(i * 30)) * w;
@@ -242,7 +47,7 @@ public class Renderer3D extends Renderer {
 		}
 		pg3d().endShape();
 		
-		pg3d().beginShape(TRIANGLE_FAN);
+		pg3d().beginShape(PApplet.TRIANGLE_FAN);
 		pg3d().vertex(0, 0, h);
 		for (float i = 0; i < 13; i++) {
 			px = (float) Math.cos(PApplet.radians(i * 30)) * w;
@@ -297,7 +102,7 @@ public class Renderer3D extends Renderer {
 		float x,y,d;		
 		
 		pg3d().noStroke();
-		pg3d().beginShape(QUAD_STRIP);
+		pg3d().beginShape(PApplet.QUAD_STRIP);
 		
 		for (float t = 0; t <= detail; t++) {
 			x = w * PApplet.cos(t * TWO_PI/detail);
@@ -337,7 +142,7 @@ public class Renderer3D extends Renderer {
 
 		pg3d().pushMatrix();
 		pg3d().translate(x, y);
-		pg3d().beginShape(TRIANGLE_FAN);
+		pg3d().beginShape(PApplet.TRIANGLE_FAN);
 		pg3d().vertex(0, 0, h);
 		for (int i = 0; i <= detail; i++) {
 			pg3d().vertex(unitConeX[i], unitConeY[i], 0.0f);
@@ -366,7 +171,7 @@ public class Renderer3D extends Renderer {
 
 		pg3d().pushMatrix();
 		pg3d().translate(x, y);
-		pg3d().beginShape(QUAD_STRIP);
+		pg3d().beginShape(PApplet.QUAD_STRIP);
 		for (int i = 0; i <= detail; i++) {
 			pg3d().vertex(firstCircleX[i], firstCircleY[i], 0);
 			pg3d().vertex(secondCircleX[i], secondCircleY[i], h);
@@ -385,7 +190,7 @@ public class Renderer3D extends Renderer {
 
 		pg3d().pushStyle();
 		
-		pg3d().beginShape(LINES);		
+		pg3d().beginShape(PApplet.LINES);		
 		pg3d().strokeWeight(2);
 		// The X
 		pg3d().stroke(200, 0, 0);
@@ -457,17 +262,9 @@ public class Renderer3D extends Renderer {
 
 		pg3d().popStyle();
 	}
-
-	/**
+	
 	@Override
-	public void drawGrid(float size, int nbSubdivisions) {
-		// TODO Auto-generated method stub
-		
-	}
-	*/
-
-	@Override
-	public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
+	public void drawCamera(Camera cam, boolean drawFarPlane, float scale) {
 		pg3d().pushMatrix();
 		
 		//applyMatrix(camera.frame().worldMatrix());
@@ -481,31 +278,36 @@ public class Renderer3D extends Renderer {
 		
 		//fails due to scaling!
 		//scene().applyTransformation(camera.frame());
-		
-		translate( camera.frame().translation().vec[0], camera.frame().translation().vec[1], camera.frame().translation().vec[2] );
-		rotate( camera.frame().rotation().angle(), ((Quaternion)camera.frame().rotation()).axis().vec[0], ((Quaternion)camera.frame().rotation()).axis().vec[1], ((Quaternion)camera.frame().rotation()).axis().vec[2]);
+			
+		pg3d().translate( cam.frame().translation().vec[0], cam.frame().translation().vec[1], cam.frame().translation().vec[2] );
+		pg3d().rotate( cam.frame().rotation().angle(), ((Quaternion)cam.frame().rotation()).axis().vec[0], ((Quaternion)cam.frame().rotation()).axis().vec[1], ((Quaternion)cam.frame().rotation()).axis().vec[2]);
 
 		// 0 is the upper left coordinates of the near corner, 1 for the far one
-		PVector[] points = new PVector[2];
-		points[0] = new PVector();
-		points[1] = new PVector();
+		Vector3D[] points = new Vector3D[2];
+		points[0] = new Vector3D();
+		points[1] = new Vector3D();
 
-		points[0].z = scale * camera.zNear();
-		points[1].z = scale * camera.zFar();
+		points[0].z(scale * cam.zNear());
+		points[1].z(scale * cam.zFar());
 
-		switch (camera.type()) {
+		switch (cam.type()) {
 		case PERSPECTIVE: {
-			points[0].y = points[0].z * PApplet.tan(camera.fieldOfView() / 2.0f);
-			points[0].x = points[0].y * camera.aspectRatio();
-			float ratio = points[1].z / points[0].z;
-			points[1].y = ratio * points[0].y;
-			points[1].x = ratio * points[0].x;
+			points[0].y(points[0].z() * PApplet.tan(cam.fieldOfView() / 2.0f));
+			points[0].x(points[0].y() * cam.aspectRatio());
+			float ratio = points[1].z() / points[0].z();
+			points[1].y(ratio * points[0].y());
+			points[1].x(ratio * points[0].x());
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			float[] wh = camera.getOrthoWidthHeight();
-			points[0].x = points[1].x = scale * wh[0];
-			points[0].y = points[1].y = scale * wh[1];
+			float[] wh = cam.getOrthoWidthHeight();
+			//points[0].x = points[1].x = scale * wh[0];
+			//points[0].y = points[1].y = scale * wh[1];
+			
+			points[0].x(scale * wh[0]);
+			points[1].x(scale * wh[0]);
+			points[0].y(scale * wh[1]); 
+			points[1].y(scale * wh[1]);
 			break;
 		}
 		}
@@ -516,30 +318,30 @@ public class Renderer3D extends Renderer {
 		pg3d().pushStyle();		
 		pg3d().strokeWeight(2);
 		//pg3d().stroke(255,255,0);
-		switch (camera.type()) {
+		switch (cam.type()) {
 			case PERSPECTIVE:
 				pg3d().beginShape(PApplet.LINES);
 				pg3d().vertex(0.0f, 0.0f, 0.0f);
-				pg3d().vertex(points[farIndex].x, points[farIndex].y, -points[farIndex].z);
+				pg3d().vertex(points[farIndex].x(), points[farIndex].y(), -points[farIndex].z());
 				pg3d().vertex(0.0f, 0.0f, 0.0f);
-				pg3d().vertex(-points[farIndex].x, points[farIndex].y, -points[farIndex].z);
+				pg3d().vertex(-points[farIndex].x(), points[farIndex].y(), -points[farIndex].z());
 				pg3d().vertex(0.0f, 0.0f, 0.0f);
-				pg3d().vertex(-points[farIndex].x, -points[farIndex].y,	-points[farIndex].z);
+				pg3d().vertex(-points[farIndex].x(), -points[farIndex].y(),	-points[farIndex].z());
 				pg3d().vertex(0.0f, 0.0f, 0.0f);
-				pg3d().vertex(points[farIndex].x, -points[farIndex].y, -points[farIndex].z);
+				pg3d().vertex(points[farIndex].x(), -points[farIndex].y(), -points[farIndex].z());
 				pg3d().endShape();
 				break;
 			case ORTHOGRAPHIC:
 				if (drawFarPlane) {
 					pg3d().beginShape(PApplet.LINES);
-					pg3d().vertex(points[0].x, points[0].y, -points[0].z);
-					pg3d().vertex(points[1].x, points[1].y, -points[1].z);
-					pg3d().vertex(-points[0].x, points[0].y, -points[0].z);
-					pg3d().vertex(-points[1].x, points[1].y, -points[1].z);
-					pg3d().vertex(-points[0].x, -points[0].y, -points[0].z);
-					pg3d().vertex(-points[1].x, -points[1].y, -points[1].z);
-					pg3d().vertex(points[0].x, -points[0].y, -points[0].z);
-					pg3d().vertex(points[1].x, -points[1].y, -points[1].z);
+					pg3d().vertex(points[0].x(), points[0].y(), -points[0].z());
+					pg3d().vertex(points[1].x(), points[1].y(), -points[1].z());
+					pg3d().vertex(-points[0].x(), points[0].y(), -points[0].z());
+					pg3d().vertex(-points[1].x(), points[1].y(), -points[1].z());
+					pg3d().vertex(-points[0].x(), -points[0].y(), -points[0].z());
+					pg3d().vertex(-points[1].x(), -points[1].y(), -points[1].z());
+					pg3d().vertex(points[0].x(), -points[0].y(), -points[0].z());
+					pg3d().vertex(points[1].x(), -points[1].y(), -points[1].z());
 					pg3d().endShape();
 				}
 		}
@@ -550,48 +352,48 @@ public class Renderer3D extends Renderer {
 		pg3d().beginShape(PApplet.QUADS);
 		for (int i = farIndex; i >= 0; --i) {
 			pg3d().normal(0.0f, 0.0f, (i == 0) ? 1.0f : -1.0f);			
-			pg3d().vertex(points[i].x, points[i].y, -points[i].z);
-			pg3d().vertex(-points[i].x, points[i].y, -points[i].z);
-			pg3d().vertex(-points[i].x, -points[i].y, -points[i].z);
-			pg3d().vertex(points[i].x, -points[i].y, -points[i].z);
+			pg3d().vertex(points[i].x(), points[i].y(), -points[i].z());
+			pg3d().vertex(-points[i].x(), points[i].y(), -points[i].z());
+			pg3d().vertex(-points[i].x(), -points[i].y(), -points[i].z());
+			pg3d().vertex(points[i].x(), -points[i].y(), -points[i].z());
 		}
 		pg3d().endShape();
 
 		// Up arrow
-		float arrowHeight = 1.5f * points[0].y;
-		float baseHeight = 1.2f * points[0].y;
-		float arrowHalfWidth = 0.5f * points[0].x;
-		float baseHalfWidth = 0.3f * points[0].x;
+		float arrowHeight = 1.5f * points[0].y();
+		float baseHeight = 1.2f * points[0].y();
+		float arrowHalfWidth = 0.5f * points[0].x();
+		float baseHalfWidth = 0.3f * points[0].x();
 
 		// pg3d().noStroke();
 		// Base
 		pg3d().beginShape(PApplet.QUADS);		
-		if( camera.scene.isLeftHanded() ) {
-			pg3d().vertex(-baseHalfWidth, -points[0].y, -points[0].z);
-			pg3d().vertex(baseHalfWidth, -points[0].y, -points[0].z);
-			pg3d().vertex(baseHalfWidth, -baseHeight, -points[0].z);
-			pg3d().vertex(-baseHalfWidth, -baseHeight, -points[0].z);
+		if( cam.scene.isLeftHanded() ) {
+			pg3d().vertex(-baseHalfWidth, -points[0].y(), -points[0].z());
+			pg3d().vertex(baseHalfWidth, -points[0].y(), -points[0].z());
+			pg3d().vertex(baseHalfWidth, -baseHeight, -points[0].z());
+			pg3d().vertex(-baseHalfWidth, -baseHeight, -points[0].z());
 		}
 		else {
-			pg3d().vertex(-baseHalfWidth, points[0].y, -points[0].z);
-			pg3d().vertex(baseHalfWidth, points[0].y, -points[0].z);
-			pg3d().vertex(baseHalfWidth, baseHeight, -points[0].z);
-			pg3d().vertex(-baseHalfWidth, baseHeight, -points[0].z);
+			pg3d().vertex(-baseHalfWidth, points[0].y(), -points[0].z());
+			pg3d().vertex(baseHalfWidth, points[0].y(), -points[0].z());
+			pg3d().vertex(baseHalfWidth, baseHeight, -points[0].z());
+			pg3d().vertex(-baseHalfWidth, baseHeight, -points[0].z());
 		}
 		pg3d().endShape();
 
 		// Arrow
 		pg3d().beginShape(PApplet.TRIANGLES);
 		
-		if( camera.scene.isLeftHanded() ) {
-			pg3d().vertex(0.0f, -arrowHeight, -points[0].z);
-			pg3d().vertex(-arrowHalfWidth, -baseHeight, -points[0].z);
-			pg3d().vertex(arrowHalfWidth, -baseHeight, -points[0].z);
+		if( cam.scene.isLeftHanded() ) {
+			pg3d().vertex(0.0f, -arrowHeight, -points[0].z());
+			pg3d().vertex(-arrowHalfWidth, -baseHeight, -points[0].z());
+			pg3d().vertex(arrowHalfWidth, -baseHeight, -points[0].z());
 		}
 		else {
-			pg3d().vertex(0.0f, arrowHeight, -points[0].z);
-			pg3d().vertex(-arrowHalfWidth, baseHeight, -points[0].z);
-			pg3d().vertex(arrowHalfWidth, baseHeight, -points[0].z);
+			pg3d().vertex(0.0f, arrowHeight, -points[0].z());
+			pg3d().vertex(-arrowHalfWidth, baseHeight, -points[0].z());
+			pg3d().vertex(arrowHalfWidth, baseHeight, -points[0].z());
 		}
 		pg3d().endShape();
 		
@@ -706,5 +508,95 @@ public class Renderer3D extends Renderer {
 			}
 			pg3d().popStyle();
 		}
-	}	
+	}
+	
+	@Override
+	public void drawViewWindow(ViewWindow camera, float scale) {
+		pg().pushMatrix();
+		
+		//VFrame tmpFrame = new VFrame(scene.is3D());
+		//tmpFrame.fromMatrix(camera.frame().worldMatrix(), camera.frame().magnitude());		
+		//scene().applyTransformation(tmpFrame);
+		
+		//Same as above, but easier ;)
+	  scene().applyWorldTransformation(camera.frame());
+
+		//upper left coordinates of the near corner
+		Vector3D upperLeft = new Vector3D();
+		
+		pg().pushStyle();
+		
+		//float[] wh = camera.getOrthoWidthHeight();
+		//upperLeft.x = scale * wh[0];
+		//upperLeft.y = scale * wh[1];
+		
+		upperLeft.x(scale * scene.width() / 2);
+		upperLeft.y(scale * scene.height() / 2);
+						
+		pg().noStroke();		
+		pg().beginShape(PApplet.QUADS);				
+		pg().vertex(upperLeft.x(), upperLeft.y());
+		pg().vertex(-upperLeft.x(), upperLeft.y());
+		pg().vertex(-upperLeft.x(), -upperLeft.y());
+		pg().vertex(upperLeft.x(), -upperLeft.y());		
+		pg().endShape();
+
+		// Up arrow
+		float arrowHeight = 1.5f * upperLeft.y();
+		float baseHeight = 1.2f * upperLeft.y();
+		float arrowHalfWidth = 0.5f * upperLeft.x();
+		float baseHalfWidth = 0.3f * upperLeft.x();
+		
+	  // Base
+		pg().beginShape(PApplet.QUADS);		
+		if( camera.scene.isLeftHanded() ) {
+			pg().vertex(-baseHalfWidth, -upperLeft.y());
+			pg().vertex(baseHalfWidth, -upperLeft.y());
+			pg().vertex(baseHalfWidth, -baseHeight);
+			pg().vertex(-baseHalfWidth, -baseHeight);	
+		}
+		else {
+			pg().vertex(-baseHalfWidth, upperLeft.y());
+			pg().vertex(baseHalfWidth, upperLeft.y());
+			pg().vertex(baseHalfWidth, baseHeight);
+			pg().vertex(-baseHalfWidth, baseHeight);
+		}
+		pg().endShape();
+		
+	  // Arrow
+		pg().beginShape(PApplet.TRIANGLES);
+		if( camera.scene.isLeftHanded() ) {
+			pg().vertex(0.0f, -arrowHeight);
+			pg().vertex(-arrowHalfWidth, -baseHeight);
+			pg().vertex(arrowHalfWidth, -baseHeight);
+		}
+		else {
+			pg().vertex(0.0f, arrowHeight);
+			pg().vertex(-arrowHalfWidth, baseHeight);
+			pg().vertex(arrowHalfWidth, baseHeight);
+		}
+		pg().endShape();		
+		
+		pg().popStyle();
+		pg().popMatrix();
+	}
+	
+	/**
+	@Override
+	public void drawGrid(float size, int nbSubdivisions) {
+		pg().pushStyle();
+		pg().stroke(170, 170, 170);
+		pg().strokeWeight(1);
+		pg().beginShape(PApplet.LINES);
+		for (int i = 0; i <= nbSubdivisions; ++i) {
+			final float pos = size * (2.0f * i / nbSubdivisions - 1.0f);
+			pg().vertex(pos, -size);
+			pg().vertex(pos, +size);
+			pg().vertex(-size, pos);
+			pg().vertex(size, pos);
+		}
+		pg().endShape();
+		pg().popStyle();
+	}
+	*/
 }
