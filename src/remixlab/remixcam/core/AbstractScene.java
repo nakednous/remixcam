@@ -1165,42 +1165,60 @@ public abstract class AbstractScene implements Constants {
 	 * Push a copy of the modelview matrix onto the stack.
    */
 	public void pushMatrix() {
-		renderer.pushMatrix();
+		if( renderer.hasMatrixStack() )
+			renderer.pushMatrix();
+		else
+			AbstractScene.showMissingImplementationWarning("pushMatrix");
 	}
 	
 	/**
 	 * Replace the current modelview matrix with the top of the stack.
 	 */
 	public void popMatrix() {
-		renderer.popMatrix();
+		if( renderer.hasMatrixStack() )
+			renderer.popMatrix();
+		else
+			AbstractScene.showMissingImplementationWarning("popMatrix");
 	}
 	
 	/**
 	 * Push a copy of the projection matrix onto the stack.
    */
 	public void pushProjection() {
-		renderer.pushProjection();
+		if( renderer.hasMatrixStack() )
+			renderer.pushProjection();
+		else
+			AbstractScene.showMissingImplementationWarning("pushProjection");
 	}
 	
 	/**
 	 * Replace the current projection matrix with the top of the stack.
 	 */
 	public void popProjection() {
-		renderer.popProjection();
+		if( renderer.hasMatrixStack() )
+			renderer.popProjection();
+		else
+			AbstractScene.showMissingImplementationWarning("popProjection");
 	}
 	
   /**
    * Translate in X and Y.
    */
   public void translate(float tx, float ty) {    
-    renderer.translate(tx, ty);
+  	if( renderer.hasMatrixStack() )
+  		renderer.translate(tx, ty);
+  	else
+			AbstractScene.showMissingImplementationWarning("translate");
   }
 
   /**
    * Translate in X, Y, and Z.
    */
-  public void translate(float tx, float ty, float tz) {    
-    renderer.translate(tx, ty, tz);
+  public void translate(float tx, float ty, float tz) {
+  	if( renderer.hasMatrixStack() )
+  		renderer.translate(tx, ty, tz);
+  	else
+			AbstractScene.showMissingImplementationWarning("translate");
   }
 
   /**
@@ -1212,22 +1230,31 @@ public abstract class AbstractScene implements Constants {
    *
    * <A HREF="http://www.xkcd.com/c184.html">Additional background</A>.
    */
-  public void rotate(float angle) {    
-    renderer.rotate(angle);
+  public void rotate(float angle) {
+  	if( renderer.hasMatrixStack() )
+  		renderer.rotate(angle);
+  	else
+			AbstractScene.showMissingImplementationWarning("rotate");
   }
 
   /**
    * Rotate around the X axis.
    */
-  public void rotateX(float angle) {    
-    renderer.rotateX(angle);
+  public void rotateX(float angle) { 
+  	if( renderer.hasMatrixStack() )
+  		renderer.rotateX(angle);
+  	else
+			AbstractScene.showMissingImplementationWarning("rotateX");
   }
 
   /**
    * Rotate around the Y axis.
    */
   public void rotateY(float angle) {
-  	renderer.rotateY(angle);
+  	if( renderer.hasMatrixStack() )
+  		renderer.rotateY(angle);
+  	else
+  		AbstractScene.showMissingImplementationWarning("rotateY");
   }
 
   /**
@@ -1239,21 +1266,30 @@ public abstract class AbstractScene implements Constants {
    * doing things in 2D. so we just decided to have them both be the same.
    */
   public void rotateZ(float angle) {
-  	renderer.rotateZ(angle);
+  	if( renderer.hasMatrixStack() )
+  		renderer.rotateZ(angle);
+  	else
+  		AbstractScene.showMissingImplementationWarning("rotateZ");
   }
 
   /**
    * Rotate about a vector in space. Same as the glRotatef() function.
    */
   public void rotate(float angle, float vx, float vy, float vz) {
-  	renderer.rotate(angle, vx, vy, vz);
+  	if( renderer.hasMatrixStack() )
+  		renderer.rotate(angle, vx, vy, vz);
+  	else
+  		AbstractScene.showMissingImplementationWarning("rotate");
   }
 
   /**
    * Scale in all dimensions.
    */
   public void scale(float s) {
-  	renderer.scale(s);
+  	if( renderer.hasMatrixStack() )
+  		renderer.scale(s);
+  	else
+  		AbstractScene.showMissingImplementationWarning("scale");
   }
 
   /**
@@ -1263,52 +1299,54 @@ public abstract class AbstractScene implements Constants {
    * scaled by 1, since there's no way to know what else to scale it by.
    */
   public void scale(float sx, float sy) {
-  	renderer.scale(sx, sy);
+  	if( renderer.hasMatrixStack() )
+  		renderer.scale(sx, sy);
+  	else
+  		AbstractScene.showMissingImplementationWarning("scale");
   }
 
   /**
    * Scale in X, Y, and Z.
    */
   public void scale(float x, float y, float z) {
-  	renderer.scale(x, y, z);
+  	if( renderer.hasMatrixStack() )
+  		renderer.scale(x, y, z);
+  	else
+  		AbstractScene.showMissingImplementationWarning("scale");
   }  
   
   /**
    * Set the current modelview matrix to identity.
    */
   public void resetMatrix() {
-  	renderer.resetMatrix();
+  	if( renderer.hasMatrixStack() )
+  		renderer.resetMatrix();
+  	else
+  		AbstractScene.showMissingImplementationWarning("resetMatrix");
   }
   
   /**
    * Set the current projection matrix to identity.
    */
   public void resetProjection() {
-  	renderer.resetProjection();
+  	if( renderer.hasMatrixStack() )
+  		renderer.resetProjection();
+  	else
+  		AbstractScene.showMissingImplementationWarning("resetProjection");
   }  
   
-  public void loadMatrix(Matrix3D source) {
-  	renderer.loadMatrix(source);
+  public void applyMatrix(Matrix3D source) {
+  	if( renderer.hasMatrixStack() )
+  		renderer.applyMatrix(source);
+  	else
+  		AbstractScene.showMissingImplementationWarning("applyMatrix");
   }
   
-  public void loadProjection(Matrix3D source) {
-  	renderer.loadProjection(source);
-  }
-  
-  public void multiplyMatrix(Matrix3D source) {
-  	renderer.multiplyMatrix(source);
-  }
-  
-  public void multiplyProjection(Matrix3D source) {
-  	renderer.multiplyProjection(source);
-  }
-  
-  public void applyMatrix(Matrix3D source) {    
-    renderer.applyMatrix(source);
-  }
-  
-  public void applyProjection(Matrix3D source) {    
-    renderer.applyProjection(source);
+  public void applyProjection(Matrix3D source) {
+  	if( renderer.hasMatrixStack() )
+  		renderer.applyProjection(source);
+  	else
+  		AbstractScene.showMissingImplementationWarning("applyProjection");
   }
 
   /**
@@ -1336,11 +1374,21 @@ public abstract class AbstractScene implements Constants {
   }
 
   public Matrix3D getMatrix() {
-    return renderer.getMatrix();
+  	if( renderer.hasMatrixStack() )
+  		return renderer.getMatrix();
+  	else {
+  		AbstractScene.showMissingImplementationWarning("getMatrix");
+  		return null;
+  	}
   }
   
   public Matrix3D getProjection() {
-    return renderer.getProjection();
+  	if( renderer.hasMatrixStack() )
+  		return renderer.getProjection();
+  	else {
+  		AbstractScene.showMissingImplementationWarning("getProjection");
+  		return null;
+  	}
   }
 
   /**
@@ -1348,7 +1396,12 @@ public abstract class AbstractScene implements Constants {
    * Pass in null to create a new matrix.
    */
   public Matrix3D getMatrix(Matrix3D target) {
-    return renderer.getMatrix(target);
+  	if( renderer.hasMatrixStack() )
+  		return renderer.getMatrix(target);
+  	else {
+  		AbstractScene.showMissingImplementationWarning("getMatrix");
+  		return null;
+  	}
   }
   
   /**
@@ -1356,7 +1409,12 @@ public abstract class AbstractScene implements Constants {
    * Pass in null to create a new matrix.
    */
   public Matrix3D getProjection(Matrix3D target) {
-    return renderer.getProjection(target);
+  	if( renderer.hasMatrixStack() )
+  		return renderer.getProjection(target);
+  	else {
+  		AbstractScene.showMissingImplementationWarning("getProjection");
+  		return null;
+  	}
   }
 
   /**
@@ -1377,14 +1435,20 @@ public abstract class AbstractScene implements Constants {
    * Print the current modelview matrix.
    */
   public void printMatrix() {
-  	renderer.printMatrix();
+  	if( renderer.hasMatrixStack() )
+  		renderer.printMatrix();
+  	else
+  		AbstractScene.showMissingImplementationWarning("printMatrix");
   }
   
   /**
    * Print the current projection matrix.
    */
   public void printProjection() {
-  	renderer.printProjection();
+  	if( renderer.hasMatrixStack() )
+  		renderer.printProjection();
+  	else
+  		AbstractScene.showMissingImplementationWarning("printMatrix");
   }
   
   /**
@@ -2614,5 +2678,13 @@ public abstract class AbstractScene implements Constants {
   static public void showMissingWarning(String method) {
     showWarning(method + "(), or this particular variation of it, " +
                 "is not available with this renderer.");
+  }
+  
+  /**
+   * Display a warning that the specified method lacks implementation.
+   */
+  static public void showMissingImplementationWarning(String method) {
+    showWarning(method + "(), should be implemented by your AbstractScene, " +
+                "derived class.");
   }
 }

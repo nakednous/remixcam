@@ -4,12 +4,12 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
 
 public abstract class TransformationRenderer extends Renderer {
-	public TransformationRenderer(AbstractScene scn) {
-		super(scn);
+	public TransformationRenderer(AbstractScene scn, Drawerable dw) {
+		super(scn, dw, false);
 	}
 	
-	public TransformationRenderer(AbstractScene scn, Drawerable dw) {
-		super(scn, dw);
+	public TransformationRenderer(AbstractScene scn, Drawerable dw, boolean s) {
+		super(scn, dw, s);
 	}
 	
 	@Override	
@@ -77,6 +77,7 @@ public abstract class TransformationRenderer extends Renderer {
 	
 	public abstract void unsetProjection();	
 
+	/**
 	@Override
 	public void pushMatrix() {
 		AbstractScene.showMethodWarning("pushMatrix");
@@ -86,6 +87,7 @@ public abstract class TransformationRenderer extends Renderer {
 	public void popMatrix() {
 		AbstractScene.showMethodWarning("popMatrix");
 	}
+	*/
 
 	@Override
 	public void pushProjection() {
@@ -105,26 +107,6 @@ public abstract class TransformationRenderer extends Renderer {
 	@Override
 	public void resetProjection() {
 		AbstractScene.showMethodWarning("resetProjection");
-	}
-
-	@Override
-	public void loadMatrix(Matrix3D source) {
-		AbstractScene.showMethodWarning("loadMatrix");
-	}
-
-	@Override
-	public void loadProjection(Matrix3D source) {
-		AbstractScene.showMethodWarning("loadProjection");
-	}
-
-	@Override
-	public void multiplyMatrix(Matrix3D source) {
-		AbstractScene.showMethodWarning("multiplyMatrix");
-	}
-
-	@Override
-	public void multiplyProjection(Matrix3D source) {
-		AbstractScene.showMethodWarning("multiplyProjection");
 	}
 
 	@Override

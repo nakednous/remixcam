@@ -89,7 +89,7 @@ public class P5Renderer3D extends P5Renderer {
 	}
 
 	@Override
-	public void loadProjection(Matrix3D source) {
+	public void setProjection(Matrix3D source) {
 		PMatrix3D pM = new PMatrix3D();
     pM.set(source.getTransposed(new float[16]));
     pg3d().setProjection(pM);
@@ -129,7 +129,7 @@ public class P5Renderer3D extends P5Renderer {
 	}
 	
 	@Override
-	public void loadMatrix(Matrix3D source) {
+	public void setMatrix(Matrix3D source) {
 		PMatrix3D pM = new PMatrix3D();
 		pM.set(source.getTransposed(new float[16]));
 		pg3d().setMatrix(pM);//needs testing in screen drawing

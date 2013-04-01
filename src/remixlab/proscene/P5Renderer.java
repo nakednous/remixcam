@@ -41,7 +41,7 @@ public abstract class P5Renderer extends MatrixRenderer implements PConstants {
 	Matrix3D proj;
 	
 	public P5Renderer(Scene scn, PGraphics renderer, Drawerable d) {
-		super(scn, d);
+		super(scn, d, false);
 		pg = renderer;
 		proj = new Matrix3D();
 	}
@@ -57,72 +57,7 @@ public abstract class P5Renderer extends MatrixRenderer implements PConstants {
 	public PGraphics pg() {
 		return pg;
 	}
-	
-	@Override
-	public void pushMatrix() {
-		pg().pushMatrix();
-	}
 
-	@Override
-	public void popMatrix() {
-		pg().popMatrix();
-	}	
-
-	@Override
-	public void translate(float tx, float ty) {
-		pg().translate(tx, ty);
-	}
-
-	@Override
-	public void translate(float tx, float ty, float tz) {
-		pg().translate(tx, ty, tz);
-	}
-
-	@Override
-	public void rotate(float angle) {
-		pg().rotate(angle);
-	}
-
-	@Override
-	public void rotateX(float angle) {
-		pg().rotateX(angle);
-	}
-
-	@Override
-	public void rotateY(float angle) {
-		pg().rotateY(angle);
-	}
-
-	@Override
-	public void rotateZ(float angle) {
-		pg().rotateZ(angle);
-	}
-
-	@Override
-	public void rotate(float angle, float vx, float vy, float vz) {
-		pg().rotate(angle, vx, vy, vz);
-	}
-
-	@Override
-	public void scale(float s) {
-		pg().scale(s);
-	}
-
-	@Override
-	public void scale(float sx, float sy) {
-		pg().scale(sx, sy);
-	}
-
-	@Override
-	public void scale(float x, float y, float z) {
-		pg().scale(x, y, z);
-	}	
-
-	@Override
-	public void resetMatrix() {
-		pg().resetMatrix();
-	}	
-	
 	@Override
 	public void printMatrix() {
 		pg().printMatrix();
@@ -146,16 +81,6 @@ public abstract class P5Renderer extends MatrixRenderer implements PConstants {
 	@Override
 	public void perspective(float fov, float aspect, float zNear, float zFar) {
 		pg().perspective(fov, aspect, zNear, zFar);	
-	}
-	
-	@Override
-	public void multiplyMatrix(Matrix3D source) {
-		this.applyMatrix(source);
-	}
-	
-	@Override
-	public void multiplyProjection(Matrix3D source) {
-		this.applyProjection(source);
 	}
 	
 	@Override

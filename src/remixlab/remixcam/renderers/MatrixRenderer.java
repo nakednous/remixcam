@@ -4,25 +4,13 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
 
 public abstract class MatrixRenderer extends Renderer {
-	public MatrixRenderer(AbstractScene scn) {
-		super(scn);
-	}
-	
 	public MatrixRenderer(AbstractScene scn, Drawerable dw) {
-		super(scn, dw);
+		super(scn, dw, false);
 	}
 	
-	@Override
-	public void bindMatrices() {
-		setProjectionMatrix();
-		setModelViewMatrix();
-		scene.pinhole().cacheProjViewInvMat();
+	public MatrixRenderer(AbstractScene scn, Drawerable dw, boolean s) {
+		super(scn, dw, s);
 	}
-
-	// TODO: should these two belong to Renderable? Abstract maybe?
-	protected abstract void setModelViewMatrix();
-	
-	protected abstract void setProjectionMatrix();
 		
 	@Override
 	public void beginScreenDrawing() {
@@ -30,9 +18,9 @@ public abstract class MatrixRenderer extends Renderer {
     float cameraZ = (height()/2.0f) / (float) Math.tan(QUARTER_PI/2.0f);
     float cameraNear = cameraZ / 2.0f;
     float cameraFar = cameraZ * 2.0f;
-    loadProjection(get2DOrtho(-width()/2, width()/2, -height()/2, height()/2, cameraNear, cameraFar));
+    setProjection(get2DOrtho(-width()/2, width()/2, -height()/2, height()/2, cameraNear, cameraFar));
     pushMatrix();
-    loadMatrix(get2DModelView());
+    setMatrix(get2DModelView());
     
     /**
 		pushProjection();

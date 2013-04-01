@@ -34,16 +34,6 @@ public class P5RendererJava2D extends TransformationRenderer {
 	}
 	
 	@Override
-	public void pushMatrix() {
-		pg().pushMatrix();
-	}
-
-	@Override
-	public void popMatrix() {
-		pg().popMatrix();
-	}
-	
-	@Override
 	public void applyMatrix(Matrix3D source) {
 		PMatrix3D pM = new PMatrix3D();
 		pM.set(source.getTransposed(new float[16]));
@@ -51,63 +41,8 @@ public class P5RendererJava2D extends TransformationRenderer {
 	}
 	
 	@Override
-	public void resetMatrix() {
-		pg().resetMatrix();
-	}	
-	
-	@Override
 	public void printMatrix() {
 		pg().printMatrix();
-	}
-
-	@Override
-	public void translate(float tx, float ty) {
-		pg().translate(tx, ty);		
-	}
-
-	@Override
-	public void translate(float tx, float ty, float tz) {
-		pg().translate(tx, ty, tz);	
-	}
-
-	@Override
-	public void rotate(float angle) {
-		pg().rotate(angle);		
-	}
-
-	@Override
-	public void rotateX(float angle) {
-		pg().rotateX(angle);		
-	}
-
-	@Override
-	public void rotateY(float angle) {
-		pg().rotateY(angle);
-	}
-
-	@Override
-	public void rotateZ(float angle) {
-		pg().rotateZ(angle);
-	}
-
-	@Override
-	public void rotate(float angle, float vx, float vy, float vz) {
-		pg().rotate(angle, vx, vy, vz);
-	}
-
-	@Override
-	public void scale(float s) {
-		pg().scale(s);	
-	}
-
-	@Override
-	public void scale(float sx, float sy) {
-		pg().scale(sx, sy);	
-	}
-
-	@Override
-	public void scale(float x, float y, float z) {
-		pg().scale(x, y, z);
 	}
 
 	@Override

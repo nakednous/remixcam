@@ -13,6 +13,8 @@ public interface Renderable extends Drawerable {
 	
 	public void bindMatrices();
 	
+	public boolean hasMatrixStack();
+	
 	/**
 	 * Computes the world coordinates of an screen object so that drawing can be
 	 * done directly with 2D screen coordinates.
@@ -128,10 +130,10 @@ public interface Renderable extends Drawerable {
    */
   public void resetProjection();
   
-  public void loadMatrix(Matrix3D source);
-  public void loadProjection(Matrix3D source);
-  public void multiplyMatrix(Matrix3D source);
-  public void multiplyProjection(Matrix3D source);
+  //public void loadMatrix(Matrix3D source);
+  //public void loadProjection(Matrix3D source);
+  //public void multiplyMatrix(Matrix3D source);
+  //public void multiplyProjection(Matrix3D source);
   public void applyMatrix(Matrix3D source);
   public void applyProjection(Matrix3D source);
   

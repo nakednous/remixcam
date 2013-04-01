@@ -48,7 +48,7 @@ public class P5Renderer2D extends P5Renderer implements PConstants {
 	}
 
 	@Override
-	public void loadProjection(Matrix3D source) {
+	public void setProjection(Matrix3D source) {
 		PMatrix3D pM = new PMatrix3D();
 		pM.set(source.getTransposed(new float[16]));		
 		pg2d().projection.set(pM);		
@@ -89,7 +89,7 @@ public class P5Renderer2D extends P5Renderer implements PConstants {
 	}	
 
 	@Override
-	public void loadMatrix(Matrix3D source) {
+	public void setMatrix(Matrix3D source) {
 		PMatrix3D pM = new PMatrix3D();
 		pM.set(source.getTransposed(new float[16]));
 		//pg2d().setMatrix(pM);
