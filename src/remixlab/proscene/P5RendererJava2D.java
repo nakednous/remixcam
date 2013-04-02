@@ -33,32 +33,14 @@ public class P5RendererJava2D extends TransformationRenderer {
 		return false;
 	}
 	
+	/**
 	@Override
 	public void applyMatrix(Matrix3D source) {
 		PMatrix3D pM = new PMatrix3D();
 		pM.set(source.getTransposed(new float[16]));
 		pg().applyMatrix(pM);
 	}
-	
-	@Override
-	public void printMatrix() {
-		pg().printMatrix();
-	}
-
-	@Override
-	public void frustum(float left, float right, float bottom, float top, float znear, float zfar) {
-		pg().frustum(left, right, bottom, top, znear, zfar);
-	}
-
-	@Override
-	public void ortho(float left, float right, float bottom, float top,	float near, float far) {
-		pg().ortho(left, right, bottom, top,	near, far);
-	}
-
-	@Override
-	public void perspective(float fov, float aspect, float zNear, float zFar) {
-		pg().perspective(fov, aspect, zNear, zFar);
-	}
+	*/
 
 	@Override
 	public void setProjection() {
@@ -68,6 +50,14 @@ public class P5RendererJava2D extends TransformationRenderer {
 	@Override
 	public void unsetProjection() {
 		AbstractScene.showDepthWarning("setProjection");
+	}
+
+	@Override
+	public void applyMatrixRowMajorOrder(float n00, float n01, float n02,
+			float n03, float n10, float n11, float n12, float n13, float n20,
+			float n21, float n22, float n23, float n30, float n31, float n32,
+			float n33) {
+		pgj2d().applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22,	n23, n30, n31, n32, n33);
 	}
 	
 	/**

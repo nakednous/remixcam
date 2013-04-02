@@ -88,95 +88,28 @@ public abstract class TransformationRenderer extends Renderer {
 		AbstractScene.showMethodWarning("popMatrix");
 	}
 	*/
-
+	
 	@Override
-	public void pushProjection() {
-		AbstractScene.showMethodWarning("pushProjection");
+	public void frustum(float left, float right, float bottom, float top, float znear, float zfar) {
+		AbstractScene.showMethodWarning("frustum");
 	}
 
 	@Override
-	public void popProjection() {
-		AbstractScene.showMethodWarning("popProjection");
+	public void ortho(float left, float right, float bottom, float top,	float near, float far) {
+		AbstractScene.showMethodWarning("ortho");
 	}
 
 	@Override
-	public void resetMatrix() {
-		AbstractScene.showMethodWarning("resetMatrix");
+	public void perspective(float fov, float aspect, float zNear, float zFar) {
+		AbstractScene.showMethodWarning("perspective");
 	}
-
-	@Override
-	public void resetProjection() {
-		AbstractScene.showMethodWarning("resetProjection");
-	}
-
-	@Override
-	public void applyMatrix(Matrix3D source) {
-		AbstractScene.showMethodWarning("applyMatrix");
-	}
-
-	@Override
-	public void applyProjection(Matrix3D source) {
-		AbstractScene.showMethodWarning("applyProjection");
-	}
-
-	@Override
-	public void applyMatrixRowMajorOrder(float n00, float n01, float n02,
-			float n03, float n10, float n11, float n12, float n13, float n20,
-			float n21, float n22, float n23, float n30, float n31, float n32,
-			float n33) {
-		AbstractScene.showMethodWarning("applyMatrixRowMajorOrder");
-	}
-
+	
 	@Override
 	public void applyProjectionRowMajorOrder(float n00, float n01, float n02,
 			float n03, float n10, float n11, float n12, float n13, float n20,
 			float n21, float n22, float n23, float n30, float n31, float n32,
 			float n33) {
 		AbstractScene.showMethodWarning("applyProjectionRowMajorOrder");
-	}
-
-	@Override
-	public Matrix3D getMatrix() {
-		AbstractScene.showMethodWarning("getMatrix");
-		return null;
-	}
-
-	@Override
-	public Matrix3D getMatrix(Matrix3D target) {
-		AbstractScene.showMethodWarning("getMatrix");
-		return null;
-	}
-
-	@Override
-	public Matrix3D getProjection() {
-		AbstractScene.showMethodWarning("getProjection");
-		return null;
-	}
-
-	@Override
-	public Matrix3D getProjection(Matrix3D target) {
-		AbstractScene.showMethodWarning("getProjection");
-		return null;
-	}
-
-	@Override
-	public void setMatrix(Matrix3D source) {
-		AbstractScene.showMethodWarning("setMatrix");
-	}
-
-	@Override
-	public void printMatrix() {
-		AbstractScene.showMethodWarning("printMatrix");
-	}
-
-	@Override
-	public void setProjection(Matrix3D source) {
-		AbstractScene.showMethodWarning("setProjection");
-	}
-
-	@Override
-	public void printProjection() {
-		AbstractScene.showMethodWarning("printProjection");
 	}
 	
 	/**
