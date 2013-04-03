@@ -35,9 +35,9 @@ import remixlab.remixcam.geom.*;
 
 import remixlab.remixcam.core.Drawerable;
 import remixlab.remixcam.geom.Matrix3D;
-import remixlab.remixcam.renderers.BProjectionRenderer;
+import remixlab.remixcam.renderers.ProjectionRenderer;
 
-public abstract class P5Renderer extends BProjectionRenderer {
+public abstract class P5Renderer extends ProjectionRenderer {
 	PGraphicsOpenGL pg;
 	Matrix3D proj;
 	
