@@ -19,22 +19,13 @@ import remixlab.remixcam.geom.Matrix3D;
 //import remixlab.remixcam.geom.Quaternion;
 // */
 import remixlab.remixcam.geom.Vector3D;
-import remixlab.remixcam.renderers.BProjectionRenderer;
 
-public class P5Renderer3D extends BProjectionRenderer {
-	PGraphics pg;
-	Vector3D at;
-	Matrix3D proj;
+public class P5Renderer3D extends P5Renderer {
+	Vector3D at;	
 	
-	public P5Renderer3D(Scene scn, PGraphics renderer) {
-		super(scn, new P5Drawing3D(scn));
-		pg = renderer;
-		at = new Vector3D();
-		proj = new Matrix3D();
-	}
-	
-	public PGraphics pg() {
-		return pg;
+	public P5Renderer3D(Scene scn, PGraphicsOpenGL renderer) {
+		super(scn, renderer, new P5Drawing3D(scn));		
+		at = new Vector3D();		
 	}
 	
 	public PGraphics3D pg3d() {
@@ -86,55 +77,12 @@ public class P5Renderer3D extends BProjectionRenderer {
 		translate(-pos.x(), -pos.y(), -pos.z());		
 	}	
 	// */
-	
-	@Override
-	public void pushProjection() {
-		pg3d().pushProjection();		
-	}
-
-	@Override
-	public void popProjection() {
-		pg3d().popProjection();
-	}
-
-	@Override
-	public void resetProjection() {
-		pg3d().projection.reset();		
-	}
-	
-	@Override
-	public Matrix3D getProjection() {
-		PMatrix3D pM = pg3d().projection.get();
-    return new Matrix3D(pM.get(new float[16]), true);// set it transposed
-	}
-
-	@Override
-	public Matrix3D getProjection(Matrix3D target) {
-		PMatrix3D pM = pg3d().projection.get();
-    target.setTransposed(pM.get(new float[16]));
-    return target;
-	}
 
 	@Override
 	public void setProjection(Matrix3D source) {
 		PMatrix3D pM = new PMatrix3D();
     pM.set(source.getTransposed(new float[16]));
     pg3d().setProjection(pM);
-	}
-
-	@Override
-	public void applyProjection(Matrix3D source) {
-		 PMatrix3D pM = new PMatrix3D();
-     pM.set(source.getTransposed(new float[16]));
-     pg3d().applyProjection(pM);
-	}
-
-	@Override
-	public void applyProjectionRowMajorOrder(float n00, float n01, float n02,
-			float n03, float n10, float n11, float n12, float n13, float n20,
-			float n21, float n22, float n23, float n30, float n31, float n32,
-			float n33) {
-		pg3d().applyProjection(new PMatrix3D(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33));		
 	}
 	
 	@Override
