@@ -51,6 +51,7 @@ import remixlab.remixcam.devices.KeyboardShortcut;
 import remixlab.remixcam.util.AbstractTimerJob;
 import remixlab.remixcam.util.SingleThreadedTaskableTimer;
 import remixlab.remixcam.util.SingleThreadedTimer;
+import remixlab.remixcam.geom.Matrix3D;
 //import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.geom.Vector3D;
 import remixlab.remixcam.geom.Point;
@@ -376,6 +377,52 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	@Override
+	public void resetMatrix() {
+		pg().resetMatrix();
+	}
+	
+	@Override
+	public Matrix3D getMatrix() {
+		PMatrix3D pM = (PMatrix3D) pg().getMatrix();
+		return new Matrix3D(pM.get(new float[16]), true);// set it transposed
+	}
+	
+	@Override
+	public Matrix3D getMatrix(Matrix3D target) {
+		PMatrix3D pM = (PMatrix3D) pg().getMatrix();
+		target.setTransposed(pM.get(new float[16]));
+		return target;
+	}
+	
+	@Override
+	public void setMatrix(Matrix3D source) {
+		resetMatrix();
+		applyMatrix(source);
+	}
+	
+	@Override
+	public void printMatrix() {
+		pg().printMatrix();
+	}
+	
+	@Override
+	public void applyMatrix(Matrix3D source) {
+		PMatrix3D pM = new PMatrix3D();
+		pM.set(source.getTransposed(new float[16]));
+		pg().applyMatrix(pM);
+	}
+	
+	@Override
+	public void applyMatrixRowMajorOrder(float n00, float n01, float n02, float n03,
+			                                 float n10, float n11, float n12, float n13,
+			                                 float n20, float n21, float n22, float n23,
+			                                 float n30, float n31, float n32, float n33) {
+		pg().applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22,	n23, n30, n31, n32, n33);
+	}	
+	
+	//
+	
+	@Override
 	public void translate(float tx, float ty) {
 		pg().translate(tx, ty);		
 	}
@@ -424,11 +471,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public void scale(float x, float y, float z) {
 		pg().scale(x, y, z);
 	}
-	
-	@Override
-	public void resetMatrix() {
-		pg().resetMatrix();
-	}	
 
 	// 2. Associated objects	
 	
@@ -762,8 +804,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
   //public int mouseGrabberCameraPathOffSelectionHintColor() {	return cameraPathOffSelectionHintColor;	}
 	
 	public PGraphics pg() {
+		/**
 		if( renderer() instanceof P5Renderer )
 			return ((P5Renderer)renderer()).pg();
+		*/
+		if( renderer() instanceof P5Renderer2D )
+			return ((P5Renderer2D)renderer()).pg();
+		if( renderer() instanceof P5Renderer3D )
+			return ((P5Renderer3D)renderer()).pg();
+		//if( renderer() instanceof P5RendererJava2D )
 		return ((P5RendererJava2D)renderer()).pg();
 	}
 	

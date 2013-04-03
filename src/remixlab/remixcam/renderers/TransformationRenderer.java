@@ -89,6 +89,7 @@ public abstract class TransformationRenderer extends Renderer {
 	}
 	*/
 	
+	/**
 	@Override
 	public void frustum(float left, float right, float bottom, float top, float znear, float zfar) {
 		AbstractScene.showMethodWarning("frustum");
@@ -103,6 +104,7 @@ public abstract class TransformationRenderer extends Renderer {
 	public void perspective(float fov, float aspect, float zNear, float zFar) {
 		AbstractScene.showMethodWarning("perspective");
 	}
+	*/
 	
 	@Override
 	public void applyProjectionRowMajorOrder(float n00, float n01, float n02,

@@ -13,16 +13,24 @@ import remixlab.remixcam.geom.*;
 // /*
 import remixlab.remixcam.geom.GeomFrame;
 import remixlab.remixcam.geom.Matrix3D;
+import remixlab.remixcam.renderers.BProjectionRenderer;
 //import remixlab.remixcam.geom.Quaternion;
 // */
 
-public class P5Renderer2D extends P5Renderer implements PConstants {
+public class P5Renderer2D extends BProjectionRenderer implements PConstants {
 	PGraphics pg;
+	Matrix3D proj;
 	
 	public P5Renderer2D(Scene scn, PGraphics renderer) {
-		super(scn, renderer, new P5Drawing2D(scn));
+		super(scn, new P5Drawing2D(scn));
 		pg = renderer;
-	}		
+		proj = new Matrix3D();
+	}
+	
+	@Override
+	public boolean is3D() {
+		return false;
+	}
 	
 	public PGraphics pg() {
 		return pg;
@@ -45,6 +53,19 @@ public class P5Renderer2D extends P5Renderer implements PConstants {
 	@Override
 	public void resetProjection() {
 		pg2d().resetProjection();
+	}
+	
+	@Override
+	public Matrix3D getProjection() {
+		PMatrix3D pM = pg2d().projection.get();
+    return new Matrix3D(pM.get(new float[16]), true);// set it transposed
+	}
+
+	@Override
+	public Matrix3D getProjection(Matrix3D target) {
+		PMatrix3D pM = pg2d().projection.get();
+    target.setTransposed(pM.get(new float[16]));
+    return target;
 	}
 
 	@Override
@@ -70,19 +91,6 @@ public class P5Renderer2D extends P5Renderer implements PConstants {
 	}
 
 	@Override
-	public Matrix3D getProjection() {
-		PMatrix3D pM = pg2d().projection.get();
-    return new Matrix3D(pM.get(new float[16]), true);// set it transposed
-	}
-
-	@Override
-	public Matrix3D getProjection(Matrix3D target) {
-		PMatrix3D pM = pg2d().projection.get();
-    target.setTransposed(pM.get(new float[16]));
-    return target;
-	}
-
-	@Override
 	public void drawPath(List<GeomFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
 		// TODO Auto-generated method stub
 		
@@ -95,11 +103,6 @@ public class P5Renderer2D extends P5Renderer implements PConstants {
 		//pg2d().setMatrix(pM);
     pg2d().modelview.set(pM);
 	}	
-
-	@Override
-	public boolean is3D() {
-		return false;
-	}
 
 	/**
 	 * Sets the processing camera projection matrix from {@link #camera()}. Calls

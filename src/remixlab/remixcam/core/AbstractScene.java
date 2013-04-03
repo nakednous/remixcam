@@ -31,6 +31,7 @@ import java.util.List;
 
 import remixlab.remixcam.devices.*;
 import remixlab.remixcam.geom.*;
+import remixlab.remixcam.renderers.BStackRenderer;
 import remixlab.remixcam.util.*;
 
 public abstract class AbstractScene implements Constants {
@@ -1165,7 +1166,7 @@ public abstract class AbstractScene implements Constants {
 	 * Push a copy of the modelview matrix onto the stack.
    */
 	public void pushMatrix() {
-		if( renderer.hasMatrixStack() )
+		if( renderer instanceof BStackRenderer )
 			renderer.pushMatrix();
 		else
 			AbstractScene.showMissingImplementationWarning("pushMatrix");
@@ -1175,7 +1176,7 @@ public abstract class AbstractScene implements Constants {
 	 * Replace the current modelview matrix with the top of the stack.
 	 */
 	public void popMatrix() {
-		if( renderer.hasMatrixStack() )
+		if( renderer instanceof BStackRenderer )
 			renderer.popMatrix();
 		else
 			AbstractScene.showMissingImplementationWarning("popMatrix");
@@ -1185,7 +1186,7 @@ public abstract class AbstractScene implements Constants {
 	 * Push a copy of the projection matrix onto the stack.
    */
 	public void pushProjection() {
-		if( renderer.hasMatrixStack() )
+		if( renderer instanceof BStackRenderer )
 			renderer.pushProjection();
 		else
 			AbstractScene.showMissingImplementationWarning("pushProjection");
@@ -1195,7 +1196,7 @@ public abstract class AbstractScene implements Constants {
 	 * Replace the current projection matrix with the top of the stack.
 	 */
 	public void popProjection() {
-		if( renderer.hasMatrixStack() )
+		if( renderer instanceof BStackRenderer )
 			renderer.popProjection();
 		else
 			AbstractScene.showMissingImplementationWarning("popProjection");
@@ -1205,7 +1206,7 @@ public abstract class AbstractScene implements Constants {
    * Translate in X and Y.
    */
   public void translate(float tx, float ty) {    
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.translate(tx, ty);
   	else
 			AbstractScene.showMissingImplementationWarning("translate");
@@ -1215,7 +1216,7 @@ public abstract class AbstractScene implements Constants {
    * Translate in X, Y, and Z.
    */
   public void translate(float tx, float ty, float tz) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.translate(tx, ty, tz);
   	else
 			AbstractScene.showMissingImplementationWarning("translate");
@@ -1231,7 +1232,7 @@ public abstract class AbstractScene implements Constants {
    * <A HREF="http://www.xkcd.com/c184.html">Additional background</A>.
    */
   public void rotate(float angle) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.rotate(angle);
   	else
 			AbstractScene.showMissingImplementationWarning("rotate");
@@ -1241,7 +1242,7 @@ public abstract class AbstractScene implements Constants {
    * Rotate around the X axis.
    */
   public void rotateX(float angle) { 
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.rotateX(angle);
   	else
 			AbstractScene.showMissingImplementationWarning("rotateX");
@@ -1251,7 +1252,7 @@ public abstract class AbstractScene implements Constants {
    * Rotate around the Y axis.
    */
   public void rotateY(float angle) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.rotateY(angle);
   	else
   		AbstractScene.showMissingImplementationWarning("rotateY");
@@ -1266,7 +1267,7 @@ public abstract class AbstractScene implements Constants {
    * doing things in 2D. so we just decided to have them both be the same.
    */
   public void rotateZ(float angle) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.rotateZ(angle);
   	else
   		AbstractScene.showMissingImplementationWarning("rotateZ");
@@ -1276,7 +1277,7 @@ public abstract class AbstractScene implements Constants {
    * Rotate about a vector in space. Same as the glRotatef() function.
    */
   public void rotate(float angle, float vx, float vy, float vz) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.rotate(angle, vx, vy, vz);
   	else
   		AbstractScene.showMissingImplementationWarning("rotate");
@@ -1286,7 +1287,7 @@ public abstract class AbstractScene implements Constants {
    * Scale in all dimensions.
    */
   public void scale(float s) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.scale(s);
   	else
   		AbstractScene.showMissingImplementationWarning("scale");
@@ -1299,7 +1300,7 @@ public abstract class AbstractScene implements Constants {
    * scaled by 1, since there's no way to know what else to scale it by.
    */
   public void scale(float sx, float sy) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.scale(sx, sy);
   	else
   		AbstractScene.showMissingImplementationWarning("scale");
@@ -1309,7 +1310,7 @@ public abstract class AbstractScene implements Constants {
    * Scale in X, Y, and Z.
    */
   public void scale(float x, float y, float z) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.scale(x, y, z);
   	else
   		AbstractScene.showMissingImplementationWarning("scale");
@@ -1319,7 +1320,7 @@ public abstract class AbstractScene implements Constants {
    * Set the current modelview matrix to identity.
    */
   public void resetMatrix() {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.resetMatrix();
   	else
   		AbstractScene.showMissingImplementationWarning("resetMatrix");
@@ -1329,21 +1330,21 @@ public abstract class AbstractScene implements Constants {
    * Set the current projection matrix to identity.
    */
   public void resetProjection() {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.resetProjection();
   	else
   		AbstractScene.showMissingImplementationWarning("resetProjection");
   }  
   
   public void applyMatrix(Matrix3D source) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.applyMatrix(source);
   	else
   		AbstractScene.showMissingImplementationWarning("applyMatrix");
   }
   
   public void applyProjection(Matrix3D source) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.applyProjection(source);
   	else
   		AbstractScene.showMissingImplementationWarning("applyProjection");
@@ -1369,12 +1370,14 @@ public abstract class AbstractScene implements Constants {
   	renderer.applyProjectionRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
   }
   
+  /**
   public void frustum(float left, float right, float bottom, float top, float znear, float zfar) {
   	renderer.frustum(left, right, bottom, top, znear, zfar);
   }
+  */
 
   public Matrix3D getMatrix() {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		return renderer.getMatrix();
   	else {
   		AbstractScene.showMissingImplementationWarning("getMatrix");
@@ -1383,7 +1386,7 @@ public abstract class AbstractScene implements Constants {
   }
   
   public Matrix3D getProjection() {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		return renderer.getProjection();
   	else {
   		AbstractScene.showMissingImplementationWarning("getProjection");
@@ -1396,7 +1399,7 @@ public abstract class AbstractScene implements Constants {
    * Pass in null to create a new matrix.
    */
   public Matrix3D getMatrix(Matrix3D target) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		return renderer.getMatrix(target);
   	else {
   		AbstractScene.showMissingImplementationWarning("getMatrix");
@@ -1409,7 +1412,7 @@ public abstract class AbstractScene implements Constants {
    * Pass in null to create a new matrix.
    */
   public Matrix3D getProjection(Matrix3D target) {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		return renderer.getProjection(target);
   	else {
   		AbstractScene.showMissingImplementationWarning("getProjection");
@@ -1435,7 +1438,7 @@ public abstract class AbstractScene implements Constants {
    * Print the current modelview matrix.
    */
   public void printMatrix() {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.printMatrix();
   	else
   		AbstractScene.showMissingImplementationWarning("printMatrix");
@@ -1445,7 +1448,7 @@ public abstract class AbstractScene implements Constants {
    * Print the current projection matrix.
    */
   public void printProjection() {
-  	if( renderer.hasMatrixStack() )
+  	if( renderer instanceof BStackRenderer )
   		renderer.printProjection();
   	else
   		AbstractScene.showMissingImplementationWarning("printMatrix");

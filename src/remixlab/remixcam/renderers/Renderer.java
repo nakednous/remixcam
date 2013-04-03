@@ -309,7 +309,6 @@ public abstract class Renderer implements Renderable, Constants {
 		return scene;
 	}
 	
-	@Override
 	public boolean hasMatrixStack() {
 		return !(mStack == null);
 	}

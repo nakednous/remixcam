@@ -26,6 +26,7 @@
 package remixlab.proscene;
 
 import processing.core.*;
+import processing.opengl.PGraphicsOpenGL;
 /**
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
@@ -34,92 +35,66 @@ import remixlab.remixcam.geom.*;
 
 import remixlab.remixcam.core.Drawerable;
 import remixlab.remixcam.geom.Matrix3D;
-import remixlab.remixcam.renderers.MatrixRenderer;
+import remixlab.remixcam.renderers.BProjectionRenderer;
 
-public abstract class P5Renderer extends MatrixRenderer implements PConstants {
-	PGraphics pg;
+public abstract class P5Renderer extends BProjectionRenderer implements PConstants {
+	PGraphicsOpenGL pg;
 	Matrix3D proj;
 	
-	public P5Renderer(Scene scn, PGraphics renderer, Drawerable d) {
-		super(scn, d, false);
+	public P5Renderer(Scene scn, PGraphicsOpenGL renderer, Drawerable d) {
+		super(scn, d);
 		pg = renderer;
 		proj = new Matrix3D();
 	}
-	
-	/**
-	public P5Renderer(Scene scn, PGraphics renderer) {
-		super(scn, new Drawing2D(scn));
-		pg = renderer;
-		proj = new Matrix3D();
-	}	
-	*/
 	
 	public PGraphics pg() {
 		return pg;
 	}
-
-	@Override
-	public void printMatrix() {
-		pg().printMatrix();
-	}
+	
+	public PGraphicsOpenGL pggl() {
+	  return (PGraphicsOpenGL) pg();	
+	}	
 	
 	@Override
-	public void printProjection() {
-		pg().printProjection();
-	}
-	
-	@Override
-	public void frustum(float left, float right, float bottom, float top,	float znear, float zfar) {
-		pg().frustum(left, right, bottom, top, znear, zfar);
-	}
-	
-	@Override
-	public void ortho(float left, float right, float bottom, float top,	float near, float far) {
-		pg().ortho(left, right, bottom, top,	near, far);
+	public void pushProjection() {
+		pggl().pushProjection();		
 	}
 
 	@Override
-	public void perspective(float fov, float aspect, float zNear, float zFar) {
-		pg().perspective(fov, aspect, zNear, zFar);	
+	public void popProjection() {
+		pggl().popProjection();
+	}
+
+	@Override
+	public void resetProjection() {
+		pggl().resetProjection();
 	}
 	
 	@Override
-	public void applyMatrix(Matrix3D source) {
+	public Matrix3D getProjection() {
+		PMatrix3D pM = pggl().projection.get();
+    return new Matrix3D(pM.get(new float[16]), true);// set it transposed
+	}
+
+	@Override
+	public Matrix3D getProjection(Matrix3D target) {
+		PMatrix3D pM = pggl().projection.get();
+    target.setTransposed(pM.get(new float[16]));
+    return target;
+	}
+
+	@Override
+	public void applyProjection(Matrix3D source) {
 		PMatrix3D pM = new PMatrix3D();
-		pM.set(source.getTransposed(new float[16]));
-		pg().applyMatrix(pM);
+    pM.set(source.getTransposed(new float[16]));
+    pggl().applyProjection(pM);		
 	}
-	
+
 	@Override
-	public void applyMatrixRowMajorOrder(float n00, float n01, float n02, float n03,
-			                                 float n10, float n11, float n12, float n13,
-			                                 float n20, float n21, float n22, float n23,
-			                                 float n30, float n31, float n32, float n33) {
-		pg().applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22,	n23, n30, n31, n32, n33);
-	}
-	
-	@Override
-	public Matrix3D getMatrix() {
-		PMatrix3D pM = (PMatrix3D) pg().getMatrix();
-		return new Matrix3D(pM.get(new float[16]), true);// set it transposed
-	}
-	
-	@Override
-	public Matrix3D getMatrix(Matrix3D target) {
-		PMatrix3D pM = (PMatrix3D) pg().getMatrix();
-		target.setTransposed(pM.get(new float[16]));
-		return target;
-	}
-	
-	@Override
-	public void setMatrix(Matrix3D source) {
-		resetMatrix();
-		applyMatrix(source);
-	}
-	
-	@Override
-	public void setProjection(Matrix3D source) {
-		resetProjection();
-		applyProjection(source);
+	public void applyProjectionRowMajorOrder(float n00, float n01, float n02,
+			float n03, float n10, float n11, float n12, float n13, float n20,
+			float n21, float n22, float n23, float n30, float n31, float n32,
+			float n33) {
+		pggl().applyProjection(new PMatrix3D(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33));
 	}
 }

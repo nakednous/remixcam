@@ -13,8 +13,6 @@ public interface Renderable extends Drawerable {
 	
 	public void bindMatrices();
 	
-	public boolean hasMatrixStack();
-	
 	/**
 	 * Computes the world coordinates of an screen object so that drawing can be
 	 * done directly with 2D screen coordinates.
@@ -153,7 +151,7 @@ public interface Renderable extends Drawerable {
                                            float n20, float n21, float n22, float n23,
                                            float n30, float n31, float n32, float n33);
   
-  public void frustum(float left, float right, float bottom, float top, float znear, float zfar);
+  //public void frustum(float left, float right, float bottom, float top, float znear, float zfar);
   
   public Matrix3D getMatrix();
   
@@ -194,7 +192,7 @@ public interface Renderable extends Drawerable {
   
   //TODO testing this two (this is all what is new in the approach: remixlab.remixcam.renderers)
   
-  public void ortho(float left, float right, float bottom, float top, float near, float far);
+  //public void ortho(float left, float right, float bottom, float top, float near, float far);
   
-  public void perspective(float fov, float aspect, float zNear, float zFar);
+  //public void perspective(float fov, float aspect, float zNear, float zFar);
 }
