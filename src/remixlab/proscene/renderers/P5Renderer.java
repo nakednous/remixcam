@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.proscene;
+package remixlab.proscene.renderers;
 
 import processing.core.*;
 import processing.opengl.PGraphicsOpenGL;
@@ -33,6 +33,7 @@ import remixlab.remixcam.geom.*;
 */
 // /**
 
+import remixlab.proscene.Scene;
 import remixlab.remixcam.core.Drawerable;
 import remixlab.remixcam.geom.Matrix3D;
 import remixlab.remixcam.renderers.ProjectionRenderer;

@@ -1,7 +1,8 @@
-package remixlab.proscene;
+package remixlab.proscene.util;
 
 import java.util.*;
 
+import remixlab.proscene.Scene;
 import remixlab.remixcam.util.*;
 
 public class TimerWrap implements Timable {

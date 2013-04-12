@@ -33,7 +33,11 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.remixcam.constraints.*;
-import remixlab.remixcam.core.*;
+import remixlab.remixcam.core.AbstractScene;
+import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.core.Copyable;
+import remixlab.remixcam.core.InteractiveCameraFrame;
+import remixlab.remixcam.core.KeyFrameInterpolator;
 
 /**
  * A Frame is a 3D coordinate system, represented by a {@link #position()} and
@@ -1012,7 +1016,6 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	}
 	
 	public final void setMagnitudeWithConstraint(Vector3D mag) {
-		//TODO needs testing
 		if (referenceFrame() != null)
 			mag = Vector3D.div(mag, referenceFrame().magnitude());
 
@@ -1209,7 +1212,6 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	}
 	
 	public void scale(float x, float y) {
-		//TODO check third parameter
 		scale(new Vector3D(x,y,1));
 	}
 	
@@ -1230,7 +1232,6 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	}
 	
 	public void inverseScale(float x, float y) {
-		//TODO check third parameter
 		inverseScale(new Vector3D(x,y,1));
 	}
 	
@@ -2057,7 +2058,6 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 */
 	// TODO is always inneficient
 	public final Matrix3D matrix() {
-	  //TODO key! take into account scaling
 		Matrix3D pM = new Matrix3D();
 
 		pM = kernel().rotation().matrix();

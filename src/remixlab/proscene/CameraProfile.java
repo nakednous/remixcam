@@ -30,6 +30,7 @@ import processing.event.*;
 
 import java.util.Map.Entry;
 
+import remixlab.proscene.renderers.P5RendererJava2D;
 import remixlab.remixcam.core.AbstractScene.CameraKeyboardAction;
 import remixlab.remixcam.core.AbstractScene.ClickAction;
 import remixlab.remixcam.core.AbstractScene.MouseAction;

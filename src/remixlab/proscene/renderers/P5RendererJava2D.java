@@ -1,7 +1,8 @@
-package remixlab.proscene;
+package remixlab.proscene.renderers;
 
 import processing.core.*;
 
+import remixlab.proscene.Scene;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.renderers.TransformationRenderer;

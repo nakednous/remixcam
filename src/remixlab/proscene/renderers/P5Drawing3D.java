@@ -1,9 +1,10 @@
-package remixlab.proscene;
+package remixlab.proscene.renderers;
 
 import java.util.List;
 
 import processing.core.PApplet;
 import processing.opengl.PGraphics3D;
+import remixlab.proscene.Scene;
 import remixlab.remixcam.core.Camera;
 import remixlab.remixcam.core.ViewWindow;
 import remixlab.remixcam.geom.GeomFrame;

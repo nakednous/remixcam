@@ -1,4 +1,4 @@
-package remixlab.proscene;
+package remixlab.proscene.renderers;
 
 import java.util.List;
 
@@ -10,6 +10,7 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
 */
 
+import remixlab.proscene.Scene;
 // /*
 import remixlab.remixcam.geom.GeomFrame;
 import remixlab.remixcam.geom.Matrix3D;

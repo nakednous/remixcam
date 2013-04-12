@@ -70,14 +70,6 @@ public interface Constants {
   static final float TWO_PI     = PI * 2.0f;  
   
   //modifier keys
-  /**
-  static final int SHIFT     = 1;
-  static final int CTRL      = 2;
-  static final int META      = 4;
-  static final int ALT       = 8;
-  static final int ALT_GRAPH = 16;
-  */
-  
   static public final int SHIFT     = 1 << 0;
   static public final int CTRL      = 1 << 1;
   static public final int META      = 1 << 2;

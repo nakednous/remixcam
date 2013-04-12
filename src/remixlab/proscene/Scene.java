@@ -35,6 +35,10 @@ import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.*;
 // */
 
+import remixlab.proscene.renderers.P5Renderer2D;
+import remixlab.proscene.renderers.P5Renderer3D;
+import remixlab.proscene.renderers.P5RendererJava2D;
+import remixlab.proscene.util.TimerWrap;
 // /*
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Camera;
@@ -187,7 +191,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	// O B J E C T S
 	//TODO pending
 	//protected AWTWheeledDesktopEvents dE;
-	protected P5DesktopEvents dE;
+	public P5DesktopEvents dE;
 
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  

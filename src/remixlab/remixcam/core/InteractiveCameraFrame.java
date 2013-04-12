@@ -491,7 +491,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				translate(inverseTransformOf(trans));
 			}
 			else {			
-				float delta = rotation * wheelSensitivity();
+				float delta = -rotation * wheelSensitivity();
 				if(delta < 0)
 					scale(1 + Math.abs(delta) / (float) scene.height());
 				else
@@ -576,85 +576,4 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	public Vector3D getCADAxis() {
 		return worldAxis;
 	}
-	
-	/**
-	//TODO No Scl
-	//original method was final
-	@Override
-	public final void rotateAroundPoint(Orientable rotation, Vector3D point) {
-		if (constraint() != null)
-			rotation = constraint().constrainRotation(rotation, this);
-
-		this.kernel().rotation().compose(rotation);
-		if(is3D())
-			this.kernel().rotation().normalize(); // Prevents numerical drift
-		
-		Orientable q;
-		if(is3D())
-			//TODO could it be just: frame().orientation().rotate() ?
-			q = new Quaternion(inverseTransformOfNoScl(((Quaternion)rotation).axis()), rotation.angle());		  
-		else 
-			q = new Rotation(rotation.angle());
-		
-		Vector3D t = Vector3D.add(point, q.rotate(Vector3D.sub(position(), point)));
-		t.sub(kernel().translation());
-
-		if (constraint() != null)
-			kernel().translate(constraint().constrainTranslation(t, this));
-		else
-			kernel().translate(t);
-	}
-	*/
-	
-	/**
-	public final Vector3D coordinatesOfNoScl(Vector3D src) {
-		if (referenceFrame() != null)
-			return localCoordinatesOfNoScl(referenceFrame().coordinatesOfNoScl(src));
-		else
-			return localCoordinatesOfNoScl(src);
-	}
-	
-	public final Vector3D localCoordinatesOfNoScl(Vector3D src) {
-		return rotation().inverseRotate(Vector3D.sub(src, translation()));
-	}
-	
-	public final Vector3D inverseCoordinatesOfNoScl(Vector3D src) {
-		VFrame fr = this;
-		Vector3D res = src;
-		while (fr != null) {
-			res = fr.localInverseCoordinatesOfNoScl(res);
-			fr = fr.referenceFrame();
-		}
-		return res;
-	}
-	
-	public final Vector3D localInverseCoordinatesOfNoScl(Vector3D src) {
-		return Vector3D.add(rotation().rotate(src), translation());
-	}
-	
-	public final Vector3D transformOfNoScl(Vector3D src) {
-		if (referenceFrame() != null)
-			return localTransformOfNoScl(referenceFrame().transformOfNoScl(src));
-		else
-			return localTransformOfNoScl(src);
-	}
-	
-	public final Vector3D localTransformOfNoScl(Vector3D src) {
-		return rotation().inverseRotate(src);
-	}
-	
-	public final Vector3D inverseTransformOfNoScl(Vector3D src) {
-		VFrame fr = this;
-		Vector3D res = src;
-		while (fr != null) {
-			res = fr.localInverseTransformOfNoScl(res);
-			fr = fr.referenceFrame();
-		}
-		return res;
-	}
-	
-	public final Vector3D localInverseTransformOfNoScl(Vector3D src) {
-		return rotation().rotate(src);
-	}
-	// */
 }
