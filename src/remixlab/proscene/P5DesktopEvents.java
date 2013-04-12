@@ -319,22 +319,26 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * @see #mouseWheelMoved(MouseWheelEvent)
 	 */
 	public void mousePressed(MouseEvent e) {
+		//TODO implement MouseEvent (to replace commented lines)?
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		if (scene.mouseGrabber() != null) {
 			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
 				InteractiveFrame iFrame = (InteractiveFrame) scene.mouseGrabber();
-				iFrame.startAction(scene.currentCameraProfile().frameMouseAction(e), scene.drawIsConstrained());
+				//iFrame.startAction(scene.currentCameraProfile().frameMouseAction(e), scene.drawIsConstrained());
+				iFrame.startAction(scene.currentCameraProfile().frameMouseAction(e.getModifiers(), e.getButton()), scene.drawIsConstrained());
 				iFrame.mousePressed(new Point(event.getX(), event.getY()), scene.pinhole());
 			} else
 				scene.mouseGrabber().mousePressed(new Point(event.getX(), event.getY()), scene.pinhole());
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
-			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameMouseAction(e), scene.drawIsConstrained());
+			//scene.interactiveFrame().startAction(scene.currentCameraProfile().frameMouseAction(e), scene.drawIsConstrained());
+			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameMouseAction(e.getModifiers(), e.getButton()), scene.drawIsConstrained());
 			scene.interactiveFrame().mousePressed(new Point(event.getX(), event.getY()), scene.pinhole());
 			return;
 		}
-		camMouseAction = scene.currentCameraProfile().cameraMouseAction(e);
+		//camMouseAction = scene.currentCameraProfile().cameraMouseAction(e);
+		camMouseAction = scene.currentCameraProfile().cameraMouseAction(e.getModifiers(), e.getButton());
 		if (camMouseAction == MouseAction.ZOOM_ON_REGION) {
 			fCorner.set(event.getX(), event.getY());
 			lCorner.set(event.getX(), event.getY());
@@ -437,23 +441,26 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * @see #mousePressed(MouseEvent)
 	 */
 	public void mouseWheelMoved(MouseEvent event) {		
+	  //TODO implement MouseEvent (to replace commented lines)?
 		if(!scene.mouseIsHandled())
 			return;
 		if (scene.mouseGrabber() != null) {
 			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
 				InteractiveFrame iFrame = (InteractiveFrame) scene.mouseGrabber();
-				iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
+				//iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
+				iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event.getModifiers()), scene.drawIsConstrained());
 				iFrame.mouseWheelMoved(event.getAmount(), scene.pinhole());				
 			} else
 				scene.mouseGrabber().mouseWheelMoved(event.getAmount(), scene.pinhole());
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
-			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
+			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameWheelMouseAction(event.getModifiers()), scene.drawIsConstrained());
 			scene.interactiveFrame().mouseWheelMoved(event.getAmount(), scene.pinhole());
 			return;
 		}
-		scene.pinhole().frame().startAction(scene.currentCameraProfile().cameraWheelMouseAction(event), scene.drawIsConstrained());
+		//scene.pinhole().frame().startAction(scene.currentCameraProfile().cameraWheelMouseAction(event), scene.drawIsConstrained());
+		scene.pinhole().frame().startAction(scene.currentCameraProfile().cameraWheelMouseAction(event.getModifiers()), scene.drawIsConstrained());
 		scene.pinhole().frame().mouseWheelMoved(event.getAmount(), scene.pinhole());	  
 	}
 }

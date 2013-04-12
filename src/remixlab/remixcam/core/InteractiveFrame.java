@@ -1325,7 +1325,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			return;
 		
 		if (action == AbstractScene.MouseAction.ZOOM) {			
-			float delta = (scene.is3D() ? rotation : -rotation) * wheelSensitivity();
+			float delta = -rotation * wheelSensitivity();
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
 			else

@@ -42,11 +42,10 @@ import remixlab.proscene.util.TimerWrap;
 // /*
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Camera;
-import remixlab.remixcam.core.InteractiveDrivableFrame;
 import remixlab.remixcam.core.InteractiveFrame;
-import remixlab.remixcam.core.Pinhole;
 import remixlab.remixcam.core.ViewWindow;
 import remixlab.remixcam.devices.DesktopEvents;
+import remixlab.remixcam.devices.CameraProfile;
 //import remixlab.remixcam.core.SimpleFrame;
 //import remixlab.remixcam.core.KeyFrameInterpolator;
 import remixlab.remixcam.devices.DeviceGrabbable;
@@ -63,8 +62,6 @@ import remixlab.remixcam.geom.Point;
 
 import java.lang.reflect.Method;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
 //import java.util.List;
 import java.util.Map.Entry;
 
@@ -176,12 +173,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected Integer deleteKeyFrameKeyboardModifier;
 
 	// S h o r t c u t k e y s
-	protected Bindings<KeyboardShortcut, KeyboardAction> gProfile;
-
-	// c a m e r a p r o f i l e s
-	private HashMap<String, CameraProfile> cameraProfileMap;
-	private ArrayList<String> cameraProfileNames;
-	private CameraProfile currentCameraProfile;		
+	//TODO pull up
+	protected Bindings<KeyboardShortcut, KeyboardAction> gProfile;	
 
 	// P R O C E S S I N G   A P P L E T   A N D   O B J E C T S
 	public PApplet parent;	
@@ -190,7 +183,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 	// O B J E C T S
 	//TODO pending
-	//protected AWTWheeledDesktopEvents dE;
 	public P5DesktopEvents dE;
 
 	// E X C E P T I O N H A N D L I N G	
@@ -315,6 +307,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		else
 			ph = new ViewWindow(this);
 		setViewPort(pinhole());//calls showAll();
+		
+		//TODO pull up to AbstractScene
+		initDefaultCameraProfiles();
 				
 		setInteractiveFrame(null);
 		setAvatar(null);
@@ -331,8 +326,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		setMouseGrabber(null);
 		
 		mouseGrabberIsAnIFrame = false;
-
-		initDefaultCameraProfiles();
 
 		//animation
 		animationTimer = new SingleThreadedTimer(this);
@@ -924,253 +917,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		return pg().height;
 	}			
 
-	// 7. Camera profiles
-
-	/**
-	 * Internal method that defines the default camera profiles: WHEELED_ARCBALL
-	 * and FIRST_PERSON.
-	 */
-	private void initDefaultCameraProfiles() {
-		cameraProfileMap = new HashMap<String, CameraProfile>();
-		cameraProfileNames = new ArrayList<String>();
-		currentCameraProfile = null;
-		// register here the default profiles
-		//registerCameraProfile(new CameraProfile(this, "ARCBALL", CameraProfile.Mode.ARCBALL));
-		registerCameraProfile( new CameraProfile(this, "WHEELED_ARCBALL", CameraProfile.Mode.WHEELED_ARCBALL) );
-		registerCameraProfile( new CameraProfile(this, "FIRST_PERSON", CameraProfile.Mode.FIRST_PERSON) );
-		//setCurrentCameraProfile("ARCBALL");
-		setCurrentCameraProfile("WHEELED_ARCBALL");
-	}
-
-	/**
-	 * Registers a camera profile. Returns true if succeeded. If there's a
-	 * registered camera profile with the same name, registration will fail. 
-	 * <p>
-	 * <b>Attention:</b> This method doesn't make current {@code cp}. For that call
-	 * {@link #setCurrentCameraProfile(CameraProfile)}.
-	 * 
-	 * @param cp camera profile
-	 * 
-	 * @see #setCurrentCameraProfile(CameraProfile)
-	 * @see #unregisterCameraProfile(CameraProfile) 
-	 */
-	public boolean registerCameraProfile(CameraProfile cp) {
-		// if(!isCameraProfileRegistered(cp)) {
-		if (cp == null)
-			return false;
-		if (!isCameraProfileRegistered(cp)) {
-			cameraProfileNames.add(cp.name());
-			cameraProfileMap.put(cp.name(), cp);
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Convenience function that simply returns {@code unregisterCameraProfile(cp.name())}.
-	 */
-	public boolean unregisterCameraProfile(CameraProfile cp) {
-		return unregisterCameraProfile(cp.name());
-	}
-
-	/**
-	 * Unregisters the given camera profile by its name. Returns true if succeeded.
-	 * Registration will fail in two cases: no camera profile is registered under
-	 * the provided name, or the camera profile is the only registered camera profile which
-	 * mode is different than THIRD_PERSON.
-	 * <p>
-	 * The last condition above guarantees that there should always be registered at least
-	 * one camera profile which mode is different than THIRD_PERSON. 
-	 * 
-	 * @param cp camera profile
-	 * @return true if succeeded
-	 */
-	public boolean unregisterCameraProfile(String cp) {
-		if (!isCameraProfileRegistered(cp))
-			return false;
-
-		CameraProfile cProfile = cameraProfile(cp);
-		int instancesDifferentThanThirdPerson = 0;
-
-		for (CameraProfile camProfile : cameraProfileMap.values())
-			if (camProfile.mode() != CameraProfile.Mode.THIRD_PERSON)
-				instancesDifferentThanThirdPerson++;
-
-		if ((cProfile.mode() != CameraProfile.Mode.THIRD_PERSON)
-				&& (instancesDifferentThanThirdPerson == 1))
-			return false;
-
-		if (isCurrentCameraProfile(cp))
-			nextCameraProfile();
-
-		if (cameraProfileNames.remove(cp)) {
-			cameraProfileMap.remove(cp);
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Returns the camera profile which name matches the one provided.
-	 * Returns null if there's no camera profile registered by this name.
-	 * 
-	 * @param name camera profile name
-	 * @return camera profile object
-	 */
-	public CameraProfile cameraProfile(String name) {
-		return cameraProfileMap.get(name);
-	}
-	
-	/**
-	 * Returns an array of the camera profile objects that are currently
-	 * registered at the Scene.
-	 */
-	public CameraProfile [] getCameraProfiles() {		
-		return cameraProfileMap.values().toArray(new CameraProfile[0]);
-	}
-
-	/**
-	 * Returns true the given camera profile is currently registered.
-	 */
-	public boolean isCameraProfileRegistered(CameraProfile cp) {
-		return cameraProfileMap.containsValue(cp);
-	}
-
-	/**
-	 * Returns true if currently there's a camera profile registered by
-	 * the given name.
-	 */
-	public boolean isCameraProfileRegistered(String name) {
-		return cameraProfileMap.containsKey(name);
-	}
-
-	/**
-	 * Returns the current camera profile object. Never null.
-	 */
-	public CameraProfile currentCameraProfile() {
-		return currentCameraProfile;
-	}
-
-	/**
-	 * Returns true if the {@link #currentCameraProfile()} matches 
-	 * the one by the given name.
-	 */
-	boolean isCurrentCameraProfile(String cp) {
-		return isCurrentCameraProfile(cameraProfileMap.get(cp));
-	}
-
-	/**
-	 * Returns true if the {@link #currentCameraProfile()} matches 
-	 * the one given.
-	 */
-	boolean isCurrentCameraProfile(CameraProfile cp) {
-		return currentCameraProfile() == cp;
-	}
-
-	/**
-	 * Set current the given camera profile. Returns true if succeeded.
-	 * <p>
-	 * Registers first the given camera profile if it is not registered.
-	 */
-	public boolean setCurrentCameraProfile(CameraProfile cp) {
-		if (cp == null) {
-			return false;
-		}
-		if (!isCameraProfileRegistered(cp))
-			if (!registerCameraProfile(cp))
-				return false;
-
-		return setCurrentCameraProfile(cp.name());
-	}
-	
-	/**
-	 * Set current the camera profile associated to the given name.
-	 * Returns true if succeeded.
-	 * <p>
-	 * This method triggers smooth transition animations
-	 * when switching between camera profile modes.
-	 */
-	public boolean setCurrentCameraProfile(String cp) {
-		CameraProfile camProfile = cameraProfileMap.get(cp);
-		if (camProfile == null)
-			return false;
-		if ((camProfile.mode() == CameraProfile.Mode.THIRD_PERSON) && (avatar() == null))
-			return false;
-		else {
-			if (camProfile.mode() == CameraProfile.Mode.THIRD_PERSON) {
-				setDrawInteractiveFrame();
-				setCameraType(Camera.Type.PERSPECTIVE);
-				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar()).removeFromMouseGrabberPool();
-				pinhole().frame().updateFlyUpVector();// ?
-				pinhole().frame().stopSpinning();
-				if (avatarIsInteractiveDrivableFrame) {
-					((InteractiveDrivableFrame) (avatar())).updateFlyUpVector();
-					((InteractiveDrivableFrame) (avatar())).stopSpinning();
-				}
-				// perform small animation ;)
-				if (pinhole().anyInterpolationIsStarted())
-					pinhole().stopAllInterpolations();
-				// /**
-				// TODO should Pinhole be non-abstract?
-				Pinhole cm;
-				if(is3D())
-				  cm = camera().get();
-				else
-					cm = viewWindow().get();
-				// */
-				cm.setPosition(avatar().cameraPosition());
-				cm.setUpVector(avatar().upVector());
-				cm.lookAt(avatar().target());
-				pinhole().interpolateTo(cm.frame());
-				currentCameraProfile = camProfile;
-			} else {
-				pinhole().frame().updateFlyUpVector();
-				pinhole().frame().stopSpinning();
-				
-				if(currentCameraProfile != null)
-					if (currentCameraProfile.mode() == CameraProfile.Mode.THIRD_PERSON)
-						pinhole().interpolateToFitScene();
-        
-				currentCameraProfile = camProfile;        
-				
-				setDrawInteractiveFrame(false);
-				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar()).addInMouseGrabberPool();
-			}
-			return true;
-		}
-	}
-
-	/**
-	 * Sets the next registered camera profile as current.
-	 * <p>
-	 * Camera profiles are ordered by their registration order.
-	 */
-	@Override
-	public void nextCameraProfile() {
-		int currentCameraProfileIndex = cameraProfileNames.indexOf(currentCameraProfile().name());
-		nextCameraProfile(++currentCameraProfileIndex);
-	}
-
-	/**
-	 * Internal use. Used by {@link #nextCameraProfile()}.
-	 */
-	private void nextCameraProfile(int index) {
-		if (!cameraProfileNames.isEmpty()) {
-			if (index == cameraProfileNames.size())
-				index = 0;
-
-			if (!setCurrentCameraProfile(cameraProfileNames.get(index)))
-				nextCameraProfile(++index);
-			// debug:
-			else
-				PApplet.println("Camera profile changed to: "
-						+ cameraProfileNames.get(index));
-		}
-	}
-
 	// 8. Keyboard customization
 
 	/**
@@ -1682,54 +1428,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().text(currentCameraProfileHelp(), 10, 10, (pg().width-20), (pg().height-20));
 			endScreenDrawing();
 		}
-	}
-	
-	/**
-	 * Returns a String with the {@link #currentCameraProfile()} keyboard and mouse bindings.
-	 * 
-	 * @see remixlab.proscene.CameraProfile#cameraMouseBindingsDescription()
-	 * @see remixlab.proscene.CameraProfile#frameMouseBindingsDescription()
-	 * @see remixlab.proscene.CameraProfile#mouseClickBindingsDescription()
-	 * @see remixlab.proscene.CameraProfile#keyboardShortcutsDescription()
-	 * @see remixlab.proscene.CameraProfile#cameraWheelBindingsDescription()
-	 * @see remixlab.proscene.CameraProfile#frameWheelBindingsDescription()
-	 */
-	public String currentCameraProfileHelp() {
-		String description = new String();
-		description += currentCameraProfile().name() + " camera profile keyboard shortcuts and mouse bindings\n";
-		int index = 1;
-		if( currentCameraProfile().keyboardShortcutsDescription().length() != 0 ) {
-			description += index + ". " + "Keyboard shortcuts\n";
-			description += currentCameraProfile().keyboardShortcutsDescription();
-			index++;
-		}
-		if( currentCameraProfile().cameraMouseBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Camera mouse bindings\n";
-			description += currentCameraProfile().cameraMouseBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().mouseClickBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Mouse click bindings\n";
-			description += currentCameraProfile().mouseClickBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().frameMouseBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Interactive frame mouse bindings\n";
-			description += currentCameraProfile().frameMouseBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().cameraWheelBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Camera mouse wheel bindings\n";
-			description += currentCameraProfile().cameraWheelBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().frameWheelBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Interactive frame mouse wheel bindings\n";
-			description += currentCameraProfile().frameWheelBindingsDescription();
-			index++;
-		}
-		return description;
-	}
+	}	
 
 	// 9. Mouse customization
 
