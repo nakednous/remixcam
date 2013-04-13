@@ -32,6 +32,9 @@ import remixlab.remixcam.core.AbstractScene.CameraKeyboardAction;
 import remixlab.remixcam.core.AbstractScene.ClickAction;
 import remixlab.remixcam.core.AbstractScene.MouseAction;
 import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.events.DLEvent;
+import remixlab.remixcam.events.DLKeyEvent;
+import remixlab.remixcam.events.DLMouseEvent;
 import remixlab.remixcam.renderers.TransformationRenderer;
 
 /**
@@ -465,9 +468,7 @@ public class CameraProfile implements Constants {
 	 * <p>
 	 * Called by {@link remixlab.proscene.DesktopEvents#mousePressed(MouseEvent)}.
 	 */
-	//TODO: readd me?
-	/**
-	public MouseAction cameraMouseAction(MouseEvent e) {
+	public MouseAction cameraMouseAction(DLMouseEvent e) {
 		MouseAction camMouseAction = cameraMouseBinding( e.getModifiers(), e.getButton() );	
 		if (camMouseAction == null)
 			camMouseAction = MouseAction.NO_MOUSE_ACTION;
@@ -490,7 +491,6 @@ public class CameraProfile implements Constants {
 //	                     ", action bound: " + camMouseAction.description());         
 //		return camMouseAction;
 	}
-	*/
 	
 	public MouseAction frameMouseAction(int modifiers, int button) {
 		MouseAction iFrameMouseAction = frameMouseBinding( modifiers, button );
@@ -505,15 +505,12 @@ public class CameraProfile implements Constants {
 	 * <p>
 	 * Called by {@link remixlab.proscene.DesktopEvents#mousePressed(MouseEvent)}.
 	 */
-  //TODO: readd me?
-	/**
-	public MouseAction frameMouseAction(MouseEvent e) {
+	public MouseAction frameMouseAction(DLMouseEvent e) {
 		MouseAction iFrameMouseAction = frameMouseBinding( e.getModifiers(), e.getButton() );
 		if (iFrameMouseAction == null)
 			iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
 		return iFrameMouseAction;
 	}
-	*/
 	
 	public MouseAction cameraWheelMouseAction(int modifiers) {
 		MouseAction wMouseAction = cameraWheelBinding(modifiers);
@@ -528,15 +525,12 @@ public class CameraProfile implements Constants {
 	 * <p>
 	 * Called by {@link remixlab.proscene.DesktopEvents#mouseWheelMoved(MouseWheelEvent)}.
 	 */
-  //TODO: readd me?
-	/**
-	public MouseAction cameraWheelMouseAction(MouseEvent e) {
+	public MouseAction cameraWheelMouseAction(DLMouseEvent e) {
 		MouseAction wMouseAction = cameraWheelBinding(e.getModifiers());
 		if (wMouseAction == null)
 			wMouseAction = MouseAction.NO_MOUSE_ACTION;
 		return wMouseAction;
 	}
-	*/
 	
 	public MouseAction frameWheelMouseAction(int modifiers) {
 		MouseAction fMouseAction = frameWheelBinding( modifiers );
@@ -551,15 +545,12 @@ public class CameraProfile implements Constants {
 	 * <p>
 	 * Called by {@link remixlab.proscene.DesktopEvents#mouseWheelMoved(MouseWheelEvent)}.
 	 */
-  //TODO: readd me?
-	/**
-	public MouseAction frameWheelMouseAction(MouseEvent e) {
+	public MouseAction frameWheelMouseAction(DLMouseEvent e) {
 		MouseAction fMouseAction = frameWheelBinding( e.getModifiers() );
 		if (fMouseAction == null)
 			fMouseAction = MouseAction.NO_MOUSE_ACTION;
 		return fMouseAction;
 	}
-	*/
 	
 	/**
 	 * Returns a String containing the camera mouse bindings' descriptions.
@@ -607,8 +598,8 @@ public class CameraProfile implements Constants {
 	public String cameraWheelBindingsDescription() {
 		String description = new String();
 		for (Entry<Integer, AbstractScene.MouseAction> entry : cameraWheelActions.map().entrySet()) {
-			if (DesktopEvents.getModifiersText(entry.getKey()).length() != 0 )
-				description += "Wheel " + DesktopEvents.getModifiersText(entry.getKey()) + " -> " + entry.getValue().description() + "\n";
+			if (DLEvent.getModifiersText(entry.getKey()).length() != 0 )
+				description += "Wheel " + DLEvent.getModifiersText(entry.getKey()) + " -> " + entry.getValue().description() + "\n";
 			else
 				description += "Wheel -> " + entry.getValue().description() + "\n";
 		}
@@ -621,8 +612,8 @@ public class CameraProfile implements Constants {
 	public String frameWheelBindingsDescription() {
 		String description = new String();
 		for (Entry<Integer, AbstractScene.MouseAction> entry : frameWheelActions.map().entrySet())
-			if (DesktopEvents.getModifiersText(entry.getKey()).length() != 0 )
-				description += "Wheel " + DesktopEvents.getModifiersText(entry.getKey()) + " -> " + entry.getValue().description() + "\n";
+			if (DLEvent.getModifiersText(entry.getKey()).length() != 0 )
+				description += "Wheel " + DLEvent.getModifiersText(entry.getKey()) + " -> " + entry.getValue().description() + "\n";
 			else
 				description += "Wheel -> " + entry.getValue().description() + "\n";
 		return description;
@@ -658,7 +649,7 @@ public class CameraProfile implements Constants {
 	 * @see #setShortcut(Integer, Integer, AbstractScene.CameraKeyboardAction)
 	 */
 	public void setShortcut(Integer mask, Character key, CameraKeyboardAction action) {
-		setShortcut(mask, DesktopEvents.getVKey(key), action);
+		setShortcut(mask, DLKeyEvent.getVKey(key), action);
 	}
 	
 	/**
@@ -721,7 +712,7 @@ public class CameraProfile implements Constants {
 	 * @see #removeShortcut(Integer, Integer)
 	 */
 	public void removeShortcut(Integer mask, Character key) {
-		removeShortcut(mask, DesktopEvents.getVKey(key));
+		removeShortcut(mask, DLKeyEvent.getVKey(key));
 	}
 	
 	/**
@@ -769,7 +760,7 @@ public class CameraProfile implements Constants {
    * @see #shortcut(Integer, Integer)
    */
 	public CameraKeyboardAction shortcut(Integer mask, Character key) {
-		return shortcut(mask, DesktopEvents.getVKey(key));
+		return shortcut(mask, DLKeyEvent.getVKey(key));
 	}
 
 	/**
@@ -817,7 +808,7 @@ public class CameraProfile implements Constants {
 	 * @see #isKeyInUse(Integer, Integer)
 	 */
 	public boolean isKeyInUse(Integer mask, Character key) {
-		return isKeyInUse(mask, DesktopEvents.getVKey(key));
+		return isKeyInUse(mask, DLKeyEvent.getVKey(key));
 	}
 	
 	/**

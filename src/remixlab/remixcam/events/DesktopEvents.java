@@ -1,40 +1,15 @@
-/**
- *                     ProScene (version 1.2.0)      
- *    Copyright (c) 2010-2011 by National University of Colombia
- *                 @author Jean Pierre Charalambos      
- *           http://www.disi.unal.edu.co/grupos/remixlab/
- *                           
- * This java package provides classes to ease the creation of interactive 3D
- * scenes in Processing.
- * 
- * This source file is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * 
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- * 
- * A copy of the GNU General Public License is available on the World Wide Web
- * at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by
- * writing to the Free Software Foundation, 51 Franklin Street, Suite 500
- * Boston, MA 02110-1335, USA.
- */
+package remixlab.remixcam.events;
 
-package remixlab.proscene;
-
-import processing.event.*;
-
+//import remixlab.proscene.Scene;
+import remixlab.remixcam.core.*;
+//import remixlab.remixcam.core.AbstractScene.Modifier;
 import remixlab.remixcam.core.AbstractScene.CameraKeyboardAction;
 import remixlab.remixcam.core.AbstractScene.ClickAction;
 import remixlab.remixcam.core.AbstractScene.KeyboardAction;
 import remixlab.remixcam.core.AbstractScene.MouseAction;
-import remixlab.remixcam.core.InteractiveFrame;
-import remixlab.remixcam.devices.DesktopEvents;
 import remixlab.remixcam.devices.DeviceGrabbable;
 import remixlab.remixcam.geom.Point;
+
 
 /**
  * This class provides low level java.awt.* based input event handling.
@@ -43,18 +18,19 @@ import remixlab.remixcam.geom.Point;
  * to be registered  at the PApplet (which is done through
  * {@link remixlab.proscene.Scene#enableKeyboardHandling()} and
  * {@link remixlab.proscene.Scene#enableMouseHandling()}). Input events (keyboard and mouse)
- * generated via Processing will then be directed to {@link #keyEvent(KeyEvent)} and to
- * {@link #mouseEvent(MouseEvent)}.  
+ * generated via Processing will then be directed to {@link #DLDLKeyEvent(DLDLKeyEvent)} and to
+ * {@link #handleMouseEvent(DLMouseEvent)}.  
  */
-public class P5DesktopEvents extends DesktopEvents {	
-	protected MouseAction camMouseAction;
+public abstract class DesktopEvents implements Constants {
+	protected AbstractScene scene;
+	public MouseAction camMouseAction;
 	protected boolean keyHandled;
   //Z O O M _ O N _ R E G I O N
 	public Point fCorner;// also used for SCREEN_ROTATE
 	public Point lCorner;
 	
-	public P5DesktopEvents(Scene s) {
-		super(s);
+	public DesktopEvents(AbstractScene s) {
+		scene = s;
 		camMouseAction = MouseAction.NO_MOUSE_ACTION;
 		keyHandled = false;
 		fCorner = new Point();
@@ -69,17 +45,17 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * @see remixlab.proscene.Scene#keyboardIsHandled()
 	 * @see remixlab.proscene.Scene#enableKeyboardHandling(boolean)
 	 */
-	public void keyEvent(KeyEvent e) {		
+	public void handleKeyEvent(DLKeyEvent e) {
 		if( !scene.keyboardIsHandled() )
 			return;		
 		keyHandled = false;
 		switch (e.getAction() ) {
-		case KeyEvent.PRESS:
+		case DLKeyEvent.PRESS:
 			break;
-		case KeyEvent.TYPE:
+		case DLKeyEvent.TYPE:
 			keyTyped(e);
 			break;
-		case KeyEvent.RELEASE:
+		case DLKeyEvent.RELEASE:
 			keyReleased(e);
 			break;
 		}
@@ -92,10 +68,10 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * to see if there's a binding there first. If nothing is found,
 	 * the handler look for it in the Scene then.
 	 * 
-	 * @see #keyTypedCameraKeyboardAction(KeyEvent)
-	 * @see #keyTypedKeyboardAction(KeyEvent)
+	 * @see #keyTypedCameraKeyboardAction(DLKeyEvent)
+	 * @see #keyTypedKeyboardAction(DLKeyEvent)
 	 */
-	protected void keyTyped(KeyEvent e) {
+	protected void keyTyped(DLKeyEvent e) {
 		boolean handled = false;		
 		if (scene.currentCameraProfile() != null)
 			handled = keyTypedCameraKeyboardAction(e);
@@ -113,10 +89,10 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * If the {@link remixlab.proscene.Scene#currentCameraProfile()} doesn't bind an action,
 	 * the handler searches for it in the Scene.
 	 * 
-	 * @see #keyReleasedCameraKeyboardAction(KeyEvent)
-	 * @see #keyReleasedKeyboardAction(KeyEvent)
+	 * @see #keyReleasedCameraKeyboardAction(DLKeyEvent)
+	 * @see #keyReleasedKeyboardAction(DLKeyEvent)
 	 */
-	protected void keyReleased(KeyEvent e) {
+	protected void keyReleased(DLKeyEvent e) {
 		if(keyHandled)
 			return;
 		boolean handled = false;
@@ -129,13 +105,13 @@ public class P5DesktopEvents extends DesktopEvents {
 	/**
 	 * Internal use.
 	 * <p>
-	 * This method extracts the character associated with the key from the KeyEvent
+	 * This method extracts the character associated with the key from the DLKeyEvent
 	 * and then queries the {@link remixlab.proscene.Scene#currentCameraProfile()}
 	 * to see if there's a binding for it.
 	 * 
 	 * @return true if a binding was found 
 	 */
-	protected boolean keyTypedCameraKeyboardAction(KeyEvent e) {
+	protected boolean keyTypedCameraKeyboardAction(DLKeyEvent e) {
 		CameraKeyboardAction kba = null;
 		kba = scene.currentCameraProfile().shortcut( e.getKey() );
 		if (kba == null)
@@ -149,12 +125,12 @@ public class P5DesktopEvents extends DesktopEvents {
 	/**
 	 * Internal use.
 	 * <p>
-	 * This method extracts the character associated with the key from the KeyEvent
+	 * This method extracts the character associated with the key from the DLKeyEvent
 	 * and then queries the Scene to see if there's a binding for it.
 	 * 
 	 * @return true if a binding was found 
 	 */
-	protected boolean keyTypedKeyboardAction( KeyEvent e) {
+	protected boolean keyTypedKeyboardAction( DLKeyEvent e) {
 		if (!e.isAltDown() /**&& !e.isAltGraphDown()*/ && !e.isControlDown()	&& !e.isShiftDown()) {
 			Integer path = scene.path(e.getKey());
 			if (path != null) {
@@ -177,12 +153,12 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * Internal use.
 	 * <p>
 	 * This method extracts the key combination (keycode +  modifier mask) associated with
-	 * the KeyEvent and then queries the {@link remixlab.proscene.Scene#currentCameraProfile()}
+	 * the DLKeyEvent and then queries the {@link remixlab.proscene.Scene#currentCameraProfile()}
 	 * to see if there's a binding for it.
 	 * 
 	 * @return true if a binding was found 
 	 */
-	protected boolean keyReleasedCameraKeyboardAction(KeyEvent e) {
+	protected boolean keyReleasedCameraKeyboardAction(DLKeyEvent e) {
 		CameraKeyboardAction kba = null;
 		kba = scene.currentCameraProfile().shortcut( e.getModifiers(), e.getKeyCode() );
 		if (kba == null)
@@ -197,11 +173,11 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * Internal use.
 	 * <p>
 	 * This method extracts the key combination (keycode +  modifier mask) associated with
-	 * the KeyEvent and then queries the Scene to see if there's a binding for it.
+	 * the DLKeyEvent and then queries the Scene to see if there's a binding for it.
 	 * 
 	 * @return true if a binding was found 
 	 */
-	protected boolean keyReleasedKeyboardAction(KeyEvent e) {
+	protected boolean keyReleasedKeyboardAction(DLKeyEvent e) {
 		// 1. Key-frames
 		// 1.1. Need to add a key-frame?
 		if (((scene.addKeyFrameKeyboardModifier == ALT) && (e.isAltDown()))
@@ -246,28 +222,28 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * @see remixlab.proscene.Scene#mouseIsHandled()
 	 * @see remixlab.proscene.Scene#enableMouseHandling(boolean)
 	 */
-	public void mouseEvent(MouseEvent e) {
+	public void handleMouseEvent(DLMouseEvent e) {
 		scene.mouseX = e.getX();
 		scene.mouseY = e.getY();
 		if ((scene.currentCameraProfile() == null) || (!scene.mouseIsHandled()) )
 			return;
 		switch (e.getAction() ) {
-		case MouseEvent.CLICK:
+		case DLMouseEvent.CLICK:
 			mouseClicked(e);
 			break;
-		case MouseEvent.DRAG:
+		case DLMouseEvent.DRAG:
 			mouseDragged(e);
 			break;
-		case MouseEvent.MOVE:
+		case DLMouseEvent.MOVE:
 			mouseMoved(e);
 			break;
-		case MouseEvent.PRESS:
+		case DLMouseEvent.PRESS:
 			mousePressed(e);
 			break;
-		case MouseEvent.RELEASE:
+		case DLMouseEvent.RELEASE:
 			mouseReleased(e);
 			break;
-		case MouseEvent.WHEEL:
+		case DLMouseEvent.WHEEL:
 			mouseWheelMoved(e);
 		}		
 	}
@@ -279,7 +255,7 @@ public class P5DesktopEvents extends DesktopEvents {
    * a binding for this click event, taking into account the button, the modifier mask, and
    * the number of clicks.
    */
-	protected void mouseClicked(MouseEvent event) {		
+	protected void mouseClicked(DLMouseEvent event) {		
 		if (scene.mouseGrabber() != null)
 			scene.mouseGrabber().mouseClicked(/**event.getPoint(),*/ event.getButton(), event.getClickCount(), scene.pinhole());
 		else {
@@ -293,7 +269,7 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * {@link remixlab.proscene.Scene#setMouseGrabber(MouseGrabbable)} to the MouseGrabber that grabs the
 	 * mouse (or to {@code null} if none of them grab it).
 	 */
-	public void mouseMoved(MouseEvent e) {
+	public void mouseMoved(DLMouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		scene.setMouseGrabber(null);
 		if( scene.hasMouseTracking() )
@@ -314,18 +290,16 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * Mouse displacements are interpreted according to the
 	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse bindings.
 	 * 
-	 * @see #awtMouseDragged(MouseEvent)
-	 * @see #awtMouseReleased(MouseEvent)
+	 * @see #awtMouseDragged(DLMouseEvent)
+	 * @see #awtMouseReleased(DLMouseEvent)
 	 * @see #mouseWheelMoved(MouseWheelEvent)
 	 */
-	public void mousePressed(MouseEvent e) {
-		//TODO implement MouseEvent (to replace commented lines)?
+	public void mousePressed(DLMouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		if (scene.mouseGrabber() != null) {
 			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
 				InteractiveFrame iFrame = (InteractiveFrame) scene.mouseGrabber();
-				//iFrame.startAction(scene.currentCameraProfile().frameMouseAction(e), scene.drawIsConstrained());
-				iFrame.startAction(scene.currentCameraProfile().frameMouseAction(e.getModifiers(), e.getButton()), scene.drawIsConstrained());
+				iFrame.startAction(scene.currentCameraProfile().frameMouseAction(e), scene.drawIsConstrained());
 				iFrame.mousePressed(new Point(event.getX(), event.getY()), scene.pinhole());
 			} else
 				scene.mouseGrabber().mousePressed(new Point(event.getX(), event.getY()), scene.pinhole());
@@ -353,15 +327,15 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * The mouse dragged event is sent to the {@link remixlab.proscene.Scene#mouseGrabber()}
 	 * or the {@link remixlab.proscene.Scene#interactiveFrame()}, or to the
 	 * {@link remixlab.proscene.Scene#pinhole()}, according to the action started at
-	 * {@link #awtMousePressed(MouseEvent)}.
+	 * {@link #awtMousePressed(DLMouseEvent)}.
 	 * <p>
 	 * Mouse displacements are interpreted according to the
 	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse bindings.
 	 * 
-	 * @see #awtMousePressed(MouseEvent)
-	 * @see #awtMouseReleased(MouseEvent)
+	 * @see #awtMousePressed(DLMouseEvent)
+	 * @see #awtMouseReleased(DLMouseEvent)
 	 */
-	public void mouseDragged(MouseEvent e) {
+	public void mouseDragged(DLMouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		if (scene.mouseGrabber() != null) {
 			scene.mouseGrabber().checkIfGrabsMouse(event.getX(), event.getY(), scene.pinhole());
@@ -392,15 +366,15 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * {@link remixlab.proscene.Scene#mouseGrabber()} or the
 	 * {@link remixlab.proscene.Scene#interactiveFrame()}, or to the
 	 * {@link remixlab.proscene.Scene#pinhole()}, according to the action started at
-	 * {@link #mousePressed(MouseEvent)}.
+	 * {@link #mousePressed(DLMouseEvent)}.
 	 * <p>
 	 * Mouse displacements are interpreted according to the
 	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse bindings.
 	 * 
-	 * @see #mousePressed(MouseEvent)
-	 * @see #mouseDragged(MouseEvent)
+	 * @see #mousePressed(DLMouseEvent)
+	 * @see #mouseDragged(DLMouseEvent)
 	 */
-	public void mouseReleased(MouseEvent e) {
+	public void mouseReleased(DLMouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		if (scene.mouseGrabber() != null) {
 			if (scene.mouseGrabberIsAnIFrame) //covers also the case when mouseGrabberIsADrivableFrame
@@ -438,17 +412,15 @@ public class P5DesktopEvents extends DesktopEvents {
 	 * Mouse wheel rotation is interpreted according to the
 	 * {@link remixlab.proscene.Scene#currentCameraProfile()} mouse wheel bindings.
 	 * 
-	 * @see #mousePressed(MouseEvent)
+	 * @see #mousePressed(DLMouseEvent)
 	 */
-	public void mouseWheelMoved(MouseEvent event) {		
-	  //TODO implement MouseEvent (to replace commented lines)?
+	public void mouseWheelMoved(DLMouseEvent event) {
 		if(!scene.mouseIsHandled())
 			return;
 		if (scene.mouseGrabber() != null) {
 			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
 				InteractiveFrame iFrame = (InteractiveFrame) scene.mouseGrabber();
-				//iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
-				iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event.getModifiers()), scene.drawIsConstrained());
+				iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
 				iFrame.mouseWheelMoved(event.getAmount(), scene.pinhole());				
 			} else
 				scene.mouseGrabber().mouseWheelMoved(event.getAmount(), scene.pinhole());

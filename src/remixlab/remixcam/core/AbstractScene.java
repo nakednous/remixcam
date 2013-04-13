@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import remixlab.remixcam.devices.*;
+import remixlab.remixcam.events.DLEvent;
+import remixlab.remixcam.events.DLKeyEvent;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.renderers.StackRenderer;
 import remixlab.remixcam.util.*;
@@ -315,6 +317,8 @@ public abstract class AbstractScene implements Constants {
 	public Integer addKeyFrameKeyboardModifier;
 	public Integer deleteKeyFrameKeyboardModifier;
 	
+	//offscreen
+	public Point upperLeftCorner;
 	protected boolean offscreen;
 	
 	/**
@@ -812,7 +816,7 @@ public abstract class AbstractScene implements Constants {
    * @see #setShortcut(Integer, Integer, KeyboardAction)
    */
 	public void setShortcut(Integer mask, Character key, KeyboardAction action) {
-		setShortcut(mask, DesktopEvents.getVKey(key), action);
+		setShortcut(mask, DLKeyEvent.getVKey(key), action);
 	}
 	
   /**
@@ -873,7 +877,7 @@ public abstract class AbstractScene implements Constants {
    * @see #removeShortcut(Integer, Integer)
    */
 	public void removeShortcut(Integer mask, Character key) {
-		removeShortcut(mask, DesktopEvents.getVKey(key));
+		removeShortcut(mask, DLKeyEvent.getVKey(key));
 	}
 
 	/**
@@ -917,7 +921,7 @@ public abstract class AbstractScene implements Constants {
    * @see #shortcut(Integer, Integer)
    */
 	public KeyboardAction shortcut(Integer mask, Character key) {
-		return shortcut(mask, DesktopEvents.getVKey(key));
+		return shortcut(mask, DLKeyEvent.getVKey(key));
 	}
 
 	/**
@@ -961,7 +965,7 @@ public abstract class AbstractScene implements Constants {
    * @see #isKeyInUse(Integer, Integer)
    */
 	public boolean isKeyInUse(Integer mask, Character key) {
-		return isKeyInUse(mask, DesktopEvents.getVKey(key));
+		return isKeyInUse(mask, DLKeyEvent.getVKey(key));
 	}
 	
 	/**
@@ -1100,7 +1104,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #setPathKey(Integer, Integer)
 	 */
 	public void setPathKey(Character key, Integer path) {
-		setPathKey(DesktopEvents.getVKey(key), path);
+		setPathKey(DLKeyEvent.getVKey(key), path);
 	}
 	
 	/**
@@ -1129,7 +1133,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #path(Integer)
 	 */
 	public Integer path(Character key) {
-		return path(DesktopEvents.getVKey(key));
+		return path(DLKeyEvent.getVKey(key));
 	}
 	
 	/**
@@ -1153,7 +1157,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #removePathKey(Integer)
 	 */
 	public void removePathKey(Character key) {
-		removePathKey(DesktopEvents.getVKey(key));
+		removePathKey(DLKeyEvent.getVKey(key));
 	}
 	
 	/**
@@ -1177,7 +1181,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #isPathKeyInUse(Integer)
 	 */
 	public boolean isPathKeyInUse(Character key) {
-		return isPathKeyInUse(DesktopEvents.getVKey(key));
+		return isPathKeyInUse(DLKeyEvent.getVKey(key));
 	}
 	
 	/**
@@ -1222,9 +1226,9 @@ public abstract class AbstractScene implements Constants {
 		}
 		
 		for (Entry<Integer, Integer> entry : pathKeys.map().entrySet())
-			description += DesktopEvents.getKeyText(entry.getKey()) + " -> plays camera path " + entry.getValue().toString() + "\n";
-		description += DesktopEvents.getModifiersText(addKeyFrameKeyboardModifier) + " + one of the above keys -> adds keyframe to the camera path \n";
-		description += DesktopEvents.getModifiersText(deleteKeyFrameKeyboardModifier) + " + one of the above keys -> deletes the camera path \n";
+			description += DLKeyEvent.getKeyText(entry.getKey()) + " -> plays camera path " + entry.getValue().toString() + "\n";
+		description += DLEvent.getModifiersText(addKeyFrameKeyboardModifier) + " + one of the above keys -> adds keyframe to the camera path \n";
+		description += DLEvent.getModifiersText(deleteKeyFrameKeyboardModifier) + " + one of the above keys -> deletes the camera path \n";
 		
 		return description;		
 	}

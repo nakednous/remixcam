@@ -1,17 +1,29 @@
-package remixlab.remixcam.devices;
+package remixlab.remixcam.events;
 
+public class DLKeyEvent extends DLEvent {
+  static public final int PRESS = 1;
+  static public final int RELEASE = 2;
+  static public final int TYPE = 3;
 
-import remixlab.proscene.Scene;
-//import remixlab.proscene.Scene;
-import remixlab.remixcam.core.*;
-//import remixlab.remixcam.core.AbstractScene.Modifier;
+  char key;
+  int keyCode;
 
-public class DesktopEvents implements Constants {
-	protected Scene scene;
-	public DesktopEvents(Scene s) {
-		scene = s;
-	}
-	
+  public DLKeyEvent(long millis, int action, int modifiers,
+                  char key, int keyCode) {
+    super(millis, action, modifiers);
+    this.flavor = KEY;
+    this.key = key;
+    this.keyCode = keyCode;
+  }
+
+  public char getKey() {
+    return key;
+  }
+
+  public int getKeyCode() {
+    return keyCode;
+  }
+  
 	/**
 	 * Function that maps characters to virtual keys defined according to
 	 * {@code java.awt.event.KeyEvent}.
@@ -110,14 +122,4 @@ public class DesktopEvents implements Constants {
     }
     return result;
 	}
-	
-	public static String getModifiersText(int mask) {
-		String r = new String();
-		if((ALT & mask)       == ALT) r += "ALT";						
-		if((SHIFT & mask)     == SHIFT) r += (r.length() > 0) ? "+SHIFT" : "SHIFT";
-		if((CTRL & mask)      == CTRL) r += (r.length() > 0) ? "+CTRL" : "CTRL";
-		if((META & mask)      == META) r += (r.length() > 0) ? "+META" : "META";
-		if((ALT_GRAPH & mask) == ALT_GRAPH) r += (r.length() > 0) ? "+ALT_GRAPH" : "ALT_GRAPH";
-		return r;
-	}	
 }

@@ -25,6 +25,8 @@
 
 package remixlab.remixcam.devices;
 
+import remixlab.remixcam.events.DLEvent;
+import remixlab.remixcam.events.DLKeyEvent;
 import com.flipthebird.gwthashcodeequals.*;
 
 /**
@@ -99,9 +101,9 @@ public final class KeyboardShortcut {
 			description = key.toString();
 		else {
 			if(mask == 0)
-				description = DesktopEvents.getKeyText(vKey);
+				description = DLKeyEvent.getKeyText(vKey);
 			else
-				description = DesktopEvents.getModifiersText(mask) + "+" + DesktopEvents.getKeyText(vKey);
+				description = DLEvent.getModifiersText(mask) + "+" + DLKeyEvent.getKeyText(vKey);
 		}			
 		return description;
 	}

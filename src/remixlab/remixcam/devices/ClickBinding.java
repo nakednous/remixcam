@@ -27,6 +27,7 @@ package remixlab.remixcam.devices;
 
 import com.flipthebird.gwthashcodeequals.*;
 import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.events.DLEvent;
 
 /**
  * This class represents mouse click shortcuts.
@@ -118,7 +119,7 @@ public class ClickBinding implements Constants {
 	public String description() {
 		String description = new String();
 		if(mask != 0)
-			description += DesktopEvents.getModifiersText(mask) + " + ";
+			description += DLEvent.getModifiersText(mask) + " + ";
 		switch (button) {
 		case LEFT :
 			description += "LEFT_BUTTON";

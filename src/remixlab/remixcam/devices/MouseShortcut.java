@@ -27,6 +27,7 @@ package remixlab.remixcam.devices;
 
 import com.flipthebird.gwthashcodeequals.*;
 import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.events.DLEvent;
 
 /**
  * This class represents mouse shortcuts.
@@ -89,7 +90,7 @@ public final class MouseShortcut implements Constants {
 	 * Internal. Low-level description() function.
 	 */
 	protected String description(Integer b) {
-		String r = DesktopEvents.getModifiersText(mask);
+		String r = DLEvent.getModifiersText(mask);
 		switch (b) {
 		case LEFT:
 			r += (r.length() > 0) ? "+LEFT_BUTTON" : "LEFT_BUTTON";

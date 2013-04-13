@@ -26,6 +26,8 @@
 package remixlab.proscene;
 
 import processing.core.*;
+import processing.event.KeyEvent;
+import processing.event.MouseEvent;
 import processing.opengl.*;
 
 /**
@@ -48,6 +50,9 @@ import remixlab.remixcam.devices.CameraProfile;
 import remixlab.remixcam.devices.DeviceGrabbable;
 import remixlab.remixcam.devices.Bindings;
 import remixlab.remixcam.devices.KeyboardShortcut;
+import remixlab.remixcam.events.DLKeyEvent;
+import remixlab.remixcam.events.DLMouseEvent;
+import remixlab.remixcam.events.DesktopEvents;
 import remixlab.remixcam.util.AbstractTimerJob;
 import remixlab.remixcam.util.SingleThreadedTaskableTimer;
 import remixlab.remixcam.util.SingleThreadedTimer;
@@ -120,6 +125,18 @@ import java.nio.FloatBuffer;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {
+	public class P5DesktopEvents extends DesktopEvents {	
+		public P5DesktopEvents(Scene s) {
+			super(s);
+		}
+		public void keyEvent(KeyEvent e) {
+			handleKeyEvent(new DLKeyEvent(e.getMillis(), e.getAction(), e.getModifiers(), e.getKey(), e.getKeyCode()));
+		}
+		public void mouseEvent(MouseEvent e) {
+			handleMouseEvent(new DLMouseEvent(e.getMillis(), e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount()));
+		}
+	}
+	
 	// proscene version
 	public static final String version = "1.9.60";
 	/**
@@ -163,8 +180,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 
 	// P R O C E S S I N G   A P P L E T   A N D   O B J E C T S
-	public PApplet parent;
-	public Point upperLeftCorner;	
+	public PApplet parent;	
 
 	// O B J E C T S
 	//TODO pending
