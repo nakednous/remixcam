@@ -36,48 +36,7 @@ public class P5Renderer3D extends P5Renderer {
 	@Override
 	public boolean is3D() {
 		return true;
-	}
-	
-	/**
-	@Override
-	public void bindMatrices() {		
-		scene.camera().computeProjectionMatrix();		
-		scene.camera().computeViewMatrix();
-		scene.camera().computeProjectionViewMatrix();
-		
-		Vector3D pos = scene.camera().position();
-		Quaternion quat = (Quaternion) scene.camera().frame().orientation();
-		Vector3D axis = quat.axis();
-		
-	  switch (scene.camera().type()) {
-	  case PERSPECTIVE:
-	  	pg3d().perspective(scene.camera().fieldOfView(), scene.camera().aspectRatio(), scene.camera().zNear(), scene.camera().zFar());
-	  	
-	  	break;
-	  case ORTHOGRAPHIC:
-	  	//TODO broken
-			float cameraZ = (pg3d().height/2.0f) / PApplet.tan( scene().camera().fieldOfView() /2.0f);
-		  float cameraNear = cameraZ / 2.0f;
-		  float cameraFar = cameraZ * 2.0f;
-		    
-		  //pg3d().ortho(0, pg3d().width, 0, pg3d().height, cameraNear, cameraFar);	
-		    
-			float[] wh = scene.camera().getOrthoWidthHeight();					
-			//pg3d().ortho(0, 2*wh[0], 0, 2*wh[1], scene.camera().zNear(), scene.camera().zFar());
-			//pg3d().ortho(0, pg3d().width, 0, pg3d().height, cameraNear, cameraFar);	
-			pg3d().ortho(0, pg3d().width, 0, pg3d().height, scene.camera().zNear(), scene.camera().zFar());
-			
-			break;
-		}		
-		
-		translate(scene.width() / 2, scene.height() / 2,  (scene.height() / 2) / (float) Math.tan(PI / 6));
-		
-		if(scene.isRightHanded()) scale(1,-1,1);
-		
-		rotate(-quat.angle(), axis.x(), axis.y(), axis.z());		
-		translate(-pos.x(), -pos.y(), -pos.z());		
 	}	
-	// */
 
 	@Override
 	public void setProjection(Matrix3D source) {

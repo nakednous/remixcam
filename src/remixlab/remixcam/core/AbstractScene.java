@@ -28,6 +28,7 @@ package remixlab.remixcam.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import remixlab.remixcam.devices.*;
 import remixlab.remixcam.geom.*;
@@ -306,6 +307,16 @@ public abstract class AbstractScene implements Constants {
 	protected ArrayList<String> cameraProfileNames;
 	protected CameraProfile currentCameraProfile;
 	
+  //S h o r t c u t k e y s
+	protected Bindings<KeyboardShortcut, KeyboardAction> gProfile;
+	
+  //K E Y F R A M E S
+	protected Bindings<Integer, Integer> pathKeys;
+	public Integer addKeyFrameKeyboardModifier;
+	public Integer deleteKeyFrameKeyboardModifier;
+	
+	protected boolean offscreen;
+	
 	/**
    * The system variables <b>mouseX</b> and <b>mouseY</b> always contains the current horizontal
    * and vertical coordinates of the mouse.
@@ -351,6 +362,8 @@ public abstract class AbstractScene implements Constants {
 		
 		setGridDotted(true);
 		setRightHanded();
+		
+		//gProfile = new Bindings<KeyboardShortcut, KeyboardAction>(this);		
 		//initDefaultCameraProfiles();
 	}
 	
@@ -368,6 +381,29 @@ public abstract class AbstractScene implements Constants {
 	
 	public void setGridDotted(boolean dotted) {
 		dottedGrid = dotted;
+	}
+	
+	/**
+	 * Returns {@code true} if this Scene is associated to an offscreen 
+	 * renderer and {@code false} otherwise.
+	 * 
+	 * @see #Scene(PApplet, PGraphicsOpenGL)
+	 */	
+	public boolean isOffscreen() {
+		return offscreen;
+	}	
+	
+	/**
+	 * Sets the interactivity to the Scene {@link #interactiveFrame()} instance
+	 * according to {@code draw}
+	 */
+	public void setDrawInteractiveFrame(boolean draw) {
+		if (draw && (glIFrame == null))
+			return;
+		if (!draw && (currentCameraProfile().mode() == CameraProfile.Mode.THIRD_PERSON)
+				&& interactiveFrame().equals(avatar()))// more natural than to bypass it
+			return;
+		iFrameIsDrwn = draw;
 	}
 	
 	// E V E N T   HA N D L I N G
@@ -742,7 +778,221 @@ public abstract class AbstractScene implements Constants {
 		displayCurrentCameraProfileHelp(true);
 	}
 	
-	public abstract void displayCurrentCameraProfileHelp(boolean onConsole);
+	public void displayCurrentCameraProfileHelp(boolean onConsole) {
+		if (onConsole)
+			System.out.println(currentCameraProfileHelp());
+		else
+			AbstractScene.showMissingImplementationWarning("displayCurrentCameraProfileHelp");
+	}
+	
+	// Shortcuts
+	
+	/**
+   * Defines a global keyboard shortcut to bind the given action.
+   * 
+   * @param key shortcut
+   * @param action keyboard action
+   */
+	public void setShortcut(Character key, KeyboardAction action) {
+		if ( isKeyInUse(key) ) {
+			KeyboardAction a = shortcut(key);
+			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
+		}
+		gProfile.setBinding(new KeyboardShortcut(key), action);
+	}
+	
+  /**
+   * Defines a global keyboard shortcut to bind the given action. High-level version
+   * of {@link #setShortcut(Integer, Integer, KeyboardAction)}.
+   * 
+   * @param mask modifier mask defining the shortcut
+   * @param key character (internally converted to a coded key) defining the shortcut
+   * @param action keyboard action
+   * 
+   * @see #setShortcut(Integer, Integer, KeyboardAction)
+   */
+	public void setShortcut(Integer mask, Character key, KeyboardAction action) {
+		setShortcut(mask, DesktopEvents.getVKey(key), action);
+	}
+	
+  /**
+   * Defines a global keyboard shortcut to bind the given action. High-level version
+   * of {@link #setShortcut(Integer, Character, KeyboardAction)}.
+   * 
+   * @param mask modifier mask defining the shortcut
+   * @param vKey coded key defining the shortcut
+   * @param action keyboard action
+   * 
+   * @see #setShortcut(Integer, Character, KeyboardAction)
+   */
+	public void setShortcut(Integer mask, Integer vKey, KeyboardAction action) {
+		if ( isKeyInUse(mask, vKey) ) {
+			KeyboardAction a = shortcut(mask, vKey);
+			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
+		}
+		gProfile.setBinding(new KeyboardShortcut(mask, vKey), action);
+	}
+
+	/**
+	 * Defines a global keyboard shortcut to bind the given action.
+	 * 
+	 * @param vKey coded key defining the shortcut
+	 * @param action keyboard action
+	 */
+	public void setShortcut(Integer vKey, KeyboardAction action) {
+		if ( isKeyInUse(vKey) ) {
+			KeyboardAction a = shortcut(vKey);
+			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
+		}
+		gProfile.setBinding(new KeyboardShortcut(vKey), action);
+	}
+
+	/**
+	 * Removes all global keyboard shortcuts.
+	 */
+	public void removeAllShortcuts() {
+		gProfile.removeAllBindings();
+	}
+	
+	/**
+	 * Removes the global keyboard shortcut.
+	 * 
+	 * @param key shortcut
+	 */
+	public void removeShortcut(Character key) {
+		gProfile.removeBinding(new KeyboardShortcut(key));
+	}
+	
+  /**
+   * Removes the global keyboard shortcut. High-level version
+   * of {@link #removeShortcut(Integer, Integer)}.
+   * 
+   * @param mask modifier mask defining the shortcut
+   * @param key character (internally converted to a coded key) defining the shortcut
+   * 
+   * @see #removeShortcut(Integer, Integer)
+   */
+	public void removeShortcut(Integer mask, Character key) {
+		removeShortcut(mask, DesktopEvents.getVKey(key));
+	}
+
+	/**
+   * Removes the global keyboard shortcut. Low-level version
+   * of {@link #removeShortcut(Integer, Character)}.
+   * 
+   * @param mask modifier mask defining the shortcut
+   * @param vKey virtual coded-key defining the shortcut
+   * 
+   * @see #removeShortcut(Integer, Character)
+   */
+	public void removeShortcut(Integer mask, Integer vKey) {
+		gProfile.removeBinding(new KeyboardShortcut(mask, vKey));
+	}
+
+	/**
+	 * Removes the global keyboard shortcut.
+	 * 
+	 * @param vKey virtual coded-key defining the shortcut
+	 */
+	public void removeShortcut(Integer vKey) {
+		gProfile.removeBinding(new KeyboardShortcut(vKey));
+	}
+	
+	/**
+	 * Returns the action that is binded to the given global keyboard shortcut.
+	 * 
+	 * @param key shortcut
+	 */
+	public KeyboardAction shortcut(Character key) {
+		return gProfile.binding(new KeyboardShortcut(key));
+	}
+	
+  /**
+   * Returns the action that is binded to the given global keyboard shortcut.
+   * High-level version of {@link #shortcut(Integer, Integer)}.
+   * 
+   * @param mask modifier mask defining the shortcut
+   * @param key character (internally converted to a coded key) defining the shortcut
+   * 
+   * @see #shortcut(Integer, Integer)
+   */
+	public KeyboardAction shortcut(Integer mask, Character key) {
+		return shortcut(mask, DesktopEvents.getVKey(key));
+	}
+
+	/**
+   * Returns the action that is binded to the given global keyboard shortcut.
+   * Low-level version of {@link #shortcut(Integer, Character)}.
+   * 
+   * @param mask modifier mask defining the shortcut
+   * @param vKey virtual coded-key defining the shortcut
+   * 
+   * @see #shortcut(Integer, Character)
+   */
+	public KeyboardAction shortcut(Integer mask, Integer vKey) {
+		return gProfile.binding(new KeyboardShortcut(mask, vKey));
+	}
+
+	/**
+	 * Returns the action that is binded to the given global keyboard shortcut.
+	 * 
+	 * @param vKey virtual coded-key defining the shortcut
+	 */
+	public KeyboardAction shortcut(Integer vKey) {
+		return gProfile.binding(new KeyboardShortcut(vKey));
+	}
+
+	/**
+	 * Returns true if the given global keyboard shortcut binds an action.
+	 * 
+	 * @param key shortcut
+	 */
+	public boolean isKeyInUse(Character key) {
+		return gProfile.isShortcutInUse(new KeyboardShortcut(key));
+	}
+	
+  /**
+   * Returns true if the given global keyboard shortcut binds an action.
+   * High-level version of {@link #isKeyInUse(Integer, Integer)}.
+   * 
+   * @param mask modifier mask defining the shortcut
+   * @param key character (internally converted to a coded key) defining the shortcut
+   * 
+   * @see #isKeyInUse(Integer, Integer)
+   */
+	public boolean isKeyInUse(Integer mask, Character key) {
+		return isKeyInUse(mask, DesktopEvents.getVKey(key));
+	}
+	
+	/**
+   * Returns true if the given global keyboard shortcut binds an action.
+   * Low-level version of {@link #isKeyInUse(Integer, Character)}.
+   * 
+   * @param mask modifier mask defining the shortcut
+   * @param vKey virtual coded-key defining the shortcut
+   * 
+   * @see #isKeyInUse(Integer, Character)
+   */
+	public boolean isKeyInUse(Integer mask, Integer vKey) {
+		return gProfile.isShortcutInUse(new KeyboardShortcut(mask, vKey));
+	}
+	
+	/**
+	 * Returns true if the given global keyboard shortcut binds an action.
+	 * 
+	 * @param vKey virtual coded-key defining the shortcut
+	 */
+	public boolean isKeyInUse(Integer vKey) {
+		return gProfile.isShortcutInUse(new KeyboardShortcut(vKey));
+	}
+
+	/**
+	 * Returns true if there is a global keyboard shortcut for the given action.
+	 */
+	public boolean isActionBinded(KeyboardAction action) {
+		return gProfile.isActionMapped(action);
+	}
+	
 	
 	/**
 	 * Returns {@code true} if the keyboard is currently being handled by proscene
@@ -799,6 +1049,187 @@ public abstract class AbstractScene implements Constants {
 	}
 	
 	/**
+	 * Sets global default keyboard shortcuts and the default key-frame shortcut keys.
+	 * <p>
+	 * Default global keyboard shortcuts are:
+	 * <p>
+	 * <ul>
+	 * <li><b>'a'</b>: {@link remixlab.proscene.Scene.KeyboardAction#DRAW_AXIS}.
+	 * <li><b>'e'</b>: {@link remixlab.proscene.Scene.KeyboardAction#CAMERA_TYPE}.
+	 * <li><b>'g'</b>: {@link remixlab.proscene.Scene.KeyboardAction#DRAW_GRID}.
+	 * <li><b>'h'</b>: {@link remixlab.proscene.Scene.KeyboardAction#GLOBAL_HELP}
+	 * <li><b>'H'</b>: {@link remixlab.proscene.Scene.KeyboardAction#CURRENT_CAMERA_PROFILE_HELP}
+	 * <li><b>'r'</b>: {@link remixlab.proscene.Scene.KeyboardAction#EDIT_CAMERA_PATH}.
+	 * <li><b>space bar</b>: {@link remixlab.proscene.Scene.KeyboardAction#CAMERA_PROFILE}.
+	 * </ul> 
+	 * <p>
+	 * Default key-frame shortcuts keys are:
+	 * <ul>
+	 * <li><b>'[1..5]'</b>: Play path [1..5]. 
+	 * <li><b>'CTRL'+'[1..5]'</b>: Add key-frame to path [1..5].   
+	 * <li><b>'ALT'+'[1..5]'</b>: Remove path [1..5].
+	 * </ul> 
+	 */
+	public void setDefaultShortcuts() {
+		// D e f a u l t s h o r t c u t s		
+		setShortcut('a', KeyboardAction.DRAW_AXIS);
+		setShortcut('g', KeyboardAction.DRAW_GRID);
+		setShortcut(' ', KeyboardAction.CAMERA_PROFILE);
+		setShortcut('e', KeyboardAction.CAMERA_TYPE);		
+		setShortcut('h', KeyboardAction.GLOBAL_HELP);
+		setShortcut('H', KeyboardAction.CURRENT_CAMERA_PROFILE_HELP);
+		setShortcut('r', KeyboardAction.EDIT_CAMERA_PATH);
+
+		// K e y f r a m e s s h o r t c u t k e y s
+		setAddKeyFrameKeyboardModifier(CTRL);
+		setDeleteKeyFrameKeyboardModifier(ALT);
+		setPathKey('1', 1);
+		setPathKey('2', 2);
+		setPathKey('3', 3);
+		setPathKey('4', 4);
+		setPathKey('5', 5);
+	}
+
+	/**
+	 * Associates key-frame interpolator path to key. High-level version
+	 * of {@link #setPathKey(Integer, Integer)}.
+	 *  
+	 * @param key character (internally converted to a key coded) defining the shortcut
+	 * @param path key-frame interpolator path
+	 * 
+	 * @see #setPathKey(Integer, Integer)
+	 */
+	public void setPathKey(Character key, Integer path) {
+		setPathKey(DesktopEvents.getVKey(key), path);
+	}
+	
+	/**
+	 * Associates key-frame interpolator path to the given virtual key. Low-level version
+	 * of {@link #setPathKey(Character, Integer)}.
+	 * 
+	 * @param vKey shortcut
+	 * @param path key-frame interpolator path
+	 * 
+	 * @see #setPathKey(Character, Integer)
+	 */
+	public void setPathKey(Integer vKey, Integer path) {
+		if ( isPathKeyInUse(vKey) ) {
+			Integer p = path(vKey);
+			System.out.println("Warning: overwritting path key which was previously binded to path " + p);
+		}
+		pathKeys.setBinding(vKey, path);
+	}
+
+	/**
+	 * Returns the key-frame interpolator path associated with key. High-level version
+	 * of {@link #path(Integer)}.
+	 * 
+	 * @param key character (internally converted to a key coded) defining the shortcut
+	 * 
+	 * @see #path(Integer)
+	 */
+	public Integer path(Character key) {
+		return path(DesktopEvents.getVKey(key));
+	}
+	
+	/**
+	 * Returns the key-frame interpolator path associated with key. Low-level version
+	 * of {@link #path(Character)}.
+	 * 
+	 * @param vKey shortcut
+	 * 
+	 * @see #path(Character)
+	 */
+	public Integer path(Integer vKey) {
+		return pathKeys.binding(vKey);
+	}
+
+	/**
+	 * Removes the key-frame interpolator shortcut. High-level version
+	 * of {@link #removePathKey(Integer)}.
+	 * 
+	 * @param key character (internally converted to a key coded) defining the shortcut
+	 * 
+	 * @see #removePathKey(Integer)
+	 */
+	public void removePathKey(Character key) {
+		removePathKey(DesktopEvents.getVKey(key));
+	}
+	
+	/**
+	 * Removes the key-frame interpolator shortcut. Low-level version
+	 * of {@link #removePathKey(Character)}.
+	 * 
+	 * @param vKey shortcut
+	 * 
+	 * @see #removePathKey(Character)
+	 */
+	public void removePathKey(Integer vKey) {
+		pathKeys.removeBinding(vKey);
+	}
+	
+	/**
+	 * Returns true if the given key binds a key-frame interpolator path. High-level version
+	 * of {@link #isPathKeyInUse(Integer)}.
+	 * 
+	 * @param key character (internally converted to a key coded) defining the shortcut
+	 * 
+	 * @see #isPathKeyInUse(Integer)
+	 */
+	public boolean isPathKeyInUse(Character key) {
+		return isPathKeyInUse(DesktopEvents.getVKey(key));
+	}
+	
+	/**
+	 * Returns true if the given virtual key binds a key-frame interpolator path. Low-level version
+	 * of {@link #isPathKeyInUse(Character)}.
+	 * 
+	 * @param vKey shortcut
+	 * 
+	 * @see #isPathKeyInUse(Character)
+	 */
+	public boolean isPathKeyInUse(Integer vKey) {
+		return pathKeys.isShortcutInUse(vKey);
+	}
+
+	/**
+	 * Sets the modifier key needed to play the key-frame interpolator paths.
+	 * 
+	 * @param modifier
+	 */
+	public void setAddKeyFrameKeyboardModifier(Integer modifier) {
+		addKeyFrameKeyboardModifier = modifier;
+	}
+
+	/**
+	 * Sets the modifier key needed to delete the key-frame interpolator paths.
+	 * 
+	 * @param modifier
+	 */
+	public void setDeleteKeyFrameKeyboardModifier(Integer modifier) {
+		deleteKeyFrameKeyboardModifier = modifier;
+	}
+	
+	public String globalHelp() {
+		String description = new String();
+		description += "GLOBAL keyboard shortcuts\n";
+		for (Entry<KeyboardShortcut, AbstractScene.KeyboardAction> entry : gProfile.map().entrySet()) {			
+			Character space = ' ';
+			if (!entry.getKey().description().equals(space.toString())) 
+				description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";
+			else
+				description += "space_bar" + " -> " + entry.getValue().description() + "\n";
+		}
+		
+		for (Entry<Integer, Integer> entry : pathKeys.map().entrySet())
+			description += DesktopEvents.getKeyText(entry.getKey()) + " -> plays camera path " + entry.getValue().toString() + "\n";
+		description += DesktopEvents.getModifiersText(addKeyFrameKeyboardModifier) + " + one of the above keys -> adds keyframe to the camera path \n";
+		description += DesktopEvents.getModifiersText(deleteKeyFrameKeyboardModifier) + " + one of the above keys -> deletes the camera path \n";
+		
+		return description;		
+	}
+	
+	/**
 	 * Toggles the {@link #interactiveFrame()} interactivity on and off.
 	 */
 	public void toggleDrawInteractiveFrame() {
@@ -817,7 +1248,13 @@ public abstract class AbstractScene implements Constants {
 		setDrawInteractiveFrame(true);
 	}
 	
-	public abstract void setDrawInteractiveFrame(boolean draw);
+	/**
+	 * Returns the {@link PApplet#width} to {@link PApplet#height} aspect ratio of
+	 * the processing display window.
+	 */
+	public float aspectRatio() {
+		return (float) width() / (float) height();
+	}
 	
 	/**
 	 * Internal method. Handles the different camera keyboard actions.
