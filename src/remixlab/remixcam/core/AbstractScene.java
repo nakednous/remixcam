@@ -31,10 +31,9 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import remixlab.remixcam.devices.*;
-import remixlab.remixcam.events.DLEvent;
-import remixlab.remixcam.events.DLKeyEvent;
+import remixlab.remixcam.events.*;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.renderers.StackRenderer;
+import remixlab.remixcam.renderers.*;
 import remixlab.remixcam.util.*;
 
 public abstract class AbstractScene implements Constants {
@@ -367,8 +366,9 @@ public abstract class AbstractScene implements Constants {
 		setGridDotted(true);
 		setRightHanded();
 		
-		//gProfile = new Bindings<KeyboardShortcut, KeyboardAction>(this);		
-		//initDefaultCameraProfiles();
+		gProfile = new Bindings<KeyboardShortcut, KeyboardAction>(this);
+		pathKeys = new Bindings<Integer, Integer>(this);		
+		setDefaultShortcuts();
 	}
 	
 	protected void setRenderer(Renderable r) {
