@@ -348,7 +348,6 @@ public abstract class StackRenderer extends Renderer {
 	}
 	*/
 	
-	
 	@Override
 	public void pushProjection() {
 		mStack.pushProjection();
@@ -456,6 +455,13 @@ public abstract class StackRenderer extends Renderer {
 	}
 	
 	//--
+	
+	@Override
+	public void bindMatrices() {
+		setProjectionMatrix();
+		setModelViewMatrix();
+		scene.pinhole().cacheProjViewInvMat();
+	}
 	
 	@Override
 	protected void setProjectionMatrix() {

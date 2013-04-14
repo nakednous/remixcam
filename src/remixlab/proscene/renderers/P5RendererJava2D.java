@@ -5,10 +5,10 @@ import processing.core.*;
 import remixlab.proscene.Scene;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.renderers.TransformationRenderer;
+import remixlab.remixcam.renderers.Renderer;
 //import remixlab.remixcam.renderers.TransformationRenderer;
 
-public class P5RendererJava2D extends TransformationRenderer {
+public class P5RendererJava2D extends Renderer {
 	PGraphics pg;
 	Matrix3D proj;
 	

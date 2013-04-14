@@ -5,7 +5,7 @@ import java.util.List;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
 
-public abstract class Renderer implements Renderable {
+public abstract class Renderer implements Renderable, Constants {
 	protected AbstractScene scene;
 	protected Drawerable d;
 	
@@ -317,11 +317,69 @@ public abstract class Renderer implements Renderable {
 		d.drawPath(path, mask, nbFrames, nbSteps, scale);		
 	}
 	
+	//--
+	
 	@Override
 	public void bindMatrices() {
-		setProjectionMatrix();
-		setModelViewMatrix();
-		scene.pinhole().cacheProjViewInvMat();
+		scene.pinhole().computeProjectionMatrix();
+		scene.pinhole().computeViewMatrix();
+		scene.pinhole().computeProjectionViewMatrix();
+
+		Vector3D pos = scene.pinhole().position();
+		Orientable quat = scene.pinhole().frame().orientation();
+
+		if( scene.is2D() ) {
+			translate(scene.width() / 2, scene.height() / 2);
+			if(scene.isRightHanded()) scale(1,-1);		
+			scale(scene.pinhole().frame().inverseMagnitude().x(), 
+				    scene.pinhole().frame().inverseMagnitude().y());		
+			rotate(-quat.angle());		
+			translate(-pos.x(), -pos.y());
+		}
+		else {
+			//TODO how to handle 3d case without projection, seems impossible
+			//setProjection();
+			Vector3D axis = ((Quaternion)quat).axis();
+			// third value took from P5 docs, (see: http://processing.org/reference/camera_.html)
+			// Also changed default cam fov (i.e., Math.PI / 3.0f) to match that of P5 (see: http://processing.org/reference/perspective_.html)
+			// previously it was: 
+			translate(scene.width() / 2, scene.height() / 2,  (scene.height() / 2) / (float) Math.tan(PI / 6));
+			if(scene.isRightHanded()) scale(1,-1,1);
+			rotate(-quat.angle(), axis.x(), axis.y(), axis.z());		
+			translate(-pos.x(), -pos.y(), -pos.z());
+		}
+	}
+	
+	@Override
+	public void beginScreenDrawing() {
+		Vector3D pos = scene.pinhole().position();
+		Orientable quat = scene.pinhole().frame().orientation();		
+		
+		pushMatrix();
+		
+		if( scene.is2D() ) {
+		  translate(pos.x(), pos.y());
+		  rotate(quat.angle());		
+		  scale(scene.viewWindow().frame().magnitude().x(),
+		        scene.viewWindow().frame().magnitude().y());
+	    if(scene.isRightHanded()) scale(1,-1);
+		  translate(-scene.width()/2, -scene.height()/2);			
+		}
+		else {
+			Vector3D axis = ((Quaternion)quat).axis();
+			translate(pos.x(), pos.y(), pos.z());
+			rotate(quat.angle(), axis.x(), axis.y(), axis.z());
+			//projection
+		  //TODO how to handle 3d case without projection, seems imposible
+			//unsetProjection();
+		  if(scene.isRightHanded()) scale(1,-1,1);
+		  translate(-scene.width() / 2, -scene.height() / 2,  -(scene.height() / 2) / (float) Math.tan(PI / 6));
+		}
+	}
+	
+	@Override
+	public void endScreenDrawing() {
+		popMatrix();
 	}
 	
 	protected void setProjectionMatrix() {
@@ -330,16 +388,5 @@ public abstract class Renderer implements Renderable {
 	
 	protected void setModelViewMatrix() {
 		AbstractScene.showMissingImplementationWarning("setModelViewMatrix");
-	}
-	
-	@Override
-	public void beginScreenDrawing() {
-		AbstractScene.showMissingImplementationWarning("beginScreenDrawing");
-	}
-	
-	@Override
-	public void endScreenDrawing() {
-		popProjection();  
-		popMatrix();
 	}
 }

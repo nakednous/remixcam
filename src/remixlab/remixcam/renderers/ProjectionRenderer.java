@@ -9,6 +9,13 @@ public abstract class ProjectionRenderer extends Renderer implements Constants {
 	}
 	
 	@Override
+	public void bindMatrices() {
+		setProjectionMatrix();
+		setModelViewMatrix();
+		scene.pinhole().cacheProjViewInvMat();
+	}
+	
+	@Override
 	public void beginScreenDrawing() {
 		pushProjection();
     float cameraZ = (height()/2.0f) / (float) Math.tan(QUARTER_PI/2.0f);
@@ -28,6 +35,12 @@ public abstract class ProjectionRenderer extends Renderer implements Constants {
 	  // Camera needs to be reset!
     pg3d().camera(); 
     // */
+	}
+	
+	@Override
+	public void endScreenDrawing() {
+		popProjection();  
+		popMatrix();
 	}
 	
 	protected Matrix3D get2DOrtho(float left, float right, float bottom, float top, float near, float far) {

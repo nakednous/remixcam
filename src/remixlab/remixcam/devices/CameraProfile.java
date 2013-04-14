@@ -35,7 +35,7 @@ import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.events.DLEvent;
 import remixlab.remixcam.events.DLKeyEvent;
 import remixlab.remixcam.events.DLMouseEvent;
-import remixlab.remixcam.renderers.TransformationRenderer;
+import remixlab.remixcam.renderers.*;
 
 /**
  * This class encapsulates a set of camera keyboard shortcuts, and camera and
@@ -365,25 +365,25 @@ public class CameraProfile implements Constants {
 		setShortcut(DOWN, AbstractScene.CameraKeyboardAction.MOVE_CAMERA_DOWN);
 		
 		//TODO hack to prevent P5 java2d bug!
-		if( scene.renderer() instanceof TransformationRenderer ) {
-			setCameraMouseBinding(ALT, CENTER, AbstractScene.MouseAction.ZOOM);
-			setCameraMouseBinding(META, RIGHT, AbstractScene.MouseAction.TRANSLATE);
-		}
-		else {
+		if( scene.renderer() instanceof ProjectionRenderer ) {
 			setCameraMouseBinding(CENTER, AbstractScene.MouseAction.ZOOM);
 			setCameraMouseBinding(RIGHT, AbstractScene.MouseAction.TRANSLATE);
+		}
+		else {
+			setCameraMouseBinding(ALT, CENTER, AbstractScene.MouseAction.ZOOM);
+			setCameraMouseBinding(META, RIGHT, AbstractScene.MouseAction.TRANSLATE);
 		}		
 		
 		setFrameMouseBinding(LEFT, AbstractScene.MouseAction.ROTATE);
 		
 	  //TODO hack to prevent P5 java2d bug!
-		if( scene.renderer() instanceof TransformationRenderer ) {
-			setFrameMouseBinding(ALT, CENTER, AbstractScene.MouseAction.ZOOM);
-			setFrameMouseBinding(META, RIGHT, AbstractScene.MouseAction.TRANSLATE);
-		}
-		else {
+		if( scene.renderer() instanceof ProjectionRenderer ) {
 			setFrameMouseBinding(CENTER, AbstractScene.MouseAction.ZOOM);
 			setFrameMouseBinding(RIGHT, AbstractScene.MouseAction.TRANSLATE);
+		}
+		else {
+			setFrameMouseBinding(ALT, CENTER, AbstractScene.MouseAction.ZOOM);
+			setFrameMouseBinding(META, RIGHT, AbstractScene.MouseAction.TRANSLATE);
 		}
 
 		setCameraMouseBinding(SHIFT, LEFT, AbstractScene.MouseAction.ZOOM_ON_REGION);		
