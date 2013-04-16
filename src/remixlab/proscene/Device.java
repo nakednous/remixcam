@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.devices.*;
 
-public class Device extends AbstractDevice {
+public class Device extends HIDevice {
 	protected Method handlerMethod;
 	
 	public Device(AbstractScene scn) {

@@ -288,7 +288,7 @@ public abstract class AbstractScene implements Constants {
 	protected long animationPeriod;	
 	
   //D E V I C E S	
-	protected ArrayList<AbstractDevice> devices;
+	protected ArrayList<HIDevice> devices;
 	
 	// L O C A L   T I M E R
 	protected boolean arpFlag;
@@ -360,7 +360,7 @@ public abstract class AbstractScene implements Constants {
 		//mouse grabber pool
 		msGrabberPool = new ArrayList<DeviceGrabbable>();
 		//devices
-		devices = new ArrayList<AbstractDevice>();
+		devices = new ArrayList<HIDevice>();
 		// <- 1
 		
 		setGridDotted(true);
@@ -1547,7 +1547,7 @@ public abstract class AbstractScene implements Constants {
 		invokeRegisteredMethod(); // abstract
 		
 		// 4. HIDevices
-		for (AbstractDevice device : devices)
+		for (HIDevice device : devices)
 			device.handle();
 		
 		// 5. Grid and axis drawing
@@ -1866,7 +1866,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #removeDevice(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void addDevice(AbstractDevice device) {
+	public void addDevice(HIDevice device) {
 		devices.add(device);
 	}
 	
@@ -1876,7 +1876,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #addDevice(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void removeDevice(AbstractDevice device) {
+	public void removeDevice(HIDevice device) {
 		devices.remove(device);
 	}
 	

@@ -36,7 +36,7 @@ import remixlab.remixcam.geom.*;
  * has no such neutral position. Examples of RELATIVE devices are the space navigator and the joystick,
  * examples of ABSOLUTE devices are the wii or the kinect.
  */
-public abstract class AbstractDevice {
+public class HIDevice {
 	/**
 	 * This enum holds the device type.
 	 *
@@ -113,7 +113,7 @@ public abstract class AbstractDevice {
 	 * 
 	 * @see #AbstractDevice(AbstractScene)
 	 */
-	public AbstractDevice(AbstractScene scn) {
+	public HIDevice(AbstractScene scn) {
 		this(scn, Mode.RELATIVE);
 	}
 
@@ -123,7 +123,7 @@ public abstract class AbstractDevice {
 	 * @param scn The Scene object this HIDevice belongs to.
 	 * @param m The device {@link #mode()}.
 	 */
-	public AbstractDevice(AbstractScene scn, Mode m) {
+	public HIDevice(AbstractScene scn, Mode m) {
 		scene = scn;
 		camera = scene.pinhole();
 		cameraFrame = camera.frame();
@@ -393,7 +393,9 @@ public abstract class AbstractDevice {
 	 * @see #removeHandler()
 	 * @see #invoke()
 	 */
-	public abstract void addHandler(Object obj, String methodName);
+	public void addHandler(Object obj, String methodName) {
+		AbstractScene.showMissingImplementationWarning("addHandler");
+	}
 	
 	/**
 	 * Unregisters the 'feed' handler method (if any has previously been added to
@@ -402,7 +404,9 @@ public abstract class AbstractDevice {
 	 * @see #addHandler(Object, String)
 	 * @see #invoke()
 	 */
-	public abstract void removeHandler();
+	public void removeHandler() {
+		AbstractScene.showMissingImplementationWarning("removeHandler");
+	}
 	
 	/**
 	 * called by {@link #handle()}. Invokes the method added by
@@ -412,7 +416,10 @@ public abstract class AbstractDevice {
 	 * @see #addHandler(Object, String)
 	 * @see #removeHandler()
 	 */
-	public abstract boolean invoke();
+	public boolean invoke() {
+		AbstractScene.showMissingImplementationWarning("invoke");
+		return false;
+	}
 
 	/**
 	 * Handle the feed by properly calling {@link #handleCamera()} or {@link #handleIFrame()}.
@@ -575,7 +582,7 @@ public abstract class AbstractDevice {
 			setCameraMode(CameraMode.GOOGLE_EARTH);
 			break;
 		case GOOGLE_EARTH:
-			if (AbstractDevice.class == this.getClass())
+			if (HIDevice.class == this.getClass())
 				setCameraMode(CameraMode.FIRST_PERSON);
 			else
 				setCameraMode(CameraMode.CUSTOM);
@@ -603,7 +610,7 @@ public abstract class AbstractDevice {
   public void previousCameraMode() {  	
   	switch (camMode) {
   	case FIRST_PERSON:
-			if (AbstractDevice.class == this.getClass())
+			if (HIDevice.class == this.getClass())
 				setCameraMode(CameraMode.GOOGLE_EARTH);
 			else
 				setCameraMode(CameraMode.CUSTOM);
@@ -664,7 +671,7 @@ public abstract class AbstractDevice {
 			setIFrameMode(IFrameMode.WORLD);
 			break;
 		case WORLD:
-			if (AbstractDevice.class == this.getClass())
+			if (HIDevice.class == this.getClass())
 				setIFrameMode(IFrameMode.FRAME);
 			else
 				setIFrameMode(IFrameMode.CUSTOM);
@@ -681,7 +688,7 @@ public abstract class AbstractDevice {
   public void previousIFrameMode() {  	
   	switch (iFrameMode) {
 		case FRAME:
-			if (AbstractDevice.class == this.getClass())
+			if (HIDevice.class == this.getClass())
 				setIFrameMode(IFrameMode.WORLD);
 			else
 				setIFrameMode(IFrameMode.CUSTOM);
