@@ -1,6 +1,6 @@
 package remixlab.remixcam.events;
 
-public class DLMouseEvent extends DLEvent {
+public class DLMouseEvent extends HIDeviceEvent {
   static public final int PRESS = 1;
   static public final int RELEASE = 2;
   static public final int CLICK = 3;
@@ -14,9 +14,9 @@ public class DLMouseEvent extends DLEvent {
   protected int button;
   protected float amount;
 
-  public DLMouseEvent(long millis, int action, int modifiers,
+  public DLMouseEvent(int action, int modifiers,
                       int x, int y, int button, float amount) {  //int clickCount) {
-    super(millis, action, modifiers);
+    super(action, modifiers);
     this.flavor = MOUSE;
     this.x = x;
     this.y = y;

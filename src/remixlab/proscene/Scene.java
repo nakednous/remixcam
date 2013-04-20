@@ -98,10 +98,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			super(s);
 		}
 		public void keyEvent(KeyEvent e) {
-			handleKeyEvent(new DLKeyEvent(e.getMillis(), e.getAction(), e.getModifiers(), e.getKey(), e.getKeyCode()));
+			handleKeyEvent(new DLKeyEvent(e.getAction(), e.getModifiers(), e.getKey(), e.getKeyCode()));
 		}
 		public void mouseEvent(MouseEvent e) {
-			handleMouseEvent(new DLMouseEvent(e.getMillis(), e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount()));
+			handleMouseEvent(new DLMouseEvent(e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount()));
 		}
 	}
 	

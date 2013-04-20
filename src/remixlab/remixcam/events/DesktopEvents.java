@@ -37,6 +37,14 @@ public abstract class DesktopEvents implements Constants {
 		lCorner = new Point();
 	}
 	
+	//TODO generalize me
+	public void handle(DLEvent e) {
+		if( e instanceof DLKeyEvent )
+			handleKeyEvent((DLKeyEvent) e);
+		if( e instanceof HIDeviceEvent )
+			handleMouseEvent((DLMouseEvent) e);
+	}
+	
 	// 1. KeyEvents
 	
 	/**
@@ -130,7 +138,7 @@ public abstract class DesktopEvents implements Constants {
 	 * 
 	 * @return true if a binding was found 
 	 */
-	protected boolean keyTypedKeyboardAction( DLKeyEvent e) {
+	protected boolean keyTypedKeyboardAction(DLKeyEvent e) {
 		if (!e.isAltDown() /**&& !e.isAltGraphDown()*/ && !e.isControlDown()	&& !e.isShiftDown()) {
 			Integer path = scene.path(e.getKey());
 			if (path != null) {

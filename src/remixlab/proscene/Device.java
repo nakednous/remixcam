@@ -3,7 +3,7 @@ package remixlab.proscene;
 import java.lang.reflect.Method;
 
 import remixlab.remixcam.core.AbstractScene;
-import remixlab.remixcam.devices.*;
+import remixlab.remixcam.devices.HIDevice;
 
 public class Device extends HIDevice {
 	protected Method handlerMethod;

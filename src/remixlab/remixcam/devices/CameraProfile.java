@@ -649,7 +649,7 @@ public class CameraProfile implements Constants {
 	 * @see #setShortcut(Integer, Integer, AbstractScene.CameraKeyboardAction)
 	 */
 	public void setShortcut(Integer mask, Character key, CameraKeyboardAction action) {
-		setShortcut(mask, DLKeyEvent.getVKey(key), action);
+		setShortcut(mask, DLKeyEvent.getKeyCode(key), action);
 	}
 	
 	/**
@@ -712,7 +712,7 @@ public class CameraProfile implements Constants {
 	 * @see #removeShortcut(Integer, Integer)
 	 */
 	public void removeShortcut(Integer mask, Character key) {
-		removeShortcut(mask, DLKeyEvent.getVKey(key));
+		removeShortcut(mask, DLKeyEvent.getKeyCode(key));
 	}
 	
 	/**
@@ -760,7 +760,7 @@ public class CameraProfile implements Constants {
    * @see #shortcut(Integer, Integer)
    */
 	public CameraKeyboardAction shortcut(Integer mask, Character key) {
-		return shortcut(mask, DLKeyEvent.getVKey(key));
+		return shortcut(mask, DLKeyEvent.getKeyCode(key));
 	}
 
 	/**
@@ -808,7 +808,7 @@ public class CameraProfile implements Constants {
 	 * @see #isKeyInUse(Integer, Integer)
 	 */
 	public boolean isKeyInUse(Integer mask, Character key) {
-		return isKeyInUse(mask, DLKeyEvent.getVKey(key));
+		return isKeyInUse(mask, DLKeyEvent.getKeyCode(key));
 	}
 	
 	/**

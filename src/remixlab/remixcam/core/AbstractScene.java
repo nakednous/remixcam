@@ -36,7 +36,7 @@ import remixlab.remixcam.geom.*;
 import remixlab.remixcam.renderers.*;
 import remixlab.remixcam.util.*;
 
-public abstract class AbstractScene implements Constants {
+public abstract class AbstractScene implements Constants {	
 	/**
 	 * Defines the different actions that can be associated with a specific
 	 * keyboard key.
@@ -816,7 +816,7 @@ public abstract class AbstractScene implements Constants {
    * @see #setShortcut(Integer, Integer, KeyboardAction)
    */
 	public void setShortcut(Integer mask, Character key, KeyboardAction action) {
-		setShortcut(mask, DLKeyEvent.getVKey(key), action);
+		setShortcut(mask, DLKeyEvent.getKeyCode(key), action);
 	}
 	
   /**
@@ -877,7 +877,7 @@ public abstract class AbstractScene implements Constants {
    * @see #removeShortcut(Integer, Integer)
    */
 	public void removeShortcut(Integer mask, Character key) {
-		removeShortcut(mask, DLKeyEvent.getVKey(key));
+		removeShortcut(mask, DLKeyEvent.getKeyCode(key));
 	}
 
 	/**
@@ -921,7 +921,7 @@ public abstract class AbstractScene implements Constants {
    * @see #shortcut(Integer, Integer)
    */
 	public KeyboardAction shortcut(Integer mask, Character key) {
-		return shortcut(mask, DLKeyEvent.getVKey(key));
+		return shortcut(mask, DLKeyEvent.getKeyCode(key));
 	}
 
 	/**
@@ -965,7 +965,7 @@ public abstract class AbstractScene implements Constants {
    * @see #isKeyInUse(Integer, Integer)
    */
 	public boolean isKeyInUse(Integer mask, Character key) {
-		return isKeyInUse(mask, DLKeyEvent.getVKey(key));
+		return isKeyInUse(mask, DLKeyEvent.getKeyCode(key));
 	}
 	
 	/**
@@ -1104,7 +1104,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #setPathKey(Integer, Integer)
 	 */
 	public void setPathKey(Character key, Integer path) {
-		setPathKey(DLKeyEvent.getVKey(key), path);
+		setPathKey(DLKeyEvent.getKeyCode(key), path);
 	}
 	
 	/**
@@ -1133,7 +1133,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #path(Integer)
 	 */
 	public Integer path(Character key) {
-		return path(DLKeyEvent.getVKey(key));
+		return path(DLKeyEvent.getKeyCode(key));
 	}
 	
 	/**
@@ -1157,7 +1157,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #removePathKey(Integer)
 	 */
 	public void removePathKey(Character key) {
-		removePathKey(DLKeyEvent.getVKey(key));
+		removePathKey(DLKeyEvent.getKeyCode(key));
 	}
 	
 	/**
@@ -1181,7 +1181,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #isPathKeyInUse(Integer)
 	 */
 	public boolean isPathKeyInUse(Character key) {
-		return isPathKeyInUse(DLKeyEvent.getVKey(key));
+		return isPathKeyInUse(DLKeyEvent.getKeyCode(key));
 	}
 	
 	/**

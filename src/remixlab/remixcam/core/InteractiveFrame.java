@@ -89,14 +89,14 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		InteractiveFrame other = (InteractiveFrame) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
-    .append(action,other.action != null)
-		.append(delay , other.delay)
-		.append(dirIsFixed , other.dirIsFixed)
-		.append(grabsMouseThreshold , other.grabsMouseThreshold)
-		.append(grbsMouse , other.grbsMouse)	
-		.append(horiz , other.horiz)
-		.append(isInCamPath , other.isInCamPath)
-		.append(isSpng , other.isSpng)
+    .append(action, other.action)
+		.append(delay, other.delay)
+		.append(dirIsFixed, other.dirIsFixed)
+		.append(grabsMouseThreshold, other.grabsMouseThreshold)
+		.append(grbsMouse, other.grbsMouse)	
+		.append(horiz, other.horiz)
+		.append(isInCamPath, other.isInCamPath)
+		.append(isSpng, other.isSpng)
 		.append(spinningFriction, other.spinningFriction)
 		.append(sFriction, other.sFriction)
 		.append(tossingSensitivity, other.tossingSensitivity)
@@ -107,13 +107,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		.append(keepsGrabbingMouse , other.keepsGrabbingMouse)
 		.append(mouseSpeed,other.mouseSpeed)
 		.append(pressPos,other.pressPos )
-		.append(prevPos ,other.prevPos )
+		.append(prevPos,other.prevPos )
 		.append(rotSensitivity, other.rotSensitivity)
 		.append(spngQuat,other.spngQuat)
 		.append(spngSensitivity,other.spngSensitivity)
-		.append(startedTime , other.startedTime)
-		.append(transSensitivity ,other.transSensitivity)
-		.append(wheelSensitivity ,other.wheelSensitivity)
+		.append(startedTime, other.startedTime)
+		.append(transSensitivity, other.transSensitivity)
+		.append(wheelSensitivity, other.wheelSensitivity)
 		.isEquals();
 	}
 	
@@ -1276,11 +1276,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			prevPos = eventPoint;
 			break;
 		}  	
-  }
-  
-  public boolean isFlipped() {
-		return ( scene.isRightHanded() && !isInverted() ) || ( scene.isLeftHanded() && isInverted() );
-	}
+  }  
 
 	/**
 	 * Stops the InteractiveFrame mouse manipulation.
@@ -1337,6 +1333,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			setConstraint(prevConstraint);
 
 		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
+	}
+	
+	public boolean isFlipped() {
+		return ( scene.isRightHanded() && !isInverted() ) || ( scene.isLeftHanded() && isInverted() );
 	}
 
 	/**
