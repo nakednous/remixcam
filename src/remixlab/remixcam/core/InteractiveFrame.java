@@ -151,7 +151,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	// MouseGrabber
 	protected boolean keepsGrabbingMouse;
 
-	protected AbstractScene.MouseAction action;
+	protected AbstractScene.DeviceAction action;
 	protected Constraint prevConstraint; // When manipulation is without
 	// Constraint.
 	// Previous mouse position (used for incremental updates) and mouse press
@@ -181,7 +181,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		super(scn.is3D());		
 		scene = scn;		
 		
-		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
+		action = AbstractScene.DeviceAction.NO_MOUSE_ACTION;
 		horiz = true;
 
 		addInMouseGrabberPool();
@@ -308,7 +308,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	public InteractiveFrame(AbstractScene scn, InteractiveCameraFrame iFrame) {
 		super(iFrame.rotation(), iFrame.translation(), iFrame.scaling());
 		scene = scn;
-		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
+		action = AbstractScene.DeviceAction.NO_MOUSE_ACTION;
 		horiz = true;
 
 		addInMouseGrabberPool();
@@ -711,7 +711,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * during manipulation.
 	 */
 	public boolean isInInteraction() {
-		return action != AbstractScene.MouseAction.NO_MOUSE_ACTION;
+		return action != AbstractScene.DeviceAction.NO_MOUSE_ACTION;
 	}
 
 	/**
@@ -1022,7 +1022,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	
 	protected void deviceDragged2D(Point eventPoint, ViewWindow viewWindow) {
 		int deltaY = 0;
-		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION) {
+		if(action != AbstractScene.DeviceAction.NO_MOUSE_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
 			if( scene.isRightHanded() )
 				deltaY = -deltaY;
@@ -1126,7 +1126,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	
   protected void deviceDragged3D(Point eventPoint, Camera camera) {
   	int deltaY = 0;
-		if(action != AbstractScene.MouseAction.NO_MOUSE_ACTION) {
+		if(action != AbstractScene.DeviceAction.NO_MOUSE_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
 			if( scene.isRightHanded() )
 				deltaY = -deltaY;
@@ -1298,20 +1298,20 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		if (prevConstraint != null)
 			setConstraint(prevConstraint);
 		
-		if (((action == AbstractScene.MouseAction.ROTATE) || (action == AbstractScene.MouseAction.SCREEN_ROTATE) || (action == AbstractScene.MouseAction.CAD_ROTATE) )	&& (mouseSpeed >= spinningSensitivity()))
+		if (((action == AbstractScene.DeviceAction.ROTATE) || (action == AbstractScene.DeviceAction.SCREEN_ROTATE) || (action == AbstractScene.DeviceAction.CAD_ROTATE) )	&& (mouseSpeed >= spinningSensitivity()))
 			startSpinning(delay);
 		
-		if (((action == AbstractScene.MouseAction.TRANSLATE) || (action == AbstractScene.MouseAction.SCREEN_TRANSLATE) ) && (mouseSpeed >= tossingSensitivity()) )
+		if (((action == AbstractScene.DeviceAction.TRANSLATE) || (action == AbstractScene.DeviceAction.SCREEN_TRANSLATE) ) && (mouseSpeed >= tossingSensitivity()) )
 			startTossing(delay);
 
-		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
+		action = AbstractScene.DeviceAction.NO_MOUSE_ACTION;
 	}
 
 	/**
 	 * Overloading of
 	 * {@link remixlab.remixcam.devices.DeviceGrabbable#mouseWheelMoved(int, Camera)}.
 	 * <p>
-	 * Using the wheel is equivalent to a {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM}.
+	 * Using the wheel is equivalent to a {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM}.
 	 * 
 	 * @see #setWheelSensitivity(float)
 	 */
@@ -1320,7 +1320,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
-		if (action == AbstractScene.MouseAction.ZOOM) {			
+		if (action == AbstractScene.DeviceAction.ZOOM) {			
 			float delta = -rotation * wheelSensitivity();
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
@@ -1332,7 +1332,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		if (prevConstraint != null)
 			setConstraint(prevConstraint);
 
-		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
+		action = AbstractScene.DeviceAction.NO_MOUSE_ACTION;
 	}
 	
 	public boolean isFlipped() {
@@ -1342,16 +1342,16 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	/**
 	 * Protected method that simply calls {@code startAction(action, true)}.
 	 * 
-	 * @see #startAction(Scene.MouseAction, boolean)
+	 * @see #startAction(DeviceAction.MouseAction, boolean)
 	 */
-	protected void startAction(AbstractScene.MouseAction action) {
+	protected void startAction(AbstractScene.DeviceAction action) {
 		startAction(action, true);
 	}
 	
 	/**
 	 * Protected internal method used to handle mouse actions.
 	 */
-	public void startAction(AbstractScene.MouseAction act, boolean withConstraint) {
+	public void startAction(AbstractScene.DeviceAction act, boolean withConstraint) {
 		action = act;
 		
 		if( ( scene.is2D() ) && ( !action.is2D() ) )

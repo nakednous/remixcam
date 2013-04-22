@@ -3,6 +3,8 @@ package remixlab.remixcam.events;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import remixlab.remixcam.core.AbstractScene;
+
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
@@ -99,6 +101,7 @@ public class DLKeyEvent extends DLEvent {
 	  }
 	};
 	
+	
   static public final int PRESS = 1;
   static public final int RELEASE = 2;
   static public final int TYPE = 3;
@@ -111,15 +114,35 @@ public class DLKeyEvent extends DLEvent {
   	this.vKey = null;
   }
   
+  public DLKeyEvent(AbstractScene scn) {
+  	super(scn);
+  	this.key = null;
+  	this.vKey = null;
+  }
+  
   public DLKeyEvent(Integer action, Integer modifiers, Character c, Integer vk) {
     super(action, modifiers);
     this.flavor = KEY;
     this.vKey = vk;
     this.key = c;
   }
-
+  
+  public DLKeyEvent(AbstractScene scn, Integer action, Integer modifiers, Character c, Integer vk) {
+    super(scn, action, modifiers);
+    this.flavor = KEY;
+    this.vKey = vk;
+    this.key = c;
+  }
+  
   public DLKeyEvent(Integer action, Character k) {
     super(action);
+    this.flavor = KEY;
+    this.key = k;
+    this.vKey = null;
+  }
+
+  public DLKeyEvent(AbstractScene scn, Integer action, Character k) {
+    super(scn, action);
     this.flavor = KEY;
     this.key = k;
     this.vKey = null;
@@ -127,6 +150,13 @@ public class DLKeyEvent extends DLEvent {
   
   public DLKeyEvent(Integer action, Integer modifiers, Integer vk) {
     super(action, modifiers);
+    this.flavor = KEY;
+    this.key = null;
+    this.vKey = vk;
+  }
+  
+  public DLKeyEvent(AbstractScene scn, Integer action, Integer modifiers, Integer vk) {
+    super(scn, action, modifiers);
     this.flavor = KEY;
     this.key = null;
     this.vKey = vk;

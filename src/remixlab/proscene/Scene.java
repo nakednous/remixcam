@@ -1,5 +1,13 @@
 package remixlab.proscene;
 
+import remixlab.remixcam.core.*;
+import remixlab.remixcam.devices.*;
+import remixlab.remixcam.events.*;
+import remixlab.remixcam.geom.*;
+import remixlab.remixcam.util.*;
+import remixlab.remixcam.renderers.*;
+
+/**
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Camera;
 import remixlab.remixcam.core.Drawerable;
@@ -22,6 +30,7 @@ import remixlab.remixcam.util.SingleThreadedTaskableTimer;
 import remixlab.remixcam.util.SingleThreadedTimer;
 import remixlab.remixcam.util.Taskable;
 import remixlab.remixcam.util.Timable;
+// */
 
 import processing.core.*;
 import processing.event.*;
@@ -98,11 +107,131 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			super(s);
 		}
 		public void keyEvent(KeyEvent e) {
-			handleKeyEvent(new DLKeyEvent(e.getAction(), e.getModifiers(), e.getKey(), e.getKeyCode()));
+			if(scene.keyboardIsHandled() && scene.currentCameraProfile() != null)
+				handleKeyEvent(new DLKeyEvent(e.getAction(), e.getModifiers(), e.getKey(), e.getKeyCode()));
 		}
 		public void mouseEvent(MouseEvent e) {
-			handleMouseEvent(new DLMouseEvent(e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount()));
+			if(scene.mouseIsHandled() && scene.currentCameraProfile() != null)
+				handleMouseEvent(new DLMouseEvent(e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount()));
 		}
+	}
+	
+	public class Device extends HIDevice {
+		protected Method handlerMethod;
+		
+		public Device(AbstractScene scn) {
+			super(scn);
+		}
+		
+		public Device(AbstractScene scn, Mode m) {
+			super(scn, m);
+		}	
+		
+		/**
+		 * Overriding of
+		 * {@link remixlab.remixcam.devices.AbstractHIDevice#addHandler(Object, String)}.
+		 */
+		@Override
+		public void addHandler(Object obj, String methodName) {
+			try {
+				handlerMethod = obj.getClass().getMethod(methodName, new Class[] { Device.class });
+				handlerObject = obj;
+				handlerMethodName = methodName;
+			} catch (Exception e) {
+				  System.out.println("Something went wrong when registering your " + methodName + " method");
+				  e.printStackTrace();
+			}
+		}
+		
+		/**
+		 * Overriding of
+		 * {@link remixlab.remixcam.devices.AbstractHIDevice#removeHandler()}.
+		 */
+		@Override
+		public void removeHandler() {
+			handlerMethod = null;
+			handlerObject = null;
+			handlerMethodName = null;
+		}
+		
+		/**
+		 * Overriding of
+		 * {@link remixlab.remixcam.devices.AbstractHIDevice#invoke()}.
+		 */
+		@Override
+		public boolean invoke() {
+			boolean result = false;
+			if (handlerObject != null) {
+				try {
+					handlerMethod.invoke(handlerObject, new Object[] { this });
+					result = true;
+				} catch (Exception e) {
+					System.out.println("Something went wrong when invoking your "	+ handlerMethodName + " method");
+					e.printStackTrace();
+				}
+			}
+			return result;
+		}
+		
+		@Override
+		public void nextCameraMode() {
+			switch (camMode) {		
+			case GOOGLE_EARTH:
+				if (Device.class == this.getClass())
+					setCameraMode(CameraMode.FIRST_PERSON);
+				else
+					setCameraMode(CameraMode.CUSTOM);
+				break;
+			default:
+				super.nextCameraMode();
+				break;
+			}
+		}
+		
+		@Override
+	  public void previousCameraMode() {  	
+	  	switch (camMode) {
+	  	case FIRST_PERSON:
+				if (Device.class == this.getClass())
+					setCameraMode(CameraMode.GOOGLE_EARTH);
+				else
+					setCameraMode(CameraMode.CUSTOM);
+				break;
+			default:
+				super.previousCameraMode();
+			break;
+			}
+	  }
+	  
+		@Override
+	  public void nextIFrameMode() {  	
+	  	switch (iFrameMode) {		
+			case WORLD:
+				if (Device.class == this.getClass())
+					setIFrameMode(IFrameMode.FRAME);
+				else
+					setIFrameMode(IFrameMode.CUSTOM);
+				break;
+			default:
+				super.nextIFrameMode();
+				break;
+			}
+	  }
+	  
+		@Override
+	  public void previousIFrameMode() {  	
+	  	switch (iFrameMode) {
+			case FRAME:
+				if (Device.class == this.getClass())
+					setIFrameMode(IFrameMode.WORLD);
+				else
+					setIFrameMode(IFrameMode.CUSTOM);
+				break;
+			default:
+				super.previousIFrameMode();
+				break;
+			}
+	  }	
 	}
 	
 	protected class TimerWrap implements Timable {
@@ -1538,11 +1667,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 
 	// P R O C E S S I N G   A P P L E T   A N D   O B J E C T S
-	public PApplet parent;	
-
-	// O B J E C T S
-	//TODO pending
-	public P5DesktopEvents dE;
+	public PApplet parent;		
 
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1936,9 +2061,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		} else {
 			pinhole().hideAllPaths();
 		}
-		if (dE.camMouseAction == MouseAction.ZOOM_ON_REGION)			
+		if (dE.camMouseAction == DeviceAction.ZOOM_ON_REGION)			
 			drawZoomWindowHint();		
-		if (dE.camMouseAction == MouseAction.SCREEN_ROTATE)
+		if (dE.camMouseAction == DeviceAction.SCREEN_ROTATE)
 			drawScreenRotateLineHint();
 		if (arpFlag) 
 			drawArcballReferencePointHint();

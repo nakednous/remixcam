@@ -27,6 +27,7 @@ package remixlab.remixcam.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -36,7 +37,7 @@ import remixlab.remixcam.geom.*;
 import remixlab.remixcam.renderers.*;
 import remixlab.remixcam.util.*;
 
-public abstract class AbstractScene implements Constants {	
+public abstract class AbstractScene implements Constants {
 	/**
 	 * Defines the different actions that can be associated with a specific
 	 * keyboard key.
@@ -199,7 +200,7 @@ public abstract class AbstractScene implements Constants {
 	 * Actions are defined here, but bindings are defined at the CameraProfile level,
 	 * i.e., the scene acts like a bridge between the CameraProfile and proscene low-level classes.
 	 */
-	public enum MouseAction {
+	public enum DeviceAction {
 		/** No mouse action. */
 		NO_MOUSE_ACTION("No mouse action", true),
 		/** Rotate frame (camera or interactive frame. */
@@ -230,7 +231,7 @@ public abstract class AbstractScene implements Constants {
 		private String description;
 		private boolean twoD;
 		
-		MouseAction(String description, boolean td) {
+		DeviceAction(String description, boolean td) {
        this.description = description;
        this.twoD = td;
     }
@@ -254,6 +255,10 @@ public abstract class AbstractScene implements Constants {
 	protected Trackable trck;
 	public boolean avatarIsInteractiveDrivableFrame;
 	protected boolean avatarIsInteractiveAvatarFrame;
+	
+  //O B J E C T S
+	//TODO pending
+	protected DesktopEvents dE;
 	
   //E X C E P T I O N H A N D L I N G
 	protected int startCoordCalls;
@@ -287,8 +292,9 @@ public abstract class AbstractScene implements Constants {
 	public boolean animatedFrameWasTriggered;
 	protected long animationPeriod;	
 	
-  //D E V I C E S	
+  //D E V I C E S	  &   E V E N T S
 	protected ArrayList<HIDevice> devices;
+	protected LinkedList<DLEvent> eventQueue;
 	
 	// L O C A L   T I M E R
 	protected boolean arpFlag;
@@ -361,6 +367,8 @@ public abstract class AbstractScene implements Constants {
 		msGrabberPool = new ArrayList<DeviceGrabbable>();
 		//devices
 		devices = new ArrayList<HIDevice>();
+		//events
+		eventQueue = new LinkedList<DLEvent>();
 		// <- 1
 		
 		setGridDotted(true);
@@ -416,8 +424,8 @@ public abstract class AbstractScene implements Constants {
 	 * Internal method. Handles the different global keyboard actions.
 	 */
 	public void handleKeyboardAction(KeyboardAction id) {			
-		if( !keyboardIsHandled() )
-			return;
+		//if( !keyboardIsHandled() )
+			//return;
 		switch (id) {
 		case DRAW_AXIS:
 			toggleAxisIsDrawn();
@@ -1264,8 +1272,8 @@ public abstract class AbstractScene implements Constants {
 	 * Internal method. Handles the different camera keyboard actions.
 	 */
 	public void handleCameraKeyboardAction(CameraKeyboardAction id) {
-		if( !keyboardIsHandled() )
-			return;
+		//if( !keyboardIsHandled() )
+			//return;
 		if( !id.is2D() && this.is2D() )
 			return;
 		Vector3D trans;
@@ -1378,8 +1386,8 @@ public abstract class AbstractScene implements Constants {
 		// public enum ClickAction { NO_CLICK_ACTION, ZOOM_ON_PIXEL, ZOOM_TO_FIT,
 		// SELECT, ARP_FROM_PIXEL, RESET_ARP,
 		// CENTER_FRAME, CENTER_SCENE, SHOW_ALL, ALIGN_FRAME, ALIGN_CAMERA }
-		if( !mouseIsHandled() )
-			return;
+		//if( !mouseIsHandled() )
+			//return;
 		
 		if( !action.is2D() && this.is2D() )
 			return;
@@ -1546,11 +1554,15 @@ public abstract class AbstractScene implements Constants {
 		// 3. Draw external registered method (only in java sub-classes)
 		invokeRegisteredMethod(); // abstract
 		
-		// 4. HIDevices
+	  // 4. HIDevices
 		for (HIDevice device : devices)
 			device.handle();
+			
+		// 5. Events
+    while( !eventQueue.isEmpty() ) 
+    	dE.handle(eventQueue.remove());
 		
-		// 5. Grid and axis drawing
+		// 6. Grid and axis drawing
 		if (gridIsDrawn()) {
 			if(gridIsDotted())
 				drawDottedGrid(pinhole().sceneRadius());
@@ -1560,7 +1572,7 @@ public abstract class AbstractScene implements Constants {
 		if (axisIsDrawn())
 			drawAxis(pinhole().sceneRadius());		
 		
-		// 6. Display visual hints
+		// 7. Display visual hints
 		displayVisualHints(); // abstract
 		
 		//updateFrameRate();
@@ -1858,22 +1870,27 @@ public abstract class AbstractScene implements Constants {
 		if (animationIsStarted()) stopAnimation(); else startAnimation();
 	}
 	
-  // Device registration
+  //Device registration
 	
 	/**
 	 * Adds an HIDevice to the scene.
 	 * 
-	 * @see #removeDevice(AbstractHIDevice)
+	 * @see #removeDevice(HIDevice)
 	 * @see #removeAllDevices()
 	 */
 	public void addDevice(HIDevice device) {
-		devices.add(device);
+		if(!isDeviceRegistered(device))
+			devices.add(device);
+	}
+	
+	public boolean isDeviceRegistered(HIDevice device) {
+		return devices.contains(device);
 	}
 	
 	/**
 	 * Removes the device from the scene.
 	 * 
-	 * @see #addDevice(AbstractHIDevice)
+	 * @see #addDevice(HIDevice)
 	 * @see #removeAllDevices()
 	 */
 	public void removeDevice(HIDevice device) {
@@ -1883,11 +1900,48 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Removes all registered devices from the scene.
 	 * 
-	 * @see #addDevice(AbstractHIDevice)
-	 * @see #removeDevice(AbstractHIDevice)
+	 * @see #addDevice(HIDevice)
+	 * @see #removeDevice(HIDevice)
 	 */
 	public void removeAllDevices() {
 		devices.clear();
+	}
+	
+  // Event registration
+	
+	public boolean isEventRegistered(DLEvent event) {
+		return eventQueue.contains(event);
+	}
+	
+	/**
+	 * Adds an HIDevice to the scene.
+	 * 
+	 * @see #removeDevice(AbstractHIDevice)
+	 * @see #removeAllDevices()
+	 */
+	public void enqueueEvent(DLEvent event) {
+		if(!isEventRegistered(event))
+			eventQueue.add(event);
+	}
+	
+	/**
+	 * Removes the device from the scene.
+	 * 
+	 * @see #addDevice(AbstractHIDevice)
+	 * @see #removeAllDevices()
+	 */
+	public void removeEvent(DLEvent event) {
+		eventQueue.remove(event);
+	}
+	
+	/**
+	 * Removes all registered devices from the scene.
+	 * 
+	 * @see #addDevice(AbstractHIDevice)
+	 * @see #removeDevice(AbstractHIDevice)
+	 */
+	public void removeAllEvents() {
+		eventQueue.clear();
 	}
 	
 	// WRAPPERS

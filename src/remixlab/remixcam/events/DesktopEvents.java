@@ -6,10 +6,9 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.core.AbstractScene.CameraKeyboardAction;
 import remixlab.remixcam.core.AbstractScene.ClickAction;
 import remixlab.remixcam.core.AbstractScene.KeyboardAction;
-import remixlab.remixcam.core.AbstractScene.MouseAction;
+import remixlab.remixcam.core.AbstractScene.DeviceAction;
 import remixlab.remixcam.devices.DeviceGrabbable;
 import remixlab.remixcam.geom.Point;
-
 
 /**
  * This class provides low level java.awt.* based input event handling.
@@ -23,7 +22,7 @@ import remixlab.remixcam.geom.Point;
  */
 public abstract class DesktopEvents implements Constants {
 	protected AbstractScene scene;
-	public MouseAction camMouseAction;
+	public DeviceAction camMouseAction;
 	protected boolean keyHandled;
   //Z O O M _ O N _ R E G I O N
 	public Point fCorner;// also used for SCREEN_ROTATE
@@ -31,18 +30,20 @@ public abstract class DesktopEvents implements Constants {
 	
 	public DesktopEvents(AbstractScene s) {
 		scene = s;
-		camMouseAction = MouseAction.NO_MOUSE_ACTION;
+		camMouseAction = DeviceAction.NO_MOUSE_ACTION;
 		keyHandled = false;
 		fCorner = new Point();
 		lCorner = new Point();
 	}
 	
 	//TODO generalize me
-	public void handle(DLEvent e) {
-		if( e instanceof DLKeyEvent )
+	public void handle(DLEvent e) {		
+		if( e instanceof DLKeyEvent ) {
 			handleKeyEvent((DLKeyEvent) e);
-		if( e instanceof HIDeviceEvent )
-			handleMouseEvent((DLMouseEvent) e);
+		}
+		if( e instanceof HIDeviceEvent ) {
+			handleMouseEvent((DLMouseEvent) e); 
+		}
 	}
 	
 	// 1. KeyEvents
@@ -54,10 +55,8 @@ public abstract class DesktopEvents implements Constants {
 	 * @see remixlab.proscene.Scene#enableKeyboardHandling(boolean)
 	 */
 	public void handleKeyEvent(DLKeyEvent e) {
-		if( !scene.keyboardIsHandled() )
-			return;		
 		keyHandled = false;
-		switch (e.getAction() ) {
+		switch (e.getAction() ) {				
 		case DLKeyEvent.PRESS:
 			break;
 		case DLKeyEvent.TYPE:
@@ -65,7 +64,7 @@ public abstract class DesktopEvents implements Constants {
 			break;
 		case DLKeyEvent.RELEASE:
 			keyReleased(e);
-			break;
+			break;			
 		}
 	}
 	
@@ -233,8 +232,6 @@ public abstract class DesktopEvents implements Constants {
 	public void handleMouseEvent(DLMouseEvent e) {
 		scene.mouseX = e.getX();
 		scene.mouseY = e.getY();
-		if ((scene.currentCameraProfile() == null) || (!scene.mouseIsHandled()) )
-			return;
 		switch (e.getAction() ) {
 		case DLMouseEvent.CLICK:
 			mouseClicked(e);
@@ -321,11 +318,11 @@ public abstract class DesktopEvents implements Constants {
 		}
 		//camMouseAction = scene.currentCameraProfile().cameraMouseAction(e);
 		camMouseAction = scene.currentCameraProfile().cameraMouseAction(e.getModifiers(), e.getButton());
-		if (camMouseAction == MouseAction.ZOOM_ON_REGION) {
+		if (camMouseAction == DeviceAction.ZOOM_ON_REGION) {
 			fCorner.set(event.getX(), event.getY());
 			lCorner.set(event.getX(), event.getY());
 		}
-		if (camMouseAction == MouseAction.SCREEN_ROTATE)
+		if (camMouseAction == DeviceAction.SCREEN_ROTATE)
 			fCorner.set(event.getX(), event.getY());
 		scene.pinhole().frame().startAction(camMouseAction, scene.drawIsConstrained());
 		scene.pinhole().frame().mousePressed(new Point(event.getX(), event.getY()), scene.pinhole());
@@ -360,10 +357,10 @@ public abstract class DesktopEvents implements Constants {
 		  scene.interactiveFrame().mouseDragged(new Point(event.getX(), event.getY()), scene.pinhole());
 			return;
 		}
-		if (camMouseAction == MouseAction.ZOOM_ON_REGION)
+		if (camMouseAction == DeviceAction.ZOOM_ON_REGION)
 			lCorner.set(event.getX(), event.getY());
 		else {
-			if (camMouseAction == MouseAction.SCREEN_ROTATE)
+			if (camMouseAction == DeviceAction.SCREEN_ROTATE)
 				fCorner.set(event.getX(), event.getY());
 			scene.pinhole().frame().mouseDragged(new Point(event.getX(), event.getY()), scene.pinhole());
 		}
@@ -401,12 +398,12 @@ public abstract class DesktopEvents implements Constants {
 			return;
 		}
 
-		if ((camMouseAction == MouseAction.ZOOM_ON_REGION)
-				|| (camMouseAction == MouseAction.SCREEN_ROTATE)
-				|| (camMouseAction == MouseAction.SCREEN_TRANSLATE))
+		if ((camMouseAction == DeviceAction.ZOOM_ON_REGION)
+				|| (camMouseAction == DeviceAction.SCREEN_ROTATE)
+				|| (camMouseAction == DeviceAction.SCREEN_TRANSLATE))
 			lCorner.set(event.getX(), event.getY());
 		scene.pinhole().frame().mouseReleased(new Point(event.getX(), event.getY()), scene.pinhole());
-		camMouseAction = MouseAction.NO_MOUSE_ACTION;
+		camMouseAction = DeviceAction.NO_MOUSE_ACTION;
 		// iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
 	}
 	
@@ -423,8 +420,8 @@ public abstract class DesktopEvents implements Constants {
 	 * @see #mousePressed(DLMouseEvent)
 	 */
 	public void mouseWheelMoved(DLMouseEvent event) {
-		if(!scene.mouseIsHandled())
-			return;
+		//if(!scene.mouseIsHandled())
+			//return;
 		if (scene.mouseGrabber() != null) {
 			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
 				InteractiveFrame iFrame = (InteractiveFrame) scene.mouseGrabber();

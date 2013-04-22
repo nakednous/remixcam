@@ -175,13 +175,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	
 	@Override
 	protected void deviceDragged2D(Point eventPoint, ViewWindow viewWindow) {
-		if ((action == AbstractScene.MouseAction.MOVE_FORWARD)
-				|| (action == AbstractScene.MouseAction.MOVE_BACKWARD)
-				|| (action == AbstractScene.MouseAction.DRIVE)
-				|| (action == AbstractScene.MouseAction.LOOK_AROUND)
-				|| (action == AbstractScene.MouseAction.ROLL)
-				|| (action == AbstractScene.MouseAction.ZOOM_ON_REGION)
-				|| (action == AbstractScene.MouseAction.NO_MOUSE_ACTION))
+		if ((action == AbstractScene.DeviceAction.MOVE_FORWARD)
+				|| (action == AbstractScene.DeviceAction.MOVE_BACKWARD)
+				|| (action == AbstractScene.DeviceAction.DRIVE)
+				|| (action == AbstractScene.DeviceAction.LOOK_AROUND)
+				|| (action == AbstractScene.DeviceAction.ROLL)
+				|| (action == AbstractScene.DeviceAction.ZOOM_ON_REGION)
+				|| (action == AbstractScene.DeviceAction.NO_MOUSE_ACTION))
 			super.deviceDragged2D(eventPoint, viewWindow);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
@@ -278,13 +278,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	
 	@Override
 	protected void deviceDragged3D(Point eventPoint, Camera camera) {
-		if ((action == AbstractScene.MouseAction.MOVE_FORWARD)
-				|| (action == AbstractScene.MouseAction.MOVE_BACKWARD)
-				|| (action == AbstractScene.MouseAction.DRIVE)
-				|| (action == AbstractScene.MouseAction.LOOK_AROUND)
-				|| (action == AbstractScene.MouseAction.ROLL)
-				|| (action == AbstractScene.MouseAction.ZOOM_ON_REGION)
-				|| (action == AbstractScene.MouseAction.NO_MOUSE_ACTION))
+		if ((action == AbstractScene.DeviceAction.MOVE_FORWARD)
+				|| (action == AbstractScene.DeviceAction.MOVE_BACKWARD)
+				|| (action == AbstractScene.DeviceAction.DRIVE)
+				|| (action == AbstractScene.DeviceAction.LOOK_AROUND)
+				|| (action == AbstractScene.DeviceAction.ROLL)
+				|| (action == AbstractScene.DeviceAction.ZOOM_ON_REGION)
+				|| (action == AbstractScene.DeviceAction.NO_MOUSE_ACTION))
 			super.deviceDragged3D(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
@@ -440,7 +440,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			return;
 		
 		// Added by pierre: #CONNECTION# seems that startAction should always be called before :)
-		if (action == AbstractScene.MouseAction.ZOOM_ON_REGION) {
+		if (action == AbstractScene.DeviceAction.ZOOM_ON_REGION) {
 			// the rectangle needs to be normalized!
 			int w = Math.abs((int) eventPoint.x - (int) pressPos.x);
 			int tlX = (int) pressPos.x < (int) eventPoint.x ? (int) pressPos.x : (int) eventPoint.x;
@@ -463,10 +463,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * .
 	 * <p>
 	 * The wheel behavior depends on the wheel binded action. Current possible
-	 * actions are {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM},
-	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_FORWARD} and
-	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#MOVE_BACKWARD}.
-	 * {@link remixlab.remixcam.core.AbstractScene.MouseAction#ZOOM} speed depends on
+	 * actions are {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM},
+	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_FORWARD} and
+	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_BACKWARD}.
+	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	@Override
@@ -519,7 +519,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		if( flyTimerJob.timer() != null )
 			flyTimerJob.runOnce(finalDrawAfterWheelEventDelay);
 
-		action = AbstractScene.MouseAction.NO_MOUSE_ACTION;
+		action = AbstractScene.DeviceAction.NO_MOUSE_ACTION;
 	}
 	
 	/**

@@ -37,14 +37,32 @@ public class DLEvent implements Constants, Copyable {
   static public final int MOUSE = 2;
   static public final int TOUCH = 3;
   protected int flavor;
-
-  public DLEvent(Integer action, Integer modifiers) {        
+  
+  public DLEvent(Integer action, Integer modifiers) {
     this.action = action;
     this.modifiers = modifiers;
   }
   
   public DLEvent(Integer action) { 
-    this(action, null);
+    this(action, 0);
+  }
+  
+  public DLEvent() { 
+    this(0, 0);
+  }
+
+  public DLEvent(AbstractScene scn, Integer action, Integer modifiers) {
+    this.action = action;
+    this.modifiers = modifiers;
+    queueEvent(scn);
+  } 
+  
+  public DLEvent(AbstractScene scn, Integer action) { 
+    this(scn, action, 0);
+  }
+  
+  public DLEvent(AbstractScene scn) { 
+    this(scn, 0, 0);
   }
   
   protected DLEvent(DLEvent other) {
@@ -52,8 +70,8 @@ public class DLEvent implements Constants, Copyable {
 		this.modifiers = other.modifiers;
 	}
   
-  public DLEvent() { 
-    this(null, null);
+  public void queueEvent(AbstractScene scn) {
+  	scn.enqueueEvent(this);
   }
   
   @Override
@@ -64,6 +82,10 @@ public class DLEvent implements Constants, Copyable {
   public Integer getFlavor() {
     return flavor;
   }
+  
+  public void setAction(Integer a) {
+  	this.action = a;
+  }
 
   public Integer getAction() {
     return action;
@@ -71,6 +93,10 @@ public class DLEvent implements Constants, Copyable {
 
   public Integer getModifiers() {
     return modifiers;
+  }
+  
+  public void setModifiers(Integer m) {
+  	this.modifiers = m;
   }
 
   public boolean isShiftDown() {
@@ -101,43 +127,5 @@ public class DLEvent implements Constants, Copyable {
 		if((META & mask)      == META) r += (r.length() > 0) ? "+META" : "META";
 		if((ALT_GRAPH & mask) == ALT_GRAPH) r += (r.length() > 0) ? "+ALT_GRAPH" : "ALT_GRAPH";
 		return r;
-	}
-	
-	/**
-	 * Attempt to add a 'feed' handler method to the HIDevice. The default feed
-	 * handler is a method that returns void and has one single HIDevice parameter.
-	 * 
-	 * @param obj the object to handle the feed
-	 * @param methodName the method to execute the feed in the object handler class
-	 * 
-	 * @see #removeHandler()
-	 * @see #invoke()
-	 */
-	public void addHandler(Object obj, String methodName) {
-		AbstractScene.showMissingImplementationWarning("addHandler");
-	}
-	
-	/**
-	 * Unregisters the 'feed' handler method (if any has previously been added to
-	 * the HIDevice).
-	 * 
-	 * @see #addHandler(Object, String)
-	 * @see #invoke()
-	 */
-	public void removeHandler() {
-		AbstractScene.showMissingImplementationWarning("removeHandler");
-	}
-	
-	/**
-	 * called by {@link #handle()}. Invokes the method added by
-	 * {@link #addHandler(Object, String)}. Returns {@code true} if
-	 * succeeded and {@code false} otherwise (e.g., no method was added).
-	 * 
-	 * @see #addHandler(Object, String)
-	 * @see #removeHandler()
-	 */
-	public boolean invoke() {
-		AbstractScene.showMissingImplementationWarning("invoke");
-		return false;
 	}
 }
