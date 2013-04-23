@@ -23,23 +23,21 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.constraints;
+package remixlab.remixcam.constraint;
 
 import remixlab.remixcam.geom.*;
 
 /**
- * An AxisPlaneConstraint defined in the Frame local coordinate system.
+ * An AxisPlaneConstraint defined in the world coordinate system.
  * <p>
  * The {@link #translationConstraintDirection()} and
- * {@link #rotationConstraintDirection()} are expressed in the Frame local
- * coordinate system (see {@link remixlab.remixcam.geom.GeomFrame#referenceFrame()}).
+ * {@link #rotationConstraintDirection()} are expressed in the world coordinate system.
  */
-public class LocalConstraint extends AxisPlaneConstraint {
-
+public class WorldConstraint extends AxisPlaneConstraint {
 	/**
 	 * Depending on {@link #translationConstraintType()}, {@code constrain}
 	 * translation to be along an axis or limited to a plane defined in the
-	 * local coordinate system by {@link #translationConstraintDirection()}.
+	 * world coordinate system by {@link #translationConstraintDirection()}.
 	 */
 	@Override
 	public Vector3D constrainTranslation(Vector3D translation, GeomFrame frame) {
@@ -49,15 +47,19 @@ public class LocalConstraint extends AxisPlaneConstraint {
 		case FREE:
 			break;
 		case PLANE:
-			proj = frame.rotation().rotate(translationConstraintDirection());
-			//proj = frame.localInverseTransformOf(translationConstraintDirection());
-			res = Vector3D.projectVectorOnPlane(translation, proj);
+			if (frame.referenceFrame() != null) {
+				proj = frame.referenceFrame().transformOf(translationConstraintDirection());
+				res = Vector3D.projectVectorOnPlane(translation, proj);
+			} else
+				res = Vector3D.projectVectorOnPlane(translation, translationConstraintDirection());
 			break;
 		case AXIS:
-			proj = frame.rotation().rotate(translationConstraintDirection());
-			//proj = frame.localInverseTransformOf(translationConstraintDirection());
-			res = Vector3D.projectVectorOnAxis(translation, proj);
-			break;			
+			if (frame.referenceFrame() != null) {
+				proj = frame.referenceFrame().transformOf(translationConstraintDirection());
+				res = Vector3D.projectVectorOnAxis(translation, proj);
+			} else
+				res = Vector3D.projectVectorOnAxis(translation, translationConstraintDirection());
+			break;
 		case FORBIDDEN:
 			res = new Vector3D(0.0f, 0.0f, 0.0f);
 			break;
@@ -66,9 +68,9 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	}
 
 	/**
-	 * When {@link #rotationConstraintType()} is of Type AXIS, constrain {@code
+	 * When {@link #rotationConstraintType()} is of type AXIS, constrain {@code
 	 * rotation} to be a rotation around an axis whose direction is defined in the
-	 * Frame local coordinate system by {@link #rotationConstraintDirection()}.
+	 * Frame world coordinate system by {@link #rotationConstraintDirection()}.
 	 */
 	@Override
 	public Orientable constrainRotation(Orientable rotation, GeomFrame frame) {
@@ -79,15 +81,15 @@ public class LocalConstraint extends AxisPlaneConstraint {
 		case PLANE:
 			break;
 		case AXIS:
-			if( rotation instanceof Quaternion) {
-				Vector3D axis = rotationConstraintDirection();
+			if (rotation instanceof Quaternion) {
 				Vector3D quat = new Vector3D(((Quaternion)rotation).quat[0], ((Quaternion)rotation).quat[1], ((Quaternion)rotation).quat[2]);
+				Vector3D axis = frame.transformOf(rotationConstraintDirection());
 				quat = Vector3D.projectVectorOnAxis(quat, axis);
 				res = new Quaternion(quat, 2.0f * (float) Math.acos(((Quaternion)rotation).quat[3]));
 			}
-		break;
+			break;
 		case FORBIDDEN:
-			if( rotation instanceof Quaternion)
+			if (rotation instanceof Quaternion)
 				res = new Quaternion(); // identity
 			else
 				res = new Rotation(); // identity

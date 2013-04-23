@@ -31,10 +31,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import remixlab.remixcam.devices.*;
-import remixlab.remixcam.events.*;
+import remixlab.remixcam.device.*;
+import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.renderers.*;
+import remixlab.remixcam.renderer.*;
 import remixlab.remixcam.util.*;
 
 public abstract class AbstractScene implements Constants {
@@ -726,12 +726,12 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Returns a String with the {@link #currentCameraProfile()} keyboard and mouse bindings.
 	 * 
-	 * @see remixlab.remixcam.devices.CameraProfile#cameraMouseBindingsDescription()
-	 * @see remixlab.remixcam.devices.CameraProfile#frameMouseBindingsDescription()
-	 * @see remixlab.remixcam.devices.CameraProfile#mouseClickBindingsDescription()
-	 * @see remixlab.remixcam.devices.CameraProfile#keyboardShortcutsDescription()
-	 * @see remixlab.remixcam.devices.CameraProfile#cameraWheelBindingsDescription()
-	 * @see remixlab.remixcam.devices.CameraProfile#frameWheelBindingsDescription()
+	 * @see remixlab.remixcam.device.CameraProfile#cameraMouseBindingsDescription()
+	 * @see remixlab.remixcam.device.CameraProfile#frameMouseBindingsDescription()
+	 * @see remixlab.remixcam.device.CameraProfile#mouseClickBindingsDescription()
+	 * @see remixlab.remixcam.device.CameraProfile#keyboardShortcutsDescription()
+	 * @see remixlab.remixcam.device.CameraProfile#cameraWheelBindingsDescription()
+	 * @see remixlab.remixcam.device.CameraProfile#frameWheelBindingsDescription()
 	 */
 	public String currentCameraProfileHelp() {
 		String description = new String();
@@ -2709,8 +2709,8 @@ public abstract class AbstractScene implements Constants {
 	 * Returns a list containing references to all the active MouseGrabbers.
 	 * <p>
 	 * Used to parse all the MouseGrabbers and to check if any of them
-	 * {@link remixlab.remixcam.devices.DeviceGrabbable#grabsMouse()} using
-	 * {@link remixlab.remixcam.devices.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}.
+	 * {@link remixlab.remixcam.device.DeviceGrabbable#grabsMouse()} using
+	 * {@link remixlab.remixcam.device.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}.
 	 * <p>
 	 * You should not have to directly use this list. Use
 	 * {@link #removeFromMouseGrabberPool(DeviceGrabbable)} and
@@ -2846,7 +2846,7 @@ public abstract class AbstractScene implements Constants {
 	 * Returns the current MouseGrabber, or {@code null} if none currently grabs
 	 * mouse events.
 	 * <p>
-	 * When {@link remixlab.remixcam.devices.DeviceGrabbable#grabsMouse()}, the different
+	 * When {@link remixlab.remixcam.device.DeviceGrabbable#grabsMouse()}, the different
 	 * mouse events are sent to it instead of their usual targets (
 	 * {@link #pinhole()} or {@link #interactiveFrame()}).
 	 */
@@ -2858,7 +2858,7 @@ public abstract class AbstractScene implements Constants {
 	 * Directly defines the {@link #mouseGrabber()}.
 	 * <p>
 	 * You should not call this method directly as it bypasses the
-	 * {@link remixlab.remixcam.devices.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}
+	 * {@link remixlab.remixcam.device.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}
 	 * test performed by parsing the mouse moved event.
 	 */
 	public void setMouseGrabber(DeviceGrabbable mouseGrabber) {
@@ -2873,7 +2873,7 @@ public abstract class AbstractScene implements Constants {
 	 * Returns true if the mouseGrabber is currently in the {@link #mouseGrabberPool()} list.
 	 * <p>
 	 * When set to false using {@link #removeFromMouseGrabberPool(DeviceGrabbable)}, the Scene no longer
-	 * {@link remixlab.remixcam.devices.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)} on this mouseGrabber.
+	 * {@link remixlab.remixcam.device.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)} on this mouseGrabber.
 	 * Use {@link #addInMouseGrabberPool(DeviceGrabbable)} to insert it back.
 	 */
 	public boolean isInMouseGrabberPool(DeviceGrabbable mouseGrabber) {
@@ -2889,7 +2889,7 @@ public abstract class AbstractScene implements Constants {
 	 * <p>
 	 * Use {@link #removeFromMouseGrabberPool(DeviceGrabbable)} to remove the mouseGrabber from
 	 * the list, so that it is no longer tested with
-	 * {@link remixlab.remixcam.devices.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}
+	 * {@link remixlab.remixcam.device.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}
 	 * by the Scene, and hence can no longer grab mouse focus. Use
 	 * {@link #isInMouseGrabberPool(DeviceGrabbable)} to know the current state of the MouseGrabber.
 	 */

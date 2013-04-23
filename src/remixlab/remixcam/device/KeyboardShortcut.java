@@ -23,10 +23,11 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.devices;
+package remixlab.remixcam.device;
 
-import remixlab.remixcam.events.DLEvent;
-import remixlab.remixcam.events.DLKeyEvent;
+import remixlab.remixcam.event.DLEvent;
+import remixlab.remixcam.event.DLKeyEvent;
+
 import com.flipthebird.gwthashcodeequals.*;
 
 /**

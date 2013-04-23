@@ -1,4 +1,4 @@
-package remixlab.remixcam.events;
+package remixlab.remixcam.event;
 
 //import remixlab.proscene.Scene;
 import remixlab.remixcam.core.*;
@@ -7,7 +7,7 @@ import remixlab.remixcam.core.AbstractScene.CameraKeyboardAction;
 import remixlab.remixcam.core.AbstractScene.ClickAction;
 import remixlab.remixcam.core.AbstractScene.KeyboardAction;
 import remixlab.remixcam.core.AbstractScene.DeviceAction;
-import remixlab.remixcam.devices.DeviceGrabbable;
+import remixlab.remixcam.device.DeviceGrabbable;
 import remixlab.remixcam.geom.Point;
 
 /**

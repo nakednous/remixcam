@@ -32,7 +32,7 @@ import java.util.List;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.constraints.*;
+import remixlab.remixcam.constraint.*;
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.core.Copyable;
@@ -1353,7 +1353,7 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * <p>
 	 * If the Frame has a {@link #constraint()}, {@code rotation} is first
 	 * constrained using
-	 * {@link remixlab.remixcam.constraints.Constraint#constrainRotation(Quaternion, GeomFrame)}.
+	 * {@link remixlab.remixcam.constraint.Constraint#constrainRotation(Quaternion, GeomFrame)}.
 	 * Hence the rotation actually applied to the Frame may differ from {@code
 	 * rotation} (since it can be filtered by the {@link #constraint()}). Use
 	 * {@code rotateAroundPoint(rotation, point, false)} to retrieve the filtered
@@ -1362,7 +1362,7 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 * <p>
 	 * The translation which results from the filtered rotation around {@code
 	 * point} is then computed and filtered using
-	 * {@link remixlab.remixcam.constraints.Constraint#constrainTranslation(Vector3D, GeomFrame)}.
+	 * {@link remixlab.remixcam.constraint.Constraint#constrainTranslation(Vector3D, GeomFrame)}.
 	 */
 	public final Orientable filteredRotateAroundPoint(Orientable rotation, Vector3D point) {
 		if (constraint() != null)

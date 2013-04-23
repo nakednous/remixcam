@@ -1,4 +1,4 @@
-package remixlab.remixcam.renderers;
+package remixlab.remixcam.renderer;
 
 import java.util.List;
 

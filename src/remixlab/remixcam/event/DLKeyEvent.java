@@ -1,4 +1,4 @@
-package remixlab.remixcam.events;
+package remixlab.remixcam.event;
 
 import java.util.HashMap;
 import java.util.Map.Entry;

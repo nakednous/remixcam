@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.constraints;
+package remixlab.remixcam.constraint;
 
 import remixlab.remixcam.geom.*;
 

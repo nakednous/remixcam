@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.devices;
+package remixlab.remixcam.device;
 
 import java.util.Map.Entry;
 
@@ -32,10 +32,10 @@ import remixlab.remixcam.core.AbstractScene.CameraKeyboardAction;
 import remixlab.remixcam.core.AbstractScene.ClickAction;
 import remixlab.remixcam.core.AbstractScene.DeviceAction;
 import remixlab.remixcam.core.Constants;
-import remixlab.remixcam.events.DLEvent;
-import remixlab.remixcam.events.DLKeyEvent;
-import remixlab.remixcam.events.DLMouseEvent;
-import remixlab.remixcam.renderers.*;
+import remixlab.remixcam.event.DLEvent;
+import remixlab.remixcam.event.DLKeyEvent;
+import remixlab.remixcam.event.DLMouseEvent;
+import remixlab.remixcam.renderer.*;
 
 /**
  * This class encapsulates a set of camera keyboard shortcuts, and camera and

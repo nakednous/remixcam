@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.devices;
+package remixlab.remixcam.device;
 
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.Point;
@@ -60,7 +60,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	/**
 	 * Main class method. Current implementation is empty.
 	 * 
-	 * @see remixlab.remixcam.devices.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)
+	 * @see remixlab.remixcam.device.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)
 	 */
 	public void checkIfGrabsMouse(int x, int y, Pinhole vp) { }
 
