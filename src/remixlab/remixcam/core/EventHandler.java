@@ -1,14 +1,12 @@
-package remixlab.remixcam.event;
+package remixlab.remixcam.core;
 
-//import remixlab.proscene.Scene;
-import remixlab.remixcam.core.*;
-//import remixlab.remixcam.core.AbstractScene.Modifier;
-import remixlab.remixcam.core.AbstractScene.CameraKeyboardAction;
-import remixlab.remixcam.core.AbstractScene.ClickAction;
-import remixlab.remixcam.core.AbstractScene.KeyboardAction;
-import remixlab.remixcam.core.AbstractScene.DeviceAction;
-import remixlab.remixcam.device.DeviceGrabbable;
+import remixlab.remixcam.core.AbstractScene.*;
+import remixlab.remixcam.event.DLEvent;
+import remixlab.remixcam.event.DLKeyEvent;
+import remixlab.remixcam.event.DLMouseEvent;
+import remixlab.remixcam.event.HIDeviceEvent;
 import remixlab.remixcam.geom.Point;
+import remixlab.remixcam.profile.DeviceGrabbable;
 
 /**
  * This class provides low level java.awt.* based input event handling.
@@ -20,7 +18,7 @@ import remixlab.remixcam.geom.Point;
  * generated via Processing will then be directed to {@link #DLDLKeyEvent(DLDLKeyEvent)} and to
  * {@link #handleMouseEvent(DLMouseEvent)}.  
  */
-public abstract class DesktopEvents implements Constants {
+public class EventHandler implements Constants {
 	protected AbstractScene scene;
 	public DeviceAction camMouseAction;
 	protected boolean keyHandled;
@@ -28,7 +26,7 @@ public abstract class DesktopEvents implements Constants {
 	public Point fCorner;// also used for SCREEN_ROTATE
 	public Point lCorner;
 	
-	public DesktopEvents(AbstractScene s) {
+	public EventHandler(AbstractScene s) {
 		scene = s;
 		camMouseAction = DeviceAction.NO_MOUSE_ACTION;
 		keyHandled = false;

@@ -26,8 +26,8 @@
 package remixlab.remixcam.core;
 
 import remixlab.remixcam.constraint.Constraint;
-import remixlab.remixcam.device.DeviceGrabbable;
 import remixlab.remixcam.geom.*;
+import remixlab.remixcam.profile.DeviceGrabbable;
 import remixlab.remixcam.util.AbstractTimerJob;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -959,7 +959,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.device.DeviceGrabbable#mouseClicked(remixlab.remixcam.core.AbstractScene.Button, int, Camera)}.
+	 * {@link remixlab.remixcam.profile.DeviceGrabbable#mouseClicked(remixlab.remixcam.core.AbstractScene.Button, int, Camera)}.
 	 * <p>
 	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(GeomFrame)}
 	 * and {@link remixlab.remixcam.core.AbstractScene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
@@ -981,7 +981,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 
 	/**
 	 * Initiates the InteractiveFrame mouse manipulation. Overloading of
-	 * {@link remixlab.remixcam.device.DeviceGrabbable#mousePressed(Point, Camera)}.
+	 * {@link remixlab.remixcam.profile.DeviceGrabbable#mousePressed(Point, Camera)}.
 	 * 
 	 * The mouse behavior depends on which button is pressed.
 	 * 
@@ -1282,7 +1282,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * Stops the InteractiveFrame mouse manipulation.
 	 * <p>
 	 * Overloading of
-	 * {@link remixlab.remixcam.device.DeviceGrabbable#mouseReleased(Point, Camera)}.
+	 * {@link remixlab.remixcam.profile.DeviceGrabbable#mouseReleased(Point, Camera)}.
 	 * <p>
 	 * If the action was ROTATE MouseAction, a continuous spinning is possible if
 	 * the speed of the mouse cursor is larger than {@link #spinningSensitivity()}
@@ -1309,7 +1309,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.device.DeviceGrabbable#mouseWheelMoved(int, Camera)}.
+	 * {@link remixlab.remixcam.profile.DeviceGrabbable#mouseWheelMoved(int, Camera)}.
 	 * <p>
 	 * Using the wheel is equivalent to a {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM}.
 	 * 

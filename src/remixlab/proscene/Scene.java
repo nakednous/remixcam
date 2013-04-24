@@ -1,10 +1,10 @@
 package remixlab.proscene;
 
 import remixlab.remixcam.core.*;
-import remixlab.remixcam.device.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.*;
+import remixlab.remixcam.profile.*;
 import remixlab.remixcam.renderer.*;
 
 /**
@@ -102,17 +102,22 @@ import java.util.TimerTask;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {	
-	protected class P5DesktopEvents extends DesktopEvents {
-		public P5DesktopEvents(Scene s) {
+	protected class P5EventHandler extends EventHandler {
+		public P5EventHandler(Scene s) {
 			super(s);
 		}
+		// two options here:
+		// 1. Bypass -> DLEventHandler methods are called directly, e.g., handleKeyEvent and handleMouseEvent
+		// 2. Remix events are enqueued first and then passed to the DLEventHandler @postDraw
 		public void keyEvent(KeyEvent e) {
 			if(scene.keyboardIsHandled() && scene.currentCameraProfile() != null)
-				handleKeyEvent(new DLKeyEvent(e.getAction(), e.getModifiers(), e.getKey(), e.getKeyCode()));
+				//handleKeyEvent(new DLKeyEvent(e.getAction(), e.getModifiers(), e.getKey(), e.getKeyCode()));
+				new DLKeyEvent(scene, e.getAction(), e.getModifiers(), e.getKey(), e.getKeyCode());
 		}
 		public void mouseEvent(MouseEvent e) {
 			if(scene.mouseIsHandled() && scene.currentCameraProfile() != null)
-				handleMouseEvent(new DLMouseEvent(e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount()));
+				//handleMouseEvent(new DLMouseEvent(e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount()));
+				new DLMouseEvent(scene, e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount());
 		}
 	}
 	
@@ -444,10 +449,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawZoomWindowHint() {
-			float p1x = (float) ((Scene)scene).dE.fCorner.getX();
-			float p1y = (float) ((Scene)scene).dE.fCorner.getY();
-			float p2x = (float) ((Scene)scene).dE.lCorner.getX();
-			float p2y = (float) ((Scene)scene).dE.lCorner.getY();
+			float p1x = (float) ((Scene)scene).eventHandler.fCorner.getX();
+			float p1y = (float) ((Scene)scene).eventHandler.fCorner.getY();
+			float p2x = (float) ((Scene)scene).eventHandler.lCorner.getX();
+			float p2y = (float) ((Scene)scene).eventHandler.lCorner.getY();
 			scene.beginScreenDrawing();
 			pg().pushStyle();
 			pg().stroke(255, 255, 255);
@@ -465,8 +470,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawScreenRotateLineHint() {
-			float p1x = (float) ((Scene)scene).dE.fCorner.getX();
-			float p1y = (float) ((Scene)scene).dE.fCorner.getY();
+			float p1x = (float) ((Scene)scene).eventHandler.fCorner.getX();
+			float p1y = (float) ((Scene)scene).eventHandler.fCorner.getY();
 			Vector3D p2 = scene.pinhole().projectedCoordinatesOf(scene.arcballReferencePoint());
 			scene.beginScreenDrawing();
 			pg().pushStyle();
@@ -1773,7 +1778,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		*/		
 		
 		//event handler
-		dE = new P5DesktopEvents(this);
+		eventHandler = new P5EventHandler(this);
 		
 		// 1 ->   	
 
@@ -2061,9 +2066,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		} else {
 			pinhole().hideAllPaths();
 		}
-		if (dE.camMouseAction == DeviceAction.ZOOM_ON_REGION)			
+		if (eventHandler.camMouseAction == DeviceAction.ZOOM_ON_REGION)			
 			drawZoomWindowHint();		
-		if (dE.camMouseAction == DeviceAction.SCREEN_ROTATE)
+		if (eventHandler.camMouseAction == DeviceAction.SCREEN_ROTATE)
 			drawScreenRotateLineHint();
 		if (arpFlag) 
 			drawArcballReferencePointHint();
@@ -2094,7 +2099,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			height = pg().height;				
 			pinhole().setScreenWidthAndHeight(width, height);				
 		} else {
-			if ((currentCameraProfile().mode() == CameraProfile.Mode.THIRD_PERSON)
+			if ((currentCameraProfile() instanceof ThirdPersonCameraProfile)
 					&& (!pinhole().anyInterpolationIsStarted())) {
 				pinhole().setPosition(avatar().cameraPosition());
 				pinhole().setUpVector(avatar().upVector());
@@ -2142,7 +2147,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 								+ "endDraw() and they cannot be nested. Check your implementation!");			
 			beginOffScreenDrawingCalls++;
 						
-			if ((currentCameraProfile().mode() == CameraProfile.Mode.THIRD_PERSON)
+			if ((currentCameraProfile() instanceof ThirdPersonCameraProfile)
 					&& (!pinhole().anyInterpolationIsStarted())) {
 				pinhole().setPosition(avatar().cameraPosition());
 				pinhole().setUpVector(avatar().upVector());
@@ -2430,7 +2435,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public void enableKeyboardHandling() {
 		if( !this.keyboardIsHandled() ) {
 			super.enableKeyboardHandling();
-			parent.registerMethod("keyEvent", dE);
+			parent.registerMethod("keyEvent", eventHandler);
 		}
 	}
 
@@ -2443,7 +2448,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public void disableKeyboardHandling() {
 		if( this.keyboardIsHandled() ) {
 			super.disableKeyboardHandling();
-			parent.unregisterMethod("keyEvent", dE);
+			parent.unregisterMethod("keyEvent", eventHandler);
 		}
 	}
 		
@@ -2573,7 +2578,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public void enableMouseHandling() {
 		if( !this.mouseIsHandled() ) {
 			super.enableMouseHandling();
-			parent.registerMethod("mouseEvent", dE);
+			parent.registerMethod("mouseEvent", eventHandler);
 		}
 	}
 
@@ -2586,7 +2591,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public void disableMouseHandling() {
 		if( this.mouseIsHandled() ) {
 			super.disableMouseHandling();
-			parent.unregisterMethod("mouseEvent", dE);
+			parent.unregisterMethod("mouseEvent", eventHandler);
 		}
 	}
 

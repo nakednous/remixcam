@@ -31,9 +31,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import remixlab.remixcam.device.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
+import remixlab.remixcam.profile.*;
 import remixlab.remixcam.renderer.*;
 import remixlab.remixcam.util.*;
 
@@ -258,7 +258,7 @@ public abstract class AbstractScene implements Constants {
 	
   //O B J E C T S
 	//TODO pending
-	protected DesktopEvents dE;
+	protected EventHandler eventHandler;
 	
   //E X C E P T I O N H A N D L I N G
 	protected int startCoordCalls;
@@ -412,7 +412,7 @@ public abstract class AbstractScene implements Constants {
 	public void setDrawInteractiveFrame(boolean draw) {
 		if (draw && (glIFrame == null))
 			return;
-		if (!draw && (currentCameraProfile().mode() == CameraProfile.Mode.THIRD_PERSON)
+		if (!draw && currentCameraProfile() instanceof ThirdPersonCameraProfile
 				&& interactiveFrame().equals(avatar()))// more natural than to bypass it
 			return;
 		iFrameIsDrwn = draw;
@@ -489,8 +489,8 @@ public abstract class AbstractScene implements Constants {
 		currentCameraProfile = null;
 		// register here the default profiles
 		//registerCameraProfile(new CameraProfile(this, "ARCBALL", CameraProfile.Mode.ARCBALL));
-		registerCameraProfile( new CameraProfile(this, "WHEELED_ARCBALL", CameraProfile.Mode.WHEELED_ARCBALL) );
-		registerCameraProfile( new CameraProfile(this, "FIRST_PERSON", CameraProfile.Mode.FIRST_PERSON) );
+		registerCameraProfile( new WheeledArcballCameraProfile(this, "WHEELED_ARCBALL") );
+		registerCameraProfile( new FirstPersonCameraProfile(this, "FIRST_PERSON") );
 		//setCurrentCameraProfile("ARCBALL");
 		setCurrentCameraProfile("WHEELED_ARCBALL");
 	}
@@ -546,10 +546,10 @@ public abstract class AbstractScene implements Constants {
 		int instancesDifferentThanThirdPerson = 0;
 
 		for (CameraProfile camProfile : cameraProfileMap.values())
-			if (camProfile.mode() != CameraProfile.Mode.THIRD_PERSON)
+			if (!(camProfile instanceof ThirdPersonCameraProfile))
 				instancesDifferentThanThirdPerson++;
 
-		if ((cProfile.mode() != CameraProfile.Mode.THIRD_PERSON)
+		if (!(cProfile instanceof ThirdPersonCameraProfile)
 				&& (instancesDifferentThanThirdPerson == 1))
 			return false;
 
@@ -648,10 +648,10 @@ public abstract class AbstractScene implements Constants {
 		CameraProfile camProfile = cameraProfileMap.get(cp);
 		if (camProfile == null)
 			return false;
-		if ((camProfile.mode() == CameraProfile.Mode.THIRD_PERSON) && (avatar() == null))
+		if ((camProfile instanceof ThirdPersonCameraProfile) && (avatar() == null))
 			return false;
 		else {
-			if (camProfile.mode() == CameraProfile.Mode.THIRD_PERSON) {
+			if (camProfile instanceof ThirdPersonCameraProfile) {
 				setDrawInteractiveFrame();
 				setCameraType(Camera.Type.PERSPECTIVE);
 				if (avatarIsInteractiveDrivableFrame)
@@ -683,7 +683,7 @@ public abstract class AbstractScene implements Constants {
 				pinhole().frame().stopSpinning();
 				
 				if(currentCameraProfile != null)
-					if (currentCameraProfile.mode() == CameraProfile.Mode.THIRD_PERSON)
+					if (currentCameraProfile instanceof ThirdPersonCameraProfile)
 						pinhole().interpolateToFitScene();
         
 				currentCameraProfile = camProfile;        
@@ -726,12 +726,12 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Returns a String with the {@link #currentCameraProfile()} keyboard and mouse bindings.
 	 * 
-	 * @see remixlab.remixcam.device.CameraProfile#cameraMouseBindingsDescription()
-	 * @see remixlab.remixcam.device.CameraProfile#frameMouseBindingsDescription()
-	 * @see remixlab.remixcam.device.CameraProfile#mouseClickBindingsDescription()
-	 * @see remixlab.remixcam.device.CameraProfile#keyboardShortcutsDescription()
-	 * @see remixlab.remixcam.device.CameraProfile#cameraWheelBindingsDescription()
-	 * @see remixlab.remixcam.device.CameraProfile#frameWheelBindingsDescription()
+	 * @see remixlab.remixcam.profile.CameraProfile#cameraMouseBindingsDescription()
+	 * @see remixlab.remixcam.profile.CameraProfile#frameMouseBindingsDescription()
+	 * @see remixlab.remixcam.profile.CameraProfile#mouseClickBindingsDescription()
+	 * @see remixlab.remixcam.profile.CameraProfile#keyboardShortcutsDescription()
+	 * @see remixlab.remixcam.profile.CameraProfile#cameraWheelBindingsDescription()
+	 * @see remixlab.remixcam.profile.CameraProfile#frameWheelBindingsDescription()
 	 */
 	public String currentCameraProfileHelp() {
 		String description = new String();
@@ -1560,7 +1560,7 @@ public abstract class AbstractScene implements Constants {
 			
 		// 5. Events
     while( !eventQueue.isEmpty() ) 
-    	dE.handle(eventQueue.remove());
+    	eventHandler.handle(eventQueue.remove());
 		
 		// 6. Grid and axis drawing
 		if (gridIsDrawn()) {
@@ -2709,8 +2709,8 @@ public abstract class AbstractScene implements Constants {
 	 * Returns a list containing references to all the active MouseGrabbers.
 	 * <p>
 	 * Used to parse all the MouseGrabbers and to check if any of them
-	 * {@link remixlab.remixcam.device.DeviceGrabbable#grabsMouse()} using
-	 * {@link remixlab.remixcam.device.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}.
+	 * {@link remixlab.remixcam.profile.DeviceGrabbable#grabsMouse()} using
+	 * {@link remixlab.remixcam.profile.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}.
 	 * <p>
 	 * You should not have to directly use this list. Use
 	 * {@link #removeFromMouseGrabberPool(DeviceGrabbable)} and
@@ -2846,7 +2846,7 @@ public abstract class AbstractScene implements Constants {
 	 * Returns the current MouseGrabber, or {@code null} if none currently grabs
 	 * mouse events.
 	 * <p>
-	 * When {@link remixlab.remixcam.device.DeviceGrabbable#grabsMouse()}, the different
+	 * When {@link remixlab.remixcam.profile.DeviceGrabbable#grabsMouse()}, the different
 	 * mouse events are sent to it instead of their usual targets (
 	 * {@link #pinhole()} or {@link #interactiveFrame()}).
 	 */
@@ -2858,7 +2858,7 @@ public abstract class AbstractScene implements Constants {
 	 * Directly defines the {@link #mouseGrabber()}.
 	 * <p>
 	 * You should not call this method directly as it bypasses the
-	 * {@link remixlab.remixcam.device.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}
+	 * {@link remixlab.remixcam.profile.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}
 	 * test performed by parsing the mouse moved event.
 	 */
 	public void setMouseGrabber(DeviceGrabbable mouseGrabber) {
@@ -2873,7 +2873,7 @@ public abstract class AbstractScene implements Constants {
 	 * Returns true if the mouseGrabber is currently in the {@link #mouseGrabberPool()} list.
 	 * <p>
 	 * When set to false using {@link #removeFromMouseGrabberPool(DeviceGrabbable)}, the Scene no longer
-	 * {@link remixlab.remixcam.device.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)} on this mouseGrabber.
+	 * {@link remixlab.remixcam.profile.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)} on this mouseGrabber.
 	 * Use {@link #addInMouseGrabberPool(DeviceGrabbable)} to insert it back.
 	 */
 	public boolean isInMouseGrabberPool(DeviceGrabbable mouseGrabber) {
@@ -2889,7 +2889,7 @@ public abstract class AbstractScene implements Constants {
 	 * <p>
 	 * Use {@link #removeFromMouseGrabberPool(DeviceGrabbable)} to remove the mouseGrabber from
 	 * the list, so that it is no longer tested with
-	 * {@link remixlab.remixcam.device.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}
+	 * {@link remixlab.remixcam.profile.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)}
 	 * by the Scene, and hence can no longer grab mouse focus. Use
 	 * {@link #isInMouseGrabberPool(DeviceGrabbable)} to know the current state of the MouseGrabber.
 	 */

@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.device;
+package remixlab.remixcam.core;
 
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
@@ -426,7 +426,8 @@ public class HIDevice {
 	 * 
 	 * <b>Attention</b>: Handled by the scene. You should not call this method by yourself.
 	 */
-	public void handle() {		
+	public void handle() {
+		// TODO it should produce a remix event to be enqueued by the scene and then process by the EventHandler
 		if(!invoke()) {			
 			feedXTranslation(feedXTranslation());
 			feedYTranslation(feedYTranslation());

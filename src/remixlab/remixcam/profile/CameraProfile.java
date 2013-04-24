@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.device;
+package remixlab.remixcam.profile;
 
 import java.util.Map.Entry;
 
@@ -249,11 +249,10 @@ import remixlab.remixcam.renderer.*;
  * {@link remixlab.proscene.Scene#setAvatar(Trackable)}) then you should register at
  * least one THIRD_PERSON camera profile to your Scene.
  */
-public class CameraProfile implements Constants {
-	public enum Mode {ARCBALL, WHEELED_ARCBALL, CAD, FIRST_PERSON, THIRD_PERSON, CUSTOM}
+public abstract class CameraProfile implements Constants {
+	//public enum Mode {ARCBALL, WHEELED_ARCBALL, CAD, FIRST_PERSON, THIRD_PERSON, CUSTOM}
 	protected String name;
 	protected AbstractScene scene;
-	protected Mode mode;
 	protected Bindings<KeyboardShortcut, AbstractScene.CameraKeyboardAction> keyboard;
 	protected Bindings<MouseShortcut, AbstractScene.DeviceAction> cameraActions;
 	protected Bindings<MouseShortcut, AbstractScene.DeviceAction> frameActions;
@@ -265,9 +264,11 @@ public class CameraProfile implements Constants {
 	/**
 	 * Convenience constructor that simply calls {@code this(scn, n, Mode.CUSTOM)}.
 	 */
+	/**
 	public CameraProfile(AbstractScene scn, String n) {
 		this(scn, n, Mode.CUSTOM);
 	}
+	*/
 
 	/**
 	 * Main constructor.
@@ -288,77 +289,21 @@ public class CameraProfile implements Constants {
 	 * @param n the camera profile name
 	 * @param m the camera profile mode
 	 */
-	public CameraProfile(AbstractScene scn, String n, Mode m) {
+	public CameraProfile(AbstractScene scn, String n) {
 		scene = scn;		
 		name = n;
-		mode = m;
 		keyboard = new Bindings<KeyboardShortcut, AbstractScene.CameraKeyboardAction>(scene);
 		cameraActions = new Bindings<MouseShortcut, AbstractScene.DeviceAction>(scene);
 		frameActions = new Bindings<MouseShortcut, AbstractScene.DeviceAction>(scene);		
 		clickActions = new Bindings<ClickBinding, AbstractScene.ClickAction>(scene);
 		cameraWheelActions = new Bindings<Integer, AbstractScene.DeviceAction>(scene);
-		frameWheelActions = new Bindings<Integer, AbstractScene.DeviceAction>(scene);
-		
-		switch (mode) {
-		case ARCBALL:			
-			setCameraMouseBinding(LEFT, DeviceAction.ROTATE);
-			arcballDefaultShortcuts();
-			break;
-		case WHEELED_ARCBALL:
-			setCameraMouseBinding(LEFT, AbstractScene.DeviceAction.ROTATE);
-			arcballDefaultShortcuts();			
-			setCameraWheelBinding( DeviceAction.ZOOM );
-			//should work only iFrame is an instance of drivable
-			setFrameWheelBinding( DeviceAction.ZOOM );			
-			break;
-		case CAD:
-			setCameraMouseBinding(LEFT, AbstractScene.DeviceAction.CAD_ROTATE);
-			arcballDefaultShortcuts();
-			//setCameraWheelBinding( MouseAction.ZOOM );
-			//should work only iFrame is an instance of drivable
-			//setFrameWheelBinding( MouseAction.ZOOM );
-			break;
-		case FIRST_PERSON:
-			setCameraMouseBinding(LEFT, AbstractScene.DeviceAction.MOVE_FORWARD);
-			setCameraMouseBinding(CENTER, AbstractScene.DeviceAction.LOOK_AROUND);
-			setCameraMouseBinding(RIGHT, AbstractScene.DeviceAction.MOVE_BACKWARD);   		
-			setCameraMouseBinding(SHIFT, LEFT, AbstractScene.DeviceAction.ROLL);			
-			setCameraMouseBinding(SHIFT, RIGHT, AbstractScene.DeviceAction.DRIVE);
-			setFrameMouseBinding(LEFT, AbstractScene.DeviceAction.ROTATE);
-			setFrameMouseBinding(CENTER, AbstractScene.DeviceAction.ZOOM);
-			setFrameMouseBinding(RIGHT, AbstractScene.DeviceAction.TRANSLATE);
-
-			setShortcut('+', AbstractScene.CameraKeyboardAction.INCREASE_CAMERA_FLY_SPEED);
-			setShortcut('-', AbstractScene.CameraKeyboardAction.DECREASE_CAMERA_FLY_SPEED);
-
-			setShortcut('s', AbstractScene.CameraKeyboardAction.INTERPOLATE_TO_FIT_SCENE);
-			setShortcut('S', AbstractScene.CameraKeyboardAction.SHOW_ALL);
-			break;
-		case THIRD_PERSON:
-			setFrameMouseBinding(LEFT, AbstractScene.DeviceAction.MOVE_FORWARD);
-			setFrameMouseBinding(CENTER, AbstractScene.DeviceAction.LOOK_AROUND);
-			setFrameMouseBinding(RIGHT, AbstractScene.DeviceAction.MOVE_BACKWARD);
-			setFrameMouseBinding(SHIFT, LEFT, AbstractScene.DeviceAction.ROLL);
-			setFrameMouseBinding(SHIFT, RIGHT, AbstractScene.DeviceAction.DRIVE);
-
-			setShortcut('+', AbstractScene.CameraKeyboardAction.INCREASE_AVATAR_FLY_SPEED);
-			setShortcut('-', AbstractScene.CameraKeyboardAction.DECREASE_AVATAR_FLY_SPEED);
-			setShortcut('a', AbstractScene.CameraKeyboardAction.INCREASE_AZYMUTH);
-			setShortcut('A', AbstractScene.CameraKeyboardAction.DECREASE_AZYMUTH);
-			setShortcut('i', AbstractScene.CameraKeyboardAction.INCREASE_INCLINATION);
-			setShortcut('I', AbstractScene.CameraKeyboardAction.DECREASE_INCLINATION);
-			setShortcut('t', AbstractScene.CameraKeyboardAction.INCREASE_TRACKING_DISTANCE);
-			setShortcut('T', AbstractScene.CameraKeyboardAction.DECREASE_TRACKING_DISTANCE);
-			break;
-		case CUSTOM:
-			break;
-		}
+		frameWheelActions = new Bindings<Integer, AbstractScene.DeviceAction>(scene);		
 	}
 	
 	/**
 	 * Internal use. Called by the constructor by ARCBALL and WHEELED_ARCBALL modes.
 	 */
-	private void arcballDefaultShortcuts() {
+	protected void arcballDefaultShortcuts() {
 		setShortcut(RIGHT, AbstractScene.CameraKeyboardAction.MOVE_CAMERA_RIGHT);		
 	  setShortcut(LEFT, AbstractScene.CameraKeyboardAction.MOVE_CAMERA_LEFT);
 		setShortcut(UP, AbstractScene.CameraKeyboardAction.MOVE_CAMERA_UP);
@@ -401,17 +346,6 @@ public class CameraProfile implements Constants {
 	}
 	
   // 1. General stuff
-	
-	/**
-	 * Returns the camera profile mode.
-	 * <p>
-	 * The camera profile mode is defined at instantiation time and cannot be modified later.
-	 * 
-	 * @see #CameraProfile(AbstractScene, String, Mode)
-	 */
-	public Mode mode() {
-		return mode;
-	}
 	
 	/**
 	 * Returns the camera profile name.
@@ -466,7 +400,7 @@ public class CameraProfile implements Constants {
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
 	 * {@link remixlab.proscene.Scene.DeviceAction#NO_MOUSE_ACTION} if no action was found.
 	 * <p>
-	 * Called by {@link remixlab.proscene.DesktopEvents#mousePressed(MouseEvent)}.
+	 * Called by {@link remixlab.remixcam.core.EventHandler#mousePressed(MouseEvent)}.
 	 */
 	public DeviceAction cameraMouseAction(DLMouseEvent e) {
 		DeviceAction camMouseAction = cameraMouseBinding( e.getModifiers(), e.getButton() );	
@@ -503,7 +437,7 @@ public class CameraProfile implements Constants {
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
 	 * {@link remixlab.proscene.Scene.DeviceAction#NO_MOUSE_ACTION} if no action was found.
 	 * <p>
-	 * Called by {@link remixlab.proscene.DesktopEvents#mousePressed(MouseEvent)}.
+	 * Called by {@link remixlab.remixcam.core.EventHandler#mousePressed(MouseEvent)}.
 	 */
 	public DeviceAction frameMouseAction(DLMouseEvent e) {
 		DeviceAction iFrameMouseAction = frameMouseBinding( e.getModifiers(), e.getButton() );
@@ -523,7 +457,7 @@ public class CameraProfile implements Constants {
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
 	 * {@link remixlab.proscene.Scene.DeviceAction#NO_MOUSE_ACTION} if no action was found.
 	 * <p>
-	 * Called by {@link remixlab.proscene.DesktopEvents#mouseWheelMoved(MouseWheelEvent)}.
+	 * Called by {@link remixlab.remixcam.core.EventHandler#mouseWheelMoved(MouseWheelEvent)}.
 	 */
 	public DeviceAction cameraWheelMouseAction(DLMouseEvent e) {
 		DeviceAction wMouseAction = cameraWheelBinding(e.getModifiers());
@@ -543,7 +477,7 @@ public class CameraProfile implements Constants {
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
 	 * {@link remixlab.proscene.Scene.DeviceAction#NO_MOUSE_ACTION} if no action was found.
 	 * <p>
-	 * Called by {@link remixlab.proscene.DesktopEvents#mouseWheelMoved(MouseWheelEvent)}.
+	 * Called by {@link remixlab.remixcam.core.EventHandler#mouseWheelMoved(MouseWheelEvent)}.
 	 */
 	public DeviceAction frameWheelMouseAction(DLMouseEvent e) {
 		DeviceAction fMouseAction = frameWheelBinding( e.getModifiers() );
