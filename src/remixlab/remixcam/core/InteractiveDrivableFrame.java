@@ -265,7 +265,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseDragged(Point, Pinhole)}.
+	 * {@link remixlab.remixcam.core.InteractiveFrame#buttonDragged(Point, Pinhole)}.
 	 * <p>
 	 * Motion depends on mouse binding. The resulting displacements are basically
 	 * the same of those of an InteractiveFrame, but moving forward and backward
@@ -348,10 +348,10 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseReleased(Point, Camera)}.
+	 * {@link remixlab.remixcam.core.InteractiveFrame#buttonReleased(Point, Camera)}.
 	 */
 	@Override
-	public void mouseReleased(Point eventPoint, Pinhole vp) {
+	public void buttonReleased(Point eventPoint, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -364,12 +364,12 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		if (((action == AbstractScene.DeviceAction.MOVE_FORWARD) || (action == AbstractScene.DeviceAction.MOVE_BACKWARD) || (action == AbstractScene.DeviceAction.DRIVE) ) && (mouseSpeed >= tossingSensitivity()) )
 			startTossing(FLY_UPDATE_PERDIOD);
 
-		super.mouseReleased(eventPoint, vp);
+		super.buttonReleased(eventPoint, vp);
 	}
 	
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseWheelMoved(int, Camera)}.
+	 * {@link remixlab.remixcam.core.InteractiveFrame#wheelMoved(int, Camera)}.
 	 * <p>
 	 * The wheel behavior depends on the wheel binded action. Current possible
 	 * actions are {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM},
@@ -379,7 +379,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	@Override
-	public void mouseWheelMoved(float rotation, Pinhole vp) {
+	public void wheelMoved(float rotation, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		

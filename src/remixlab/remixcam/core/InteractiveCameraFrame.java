@@ -432,10 +432,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
   
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveFrame#mouseReleased(Point, Camera)}.
+	 * {@link remixlab.remixcam.core.InteractiveFrame#buttonReleased(Point, Camera)}.
 	 */
 	@Override
-	public void mouseReleased(Point eventPoint, Pinhole vp) {
+	public void buttonReleased(Point eventPoint, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -454,12 +454,12 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			vp.interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
 		}
 
-		super.mouseReleased(eventPoint, vp);
+		super.buttonReleased(eventPoint, vp);
 	}
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#mouseWheelMoved(int, Pinhole)}
+	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#wheelMoved(int, Pinhole)}
 	 * .
 	 * <p>
 	 * The wheel behavior depends on the wheel binded action. Current possible
@@ -470,7 +470,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	@Override
-	public void mouseWheelMoved(float rotation, Pinhole vp) {
+	public void wheelMoved(float rotation, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		

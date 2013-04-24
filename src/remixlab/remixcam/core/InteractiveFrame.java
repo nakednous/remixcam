@@ -27,7 +27,6 @@ package remixlab.remixcam.core;
 
 import remixlab.remixcam.constraint.Constraint;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.profile.DeviceGrabbable;
 import remixlab.remixcam.util.AbstractTimerJob;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -384,7 +383,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	
 	/**
 	 * Returns the grabs mouse threshold which is used by this interactive frame to
-	 * {@link #checkIfGrabsMouse(int, int, Camera)}.
+	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
 	 * 
 	 * @see #setGrabsMouseThreshold(int)
 	 */
@@ -393,15 +392,15 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	}
 	
 	/**
-	 * Sets the number of pixels that defined the {@link #checkIfGrabsMouse(int, int, Camera)}
+	 * Sets the number of pixels that defined the {@link #checkIfGrabsDevice(int, int, Camera)}
 	 * condition.
 	 * 
-	 * @param threshold number of pixels that defined the {@link #checkIfGrabsMouse(int, int, Camera)}
+	 * @param threshold number of pixels that defined the {@link #checkIfGrabsDevice(int, int, Camera)}
 	 * condition. Default value is 10 pixels (which is set in the constructor). Negative values are
 	 * silently ignored.
 	 * 
 	 * @see #grabsMouseThreshold()
-	 * @see #checkIfGrabsMouse(int, int, Camera)
+	 * @see #checkIfGrabsDevice(int, int, Camera)
 	 */
 	public void setGrabsMouseThreshold( int threshold ) {
 		if(threshold >= 0)
@@ -411,31 +410,31 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	/**
 	 * Implementation of the MouseGrabber main method.
 	 * <p>
-	 * The InteractiveFrame {@link #grabsMouse()} when the mouse is within a {@link #grabsMouseThreshold()}
+	 * The InteractiveFrame {@link #grabsDevice()} when the mouse is within a {@link #grabsMouseThreshold()}
 	 * pixels region around its
 	 * {@link remixlab.remixcam.core.Camera#projectedCoordinatesOf(Vector3D)}
 	 * {@link #position()}.
 	 */
-	public void checkIfGrabsMouse(int x, int y, Pinhole camera) {
+	public void checkIfGrabsDevice(int x, int y, Pinhole camera) {
 		Vector3D proj = camera.projectedCoordinatesOf(position());
-		setGrabsMouse(keepsGrabbingMouse || ((Math.abs(x - proj.vec[0]) < grabsMouseThreshold()) && (Math.abs(y - proj.vec[1]) < grabsMouseThreshold())));
+		setGrabsDevice(keepsGrabbingMouse || ((Math.abs(x - proj.vec[0]) < grabsMouseThreshold()) && (Math.abs(y - proj.vec[1]) < grabsMouseThreshold())));
 	}
 
 	/**
 	 * Returns {@code true} when the MouseGrabber grabs the Scene's mouse events.
 	 * <p>
-	 * This flag is set with {@link #setGrabsMouse(boolean)} by the
-	 * {@link #checkIfGrabsMouse(int, int, Camera)} method.
+	 * This flag is set with {@link #setGrabsDevice(boolean)} by the
+	 * {@link #checkIfGrabsDevice(int, int, Camera)} method.
 	 */
-	public boolean grabsMouse() {
+	public boolean grabsDevice() {
 		return grbsMouse;
 	}
 
 	/**
-	 * Sets the {@link #grabsMouse()} flag. Normally used by
-	 * {@link #checkIfGrabsMouse(int, int, Camera)}.
+	 * Sets the {@link #grabsDevice()} flag. Normally used by
+	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
 	 */
-	public void setGrabsMouse(boolean grabs) {
+	public void setGrabsDevice(boolean grabs) {
 		grbsMouse = grabs;
 	}
 
@@ -959,14 +958,14 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.profile.DeviceGrabbable#mouseClicked(remixlab.remixcam.core.AbstractScene.Button, int, Camera)}.
+	 * {@link remixlab.remixcam.core.DeviceGrabbable#buttonClicked(remixlab.remixcam.core.AbstractScene.Button, int, Camera)}.
 	 * <p>
 	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(GeomFrame)}
 	 * and {@link remixlab.remixcam.core.AbstractScene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
 	 * the camera view direction.
 	 */
 	@Override
-	public void mouseClicked(/**Point eventPoint,*/ Integer button, int numberOfClicks, Pinhole camera) {
+	public void buttonClicked(/**Point eventPoint,*/ Integer button, int numberOfClicks, Pinhole camera) {
 		if(numberOfClicks != 2)
 			return;
 		switch (button) {
@@ -981,16 +980,16 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 
 	/**
 	 * Initiates the InteractiveFrame mouse manipulation. Overloading of
-	 * {@link remixlab.remixcam.profile.DeviceGrabbable#mousePressed(Point, Camera)}.
+	 * {@link remixlab.remixcam.core.DeviceGrabbable#buttonPressed(Point, Camera)}.
 	 * 
 	 * The mouse behavior depends on which button is pressed.
 	 * 
-	 * @see #mouseDragged(Point, Camera)
-	 * @see #mouseReleased(Point, Camera)
+	 * @see #buttonDragged(Point, Camera)
+	 * @see #buttonReleased(Point, Camera)
 	 */
 	@Override
-	public void mousePressed(Point eventPoint, Pinhole camera) {
-		if (grabsMouse())
+	public void buttonPressed(Point eventPoint, Pinhole camera) {
+		if (grabsDevice())
 			keepsGrabbingMouse = true;
 
 		prevPos = pressPos = eventPoint;
@@ -1010,7 +1009,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see remixlab.remixcam.core.Camera#fieldOfView()
 	 */
 	@Override
-	public void mouseDragged(Point eventPoint, Pinhole camera) {
+	public void buttonDragged(Point eventPoint, Pinhole camera) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -1282,7 +1281,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * Stops the InteractiveFrame mouse manipulation.
 	 * <p>
 	 * Overloading of
-	 * {@link remixlab.remixcam.profile.DeviceGrabbable#mouseReleased(Point, Camera)}.
+	 * {@link remixlab.remixcam.core.DeviceGrabbable#buttonReleased(Point, Camera)}.
 	 * <p>
 	 * If the action was ROTATE MouseAction, a continuous spinning is possible if
 	 * the speed of the mouse cursor is larger than {@link #spinningSensitivity()}
@@ -1292,7 +1291,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #startSpinning(int)
 	 * @see #isSpinning()
 	 */
-	public void mouseReleased(Point event, Pinhole camera) {
+	public void buttonReleased(Point event, Pinhole camera) {
 		keepsGrabbingMouse = false;
 
 		if (prevConstraint != null)
@@ -1309,14 +1308,14 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.profile.DeviceGrabbable#mouseWheelMoved(int, Camera)}.
+	 * {@link remixlab.remixcam.core.DeviceGrabbable#wheelMoved(int, Camera)}.
 	 * <p>
 	 * Using the wheel is equivalent to a {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM}.
 	 * 
 	 * @see #setWheelSensitivity(float)
 	 */
 	@Override
-	public void mouseWheelMoved(float rotation, Pinhole camera) {
+	public void wheelMoved(float rotation, Pinhole camera) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -1386,7 +1385,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	/**
 	 * Updates mouse speed, measured in pixels/milliseconds. Should be called by
 	 * any method which wants to use mouse speed. Currently used to trigger
-	 * spinning in {@link #mouseReleased(Point, Camera)}.
+	 * spinning in {@link #buttonReleased(Point, Camera)}.
 	 */
 	protected void computeMouseSpeed(Point eventPoint) {
 		float dist = (float) Point.distance(eventPoint.x, eventPoint.y, prevPos.getX(), prevPos.getY());

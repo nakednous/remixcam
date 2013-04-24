@@ -254,8 +254,8 @@ public abstract class CameraProfile implements Constants {
 	protected String name;
 	protected AbstractScene scene;
 	protected Bindings<KeyboardShortcut, AbstractScene.CameraKeyboardAction> keyboard;
-	protected Bindings<MouseShortcut, AbstractScene.DeviceAction> cameraActions;
-	protected Bindings<MouseShortcut, AbstractScene.DeviceAction> frameActions;
+	protected Bindings<DeviceButtonShortcut, AbstractScene.DeviceAction> cameraActions;
+	protected Bindings<DeviceButtonShortcut, AbstractScene.DeviceAction> frameActions;
 	// C L I C K A C T I O N S
 	protected Bindings<ClickBinding, ClickAction> clickActions;
 	protected Bindings<Integer, AbstractScene.DeviceAction> cameraWheelActions;
@@ -293,8 +293,8 @@ public abstract class CameraProfile implements Constants {
 		scene = scn;		
 		name = n;
 		keyboard = new Bindings<KeyboardShortcut, AbstractScene.CameraKeyboardAction>(scene);
-		cameraActions = new Bindings<MouseShortcut, AbstractScene.DeviceAction>(scene);
-		frameActions = new Bindings<MouseShortcut, AbstractScene.DeviceAction>(scene);		
+		cameraActions = new Bindings<DeviceButtonShortcut, AbstractScene.DeviceAction>(scene);
+		frameActions = new Bindings<DeviceButtonShortcut, AbstractScene.DeviceAction>(scene);		
 		clickActions = new Bindings<ClickBinding, AbstractScene.ClickAction>(scene);
 		cameraWheelActions = new Bindings<Integer, AbstractScene.DeviceAction>(scene);
 		frameWheelActions = new Bindings<Integer, AbstractScene.DeviceAction>(scene);		
@@ -491,7 +491,7 @@ public abstract class CameraProfile implements Constants {
 	 */
 	public String cameraMouseBindingsDescription() {
 		String description = new String();
-		for (Entry<MouseShortcut, DeviceAction> entry : cameraActions.map().entrySet())
+		for (Entry<DeviceButtonShortcut, DeviceAction> entry : cameraActions.map().entrySet())
       description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";     
 		return description;
 	}
@@ -501,7 +501,7 @@ public abstract class CameraProfile implements Constants {
 	 */
 	public String frameMouseBindingsDescription() {
 		String description = new String();
-		for (Entry<MouseShortcut, DeviceAction> entry : frameActions.map().entrySet())
+		for (Entry<DeviceButtonShortcut, DeviceAction> entry : frameActions.map().entrySet())
       description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";
 		return description;
 	}
@@ -790,7 +790,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */	
 	public boolean isCameraMouseBindingInUse(Integer button) {
-		return cameraActions.isShortcutInUse(new MouseShortcut(button));
+		return cameraActions.isShortcutInUse(new DeviceButtonShortcut(button));
 	}
 	
 	/**
@@ -800,7 +800,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */
 	public boolean isCameraMouseBindingInUse(Integer mask, Integer button) {
-		return cameraActions.isShortcutInUse(new MouseShortcut(mask, button));
+		return cameraActions.isShortcutInUse(new DeviceButtonShortcut(mask, button));
 	}
 
 	/**
@@ -821,7 +821,7 @@ public abstract class CameraProfile implements Constants {
 			DeviceAction a = cameraMouseBinding(button);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
-		cameraActions.setBinding(new MouseShortcut(button), action);
+		cameraActions.setBinding(new DeviceButtonShortcut(button), action);
 	}
 	
 	/**
@@ -839,7 +839,7 @@ public abstract class CameraProfile implements Constants {
 			DeviceAction a = cameraMouseBinding(mask, button);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
-		cameraActions.setBinding(new MouseShortcut(mask, button), action);
+		cameraActions.setBinding(new DeviceButtonShortcut(mask, button), action);
 	}
 
 	/**
@@ -848,7 +848,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */
 	public void removeCameraMouseBinding(Integer button) {
-		cameraActions.removeBinding(new MouseShortcut(button));
+		cameraActions.removeBinding(new DeviceButtonShortcut(button));
 	}
 	
 	/**
@@ -858,7 +858,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */
 	public void removeCameraMouseBinding(Integer mask, Integer button) {
-		cameraActions.removeBinding(new MouseShortcut(mask, button));
+		cameraActions.removeBinding(new DeviceButtonShortcut(mask, button));
 	}	
 	
 	/**
@@ -867,7 +867,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */
 	public AbstractScene.DeviceAction cameraMouseBinding(Integer button) {
-		return cameraActions.binding(new MouseShortcut(button));
+		return cameraActions.binding(new DeviceButtonShortcut(button));
 	}
 	
 	/**
@@ -877,7 +877,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */
 	public AbstractScene.DeviceAction cameraMouseBinding(Integer mask, Integer button) {
-		return cameraActions.binding(new MouseShortcut(mask, button));
+		return cameraActions.binding(new DeviceButtonShortcut(mask, button));
 	}
 
 	// iFrame wrappers:
@@ -895,7 +895,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */	
 	public boolean isFrameMouseBindingInUse(Integer button) {
-		return frameActions.isShortcutInUse(new MouseShortcut(button));
+		return frameActions.isShortcutInUse(new DeviceButtonShortcut(button));
 	}
 	
 	/**
@@ -905,7 +905,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */
 	public boolean isFrameMouseBindingInUse(Integer mask, Integer button) {
-		return frameActions.isShortcutInUse(new MouseShortcut(mask, button));
+		return frameActions.isShortcutInUse(new DeviceButtonShortcut(mask, button));
 	}
 
 	/**
@@ -926,7 +926,7 @@ public abstract class CameraProfile implements Constants {
 			DeviceAction a = frameMouseBinding(button);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
-		frameActions.setBinding(new MouseShortcut(button), action);
+		frameActions.setBinding(new DeviceButtonShortcut(button), action);
 	}
 	
 	/**
@@ -944,7 +944,7 @@ public abstract class CameraProfile implements Constants {
 			DeviceAction a = frameMouseBinding(mask, button);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
-		frameActions.setBinding(new MouseShortcut(mask, button), action);
+		frameActions.setBinding(new DeviceButtonShortcut(mask, button), action);
 	}
 
 	/**
@@ -953,7 +953,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */
 	public void removeFrameMouseBinding(Integer button) {
-		frameActions.removeBinding(new MouseShortcut(button));
+		frameActions.removeBinding(new DeviceButtonShortcut(button));
 	}
 	
 	/**
@@ -963,7 +963,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */
 	public void removeFrameMouseBinding(Integer mask, Integer button) {
-		frameActions.removeBinding(new MouseShortcut(mask, button));
+		frameActions.removeBinding(new DeviceButtonShortcut(mask, button));
 	}	
 	
 	/**
@@ -972,7 +972,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */
 	public AbstractScene.DeviceAction frameMouseBinding(Integer button) {
-		return frameActions.binding(new MouseShortcut(button));
+		return frameActions.binding(new DeviceButtonShortcut(button));
 	}
 	
 	/**
@@ -982,7 +982,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 */
 	public AbstractScene.DeviceAction frameMouseBinding(Integer mask, Integer button) {
-		return frameActions.binding(new MouseShortcut(mask, button));
+		return frameActions.binding(new DeviceButtonShortcut(mask, button));
 	}
 	
 	// click wrappers:

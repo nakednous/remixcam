@@ -2315,7 +2315,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
 					Vector3D center = pinhole().projectedCoordinatesOf(iF.position());
-					if (mg.grabsMouse()) {						
+					if (mg.grabsDevice()) {						
 						pg().pushStyle();
 					  //pg3d.stroke(mouseGrabberOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 0));
@@ -2343,7 +2343,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
 					Vector3D center = pinhole().projectedCoordinatesOf(iF.position());
-					if (mg.grabsMouse()) {
+					if (mg.grabsDevice()) {
 						pg().pushStyle();						
 					  //pg3d.stroke(mouseGrabberCameraPathOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 255));

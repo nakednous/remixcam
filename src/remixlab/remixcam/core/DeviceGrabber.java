@@ -23,9 +23,8 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.profile;
+package remixlab.remixcam.core;
 
-import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.Point;
 
 /**
@@ -33,8 +32,8 @@ import remixlab.remixcam.geom.Point;
  * <p>
  * If you want to implement your own MouseGrabber objects you should derive from this
  * class (instead of implementing the MouseGrabbable interface), and implement the
- * {@link #checkIfGrabsMouse(int, int, Camera)} method and some of the provided
- * callback methods, such {@link #mouseWheelMoved(int, Camera)}. 
+ * {@link #checkIfGrabsDevice(int, int, Camera)} method and some of the provided
+ * callback methods, such {@link #wheelMoved(int, Camera)}. 
  * <p>
  * <b>Note:</b> The InteractiveFrame object implements the MouseGrabbable interface.
  */
@@ -60,34 +59,34 @@ public class DeviceGrabber implements DeviceGrabbable {
 	/**
 	 * Main class method. Current implementation is empty.
 	 * 
-	 * @see remixlab.remixcam.profile.DeviceGrabbable#checkIfGrabsMouse(int, int, Camera)
+	 * @see remixlab.remixcam.core.DeviceGrabbable#checkIfGrabsDevice(int, int, Camera)
 	 */
-	public void checkIfGrabsMouse(int x, int y, Pinhole vp) { }
+	public void checkIfGrabsDevice(int x, int y, Pinhole vp) { }
 
 	/**
 	 * Returns true when the MouseGrabbable grabs the Scene mouse events.
 	 */
-	public boolean grabsMouse() {
+	public boolean grabsDevice() {
 		return grabsMouse;
 	}
 
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a mouse button is clicked.
+	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and a mouse button is clicked.
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void mouseClicked(Integer button, int numberOfClicks, Pinhole vp) { }
+	public void buttonClicked(Integer button, int numberOfClicks, Pinhole vp) { }
 
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and the
+	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and the
 	 * mouse is moved while a button is pressed.
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void mouseDragged(Point eventPoint, Pinhole vp) { }
+	public void buttonDragged(Point eventPoint, Pinhole vp) { }
 
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and a
+	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and a
 	 * mouse button is pressed. Once a mouse grabber grabs the mouse and the mouse is
 	 * pressed the default implementation will return that the mouse grabber
 	 * keepsGrabbingMouse even if the mouse grabber loses focus.
@@ -109,10 +108,10 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * {@code   setGrabsMouse( keepsGrabbingMouse	|| myCheckCondition); //note the use of the class variable keepsGrabbingMouse} <br>
 	 * {@code   ...} <br>
 	 * 
-	 * @see #mouseReleased(Point, Camera)
+	 * @see #buttonReleased(Point, Camera)
 	 */
-	public void mousePressed(Point eventPoint, Pinhole vp) {
-		if (grabsMouse())
+	public void buttonPressed(Point eventPoint, Pinhole vp) {
+		if (grabsDevice())
 			keepsGrabbingMouse = true;
 	}
 
@@ -120,25 +119,25 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * Mouse release event callback method.
 	 * <p>
 	 */
-	public void mouseReleased(Point eventPoint, Pinhole vp) {
+	public void buttonReleased(Point eventPoint, Pinhole vp) {
 		keepsGrabbingMouse = false;
 	}
 
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsMouse()} and the
+	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and the
 	 * mouse wheel is used.
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void mouseWheelMoved(float rotation, Pinhole vp) { }
+	public void wheelMoved(float rotation, Pinhole vp) { }
 
 	/**
-	 * Sets the {@link #grabsMouse()} flag. Normally used by
-	 * {@link #checkIfGrabsMouse(int, int, Camera)}.
+	 * Sets the {@link #grabsDevice()} flag. Normally used by
+	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
 	 *  
 	 * @param grabs flag
 	 */
-	public void setGrabsMouse(boolean grabs) {
+	public void setGrabsDevice(boolean grabs) {
 		grabsMouse = grabs;
 	}
 }

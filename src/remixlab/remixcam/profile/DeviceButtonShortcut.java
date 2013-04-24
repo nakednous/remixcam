@@ -35,7 +35,7 @@ import remixlab.remixcam.event.DLEvent;
  * Mouse shortcuts can be of one out of two forms: 1. Mouse buttons (e.g., 'LEFT');
  * 2. Mouse button + Key combinations (e.g., 'RIGHT' + CTRL key).
  */
-public final class MouseShortcut implements Constants {
+public final class DeviceButtonShortcut implements Constants {
 	@Override
 	public int hashCode() {
    return new HashCodeBuilder(17, 37).		
@@ -50,7 +50,7 @@ public final class MouseShortcut implements Constants {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;		
 		
-		MouseShortcut other = (MouseShortcut) obj;
+		DeviceButtonShortcut other = (DeviceButtonShortcut) obj;
 	  return new EqualsBuilder()		
 		.append(mask, other.mask)
 		.append(button, other.button)
@@ -62,7 +62,7 @@ public final class MouseShortcut implements Constants {
 	 * 
 	 * @param b mouse button
 	 */
-	public MouseShortcut(Integer b) {
+	public DeviceButtonShortcut(Integer b) {
 		this(0, b);
 	}
 
@@ -72,7 +72,7 @@ public final class MouseShortcut implements Constants {
 	 * @param m the mask 
 	 * @param b mouse button
 	 */
-	public MouseShortcut(Integer m, Integer b) {
+	public DeviceButtonShortcut(Integer m, Integer b) {
 		this.mask = m;
 		this.button = b;
 	}	
