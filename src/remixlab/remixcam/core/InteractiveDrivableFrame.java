@@ -278,7 +278,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 				|| (action == AbstractScene.DeviceAction.SCREEN_ROTATE)
 				|| (action == AbstractScene.DeviceAction.SCREEN_TRANSLATE)
 				|| (action == AbstractScene.DeviceAction.ROTATE)
-				|| (action == AbstractScene.DeviceAction.NO_MOUSE_ACTION))
+				|| (action == AbstractScene.DeviceAction.NO_DEVICE_ACTION))
 			super.deviceDragged3D(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
@@ -419,7 +419,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	  // Starts (or prolungates) the timer.
 		flyTimerJob.runOnce(finalDrawAfterWheelEventDelay);
 
-		action = AbstractScene.DeviceAction.NO_MOUSE_ACTION;
+		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 	}
 
 	/**

@@ -43,7 +43,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * applications.
  * <p>
  * <b>Note:</b> Once created, the InteractiveFrame is automatically added to
- * the {@link remixlab.remixcam.core.AbstractScene#mouseGrabberPool()}.
+ * the {@link remixlab.remixcam.core.AbstractScene#deviceGrabberPool()}.
  */
 
 public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copyable {
@@ -174,20 +174,20 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * {@link #spinningSensitivity()} and {@link #wheelSensitivity()}).
 	 * <p>
 	 * <b>Note:</b> the InteractiveFrame is automatically added to
-	 * the {@link remixlab.remixcam.core.AbstractScene#mouseGrabberPool()}.
+	 * the {@link remixlab.remixcam.core.AbstractScene#deviceGrabberPool()}.
 	 */
 	public InteractiveFrame(AbstractScene scn) {
 		super(scn.is3D());		
 		scene = scn;		
 		
-		action = AbstractScene.DeviceAction.NO_MOUSE_ACTION;
+		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 		horiz = true;
 
-		addInMouseGrabberPool();
+		addInDeviceGrabberPool();
 		isInCamPath = false;
 		grbsMouse = false;
 
-		setGrabsMouseThreshold(10);
+		setGrabsDeviceThreshold(10);
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
 		setWheelSensitivity(20.0f);
@@ -232,7 +232,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		this.action = otherFrame.action;
 		this.horiz = otherFrame.horiz;
 		
-		this.addInMouseGrabberPool();
+		this.addInDeviceGrabberPool();
 		this.isInCamPath = otherFrame.isInCamPath;
 		this.grbsMouse = otherFrame.grbsMouse;
 		
@@ -247,7 +247,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 		*/
 
-		this.setGrabsMouseThreshold( otherFrame.grabsMouseThreshold()  );
+		this.setGrabsDeviceThreshold( otherFrame.grabsMouseThreshold()  );
 		this.setRotationSensitivity( otherFrame.rotationSensitivity() );
 		this.setTranslationSensitivity( otherFrame.translationSensitivity() );
 		this.setWheelSensitivity( otherFrame.wheelSensitivity() );
@@ -295,7 +295,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * <p>
 	 * Constructs a Frame from the the {@code iFrame} {@link #translation()} and
 	 * {@link #orientation()} and immediately adds it to the
-	 * {@link #mouseGrabberPool()}.
+	 * {@link #deviceGrabberPool()}.
 	 * <p>
 	 * A call on {@link #isInCameraPath()} on this Frame will return {@code true}.
 	 * 
@@ -307,14 +307,14 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	public InteractiveFrame(AbstractScene scn, InteractiveCameraFrame iFrame) {
 		super(iFrame.rotation(), iFrame.translation(), iFrame.scaling());
 		scene = scn;
-		action = AbstractScene.DeviceAction.NO_MOUSE_ACTION;
+		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 		horiz = true;
 
-		addInMouseGrabberPool();
+		addInDeviceGrabberPool();
 		isInCamPath = true;
 		grbsMouse = false;
 
-		setGrabsMouseThreshold(10);
+		setGrabsDeviceThreshold(10);
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
 		setWheelSensitivity(20.0f);
@@ -385,7 +385,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * Returns the grabs mouse threshold which is used by this interactive frame to
 	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
 	 * 
-	 * @see #setGrabsMouseThreshold(int)
+	 * @see #setGrabsDeviceThreshold(int)
 	 */
 	public int grabsMouseThreshold() {
 		return grabsMouseThreshold;
@@ -402,7 +402,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #grabsMouseThreshold()
 	 * @see #checkIfGrabsDevice(int, int, Camera)
 	 */
-	public void setGrabsMouseThreshold( int threshold ) {
+	public void setGrabsDeviceThreshold( int threshold ) {
 		if(threshold >= 0)
 			grabsMouseThreshold = threshold; 
 	}
@@ -415,6 +415,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * {@link remixlab.remixcam.core.Camera#projectedCoordinatesOf(Vector3D)}
 	 * {@link #position()}.
 	 */
+	@Override
 	public void checkIfGrabsDevice(int x, int y, Pinhole camera) {
 		Vector3D proj = camera.projectedCoordinatesOf(position());
 		setGrabsDevice(keepsGrabbingMouse || ((Math.abs(x - proj.vec[0]) < grabsMouseThreshold()) && (Math.abs(y - proj.vec[1]) < grabsMouseThreshold())));
@@ -426,6 +427,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * This flag is set with {@link #setGrabsDevice(boolean)} by the
 	 * {@link #checkIfGrabsDevice(int, int, Camera)} method.
 	 */
+	@Override
 	public boolean grabsDevice() {
 		return grbsMouse;
 	}
@@ -434,6 +436,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * Sets the {@link #grabsDevice()} flag. Normally used by
 	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
 	 */
+	@Override
 	public void setGrabsDevice(boolean grabs) {
 		grbsMouse = grabs;
 	}
@@ -441,28 +444,28 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	/**
 	 * Convenience wrapper function that simply returns {@code scene.isInMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.remixcam.core.AbstractScene#isInMouseGrabberPool(DeviceGrabbable)
+	 * @see remixlab.remixcam.core.AbstractScene#isInDeviceGrabberPool(DeviceGrabbable)
 	 */
-	public boolean isInMouseGrabberPool() {
-		return scene.isInMouseGrabberPool(this);
+	public boolean isInDeviceGrabberPool() {
+		return scene.isInDeviceGrabberPool(this);
 	}	
 
 	/**
 	 * Convenience wrapper function that simply calls {@code scene.addInMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.remixcam.core.AbstractScene#addInMouseGrabberPool(DeviceGrabbable)
+	 * @see remixlab.remixcam.core.AbstractScene#addInDeviceGrabberPool(DeviceGrabbable)
 	 */
-	public void addInMouseGrabberPool() {
-		scene.addInMouseGrabberPool(this);
+	public void addInDeviceGrabberPool() {
+		scene.addInDeviceGrabberPool(this);
 	}
 
 	/**
 	 * Convenience wrapper function that simply calls {@code scene.removeFromMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.remixcam.core.AbstractScene#removeFromMouseGrabberPool(DeviceGrabbable)
+	 * @see remixlab.remixcam.core.AbstractScene#removeFromDeviceGrabberPool(DeviceGrabbable)
 	 */
-	public void removeFromMouseGrabberPool() {
-		scene.removeFromMouseGrabberPool(this);
+	public void removeFromDeviceGrabberPool() {
+		scene.removeFromDeviceGrabberPool(this);
 	}
 
 	/**
@@ -710,7 +713,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * during manipulation.
 	 */
 	public boolean isInInteraction() {
-		return action != AbstractScene.DeviceAction.NO_MOUSE_ACTION;
+		return action != AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 	}
 
 	/**
@@ -1021,7 +1024,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	
 	protected void deviceDragged2D(Point eventPoint, ViewWindow viewWindow) {
 		int deltaY = 0;
-		if(action != AbstractScene.DeviceAction.NO_MOUSE_ACTION) {
+		if(action != AbstractScene.DeviceAction.NO_DEVICE_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
 			if( scene.isRightHanded() )
 				deltaY = -deltaY;
@@ -1111,7 +1114,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			prevPos = eventPoint;
 		}
 
-		case NO_MOUSE_ACTION:
+		case NO_DEVICE_ACTION:
 			// Possible when the InteractiveFrame is a MouseGrabber. This method is
 			// then called without startAction
 			// because of mouseTracking.
@@ -1125,7 +1128,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	
   protected void deviceDragged3D(Point eventPoint, Camera camera) {
   	int deltaY = 0;
-		if(action != AbstractScene.DeviceAction.NO_MOUSE_ACTION) {
+		if(action != AbstractScene.DeviceAction.NO_DEVICE_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
 			if( scene.isRightHanded() )
 				deltaY = -deltaY;
@@ -1265,7 +1268,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			break;			
 		}
 
-		case NO_MOUSE_ACTION:
+		case NO_DEVICE_ACTION:
 			// Possible when the InteractiveFrame is a MouseGrabber. This method is
 			// then called without startAction
 			// because of mouseTracking.
@@ -1303,7 +1306,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		if (((action == AbstractScene.DeviceAction.TRANSLATE) || (action == AbstractScene.DeviceAction.SCREEN_TRANSLATE) ) && (mouseSpeed >= tossingSensitivity()) )
 			startTossing(delay);
 
-		action = AbstractScene.DeviceAction.NO_MOUSE_ACTION;
+		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 	}
 
 	/**
@@ -1331,7 +1334,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		if (prevConstraint != null)
 			setConstraint(prevConstraint);
 
-		action = AbstractScene.DeviceAction.NO_MOUSE_ACTION;
+		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 	}
 	
 	public boolean isFlipped() {

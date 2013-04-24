@@ -466,7 +466,7 @@ public class HIDevice {
 			yaw = rotation.vec[2] * rotSens.vec[2];
 		}
 		
-		if (scene.interactiveFrameIsDrawn() || (scene.mouseGrabber() != null && scene.mouseGrabber() instanceof InteractiveFrame) )
+		if (scene.interactiveFrameIsDrawn() || (scene.deviceGrabber() != null && scene.deviceGrabber() instanceof InteractiveFrame) )
 			handleIFrame();
 		else
 			handleCamera();

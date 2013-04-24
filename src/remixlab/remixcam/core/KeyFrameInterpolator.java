@@ -790,8 +790,8 @@ public class KeyFrameInterpolator implements Copyable {
 			stopInterpolation();
 		AbstractKeyFrame kf = keyFr.remove(index);
 		if (kf.frm  instanceof InteractiveFrame)
-			if (((InteractiveFrame) kf.frm).isInMouseGrabberPool())
-				((InteractiveFrame) kf.frm).removeFromMouseGrabberPool();
+			if (((InteractiveFrame) kf.frm).isInDeviceGrabberPool())
+				((InteractiveFrame) kf.frm).removeFromDeviceGrabberPool();
 		setInterpolationTime(firstTime());		
 	}
 
@@ -820,9 +820,9 @@ public class KeyFrameInterpolator implements Copyable {
 	protected void removeFramesFromMouseGrabberPool() {
 		for (int i = 0; i < keyFr.size(); ++i) {
 			if (keyFr.get(i).frame() != null)
-				if (((InteractiveFrame) keyFr.get(i).frame()).isInMouseGrabberPool())
+				if (((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
 					((InteractiveFrame) keyFr.get(i).frame())
-							.removeFromMouseGrabberPool();
+							.removeFromDeviceGrabberPool();
 		}
 	}
 
@@ -835,8 +835,8 @@ public class KeyFrameInterpolator implements Copyable {
 	protected void addFramesToMouseGrabberPool() {
 		for (int i = 0; i < keyFr.size(); ++i) {
 			if (keyFr.get(i).frame() != null)
-				if (!((InteractiveFrame) keyFr.get(i).frame()).isInMouseGrabberPool())
-					((InteractiveFrame) keyFr.get(i).frame()).addInMouseGrabberPool();
+				if (!((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
+					((InteractiveFrame) keyFr.get(i).frame()).addInDeviceGrabberPool();
 		}
 	}
 

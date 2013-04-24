@@ -48,7 +48,7 @@ import java.util.TimerTask;
  * A Scene has a full reach Camera, it can be used for on-screen or off-screen
  * rendering purposes (see the different constructors), and it has two means to
  * manipulate objects: an {@link #interactiveFrame()} single instance (which by
- * default is null) and a {@link #mouseGrabber()} pool.
+ * default is null) and a {@link #deviceGrabber()} pool.
  * <h3>Usage</h3>
  * To use a Scene you have three choices:
  * <ol>
@@ -1814,10 +1814,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		else
 			upperLeftCorner = new Point(0, 0);
 		beginOffScreenDrawingCalls = 0;		
-		setMouseTracking(true);
-		setMouseGrabber(null);
+		setDeviceTracking(true);
+		setDeviceGrabber(null);
 		
-		mouseGrabberIsAnIFrame = false;
+		deviceGrabberIsAnIFrame = false;
 
 		//animation
 		animationTimer = new SingleThreadedTimer(this);

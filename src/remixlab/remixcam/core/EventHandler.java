@@ -27,7 +27,7 @@ public class EventHandler implements Constants {
 	
 	public EventHandler(AbstractScene s) {
 		scene = s;
-		camMouseAction = DeviceAction.NO_MOUSE_ACTION;
+		camMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		keyHandled = false;
 		fCorner = new Point();
 		lCorner = new Point();
@@ -252,14 +252,14 @@ public class EventHandler implements Constants {
 	
   /**
    * The action generated when the user clicks the mouse is handled by the
-   * {@link remixlab.proscene.Scene#mouseGrabber()} (if any). Otherwise
+   * {@link remixlab.proscene.Scene#deviceGrabber()} (if any). Otherwise
    * looks in the {@link remixlab.proscene.Scene#currentCameraProfile()} to see if there's
    * a binding for this click event, taking into account the button, the modifier mask, and
    * the number of clicks.
    */
 	protected void mouseClicked(DLMouseEvent event) {		
-		if (scene.mouseGrabber() != null)
-			scene.mouseGrabber().buttonClicked(/**event.getPoint(),*/ event.getButton(), event.getClickCount(), scene.pinhole());
+		if (scene.deviceGrabber() != null)
+			scene.deviceGrabber().buttonClicked(/**event.getPoint(),*/ event.getButton(), event.getClickCount(), scene.pinhole());
 		else {
 			ClickAction ca = scene.currentCameraProfile().clickBinding(event.getModifiers(), event.getButton(), event.getClickCount());
 			if (ca != null)
@@ -268,23 +268,23 @@ public class EventHandler implements Constants {
 	}
 	
 	/**
-	 * {@link remixlab.proscene.Scene#setMouseGrabber(MouseGrabbable)} to the MouseGrabber that grabs the
+	 * {@link remixlab.proscene.Scene#setDeviceGrabber(MouseGrabbable)} to the MouseGrabber that grabs the
 	 * mouse (or to {@code null} if none of them grab it).
 	 */
 	public void mouseMoved(DLMouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
-		scene.setMouseGrabber(null);
-		if( scene.hasMouseTracking() )
-			for (DeviceGrabbable mg : scene.mouseGrabberPool()) {
+		scene.setDeviceGrabber(null);
+		if( scene.isTrackingDevice() )
+			for (DeviceGrabbable mg : scene.deviceGrabberPool()) {
 				mg.checkIfGrabsDevice(event.getX(), event.getY(), scene.pinhole());
 				if (mg.grabsDevice())
-					scene.setMouseGrabber(mg);
+					scene.setDeviceGrabber(mg);
 			}
 	}
 	
 	/**
 	 * The action generated when the user clicks and drags the mouse is handled by the
-	 * {@link remixlab.proscene.Scene#mouseGrabber()} (if any), or the
+	 * {@link remixlab.proscene.Scene#deviceGrabber()} (if any), or the
 	 * {@link remixlab.proscene.Scene#interactiveFrame()}
 	 * (if @link remixlab.proscene.Scene#interactiveFrameIsDrawn()), or the
 	 * {@link remixlab.proscene.Scene#pinhole()} (checks are performed in that order).
@@ -298,13 +298,13 @@ public class EventHandler implements Constants {
 	 */
 	public void mousePressed(DLMouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
-		if (scene.mouseGrabber() != null) {
-			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
-				InteractiveFrame iFrame = (InteractiveFrame) scene.mouseGrabber();
+		if (scene.deviceGrabber() != null) {
+			if (scene.deviceGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
+				InteractiveFrame iFrame = (InteractiveFrame) scene.deviceGrabber();
 				iFrame.startAction(scene.currentCameraProfile().frameMouseAction(e), scene.drawIsConstrained());
 				iFrame.buttonPressed(new Point(event.getX(), event.getY()), scene.pinhole());
 			} else
-				scene.mouseGrabber().buttonPressed(new Point(event.getX(), event.getY()), scene.pinhole());
+				scene.deviceGrabber().buttonPressed(new Point(event.getX(), event.getY()), scene.pinhole());
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
@@ -326,7 +326,7 @@ public class EventHandler implements Constants {
 	}
 
 	/**
-	 * The mouse dragged event is sent to the {@link remixlab.proscene.Scene#mouseGrabber()}
+	 * The mouse dragged event is sent to the {@link remixlab.proscene.Scene#deviceGrabber()}
 	 * or the {@link remixlab.proscene.Scene#interactiveFrame()}, or to the
 	 * {@link remixlab.proscene.Scene#pinhole()}, according to the action started at
 	 * {@link #awtMousePressed(DLMouseEvent)}.
@@ -339,15 +339,15 @@ public class EventHandler implements Constants {
 	 */
 	public void mouseDragged(DLMouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
-		if (scene.mouseGrabber() != null) {
-			scene.mouseGrabber().checkIfGrabsDevice(event.getX(), event.getY(), scene.pinhole());
-			if (scene.mouseGrabber().grabsDevice())
-				if (scene.mouseGrabberIsAnIFrame) //covers also the case when mouseGrabberIsADrivableFrame
-					((InteractiveFrame) scene.mouseGrabber()).buttonDragged(new Point(event.getX(), event.getY()), scene.pinhole());	
+		if (scene.deviceGrabber() != null) {
+			scene.deviceGrabber().checkIfGrabsDevice(event.getX(), event.getY(), scene.pinhole());
+			if (scene.deviceGrabber().grabsDevice())
+				if (scene.deviceGrabberIsAnIFrame) //covers also the case when mouseGrabberIsADrivableFrame
+					((InteractiveFrame) scene.deviceGrabber()).buttonDragged(new Point(event.getX(), event.getY()), scene.pinhole());	
 				else
-					scene.mouseGrabber().buttonDragged(new Point(event.getX(), event.getY()), scene.pinhole());
+					scene.deviceGrabber().buttonDragged(new Point(event.getX(), event.getY()), scene.pinhole());
 			else
-				scene.setMouseGrabber(null);
+				scene.setDeviceGrabber(null);
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
@@ -365,7 +365,7 @@ public class EventHandler implements Constants {
 	
 	/**
 	 * The mouse released event (which ends a mouse action) is sent to the
-	 * {@link remixlab.proscene.Scene#mouseGrabber()} or the
+	 * {@link remixlab.proscene.Scene#deviceGrabber()} or the
 	 * {@link remixlab.proscene.Scene#interactiveFrame()}, or to the
 	 * {@link remixlab.proscene.Scene#pinhole()}, according to the action started at
 	 * {@link #mousePressed(DLMouseEvent)}.
@@ -378,14 +378,14 @@ public class EventHandler implements Constants {
 	 */
 	public void mouseReleased(DLMouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
-		if (scene.mouseGrabber() != null) {
-			if (scene.mouseGrabberIsAnIFrame) //covers also the case when mouseGrabberIsADrivableFrame
-				((InteractiveFrame) scene.mouseGrabber()).buttonReleased(new Point(event.getX(), event.getY()), scene.pinhole());
+		if (scene.deviceGrabber() != null) {
+			if (scene.deviceGrabberIsAnIFrame) //covers also the case when mouseGrabberIsADrivableFrame
+				((InteractiveFrame) scene.deviceGrabber()).buttonReleased(new Point(event.getX(), event.getY()), scene.pinhole());
 			else
-				scene.mouseGrabber().buttonReleased(new Point(event.getX(), event.getY()), scene.pinhole());
-			scene.mouseGrabber().checkIfGrabsDevice(event.getX(), event.getY(), scene.pinhole());
-			if (!(scene.mouseGrabber().grabsDevice()))
-				scene.setMouseGrabber(null);
+				scene.deviceGrabber().buttonReleased(new Point(event.getX(), event.getY()), scene.pinhole());
+			scene.deviceGrabber().checkIfGrabsDevice(event.getX(), event.getY(), scene.pinhole());
+			if (!(scene.deviceGrabber().grabsDevice()))
+				scene.setDeviceGrabber(null);
 			// iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
 			return;
 		}
@@ -400,13 +400,13 @@ public class EventHandler implements Constants {
 				|| (camMouseAction == DeviceAction.SCREEN_TRANSLATE))
 			lCorner.set(event.getX(), event.getY());
 		scene.pinhole().frame().buttonReleased(new Point(event.getX(), event.getY()), scene.pinhole());
-		camMouseAction = DeviceAction.NO_MOUSE_ACTION;
+		camMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		// iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
 	}
 	
 	/**
 	 * The action generated when the user start rotating the mouse wheel is handled by the
-	 * {@link remixlab.proscene.Scene#mouseGrabber()} (if any), or the
+	 * {@link remixlab.proscene.Scene#deviceGrabber()} (if any), or the
 	 * {@link remixlab.proscene.Scene#interactiveFrame()}
 	 * (if @link remixlab.proscene.Scene#interactiveFrameIsDrawn()), or the
 	 * {@link remixlab.proscene.Scene#pinhole()} (checks are performed in that order).
@@ -419,13 +419,13 @@ public class EventHandler implements Constants {
 	public void mouseWheelMoved(DLMouseEvent event) {
 		//if(!scene.mouseIsHandled())
 			//return;
-		if (scene.mouseGrabber() != null) {
-			if (scene.mouseGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
-				InteractiveFrame iFrame = (InteractiveFrame) scene.mouseGrabber();
+		if (scene.deviceGrabber() != null) {
+			if (scene.deviceGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
+				InteractiveFrame iFrame = (InteractiveFrame) scene.deviceGrabber();
 				iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
 				iFrame.wheelMoved(event.getAmount(), scene.pinhole());				
 			} else
-				scene.mouseGrabber().wheelMoved(event.getAmount(), scene.pinhole());
+				scene.deviceGrabber().wheelMoved(event.getAmount(), scene.pinhole());
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {

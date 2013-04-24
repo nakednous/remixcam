@@ -202,7 +202,7 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public enum DeviceAction {
 		/** No mouse action. */
-		NO_MOUSE_ACTION("No mouse action", true),
+		NO_DEVICE_ACTION("No device action", true),
 		/** Rotate frame (camera or interactive frame. */
 		ROTATE("Rotate frame (camera or interactive frame)", true),
 		/** Rotate (only) camera frame as in CAD applications. */
@@ -270,9 +270,9 @@ public abstract class AbstractScene implements Constants {
 
 	// M o u s e G r a b b e r
 	protected List<DeviceGrabbable> msGrabberPool;
-	protected DeviceGrabbable mouseGrbbr;
-	public boolean mouseGrabberIsAnIFrame;	
-	protected boolean mouseTrckn;
+	protected DeviceGrabbable deviceGrbbr;
+	public boolean deviceGrabberIsAnIFrame;	
+	protected boolean deviceTrckn;
 
 	// D I S P L A Y F L A G S
 	protected boolean axisIsDrwn; // world axis
@@ -655,7 +655,7 @@ public abstract class AbstractScene implements Constants {
 				setDrawInteractiveFrame();
 				setCameraType(Camera.Type.PERSPECTIVE);
 				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar()).removeFromMouseGrabberPool();
+					((InteractiveDrivableFrame) avatar()).removeFromDeviceGrabberPool();
 				pinhole().frame().updateFlyUpVector();// ?
 				pinhole().frame().stopSpinning();
 				if (avatarIsInteractiveDrivableFrame) {
@@ -690,7 +690,7 @@ public abstract class AbstractScene implements Constants {
 				
 				setDrawInteractiveFrame(false);
 				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar()).addInMouseGrabberPool();
+					((InteractiveDrivableFrame) avatar()).addInDeviceGrabberPool();
 			}
 			return true;
 		}
@@ -726,9 +726,9 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Returns a String with the {@link #currentCameraProfile()} keyboard and mouse bindings.
 	 * 
-	 * @see remixlab.remixcam.profile.CameraProfile#cameraMouseBindingsDescription()
-	 * @see remixlab.remixcam.profile.CameraProfile#frameMouseBindingsDescription()
-	 * @see remixlab.remixcam.profile.CameraProfile#mouseClickBindingsDescription()
+	 * @see remixlab.remixcam.profile.CameraProfile#cameraDeviceBindingsDescription()
+	 * @see remixlab.remixcam.profile.CameraProfile#frameDeviceBindingsDescription()
+	 * @see remixlab.remixcam.profile.CameraProfile#deviceClickBindingsDescription()
 	 * @see remixlab.remixcam.profile.CameraProfile#keyboardShortcutsDescription()
 	 * @see remixlab.remixcam.profile.CameraProfile#cameraWheelBindingsDescription()
 	 * @see remixlab.remixcam.profile.CameraProfile#frameWheelBindingsDescription()
@@ -742,19 +742,19 @@ public abstract class AbstractScene implements Constants {
 			description += currentCameraProfile().keyboardShortcutsDescription();
 			index++;
 		}
-		if( currentCameraProfile().cameraMouseBindingsDescription().length() != 0 ) {
+		if( currentCameraProfile().cameraDeviceBindingsDescription().length() != 0 ) {
 			description += index + ". " + "Camera mouse bindings\n";
-			description += currentCameraProfile().cameraMouseBindingsDescription();
+			description += currentCameraProfile().cameraDeviceBindingsDescription();
 			index++;
 		}
-		if( currentCameraProfile().mouseClickBindingsDescription().length() != 0 ) {
+		if( currentCameraProfile().deviceClickBindingsDescription().length() != 0 ) {
 			description += index + ". " + "Mouse click bindings\n";
-			description += currentCameraProfile().mouseClickBindingsDescription();
+			description += currentCameraProfile().deviceClickBindingsDescription();
 			index++;
 		}
-		if( currentCameraProfile().frameMouseBindingsDescription().length() != 0 ) {
+		if( currentCameraProfile().frameDeviceBindingsDescription().length() != 0 ) {
 			description += index + ". " + "Interactive frame mouse bindings\n";
-			description += currentCameraProfile().frameMouseBindingsDescription();
+			description += currentCameraProfile().frameDeviceBindingsDescription();
 			index++;
 		}
 		if( currentCameraProfile().cameraWheelBindingsDescription().length() != 0 ) {
@@ -2713,40 +2713,40 @@ public abstract class AbstractScene implements Constants {
 	 * {@link remixlab.remixcam.core.DeviceGrabbable#checkIfGrabsDevice(int, int, Camera)}.
 	 * <p>
 	 * You should not have to directly use this list. Use
-	 * {@link #removeFromMouseGrabberPool(DeviceGrabbable)} and
-	 * {@link #addInMouseGrabberPool(DeviceGrabbable)} to modify this list.
+	 * {@link #removeFromDeviceGrabberPool(DeviceGrabbable)} and
+	 * {@link #addInDeviceGrabberPool(DeviceGrabbable)} to modify this list.
 	 */
-	public List<DeviceGrabbable> mouseGrabberPool() {
+	public List<DeviceGrabbable> deviceGrabberPool() {
 		return msGrabberPool;
 	}
 	
 	/**
 	 * Returns {@code true} if a mouse moved event  is called even when no mouse button is pressed.
 	 * <p>
-	 * You need to {@link #setMouseTracking(boolean)} to {@code true} in order to use MouseGrabber
-	 * (see {@link #mouseGrabber()}).
+	 * You need to {@link #setDeviceTracking(boolean)} to {@code true} in order to use MouseGrabber
+	 * (see {@link #deviceGrabber()}).
 	 */
-	public boolean hasMouseTracking() {
-		return mouseTrckn;
+	public boolean isTrackingDevice() {
+		return deviceTrckn;
 	}
 	
 	/**
-	 * Sets the {@link #hasMouseTracking()} value.
+	 * Sets the {@link #isTrackingDevice()} value.
 	 */
-	public void setMouseTracking(boolean enable) {		
+	public void setDeviceTracking(boolean enable) {		
 		if(!enable) {
-			if( mouseGrabber() != null )
-				mouseGrabber().setGrabsDevice(false);
-			setMouseGrabber(null);
+			if( deviceGrabber() != null )
+				deviceGrabber().setGrabsDevice(false);
+			setDeviceGrabber(null);
 		}
-		mouseTrckn = enable;
+		deviceTrckn = enable;
 	}
 	
 	/**
-	 * Calls {@link #setMouseTracking(boolean)} to toggle the {@link #hasMouseTracking()} value.
+	 * Calls {@link #setDeviceTracking(boolean)} to toggle the {@link #isTrackingDevice()} value.
 	 */
-	public void toggleMouseTracking() {
-		setMouseTracking(!hasMouseTracking());
+	public void toggleDeviceTracking() {
+		setDeviceTracking(!isTrackingDevice());
 	}
 	  
 	public void registerJob(AbstractTimerJob job) {
@@ -2850,73 +2850,73 @@ public abstract class AbstractScene implements Constants {
 	 * mouse events are sent to it instead of their usual targets (
 	 * {@link #pinhole()} or {@link #interactiveFrame()}).
 	 */
-	public DeviceGrabbable mouseGrabber() {
-		return mouseGrbbr;
+	public DeviceGrabbable deviceGrabber() {
+		return deviceGrbbr;
 	}
 	
 	/**
-	 * Directly defines the {@link #mouseGrabber()}.
+	 * Directly defines the {@link #deviceGrabber()}.
 	 * <p>
 	 * You should not call this method directly as it bypasses the
 	 * {@link remixlab.remixcam.core.DeviceGrabbable#checkIfGrabsDevice(int, int, Camera)}
 	 * test performed by parsing the mouse moved event.
 	 */
-	public void setMouseGrabber(DeviceGrabbable mouseGrabber) {
-		mouseGrbbr = mouseGrabber;
+	public void setDeviceGrabber(DeviceGrabbable deviceGrabber) {
+		deviceGrbbr = deviceGrabber;
 
-		mouseGrabberIsAnIFrame = mouseGrabber instanceof InteractiveFrame;
+		deviceGrabberIsAnIFrame = deviceGrabber instanceof InteractiveFrame;
 	}
 	
-	// 3. Mouse grabber handling
+	// 3. Device grabber handling
 	
 	/**
-	 * Returns true if the mouseGrabber is currently in the {@link #mouseGrabberPool()} list.
+	 * Returns true if the mouseGrabber is currently in the {@link #deviceGrabberPool()} list.
 	 * <p>
-	 * When set to false using {@link #removeFromMouseGrabberPool(DeviceGrabbable)}, the Scene no longer
+	 * When set to false using {@link #removeFromDeviceGrabberPool(DeviceGrabbable)}, the Scene no longer
 	 * {@link remixlab.remixcam.core.DeviceGrabbable#checkIfGrabsDevice(int, int, Camera)} on this mouseGrabber.
-	 * Use {@link #addInMouseGrabberPool(DeviceGrabbable)} to insert it back.
+	 * Use {@link #addInDeviceGrabberPool(DeviceGrabbable)} to insert it back.
 	 */
-	public boolean isInMouseGrabberPool(DeviceGrabbable mouseGrabber) {
-		return mouseGrabberPool().contains(mouseGrabber);
+	public boolean isInDeviceGrabberPool(DeviceGrabbable deviceGrabber) {
+		return deviceGrabberPool().contains(deviceGrabber);
 	}
 	
 	/**
-	 * Adds the mouseGrabber in the {@link #mouseGrabberPool()}.
+	 * Adds the mouseGrabber in the {@link #deviceGrabberPool()}.
 	 * <p>
 	 * All created InteractiveFrames (which are MouseGrabbers) are automatically added in the
-	 * {@link #mouseGrabberPool()} by their constructors. Trying to add a
-	 * mouseGrabber that already {@link #isInMouseGrabberPool(DeviceGrabbable)} has no effect.
+	 * {@link #deviceGrabberPool()} by their constructors. Trying to add a
+	 * mouseGrabber that already {@link #isInDeviceGrabberPool(DeviceGrabbable)} has no effect.
 	 * <p>
-	 * Use {@link #removeFromMouseGrabberPool(DeviceGrabbable)} to remove the mouseGrabber from
+	 * Use {@link #removeFromDeviceGrabberPool(DeviceGrabbable)} to remove the mouseGrabber from
 	 * the list, so that it is no longer tested with
 	 * {@link remixlab.remixcam.core.DeviceGrabbable#checkIfGrabsDevice(int, int, Camera)}
 	 * by the Scene, and hence can no longer grab mouse focus. Use
-	 * {@link #isInMouseGrabberPool(DeviceGrabbable)} to know the current state of the MouseGrabber.
+	 * {@link #isInDeviceGrabberPool(DeviceGrabbable)} to know the current state of the MouseGrabber.
 	 */
-	public void addInMouseGrabberPool(DeviceGrabbable mouseGrabber) {
-		if (!isInMouseGrabberPool(mouseGrabber))
-			mouseGrabberPool().add(mouseGrabber);
+	public void addInDeviceGrabberPool(DeviceGrabbable deviceGrabber) {
+		if (!isInDeviceGrabberPool(deviceGrabber))
+			deviceGrabberPool().add(deviceGrabber);
 	}
 
 	/**
-	 * Removes the mouseGrabber from the {@link #mouseGrabberPool()}.
+	 * Removes the mouseGrabber from the {@link #deviceGrabberPool()}.
 	 * <p>
-	 * See {@link #addInMouseGrabberPool(DeviceGrabbable)} for details. Removing a mouseGrabber
-	 * that is not in {@link #mouseGrabberPool()} has no effect.
+	 * See {@link #addInDeviceGrabberPool(DeviceGrabbable)} for details. Removing a mouseGrabber
+	 * that is not in {@link #deviceGrabberPool()} has no effect.
 	 */
-	public void removeFromMouseGrabberPool(DeviceGrabbable mouseGrabber) {
-		mouseGrabberPool().remove(mouseGrabber);
+	public void removeFromDeviceGrabberPool(DeviceGrabbable deviceGrabber) {
+		deviceGrabberPool().remove(deviceGrabber);
 	}
 
 	/**
-	 * Clears the {@link #mouseGrabberPool()}.
+	 * Clears the {@link #deviceGrabberPool()}.
 	 * <p>
 	 * Use this method only if it is faster to clear the
-	 * {@link #mouseGrabberPool()} and then to add back a few MouseGrabbers
+	 * {@link #deviceGrabberPool()} and then to add back a few MouseGrabbers
 	 * than to remove each one independently.
 	 */
-	public void clearMouseGrabberPool() {
-		mouseGrabberPool().clear();
+	public void clearDeviceGrabberPool() {
+		deviceGrabberPool().clear();
 	}
 	
 	// 2. Local timer

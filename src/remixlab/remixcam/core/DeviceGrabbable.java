@@ -42,14 +42,14 @@ import remixlab.remixcam.geom.Point;
  * performed on concrete class instances such as InteractiveFrame).
  * <p>
  * When a MouseGrabber {@link #grabsDevice()}, it becomes the 
- * {@link remixlab.remixcam.core.AbstractScene#mouseGrabber()}. All the mouse events are then
+ * {@link remixlab.remixcam.core.AbstractScene#deviceGrabber()}. All the mouse events are then
  * transmitted to it instead of being normally processed. This continues while
  * {@link #grabsDevice()} (updated using
  * {@link #checkIfGrabsDevice(int, int, Camera)}) returns {@code true}.
  * <p>
  * If you want to (temporarily) disable a specific MouseGrabbers, you can remove
  * it from this pool using 
- * {@link remixlab.remixcam.core.AbstractScene#removeFromMouseGrabberPool(DeviceGrabbable)}.
+ * {@link remixlab.remixcam.core.AbstractScene#removeFromDeviceGrabberPool(DeviceGrabbable)}.
  */
 public interface DeviceGrabbable {
 	/**

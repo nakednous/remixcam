@@ -392,20 +392,20 @@ public abstract class CameraProfile implements Constants {
 	public DeviceAction cameraMouseAction(int modifiers, int button) {
 		DeviceAction camMouseAction = cameraMouseBinding( modifiers, button );	
 		if (camMouseAction == null)
-			camMouseAction = DeviceAction.NO_MOUSE_ACTION;
+			camMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		return camMouseAction;
 	}
 	
 	/**
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
-	 * {@link remixlab.proscene.Scene.DeviceAction#NO_MOUSE_ACTION} if no action was found.
+	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
 	 * Called by {@link remixlab.remixcam.core.EventHandler#mousePressed(MouseEvent)}.
 	 */
 	public DeviceAction cameraMouseAction(DLMouseEvent e) {
 		DeviceAction camMouseAction = cameraMouseBinding( e.getModifiers(), e.getButton() );	
 		if (camMouseAction == null)
-			camMouseAction = DeviceAction.NO_MOUSE_ACTION;
+			camMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		return camMouseAction;		
 		
 	  //TODO debug		
@@ -429,67 +429,67 @@ public abstract class CameraProfile implements Constants {
 	public DeviceAction frameMouseAction(int modifiers, int button) {
 		DeviceAction iFrameMouseAction = frameMouseBinding( modifiers, button );
 		if (iFrameMouseAction == null)
-			iFrameMouseAction = DeviceAction.NO_MOUSE_ACTION;
+			iFrameMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		return iFrameMouseAction;
 	}
 	
 	/**
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
-	 * {@link remixlab.proscene.Scene.DeviceAction#NO_MOUSE_ACTION} if no action was found.
+	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
 	 * Called by {@link remixlab.remixcam.core.EventHandler#mousePressed(MouseEvent)}.
 	 */
 	public DeviceAction frameMouseAction(DLMouseEvent e) {
 		DeviceAction iFrameMouseAction = frameMouseBinding( e.getModifiers(), e.getButton() );
 		if (iFrameMouseAction == null)
-			iFrameMouseAction = DeviceAction.NO_MOUSE_ACTION;
+			iFrameMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		return iFrameMouseAction;
 	}
 	
 	public DeviceAction cameraWheelMouseAction(int modifiers) {
 		DeviceAction wMouseAction = cameraWheelBinding(modifiers);
 		if (wMouseAction == null)
-			wMouseAction = DeviceAction.NO_MOUSE_ACTION;
+			wMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		return wMouseAction;
 	}
 	
 	/**
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
-	 * {@link remixlab.proscene.Scene.DeviceAction#NO_MOUSE_ACTION} if no action was found.
+	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
 	 * Called by {@link remixlab.remixcam.core.EventHandler#mouseWheelMoved(MouseWheelEvent)}.
 	 */
 	public DeviceAction cameraWheelMouseAction(DLMouseEvent e) {
 		DeviceAction wMouseAction = cameraWheelBinding(e.getModifiers());
 		if (wMouseAction == null)
-			wMouseAction = DeviceAction.NO_MOUSE_ACTION;
+			wMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		return wMouseAction;
 	}
 	
 	public DeviceAction frameWheelMouseAction(int modifiers) {
 		DeviceAction fMouseAction = frameWheelBinding( modifiers );
 		if (fMouseAction == null)
-			fMouseAction = DeviceAction.NO_MOUSE_ACTION;
+			fMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		return fMouseAction;
 	}
 	
 	/**
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
-	 * {@link remixlab.proscene.Scene.DeviceAction#NO_MOUSE_ACTION} if no action was found.
+	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
 	 * Called by {@link remixlab.remixcam.core.EventHandler#mouseWheelMoved(MouseWheelEvent)}.
 	 */
 	public DeviceAction frameWheelMouseAction(DLMouseEvent e) {
 		DeviceAction fMouseAction = frameWheelBinding( e.getModifiers() );
 		if (fMouseAction == null)
-			fMouseAction = DeviceAction.NO_MOUSE_ACTION;
+			fMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		return fMouseAction;
 	}
 	
 	/**
 	 * Returns a String containing the camera mouse bindings' descriptions.
 	 */
-	public String cameraMouseBindingsDescription() {
+	public String cameraDeviceBindingsDescription() {
 		String description = new String();
 		for (Entry<DeviceButtonShortcut, DeviceAction> entry : cameraActions.map().entrySet())
       description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";     
@@ -499,7 +499,7 @@ public abstract class CameraProfile implements Constants {
 	/**
 	 * Returns a String containing the interactive frame mouse bindings' descriptions.
 	 */
-	public String frameMouseBindingsDescription() {
+	public String frameDeviceBindingsDescription() {
 		String description = new String();
 		for (Entry<DeviceButtonShortcut, DeviceAction> entry : frameActions.map().entrySet())
       description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";
@@ -509,7 +509,7 @@ public abstract class CameraProfile implements Constants {
 	/**
 	 * Returns a String containing the camera mouse-click bindings' descriptions.
 	 */
-	public String mouseClickBindingsDescription() {
+	public String deviceClickBindingsDescription() {
 		String description = new String();
 		for (Entry<ClickBinding, ClickAction> entry : clickActions.map().entrySet())
       description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";

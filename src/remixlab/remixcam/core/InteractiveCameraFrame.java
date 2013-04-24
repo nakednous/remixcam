@@ -46,7 +46,7 @@ import remixlab.remixcam.geom.*;
  * , which corresponds to the associated {@link Camera#arcballReferencePoint()}.
  * <p>
  * <b>Note:</b> The InteractiveCameraFrame is not added to the
- * {@link remixlab.remixcam.core.AbstractScene#mouseGrabberPool()} upon creation.
+ * {@link remixlab.remixcam.core.AbstractScene#deviceGrabberPool()} upon creation.
  */
 public class InteractiveCameraFrame extends InteractiveDrivableFrame implements Copyable {
 	@Override
@@ -82,12 +82,12 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * {@link #flySpeed()} is set to 0.0 and {@link #flyUpVector()} is (0,1,0).
 	 * The {@link #arcballReferencePoint()} is set to (0,0,0).
 	 * <p>
-	 * <b>Attention:</b> Created object is {@link #removeFromMouseGrabberPool()}.
+	 * <b>Attention:</b> Created object is {@link #removeFromDeviceGrabberPool()}.
 	 */
 	public InteractiveCameraFrame(Pinhole vp) {
 		super(vp.scene);
 		viewport = vp;
-		removeFromMouseGrabberPool();
+		removeFromDeviceGrabberPool();
 		arcballRefPnt = new Vector3D(0.0f, 0.0f, 0.0f);
 		worldAxis = new Vector3D(0, 0, 1);
 	}
@@ -181,7 +181,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				|| (action == AbstractScene.DeviceAction.LOOK_AROUND)
 				|| (action == AbstractScene.DeviceAction.ROLL)
 				|| (action == AbstractScene.DeviceAction.ZOOM_ON_REGION)
-				|| (action == AbstractScene.DeviceAction.NO_MOUSE_ACTION))
+				|| (action == AbstractScene.DeviceAction.NO_DEVICE_ACTION))
 			super.deviceDragged2D(eventPoint, viewWindow);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
@@ -284,7 +284,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				|| (action == AbstractScene.DeviceAction.LOOK_AROUND)
 				|| (action == AbstractScene.DeviceAction.ROLL)
 				|| (action == AbstractScene.DeviceAction.ZOOM_ON_REGION)
-				|| (action == AbstractScene.DeviceAction.NO_MOUSE_ACTION))
+				|| (action == AbstractScene.DeviceAction.NO_DEVICE_ACTION))
 			super.deviceDragged3D(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
@@ -519,7 +519,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		if( flyTimerJob.timer() != null )
 			flyTimerJob.runOnce(finalDrawAfterWheelEventDelay);
 
-		action = AbstractScene.DeviceAction.NO_MOUSE_ACTION;
+		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 	}
 	
 	/**

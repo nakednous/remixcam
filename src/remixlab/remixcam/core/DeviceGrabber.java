@@ -44,7 +44,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	
 	/**
 	 * The constructor takes a scene instance and 
-	 * {@link remixlab.remixcam.core.AbstractScene#addInMouseGrabberPool(DeviceGrabbable)}
+	 * {@link remixlab.remixcam.core.AbstractScene#addInDeviceGrabberPool(DeviceGrabbable)}
 	 * this MouseGrabber object.
 	 * 
 	 * @param scn Scene instance
@@ -53,7 +53,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 		scene = scn;
 		grabsMouse = false;
 		keepsGrabbingMouse = false;
-		scene.addInMouseGrabberPool(this);		
+		scene.addInDeviceGrabberPool(this);		
 	}
 	
 	/**
