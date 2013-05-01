@@ -249,7 +249,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		case MOVE_FORWARD:
 		case MOVE_BACKWARD:
 		case DRIVE:
-			mouseSpeed = 0.0f;
+			deviceSpeed = 0.0f;
 			stopTossing();
 			flyTimerJob.run(FLY_UPDATE_PERDIOD);
 			break;
@@ -259,27 +259,27 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	}
 	
 	@Override	
-	protected void deviceDragged2D(Point eventPoint, ViewWindow viewWindow) {
+	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {
 		//TODO implement 2d actions
 	}
 	
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveFrame#buttonDragged(Point, Pinhole)}.
+	 * {@link remixlab.remixcam.core.InteractiveFrame#execAction(Point, Pinhole)}.
 	 * <p>
 	 * Motion depends on mouse binding. The resulting displacements are basically
 	 * the same of those of an InteractiveFrame, but moving forward and backward
 	 * and turning actions are implemented.
 	 */
 	@Override
-	protected void deviceDragged3D(Point eventPoint, Camera camera) {		
+	protected void execAction3D(Point eventPoint, Camera camera) {		
 		if ((action == AbstractScene.DeviceAction.TRANSLATE)
 				|| (action == AbstractScene.DeviceAction.ZOOM)
 				|| (action == AbstractScene.DeviceAction.SCREEN_ROTATE)
 				|| (action == AbstractScene.DeviceAction.SCREEN_TRANSLATE)
 				|| (action == AbstractScene.DeviceAction.ROTATE)
 				|| (action == AbstractScene.DeviceAction.NO_DEVICE_ACTION))
-			super.deviceDragged3D(eventPoint, camera);
+			super.execAction3D(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
 			if( scene.isRightHanded() )
@@ -348,10 +348,10 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveFrame#buttonReleased(Point, Camera)}.
+	 * {@link remixlab.remixcam.core.InteractiveFrame#endAction(Point, Camera)}.
 	 */
 	@Override
-	public void buttonReleased(Point eventPoint, Pinhole vp) {
+	public void endAction(Point eventPoint, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -361,10 +361,10 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			flyTimerJob.stop();
 		}
 		
-		if (((action == AbstractScene.DeviceAction.MOVE_FORWARD) || (action == AbstractScene.DeviceAction.MOVE_BACKWARD) || (action == AbstractScene.DeviceAction.DRIVE) ) && (mouseSpeed >= tossingSensitivity()) )
+		if (((action == AbstractScene.DeviceAction.MOVE_FORWARD) || (action == AbstractScene.DeviceAction.MOVE_BACKWARD) || (action == AbstractScene.DeviceAction.DRIVE) ) && (deviceSpeed >= tossingSensitivity()) )
 			startTossing(FLY_UPDATE_PERDIOD);
 
-		super.buttonReleased(eventPoint, vp);
+		super.endAction(eventPoint, vp);
 	}
 	
 	/**

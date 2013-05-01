@@ -31,13 +31,7 @@ public class DLEvent implements Constants, Copyable {
 	
   protected Integer action;
   protected Integer modifiers;
-
-  // Types of events. As with all constants in Processing, brevity's preferred.
-  static public final int KEY = 1;
-  static public final int MOUSE = 2;
-  static public final int TOUCH = 3;
-  protected int flavor;
-  
+ 
   public DLEvent(Integer action, Integer modifiers) {
     this.action = action;
     this.modifiers = modifiers;
@@ -78,10 +72,6 @@ public class DLEvent implements Constants, Copyable {
 	public Object get() {
 		return new DLEvent(this);
 	}
-
-  public Integer getFlavor() {
-    return flavor;
-  }
   
   public void setAction(Integer a) {
   	this.action = a;

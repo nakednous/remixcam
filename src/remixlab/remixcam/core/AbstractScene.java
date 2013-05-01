@@ -3204,7 +3204,7 @@ public abstract class AbstractScene implements Constants {
 		withConstraint = wConstraint;
 	}
 	
-	// * Abstract drawing methods
+	// Abstract drawing methods
 		
 	/**
 	 * Same as {@code cone(det, 0, 0, r, h);}
@@ -3367,7 +3367,7 @@ public abstract class AbstractScene implements Constants {
 		
 	/**
 	 * Draws all InteractiveFrames' selection regions: a shooter target
-	 * visual hint of {@link remixlab.remixcam.core.InteractiveFrame#grabsMouseThreshold()} pixels size.
+	 * visual hint of {@link remixlab.remixcam.core.InteractiveFrame#grabsDeviceThreshold()} pixels size.
 	 * 
 	 * <b>Attention:</b> If the InteractiveFrame is part of a Camera path draws
 	 * nothing.
@@ -3378,7 +3378,7 @@ public abstract class AbstractScene implements Constants {
 	
 	/**
 	 * Draws the selection regions (a shooter target visual hint of
-	 * {@link remixlab.remixcam.core.InteractiveFrame#grabsMouseThreshold()} pixels size) of all
+	 * {@link remixlab.remixcam.core.InteractiveFrame#grabsDeviceThreshold()} pixels size) of all
 	 * InteractiveFrames forming part of the Camera paths.
 	 * 
 	 * @see #drawSelectionHints()

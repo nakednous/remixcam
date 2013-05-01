@@ -957,8 +957,7 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	 */
 	public void setConstraint(Constraint c) {
 		kernel().setConstraint(c);
-	}
-	
+	}	
 
 	/**
 	 * Returns the orientation of the Frame, defined in the world coordinate

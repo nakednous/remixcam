@@ -83,7 +83,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void buttonDragged(Point eventPoint, Pinhole vp) { }
+	public void execAction(Point eventPoint, Pinhole vp) { }
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and a
@@ -108,9 +108,9 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * {@code   setGrabsMouse( keepsGrabbingMouse	|| myCheckCondition); //note the use of the class variable keepsGrabbingMouse} <br>
 	 * {@code   ...} <br>
 	 * 
-	 * @see #buttonReleased(Point, Camera)
+	 * @see #endAction(Point, Camera)
 	 */
-	public void buttonPressed(Point eventPoint, Pinhole vp) {
+	public void initAction(Point eventPoint, Pinhole vp) {
 		if (grabsDevice())
 			keepsGrabbingMouse = true;
 	}
@@ -119,7 +119,7 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * Mouse release event callback method.
 	 * <p>
 	 */
-	public void buttonReleased(Point eventPoint, Pinhole vp) {
+	public void endAction(Point eventPoint, Pinhole vp) {
 		keepsGrabbingMouse = false;
 	}
 

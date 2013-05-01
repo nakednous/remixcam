@@ -302,15 +302,15 @@ public class EventHandler implements Constants {
 			if (scene.deviceGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
 				InteractiveFrame iFrame = (InteractiveFrame) scene.deviceGrabber();
 				iFrame.startAction(scene.currentCameraProfile().frameMouseAction(e), scene.drawIsConstrained());
-				iFrame.buttonPressed(new Point(event.getX(), event.getY()), scene.pinhole());
+				iFrame.initAction(new Point(event.getX(), event.getY()), scene.pinhole());
 			} else
-				scene.deviceGrabber().buttonPressed(new Point(event.getX(), event.getY()), scene.pinhole());
+				scene.deviceGrabber().initAction(new Point(event.getX(), event.getY()), scene.pinhole());
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
 			//scene.interactiveFrame().startAction(scene.currentCameraProfile().frameMouseAction(e), scene.drawIsConstrained());
 			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameMouseAction(e.getModifiers(), e.getButton()), scene.drawIsConstrained());
-			scene.interactiveFrame().buttonPressed(new Point(event.getX(), event.getY()), scene.pinhole());
+			scene.interactiveFrame().initAction(new Point(event.getX(), event.getY()), scene.pinhole());
 			return;
 		}
 		//camMouseAction = scene.currentCameraProfile().cameraMouseAction(e);
@@ -322,7 +322,7 @@ public class EventHandler implements Constants {
 		if (camMouseAction == DeviceAction.SCREEN_ROTATE)
 			fCorner.set(event.getX(), event.getY());
 		scene.pinhole().frame().startAction(camMouseAction, scene.drawIsConstrained());
-		scene.pinhole().frame().buttonPressed(new Point(event.getX(), event.getY()), scene.pinhole());
+		scene.pinhole().frame().initAction(new Point(event.getX(), event.getY()), scene.pinhole());
 	}
 
 	/**
@@ -343,15 +343,15 @@ public class EventHandler implements Constants {
 			scene.deviceGrabber().checkIfGrabsDevice(event.getX(), event.getY(), scene.pinhole());
 			if (scene.deviceGrabber().grabsDevice())
 				if (scene.deviceGrabberIsAnIFrame) //covers also the case when mouseGrabberIsADrivableFrame
-					((InteractiveFrame) scene.deviceGrabber()).buttonDragged(new Point(event.getX(), event.getY()), scene.pinhole());	
+					((InteractiveFrame) scene.deviceGrabber()).execAction(new Point(event.getX(), event.getY()), scene.pinhole());	
 				else
-					scene.deviceGrabber().buttonDragged(new Point(event.getX(), event.getY()), scene.pinhole());
+					scene.deviceGrabber().execAction(new Point(event.getX(), event.getY()), scene.pinhole());
 			else
 				scene.setDeviceGrabber(null);
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
-		  scene.interactiveFrame().buttonDragged(new Point(event.getX(), event.getY()), scene.pinhole());
+		  scene.interactiveFrame().execAction(new Point(event.getX(), event.getY()), scene.pinhole());
 			return;
 		}
 		if (camMouseAction == DeviceAction.ZOOM_ON_REGION)
@@ -359,7 +359,7 @@ public class EventHandler implements Constants {
 		else {
 			if (camMouseAction == DeviceAction.SCREEN_ROTATE)
 				fCorner.set(event.getX(), event.getY());
-			scene.pinhole().frame().buttonDragged(new Point(event.getX(), event.getY()), scene.pinhole());
+			scene.pinhole().frame().execAction(new Point(event.getX(), event.getY()), scene.pinhole());
 		}
 	}
 	
@@ -380,9 +380,9 @@ public class EventHandler implements Constants {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		if (scene.deviceGrabber() != null) {
 			if (scene.deviceGrabberIsAnIFrame) //covers also the case when mouseGrabberIsADrivableFrame
-				((InteractiveFrame) scene.deviceGrabber()).buttonReleased(new Point(event.getX(), event.getY()), scene.pinhole());
+				((InteractiveFrame) scene.deviceGrabber()).endAction(new Point(event.getX(), event.getY()), scene.pinhole());
 			else
-				scene.deviceGrabber().buttonReleased(new Point(event.getX(), event.getY()), scene.pinhole());
+				scene.deviceGrabber().endAction(new Point(event.getX(), event.getY()), scene.pinhole());
 			scene.deviceGrabber().checkIfGrabsDevice(event.getX(), event.getY(), scene.pinhole());
 			if (!(scene.deviceGrabber().grabsDevice()))
 				scene.setDeviceGrabber(null);
@@ -390,7 +390,7 @@ public class EventHandler implements Constants {
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
-			scene.interactiveFrame().buttonReleased(new Point(event.getX(), event.getY()), scene.pinhole());
+			scene.interactiveFrame().endAction(new Point(event.getX(), event.getY()), scene.pinhole());
 			// iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
 			return;
 		}
@@ -399,7 +399,7 @@ public class EventHandler implements Constants {
 				|| (camMouseAction == DeviceAction.SCREEN_ROTATE)
 				|| (camMouseAction == DeviceAction.SCREEN_TRANSLATE))
 			lCorner.set(event.getX(), event.getY());
-		scene.pinhole().frame().buttonReleased(new Point(event.getX(), event.getY()), scene.pinhole());
+		scene.pinhole().frame().endAction(new Point(event.getX(), event.getY()), scene.pinhole());
 		camMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		// iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
 	}

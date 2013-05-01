@@ -122,42 +122,36 @@ public class DLKeyEvent extends DLEvent {
   
   public DLKeyEvent(Integer action, Integer modifiers, Character c, Integer vk) {
     super(action, modifiers);
-    this.flavor = KEY;
     this.vKey = vk;
     this.key = c;
   }
   
   public DLKeyEvent(AbstractScene scn, Integer action, Integer modifiers, Character c, Integer vk) {
     super(scn, action, modifiers);
-    this.flavor = KEY;
     this.vKey = vk;
     this.key = c;
   }
   
   public DLKeyEvent(Integer action, Character k) {
     super(action);
-    this.flavor = KEY;
     this.key = k;
     this.vKey = null;
   }
 
   public DLKeyEvent(AbstractScene scn, Integer action, Character k) {
     super(scn, action);
-    this.flavor = KEY;
     this.key = k;
     this.vKey = null;
   }
   
   public DLKeyEvent(Integer action, Integer modifiers, Integer vk) {
     super(action, modifiers);
-    this.flavor = KEY;
     this.key = null;
     this.vKey = vk;
   }
   
   public DLKeyEvent(AbstractScene scn, Integer action, Integer modifiers, Integer vk) {
     super(scn, action, modifiers);
-    this.flavor = KEY;
     this.key = null;
     this.vKey = vk;
   }

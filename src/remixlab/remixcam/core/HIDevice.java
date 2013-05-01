@@ -25,7 +25,8 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.core.*;
+import java.util.ArrayList;
+
 import remixlab.remixcam.geom.*;
 
 /**
@@ -43,51 +44,34 @@ public class HIDevice {
 	 */
 	public enum Mode {RELATIVE, ABSOLUTE}
 	
-	/**
-	 * This enum holds the camera modes predefined by an HIDevice.
-	 */	
-	public enum CameraMode {
-		FIRST_PERSON("FIRST_PERSON camera mode set"),
-		GOOGLE_EARTH("GOOGLE_EARTH camera mode set"),
-		/**WORLD("WORLD camera mode set"),*/
-		CUSTOM("CUSTOM camera mode set");
-    private String description;		
-    CameraMode(String description) {
-       this.description = description;
-    }		
-    public String description() {
-        return description;
-    }
-	}
-	
-	/**
-	 * This enum holds the interactive frame manipulation modes predefined by an HIDevice.
-	 */
-	public enum IFrameMode {
-		FRAME("FRAME interactive frame control mode set"),
-		CAMERA("CAMERA interactive frame control mode set"),
-		WORLD("WORLD interactive frame control mode //TODO implement 2D caseset"),
-		CUSTOM("CUSTOM interactive frame control mode set");
-		private String description;		
-		IFrameMode(String description) {
-       this.description = description;
-    }		
-    public String description() {
-        return description;
-    }
-	}
+	public enum PointerMode {POINTER, POINTERLESS}
 	
 	protected Mode mode;
-	protected CameraMode camMode;
-	protected IFrameMode iFrameMode;
+	
+	protected PointerMode pmode;
 	
 	protected Object handlerObject;	
 	protected String handlerMethodName;
 	
 	protected AbstractScene scene;
-	protected Pinhole camera;
-	protected InteractiveCameraFrame cameraFrame;
-	protected InteractiveFrame iFrame;
+	
+	protected class Button {
+		static public final int PRESS = 1;
+	  static public final int RELEASE = 2;
+	  static public final int CLICK = 3;
+	  static public final int DRAG = 4;
+	  static public final int MOVE = 5;
+	  static public final int ENTER = 6;
+	  static public final int EXIT = 7;
+	}
+	
+	protected class Wheel {
+		protected Float amount;
+	}
+	
+	ArrayList<Button> buttons;
+	
+	ArrayList<Wheel> wheels;
 
 	protected Vector3D rotation, rotSens;
 	protected Vector3D translation, transSens;
@@ -125,9 +109,6 @@ public class HIDevice {
 	 */
 	public HIDevice(AbstractScene scn, Mode m) {
 		scene = scn;
-		camera = scene.pinhole();
-		cameraFrame = camera.frame();
-		iFrame = scene.interactiveFrame();
 		translation = new Vector3D();
 		transSens = new Vector3D(1, 1, 1);
 		rotation = new Vector3D();
@@ -143,8 +124,6 @@ public class HIDevice {
     yaw = rotation.vec[2] * rotSens.vec[2];
     
     setMode(m);
-    setCameraMode(CameraMode.FIRST_PERSON);
-    setIFrameMode(IFrameMode.CAMERA);    
 	}
 	
 	/**
@@ -465,260 +444,6 @@ public class HIDevice {
 				pitch = rotation.vec[1] * rotSens.vec[1];
 			yaw = rotation.vec[2] * rotSens.vec[2];
 		}
-		
-		if (scene.interactiveFrameIsDrawn() || (scene.deviceGrabber() != null && scene.deviceGrabber() instanceof InteractiveFrame) )
-			handleIFrame();
-		else
-			handleCamera();
-  }
-	
-	/**
-	 * Handles the {@link remixlab.proscene.Scene#interactiveFrame()} with this HIDevice.
-	 */
-  protected void handleIFrame() {  	
-  	switch (iFrameMode) {
-		case FRAME:
-			// A. Translate the iFrame      
-      iFrame.translate(iFrame.inverseTransformOf(new Vector3D(tx,ty,-tz))); 
-      // B. Rotate the iFrame 
-      q.fromEulerAngles(-roll, -pitch, yaw);
-      iFrame.rotate(q);
-			break;
-		case CAMERA:
-		  // A. Translate the iFrame      
-      // Transform to world coordinate system                     
-      t = cameraFrame.inverseTransformOf(new Vector3D(tx,ty,-tz)); //same as: t = cameraFrame.orientation().rotate(new Vector3D(tx,ty,-tz));
-      // And then down to frame
-      if (iFrame.referenceFrame() != null)
-        t = iFrame.referenceFrame().transformOf(t);
-      iFrame.translate(t);
-      // B. Rotate the iFrame
-      if(scene.is3D())
-      	t = ((Camera) camera).projectedCoordinatesOf(iFrame.position());
-      else {
-      //TODO implement 2D case
-      }
-      q.fromEulerAngles(roll, pitch, -yaw);
-      t.set(-q.quat[0], -q.quat[1], -q.quat[2]);      
-      //TODO needs testing:
-      t = cameraFrame.inverseTransformOf(t); // same as: t = cameraFrame.orientation().rotate(t);
-      t = iFrame.transformOf(t);
-      q.quat[0] = t.vec[0];
-      q.quat[1] = t.vec[1];
-      q.quat[2] = t.vec[1];
-      iFrame.rotate(q);
-			break;			
-    case WORLD:
-      // Transform to frame
-    	t.set(tx,ty,-tz);
-      if (iFrame.referenceFrame() != null)
-        t = iFrame.referenceFrame().transformOf(t);
-      iFrame.translate(t);        
-      // B. Rotate the iFrame
-      Quaternion qx = new Quaternion(iFrame.transformOf(new Vector3D(1, 0, 0)), -roll);
-      Quaternion qy = new Quaternion(iFrame.transformOf(new Vector3D(0, 1, 0)), -pitch);     
-      Quaternion qz = new Quaternion(iFrame.transformOf(new Vector3D(0, 0, 1)), yaw);      
-      q.set(qy);
-      q.multiply(qz);
-      q.multiply(qx);
-      iFrame.rotate(q);
-			break;
-    case CUSTOM:
-			customIFrameHandle();
-			break;
-		}  	
-	}
-
-  /**
-	 * Handles the {@link remixlab.proscene.Scene#pinhole()} with this HIDevice.
-	 */
-	protected void handleCamera() {
-		switch (camMode) {
-		case FIRST_PERSON:
-   		// Translate      
-      cameraFrame.translate(cameraFrame.localInverseTransformOf(new Vector3D(tx,ty,-tz)));
-      // Rotate
-      q.fromEulerAngles(-roll, -pitch, yaw);
-      cameraFrame.rotate(q);
-			break;
-		case GOOGLE_EARTH:
-			t = Vector3D.mult(cameraFrame.position(), -tz * ( rotSens.vec[2]/transSens.vec[2] ) );
-      cameraFrame.translate(t);
-
-      q.fromEulerAngles(-ty * ( rotSens.vec[1]/transSens.vec[1] ), tx * ( rotSens.vec[0]/transSens.vec[0] ), 0);
-      cameraFrame.rotateAroundPoint(q, scene.pinhole().arcballReferencePoint());
-
-      q.fromEulerAngles(0, 0, yaw);
-      cameraFrame.rotateAroundPoint(q, scene.pinhole().arcballReferencePoint());
-
-      q.fromEulerAngles(-roll, 0, 0);
-      cameraFrame.rotate(q);
-			break;
-			/**
-		case WORLD:
-		  // Translate          
-      cameraFrame.translate(new Vector3D(tx,ty,tz));      
-      // Rotate (same as q.fromEulerAngles, but axes are expressed int the world coordinate system)            
-      Quaternion qx = new Quaternion(cameraFrame.transformOf(new Vector3D(1, 0, 0)), -roll);
-      Quaternion qy = new Quaternion(cameraFrame.transformOf(new Vector3D(0, 1, 0)), -pitch);     
-      Quaternion qz = new Quaternion(cameraFrame.transformOf(new Vector3D(0, 0, 1)), yaw);      
-      q.set(qy);
-      q.multiply(qz);
-      q.multiply(qx);
-      cameraFrame.rotate(q);
-			break;
-			*/
-		case CUSTOM:
-			customCameraHandle();
-			break;
-		}
-	}
-	
-	/**
-	 * Sets the next camera mode.
-	 */
-	public void nextCameraMode() {
-		switch (camMode) {
-		case FIRST_PERSON:
-			setCameraMode(CameraMode.GOOGLE_EARTH);
-			break;
-		case GOOGLE_EARTH:
-			if (HIDevice.class == this.getClass())
-				setCameraMode(CameraMode.FIRST_PERSON);
-			else
-				setCameraMode(CameraMode.CUSTOM);
-			break;
-		/**
-		case GOOGLE_EARTH:
-			setCameraMode(CameraMode.WORLD);
-			break;
-		case WORLD:
-			if (HIDevice.class == this.getClass())
-				setCameraMode(CameraMode.FIRST_PERSON);
-			else
-				setCameraMode(CameraMode.CUSTOM);
-			break;
-		*/
-		case CUSTOM:
-			setCameraMode(CameraMode.FIRST_PERSON);
-			break;
-		}
-	}
-	
-	/**
-	 * Sets the previous camera mode.
-	 */
-  public void previousCameraMode() {  	
-  	switch (camMode) {
-  	case FIRST_PERSON:
-			if (HIDevice.class == this.getClass())
-				setCameraMode(CameraMode.GOOGLE_EARTH);
-			else
-				setCameraMode(CameraMode.CUSTOM);
-			break;
-		case GOOGLE_EARTH:
-			setCameraMode(CameraMode.FIRST_PERSON);
-			break;
-		case CUSTOM:
-			setCameraMode(CameraMode.GOOGLE_EARTH);
-			break;
-		}
-  	/**
-		case FIRST_PERSON:
-			if (HIDevice.class == this.getClass())
-				setCameraMode(CameraMode.WORLD);
-			else
-				setCameraMode(CameraMode.CUSTOM);
-			break;
-		case GOOGLE_EARTH:
-			setCameraMode(CameraMode.FIRST_PERSON);
-			break;
-		case WORLD:
-			setCameraMode(CameraMode.GOOGLE_EARTH);
-			break;
-		case CUSTOM:
-			setCameraMode(CameraMode.WORLD);
-			break;
-		}
-		*/
-	}
-  
-  /**
-   * Returns the current camera mode.
-   */
-  public CameraMode cameraMode() {
-  	return camMode;
-  }
-  
-  /**
-   * Sets the camera handle mode.
-   */
-  public void setCameraMode(CameraMode cMode) {
-  	camMode = cMode;
-  	if( camMode == CameraMode.GOOGLE_EARTH )
-  		camera.interpolateToFitScene(); 
-  	System.out.println( camMode.description() );
-  }
-  
-  /**
-   * Sets the next interactive frame manipulation mode.
-   */
-  public void nextIFrameMode() {  	
-  	switch (iFrameMode) {
-		case FRAME:
-			setIFrameMode(IFrameMode.CAMERA);
-			break;
-		case CAMERA:
-			setIFrameMode(IFrameMode.WORLD);
-			break;
-		case WORLD:
-			if (HIDevice.class == this.getClass())
-				setIFrameMode(IFrameMode.FRAME);
-			else
-				setIFrameMode(IFrameMode.CUSTOM);
-			break;
-		case CUSTOM:
-			setIFrameMode(IFrameMode.FRAME);
-			break;
-		}
-  }
-  
-  /**
-   * Sets the previous interactive frame manipulation mode.
-   */
-  public void previousIFrameMode() {  	
-  	switch (iFrameMode) {
-		case FRAME:
-			if (HIDevice.class == this.getClass())
-				setIFrameMode(IFrameMode.WORLD);
-			else
-				setIFrameMode(IFrameMode.CUSTOM);
-			break;
-		case CAMERA:
-			setIFrameMode(IFrameMode.FRAME);
-			break;
-		case WORLD:
-			setIFrameMode(IFrameMode.CAMERA);
-			break;
-		case CUSTOM:
-			setIFrameMode(IFrameMode.WORLD);
-			break;
-		}
-  }
-  
-  /**
-   * Returns the current interactive frame manipulation mode.
-   */
-  public IFrameMode iFrameModeMode() {
-  	return iFrameMode;
-  }
-  
-  /**
-   * Sets the interactive frame manipulation mode.
-   */
-  public void setIFrameMode(IFrameMode iMode) {
-  	iFrameMode = iMode; 
-  	System.out.println( iFrameMode.description() );
   }
   
   /**

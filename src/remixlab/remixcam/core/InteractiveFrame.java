@@ -27,6 +27,7 @@ package remixlab.remixcam.core;
 
 import remixlab.remixcam.constraint.Constraint;
 import remixlab.remixcam.geom.*;
+import remixlab.remixcam.event.*;
 import remixlab.remixcam.util.AbstractTimerJob;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -54,13 +55,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		append(action).
 		append(delay).
 		append(dirIsFixed).
-		append(grabsMouseThreshold).
-		append(grbsMouse).
+		append(grabsDeviceThreshold).
+		append(grbsDevice).
 		append(horiz).
 		append(isInCamPath).
 		append(isSpng).
-		append(keepsGrabbingMouse).
-		append(mouseSpeed).
+		append(keepsGrabbingDevice).
+		append(deviceSpeed).
 		append(pressPos).
 		append(prevPos).
 		append(rotSensitivity).
@@ -91,8 +92,8 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
     .append(action, other.action)
 		.append(delay, other.delay)
 		.append(dirIsFixed, other.dirIsFixed)
-		.append(grabsMouseThreshold, other.grabsMouseThreshold)
-		.append(grbsMouse, other.grbsMouse)	
+		.append(grabsDeviceThreshold, other.grabsDeviceThreshold)
+		.append(grbsDevice, other.grbsDevice)	
 		.append(horiz, other.horiz)
 		.append(isInCamPath, other.isInCamPath)
 		.append(isSpng, other.isSpng)
@@ -103,8 +104,8 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		.append(tossingDirection, other.tossingDirection)
 		.append(tossingFriction, other.tossingFriction)
 		.append(tFriction, other.tFriction)
-		.append(keepsGrabbingMouse , other.keepsGrabbingMouse)
-		.append(mouseSpeed,other.mouseSpeed)
+		.append(keepsGrabbingDevice , other.keepsGrabbingDevice)
+		.append(deviceSpeed,other.deviceSpeed)
 		.append(pressPos,other.pressPos )
 		.append(prevPos,other.prevPos )
 		.append(rotSensitivity, other.rotSensitivity)
@@ -117,13 +118,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	}
 	
 	private boolean horiz;// Two simultaneous InteractiveFrame require two mice!
-	private int grabsMouseThreshold;
+	private int grabsDeviceThreshold;
 	private float rotSensitivity;
 	private float transSensitivity;
 	private float wheelSensitivity;
 
 	// Mouse speed:
-	protected float mouseSpeed;
+	protected float deviceSpeed;
 	private int startedTime;
 	private int delay;
 	
@@ -148,16 +149,14 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	private boolean dirIsFixed;
 
 	// MouseGrabber
-	protected boolean keepsGrabbingMouse;
+	protected boolean keepsGrabbingDevice;
 
 	protected AbstractScene.DeviceAction action;
-	protected Constraint prevConstraint; // When manipulation is without
-	// Constraint.
-	// Previous mouse position (used for incremental updates) and mouse press
-	// position.
+	protected Constraint prevConstraint; // When manipulation is without Constraint.
+	// Previous mouse position (used for incremental updates) and mouse press position.
 	protected Point prevPos, pressPos;
 
-	protected boolean grbsMouse;
+	protected boolean grbsDevice;
 
 	protected boolean isInCamPath;
 
@@ -185,14 +184,14 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 
 		addInDeviceGrabberPool();
 		isInCamPath = false;
-		grbsMouse = false;
+		grbsDevice = false;
 
 		setGrabsDeviceThreshold(10);
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
 		setWheelSensitivity(20.0f);
 
-		keepsGrabbingMouse = false;
+		keepsGrabbingDevice = false;
 		prevConstraint = null;
 		startedTime = 0;		
 		
@@ -234,7 +233,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		
 		this.addInDeviceGrabberPool();
 		this.isInCamPath = otherFrame.isInCamPath;
-		this.grbsMouse = otherFrame.grbsMouse;
+		this.grbsDevice = otherFrame.grbsDevice;
 		
 		/**
 		// TODO need check?
@@ -247,12 +246,12 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 		*/
 
-		this.setGrabsDeviceThreshold( otherFrame.grabsMouseThreshold()  );
+		this.setGrabsDeviceThreshold( otherFrame.grabsDeviceThreshold()  );
 		this.setRotationSensitivity( otherFrame.rotationSensitivity() );
 		this.setTranslationSensitivity( otherFrame.translationSensitivity() );
 		this.setWheelSensitivity( otherFrame.wheelSensitivity() );
 
-		this.keepsGrabbingMouse = otherFrame.keepsGrabbingMouse;		
+		this.keepsGrabbingDevice = otherFrame.keepsGrabbingDevice;		
 		this.prevConstraint = otherFrame.prevConstraint; 
 		this.startedTime = otherFrame.startedTime;
 		
@@ -312,14 +311,14 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 
 		addInDeviceGrabberPool();
 		isInCamPath = true;
-		grbsMouse = false;
+		grbsDevice = false;
 
 		setGrabsDeviceThreshold(10);
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
 		setWheelSensitivity(20.0f);
 
-		keepsGrabbingMouse = false;
+		keepsGrabbingDevice = false;
 		prevConstraint = null;
 		startedTime = 0;
 
@@ -387,8 +386,8 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * 
 	 * @see #setGrabsDeviceThreshold(int)
 	 */
-	public int grabsMouseThreshold() {
-		return grabsMouseThreshold;
+	public int grabsDeviceThreshold() {
+		return grabsDeviceThreshold;
 	}
 	
 	/**
@@ -399,18 +398,18 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * condition. Default value is 10 pixels (which is set in the constructor). Negative values are
 	 * silently ignored.
 	 * 
-	 * @see #grabsMouseThreshold()
+	 * @see #grabsDeviceThreshold()
 	 * @see #checkIfGrabsDevice(int, int, Camera)
 	 */
 	public void setGrabsDeviceThreshold( int threshold ) {
 		if(threshold >= 0)
-			grabsMouseThreshold = threshold; 
+			grabsDeviceThreshold = threshold; 
 	}
 
 	/**
 	 * Implementation of the MouseGrabber main method.
 	 * <p>
-	 * The InteractiveFrame {@link #grabsDevice()} when the mouse is within a {@link #grabsMouseThreshold()}
+	 * The InteractiveFrame {@link #grabsDevice()} when the mouse is within a {@link #grabsDeviceThreshold()}
 	 * pixels region around its
 	 * {@link remixlab.remixcam.core.Camera#projectedCoordinatesOf(Vector3D)}
 	 * {@link #position()}.
@@ -418,7 +417,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	@Override
 	public void checkIfGrabsDevice(int x, int y, Pinhole camera) {
 		Vector3D proj = camera.projectedCoordinatesOf(position());
-		setGrabsDevice(keepsGrabbingMouse || ((Math.abs(x - proj.vec[0]) < grabsMouseThreshold()) && (Math.abs(y - proj.vec[1]) < grabsMouseThreshold())));
+		setGrabsDevice(keepsGrabbingDevice || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
 	}
 
 	/**
@@ -429,7 +428,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 */
 	@Override
 	public boolean grabsDevice() {
-		return grbsMouse;
+		return grbsDevice;
 	}
 
 	/**
@@ -438,7 +437,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 */
 	@Override
 	public void setGrabsDevice(boolean grabs) {
-		grbsMouse = grabs;
+		grbsDevice = grabs;
 	}
 
 	/**
@@ -762,7 +761,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 */
 	public void spin() {		
 		if(spinningFriction() > 0) {
-			if (mouseSpeed == 0) {
+			if (deviceSpeed == 0) {
 				stopSpinning();
 				return;
 			}
@@ -825,12 +824,12 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #recomputeTossingDirection()
 	 */
 	protected void recomputeSpinningQuaternion() {
-		float prevSpeed = mouseSpeed;
+		float prevSpeed = deviceSpeed;
 		float damping = 1.0f - spinningFrictionFx();
-		mouseSpeed *= damping;
-		if (Math.abs(mouseSpeed) < .001f)
-			mouseSpeed = 0;
-		float currSpeed = mouseSpeed;
+		deviceSpeed *= damping;
+		if (Math.abs(deviceSpeed) < .001f)
+			deviceSpeed = 0;
+		float currSpeed = deviceSpeed;
 		if( scene.is3D() )
 			((Quaternion)spinningQuaternion()).fromAxisAngle(((Quaternion)spinningQuaternion()).axis(), spinningQuaternion().angle() * (currSpeed / prevSpeed) );
 		else
@@ -883,7 +882,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 */
 	public void toss() {		
 		if(tossingFriction() > 0) {
-			if (mouseSpeed == 0) {
+			if (deviceSpeed == 0) {
 				stopTossing();
 				return;
 			}
@@ -950,12 +949,12 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #recomputeSpinningQuaternion()
 	 */
 	protected void recomputeTossingDirection() {
-		float prevSpeed = mouseSpeed;
+		float prevSpeed = deviceSpeed;
 		float damping = 1.0f - tossingFrictionFx();
-		mouseSpeed *= damping;
-		if (Math.abs(mouseSpeed) < .001f)
-			mouseSpeed = 0;
-		float currSpeed = mouseSpeed;
+		deviceSpeed *= damping;
+		if (Math.abs(deviceSpeed) < .001f)
+			deviceSpeed = 0;
+		float currSpeed = deviceSpeed;
 		setTossingDirection(Vector3D.mult(this.tossingDirection(), currSpeed / prevSpeed));
 	}
 	
@@ -968,6 +967,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * the camera view direction.
 	 */
 	@Override
+	//TODO pending generalization
 	public void buttonClicked(/**Point eventPoint,*/ Integer button, int numberOfClicks, Pinhole camera) {
 		if(numberOfClicks != 2)
 			return;
@@ -980,23 +980,69 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
     default: break;
     }
 	}
+	
+	/**
+	 * Protected method that simply calls {@code startAction(action, true)}.
+	 * 
+	 * @see #startAction(DeviceAction.MouseAction, boolean)
+	 */
+	/**
+	protected void startAction(AbstractScene.DeviceAction action) {
+		startAction(action, true);
+	}
+	*/
+	
+	/**
+	 * Protected internal method used to handle mouse actions.
+	 */
+	public void startAction(AbstractScene.DeviceAction act, boolean withConstraint) {
+		action = act;
+		
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
+			return;
+
+		if (withConstraint)
+			prevConstraint = null;
+		else {
+			prevConstraint = constraint();
+			setConstraint(null);
+		}
+
+		switch (action) {		
+		case SCREEN_TRANSLATE:
+			dirIsFixed = false;
+		case ZOOM:		
+		case TRANSLATE:
+			deviceSpeed = 0.0f;
+			stopTossing();
+			break;
+		case ROTATE:
+		case CAD_ROTATE:
+		case SCREEN_ROTATE:
+			deviceSpeed = 0.0f;
+			stopSpinning();
+			break;
+		default:
+			break;
+		}
+	}
 
 	/**
 	 * Initiates the InteractiveFrame mouse manipulation. Overloading of
-	 * {@link remixlab.remixcam.core.DeviceGrabbable#buttonPressed(Point, Camera)}.
+	 * {@link remixlab.remixcam.core.DeviceGrabbable#initAction(Point, Camera)}.
 	 * 
 	 * The mouse behavior depends on which button is pressed.
 	 * 
-	 * @see #buttonDragged(Point, Camera)
-	 * @see #buttonReleased(Point, Camera)
+	 * @see #execAction(Point, Camera)
+	 * @see #endAction(Point, Camera)
 	 */
 	@Override
-	public void buttonPressed(Point eventPoint, Pinhole camera) {
+	public void initAction(Point eventPoint, Pinhole camera) {
 		if (grabsDevice())
-			keepsGrabbingMouse = true;
+			keepsGrabbingDevice = true;
 
 		prevPos = pressPos = eventPoint;
-	}	
+	}
 
 	/**
 	 * Modifies the InteractiveFrame according to the mouse motion.
@@ -1012,17 +1058,17 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see remixlab.remixcam.core.Camera#fieldOfView()
 	 */
 	@Override
-	public void buttonDragged(Point eventPoint, Pinhole camera) {
+	public void execAction(Point eventPoint, Pinhole camera) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		if( scene.is2D() )
-			deviceDragged2D(eventPoint, (ViewWindow) camera);
+			execAction2D(eventPoint, (ViewWindow) camera);
 		else
-			deviceDragged3D(eventPoint, (Camera) camera);
+			execAction3D(eventPoint, (Camera) camera);
 	}
 	
-	protected void deviceDragged2D(Point eventPoint, ViewWindow viewWindow) {
+	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {
 		int deltaY = 0;
 		if(action != AbstractScene.DeviceAction.NO_DEVICE_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
@@ -1039,7 +1085,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 				if (referenceFrame() != null)
 					trans = referenceFrame().transformOf(trans);
 				
-				computeMouseSpeed(eventPoint);
+				computeDeviceSpeed(eventPoint);
 				setTossingDirection(trans);			
 				toss();
 				
@@ -1070,7 +1116,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 				rot = new Rotation(prev_angle - angle);
 			
 			// #CONNECTION# These two methods should go together (spinning detection and activation)
-			computeMouseSpeed(eventPoint);
+			computeDeviceSpeed(eventPoint);
 			setSpinningQuaternion(rot);
 			spin();
 			prevPos = eventPoint;
@@ -1079,7 +1125,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 
 		case SCREEN_TRANSLATE: {
 				Vector3D trans = new Vector3D();
-				int dir = mouseOriginalDirection(eventPoint);
+				int dir = deviceOriginalDirection(eventPoint);
 				if (dir == 1)
 					trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
 				else if (dir == -1)
@@ -1090,7 +1136,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 				if (referenceFrame() != null)
 					trans = referenceFrame().transformOf(trans);
 
-				computeMouseSpeed(eventPoint);
+				computeDeviceSpeed(eventPoint);
 				setTossingDirection(trans);			
 				toss();
 				
@@ -1108,7 +1154,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 				rot.negate();	
 			
 			// #CONNECTION# These two methods should go together (spinning detection and activation)
-			computeMouseSpeed(eventPoint);
+			computeDeviceSpeed(eventPoint);
 			setSpinningQuaternion(rot);
 			spin();
 			prevPos = eventPoint;
@@ -1126,7 +1172,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 	}
 	
-  protected void deviceDragged3D(Point eventPoint, Camera camera) {
+  protected void execAction3D(Point eventPoint, Camera camera) {
   	int deltaY = 0;
 		if(action != AbstractScene.DeviceAction.NO_DEVICE_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
@@ -1162,7 +1208,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);			
 			
-			computeMouseSpeed(eventPoint);
+			computeDeviceSpeed(eventPoint);
 			setTossingDirection(trans);			
 			toss();
 			
@@ -1194,7 +1240,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 				rot = new Quaternion(axis, prev_angle - angle);					
 			
 			// #CONNECTION# These two methods should go together (spinning detection and activation)
-			computeMouseSpeed(eventPoint);
+			computeDeviceSpeed(eventPoint);
 			setSpinningQuaternion(rot);
 			spin();
 			prevPos = eventPoint;
@@ -1204,7 +1250,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		case SCREEN_TRANSLATE: {
 			// TODO: needs testing to see if it works correctly when left-handed is set
 			Vector3D trans = new Vector3D();
-			int dir = mouseOriginalDirection(eventPoint);
+			int dir = deviceOriginalDirection(eventPoint);
 			if (dir == 1)
 				trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
 			else if (dir == -1)
@@ -1249,7 +1295,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
 
-			computeMouseSpeed(eventPoint);
+			computeDeviceSpeed(eventPoint);
 			setTossingDirection(trans);			
 			toss();
 			
@@ -1261,7 +1307,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			Vector3D trans = camera.projectedCoordinatesOf(position());
 			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y, trans.x(), trans.y(), camera);
 			rot = iFrameQuaternion(rot, camera);
-			computeMouseSpeed(eventPoint);
+			computeDeviceSpeed(eventPoint);
 			setSpinningQuaternion(rot);
 			spin();
 			prevPos = eventPoint;
@@ -1284,7 +1330,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * Stops the InteractiveFrame mouse manipulation.
 	 * <p>
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.DeviceGrabbable#buttonReleased(Point, Camera)}.
+	 * {@link remixlab.remixcam.core.DeviceGrabbable#endAction(Point, Camera)}.
 	 * <p>
 	 * If the action was ROTATE MouseAction, a continuous spinning is possible if
 	 * the speed of the mouse cursor is larger than {@link #spinningSensitivity()}
@@ -1294,16 +1340,17 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #startSpinning(int)
 	 * @see #isSpinning()
 	 */
-	public void buttonReleased(Point event, Pinhole camera) {
-		keepsGrabbingMouse = false;
+  @Override
+	public void endAction(Point event, Pinhole camera) {
+		keepsGrabbingDevice = false;
 
 		if (prevConstraint != null)
 			setConstraint(prevConstraint);
 		
-		if (((action == AbstractScene.DeviceAction.ROTATE) || (action == AbstractScene.DeviceAction.SCREEN_ROTATE) || (action == AbstractScene.DeviceAction.CAD_ROTATE) )	&& (mouseSpeed >= spinningSensitivity()))
+		if (((action == AbstractScene.DeviceAction.ROTATE) || (action == AbstractScene.DeviceAction.SCREEN_ROTATE) || (action == AbstractScene.DeviceAction.CAD_ROTATE) )	&& (deviceSpeed >= spinningSensitivity()))
 			startSpinning(delay);
 		
-		if (((action == AbstractScene.DeviceAction.TRANSLATE) || (action == AbstractScene.DeviceAction.SCREEN_TRANSLATE) ) && (mouseSpeed >= tossingSensitivity()) )
+		if (((action == AbstractScene.DeviceAction.TRANSLATE) || (action == AbstractScene.DeviceAction.SCREEN_TRANSLATE) ) && (deviceSpeed >= tossingSensitivity()) )
 			startTossing(delay);
 
 		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
@@ -1342,55 +1389,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	}
 
 	/**
-	 * Protected method that simply calls {@code startAction(action, true)}.
-	 * 
-	 * @see #startAction(DeviceAction.MouseAction, boolean)
-	 */
-	protected void startAction(AbstractScene.DeviceAction action) {
-		startAction(action, true);
-	}
-	
-	/**
-	 * Protected internal method used to handle mouse actions.
-	 */
-	public void startAction(AbstractScene.DeviceAction act, boolean withConstraint) {
-		action = act;
-		
-		if( ( scene.is2D() ) && ( !action.is2D() ) )
-			return;
-
-		if (withConstraint)
-			prevConstraint = null;
-		else {
-			prevConstraint = constraint();
-			setConstraint(null);
-		}
-
-		switch (action) {		
-		case SCREEN_TRANSLATE:
-			dirIsFixed = false;
-		case ZOOM:		
-		case TRANSLATE:
-			mouseSpeed = 0.0f;
-			stopTossing();
-			break;
-		case ROTATE:
-		case CAD_ROTATE:
-		case SCREEN_ROTATE:
-			mouseSpeed = 0.0f;
-			stopSpinning();
-			break;
-		default:
-			break;
-		}
-	}
-
-	/**
 	 * Updates mouse speed, measured in pixels/milliseconds. Should be called by
 	 * any method which wants to use mouse speed. Currently used to trigger
-	 * spinning in {@link #buttonReleased(Point, Camera)}.
+	 * spinning in {@link #endAction(Point, Camera)}.
 	 */
-	protected void computeMouseSpeed(Point eventPoint) {
+	protected void computeDeviceSpeed(Point eventPoint) {
 		float dist = (float) Point.distance(eventPoint.x, eventPoint.y, prevPos.getX(), prevPos.getY());
 
 		if (startedTime == 0) {
@@ -1403,9 +1406,9 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 
 		if (delay == 0)
 			// Less than a millisecond: assume delay = 1ms
-			mouseSpeed = dist;
+			deviceSpeed = dist;
 		else
-			mouseSpeed = dist / delay;
+			deviceSpeed = dist / delay;
 	}
 
 	/**
@@ -1413,7 +1416,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * vertical. Returns 0 if this could not be determined yet (perfect diagonal
 	 * motion, rare).
 	 */
-	protected int mouseOriginalDirection(Point eventPoint) {
+	protected int deviceOriginalDirection(Point eventPoint) {
 		if (!dirIsFixed) {
 			Point delta = new Point((eventPoint.x - pressPos.x),
 					(eventPoint.y - pressPos.y));

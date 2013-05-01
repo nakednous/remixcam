@@ -48,7 +48,6 @@ public class DLMouseEvent extends HIDeviceEvent {
   
   public DLMouseEvent(AbstractScene scn) {
   	super(scn);
-  	this.flavor = MOUSE;
   	this.x = null;
   	this.y = null;
   	this.button = null;
@@ -56,7 +55,6 @@ public class DLMouseEvent extends HIDeviceEvent {
   }
   
   public DLMouseEvent() {
-  	this.flavor = MOUSE;
   	this.x = null;
   	this.y = null;
   	this.button = null;
@@ -66,7 +64,6 @@ public class DLMouseEvent extends HIDeviceEvent {
   public DLMouseEvent(AbstractScene scn, int action, int modifiers,
       int x, int y, int button, float amount) {
   	super(scn, action, modifiers);
-  	this.flavor = MOUSE;
   	this.x = x;
   	this.y = y;
   	this.button = button;
@@ -76,7 +73,6 @@ public class DLMouseEvent extends HIDeviceEvent {
   public DLMouseEvent(int action, int modifiers,
                       int x, int y, int button, float amount) {  //int clickCount) {
     super(action, modifiers);
-    this.flavor = MOUSE;
     this.x = x;
     this.y = y;
     this.button = button;

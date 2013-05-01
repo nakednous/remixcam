@@ -176,67 +176,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				}
 			}
 			return result;
-		}
-		
-		@Override
-		public void nextCameraMode() {
-			switch (camMode) {		
-			case GOOGLE_EARTH:
-				if (Device.class == this.getClass())
-					setCameraMode(CameraMode.FIRST_PERSON);
-				else
-					setCameraMode(CameraMode.CUSTOM);
-				break;
-			default:
-				super.nextCameraMode();
-				break;
-			}
-		}
-		
-		@Override
-	  public void previousCameraMode() {  	
-	  	switch (camMode) {
-	  	case FIRST_PERSON:
-				if (Device.class == this.getClass())
-					setCameraMode(CameraMode.GOOGLE_EARTH);
-				else
-					setCameraMode(CameraMode.CUSTOM);
-				break;
-			default:
-				super.previousCameraMode();
-			break;
-			}
-	  }
-	  
-		@Override
-	  public void nextIFrameMode() {  	
-	  	switch (iFrameMode) {		
-			case WORLD:
-				if (Device.class == this.getClass())
-					setIFrameMode(IFrameMode.FRAME);
-				else
-					setIFrameMode(IFrameMode.CUSTOM);
-				break;
-			default:
-				super.nextIFrameMode();
-				break;
-			}
-	  }
-	  
-		@Override
-	  public void previousIFrameMode() {  	
-	  	switch (iFrameMode) {
-			case FRAME:
-				if (Device.class == this.getClass())
-					setIFrameMode(IFrameMode.WORLD);
-				else
-					setIFrameMode(IFrameMode.CUSTOM);
-				break;
-			default:
-				super.previousIFrameMode();
-				break;
-			}
-	  }	
+		}	
 	}
 	
 	protected class TimerWrap implements Timable {
@@ -2320,7 +2260,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					  //pg3d.stroke(mouseGrabberOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 0));
 						pg().strokeWeight(2);
-						drawShooterTarget(center, (iF.grabsMouseThreshold() + 1));
+						drawShooterTarget(center, (iF.grabsDeviceThreshold() + 1));
 						pg().popStyle();					
 					}
 					else {						
@@ -2328,7 +2268,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					  //pg3d.stroke(mouseGrabberOffSelectionHintColor());
 						pg().stroke(pg().color(240, 240, 240));
 						pg().strokeWeight(1);
-						drawShooterTarget(center, iF.grabsMouseThreshold());
+						drawShooterTarget(center, iF.grabsDeviceThreshold());
 						pg().popStyle();
 					}
 				}
@@ -2348,7 +2288,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					  //pg3d.stroke(mouseGrabberCameraPathOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 255));
 						pg().strokeWeight(2);
-						drawShooterTarget(center, (iF.grabsMouseThreshold() + 1));
+						drawShooterTarget(center, (iF.grabsDeviceThreshold() + 1));
 						pg().popStyle();
 					}
 					else {
@@ -2356,7 +2296,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					  //pg3d.stroke(mouseGrabberCameraPathOffSelectionHintColor());
 						pg().stroke(pg().color(255, 255, 0));
 						pg().strokeWeight(1);
-						drawShooterTarget(center, iF.grabsMouseThreshold());
+						drawShooterTarget(center, iF.grabsDeviceThreshold());
 						pg().popStyle();
 					}
 				}

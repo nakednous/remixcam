@@ -141,7 +141,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	@Override
 	public void spin() {
 		if(spinningFriction > 0) {
-			if (mouseSpeed == 0) {
+			if (deviceSpeed == 0) {
 				stopSpinning();
 				return;
 			}
@@ -174,7 +174,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	}	
 	
 	@Override
-	protected void deviceDragged2D(Point eventPoint, ViewWindow viewWindow) {
+	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {
 		if ((action == AbstractScene.DeviceAction.MOVE_FORWARD)
 				|| (action == AbstractScene.DeviceAction.MOVE_BACKWARD)
 				|| (action == AbstractScene.DeviceAction.DRIVE)
@@ -182,7 +182,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				|| (action == AbstractScene.DeviceAction.ROLL)
 				|| (action == AbstractScene.DeviceAction.ZOOM_ON_REGION)
 				|| (action == AbstractScene.DeviceAction.NO_DEVICE_ACTION))
-			super.deviceDragged2D(eventPoint, viewWindow);
+			super.execAction2D(eventPoint, viewWindow);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
 			if( scene.isRightHanded() )
@@ -194,7 +194,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
 				// No need to scale to fit the screen mouse displacement
 				
-				computeMouseSpeed(eventPoint);
+				computeDeviceSpeed(eventPoint);
 				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
 				toss();
 				
@@ -221,7 +221,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				if( !isFlipped() )
 					rot.negate();				
 				// #CONNECTION# These two methods should go together (spinning detection and activation)
-				computeMouseSpeed(eventPoint);
+				computeDeviceSpeed(eventPoint);
 				setSpinningQuaternion(rot);
 				spin();
 				prevPos = eventPoint;
@@ -243,7 +243,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				Orientable rot = new Rotation(angle);
 				// #CONNECTION# These two methods should go together (spinning detection
 				// and activation)
-				computeMouseSpeed(eventPoint);
+				computeDeviceSpeed(eventPoint);
 				setSpinningQuaternion(rot);
 				spin();
 				updateFlyUpVector();
@@ -253,7 +253,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 			case SCREEN_TRANSLATE: {
 				Vector3D trans = new Vector3D();
-				int dir = mouseOriginalDirection(eventPoint);
+				int dir = deviceOriginalDirection(eventPoint);
 				if (dir == 1)
 					trans.set(((int) prevPos.x - (int) eventPoint.x), 0.0f, 0.0f);
 				else if (dir == -1)
@@ -261,7 +261,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				float[] wh = viewWindow.getOrthoWidthHeight();
 				trans.vec[0] *= 2.0f * wh[0] / viewWindow.screenWidth();
 				trans.vec[1] *= 2.0f * wh[1] / viewWindow.screenHeight();
-				computeMouseSpeed(eventPoint);
+				computeDeviceSpeed(eventPoint);
 				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
 				toss();
 				prevPos = eventPoint;
@@ -277,7 +277,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	}
 	
 	@Override
-	protected void deviceDragged3D(Point eventPoint, Camera camera) {
+	protected void execAction3D(Point eventPoint, Camera camera) {
 		if ((action == AbstractScene.DeviceAction.MOVE_FORWARD)
 				|| (action == AbstractScene.DeviceAction.MOVE_BACKWARD)
 				|| (action == AbstractScene.DeviceAction.DRIVE)
@@ -285,7 +285,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				|| (action == AbstractScene.DeviceAction.ROLL)
 				|| (action == AbstractScene.DeviceAction.ZOOM_ON_REGION)
 				|| (action == AbstractScene.DeviceAction.NO_DEVICE_ACTION))
-			super.deviceDragged3D(eventPoint, camera);
+			super.execAction3D(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
 			if( scene.isRightHanded() )
@@ -315,7 +315,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				}
 				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
 								
-				computeMouseSpeed(eventPoint);
+				computeDeviceSpeed(eventPoint);
 				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
 				toss();
 			
@@ -344,7 +344,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
 				Quaternion rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], camera);				
 				// #CONNECTION# These two methods should go together (spinning detection and activation)
-				computeMouseSpeed(eventPoint);
+				computeDeviceSpeed(eventPoint);
 				setSpinningQuaternion(rot);
 				spin();
 				prevPos = eventPoint;
@@ -356,7 +356,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				// the following line calls setSpinningQuaternion
 				Quaternion rot = computeCADQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.x(), trans.y(), camera);
 				// #CONNECTION# These two methods should go together (spinning detection and activation)
-				computeMouseSpeed(eventPoint);
+				computeDeviceSpeed(eventPoint);
 				setSpinningQuaternion(rot);
 				spin();
 				prevPos = eventPoint;
@@ -378,7 +378,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				Orientable rot = new Quaternion(new Vector3D(0.0f, 0.0f, 1.0f), angle);
 				// #CONNECTION# These two methods should go together (spinning detection
 				// and activation)
-				computeMouseSpeed(eventPoint);
+				computeDeviceSpeed(eventPoint);
 				setSpinningQuaternion(rot);
 				spin();
 				updateFlyUpVector();
@@ -388,7 +388,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 			case SCREEN_TRANSLATE: {
 				Vector3D trans = new Vector3D();
-				int dir = mouseOriginalDirection(eventPoint);
+				int dir = deviceOriginalDirection(eventPoint);
 				if (dir == 1)
 					trans.set(((int) prevPos.x - (int) eventPoint.x), 0.0f, 0.0f);
 				else if (dir == -1)
@@ -414,7 +414,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				trans.div(magnitude());
 				
 				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));				
-				computeMouseSpeed(eventPoint);
+				computeDeviceSpeed(eventPoint);
 				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
 				toss();
 				
@@ -432,10 +432,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
   
 	/**
 	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveFrame#buttonReleased(Point, Camera)}.
+	 * {@link remixlab.remixcam.core.InteractiveFrame#endAction(Point, Camera)}.
 	 */
 	@Override
-	public void buttonReleased(Point eventPoint, Pinhole vp) {
+	public void endAction(Point eventPoint, Pinhole vp) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -454,7 +454,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			vp.interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
 		}
 
-		super.buttonReleased(eventPoint, vp);
+		super.endAction(eventPoint, vp);
 	}
 
 	/**

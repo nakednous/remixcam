@@ -15,26 +15,6 @@ public class HIDeviceEvent extends DLEvent {
 	 */
 	public enum Mode {RELATIVE, ABSOLUTE}
 	
-	protected class Button {
-		static public final int PRESS = 1;
-	  static public final int RELEASE = 2;
-	  static public final int CLICK = 3;
-	  static public final int DRAG = 4;
-	  static public final int MOVE = 5;
-	  static public final int ENTER = 6;
-	  static public final int EXIT = 7;
-	}
-	
-	protected class Wheel {
-		protected Float amount;
-	}
-	
-	protected Mode mode;
-	
-	ArrayList<Button> buttons;
-	
-	ArrayList<Wheel> wheels;
-	
 	protected Vector3D rotation, rotSens;
 	protected Vector3D translation, transSens;
 	
@@ -55,12 +35,12 @@ public class HIDeviceEvent extends DLEvent {
   public HIDeviceEvent(AbstractScene scn) {
   	super(scn);
   	common();
-    setMode(Mode.ABSOLUTE);  	
+    //setMode(Mode.ABSOLUTE);  	
   }
 	
   public HIDeviceEvent() {
   	common();
-    setMode(Mode.ABSOLUTE);  	
+    //setMode(Mode.ABSOLUTE);  	
   }
   
   public HIDeviceEvent(AbstractScene scn, Integer action, Integer modifiers) {
@@ -75,7 +55,7 @@ public class HIDeviceEvent extends DLEvent {
   
   protected HIDeviceEvent(HIDeviceEvent other) {
   	super(other);
-  	setMode(Mode.ABSOLUTE); 
+  	//setMode(Mode.ABSOLUTE); 
 	}
   
   protected void common() {
@@ -102,6 +82,7 @@ public class HIDeviceEvent extends DLEvent {
   /**
    * Sets the device type.
    */
+  /**
   public void setMode(Mode m) {
   	if(m == Mode.ABSOLUTE) {
   		if(prevTranslation == null)
@@ -111,11 +92,14 @@ public class HIDeviceEvent extends DLEvent {
     }
   	mode = m;
   }
+  */
   
   /**
    * Return the device type.
    */
+  /**
   public Mode mode() {
   	return mode;
   }	
+  */
 }

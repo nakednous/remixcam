@@ -111,29 +111,29 @@ public interface DeviceGrabbable {
 	 * mouse button is pressed.
 	 * <p>
 	 * The MouseGrabber will typically start an action or change its state when a
-	 * mouse button is pressed. {@link #buttonDragged(Point, Camera)} (called at
+	 * mouse button is pressed. {@link #execAction(Point, Camera)} (called at
 	 * each mouse displacement) will then update the MouseGrabber accordingly and
-	 * {@link #buttonReleased(Point, Camera)} (called when the mouse button is
+	 * {@link #endAction(Point, Camera)} (called when the mouse button is
 	 * released) will terminate this action.
 	 */
-	void buttonPressed(Point eventPoint, Pinhole vp);
+	void initAction(Point eventPoint, Pinhole vp);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and the
 	 * mouse is moved while a button is pressed.
 	 * <p>
 	 * This method will typically update the state of the MouseGrabber from the
-	 * mouse displacement. See the {@link #buttonPressed(Point, Camera)}
+	 * mouse displacement. See the {@link #initAction(Point, Camera)}
 	 * documentation for details.
 	 */
-	void buttonDragged(Point eventPoint, Pinhole vp);
+	void execAction(Point eventPoint, Pinhole vp);
 
 	/**
 	 * Mouse release event callback method.
 	 * 
-	 * @see #buttonPressed(Point, Camera)
+	 * @see #initAction(Point, Camera)
 	 */
-	void buttonReleased(Point eventPoint, Pinhole vp);
+	void endAction(Point eventPoint, Pinhole vp);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and the
