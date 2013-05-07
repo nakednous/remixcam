@@ -243,8 +243,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	/**
 	 * Protected internal method used to handle mouse actions.
 	 */
-	public void startAction(AbstractScene.DeviceAction a, boolean withConstraint) {
-		super.startAction(a, withConstraint);
+	public void beginAction(AbstractScene.DeviceAction a) {
+		super.beginAction(a);
 		switch (action) {
 		case MOVE_FORWARD:
 		case MOVE_BACKWARD:
@@ -287,6 +287,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			
 			switch (action) {
 			case MOVE_FORWARD: {
+			  //TODO 1-DOF -> wheel
+				//translate(inverseTransformOf(new Vector3D(0.0f, 0.0f, 0.2f * flySpeed() * (-rotation))));
+				
 				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, camera);
 				rotate(rot);
 				// #CONNECTION# wheelEvent MOVE_FORWARD case
@@ -297,6 +300,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			}
 
 			case MOVE_BACKWARD: {
+			  //TODO 1-DOF -> wheel
+				//translate(inverseTransformOf(new Vector3D(0.0f, 0.0f, 0.2f * flySpeed() * (-rotation))));
+				
 				Quaternion rot = pitchYawQuaternion((int)eventPoint.x, (int)eventPoint.y, camera);
 				rotate(rot);
 				// actual translation is made in flyUpdate().
@@ -351,7 +357,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * {@link remixlab.remixcam.core.InteractiveFrame#endAction(Point, Camera)}.
 	 */
 	@Override
-	public void endAction(Point eventPoint, Pinhole vp) {
+	public void endInteraction(Point eventPoint) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -364,7 +370,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		if (((action == AbstractScene.DeviceAction.MOVE_FORWARD) || (action == AbstractScene.DeviceAction.MOVE_BACKWARD) || (action == AbstractScene.DeviceAction.DRIVE) ) && (deviceSpeed >= tossingSensitivity()) )
 			startTossing(FLY_UPDATE_PERDIOD);
 
-		super.endAction(eventPoint, vp);
+		super.endInteraction(eventPoint);
 	}
 	
 	/**
@@ -378,8 +384,10 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
+	/**
 	@Override
-	public void wheelMoved(float rotation, Pinhole vp) {
+	public void wheelMoved(float rotation) {
+		Pinhole vp = scene.pinhole();
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -388,7 +396,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			if( scene.is3D() ) {
 			float wheelSensitivityCoef = 8E-4f;
 			
-			Vector3D trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity()	* wheelSensitivityCoef * (Vector3D.sub(((Camera) vp).position(), position())).mag());
+			Vector3D trans = new Vector3D(0.0f, 0.0f, -rotation * wheelSensitivity() * wheelSensitivityCoef * (Vector3D.sub(((Camera) vp).position(), position())).mag());
 						
 			// #CONNECTION# Cut-pasted from the mouseMoveEvent ZOOM case
 			trans = vp.frame().orientation().rotate(trans);
@@ -411,8 +419,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		}
 
 		// #CONNECTION# startAction should always be called before
-		if (prevConstraint != null)
-			setConstraint(prevConstraint);
+		//if (prevConstraint != null)
+			//setConstraint(prevConstraint);
 
 		int finalDrawAfterWheelEventDelay = 400;
 		
@@ -421,6 +429,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 
 		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 	}
+	*/
 
 	/**
 	 * This method will be called by the Camera when its orientation is changed,

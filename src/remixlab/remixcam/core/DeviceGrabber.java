@@ -61,32 +61,36 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * 
 	 * @see remixlab.remixcam.core.DeviceGrabbable#checkIfGrabsDevice(int, int, Camera)
 	 */
-	public void checkIfGrabsDevice(int x, int y, Pinhole vp) { }
+	@Override
+	public void checkIfGrabsCursor(int x, int y) { }
 
 	/**
 	 * Returns true when the MouseGrabbable grabs the Scene mouse events.
 	 */
-	public boolean grabsDevice() {
+	@Override
+	public boolean grabsCursor() {
 		return grabsMouse;
 	}
 
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and a mouse button is clicked.
+	 * Callback method called when the MouseGrabber {@link #grabsCursor()} and a mouse button is clicked.
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void buttonClicked(Integer button, int numberOfClicks, Pinhole vp) { }
+	@Override
+	public void buttonClicked(Integer button, int numberOfClicks) { }
 
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and the
+	 * Callback method called when the MouseGrabber {@link #grabsCursor()} and the
 	 * mouse is moved while a button is pressed.
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void execAction(Point eventPoint, Pinhole vp) { }
+	@Override
+	public void performInteraction(Point eventPoint) { }
 
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and a
+	 * Callback method called when the MouseGrabber {@link #grabsCursor()} and a
 	 * mouse button is pressed. Once a mouse grabber grabs the mouse and the mouse is
 	 * pressed the default implementation will return that the mouse grabber
 	 * keepsGrabbingMouse even if the mouse grabber loses focus.
@@ -110,8 +114,9 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * 
 	 * @see #endAction(Point, Camera)
 	 */
-	public void initAction(Point eventPoint, Pinhole vp) {
-		if (grabsDevice())
+	@Override
+	public void beginInteraction(Point eventPoint) {
+		if (grabsCursor())
 			keepsGrabbingMouse = true;
 	}
 
@@ -119,7 +124,8 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * Mouse release event callback method.
 	 * <p>
 	 */
-	public void endAction(Point eventPoint, Pinhole vp) {
+	@Override
+	public void endInteraction(Point eventPoint) {
 		keepsGrabbingMouse = false;
 	}
 
@@ -129,15 +135,19 @@ public class DeviceGrabber implements DeviceGrabbable {
 	 * <p>
 	 * Current implementation is empty.
 	 */
-	public void wheelMoved(float rotation, Pinhole vp) { }
-
 	/**
-	 * Sets the {@link #grabsDevice()} flag. Normally used by
+	@Override
+	public void wheelMoved(float rotation) { }
+	*/
+	
+	/**
+	 * Sets the {@link #grabsCursor()} flag. Normally used by
 	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
 	 *  
 	 * @param grabs flag
 	 */
-	public void setGrabsDevice(boolean grabs) {
+	@Override
+	public void setGrabsCursor(boolean grabs) {
 		grabsMouse = grabs;
 	}
 }

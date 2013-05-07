@@ -3,8 +3,6 @@ package remixlab.remixcam.event;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import remixlab.remixcam.core.AbstractScene;
-
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
@@ -100,11 +98,6 @@ public class DLKeyEvent extends DLEvent {
 	    put('Z', 90);
 	  }
 	};
-	
-	
-  static public final int PRESS = 1;
-  static public final int RELEASE = 2;
-  static public final int TYPE = 3;
   
   Character key;
   Integer vKey;
@@ -114,46 +107,28 @@ public class DLKeyEvent extends DLEvent {
   	this.vKey = null;
   }
   
-  public DLKeyEvent(AbstractScene scn) {
-  	super(scn);
-  	this.key = null;
-  	this.vKey = null;
-  }
-  
-  public DLKeyEvent(Integer action, Integer modifiers, Character c, Integer vk) {
-    super(action, modifiers);
+  public DLKeyEvent(Integer modifiers, Character c, Integer vk) {
+    super(modifiers);
     this.vKey = vk;
     this.key = c;
   }
   
-  public DLKeyEvent(AbstractScene scn, Integer action, Integer modifiers, Character c, Integer vk) {
-    super(scn, action, modifiers);
-    this.vKey = vk;
+  public DLKeyEvent(Integer modifiers, Character c) {
+    super(modifiers);
     this.key = c;
-  }
-  
-  public DLKeyEvent(Integer action, Character k) {
-    super(action);
-    this.key = k;
-    this.vKey = null;
-  }
-
-  public DLKeyEvent(AbstractScene scn, Integer action, Character k) {
-    super(scn, action);
-    this.key = k;
     this.vKey = null;
   }
   
-  public DLKeyEvent(Integer action, Integer modifiers, Integer vk) {
-    super(action, modifiers);
+  public DLKeyEvent(Integer modifiers, Integer vk) {
+    super(modifiers);
     this.key = null;
     this.vKey = vk;
   }
   
-  public DLKeyEvent(AbstractScene scn, Integer action, Integer modifiers, Integer vk) {
-    super(scn, action, modifiers);
-    this.key = null;
-    this.vKey = vk;
+  public DLKeyEvent(Character c) {
+  	super();
+    this.key = c;
+    this.vKey = null;
   }
   
   protected DLKeyEvent(DLKeyEvent other) {

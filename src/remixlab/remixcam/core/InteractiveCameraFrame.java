@@ -133,16 +133,16 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	*/
 
 	/**
-	 * Overloading of {@link remixlab.remixcam.core.InteractiveFrame#spin()}.
+	 * Overloading of {@link remixlab.remixcam.core.InteractiveFrame#dampedSpin()}.
 	 * <p>
 	 * Rotates the InteractiveCameraFrame around its #arcballReferencePoint()
 	 * instead of its origin.
 	 */
 	@Override
-	public void spin() {
+	public void dampedSpin() {
 		if(spinningFriction > 0) {
 			if (deviceSpeed == 0) {
-				stopSpinning();
+				stopDampedSpinning();
 				return;
 			}
 			rotateAroundPoint(spinningQuaternion(), arcballReferencePoint());
@@ -150,6 +150,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		}
 		else
 			rotateAroundPoint(spinningQuaternion(), arcballReferencePoint());
+	}
+	
+	@Override
+	public void spin() {
+		rotateAroundPoint(spinningQuaternion(), arcballReferencePoint());
 	}
 
 	/**
@@ -202,7 +207,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				break;
 			}
 
-			case ZOOM: {
+			case ZOOM: {				
+		 	  //TODO 1-DOF -> wheel
+				//float delta = -rotation * wheelSensitivity();
 				float delta = ((float)eventPoint.y - (float)prevPos.y);
 				if(delta < 0)
 					scale(1 + Math.abs(delta) / (float) scene.height());
@@ -220,10 +227,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				rot = new Rotation(rot.angle() * rotationSensitivity());
 				if( !isFlipped() )
 					rot.negate();				
-				// #CONNECTION# These two methods should go together (spinning detection and activation)
-				computeDeviceSpeed(eventPoint);
+				// #CONNECTION# These two methods should go together (spinning detection and activation)				
 				setSpinningQuaternion(rot);
-				spin();
+				//computeDeviceSpeed(eventPoint);
+				//spin();
+				startDampedSpinning(eventPoint);
 				prevPos = eventPoint;
 				break;
 			}
@@ -241,11 +249,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					angle = -angle;
 
 				Orientable rot = new Rotation(angle);
-				// #CONNECTION# These two methods should go together (spinning detection
-				// and activation)
-				computeDeviceSpeed(eventPoint);
+				// #CONNECTION# These two methods should go together (spinning detection and activation)				
 				setSpinningQuaternion(rot);
-				spin();
+			  //computeDeviceSpeed(eventPoint);
+				//spin();
+				startDampedSpinning(eventPoint);
 				updateFlyUpVector();
 				prevPos = eventPoint;				
 				break;
@@ -260,10 +268,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					trans.set(0.0f, -deltaY, 0.0f);
 				float[] wh = viewWindow.getOrthoWidthHeight();
 				trans.vec[0] *= 2.0f * wh[0] / viewWindow.screenWidth();
-				trans.vec[1] *= 2.0f * wh[1] / viewWindow.screenHeight();
-				computeDeviceSpeed(eventPoint);
+				trans.vec[1] *= 2.0f * wh[1] / viewWindow.screenHeight();				
 				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+				computeDeviceSpeed(eventPoint);
 				toss();
+				//startTossing(eventPoint);
 				prevPos = eventPoint;
 				
 				break;
@@ -313,18 +322,23 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					break;
 				}
 				}
-				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
-								
-				computeDeviceSpeed(eventPoint);
+				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));								
+				
 				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
+				computeDeviceSpeed(eventPoint);
 				toss();
+				//startTossing(eventPoint);
 			
 				prevPos = eventPoint;
 				
 				break;
 			}
 
-			case ZOOM: {		
+			case ZOOM: {
+			  //TODO 1-DOF -> wheel
+				//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * vp.sceneRadius());
+				//Vector3D trans = new Vector3D(0.0f, 0.0f, coef * rotation * wheelSensitivity() * wheelSensitivityCoef);
+				
 				// #CONNECTION# wheelEvent() ZOOM case
 			  float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * camera.sceneRadius());
 				//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
@@ -343,10 +357,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			case ROTATE: {
 				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
 				Quaternion rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], camera);				
-				// #CONNECTION# These two methods should go together (spinning detection and activation)
-				computeDeviceSpeed(eventPoint);
+				// #CONNECTION# These two methods should go together (spinning detection and activation)				
 				setSpinningQuaternion(rot);
-				spin();
+				//computeDeviceSpeed(eventPoint);
+				//spin();				
+				startDampedSpinning(eventPoint);
 				prevPos = eventPoint;
 				break;
 			}
@@ -355,10 +370,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());				
 				// the following line calls setSpinningQuaternion
 				Quaternion rot = computeCADQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.x(), trans.y(), camera);
-				// #CONNECTION# These two methods should go together (spinning detection and activation)
-				computeDeviceSpeed(eventPoint);
+				// #CONNECTION# These two methods should go together (spinning detection and activation)				
 				setSpinningQuaternion(rot);
-				spin();
+				//computeDeviceSpeed(eventPoint);
+				//spin();
+				startDampedSpinning(eventPoint);
 				prevPos = eventPoint;
 				break;
 			}
@@ -376,11 +392,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					angle = -angle;
 
 				Orientable rot = new Quaternion(new Vector3D(0.0f, 0.0f, 1.0f), angle);
-				// #CONNECTION# These two methods should go together (spinning detection
-				// and activation)
-				computeDeviceSpeed(eventPoint);
+				// #CONNECTION# These two methods should go together (spinning detection and activation)				
 				setSpinningQuaternion(rot);
-				spin();
+				//computeDeviceSpeed(eventPoint);
+				//spin();
+				startDampedSpinning(eventPoint);
 				updateFlyUpVector();
 				prevPos = eventPoint;	
 				break;
@@ -414,9 +430,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				trans.div(magnitude());
 				
 				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));				
-				computeDeviceSpeed(eventPoint);
 				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
+				computeDeviceSpeed(eventPoint);
 				toss();
+				//startTossing(eventPoint);
 				
 				prevPos = eventPoint;			
 			  
@@ -435,7 +452,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * {@link remixlab.remixcam.core.InteractiveFrame#endAction(Point, Camera)}.
 	 */
 	@Override
-	public void endAction(Point eventPoint, Pinhole vp) {
+	public void endInteraction(Point eventPoint) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -451,10 +468,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			// if (event.getButton() == MouseEvent.BUTTON3)//right button
 			// camera.fitScreenRegion( new Rectangle (tlX, tlY, w, h) );
 			// else
-			vp.interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
+			scene.pinhole().interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
 		}
 
-		super.endAction(eventPoint, vp);
+		super.endInteraction(eventPoint);
 	}
 
 	/**
@@ -469,8 +486,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
+	/**
 	@Override
-	public void wheelMoved(float rotation, Pinhole vp) {
+	public void wheelMoved(float rotation) {
+		Pinhole vp = scene.pinhole();
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -509,10 +528,6 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			break;
 		}
 
-		// #CONNECTION# startAction should always be called before
-		if (prevConstraint != null)
-			setConstraint(prevConstraint);
-
 		int finalDrawAfterWheelEventDelay = 400;
 
 		// Starts (or prolungates) the timer.
@@ -521,6 +536,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 
 		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 	}
+	*/
 	
 	/**
 	 * Returns a Quaternion computed according to mouse motion. The Quaternion

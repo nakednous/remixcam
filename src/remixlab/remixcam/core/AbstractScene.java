@@ -258,7 +258,7 @@ public abstract class AbstractScene implements Constants {
 	
   //O B J E C T S
 	//TODO pending
-	protected EventHandler eventHandler;
+	protected EventDispatcher eventDispatcher;
 	
   //E X C E P T I O N H A N D L I N G
 	protected int startCoordCalls;
@@ -281,7 +281,8 @@ public abstract class AbstractScene implements Constants {
 	protected boolean cameraPathsAreDrwn;
 	
   //C O N S T R A I N T S
-	protected boolean withConstraint;
+	//TODO deactivate globally, see iFrameprevConstraint
+	//protected boolean withConstraint;
 	
 	// LEFT vs RIGHT_HAND
 	protected boolean rightHanded;
@@ -371,7 +372,7 @@ public abstract class AbstractScene implements Constants {
 		eventQueue = new LinkedList<DLEvent>();
 		// <- 1
 		
-		setGridDotted(true);
+		setDottedGrid(true);
 		setRightHanded();
 		
 		gProfile = new Bindings<KeyboardShortcut, KeyboardAction>(this);
@@ -391,7 +392,7 @@ public abstract class AbstractScene implements Constants {
 		return dottedGrid;
 	}
 	
-	public void setGridDotted(boolean dotted) {
+	public void setDottedGrid(boolean dotted) {
 		dottedGrid = dotted;
 	}
 	
@@ -657,10 +658,10 @@ public abstract class AbstractScene implements Constants {
 				if (avatarIsInteractiveDrivableFrame)
 					((InteractiveDrivableFrame) avatar()).removeFromDeviceGrabberPool();
 				pinhole().frame().updateFlyUpVector();// ?
-				pinhole().frame().stopSpinning();
+				pinhole().frame().stopDampedSpinning();
 				if (avatarIsInteractiveDrivableFrame) {
 					((InteractiveDrivableFrame) (avatar())).updateFlyUpVector();
-					((InteractiveDrivableFrame) (avatar())).stopSpinning();
+					((InteractiveDrivableFrame) (avatar())).stopDampedSpinning();
 				}
 				// perform small animation ;)
 				if (pinhole().anyInterpolationIsStarted())
@@ -680,7 +681,7 @@ public abstract class AbstractScene implements Constants {
 				currentCameraProfile = camProfile;
 			} else {
 				pinhole().frame().updateFlyUpVector();
-				pinhole().frame().stopSpinning();
+				pinhole().frame().stopDampedSpinning();
 				
 				if(currentCameraProfile != null)
 					if (currentCameraProfile instanceof ThirdPersonCameraProfile)
@@ -1560,7 +1561,7 @@ public abstract class AbstractScene implements Constants {
 			
 		// 5. Events
     while( !eventQueue.isEmpty() ) 
-    	eventHandler.handle(eventQueue.remove());
+    	eventDispatcher.handle(eventQueue.remove());
 		
 		// 6. Grid and axis drawing
 		if (gridIsDrawn()) {
@@ -2709,7 +2710,7 @@ public abstract class AbstractScene implements Constants {
 	 * Returns a list containing references to all the active MouseGrabbers.
 	 * <p>
 	 * Used to parse all the MouseGrabbers and to check if any of them
-	 * {@link remixlab.remixcam.core.DeviceGrabbable#grabsDevice()} using
+	 * {@link remixlab.remixcam.core.DeviceGrabbable#grabsCursor()} using
 	 * {@link remixlab.remixcam.core.DeviceGrabbable#checkIfGrabsDevice(int, int, Camera)}.
 	 * <p>
 	 * You should not have to directly use this list. Use
@@ -2736,7 +2737,7 @@ public abstract class AbstractScene implements Constants {
 	public void setDeviceTracking(boolean enable) {		
 		if(!enable) {
 			if( deviceGrabber() != null )
-				deviceGrabber().setGrabsDevice(false);
+				deviceGrabber().setGrabsCursor(false);
 			setDeviceGrabber(null);
 		}
 		deviceTrckn = enable;
@@ -2846,7 +2847,7 @@ public abstract class AbstractScene implements Constants {
 	 * Returns the current MouseGrabber, or {@code null} if none currently grabs
 	 * mouse events.
 	 * <p>
-	 * When {@link remixlab.remixcam.core.DeviceGrabbable#grabsDevice()}, the different
+	 * When {@link remixlab.remixcam.core.DeviceGrabbable#grabsCursor()}, the different
 	 * mouse events are sent to it instead of their usual targets (
 	 * {@link #pinhole()} or {@link #interactiveFrame()}).
 	 */
@@ -3099,12 +3100,14 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Toggles the draw with constraint on and off.
 	 */
+	/**
 	public void toggleDrawWithConstraint() {
 		if (drawIsConstrained())
 			setDrawWithConstraint(false);
 		else
 			setDrawWithConstraint(true);
 	}	
+	*/
 	
 	/**
 	 * Returns {@code true} if axis is currently being drawn and {@code false}
@@ -3193,16 +3196,20 @@ public abstract class AbstractScene implements Constants {
 	 * Returns {@code true} if drawn is currently being constrained and {@code
 	 * false} otherwise.
 	 */
+	/**
 	public boolean drawIsConstrained() {
 		return withConstraint;
 	}
+	*/
 
 	/**
 	 * Constrain frame displacements according to {@code wConstraint}
 	 */
+	/**
 	public void setDrawWithConstraint(boolean wConstraint) {
 		withConstraint = wConstraint;
 	}
+	*/
 	
 	// Abstract drawing methods
 		

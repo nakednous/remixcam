@@ -17,7 +17,8 @@ import remixlab.remixcam.geom.Point;
  * generated via Processing will then be directed to {@link #DLDLKeyEvent(DLDLKeyEvent)} and to
  * {@link #handleMouseEvent(DLMouseEvent)}.  
  */
-public class EventHandler implements Constants {
+//TODO should be AbstractScene inner class
+public class EventDispatcher implements Constants {
 	protected AbstractScene scene;
 	public DeviceAction camMouseAction;
 	protected boolean keyHandled;
@@ -25,7 +26,7 @@ public class EventHandler implements Constants {
 	public Point fCorner;// also used for SCREEN_ROTATE
 	public Point lCorner;
 	
-	public EventHandler(AbstractScene s) {
+	public EventDispatcher(AbstractScene s) {
 		scene = s;
 		camMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		keyHandled = false;
@@ -34,14 +35,16 @@ public class EventHandler implements Constants {
 	}
 	
 	//TODO generalize me
+	// /**
 	public void handle(DLEvent e) {		
 		if( e instanceof DLKeyEvent ) {
-			handleKeyEvent((DLKeyEvent) e);
+			//handleKeyEvent((DLKeyEvent) e);
 		}
 		if( e instanceof HIDeviceEvent ) {
-			handleMouseEvent((DLMouseEvent) e); 
+			//handleMouseEvent((DLMouseEvent) e); 
 		}
 	}
+	//*/
 	
 	// 1. KeyEvents
 	
@@ -51,19 +54,20 @@ public class EventHandler implements Constants {
 	 * @see remixlab.proscene.Scene#keyboardIsHandled()
 	 * @see remixlab.proscene.Scene#enableKeyboardHandling(boolean)
 	 */
-	public void handleKeyEvent(DLKeyEvent e) {
-		keyHandled = false;
-		switch (e.getAction() ) {				
-		case DLKeyEvent.PRESS:
-			break;
-		case DLKeyEvent.TYPE:
-			keyTyped(e);
-			break;
-		case DLKeyEvent.RELEASE:
-			keyReleased(e);
-			break;			
-		}
+	public void handleKeyEvent(DLKeyEvent e) {		
+		if (scene.currentCameraProfile() != null)
+			keyHandled = keyCharCameraKeyboardAction(e);
+		if (!keyHandled)
+			keyHandled = keyCharKeyboardAction(e);		
+		if(keyHandled)
+			return;		
+		
+		if (scene.currentCameraProfile() != null)
+			keyHandled = keyCodedCameraKeyboardAction(e);
+		if (!keyHandled)
+			keyCodedKeyboardAction(e);		
 	}
+	// */
 	
 	/**
 	 * Implementation of the key typed event used to handle character shortcuts.
@@ -72,15 +76,15 @@ public class EventHandler implements Constants {
 	 * to see if there's a binding there first. If nothing is found,
 	 * the handler look for it in the Scene then.
 	 * 
-	 * @see #keyTypedCameraKeyboardAction(DLKeyEvent)
-	 * @see #keyTypedKeyboardAction(DLKeyEvent)
+	 * @see #keyCharCameraKeyboardAction(DLKeyEvent)
+	 * @see #keyCharKeyboardAction(DLKeyEvent)
 	 */
-	protected void keyTyped(DLKeyEvent e) {
+	public void keyChar(DLKeyEvent e) {
 		boolean handled = false;		
 		if (scene.currentCameraProfile() != null)
-			handled = keyTypedCameraKeyboardAction(e);
+			handled = keyCharCameraKeyboardAction(e);
 		if (!handled)
-			handled = keyTypedKeyboardAction(e);
+			handled = keyCharKeyboardAction(e);
 		keyHandled = handled;
 	}
 	
@@ -93,17 +97,17 @@ public class EventHandler implements Constants {
 	 * If the {@link remixlab.proscene.Scene#currentCameraProfile()} doesn't bind an action,
 	 * the handler searches for it in the Scene.
 	 * 
-	 * @see #keyReleasedCameraKeyboardAction(DLKeyEvent)
-	 * @see #keyReleasedKeyboardAction(DLKeyEvent)
+	 * @see #keyCodedCameraKeyboardAction(DLKeyEvent)
+	 * @see #keyCodedKeyboardAction(DLKeyEvent)
 	 */
-	protected void keyReleased(DLKeyEvent e) {
+	public void keyCoded(DLKeyEvent e) {
 		if(keyHandled)
 			return;
 		boolean handled = false;
 		if (scene.currentCameraProfile() != null)
-			handled = keyReleasedCameraKeyboardAction(e);
+			handled = keyCodedCameraKeyboardAction(e);
 		if (!handled)
-			keyReleasedKeyboardAction(e);
+			keyCodedKeyboardAction(e);
 	}
 	
 	/**
@@ -115,7 +119,7 @@ public class EventHandler implements Constants {
 	 * 
 	 * @return true if a binding was found 
 	 */
-	protected boolean keyTypedCameraKeyboardAction(DLKeyEvent e) {
+	protected boolean keyCharCameraKeyboardAction(DLKeyEvent e) {
 		CameraKeyboardAction kba = null;
 		kba = scene.currentCameraProfile().shortcut( e.getKey() );
 		if (kba == null)
@@ -134,7 +138,7 @@ public class EventHandler implements Constants {
 	 * 
 	 * @return true if a binding was found 
 	 */
-	protected boolean keyTypedKeyboardAction(DLKeyEvent e) {
+	protected boolean keyCharKeyboardAction(DLKeyEvent e) {
 		if (!e.isAltDown() /**&& !e.isAltGraphDown()*/ && !e.isControlDown()	&& !e.isShiftDown()) {
 			Integer path = scene.path(e.getKey());
 			if (path != null) {
@@ -162,7 +166,7 @@ public class EventHandler implements Constants {
 	 * 
 	 * @return true if a binding was found 
 	 */
-	protected boolean keyReleasedCameraKeyboardAction(DLKeyEvent e) {
+	protected boolean keyCodedCameraKeyboardAction(DLKeyEvent e) {
 		CameraKeyboardAction kba = null;
 		kba = scene.currentCameraProfile().shortcut( e.getModifiers(), e.getKeyCode() );
 		if (kba == null)
@@ -176,12 +180,12 @@ public class EventHandler implements Constants {
 	/**
 	 * Internal use.
 	 * <p>
-	 * This method extracts the key combination (keycode +  modifier mask) associated with
+	 * This method extracts the key combination (keycode + modifier mask) associated with
 	 * the DLKeyEvent and then queries the Scene to see if there's a binding for it.
 	 * 
 	 * @return true if a binding was found 
 	 */
-	protected boolean keyReleasedKeyboardAction(DLKeyEvent e) {
+	protected boolean keyCodedKeyboardAction(DLKeyEvent e) {
 		// 1. Key-frames
 		// 1.1. Need to add a key-frame?
 		if (((scene.addKeyFrameKeyboardModifier == ALT) && (e.isAltDown()))
@@ -229,6 +233,7 @@ public class EventHandler implements Constants {
 	public void handleMouseEvent(DLMouseEvent e) {
 		scene.mouseX = e.getX();
 		scene.mouseY = e.getY();
+		/**
 		switch (e.getAction() ) {
 		case DLMouseEvent.CLICK:
 			mouseClicked(e);
@@ -246,8 +251,10 @@ public class EventHandler implements Constants {
 			mouseReleased(e);
 			break;
 		case DLMouseEvent.WHEEL:
-			mouseWheelMoved(e);
+		  //TODO 1-DOF -> wheel			
+			//mouseWheelMoved(e);
 		}		
+		*/
 	}
 	
   /**
@@ -259,7 +266,7 @@ public class EventHandler implements Constants {
    */
 	protected void mouseClicked(DLMouseEvent event) {		
 		if (scene.deviceGrabber() != null)
-			scene.deviceGrabber().buttonClicked(/**event.getPoint(),*/ event.getButton(), event.getClickCount(), scene.pinhole());
+			scene.deviceGrabber().buttonClicked(/**event.getPoint(),*/ event.getButton(), event.getClickCount());
 		else {
 			ClickAction ca = scene.currentCameraProfile().clickBinding(event.getModifiers(), event.getButton(), event.getClickCount());
 			if (ca != null)
@@ -276,8 +283,8 @@ public class EventHandler implements Constants {
 		scene.setDeviceGrabber(null);
 		if( scene.isTrackingDevice() )
 			for (DeviceGrabbable mg : scene.deviceGrabberPool()) {
-				mg.checkIfGrabsDevice(event.getX(), event.getY(), scene.pinhole());
-				if (mg.grabsDevice())
+				mg.checkIfGrabsCursor(event.getX(), event.getY());
+				if (mg.grabsCursor())
 					scene.setDeviceGrabber(mg);
 			}
 	}
@@ -301,16 +308,16 @@ public class EventHandler implements Constants {
 		if (scene.deviceGrabber() != null) {
 			if (scene.deviceGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
 				InteractiveFrame iFrame = (InteractiveFrame) scene.deviceGrabber();
-				iFrame.startAction(scene.currentCameraProfile().frameMouseAction(e), scene.drawIsConstrained());
-				iFrame.initAction(new Point(event.getX(), event.getY()), scene.pinhole());
+				iFrame.beginAction(scene.currentCameraProfile().frameMouseAction(e));
+				iFrame.beginInteraction(new Point(event.getX(), event.getY()));
 			} else
-				scene.deviceGrabber().initAction(new Point(event.getX(), event.getY()), scene.pinhole());
+				scene.deviceGrabber().beginInteraction(new Point(event.getX(), event.getY()));
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
 			//scene.interactiveFrame().startAction(scene.currentCameraProfile().frameMouseAction(e), scene.drawIsConstrained());
-			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameMouseAction(e.getModifiers(), e.getButton()), scene.drawIsConstrained());
-			scene.interactiveFrame().initAction(new Point(event.getX(), event.getY()), scene.pinhole());
+			scene.interactiveFrame().beginAction(scene.currentCameraProfile().frameMouseAction(e.getModifiers(), e.getButton()));
+			scene.interactiveFrame().beginInteraction(new Point(event.getX(), event.getY()));
 			return;
 		}
 		//camMouseAction = scene.currentCameraProfile().cameraMouseAction(e);
@@ -321,8 +328,8 @@ public class EventHandler implements Constants {
 		}
 		if (camMouseAction == DeviceAction.SCREEN_ROTATE)
 			fCorner.set(event.getX(), event.getY());
-		scene.pinhole().frame().startAction(camMouseAction, scene.drawIsConstrained());
-		scene.pinhole().frame().initAction(new Point(event.getX(), event.getY()), scene.pinhole());
+		scene.pinhole().frame().beginAction(camMouseAction);
+		scene.pinhole().frame().beginInteraction(new Point(event.getX(), event.getY()));
 	}
 
 	/**
@@ -340,18 +347,18 @@ public class EventHandler implements Constants {
 	public void mouseDragged(DLMouseEvent e) {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		if (scene.deviceGrabber() != null) {
-			scene.deviceGrabber().checkIfGrabsDevice(event.getX(), event.getY(), scene.pinhole());
-			if (scene.deviceGrabber().grabsDevice())
+			scene.deviceGrabber().checkIfGrabsCursor(event.getX(), event.getY());
+			if (scene.deviceGrabber().grabsCursor())
 				if (scene.deviceGrabberIsAnIFrame) //covers also the case when mouseGrabberIsADrivableFrame
-					((InteractiveFrame) scene.deviceGrabber()).execAction(new Point(event.getX(), event.getY()), scene.pinhole());	
+					((InteractiveFrame) scene.deviceGrabber()).performInteraction(new Point(event.getX(), event.getY()));	
 				else
-					scene.deviceGrabber().execAction(new Point(event.getX(), event.getY()), scene.pinhole());
+					scene.deviceGrabber().performInteraction(new Point(event.getX(), event.getY()));
 			else
 				scene.setDeviceGrabber(null);
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
-		  scene.interactiveFrame().execAction(new Point(event.getX(), event.getY()), scene.pinhole());
+		  scene.interactiveFrame().performInteraction(new Point(event.getX(), event.getY()));
 			return;
 		}
 		if (camMouseAction == DeviceAction.ZOOM_ON_REGION)
@@ -359,7 +366,7 @@ public class EventHandler implements Constants {
 		else {
 			if (camMouseAction == DeviceAction.SCREEN_ROTATE)
 				fCorner.set(event.getX(), event.getY());
-			scene.pinhole().frame().execAction(new Point(event.getX(), event.getY()), scene.pinhole());
+			scene.pinhole().frame().performInteraction(new Point(event.getX(), event.getY()));
 		}
 	}
 	
@@ -380,17 +387,17 @@ public class EventHandler implements Constants {
 		Point event = new Point((e.getX() - scene.upperLeftCorner.getX()), (e.getY() - scene.upperLeftCorner.getY()));
 		if (scene.deviceGrabber() != null) {
 			if (scene.deviceGrabberIsAnIFrame) //covers also the case when mouseGrabberIsADrivableFrame
-				((InteractiveFrame) scene.deviceGrabber()).endAction(new Point(event.getX(), event.getY()), scene.pinhole());
+				((InteractiveFrame) scene.deviceGrabber()).endInteraction(new Point(event.getX(), event.getY()));
 			else
-				scene.deviceGrabber().endAction(new Point(event.getX(), event.getY()), scene.pinhole());
-			scene.deviceGrabber().checkIfGrabsDevice(event.getX(), event.getY(), scene.pinhole());
-			if (!(scene.deviceGrabber().grabsDevice()))
+				scene.deviceGrabber().endInteraction(new Point(event.getX(), event.getY()));
+			scene.deviceGrabber().checkIfGrabsCursor(event.getX(), event.getY());
+			if (!(scene.deviceGrabber().grabsCursor()))
 				scene.setDeviceGrabber(null);
 			// iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
-			scene.interactiveFrame().endAction(new Point(event.getX(), event.getY()), scene.pinhole());
+			scene.interactiveFrame().endInteraction(new Point(event.getX(), event.getY()));
 			// iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
 			return;
 		}
@@ -399,7 +406,7 @@ public class EventHandler implements Constants {
 				|| (camMouseAction == DeviceAction.SCREEN_ROTATE)
 				|| (camMouseAction == DeviceAction.SCREEN_TRANSLATE))
 			lCorner.set(event.getX(), event.getY());
-		scene.pinhole().frame().endAction(new Point(event.getX(), event.getY()), scene.pinhole());
+		scene.pinhole().frame().endInteraction(new Point(event.getX(), event.getY()));
 		camMouseAction = DeviceAction.NO_DEVICE_ACTION;
 		// iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
 	}
@@ -416,26 +423,28 @@ public class EventHandler implements Constants {
 	 * 
 	 * @see #mousePressed(DLMouseEvent)
 	 */
+	/**
 	public void mouseWheelMoved(DLMouseEvent event) {
 		//if(!scene.mouseIsHandled())
 			//return;
 		if (scene.deviceGrabber() != null) {
 			if (scene.deviceGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
 				InteractiveFrame iFrame = (InteractiveFrame) scene.deviceGrabber();
-				iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event), scene.drawIsConstrained());
-				iFrame.wheelMoved(event.getAmount(), scene.pinhole());				
+				iFrame.startAction(scene.currentCameraProfile().frameWheelMouseAction(event));
+				iFrame.wheelMoved(event.getAmount());				
 			} else
-				scene.deviceGrabber().wheelMoved(event.getAmount(), scene.pinhole());
+				scene.deviceGrabber().wheelMoved(event.getAmount());
 			return;
 		}
 		if (scene.interactiveFrameIsDrawn()) {
-			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameWheelMouseAction(event.getModifiers()), scene.drawIsConstrained());
-			scene.interactiveFrame().wheelMoved(event.getAmount(), scene.pinhole());
+			scene.interactiveFrame().startAction(scene.currentCameraProfile().frameWheelMouseAction(event.getModifiers()));
+			scene.interactiveFrame().wheelMoved(event.getAmount());
 			return;
 		}
 		//scene.pinhole().frame().startAction(scene.currentCameraProfile().cameraWheelMouseAction(event), scene.drawIsConstrained());
-		scene.pinhole().frame().startAction(scene.currentCameraProfile().cameraWheelMouseAction(event.getModifiers()), scene.drawIsConstrained());
-		scene.pinhole().frame().wheelMoved(event.getAmount(), scene.pinhole());	  
+		scene.pinhole().frame().startAction(scene.currentCameraProfile().cameraWheelMouseAction(event.getModifiers()));
+		scene.pinhole().frame().wheelMoved(event.getAmount());	  
 	}
+	*/
 }
 

@@ -13,7 +13,7 @@ public class DLMouseEvent extends HIDeviceEvent {
 		append(x).
 		append(y).
 		append(button).
-		append(amount).
+		append(count).
     toHashCode();
 	}
 	
@@ -29,54 +29,35 @@ public class DLMouseEvent extends HIDeviceEvent {
     .append(x, other.x)
 		.append(y, other.y)
 		.append(button, other.button)
-		.append(amount, other.amount)
+		.append(count, other.count)
 		.isEquals();
 	}
-	
-  static public final int PRESS = 1;
-  static public final int RELEASE = 2;
-  static public final int CLICK = 3;
-  static public final int DRAG = 4;
-  static public final int MOVE = 5;
-  static public final int ENTER = 6;
-  static public final int EXIT = 7;
-  static public final int WHEEL = 8;
 
   protected Integer x, y;
   protected Integer button;
-  protected Float amount;
-  
-  public DLMouseEvent(AbstractScene scn) {
-  	super(scn);
-  	this.x = null;
-  	this.y = null;
-  	this.button = null;
-  	this.amount = null;
-  }
+  protected Integer count;
   
   public DLMouseEvent() {
   	this.x = null;
   	this.y = null;
   	this.button = null;
-  	this.amount = null;
+  	this.count = null;
   }
   
-  public DLMouseEvent(AbstractScene scn, int action, int modifiers,
-      int x, int y, int button, float amount) {
-  	super(scn, action, modifiers);
+  public DLMouseEvent(int modifiers, int x, int y, int button, int amount) {
+  	super(modifiers);
   	this.x = x;
   	this.y = y;
   	this.button = button;
-  	this.amount = amount;
+  	this.count = amount;
   }
 
-  public DLMouseEvent(int action, int modifiers,
-                      int x, int y, int button, float amount) {  //int clickCount) {
-    super(action, modifiers);
+  public DLMouseEvent(int action, int modifiers, int x, int y, int button, int amount) {
+    super(modifiers);
     this.x = x;
     this.y = y;
     this.button = button;
-    this.amount = amount;
+    this.count = amount;
   }
   
   protected DLMouseEvent(DLMouseEvent other) {
@@ -84,7 +65,7 @@ public class DLMouseEvent extends HIDeviceEvent {
 		this.x = other.x;
 		this.y = other.y;
 		this.button = other.button;
-  	this.amount = other.amount;
+  	this.count = other.count;
 	}
   
   @Override
@@ -118,22 +99,22 @@ public class DLMouseEvent extends HIDeviceEvent {
   }
 
   public Integer getClickCount() {
-    return (int) amount.floatValue(); //clickCount;
+    return count; //clickCount;
   }
   
-  public void setClickCount(float val) {
-  	amount = val;
+  public void setClickCount(int val) {
+  	count = val;
   }
 
   /**
    * Number of clicks for mouse button events, or the number of steps (positive
    * or negative depending on direction) for a mouse wheel event.
    */
-  public float getAmount() {
-    return amount;
+  public float getCount() {
+    return count;
   }
   
-  public void setAmount(float val) {
-  	amount = val;
+  public void setCount(int val) {
+  	count = val;
   }
 }

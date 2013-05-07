@@ -9,11 +9,8 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 public class HIDeviceEvent extends DLEvent {
-	/**
-	 * This enum holds the device type.
-	 *
-	 */
-	public enum Mode {RELATIVE, ABSOLUTE}
+	public boolean absolute = true;	
+	public boolean cursor = true;
 	
 	protected Vector3D rotation, rotSens;
 	protected Vector3D translation, transSens;
@@ -32,33 +29,7 @@ public class HIDeviceEvent extends DLEvent {
 
 	//protected Quaternion quaternion;
   
-  public HIDeviceEvent(AbstractScene scn) {
-  	super(scn);
-  	common();
-    //setMode(Mode.ABSOLUTE);  	
-  }
-	
   public HIDeviceEvent() {
-  	common();
-    //setMode(Mode.ABSOLUTE);  	
-  }
-  
-  public HIDeviceEvent(AbstractScene scn, Integer action, Integer modifiers) {
-    super(scn, action, modifiers);
-    common();
-  }
-  
-  public HIDeviceEvent(Integer action, Integer modifiers) {
-    super(action, modifiers);
-    common();
-  }
-  
-  protected HIDeviceEvent(HIDeviceEvent other) {
-  	super(other);
-  	//setMode(Mode.ABSOLUTE); 
-	}
-  
-  protected void common() {
   	translation = new Vector3D();
 		transSens = new Vector3D(1, 1, 1);
 		rotation = new Vector3D();
@@ -71,8 +42,18 @@ public class HIDeviceEvent extends DLEvent {
     tz = translation.vec[2] * transSens.vec[2];
   	roll = rotation.vec[0] * rotSens.vec[0];
     pitch = rotation.vec[1] * rotSens.vec[1];
-    yaw = rotation.vec[2] * rotSens.vec[2];   
+    yaw = rotation.vec[2] * rotSens.vec[2];  
   }
+	
+  public HIDeviceEvent(Integer modifiers) {
+  	this();  
+  	setModifiers(modifiers);  	  
+  }
+  
+  protected HIDeviceEvent(HIDeviceEvent other) {
+  	super(other);
+  	//setMode(Mode.ABSOLUTE); 
+	}
   
   @Override
 	public HIDeviceEvent get() {

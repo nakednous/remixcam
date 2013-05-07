@@ -11,7 +11,7 @@ public class DLEvent implements Constants, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
-		append(action).
+		//append(action).
 		append(modifiers).
     toHashCode();		
 	}
@@ -24,18 +24,38 @@ public class DLEvent implements Constants, Copyable {
 		
 		DLEvent other = (DLEvent) obj;
 	  return new EqualsBuilder()		
-		.append(action, other.action)
+		//.append(action, other.action)
 		.append(modifiers, other.modifiers)
 		.isEquals();
 	}
 	
-  protected Integer action;
+  //protected Integer action;
   protected Integer modifiers;
+  
+  public DLEvent() {    
+    this.modifiers = 0;
+  }
  
+  public DLEvent(Integer modifiers) {
+    this.modifiers = modifiers;
+  }
+  
+  protected DLEvent(DLEvent other) {
+		//this.action = other.action;
+		this.modifiers = other.modifiers;
+	}
+  
+  /**
   public DLEvent(Integer action, Integer modifiers) {
     this.action = action;
     this.modifiers = modifiers;
   }
+  
+  public DLEvent(AbstractScene scn, Integer action, Integer modifiers) {
+    this.action = action;
+    this.modifiers = modifiers;
+    queueEvent(scn);
+  } 
   
   public DLEvent(Integer action) { 
     this(action, 0);
@@ -44,12 +64,6 @@ public class DLEvent implements Constants, Copyable {
   public DLEvent() { 
     this(0, 0);
   }
-
-  public DLEvent(AbstractScene scn, Integer action, Integer modifiers) {
-    this.action = action;
-    this.modifiers = modifiers;
-    queueEvent(scn);
-  } 
   
   public DLEvent(AbstractScene scn, Integer action) { 
     this(scn, action, 0);
@@ -59,10 +73,15 @@ public class DLEvent implements Constants, Copyable {
     this(scn, 0, 0);
   }
   
-  protected DLEvent(DLEvent other) {
-		this.action = other.action;
-		this.modifiers = other.modifiers;
-	}
+  /**
+  public void setAction(Integer a) {
+  	this.action = a;
+  }
+
+  public Integer getAction() {
+    return action;
+  }
+  // */
   
   public void queueEvent(AbstractScene scn) {
   	scn.enqueueEvent(this);
@@ -72,14 +91,6 @@ public class DLEvent implements Constants, Copyable {
 	public Object get() {
 		return new DLEvent(this);
 	}
-  
-  public void setAction(Integer a) {
-  	this.action = a;
-  }
-
-  public Integer getAction() {
-    return action;
-  }
 
   public Integer getModifiers() {
     return modifiers;

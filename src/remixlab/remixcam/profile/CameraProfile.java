@@ -400,7 +400,7 @@ public abstract class CameraProfile implements Constants {
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
 	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
-	 * Called by {@link remixlab.remixcam.core.EventHandler#mousePressed(MouseEvent)}.
+	 * Called by {@link remixlab.remixcam.core.EventDispatcher#mousePressed(MouseEvent)}.
 	 */
 	public DeviceAction cameraMouseAction(DLMouseEvent e) {
 		DeviceAction camMouseAction = cameraMouseBinding( e.getModifiers(), e.getButton() );	
@@ -437,7 +437,7 @@ public abstract class CameraProfile implements Constants {
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
 	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
-	 * Called by {@link remixlab.remixcam.core.EventHandler#mousePressed(MouseEvent)}.
+	 * Called by {@link remixlab.remixcam.core.EventDispatcher#mousePressed(MouseEvent)}.
 	 */
 	public DeviceAction frameMouseAction(DLMouseEvent e) {
 		DeviceAction iFrameMouseAction = frameMouseBinding( e.getModifiers(), e.getButton() );
@@ -457,7 +457,7 @@ public abstract class CameraProfile implements Constants {
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
 	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
-	 * Called by {@link remixlab.remixcam.core.EventHandler#mouseWheelMoved(MouseWheelEvent)}.
+	 * Called by {@link remixlab.remixcam.core.EventDispatcher#mouseWheelMoved(MouseWheelEvent)}.
 	 */
 	public DeviceAction cameraWheelMouseAction(DLMouseEvent e) {
 		DeviceAction wMouseAction = cameraWheelBinding(e.getModifiers());
@@ -477,7 +477,7 @@ public abstract class CameraProfile implements Constants {
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
 	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
-	 * Called by {@link remixlab.remixcam.core.EventHandler#mouseWheelMoved(MouseWheelEvent)}.
+	 * Called by {@link remixlab.remixcam.core.EventDispatcher#mouseWheelMoved(MouseWheelEvent)}.
 	 */
 	public DeviceAction frameWheelMouseAction(DLMouseEvent e) {
 		DeviceAction fMouseAction = frameWheelBinding( e.getModifiers() );

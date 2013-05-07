@@ -102,22 +102,52 @@ import java.util.TimerTask;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {	
-	protected class P5EventHandler extends EventHandler {
-		public P5EventHandler(Scene s) {
+	public class P5EventDispatcher extends EventDispatcher {
+		public P5EventDispatcher(Scene s) {
 			super(s);
 		}
 		// two options here:
 		// 1. Bypass -> DLEventHandler methods are called directly, e.g., handleKeyEvent and handleMouseEvent
 		// 2. Remix events are enqueued first and then passed to the DLEventHandler @postDraw
 		public void keyEvent(KeyEvent e) {
-			if(scene.keyboardIsHandled() && scene.currentCameraProfile() != null)
-				//handleKeyEvent(new DLKeyEvent(e.getAction(), e.getModifiers(), e.getKey(), e.getKeyCode()));
-				new DLKeyEvent(scene, e.getAction(), e.getModifiers(), e.getKey(), e.getKeyCode());
+			if(scene.keyboardIsHandled() && scene.currentCameraProfile() != null) {
+				//handleKeyEvent(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
+				//new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode());
+				
+				keyHandled = false;				
+				//handleKeyEvent(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
+				
+				// /**				
+				if( e.getAction() ==  KeyEvent.TYPE)
+					keyChar(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
+				else
+					if (e.getAction() == KeyEvent.RELEASE)
+						keyCoded(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
+				// */
+				
+				// /**
+				switch (e.getAction() ) {
+				case KeyEvent.PRESS:
+					System.out.print("KeyPressed: ");
+					break;
+				case KeyEvent.TYPE:
+					//keyTyped(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
+					System.out.print("KeyTyped: ");
+					break;
+				case KeyEvent.RELEASE:
+					System.out.print("KeyReleased: ");
+					//keyReleased(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
+					break;			
+				}
+				System.out.println("e.getModifiers(): " + e.getModifiers() + ", e.getKey(): " + e.getKey() + ", e.getKeyCode(): " + e.getKeyCode());
+				// */
+			}
 		}
 		public void mouseEvent(MouseEvent e) {
-			if(scene.mouseIsHandled() && scene.currentCameraProfile() != null)
+			if(scene.mouseIsHandled() && scene.currentCameraProfile() != null) {
 				//handleMouseEvent(new DLMouseEvent(e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount()));
-				new DLMouseEvent(scene, e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount());
+				//new DLMouseEvent(scene, e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount());
+			}
 		}
 	}
 	
@@ -389,10 +419,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawZoomWindowHint() {
-			float p1x = (float) ((Scene)scene).eventHandler.fCorner.getX();
-			float p1y = (float) ((Scene)scene).eventHandler.fCorner.getY();
-			float p2x = (float) ((Scene)scene).eventHandler.lCorner.getX();
-			float p2y = (float) ((Scene)scene).eventHandler.lCorner.getY();
+			float p1x = (float) ((Scene)scene).eventDispatcher.fCorner.getX();
+			float p1y = (float) ((Scene)scene).eventDispatcher.fCorner.getY();
+			float p2x = (float) ((Scene)scene).eventDispatcher.lCorner.getX();
+			float p2y = (float) ((Scene)scene).eventDispatcher.lCorner.getY();
 			scene.beginScreenDrawing();
 			pg().pushStyle();
 			pg().stroke(255, 255, 255);
@@ -410,8 +440,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawScreenRotateLineHint() {
-			float p1x = (float) ((Scene)scene).eventHandler.fCorner.getX();
-			float p1y = (float) ((Scene)scene).eventHandler.fCorner.getY();
+			float p1x = (float) ((Scene)scene).eventDispatcher.fCorner.getX();
+			float p1y = (float) ((Scene)scene).eventDispatcher.fCorner.getY();
 			Vector3D p2 = scene.pinhole().projectedCoordinatesOf(scene.arcballReferencePoint());
 			scene.beginScreenDrawing();
 			pg().pushStyle();
@@ -1704,8 +1734,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		height = pg.height;
 		
 		if(is2D())
-			this.setGridDotted(false);
-		setJavaTimers();
+			this.setDottedGrid(false);
+		
+		//setJavaTimers();
+		this.parent.frameRate(100);
 		setLeftHanded();
 		
 		/**
@@ -1718,7 +1750,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		*/		
 		
 		//event handler
-		eventHandler = new P5EventHandler(this);
+		eventDispatcher = new P5EventDispatcher(this);
 		
 		// 1 ->   	
 
@@ -1767,7 +1799,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		arpFlag = false;
 		pupFlag = false;
 
-		withConstraint = true;
+		//withConstraint = true;
 
 		setAxisIsDrawn(true);
 		setGridIsDrawn(true);
@@ -2006,9 +2038,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		} else {
 			pinhole().hideAllPaths();
 		}
-		if (eventHandler.camMouseAction == DeviceAction.ZOOM_ON_REGION)			
+		if (eventDispatcher.camMouseAction == DeviceAction.ZOOM_ON_REGION)			
 			drawZoomWindowHint();		
-		if (eventHandler.camMouseAction == DeviceAction.SCREEN_ROTATE)
+		if (eventDispatcher.camMouseAction == DeviceAction.SCREEN_ROTATE)
 			drawScreenRotateLineHint();
 		if (arpFlag) 
 			drawArcballReferencePointHint();
@@ -2255,7 +2287,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
 					Vector3D center = pinhole().projectedCoordinatesOf(iF.position());
-					if (mg.grabsDevice()) {						
+					if (mg.grabsCursor()) {						
 						pg().pushStyle();
 					  //pg3d.stroke(mouseGrabberOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 0));
@@ -2283,7 +2315,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
 					Vector3D center = pinhole().projectedCoordinatesOf(iF.position());
-					if (mg.grabsDevice()) {
+					if (mg.grabsCursor()) {
 						pg().pushStyle();						
 					  //pg3d.stroke(mouseGrabberCameraPathOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 255));
@@ -2375,7 +2407,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public void enableKeyboardHandling() {
 		if( !this.keyboardIsHandled() ) {
 			super.enableKeyboardHandling();
-			parent.registerMethod("keyEvent", eventHandler);
+			parent.registerMethod("keyEvent", eventDispatcher);
 		}
 	}
 
@@ -2388,7 +2420,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public void disableKeyboardHandling() {
 		if( this.keyboardIsHandled() ) {
 			super.disableKeyboardHandling();
-			parent.unregisterMethod("keyEvent", eventHandler);
+			parent.unregisterMethod("keyEvent", eventDispatcher);
 		}
 	}
 		
@@ -2518,7 +2550,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public void enableMouseHandling() {
 		if( !this.mouseIsHandled() ) {
 			super.enableMouseHandling();
-			parent.registerMethod("mouseEvent", eventHandler);
+			parent.registerMethod("mouseEvent", eventDispatcher);
 		}
 	}
 
@@ -2531,7 +2563,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public void disableMouseHandling() {
 		if( this.mouseIsHandled() ) {
 			super.disableMouseHandling();
-			parent.unregisterMethod("mouseEvent", eventHandler);
+			parent.unregisterMethod("mouseEvent", eventDispatcher);
 		}
 	}
 

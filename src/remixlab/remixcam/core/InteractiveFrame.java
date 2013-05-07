@@ -126,12 +126,12 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	// Mouse speed:
 	protected float deviceSpeed;
 	private int startedTime;
-	private int delay;
+	protected int delay;
 	
 	// spinning stuff:
 	private float spngSensitivity;
 	private boolean isSpng;
-	private AbstractTimerJob spinningTimerJob;
+	private AbstractTimerJob dampedSpinningTimerJob, spinningTimerJob;
 	private Orientable spngQuat;
 	protected float spinningFriction; //new	
 	private float sFriction; //new
@@ -152,7 +152,8 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	protected boolean keepsGrabbingDevice;
 
 	protected AbstractScene.DeviceAction action;
-	protected Constraint prevConstraint; // When manipulation is without Constraint.
+	//TODO define if this shpuld go
+	//protected Constraint prevConstraint; // When manipulation is without Constraint.
 	// Previous mouse position (used for incremental updates) and mouse press position.
 	protected Point prevPos, pressPos;
 
@@ -192,7 +193,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		setWheelSensitivity(20.0f);
 
 		keepsGrabbingDevice = false;
-		prevConstraint = null;
+		//prevConstraint = null;
 		startedTime = 0;		
 		
 		isSpng = false;
@@ -201,7 +202,15 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		
 		isTossed = false;
 		setTossingSensitivity(0.3f);
-		setTossingFriction(1.0f);
+		//setTossingFriction(1.0f);
+		setTossingFriction(0.6f);
+		
+		dampedSpinningTimerJob = new AbstractTimerJob() {
+			public void execute() {
+				dampedSpin();
+			}
+		};	
+		scene.registerJob(dampedSpinningTimerJob);
 		
 		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -252,7 +261,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		this.setWheelSensitivity( otherFrame.wheelSensitivity() );
 
 		this.keepsGrabbingDevice = otherFrame.keepsGrabbingDevice;		
-		this.prevConstraint = otherFrame.prevConstraint; 
+		//this.prevConstraint = otherFrame.prevConstraint; 
 		this.startedTime = otherFrame.startedTime;
 		
 		this.isSpng = otherFrame.isSpng;
@@ -262,6 +271,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		this.isTossed = otherFrame.isTossed;
 		this.setTossingSensitivity( otherFrame.tossingSensitivity() );
 		this.setTossingFriction( otherFrame.tossingFriction() );
+		
+		this.dampedSpinningTimerJob = new AbstractTimerJob() {
+			public void execute() {
+				dampedSpin();
+			}
+		};		
+		scene.registerJob(dampedSpinningTimerJob);
 		
 		this.spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -319,7 +335,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		setWheelSensitivity(20.0f);
 
 		keepsGrabbingDevice = false;
-		prevConstraint = null;
+		//prevConstraint = null;
 		startedTime = 0;
 
 		/**
@@ -338,6 +354,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		setTossingSensitivity(0.3f);
 		setTossingFriction(1.0f);
 				
+		dampedSpinningTimerJob = new AbstractTimerJob() {
+			public void execute() {
+				dampedSpin();
+			}
+		};		
+		scene.registerJob(dampedSpinningTimerJob);
+		
 		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
 				spin();
@@ -409,34 +432,34 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	/**
 	 * Implementation of the MouseGrabber main method.
 	 * <p>
-	 * The InteractiveFrame {@link #grabsDevice()} when the mouse is within a {@link #grabsDeviceThreshold()}
+	 * The InteractiveFrame {@link #grabsCursor()} when the mouse is within a {@link #grabsDeviceThreshold()}
 	 * pixels region around its
 	 * {@link remixlab.remixcam.core.Camera#projectedCoordinatesOf(Vector3D)}
 	 * {@link #position()}.
 	 */
 	@Override
-	public void checkIfGrabsDevice(int x, int y, Pinhole camera) {
-		Vector3D proj = camera.projectedCoordinatesOf(position());
-		setGrabsDevice(keepsGrabbingDevice || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
+	public void checkIfGrabsCursor(int x, int y) {
+		Vector3D proj = scene.pinhole().projectedCoordinatesOf(position());
+		setGrabsCursor(keepsGrabbingDevice || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
 	}
 
 	/**
 	 * Returns {@code true} when the MouseGrabber grabs the Scene's mouse events.
 	 * <p>
-	 * This flag is set with {@link #setGrabsDevice(boolean)} by the
+	 * This flag is set with {@link #setGrabsCursor(boolean)} by the
 	 * {@link #checkIfGrabsDevice(int, int, Camera)} method.
 	 */
 	@Override
-	public boolean grabsDevice() {
+	public boolean grabsCursor() {
 		return grbsDevice;
 	}
 
 	/**
-	 * Sets the {@link #grabsDevice()} flag. Normally used by
+	 * Sets the {@link #grabsCursor()} flag. Normally used by
 	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
 	 */
 	@Override
-	public void setGrabsDevice(boolean grabs) {
+	public void setGrabsCursor(boolean grabs) {
 		grbsDevice = grabs;
 	}
 
@@ -553,10 +576,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 
 	/**
 	 * Returns the minimum mouse speed required (at button release) to make the
-	 * InteractiveFrame {@link #spin()}.
+	 * InteractiveFrame {@link #dampedSpin()}.
 	 * <p>
-	 * See {@link #spin()}, {@link #spinningQuaternion()} and
-	 * {@link #startSpinning(long)} for details.
+	 * See {@link #dampedSpin()}, {@link #spinningQuaternion()} and
+	 * {@link #startDampedSpinning(long)} for details.
 	 * <p>
 	 * Mouse speed is expressed in pixels per milliseconds. Default value is 0.3
 	 * (300 pixels per second). Use {@link #setSpinningSensitivity(float)} to tune
@@ -617,11 +640,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	/**
 	 * Returns {@code true} when the InteractiveFrame is spinning.
 	 * <p>
-	 * During spinning, {@link #spin()} rotates the InteractiveFrame by its
+	 * During spinning, {@link #dampedSpin()} rotates the InteractiveFrame by its
 	 * {@link #spinningQuaternion()} at a frequency defined when the
-	 * InteractiveFrame {@link #startSpinning(int)}.
+	 * InteractiveFrame {@link #startDampedSpinning(int)}.
 	 * <p>
-	 * Use {@link #startSpinning(int)} and {@link #stopSpinning()} to change this
+	 * Use {@link #startDampedSpinning(int)} and {@link #stopDampedSpinning()} to change this
 	 * state. Default value is {@code false}.
 	 * 
 	 * @see #isTossing()
@@ -631,7 +654,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	}
 
 	/**
-	 * Returns the incremental rotation that is applied by {@link #spin()} to the
+	 * Returns the incremental rotation that is applied by {@link #dampedSpin()} to the
 	 * InteractiveFrame orientation when it {@link #isSpinning()}.
 	 * <p>
 	 * Default value is a {@code null} rotation (identity Quaternion). Use
@@ -711,31 +734,55 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * the mouse. Can be used to change the display of the manipulated object
 	 * during manipulation.
 	 */
+	//TODO how does this fit new model? Maire is using it
 	public boolean isInInteraction() {
 		return action != AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 	}
+	
+	public final void stopSpinning() {
+		spinningTimerJob.stop();
+		isSpng = false;
+	}
+	
+  //TODO combine this two
+	public void startSpinning(Point eP) {
+		computeDeviceSpeed(eP);
+		startSpinning(delay);
+	}
+	
+	public void startSpinning(int updateInterval) {
+		isSpng = true;
+		if(updateInterval>0)
+			spinningTimerJob.run(updateInterval);
+	}
 
 	/**
-	 * Stops the spinning motion started using {@link #startSpinning(long)}.
+	 * Stops the spinning motion started using {@link #startDampedSpinning(long)}.
 	 * {@link #isSpinning()} will return {@code false} after this call.
 	 * <p>
-	 * <b>Attention: </b>This method may be called by {@link #spin()}, since spinning may
+	 * <b>Attention: </b>This method may be called by {@link #dampedSpin()}, since spinning may
 	 * be decelerated according to {@link #spinningFriction()} till it stops completely.
 	 * 
 	 * @see #spinningFriction()
 	 * @see #toss()
 	 */
-	public final void stopSpinning() {
-		spinningTimerJob.stop();
+	public final void stopDampedSpinning() {
+		dampedSpinningTimerJob.stop();
 		isSpng = false;
+	}
+	
+	//TODO combine this two
+	public void startDampedSpinning(Point eP) {
+		computeDeviceSpeed(eP);
+		startDampedSpinning(delay);
 	}
 
 	/**
 	 * Starts the spinning of the InteractiveFrame.
 	 * <p>
-	 * This method starts a timer that will call {@link #spin()} every {@code
+	 * This method starts a timer that will call {@link #dampedSpin()} every {@code
 	 * updateInterval} milliseconds. The InteractiveFrame {@link #isSpinning()}
-	 * until you call {@link #stopSpinning()}.
+	 * until you call {@link #stopDampedSpinning()}.
 	 * <p>
 	 * <b>Attention: </b>Spinning may be decelerated according to {@link #spinningFriction()}
 	 * till it stops completely.
@@ -743,10 +790,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #spinningFriction()
 	 * @see #toss()
 	 */
-	public void startSpinning(int updateInterval) {
+	public void startDampedSpinning(int updateInterval) {
 		isSpng = true;
 		if(updateInterval>0)
-			spinningTimerJob.run(updateInterval);
+			dampedSpinningTimerJob.run(updateInterval);
 	}
 	
 	/**
@@ -759,10 +806,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #spinningFriction()
 	 * @see #toss()
 	 */
-	public void spin() {		
+	public void dampedSpin() {		
 		if(spinningFriction() > 0) {
 			if (deviceSpeed == 0) {
-				stopSpinning();
+				stopDampedSpinning();
 				return;
 			}
 			rotate(spinningQuaternion());
@@ -770,6 +817,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 		else
 			rotate(spinningQuaternion());
+	}
+	
+	public void spin() {
+		rotate(spinningQuaternion());
 	}
 	
 	/**
@@ -844,11 +895,17 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * decelerated according to {@link #tossingFriction()} till it stops completely.
 	 * 
 	 * @see #tossingFriction()
-	 * @see #spin()
+	 * @see #dampedSpin()
 	 */
 	public final void stopTossing() {
 		tossingTimerJob.stop();
 		isTossed = false;
+	}
+	
+	//TODO combine this two:
+	public void startTossing(Point eP) {
+		computeDeviceSpeed(eP);
+		startTossing(delay);
 	}
 	
 	/**
@@ -862,7 +919,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * till it stops completely.
 	 * 
 	 * @see #tossingFriction()
-	 * @see #spin()
+	 * @see #dampedSpin()
 	 */
 	public void startTossing(long updateInterval) {
 		isTossed = true;
@@ -878,7 +935,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * {@link #tossingFriction()} till it stops completely.
 	 * 
 	 * @see #tossingFriction()
-	 * @see #spin()
+	 * @see #dampedSpin()
 	 */
 	public void toss() {		
 		if(tossingFriction() > 0) {
@@ -968,7 +1025,8 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 */
 	@Override
 	//TODO pending generalization
-	public void buttonClicked(/**Point eventPoint,*/ Integer button, int numberOfClicks, Pinhole camera) {
+	public void buttonClicked(/**Point eventPoint,*/ Integer button, int numberOfClicks) {
+		Pinhole camera = scene.pinhole();
 		if(numberOfClicks != 2)
 			return;
 		switch (button) {
@@ -982,49 +1040,21 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	}
 	
 	/**
-	 * Protected method that simply calls {@code startAction(action, true)}.
-	 * 
-	 * @see #startAction(DeviceAction.MouseAction, boolean)
-	 */
-	/**
-	protected void startAction(AbstractScene.DeviceAction action) {
-		startAction(action, true);
-	}
-	*/
-	
-	/**
 	 * Protected internal method used to handle mouse actions.
 	 */
-	public void startAction(AbstractScene.DeviceAction act, boolean withConstraint) {
-		action = act;
-		
-		if( ( scene.is2D() ) && ( !action.is2D() ) )
+	//TODO should receive action and device and should call beginInteraction
+	public void beginAction(AbstractScene.DeviceAction act) {
+		if( ( scene.is2D() ) && ( !act.is2D() ) )
 			return;
-
-		if (withConstraint)
-			prevConstraint = null;
-		else {
-			prevConstraint = constraint();
-			setConstraint(null);
-		}
-
-		switch (action) {		
-		case SCREEN_TRANSLATE:
-			dirIsFixed = false;
-		case ZOOM:		
-		case TRANSLATE:
-			deviceSpeed = 0.0f;
-			stopTossing();
-			break;
-		case ROTATE:
-		case CAD_ROTATE:
-		case SCREEN_ROTATE:
-			deviceSpeed = 0.0f;
-			stopSpinning();
-			break;
-		default:
-			break;
-		}
+		action = act;
+	}
+	
+	public void execAction(AbstractScene.DeviceAction act) {
+		
+	}
+	
+	public void endAction() {
+		
 	}
 
 	/**
@@ -1037,10 +1067,36 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #endAction(Point, Camera)
 	 */
 	@Override
-	public void initAction(Point eventPoint, Pinhole camera) {
-		if (grabsDevice())
-			keepsGrabbingDevice = true;
-
+	public void beginInteraction(Point eventPoint) {
+		/**
+		if (scene.drawIsConstrained())
+			prevConstraint = null;
+		else {
+			prevConstraint = constraint();
+			setConstraint(null);
+		}
+		// */
+		
+		switch (action) {		
+		case SCREEN_TRANSLATE:
+			dirIsFixed = false;
+		case ZOOM:		
+		case TRANSLATE:
+			deviceSpeed = 0.0f;
+			stopTossing();
+			break;
+		case ROTATE:
+		case CAD_ROTATE:
+		case SCREEN_ROTATE:
+			deviceSpeed = 0.0f;
+			stopDampedSpinning();
+			stopSpinning();
+			break;
+		default:
+			break;
+		}
+		
+		if (grabsCursor()) keepsGrabbingDevice = true;
 		prevPos = pressPos = eventPoint;
 	}
 
@@ -1058,14 +1114,14 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see remixlab.remixcam.core.Camera#fieldOfView()
 	 */
 	@Override
-	public void execAction(Point eventPoint, Pinhole camera) {
+	public void performInteraction(Point eventPoint) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
 		if( scene.is2D() )
-			execAction2D(eventPoint, (ViewWindow) camera);
+			execAction2D(eventPoint, (ViewWindow) scene.pinhole());
 		else
-			execAction3D(eventPoint, (Camera) camera);
+			execAction3D(eventPoint, (Camera) scene.pinhole());
 	}
 	
 	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {
@@ -1084,17 +1140,18 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 				// And then down to frame
 				if (referenceFrame() != null)
 					trans = referenceFrame().transformOf(trans);
-				
+								
+				setTossingDirection(trans);
 				computeDeviceSpeed(eventPoint);
-				setTossingDirection(trans);			
 				toss();
+				//startTossing(eventPoint);
 				
 				prevPos = eventPoint;
 			
 			break;
 		}
 
-		case ZOOM: {			
+		case ZOOM: {
 			float delta = ((float)eventPoint.y - (float)prevPos.y);
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
@@ -1115,10 +1172,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			else
 				rot = new Rotation(prev_angle - angle);
 			
-			// #CONNECTION# These two methods should go together (spinning detection and activation)
-			computeDeviceSpeed(eventPoint);
+			// #CONNECTION# These two methods should go together (spinning detection and activation)			
 			setSpinningQuaternion(rot);
-			spin();
+			//computeDeviceSpeed(eventPoint);
+			//spin();
+			startDampedSpinning(eventPoint);
 			prevPos = eventPoint;
 			break;			
 		}
@@ -1135,10 +1193,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 				// And then down to frame
 				if (referenceFrame() != null)
 					trans = referenceFrame().transformOf(trans);
-
+				
+				setTossingDirection(trans);
 				computeDeviceSpeed(eventPoint);
-				setTossingDirection(trans);			
 				toss();
+				//startTossing(eventPoint);
 				
 				prevPos = eventPoint;
 			
@@ -1153,10 +1212,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			if ( isFlipped() )
 				rot.negate();	
 			
-			// #CONNECTION# These two methods should go together (spinning detection and activation)
-			computeDeviceSpeed(eventPoint);
+			// #CONNECTION# These two methods should go together (spinning detection and activation)			
 			setSpinningQuaternion(rot);
-			spin();
+			//computeDeviceSpeed(eventPoint);
+			//spin();
+			startDampedSpinning(eventPoint);
 			prevPos = eventPoint;
 		}
 
@@ -1208,21 +1268,25 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);			
 			
+			setTossingDirection(trans);
 			computeDeviceSpeed(eventPoint);
-			setTossingDirection(trans);			
 			toss();
+			//startTossing(eventPoint);
 			
 			prevPos = eventPoint;						
 			break;
 		}
 
 		case ZOOM: {			
-			float delta = ((float)eventPoint.y - (float)prevPos.y);
+		  //TODO 1-DOF -> wheel
+			//float delta = -rotation * wheelSensitivity();
+			float delta = ((float)eventPoint.y - (float)prevPos.y);		
+			
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
 			else
 				inverseScale(1 + Math.abs(delta) / (float) scene.height());			
-			prevPos = eventPoint;					
+			prevPos = eventPoint;				
 			break;
 		}
 
@@ -1239,10 +1303,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			else
 				rot = new Quaternion(axis, prev_angle - angle);					
 			
-			// #CONNECTION# These two methods should go together (spinning detection and activation)
-			computeDeviceSpeed(eventPoint);
+			// #CONNECTION# These two methods should go together (spinning detection and activation)			
 			setSpinningQuaternion(rot);
-			spin();
+			//computeDeviceSpeed(eventPoint);
+			//spin();
+			startDampedSpinning(eventPoint);
 			prevPos = eventPoint;
 			break;			
 		}
@@ -1294,10 +1359,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
-
+			
+			setTossingDirection(trans);
 			computeDeviceSpeed(eventPoint);
-			setTossingDirection(trans);			
 			toss();
+			//startTossing(eventPoint);
 			
 			prevPos = eventPoint;			
 			break;
@@ -1306,10 +1372,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		case ROTATE: {
 			Vector3D trans = camera.projectedCoordinatesOf(position());
 			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y, trans.x(), trans.y(), camera);
-			rot = iFrameQuaternion(rot, camera);
-			computeDeviceSpeed(eventPoint);
+			rot = iFrameQuaternion(rot, camera);			
 			setSpinningQuaternion(rot);
-			spin();
+		  //computeDeviceSpeed(eventPoint);
+			//spin();
+			startDampedSpinning(eventPoint);			
 			prevPos = eventPoint;
 			break;			
 		}
@@ -1337,21 +1404,32 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * when the button is released. Press the rotate button again to stop
 	 * spinning.
 	 * 
-	 * @see #startSpinning(int)
+	 * @see #startDampedSpinning(int)
 	 * @see #isSpinning()
 	 */
   @Override
-	public void endAction(Point event, Pinhole camera) {
+	public void endInteraction(Point event) {
 		keepsGrabbingDevice = false;
+		
+		stopDampedSpinning();
 
+		/**
 		if (prevConstraint != null)
 			setConstraint(prevConstraint);
+		*/
 		
+		//TODO debug
+		//System.out.println("mouse speed: " + deviceSpeed + " delay: " + delay);
+		
+		// /**
 		if (((action == AbstractScene.DeviceAction.ROTATE) || (action == AbstractScene.DeviceAction.SCREEN_ROTATE) || (action == AbstractScene.DeviceAction.CAD_ROTATE) )	&& (deviceSpeed >= spinningSensitivity()))
 			startSpinning(delay);
+		//*/
 		
+		/**
 		if (((action == AbstractScene.DeviceAction.TRANSLATE) || (action == AbstractScene.DeviceAction.SCREEN_TRANSLATE) ) && (deviceSpeed >= tossingSensitivity()) )
 			startTossing(delay);
+		//*/
 
 		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 	}
@@ -1364,12 +1442,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * 
 	 * @see #setWheelSensitivity(float)
 	 */
+  /**
 	@Override
-	public void wheelMoved(float rotation, Pinhole camera) {
+	public void wheelMoved(float rotation) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
-		if (action == AbstractScene.DeviceAction.ZOOM) {			
+		if (action == AbstractScene.DeviceAction.ZOOM) {
 			float delta = -rotation * wheelSensitivity();
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
@@ -1378,11 +1457,12 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 
 		// #CONNECTION# startAction should always be called before
-		if (prevConstraint != null)
-			setConstraint(prevConstraint);
+		//if (prevConstraint != null)
+			//setConstraint(prevConstraint);
 
 		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
 	}
+	*/
 	
 	public boolean isFlipped() {
 		return ( scene.isRightHanded() && !isInverted() ) || ( scene.isLeftHanded() && isInverted() );
@@ -1393,6 +1473,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * any method which wants to use mouse speed. Currently used to trigger
 	 * spinning in {@link #endAction(Point, Camera)}.
 	 */
+	//TODO should go in HIDevice
 	protected void computeDeviceSpeed(Point eventPoint) {
 		float dist = (float) Point.distance(eventPoint.x, eventPoint.y, prevPos.getX(), prevPos.getY());
 
@@ -1416,10 +1497,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * vertical. Returns 0 if this could not be determined yet (perfect diagonal
 	 * motion, rare).
 	 */
+  //TODO should go in HIDevice
 	protected int deviceOriginalDirection(Point eventPoint) {
 		if (!dirIsFixed) {
-			Point delta = new Point((eventPoint.x - pressPos.x),
-					(eventPoint.y - pressPos.y));
+			Point delta = new Point((eventPoint.x - pressPos.x), (eventPoint.y - pressPos.y));
 			dirIsFixed = Math.abs((int)delta.x) != Math.abs((int)delta.y);
 			horiz = Math.abs((int)delta.x) > Math.abs((int)delta.y);
 		}

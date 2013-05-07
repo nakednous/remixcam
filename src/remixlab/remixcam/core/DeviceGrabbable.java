@@ -27,6 +27,8 @@ package remixlab.remixcam.core;
 
 import remixlab.remixcam.geom.Point;
 
+//TODO event point should bew replaced by HIDeviceEvent
+
 
 /**
  * Interface for objects that grab mouse focus in a Scene.
@@ -38,13 +40,13 @@ import remixlab.remixcam.geom.Point;
  * All the created MouseGrabbers are grouped in a mouse grabber pool. The Scene
  * parses this pool, calling all the MouseGrabbers'
  * {@link #checkIfGrabsDevice(int, int, Camera)} methods that
- * {@link #setGrabsDevice(boolean)} if desired (method calls should actually be
+ * {@link #setGrabsCursor(boolean)} if desired (method calls should actually be
  * performed on concrete class instances such as InteractiveFrame).
  * <p>
- * When a MouseGrabber {@link #grabsDevice()}, it becomes the 
+ * When a MouseGrabber {@link #grabsCursor()}, it becomes the 
  * {@link remixlab.remixcam.core.AbstractScene#deviceGrabber()}. All the mouse events are then
  * transmitted to it instead of being normally processed. This continues while
- * {@link #grabsDevice()} (updated using
+ * {@link #grabsCursor()} (updated using
  * {@link #checkIfGrabsDevice(int, int, Camera)}) returns {@code true}.
  * <p>
  * If you want to (temporarily) disable a specific MouseGrabbers, you can remove
@@ -54,14 +56,14 @@ import remixlab.remixcam.geom.Point;
 public interface DeviceGrabbable {
 	/**
 	 * Called by the Scene before it tests if the MouseGrabber
-	 * {@link #grabsDevice()}. Should {@link #setGrabsDevice(boolean)} according to
+	 * {@link #grabsCursor()}. Should {@link #setGrabsCursor(boolean)} according to
 	 * the mouse position.
 	 * <p>
 	 * This is the core method of the MouseGrabber. Its goal is to update the
-	 * {@link #grabsDevice()} flag according to the mouse and MouseGrabber current
-	 * positions, using {@link #setGrabsDevice(boolean)}.
+	 * {@link #grabsCursor()} flag according to the mouse and MouseGrabber current
+	 * positions, using {@link #setGrabsCursor(boolean)}.
 	 * <p>
-	 * {@link #grabsDevice()} is usually set to {@code true} when the mouse cursor
+	 * {@link #grabsCursor()} is usually set to {@code true} when the mouse cursor
 	 * is close enough to the MouseGrabber position. It should also be set to
 	 * {@code false} when the mouse cursor leaves this region in order to release
 	 * the mouse focus.
@@ -86,28 +88,28 @@ public interface DeviceGrabbable {
 	 * {@code setGrabsMouse((PApplet.abs(x-proj.x) < 5) && (PApplet.(y-proj.y) <
 	 * 2)); // Rectangular region} <br>
 	 */
-	void checkIfGrabsDevice(int x, int y, Pinhole vp);
+	void checkIfGrabsCursor(int x, int y);
 
 	/**
 	 * Should return true when the MouseGrabbable grabs the Scene mouse events.
 	 */
-	boolean grabsDevice();
+	boolean grabsCursor();
 	
 	/**
-	 * Should sets the {@link #grabsDevice()} flag. Normally used by
+	 * Should sets the {@link #grabsCursor()} flag. Normally used by
 	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
 	 *  
 	 * @param grabs flag
 	 */
-	void setGrabsDevice(boolean grabs);
+	void setGrabsCursor(boolean grabs);
 	
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and a mouse button is clicked.
+	 * Callback method called when the MouseGrabber {@link #grabsCursor()} and a mouse button is clicked.
 	 */
-	void buttonClicked(/**Point eventPoint,*/ Integer button, int numberOfClicks, Pinhole vp);
+	void buttonClicked(/**Point eventPoint,*/ Integer button, int numberOfClicks);
 
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and a
+	 * Callback method called when the MouseGrabber {@link #grabsCursor()} and a
 	 * mouse button is pressed.
 	 * <p>
 	 * The MouseGrabber will typically start an action or change its state when a
@@ -116,28 +118,28 @@ public interface DeviceGrabbable {
 	 * {@link #endAction(Point, Camera)} (called when the mouse button is
 	 * released) will terminate this action.
 	 */
-	void initAction(Point eventPoint, Pinhole vp);
+	void beginInteraction(Point eventPoint);
 
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and the
+	 * Callback method called when the MouseGrabber {@link #grabsCursor()} and the
 	 * mouse is moved while a button is pressed.
 	 * <p>
 	 * This method will typically update the state of the MouseGrabber from the
 	 * mouse displacement. See the {@link #initAction(Point, Camera)}
 	 * documentation for details.
 	 */
-	void execAction(Point eventPoint, Pinhole vp);
+	void performInteraction(Point eventPoint);
 
 	/**
 	 * Mouse release event callback method.
 	 * 
 	 * @see #initAction(Point, Camera)
 	 */
-	void endAction(Point eventPoint, Pinhole vp);
+	void endInteraction(Point eventPoint);
 
 	/**
 	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and the
 	 * mouse wheel is used.
 	 */
-	void wheelMoved(float rotation, Pinhole vp);
+	//void wheelMoved(float rotation);
 }
