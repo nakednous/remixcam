@@ -110,22 +110,22 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		// 1. Bypass -> DLEventHandler methods are called directly, e.g., handleKeyEvent and handleMouseEvent
 		// 2. Remix events are enqueued first and then passed to the DLEventHandler @postDraw
 		public void keyEvent(KeyEvent e) {
+			//TODO: may be broken if p5 > 2b8)
 			if(scene.keyboardIsHandled() && scene.currentCameraProfile() != null) {
-				//handleKeyEvent(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
-				//new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode());
-				
-				keyHandled = false;				
-				//handleKeyEvent(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
-				
-				// /**				
-				if( e.getAction() ==  KeyEvent.TYPE)
+				if(e.getAction() == KeyEvent.TYPE)
+					handleKeyEvent(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
+					
+				/**
+				keyHandled = false;
+				if( e.getAction() == KeyEvent.TYPE)
 					keyChar(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
 				else
 					if (e.getAction() == KeyEvent.RELEASE)
 						keyCoded(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
 				// */
 				
-				// /**
+				/**
+				//debug:
 				switch (e.getAction() ) {
 				case KeyEvent.PRESS:
 					System.out.print("KeyPressed: ");

@@ -38,7 +38,7 @@ public class EventDispatcher implements Constants {
 	// /**
 	public void handle(DLEvent e) {		
 		if( e instanceof DLKeyEvent ) {
-			//handleKeyEvent((DLKeyEvent) e);
+			handleKeyEvent((DLKeyEvent) e);
 		}
 		if( e instanceof HIDeviceEvent ) {
 			//handleMouseEvent((DLMouseEvent) e); 
@@ -54,18 +54,20 @@ public class EventDispatcher implements Constants {
 	 * @see remixlab.proscene.Scene#keyboardIsHandled()
 	 * @see remixlab.proscene.Scene#enableKeyboardHandling(boolean)
 	 */
-	public void handleKeyEvent(DLKeyEvent e) {		
-		if (scene.currentCameraProfile() != null)
-			keyHandled = keyCharCameraKeyboardAction(e);
-		if (!keyHandled)
-			keyHandled = keyCharKeyboardAction(e);		
-		if(keyHandled)
-			return;		
+	public boolean handleKeyEvent(DLKeyEvent e) {
+		boolean handled = false;
+		if (scene.currentCameraProfile() == null)
+			return handled;
 		
-		if (scene.currentCameraProfile() != null)
-			keyHandled = keyCodedCameraKeyboardAction(e);
-		if (!keyHandled)
-			keyCodedKeyboardAction(e);		
+		handled = keyCharCameraKeyboardAction(e);
+		if (!handled)
+			handled = keyCharKeyboardAction(e);		
+		if (!handled)
+			handled = keyCodedCameraKeyboardAction(e);
+		if (!handled)
+			keyCodedKeyboardAction(e);
+		
+		return handled;
 	}
 	// */
 	
