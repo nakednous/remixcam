@@ -23,10 +23,11 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.core;
+package remixlab.remixcam.device;
 
 import java.util.ArrayList;
 
+import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.geom.*;
 
 /**

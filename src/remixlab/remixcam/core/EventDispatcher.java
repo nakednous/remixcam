@@ -3,6 +3,7 @@ package remixlab.remixcam.core;
 import remixlab.remixcam.core.AbstractScene.*;
 import remixlab.remixcam.event.DLEvent;
 import remixlab.remixcam.event.DLKeyEvent;
+import remixlab.remixcam.event.DLKeyboardAction;
 import remixlab.remixcam.event.DLMouseEvent;
 import remixlab.remixcam.event.HIDeviceEvent;
 import remixlab.remixcam.geom.Point;
@@ -149,7 +150,7 @@ public class EventDispatcher implements Constants {
 			}
 		}
 		
-		KeyboardAction kba = null;
+		DLKeyboardAction kba = null;
 		kba = scene.shortcut(e.getKey());
 		if (kba == null)
 			return false;
@@ -214,7 +215,7 @@ public class EventDispatcher implements Constants {
 			}
 		}		
 		// 2. General actions
-		KeyboardAction kba = null;
+		DLKeyboardAction kba = null;
 		kba = scene.shortcut( e.getModifiers(), e.getKeyCode() );
 		if (kba == null)
 			return false;

@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import remixlab.remixcam.device.HIDevice;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.profile.*;
@@ -38,57 +39,6 @@ import remixlab.remixcam.renderer.*;
 import remixlab.remixcam.util.*;
 
 public abstract class AbstractScene implements Constants {
-	/**
-	 * Defines the different actions that can be associated with a specific
-	 * keyboard key.
-	 */
-	public enum KeyboardAction {
-		/** Toggles the display of the world axis. */
-		DRAW_AXIS("Toggles the display of the world axis", true),
-		/** Toggles the display of the XY grid. */
-		DRAW_GRID("Toggles the display of the XY grid", true),
-		/** Cycles to the registered camera profiles. */
-		CAMERA_PROFILE("Cycles to the registered camera profiles", true),
-		/** Toggles camera type (orthographic or perspective. */
-		CAMERA_TYPE("Toggles camera type (orthographic or perspective)", false),
-		/** Toggles camera kind (proscene or standard). */
-		CAMERA_KIND("Toggles camera kind (proscene or standard)", false),
-		/** Toggles animation. */
-		ANIMATION("Toggles animation", true),
-		/** Set the arcball reference point from the pixel under the mouse. */
-		ARP_FROM_PIXEL("Set the arcball reference point from the pixel under the mouse", true),
-		/** Reset the arcball reference point to the 3d frame world origin. */
-		RESET_ARP("Reset the arcball reference point to the 3d frame world origin", true),
-		/** Displays the global help. */
-		GLOBAL_HELP("Displays the global help", true),
-		/** Displays the current camera profile help. */
-		CURRENT_CAMERA_PROFILE_HELP("Displays the current camera profile help", true),
-		/** Toggles the key frame camera paths (if any) for edition. */
-		EDIT_CAMERA_PATH("Toggles the key frame camera paths (if any) for edition", true),
-		/** Toggle interactivity between camera and interactive frame (if any). */
-		FOCUS_INTERACTIVE_FRAME("Toggle interactivity between camera and interactive frame (if any)", true),
-		/** Toggle interactive frame selection region drawing. */
-		DRAW_FRAME_SELECTION_HINT("Toggle interactive frame selection region drawing", true),
-		/** Toggles on and off frame constraints (if any). */
-		CONSTRAIN_FRAME("Toggles on and off frame constraints (if any)", true);
-		
-		private String description;
-		private boolean twoD;
-		
-		KeyboardAction(String description, boolean td) {
-       this.description = description;
-       this.twoD = td;
-    }
-    
-    public String description() {
-      return description;
-    }
-    
-    public boolean is2D() {
-    	return twoD;
-    }
-	}
-
 	/**
 	 * Defines the different camera actions that can be associated with a specific
 	 * keyboard key. Actions are defined here, but bindings are defined at the CameraProfile level,
@@ -316,7 +266,7 @@ public abstract class AbstractScene implements Constants {
 	protected CameraProfile currentCameraProfile;
 	
   //S h o r t c u t k e y s
-	protected Bindings<KeyboardShortcut, KeyboardAction> gProfile;
+	protected Bindings<KeyboardShortcut, DLKeyboardAction> gProfile;
 	
   //K E Y F R A M E S
 	protected Bindings<Integer, Integer> pathKeys;
@@ -375,7 +325,7 @@ public abstract class AbstractScene implements Constants {
 		setDottedGrid(true);
 		setRightHanded();
 		
-		gProfile = new Bindings<KeyboardShortcut, KeyboardAction>(this);
+		gProfile = new Bindings<KeyboardShortcut, DLKeyboardAction>(this);
 		pathKeys = new Bindings<Integer, Integer>(this);		
 		setDefaultShortcuts();
 	}
@@ -424,7 +374,7 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Internal method. Handles the different global keyboard actions.
 	 */
-	public void handleKeyboardAction(KeyboardAction id) {			
+	public void handleKeyboardAction(DLKeyboardAction id) {			
 		//if( !keyboardIsHandled() )
 			//return;
 		switch (id) {
@@ -806,9 +756,9 @@ public abstract class AbstractScene implements Constants {
    * @param key shortcut
    * @param action keyboard action
    */
-	public void setShortcut(Character key, KeyboardAction action) {
+	public void setShortcut(Character key, DLKeyboardAction action) {
 		if ( isKeyInUse(key) ) {
-			KeyboardAction a = shortcut(key);
+			DLKeyboardAction a = shortcut(key);
 			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
 		}
 		gProfile.setBinding(new KeyboardShortcut(key), action);
@@ -816,31 +766,31 @@ public abstract class AbstractScene implements Constants {
 	
   /**
    * Defines a global keyboard shortcut to bind the given action. High-level version
-   * of {@link #setShortcut(Integer, Integer, KeyboardAction)}.
+   * of {@link #setShortcut(Integer, Integer, DLKeyboardAction)}.
    * 
    * @param mask modifier mask defining the shortcut
    * @param key character (internally converted to a coded key) defining the shortcut
    * @param action keyboard action
    * 
-   * @see #setShortcut(Integer, Integer, KeyboardAction)
+   * @see #setShortcut(Integer, Integer, DLKeyboardAction)
    */
-	public void setShortcut(Integer mask, Character key, KeyboardAction action) {
+	public void setShortcut(Integer mask, Character key, DLKeyboardAction action) {
 		setShortcut(mask, DLKeyEvent.getKeyCode(key), action);
 	}
 	
   /**
    * Defines a global keyboard shortcut to bind the given action. High-level version
-   * of {@link #setShortcut(Integer, Character, KeyboardAction)}.
+   * of {@link #setShortcut(Integer, Character, DLKeyboardAction)}.
    * 
    * @param mask modifier mask defining the shortcut
    * @param vKey coded key defining the shortcut
    * @param action keyboard action
    * 
-   * @see #setShortcut(Integer, Character, KeyboardAction)
+   * @see #setShortcut(Integer, Character, DLKeyboardAction)
    */
-	public void setShortcut(Integer mask, Integer vKey, KeyboardAction action) {
+	public void setShortcut(Integer mask, Integer vKey, DLKeyboardAction action) {
 		if ( isKeyInUse(mask, vKey) ) {
-			KeyboardAction a = shortcut(mask, vKey);
+			DLKeyboardAction a = shortcut(mask, vKey);
 			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
 		}
 		gProfile.setBinding(new KeyboardShortcut(mask, vKey), action);
@@ -852,9 +802,9 @@ public abstract class AbstractScene implements Constants {
 	 * @param vKey coded key defining the shortcut
 	 * @param action keyboard action
 	 */
-	public void setShortcut(Integer vKey, KeyboardAction action) {
+	public void setShortcut(Integer vKey, DLKeyboardAction action) {
 		if ( isKeyInUse(vKey) ) {
-			KeyboardAction a = shortcut(vKey);
+			DLKeyboardAction a = shortcut(vKey);
 			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
 		}
 		gProfile.setBinding(new KeyboardShortcut(vKey), action);
@@ -916,7 +866,7 @@ public abstract class AbstractScene implements Constants {
 	 * 
 	 * @param key shortcut
 	 */
-	public KeyboardAction shortcut(Character key) {
+	public DLKeyboardAction shortcut(Character key) {
 		return gProfile.binding(new KeyboardShortcut(key));
 	}
 	
@@ -929,7 +879,7 @@ public abstract class AbstractScene implements Constants {
    * 
    * @see #shortcut(Integer, Integer)
    */
-	public KeyboardAction shortcut(Integer mask, Character key) {
+	public DLKeyboardAction shortcut(Integer mask, Character key) {
 		return shortcut(mask, DLKeyEvent.getKeyCode(key));
 	}
 
@@ -942,7 +892,7 @@ public abstract class AbstractScene implements Constants {
    * 
    * @see #shortcut(Integer, Character)
    */
-	public KeyboardAction shortcut(Integer mask, Integer vKey) {
+	public DLKeyboardAction shortcut(Integer mask, Integer vKey) {
 		return gProfile.binding(new KeyboardShortcut(mask, vKey));
 	}
 
@@ -951,7 +901,7 @@ public abstract class AbstractScene implements Constants {
 	 * 
 	 * @param vKey virtual coded-key defining the shortcut
 	 */
-	public KeyboardAction shortcut(Integer vKey) {
+	public DLKeyboardAction shortcut(Integer vKey) {
 		return gProfile.binding(new KeyboardShortcut(vKey));
 	}
 
@@ -1002,7 +952,7 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Returns true if there is a global keyboard shortcut for the given action.
 	 */
-	public boolean isActionBinded(KeyboardAction action) {
+	public boolean isActionBinded(DLKeyboardAction action) {
 		return gProfile.isActionMapped(action);
 	}
 	
@@ -1067,13 +1017,13 @@ public abstract class AbstractScene implements Constants {
 	 * Default global keyboard shortcuts are:
 	 * <p>
 	 * <ul>
-	 * <li><b>'a'</b>: {@link remixlab.proscene.Scene.KeyboardAction#DRAW_AXIS}.
-	 * <li><b>'e'</b>: {@link remixlab.proscene.Scene.KeyboardAction#CAMERA_TYPE}.
-	 * <li><b>'g'</b>: {@link remixlab.proscene.Scene.KeyboardAction#DRAW_GRID}.
-	 * <li><b>'h'</b>: {@link remixlab.proscene.Scene.KeyboardAction#GLOBAL_HELP}
-	 * <li><b>'H'</b>: {@link remixlab.proscene.Scene.KeyboardAction#CURRENT_CAMERA_PROFILE_HELP}
-	 * <li><b>'r'</b>: {@link remixlab.proscene.Scene.KeyboardAction#EDIT_CAMERA_PATH}.
-	 * <li><b>space bar</b>: {@link remixlab.proscene.Scene.KeyboardAction#CAMERA_PROFILE}.
+	 * <li><b>'a'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#DRAW_AXIS}.
+	 * <li><b>'e'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#CAMERA_TYPE}.
+	 * <li><b>'g'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#DRAW_GRID}.
+	 * <li><b>'h'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#GLOBAL_HELP}
+	 * <li><b>'H'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#CURRENT_CAMERA_PROFILE_HELP}
+	 * <li><b>'r'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#EDIT_CAMERA_PATH}.
+	 * <li><b>space bar</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#CAMERA_PROFILE}.
 	 * </ul> 
 	 * <p>
 	 * Default key-frame shortcuts keys are:
@@ -1085,13 +1035,13 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void setDefaultShortcuts() {
 		// D e f a u l t s h o r t c u t s		
-		setShortcut('a', KeyboardAction.DRAW_AXIS);
-		setShortcut('g', KeyboardAction.DRAW_GRID);
-		setShortcut(' ', KeyboardAction.CAMERA_PROFILE);
-		setShortcut('e', KeyboardAction.CAMERA_TYPE);		
-		setShortcut('h', KeyboardAction.GLOBAL_HELP);
-		setShortcut('H', KeyboardAction.CURRENT_CAMERA_PROFILE_HELP);
-		setShortcut('r', KeyboardAction.EDIT_CAMERA_PATH);
+		setShortcut('a', DLKeyboardAction.DRAW_AXIS);
+		setShortcut('g', DLKeyboardAction.DRAW_GRID);
+		setShortcut(' ', DLKeyboardAction.CAMERA_PROFILE);
+		setShortcut('e', DLKeyboardAction.CAMERA_TYPE);		
+		setShortcut('h', DLKeyboardAction.GLOBAL_HELP);
+		setShortcut('H', DLKeyboardAction.CURRENT_CAMERA_PROFILE_HELP);
+		setShortcut('r', DLKeyboardAction.EDIT_CAMERA_PATH);
 
 		// K e y f r a m e s s h o r t c u t k e y s
 		setAddKeyFrameKeyboardModifier(CTRL);
@@ -1226,7 +1176,7 @@ public abstract class AbstractScene implements Constants {
 	public String globalHelp() {
 		String description = new String();
 		description += "GLOBAL keyboard shortcuts\n";
-		for (Entry<KeyboardShortcut, AbstractScene.KeyboardAction> entry : gProfile.map().entrySet()) {			
+		for (Entry<KeyboardShortcut, DLKeyboardAction> entry : gProfile.map().entrySet()) {			
 			Character space = ' ';
 			if (!entry.getKey().description().equals(space.toString())) 
 				description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";
