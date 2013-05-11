@@ -151,7 +151,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	// MouseGrabber
 	protected boolean keepsGrabbingDevice;
 
-	protected AbstractScene.DeviceAction action;
+	protected DLDeviceAction action;
 	//TODO define if this shpuld go
 	//protected Constraint prevConstraint; // When manipulation is without Constraint.
 	// Previous mouse position (used for incremental updates) and mouse press position.
@@ -180,7 +180,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		super(scn.is3D());		
 		scene = scn;		
 		
-		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
+		action = DLDeviceAction.NO_DEVICE_ACTION;
 		horiz = true;
 
 		addInDeviceGrabberPool();
@@ -322,7 +322,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	public InteractiveFrame(AbstractScene scn, InteractiveCameraFrame iFrame) {
 		super(iFrame.rotation(), iFrame.translation(), iFrame.scaling());
 		scene = scn;
-		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
+		action = DLDeviceAction.NO_DEVICE_ACTION;
 		horiz = true;
 
 		addInDeviceGrabberPool();
@@ -736,7 +736,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 */
 	//TODO how does this fit new model? Maire is using it
 	public boolean isInInteraction() {
-		return action != AbstractScene.DeviceAction.NO_DEVICE_ACTION;
+		return action != DLDeviceAction.NO_DEVICE_ACTION;
 	}
 	
 	public final void stopSpinning() {
@@ -1043,13 +1043,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * Protected internal method used to handle mouse actions.
 	 */
 	//TODO should receive action and device and should call beginInteraction
-	public void beginAction(AbstractScene.DeviceAction act) {
+	public void beginAction(DLDeviceAction act) {
 		if( ( scene.is2D() ) && ( !act.is2D() ) )
 			return;
 		action = act;
 	}
 	
-	public void execAction(AbstractScene.DeviceAction act) {
+	public void execAction(DLDeviceAction act) {
 		
 	}
 	
@@ -1126,7 +1126,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	
 	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {
 		int deltaY = 0;
-		if(action != AbstractScene.DeviceAction.NO_DEVICE_ACTION) {
+		if(action != DLDeviceAction.NO_DEVICE_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
 			if( scene.isRightHanded() )
 				deltaY = -deltaY;
@@ -1234,7 +1234,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	
   protected void execAction3D(Point eventPoint, Camera camera) {
   	int deltaY = 0;
-		if(action != AbstractScene.DeviceAction.NO_DEVICE_ACTION) {
+		if(action != DLDeviceAction.NO_DEVICE_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
 			if( scene.isRightHanded() )
 				deltaY = -deltaY;
@@ -1422,23 +1422,23 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		//System.out.println("mouse speed: " + deviceSpeed + " delay: " + delay);
 		
 		// /**
-		if (((action == AbstractScene.DeviceAction.ROTATE) || (action == AbstractScene.DeviceAction.SCREEN_ROTATE) || (action == AbstractScene.DeviceAction.CAD_ROTATE) )	&& (deviceSpeed >= spinningSensitivity()))
+		if (((action == DLDeviceAction.ROTATE) || (action == DLDeviceAction.SCREEN_ROTATE) || (action == DLDeviceAction.CAD_ROTATE) )	&& (deviceSpeed >= spinningSensitivity()))
 			startSpinning(delay);
 		//*/
 		
 		/**
-		if (((action == AbstractScene.DeviceAction.TRANSLATE) || (action == AbstractScene.DeviceAction.SCREEN_TRANSLATE) ) && (deviceSpeed >= tossingSensitivity()) )
+		if (((action == DLDeviceAction.TRANSLATE) || (action == DLDeviceAction.SCREEN_TRANSLATE) ) && (deviceSpeed >= tossingSensitivity()) )
 			startTossing(delay);
 		//*/
 
-		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
+		action = DLDeviceAction.NO_DEVICE_ACTION;
 	}
 
 	/**
 	 * Overloading of
 	 * {@link remixlab.remixcam.core.DeviceGrabbable#wheelMoved(int, Camera)}.
 	 * <p>
-	 * Using the wheel is equivalent to a {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM}.
+	 * Using the wheel is equivalent to a {@link remixlab.remixcam.core.DLDeviceAction#ZOOM}.
 	 * 
 	 * @see #setWheelSensitivity(float)
 	 */
@@ -1448,7 +1448,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
-		if (action == AbstractScene.DeviceAction.ZOOM) {
+		if (action == DLDeviceAction.ZOOM) {
 			float delta = -rotation * wheelSensitivity();
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
@@ -1460,7 +1460,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		//if (prevConstraint != null)
 			//setConstraint(prevConstraint);
 
-		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
+		action = DLDeviceAction.NO_DEVICE_ACTION;
 	}
 	*/
 	

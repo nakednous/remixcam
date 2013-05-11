@@ -28,6 +28,7 @@ package remixlab.remixcam.core;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
+import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 
 /**
@@ -180,13 +181,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	
 	@Override
 	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {
-		if ((action == AbstractScene.DeviceAction.MOVE_FORWARD)
-				|| (action == AbstractScene.DeviceAction.MOVE_BACKWARD)
-				|| (action == AbstractScene.DeviceAction.DRIVE)
-				|| (action == AbstractScene.DeviceAction.LOOK_AROUND)
-				|| (action == AbstractScene.DeviceAction.ROLL)
-				|| (action == AbstractScene.DeviceAction.ZOOM_ON_REGION)
-				|| (action == AbstractScene.DeviceAction.NO_DEVICE_ACTION))
+		if ((action == DLDeviceAction.MOVE_FORWARD)
+				|| (action == DLDeviceAction.MOVE_BACKWARD)
+				|| (action == DLDeviceAction.DRIVE)
+				|| (action == DLDeviceAction.LOOK_AROUND)
+				|| (action == DLDeviceAction.ROLL)
+				|| (action == DLDeviceAction.ZOOM_ON_REGION)
+				|| (action == DLDeviceAction.NO_DEVICE_ACTION))
 			super.execAction2D(eventPoint, viewWindow);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
@@ -287,13 +288,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	
 	@Override
 	protected void execAction3D(Point eventPoint, Camera camera) {
-		if ((action == AbstractScene.DeviceAction.MOVE_FORWARD)
-				|| (action == AbstractScene.DeviceAction.MOVE_BACKWARD)
-				|| (action == AbstractScene.DeviceAction.DRIVE)
-				|| (action == AbstractScene.DeviceAction.LOOK_AROUND)
-				|| (action == AbstractScene.DeviceAction.ROLL)
-				|| (action == AbstractScene.DeviceAction.ZOOM_ON_REGION)
-				|| (action == AbstractScene.DeviceAction.NO_DEVICE_ACTION))
+		if ((action == DLDeviceAction.MOVE_FORWARD)
+				|| (action == DLDeviceAction.MOVE_BACKWARD)
+				|| (action == DLDeviceAction.DRIVE)
+				|| (action == DLDeviceAction.LOOK_AROUND)
+				|| (action == DLDeviceAction.ROLL)
+				|| (action == DLDeviceAction.ZOOM_ON_REGION)
+				|| (action == DLDeviceAction.NO_DEVICE_ACTION))
 			super.execAction3D(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
@@ -457,7 +458,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			return;
 		
 		// Added by pierre: #CONNECTION# seems that startAction should always be called before :)
-		if (action == AbstractScene.DeviceAction.ZOOM_ON_REGION) {
+		if (action == DLDeviceAction.ZOOM_ON_REGION) {
 			// the rectangle needs to be normalized!
 			int w = Math.abs((int) eventPoint.x - (int) pressPos.x);
 			int tlX = (int) pressPos.x < (int) eventPoint.x ? (int) pressPos.x : (int) eventPoint.x;
@@ -480,10 +481,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * .
 	 * <p>
 	 * The wheel behavior depends on the wheel binded action. Current possible
-	 * actions are {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM},
-	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_FORWARD} and
-	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_BACKWARD}.
-	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM} speed depends on
+	 * actions are {@link remixlab.remixcam.core.DLDeviceAction#ZOOM},
+	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_FORWARD} and
+	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_BACKWARD}.
+	 * {@link remixlab.remixcam.core.DLDeviceAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	/**
@@ -534,7 +535,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		if( flyTimerJob.timer() != null )
 			flyTimerJob.runOnce(finalDrawAfterWheelEventDelay);
 
-		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
+		action = DLDeviceAction.NO_DEVICE_ACTION;
 	}
 	*/
 	

@@ -1,24 +1,25 @@
 package remixlab.remixcam.profile;
 
 import remixlab.remixcam.core.AbstractScene;
+import remixlab.remixcam.event.*;
 
 public class ThirdPersonCameraProfile extends CameraProfile {
 
 	public ThirdPersonCameraProfile(AbstractScene scn, String n) {
 		super(scn, n);
-		setFrameMouseBinding(LEFT, AbstractScene.DeviceAction.MOVE_FORWARD);
-		setFrameMouseBinding(CENTER, AbstractScene.DeviceAction.LOOK_AROUND);
-		setFrameMouseBinding(RIGHT, AbstractScene.DeviceAction.MOVE_BACKWARD);
-		setFrameMouseBinding(SHIFT, LEFT, AbstractScene.DeviceAction.ROLL);
-		setFrameMouseBinding(SHIFT, RIGHT, AbstractScene.DeviceAction.DRIVE);
+		setFrameMouseBinding(LEFT, DLDeviceAction.MOVE_FORWARD);
+		setFrameMouseBinding(CENTER, DLDeviceAction.LOOK_AROUND);
+		setFrameMouseBinding(RIGHT, DLDeviceAction.MOVE_BACKWARD);
+		setFrameMouseBinding(SHIFT, LEFT, DLDeviceAction.ROLL);
+		setFrameMouseBinding(SHIFT, RIGHT, DLDeviceAction.DRIVE);
 
-		setShortcut('+', AbstractScene.CameraKeyboardAction.INCREASE_AVATAR_FLY_SPEED);
-		setShortcut('-', AbstractScene.CameraKeyboardAction.DECREASE_AVATAR_FLY_SPEED);
-		setShortcut('a', AbstractScene.CameraKeyboardAction.INCREASE_AZYMUTH);
-		setShortcut('A', AbstractScene.CameraKeyboardAction.DECREASE_AZYMUTH);
-		setShortcut('i', AbstractScene.CameraKeyboardAction.INCREASE_INCLINATION);
-		setShortcut('I', AbstractScene.CameraKeyboardAction.DECREASE_INCLINATION);
-		setShortcut('t', AbstractScene.CameraKeyboardAction.INCREASE_TRACKING_DISTANCE);
-		setShortcut('T', AbstractScene.CameraKeyboardAction.DECREASE_TRACKING_DISTANCE);
+		setShortcut('+', DLCameraKeyboardAction.INCREASE_AVATAR_FLY_SPEED);
+		setShortcut('-', DLCameraKeyboardAction.DECREASE_AVATAR_FLY_SPEED);
+		setShortcut('a', DLCameraKeyboardAction.INCREASE_AZYMUTH);
+		setShortcut('A', DLCameraKeyboardAction.DECREASE_AZYMUTH);
+		setShortcut('i', DLCameraKeyboardAction.INCREASE_INCLINATION);
+		setShortcut('I', DLCameraKeyboardAction.DECREASE_INCLINATION);
+		setShortcut('t', DLCameraKeyboardAction.INCREASE_TRACKING_DISTANCE);
+		setShortcut('T', DLCameraKeyboardAction.DECREASE_TRACKING_DISTANCE);
 	}
 }

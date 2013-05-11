@@ -28,13 +28,8 @@ package remixlab.remixcam.profile;
 import java.util.Map.Entry;
 
 import remixlab.remixcam.core.AbstractScene;
-import remixlab.remixcam.core.AbstractScene.CameraKeyboardAction;
-import remixlab.remixcam.core.AbstractScene.ClickAction;
-import remixlab.remixcam.core.AbstractScene.DeviceAction;
 import remixlab.remixcam.core.Constants;
-import remixlab.remixcam.event.DLEvent;
-import remixlab.remixcam.event.DLKeyEvent;
-import remixlab.remixcam.event.DLMouseEvent;
+import remixlab.remixcam.event.*;
 import remixlab.remixcam.renderer.*;
 
 /**
@@ -253,13 +248,13 @@ public abstract class CameraProfile implements Constants {
 	//public enum Mode {ARCBALL, WHEELED_ARCBALL, CAD, FIRST_PERSON, THIRD_PERSON, CUSTOM}
 	protected String name;
 	protected AbstractScene scene;
-	protected Bindings<KeyboardShortcut, AbstractScene.CameraKeyboardAction> keyboard;
-	protected Bindings<DeviceButtonShortcut, AbstractScene.DeviceAction> cameraActions;
-	protected Bindings<DeviceButtonShortcut, AbstractScene.DeviceAction> frameActions;
+	protected Bindings<KeyboardShortcut, DLCameraKeyboardAction> keyboard;
+	protected Bindings<DeviceButtonShortcut, DLDeviceAction> cameraActions;
+	protected Bindings<DeviceButtonShortcut, DLDeviceAction> frameActions;
 	// C L I C K A C T I O N S
-	protected Bindings<ClickBinding, ClickAction> clickActions;
-	protected Bindings<Integer, AbstractScene.DeviceAction> cameraWheelActions;
-	protected Bindings<Integer, AbstractScene.DeviceAction> frameWheelActions;
+	protected Bindings<ClickBinding, DLClickAction> clickActions;
+	protected Bindings<Integer, DLDeviceAction> cameraWheelActions;
+	protected Bindings<Integer, DLDeviceAction> frameWheelActions;
 	
 	/**
 	 * Convenience constructor that simply calls {@code this(scn, n, Mode.CUSTOM)}.
@@ -292,57 +287,57 @@ public abstract class CameraProfile implements Constants {
 	public CameraProfile(AbstractScene scn, String n) {
 		scene = scn;		
 		name = n;
-		keyboard = new Bindings<KeyboardShortcut, AbstractScene.CameraKeyboardAction>(scene);
-		cameraActions = new Bindings<DeviceButtonShortcut, AbstractScene.DeviceAction>(scene);
-		frameActions = new Bindings<DeviceButtonShortcut, AbstractScene.DeviceAction>(scene);		
-		clickActions = new Bindings<ClickBinding, AbstractScene.ClickAction>(scene);
-		cameraWheelActions = new Bindings<Integer, AbstractScene.DeviceAction>(scene);
-		frameWheelActions = new Bindings<Integer, AbstractScene.DeviceAction>(scene);		
+		keyboard = new Bindings<KeyboardShortcut, DLCameraKeyboardAction>(scene);
+		cameraActions = new Bindings<DeviceButtonShortcut, DLDeviceAction>(scene);
+		frameActions = new Bindings<DeviceButtonShortcut, DLDeviceAction>(scene);		
+		clickActions = new Bindings<ClickBinding, DLClickAction>(scene);
+		cameraWheelActions = new Bindings<Integer, DLDeviceAction>(scene);
+		frameWheelActions = new Bindings<Integer, DLDeviceAction>(scene);		
 	}
 	
 	/**
 	 * Internal use. Called by the constructor by ARCBALL and WHEELED_ARCBALL modes.
 	 */
 	protected void arcballDefaultShortcuts() {
-		setShortcut(RIGHT, AbstractScene.CameraKeyboardAction.MOVE_CAMERA_RIGHT);		
-	  setShortcut(LEFT, AbstractScene.CameraKeyboardAction.MOVE_CAMERA_LEFT);
-		setShortcut(UP, AbstractScene.CameraKeyboardAction.MOVE_CAMERA_UP);
-		setShortcut(DOWN, AbstractScene.CameraKeyboardAction.MOVE_CAMERA_DOWN);
+		setShortcut(RIGHT, DLCameraKeyboardAction.MOVE_CAMERA_RIGHT);		
+	  setShortcut(LEFT, DLCameraKeyboardAction.MOVE_CAMERA_LEFT);
+		setShortcut(UP, DLCameraKeyboardAction.MOVE_CAMERA_UP);
+		setShortcut(DOWN, DLCameraKeyboardAction.MOVE_CAMERA_DOWN);
 		
 		//TODO hack to prevent P5 java2d bug!
 		if( scene.renderer() instanceof ProjectionRenderer ) {
-			setCameraMouseBinding(CENTER, AbstractScene.DeviceAction.ZOOM);
-			setCameraMouseBinding(RIGHT, AbstractScene.DeviceAction.TRANSLATE);
+			setCameraMouseBinding(CENTER, DLDeviceAction.ZOOM);
+			setCameraMouseBinding(RIGHT, DLDeviceAction.TRANSLATE);
 		}
 		else {
-			setCameraMouseBinding(ALT, CENTER, AbstractScene.DeviceAction.ZOOM);
-			setCameraMouseBinding(META, RIGHT, AbstractScene.DeviceAction.TRANSLATE);
+			setCameraMouseBinding(ALT, CENTER, DLDeviceAction.ZOOM);
+			setCameraMouseBinding(META, RIGHT, DLDeviceAction.TRANSLATE);
 		}		
 		
-		setFrameMouseBinding(LEFT, AbstractScene.DeviceAction.ROTATE);
+		setFrameMouseBinding(LEFT, DLDeviceAction.ROTATE);
 		
 	  //TODO hack to prevent P5 java2d bug!
 		if( scene.renderer() instanceof ProjectionRenderer ) {
-			setFrameMouseBinding(CENTER, AbstractScene.DeviceAction.ZOOM);
-			setFrameMouseBinding(RIGHT, AbstractScene.DeviceAction.TRANSLATE);
+			setFrameMouseBinding(CENTER, DLDeviceAction.ZOOM);
+			setFrameMouseBinding(RIGHT, DLDeviceAction.TRANSLATE);
 		}
 		else {
-			setFrameMouseBinding(ALT, CENTER, AbstractScene.DeviceAction.ZOOM);
-			setFrameMouseBinding(META, RIGHT, AbstractScene.DeviceAction.TRANSLATE);
+			setFrameMouseBinding(ALT, CENTER, DLDeviceAction.ZOOM);
+			setFrameMouseBinding(META, RIGHT, DLDeviceAction.TRANSLATE);
 		}
 
-		setCameraMouseBinding(SHIFT, LEFT, AbstractScene.DeviceAction.ZOOM_ON_REGION);		
-		setCameraMouseBinding(SHIFT, RIGHT, AbstractScene.DeviceAction.SCREEN_ROTATE);
+		setCameraMouseBinding(SHIFT, LEFT, DLDeviceAction.ZOOM_ON_REGION);		
+		setCameraMouseBinding(SHIFT, RIGHT, DLDeviceAction.SCREEN_ROTATE);
 
-		setShortcut('+', AbstractScene.CameraKeyboardAction.INCREASE_ROTATION_SENSITIVITY);
-		setShortcut('-', AbstractScene.CameraKeyboardAction.DECREASE_ROTATION_SENSITIVITY);
+		setShortcut('+', DLCameraKeyboardAction.INCREASE_ROTATION_SENSITIVITY);
+		setShortcut('-', DLCameraKeyboardAction.DECREASE_ROTATION_SENSITIVITY);
 
-		setShortcut('s', AbstractScene.CameraKeyboardAction.INTERPOLATE_TO_FIT_SCENE);
-		setShortcut('S', AbstractScene.CameraKeyboardAction.SHOW_ALL);
+		setShortcut('s', DLCameraKeyboardAction.INTERPOLATE_TO_FIT_SCENE);
+		setShortcut('S', DLCameraKeyboardAction.SHOW_ALL);
 		
-		setClickBinding(LEFT, 2, ClickAction.ALIGN_CAMERA);
-		setClickBinding(CENTER, 2, ClickAction.SHOW_ALL);
-		setClickBinding(RIGHT, 2, ClickAction.ZOOM_TO_FIT);
+		setClickBinding(LEFT, 2, DLClickAction.ALIGN_CAMERA);
+		setClickBinding(CENTER, 2, DLClickAction.SHOW_ALL);
+		setClickBinding(RIGHT, 2, DLClickAction.ZOOM_TO_FIT);
 	}
 	
   // 1. General stuff
@@ -389,23 +384,23 @@ public abstract class CameraProfile implements Constants {
 	
 	// 2. AWT input event parsing, i.e., converts events to actions.
 	
-	public DeviceAction cameraMouseAction(int modifiers, int button) {
-		DeviceAction camMouseAction = cameraMouseBinding( modifiers, button );	
+	public DLDeviceAction cameraMouseAction(int modifiers, int button) {
+		DLDeviceAction camMouseAction = cameraMouseBinding( modifiers, button );	
 		if (camMouseAction == null)
-			camMouseAction = DeviceAction.NO_DEVICE_ACTION;
+			camMouseAction = DLDeviceAction.NO_DEVICE_ACTION;
 		return camMouseAction;
 	}
 	
 	/**
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
-	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
+	 * {@link remixlab.proscene.Scene.DLDeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
 	 * Called by {@link remixlab.remixcam.core.EventDispatcher#mousePressed(MouseEvent)}.
 	 */
-	public DeviceAction cameraMouseAction(DLMouseEvent e) {
-		DeviceAction camMouseAction = cameraMouseBinding( e.getModifiers(), e.getButton() );	
+	public DLDeviceAction cameraMouseAction(DLMouseEvent e) {
+		DLDeviceAction camMouseAction = cameraMouseBinding( e.getModifiers(), e.getButton() );	
 		if (camMouseAction == null)
-			camMouseAction = DeviceAction.NO_DEVICE_ACTION;
+			camMouseAction = DLDeviceAction.NO_DEVICE_ACTION;
 		return camMouseAction;		
 		
 	  //TODO debug		
@@ -426,63 +421,63 @@ public abstract class CameraProfile implements Constants {
 //		return camMouseAction;
 	}
 	
-	public DeviceAction frameMouseAction(int modifiers, int button) {
-		DeviceAction iFrameMouseAction = frameMouseBinding( modifiers, button );
+	public DLDeviceAction frameMouseAction(int modifiers, int button) {
+		DLDeviceAction iFrameMouseAction = frameMouseBinding( modifiers, button );
 		if (iFrameMouseAction == null)
-			iFrameMouseAction = DeviceAction.NO_DEVICE_ACTION;
+			iFrameMouseAction = DLDeviceAction.NO_DEVICE_ACTION;
 		return iFrameMouseAction;
 	}
 	
 	/**
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
-	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
+	 * {@link remixlab.proscene.Scene.DLDeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
 	 * Called by {@link remixlab.remixcam.core.EventDispatcher#mousePressed(MouseEvent)}.
 	 */
-	public DeviceAction frameMouseAction(DLMouseEvent e) {
-		DeviceAction iFrameMouseAction = frameMouseBinding( e.getModifiers(), e.getButton() );
+	public DLDeviceAction frameMouseAction(DLMouseEvent e) {
+		DLDeviceAction iFrameMouseAction = frameMouseBinding( e.getModifiers(), e.getButton() );
 		if (iFrameMouseAction == null)
-			iFrameMouseAction = DeviceAction.NO_DEVICE_ACTION;
+			iFrameMouseAction = DLDeviceAction.NO_DEVICE_ACTION;
 		return iFrameMouseAction;
 	}
 	
-	public DeviceAction cameraWheelMouseAction(int modifiers) {
-		DeviceAction wMouseAction = cameraWheelBinding(modifiers);
+	public DLDeviceAction cameraWheelMouseAction(int modifiers) {
+		DLDeviceAction wMouseAction = cameraWheelBinding(modifiers);
 		if (wMouseAction == null)
-			wMouseAction = DeviceAction.NO_DEVICE_ACTION;
+			wMouseAction = DLDeviceAction.NO_DEVICE_ACTION;
 		return wMouseAction;
 	}
 	
 	/**
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
-	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
+	 * {@link remixlab.proscene.Scene.DLDeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
 	 * Called by {@link remixlab.remixcam.core.EventDispatcher#mouseWheelMoved(MouseWheelEvent)}.
 	 */
-	public DeviceAction cameraWheelMouseAction(DLMouseEvent e) {
-		DeviceAction wMouseAction = cameraWheelBinding(e.getModifiers());
+	public DLDeviceAction cameraWheelMouseAction(DLMouseEvent e) {
+		DLDeviceAction wMouseAction = cameraWheelBinding(e.getModifiers());
 		if (wMouseAction == null)
-			wMouseAction = DeviceAction.NO_DEVICE_ACTION;
+			wMouseAction = DLDeviceAction.NO_DEVICE_ACTION;
 		return wMouseAction;
 	}
 	
-	public DeviceAction frameWheelMouseAction(int modifiers) {
-		DeviceAction fMouseAction = frameWheelBinding( modifiers );
+	public DLDeviceAction frameWheelMouseAction(int modifiers) {
+		DLDeviceAction fMouseAction = frameWheelBinding( modifiers );
 		if (fMouseAction == null)
-			fMouseAction = DeviceAction.NO_DEVICE_ACTION;
+			fMouseAction = DLDeviceAction.NO_DEVICE_ACTION;
 		return fMouseAction;
 	}
 	
 	/**
 	 * Internal method. Parses the event to convert it to a Scene.MouseAction. Returns
-	 * {@link remixlab.proscene.Scene.DeviceAction#NO_DEVICE_ACTION} if no action was found.
+	 * {@link remixlab.proscene.Scene.DLDeviceAction#NO_DEVICE_ACTION} if no action was found.
 	 * <p>
 	 * Called by {@link remixlab.remixcam.core.EventDispatcher#mouseWheelMoved(MouseWheelEvent)}.
 	 */
-	public DeviceAction frameWheelMouseAction(DLMouseEvent e) {
-		DeviceAction fMouseAction = frameWheelBinding( e.getModifiers() );
+	public DLDeviceAction frameWheelMouseAction(DLMouseEvent e) {
+		DLDeviceAction fMouseAction = frameWheelBinding( e.getModifiers() );
 		if (fMouseAction == null)
-			fMouseAction = DeviceAction.NO_DEVICE_ACTION;
+			fMouseAction = DLDeviceAction.NO_DEVICE_ACTION;
 		return fMouseAction;
 	}
 	
@@ -491,7 +486,7 @@ public abstract class CameraProfile implements Constants {
 	 */
 	public String cameraDeviceBindingsDescription() {
 		String description = new String();
-		for (Entry<DeviceButtonShortcut, DeviceAction> entry : cameraActions.map().entrySet())
+		for (Entry<DeviceButtonShortcut, DLDeviceAction> entry : cameraActions.map().entrySet())
       description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";     
 		return description;
 	}
@@ -501,7 +496,7 @@ public abstract class CameraProfile implements Constants {
 	 */
 	public String frameDeviceBindingsDescription() {
 		String description = new String();
-		for (Entry<DeviceButtonShortcut, DeviceAction> entry : frameActions.map().entrySet())
+		for (Entry<DeviceButtonShortcut, DLDeviceAction> entry : frameActions.map().entrySet())
       description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";
 		return description;
 	}
@@ -511,7 +506,7 @@ public abstract class CameraProfile implements Constants {
 	 */
 	public String deviceClickBindingsDescription() {
 		String description = new String();
-		for (Entry<ClickBinding, ClickAction> entry : clickActions.map().entrySet())
+		for (Entry<ClickBinding, DLClickAction> entry : clickActions.map().entrySet())
       description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";
 		return description;
 	}
@@ -521,7 +516,7 @@ public abstract class CameraProfile implements Constants {
 	 */
 	public String keyboardShortcutsDescription() {
 		String description = new String();
-		for (Entry<KeyboardShortcut, AbstractScene.CameraKeyboardAction> entry : keyboard.map().entrySet())
+		for (Entry<KeyboardShortcut, DLCameraKeyboardAction> entry : keyboard.map().entrySet())
       description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";
 		return description;
 	}
@@ -531,7 +526,7 @@ public abstract class CameraProfile implements Constants {
 	 */
 	public String cameraWheelBindingsDescription() {
 		String description = new String();
-		for (Entry<Integer, AbstractScene.DeviceAction> entry : cameraWheelActions.map().entrySet()) {
+		for (Entry<Integer, DLDeviceAction> entry : cameraWheelActions.map().entrySet()) {
 			if (DLEvent.getModifiersText(entry.getKey()).length() != 0 )
 				description += "Wheel " + DLEvent.getModifiersText(entry.getKey()) + " -> " + entry.getValue().description() + "\n";
 			else
@@ -545,7 +540,7 @@ public abstract class CameraProfile implements Constants {
 	 */
 	public String frameWheelBindingsDescription() {
 		String description = new String();
-		for (Entry<Integer, AbstractScene.DeviceAction> entry : frameWheelActions.map().entrySet())
+		for (Entry<Integer, DLDeviceAction> entry : frameWheelActions.map().entrySet())
 			if (DLEvent.getModifiersText(entry.getKey()).length() != 0 )
 				description += "Wheel " + DLEvent.getModifiersText(entry.getKey()) + " -> " + entry.getValue().description() + "\n";
 			else
@@ -563,9 +558,9 @@ public abstract class CameraProfile implements Constants {
 	 * @param key shortcut
 	 * @param action action to be binded
 	 */
-	public void setShortcut(Character key, CameraKeyboardAction action) {
+	public void setShortcut(Character key, DLCameraKeyboardAction action) {
 		if ( isKeyInUse(key) ) {
-			CameraKeyboardAction a = shortcut(key);
+			DLCameraKeyboardAction a = shortcut(key);
 			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
 		}
 		keyboard.setBinding(new KeyboardShortcut(key), action);
@@ -574,32 +569,32 @@ public abstract class CameraProfile implements Constants {
 	/**
 	 * Defines a camera keyboard shortcut to bind the given action.
 	 * <p>
-	 * High-level version of {@link #setShortcut(Integer, Integer, AbstractScene.CameraKeyboardAction)}.
+	 * High-level version of {@link #setShortcut(Integer, Integer, DLCameraKeyboardAction)}.
 	 * 
 	 * @param mask modifier mask defining the shortcut
 	 * @param key character (internally converted to a key coded) defining the shortcut
 	 * @param action action to be binded
 	 * 
-	 * @see #setShortcut(Integer, Integer, AbstractScene.CameraKeyboardAction)
+	 * @see #setShortcut(Integer, Integer, DLCameraKeyboardAction)
 	 */
-	public void setShortcut(Integer mask, Character key, CameraKeyboardAction action) {
+	public void setShortcut(Integer mask, Character key, DLCameraKeyboardAction action) {
 		setShortcut(mask, DLKeyEvent.getKeyCode(key), action);
 	}
 	
 	/**
 	 * Defines a camera keyboard shortcut to bind the given action.
 	 * <p>
-	 * Low-level version of {@link #setShortcut(Integer, Character, AbstractScene.CameraKeyboardAction)}.
+	 * Low-level version of {@link #setShortcut(Integer, Character, DLCameraKeyboardAction)}.
 	 * 
 	 * @param mask modifier mask defining the shortcut
 	 * @param vKey coded key defining the shortcut
 	 * @param action action to be binded
 	 * 
-	 * @see #setShortcut(Integer, Character, AbstractScene.CameraKeyboardAction)
+	 * @see #setShortcut(Integer, Character, DLCameraKeyboardAction)
 	 */
-	public void setShortcut(Integer mask, Integer vKey, CameraKeyboardAction action) {
+	public void setShortcut(Integer mask, Integer vKey, DLCameraKeyboardAction action) {
 		if ( isKeyInUse(mask, vKey) ) {
-			CameraKeyboardAction a = shortcut(mask, vKey);
+			DLCameraKeyboardAction a = shortcut(mask, vKey);
 			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
 		}
 		keyboard.setBinding(new KeyboardShortcut(mask, vKey), action);
@@ -611,9 +606,9 @@ public abstract class CameraProfile implements Constants {
 	 * @param vKey coded key (such PApplet.UP) that defines the shortcut
 	 * @param action action to be binded
 	 */
-	public void setShortcut(Integer vKey, CameraKeyboardAction action) {
+	public void setShortcut(Integer vKey, DLCameraKeyboardAction action) {
 		if ( isKeyInUse(vKey) ) {
-			CameraKeyboardAction a = shortcut(vKey);
+			DLCameraKeyboardAction a = shortcut(vKey);
 			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
 		}
 		keyboard.setBinding(new KeyboardShortcut(vKey), action);
@@ -678,7 +673,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param key shortcut
 	 * @return action
 	 */
-	public CameraKeyboardAction shortcut(Character key) {
+	public DLCameraKeyboardAction shortcut(Character key) {
 		return keyboard.binding(new KeyboardShortcut(key));
 	}
 	
@@ -693,7 +688,7 @@ public abstract class CameraProfile implements Constants {
    * 
    * @see #shortcut(Integer, Integer)
    */
-	public CameraKeyboardAction shortcut(Integer mask, Character key) {
+	public DLCameraKeyboardAction shortcut(Integer mask, Character key) {
 		return shortcut(mask, DLKeyEvent.getKeyCode(key));
 	}
 
@@ -708,7 +703,7 @@ public abstract class CameraProfile implements Constants {
    * 
    * @see #shortcut(Integer, Character)
    */
-	public CameraKeyboardAction shortcut(Integer mask, Integer vKey) {
+	public DLCameraKeyboardAction shortcut(Integer mask, Integer vKey) {
 		return keyboard.binding(new KeyboardShortcut(mask, vKey));
 	}
 
@@ -718,7 +713,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param vKey coded key (such PApplet.UP) that defines the shortcut
 	 * @return action
 	 */
-	public CameraKeyboardAction shortcut(Integer vKey) {
+	public DLCameraKeyboardAction shortcut(Integer vKey) {
 		return keyboard.binding(new KeyboardShortcut(vKey));
 	}
 
@@ -771,7 +766,7 @@ public abstract class CameraProfile implements Constants {
 	/**
 	 * Returns true if there is a camera keyboard shortcut for the given action.
 	 */
-	public boolean isKeyboardActionBinded(CameraKeyboardAction action) {
+	public boolean isKeyboardActionBinded(DLCameraKeyboardAction action) {
 		return keyboard.isActionMapped(action);
 	}
 
@@ -806,7 +801,7 @@ public abstract class CameraProfile implements Constants {
 	/**
 	 * Returns true if the given camera mouse-action is binded.
 	 */
-	public boolean isCameraMouseActionBinded(AbstractScene.DeviceAction action) {
+	public boolean isCameraMouseActionBinded(DLDeviceAction action) {
 		return cameraActions.isActionMapped(action);
 	}
 
@@ -816,9 +811,9 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 * @param action 
 	 */
-	public void setCameraMouseBinding(Integer button, AbstractScene.DeviceAction action) {
+	public void setCameraMouseBinding(Integer button, DLDeviceAction action) {
 		if ( isCameraMouseBindingInUse(button) ) {
-			DeviceAction a = cameraMouseBinding(button);
+			DLDeviceAction a = cameraMouseBinding(button);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
 		cameraActions.setBinding(new DeviceButtonShortcut(button), action);
@@ -834,9 +829,9 @@ public abstract class CameraProfile implements Constants {
 	 * <b>Attention:</b> Mac users should avoid using the CTRL modifier key, since its use is
 	 * reserved to emulate the right button of the mouse.
 	 */
-	public void setCameraMouseBinding(Integer mask, Integer button, AbstractScene.DeviceAction action) {
+	public void setCameraMouseBinding(Integer mask, Integer button, DLDeviceAction action) {
 		if ( isCameraMouseBindingInUse(mask, button) ) {
-			DeviceAction a = cameraMouseBinding(mask, button);
+			DLDeviceAction a = cameraMouseBinding(mask, button);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
 		cameraActions.setBinding(new DeviceButtonShortcut(mask, button), action);
@@ -866,7 +861,7 @@ public abstract class CameraProfile implements Constants {
 	 * 
 	 * @param button
 	 */
-	public AbstractScene.DeviceAction cameraMouseBinding(Integer button) {
+	public DLDeviceAction cameraMouseBinding(Integer button) {
 		return cameraActions.binding(new DeviceButtonShortcut(button));
 	}
 	
@@ -876,7 +871,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param mask
 	 * @param button
 	 */
-	public AbstractScene.DeviceAction cameraMouseBinding(Integer mask, Integer button) {
+	public DLDeviceAction cameraMouseBinding(Integer mask, Integer button) {
 		return cameraActions.binding(new DeviceButtonShortcut(mask, button));
 	}
 
@@ -911,7 +906,7 @@ public abstract class CameraProfile implements Constants {
 	/**
 	 * Returns true if the given frame mouse-action is binded.
 	 */
-	public boolean isFrameMouseActionBinded(AbstractScene.DeviceAction action) {
+	public boolean isFrameMouseActionBinded(DLDeviceAction action) {
 		return frameActions.isActionMapped(action);
 	}
 
@@ -921,9 +916,9 @@ public abstract class CameraProfile implements Constants {
 	 * @param button
 	 * @param action 
 	 */
-	public void setFrameMouseBinding(Integer button,AbstractScene.DeviceAction action) {
+	public void setFrameMouseBinding(Integer button,DLDeviceAction action) {
 		if ( isFrameMouseBindingInUse(button) ) {
-			DeviceAction a = frameMouseBinding(button);
+			DLDeviceAction a = frameMouseBinding(button);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
 		frameActions.setBinding(new DeviceButtonShortcut(button), action);
@@ -939,9 +934,9 @@ public abstract class CameraProfile implements Constants {
 	 * <b>Attention:</b> Mac users should avoid using the CTRL modifier key, since its use is
 	 * reserved to emulate the right button of the mouse.
 	 */
-	public void setFrameMouseBinding(Integer mask, Integer button,AbstractScene.DeviceAction action) {
+	public void setFrameMouseBinding(Integer mask, Integer button,DLDeviceAction action) {
 		if ( isFrameMouseBindingInUse(mask, button) ) {
-			DeviceAction a = frameMouseBinding(mask, button);
+			DLDeviceAction a = frameMouseBinding(mask, button);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
 		frameActions.setBinding(new DeviceButtonShortcut(mask, button), action);
@@ -971,7 +966,7 @@ public abstract class CameraProfile implements Constants {
 	 * 
 	 * @param button
 	 */
-	public AbstractScene.DeviceAction frameMouseBinding(Integer button) {
+	public DLDeviceAction frameMouseBinding(Integer button) {
 		return frameActions.binding(new DeviceButtonShortcut(button));
 	}
 	
@@ -981,7 +976,7 @@ public abstract class CameraProfile implements Constants {
 	 * @param mask
 	 * @param button
 	 */
-	public AbstractScene.DeviceAction frameMouseBinding(Integer mask, Integer button) {
+	public DLDeviceAction frameMouseBinding(Integer mask, Integer button) {
 		return frameActions.binding(new DeviceButtonShortcut(mask, button));
 	}
 	
@@ -1039,7 +1034,7 @@ public abstract class CameraProfile implements Constants {
   /** 
    * Returns true if the given click-action is binded.
    */
-  public boolean isClickActionBinded(AbstractScene.ClickAction action) {
+  public boolean isClickActionBinded(DLClickAction action) {
           return clickActions.isActionMapped(action);
   }
   
@@ -1049,9 +1044,9 @@ public abstract class CameraProfile implements Constants {
    * @param button binding
    * @param action action to be binded
    */
-  public void setClickBinding(Integer button, AbstractScene.ClickAction action) {
+  public void setClickBinding(Integer button, DLClickAction action) {
           if ( isClickBindingInUse(button) ) {
-                  ClickAction a = clickBinding(button);
+                  DLClickAction a = clickBinding(button);
                   System.out.println("Warning: overwritting binding which was previously associated to " + a);
           }
           clickActions.setBinding(new ClickBinding(button), action);
@@ -1068,7 +1063,7 @@ public abstract class CameraProfile implements Constants {
    * reserved to emulate the right button of the mouse.
    */
   /**
-  public void setClickBinding(Integer mask, Integer button, AbstractScene.ClickAction action) {
+  public void setClickBinding(Integer mask, Integer button, DLClickAction action) {
           if ( isClickBindingInUse(mask, button) ) {
                   ClickAction a = clickBinding(mask, button);
                   System.out.println("Warning: overwritting bindings which was previously associated to " + a);
@@ -1084,9 +1079,9 @@ public abstract class CameraProfile implements Constants {
    * @param nc number of clicks that defines the binding
    * @param action action to be binded
    */
-  public void setClickBinding(Integer button, Integer nc, AbstractScene.ClickAction action) {
+  public void setClickBinding(Integer button, Integer nc, DLClickAction action) {
           if ( isClickBindingInUse(button, nc) ) {
-                  ClickAction a = clickBinding(button, nc);
+                  DLClickAction a = clickBinding(button, nc);
                   System.out.println("Warning: overwritting binding which was previously associated to " + a);
           }
           clickActions.setBinding(new ClickBinding(button, nc), action);
@@ -1103,9 +1098,9 @@ public abstract class CameraProfile implements Constants {
    * <b>Attention:</b> Mac users should avoid using the CTRL modifier key, since its use is
    * reserved to emulate the right button of the mouse.
    */
-  public void setClickBinding(Integer mask, Integer button, Integer nc, AbstractScene.ClickAction action) {
+  public void setClickBinding(Integer mask, Integer button, Integer nc, DLClickAction action) {
           if ( isClickBindingInUse(mask, button, nc) ) {
-                  ClickAction a = clickBinding(mask, button, nc);
+                  DLClickAction a = clickBinding(mask, button, nc);
                   System.out.println("Warning: overwritting binding which was previously associated to " + a);
           }
           clickActions.setBinding(new ClickBinding(mask, button, nc), action);
@@ -1158,7 +1153,7 @@ public abstract class CameraProfile implements Constants {
    * 
    * @param button binding
    */
-  public AbstractScene.ClickAction clickBinding(Integer button) {
+  public DLClickAction clickBinding(Integer button) {
           return clickActions.binding(new ClickBinding(button));
   }
 
@@ -1180,7 +1175,7 @@ public abstract class CameraProfile implements Constants {
    * @param button mouse button defining the binding
    * @param nc number of clicks defining the binding
    */
-  public AbstractScene.ClickAction clickBinding(Integer button, Integer nc) {
+  public DLClickAction clickBinding(Integer button, Integer nc) {
           return clickActions.binding(new ClickBinding(button, nc));
   }
 
@@ -1191,8 +1186,8 @@ public abstract class CameraProfile implements Constants {
    * @param button mouse button defining the binding
    * @param nc number of clicks defining the binding
    */
-  public AbstractScene.ClickAction clickBinding(Integer mask, Integer button, Integer nc) {
-          return clickActions.binding(new ClickBinding(mask, button, nc));
+  public DLClickAction clickBinding(Integer mask, Integer button, Integer nc) {
+  	return clickActions.binding(new ClickBinding(mask, button, nc));
   }
   
 	
@@ -1220,16 +1215,16 @@ public abstract class CameraProfile implements Constants {
 	 * 
 	 * @param action
 	 */
-	public boolean isCameraWheelActionBinded(AbstractScene.DeviceAction action) {
+	public boolean isCameraWheelActionBinded(DLDeviceAction action) {
 		return cameraWheelActions.isActionMapped(action);
 	}
 	
 	/**
 	 * Convenience function that simply calls {@code setCameraWheelShortcut(0, action)}
 	 * 
-	 * @see #setCameraWheelBinding(Integer, AbstractScene.DeviceAction)
+	 * @see #setCameraWheelBinding(Integer, DLDeviceAction)
 	 */
-	public void setCameraWheelBinding(AbstractScene.DeviceAction action) {
+	public void setCameraWheelBinding(DLDeviceAction action) {
 		setCameraWheelBinding(0, action);
 	}
 
@@ -1238,14 +1233,14 @@ public abstract class CameraProfile implements Constants {
 	 * 
 	 * @param mask modifier mask defining the binding
 	 * 
-	 * @see #setCameraWheelBinding(AbstractScene.DeviceAction)
+	 * @see #setCameraWheelBinding(DLDeviceAction)
 	 * 
 	 * <b>Attention:</b> Mac users should avoid using the CTRL modifier key, since its use is
 	 * reserved to emulate the right button of the mouse.
 	 */
-	public void setCameraWheelBinding(Integer mask, AbstractScene.DeviceAction action) {
+	public void setCameraWheelBinding(Integer mask, DLDeviceAction action) {
 		if ( isCameraWheelBindingInUse(mask) ) {
-			DeviceAction a = cameraWheelBinding(mask);
+			DLDeviceAction a = cameraWheelBinding(mask);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
 		cameraWheelActions.setBinding(mask, action);
@@ -1276,7 +1271,7 @@ public abstract class CameraProfile implements Constants {
 	 * 
 	 * @see #cameraWheelBinding(Integer)
 	 */
-	public AbstractScene.DeviceAction cameraWheelBinding() {
+	public DLDeviceAction cameraWheelBinding() {
 		return cameraWheelActions.binding(0);
 	}
 	
@@ -1287,7 +1282,7 @@ public abstract class CameraProfile implements Constants {
 	 * 
 	 * @see #cameraWheelBinding()
 	 */
-	public AbstractScene.DeviceAction cameraWheelBinding(Integer mask) {
+	public DLDeviceAction cameraWheelBinding(Integer mask) {
 		return cameraWheelActions.binding(mask);
 	}
 	
@@ -1314,16 +1309,16 @@ public abstract class CameraProfile implements Constants {
 	 * 
 	 * @param action
 	 */
-	public boolean isFrameWheelActionBinded(AbstractScene.DeviceAction action) {
+	public boolean isFrameWheelActionBinded(DLDeviceAction action) {
 		return frameWheelActions.isActionMapped(action);
 	}
 
 	/**
 	 * Convenience function that simply calls {@code setFrameWheelShortcut(0, action)}
 	 * 
-	 * @see #setCameraWheelBinding(Integer, AbstractScene.DeviceAction)
+	 * @see #setCameraWheelBinding(Integer, DLDeviceAction)
 	 */
-	public void setFrameWheelBinding(AbstractScene.DeviceAction action) {
+	public void setFrameWheelBinding(DLDeviceAction action) {
 		setFrameWheelBinding(0, action);
 	}
 	
@@ -1332,14 +1327,14 @@ public abstract class CameraProfile implements Constants {
 	 * 
 	 * @param mask modifier mask defining the binding
 	 * 
-	 * @see #setFrameWheelBinding(AbstractScene.DeviceAction)
+	 * @see #setFrameWheelBinding(DLDeviceAction)
 	 * 
 	 * <b>Attention:</b> Mac users should avoid using the CTRL modifier key, since its use is
 	 * reserved to emulate the right button of the mouse.
 	 */
-	public void setFrameWheelBinding(Integer mask, AbstractScene.DeviceAction action) {
+	public void setFrameWheelBinding(Integer mask, DLDeviceAction action) {
 		if ( isFrameWheelBindingInUse(mask) ) {
-			DeviceAction a = frameWheelBinding(mask);
+			DLDeviceAction a = frameWheelBinding(mask);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
 		frameWheelActions.setBinding(mask, action);
@@ -1370,7 +1365,7 @@ public abstract class CameraProfile implements Constants {
 	 * 
 	 * @see #frameWheelBinding(Integer)
 	 */
-	public AbstractScene.DeviceAction frameWheelBinding() {
+	public DLDeviceAction frameWheelBinding() {
 		return frameWheelBinding(0);
 	}
 	
@@ -1381,7 +1376,7 @@ public abstract class CameraProfile implements Constants {
 	 * 
 	 * @see #frameWheelBinding()
 	 */
-	public AbstractScene.DeviceAction frameWheelBinding(Integer mask) {
+	public DLDeviceAction frameWheelBinding(Integer mask) {
 		return frameWheelActions.binding(mask);
 	}
 }

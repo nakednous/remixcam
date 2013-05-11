@@ -25,6 +25,7 @@
 
 package remixlab.remixcam.core;
 
+import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.AbstractTimerJob;
 
@@ -38,8 +39,8 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * <p>
  * An InteractiveDrivableFrame basically moves forward, and turns according to
  * the mouse motion. See {@link #flySpeed()}, {@link #flyUpVector()} and the
- * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_FORWARD} and
- * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_BACKWARD}.
+ * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_FORWARD} and
+ * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_BACKWARD}.
  */
 public class InteractiveDrivableFrame extends InteractiveFrame implements Copyable {	
 	@Override
@@ -135,8 +136,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * <p>
 	 * It corresponds to the incremental displacement that is periodically applied
 	 * to the InteractiveDrivableFrame position when a
-	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_FORWARD} or
-	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_BACKWARD} Scene.MouseAction is proceeded.
+	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_FORWARD} or
+	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_BACKWARD} Scene.MouseAction is proceeded.
 	 * <p>
 	 * <b>Attention:</b> When the InteractiveDrivableFrame is set as the
 	 * {@link remixlab.remixcam.core.Camera#frame()} (which indeed is an instance of
@@ -170,8 +171,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * system.
 	 * <p>
 	 * Fly mode corresponds to the
-	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_FORWARD} and
-	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_BACKWARD} Scene.MouseAction
+	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_FORWARD} and
+	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_BACKWARD} Scene.MouseAction
 	 * bindings. In these modes, horizontal displacements of the mouse rotate the
 	 * InteractiveDrivableFrame around this vector. Vertical displacements rotate
 	 * always around the frame {@code X} axis.
@@ -199,7 +200,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 
 	/**
 	 * Called for continuous frame motion in first person mode (see
-	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_FORWARD}).
+	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_FORWARD}).
 	 */
 	public void flyUpdate() {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
@@ -243,7 +244,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	/**
 	 * Protected internal method used to handle mouse actions.
 	 */
-	public void beginAction(AbstractScene.DeviceAction a) {
+	public void beginAction(DLDeviceAction a) {
 		super.beginAction(a);
 		switch (action) {
 		case MOVE_FORWARD:
@@ -273,12 +274,12 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 */
 	@Override
 	protected void execAction3D(Point eventPoint, Camera camera) {		
-		if ((action == AbstractScene.DeviceAction.TRANSLATE)
-				|| (action == AbstractScene.DeviceAction.ZOOM)
-				|| (action == AbstractScene.DeviceAction.SCREEN_ROTATE)
-				|| (action == AbstractScene.DeviceAction.SCREEN_TRANSLATE)
-				|| (action == AbstractScene.DeviceAction.ROTATE)
-				|| (action == AbstractScene.DeviceAction.NO_DEVICE_ACTION))
+		if ((action == DLDeviceAction.TRANSLATE)
+				|| (action == DLDeviceAction.ZOOM)
+				|| (action == DLDeviceAction.SCREEN_ROTATE)
+				|| (action == DLDeviceAction.SCREEN_TRANSLATE)
+				|| (action == DLDeviceAction.ROTATE)
+				|| (action == DLDeviceAction.NO_DEVICE_ACTION))
 			super.execAction3D(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
@@ -361,13 +362,13 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
-		if ((action == AbstractScene.DeviceAction.MOVE_FORWARD)
-				|| (action == AbstractScene.DeviceAction.MOVE_BACKWARD)
-				|| (action == AbstractScene.DeviceAction.DRIVE)) {
+		if ((action == DLDeviceAction.MOVE_FORWARD)
+				|| (action == DLDeviceAction.MOVE_BACKWARD)
+				|| (action == DLDeviceAction.DRIVE)) {
 			flyTimerJob.stop();
 		}
 		
-		if (((action == AbstractScene.DeviceAction.MOVE_FORWARD) || (action == AbstractScene.DeviceAction.MOVE_BACKWARD) || (action == AbstractScene.DeviceAction.DRIVE) ) && (deviceSpeed >= tossingSensitivity()) )
+		if (((action == DLDeviceAction.MOVE_FORWARD) || (action == DLDeviceAction.MOVE_BACKWARD) || (action == DLDeviceAction.DRIVE) ) && (deviceSpeed >= tossingSensitivity()) )
 			startTossing(FLY_UPDATE_PERDIOD);
 
 		super.endInteraction(eventPoint);
@@ -378,10 +379,10 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * {@link remixlab.remixcam.core.InteractiveFrame#wheelMoved(int, Camera)}.
 	 * <p>
 	 * The wheel behavior depends on the wheel binded action. Current possible
-	 * actions are {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM},
-	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_FORWARD} and
-	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#MOVE_BACKWARD}.
-	 * {@link remixlab.remixcam.core.AbstractScene.DeviceAction#ZOOM} speed depends on
+	 * actions are {@link remixlab.remixcam.core.DLDeviceAction#ZOOM},
+	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_FORWARD} and
+	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_BACKWARD}.
+	 * {@link remixlab.remixcam.core.DLDeviceAction#ZOOM} speed depends on
 	 * #wheelSensitivity() the other two depend on #flySpeed().
 	 */
 	/**
@@ -427,7 +428,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	  // Starts (or prolungates) the timer.
 		flyTimerJob.runOnce(finalDrawAfterWheelEventDelay);
 
-		action = AbstractScene.DeviceAction.NO_DEVICE_ACTION;
+		action = DLDeviceAction.NO_DEVICE_ACTION;
 	}
 	*/
 

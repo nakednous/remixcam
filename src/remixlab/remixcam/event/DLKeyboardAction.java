@@ -1,6 +1,10 @@
 package remixlab.remixcam.event;
 
 public enum DLKeyboardAction implements Actionable {
+	/**
+	 * Defines the different actions that can be associated with a specific
+	 * keyboard key.
+	 */
 	DRAW_AXIS(DLAction.DRAW_AXIS),
 	DRAW_GRID(DLAction.DRAW_GRID),
 	CAMERA_PROFILE(DLAction.CAMERA_PROFILE),

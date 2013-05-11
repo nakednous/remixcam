@@ -112,11 +112,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		// 2. Remix events are enqueued first and then passed to the DLEventHandler @postDraw
 		public void keyEvent(KeyEvent e) {
 			//TODO: may be broken if p5 > 2b8)
-			if(scene.keyboardIsHandled() && scene.currentCameraProfile() != null) {
-				if(e.getAction() == KeyEvent.TYPE)
-					handleKeyEvent(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
+			if(scene.keyboardIsHandled() && scene.currentCameraProfile() != null) {				
+				//if(e.getAction() == KeyEvent.TYPE) handleKeyEvent(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
 					
-				/**
+				// /**
 				keyHandled = false;
 				if( e.getAction() == KeyEvent.TYPE)
 					keyChar(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
@@ -2039,9 +2038,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		} else {
 			pinhole().hideAllPaths();
 		}
-		if (eventDispatcher.camMouseAction == DeviceAction.ZOOM_ON_REGION)			
+		if (eventDispatcher.camMouseAction == DLDeviceAction.ZOOM_ON_REGION)			
 			drawZoomWindowHint();		
-		if (eventDispatcher.camMouseAction == DeviceAction.SCREEN_ROTATE)
+		if (eventDispatcher.camMouseAction == DLDeviceAction.SCREEN_ROTATE)
 			drawScreenRotateLineHint();
 		if (arpFlag) 
 			drawArcballReferencePointHint();
