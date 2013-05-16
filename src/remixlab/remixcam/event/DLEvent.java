@@ -88,7 +88,7 @@ public class DLEvent implements Constants, Copyable {
   }
   
   @Override
-	public Object get() {
+	public DLEvent get() {
 		return new DLEvent(this);
 	}
 

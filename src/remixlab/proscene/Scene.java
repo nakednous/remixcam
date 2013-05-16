@@ -1,5 +1,6 @@
 package remixlab.proscene;
 
+import remixlab.remixcam.action.DLDeviceAction;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.device.HIDevice;
 import remixlab.remixcam.event.*;

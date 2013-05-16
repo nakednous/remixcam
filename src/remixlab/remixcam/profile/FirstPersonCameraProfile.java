@@ -1,5 +1,6 @@
 package remixlab.remixcam.profile;
 
+import remixlab.remixcam.action.DLDeviceAction;
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.event.*;
 

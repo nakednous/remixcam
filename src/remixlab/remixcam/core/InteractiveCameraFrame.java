@@ -28,6 +28,7 @@ package remixlab.remixcam.core;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
+import remixlab.remixcam.action.DLDeviceAction;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 

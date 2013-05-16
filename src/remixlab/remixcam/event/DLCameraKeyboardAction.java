@@ -1,6 +1,9 @@
 package remixlab.remixcam.event;
 
-public enum DLCameraKeyboardAction implements Actionable {
+import remixlab.remixcam.action.Actionable;
+import remixlab.remixcam.core.Constants;
+
+public enum DLCameraKeyboardAction implements Actionable, Constants {
 	/**
 	 * Defines the different camera actions that can be associated with a specific
 	 * keyboard key. Actions are defined here, but bindings are defined at the CameraProfile level,
@@ -27,8 +30,8 @@ public enum DLCameraKeyboardAction implements Actionable {
 	DECREASE_TRACKING_DISTANCE(DLAction.DECREASE_TRACKING_DISTANCE),
 	CUSTOM1(DLAction.CUSTOM1),
 	CUSTOM2(DLAction.CUSTOM2),
-	CUSTOM1_2D(DLAction.CUSTOM1_2D),
-	CUSTOM2_2D(DLAction.CUSTOM2_2D);
+	CUSTOM3(DLAction.CUSTOM3),
+	CUSTOM4(DLAction.CUSTOM4);
 	
 	@Override
 	public DLAction action() {

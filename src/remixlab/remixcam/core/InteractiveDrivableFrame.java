@@ -25,6 +25,7 @@
 
 package remixlab.remixcam.core;
 
+import remixlab.remixcam.action.DLDeviceAction;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.AbstractTimerJob;
@@ -39,8 +40,8 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * <p>
  * An InteractiveDrivableFrame basically moves forward, and turns according to
  * the mouse motion. See {@link #flySpeed()}, {@link #flyUpVector()} and the
- * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_FORWARD} and
- * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_BACKWARD}.
+ * {@link remixlab.remixcam.action.DLDeviceAction#MOVE_FORWARD} and
+ * {@link remixlab.remixcam.action.DLDeviceAction#MOVE_BACKWARD}.
  */
 public class InteractiveDrivableFrame extends InteractiveFrame implements Copyable {	
 	@Override
@@ -136,8 +137,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * <p>
 	 * It corresponds to the incremental displacement that is periodically applied
 	 * to the InteractiveDrivableFrame position when a
-	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_FORWARD} or
-	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_BACKWARD} Scene.MouseAction is proceeded.
+	 * {@link remixlab.remixcam.action.DLDeviceAction#MOVE_FORWARD} or
+	 * {@link remixlab.remixcam.action.DLDeviceAction#MOVE_BACKWARD} Scene.MouseAction is proceeded.
 	 * <p>
 	 * <b>Attention:</b> When the InteractiveDrivableFrame is set as the
 	 * {@link remixlab.remixcam.core.Camera#frame()} (which indeed is an instance of
@@ -171,8 +172,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * system.
 	 * <p>
 	 * Fly mode corresponds to the
-	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_FORWARD} and
-	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_BACKWARD} Scene.MouseAction
+	 * {@link remixlab.remixcam.action.DLDeviceAction#MOVE_FORWARD} and
+	 * {@link remixlab.remixcam.action.DLDeviceAction#MOVE_BACKWARD} Scene.MouseAction
 	 * bindings. In these modes, horizontal displacements of the mouse rotate the
 	 * InteractiveDrivableFrame around this vector. Vertical displacements rotate
 	 * always around the frame {@code X} axis.
@@ -200,7 +201,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 
 	/**
 	 * Called for continuous frame motion in first person mode (see
-	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_FORWARD}).
+	 * {@link remixlab.remixcam.action.DLDeviceAction#MOVE_FORWARD}).
 	 */
 	public void flyUpdate() {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )

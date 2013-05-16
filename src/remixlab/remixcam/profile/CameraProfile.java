@@ -27,6 +27,8 @@ package remixlab.remixcam.profile;
 
 import java.util.Map.Entry;
 
+import remixlab.remixcam.action.DLClickAction;
+import remixlab.remixcam.action.DLDeviceAction;
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.event.*;

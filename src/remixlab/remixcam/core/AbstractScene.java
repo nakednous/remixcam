@@ -31,6 +31,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import remixlab.remixcam.action.DLClickAction;
+import remixlab.remixcam.action.DLKeyboardAction;
 import remixlab.remixcam.device.HIDevice;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;

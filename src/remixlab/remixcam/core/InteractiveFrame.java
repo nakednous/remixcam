@@ -25,6 +25,7 @@
 
 package remixlab.remixcam.core;
 
+import remixlab.remixcam.action.DLDeviceAction;
 import remixlab.remixcam.constraint.Constraint;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.event.*;
