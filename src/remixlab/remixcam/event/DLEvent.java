@@ -6,6 +6,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.core.Copyable;
+import remixlab.remixcam.device.HIDevice;
 
 public class DLEvent implements Constants, Copyable {
 	@Override
@@ -31,6 +32,8 @@ public class DLEvent implements Constants, Copyable {
 	
   //protected Integer action;
   protected Integer modifiers;
+  //protected Integer ds;//TODO pending
+  //HIDevice hid;//TODO pending
   
   public DLEvent() {    
     this.modifiers = 0;
@@ -41,47 +44,13 @@ public class DLEvent implements Constants, Copyable {
   }
   
   protected DLEvent(DLEvent other) {
-		//this.action = other.action;
 		this.modifiers = other.modifiers;
-	}
+	}  
   
-  /**
-  public DLEvent(Integer action, Integer modifiers) {
-    this.action = action;
-    this.modifiers = modifiers;
+  public int dofs() {
+  	//TODO pending
+  	return 0;
   }
-  
-  public DLEvent(AbstractScene scn, Integer action, Integer modifiers) {
-    this.action = action;
-    this.modifiers = modifiers;
-    queueEvent(scn);
-  } 
-  
-  public DLEvent(Integer action) { 
-    this(action, 0);
-  }
-  
-  public DLEvent() { 
-    this(0, 0);
-  }
-  
-  public DLEvent(AbstractScene scn, Integer action) { 
-    this(scn, action, 0);
-  }
-  
-  public DLEvent(AbstractScene scn) { 
-    this(scn, 0, 0);
-  }
-  
-  /**
-  public void setAction(Integer a) {
-  	this.action = a;
-  }
-
-  public Integer getAction() {
-    return action;
-  }
-  // */
   
   public void queueEvent(AbstractScene scn) {
   	scn.enqueueEvent(this);

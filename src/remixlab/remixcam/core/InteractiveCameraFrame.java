@@ -28,7 +28,7 @@ package remixlab.remixcam.core;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.action.DLDeviceAction;
+import remixlab.remixcam.action.DOF_6Action;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 
@@ -182,13 +182,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	
 	@Override
 	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {
-		if ((action == DLDeviceAction.MOVE_FORWARD)
-				|| (action == DLDeviceAction.MOVE_BACKWARD)
-				|| (action == DLDeviceAction.DRIVE)
-				|| (action == DLDeviceAction.LOOK_AROUND)
-				|| (action == DLDeviceAction.ROLL)
-				|| (action == DLDeviceAction.ZOOM_ON_REGION)
-				|| (action == DLDeviceAction.NO_DEVICE_ACTION))
+		if ((action == DOF_6Action.MOVE_FORWARD)
+				|| (action == DOF_6Action.MOVE_BACKWARD)
+				|| (action == DOF_6Action.DRIVE)
+				|| (action == DOF_6Action.LOOK_AROUND)
+				|| (action == DOF_6Action.ROLL)
+				|| (action == DOF_6Action.ZOOM_ON_REGION)
+				|| (action == DOF_6Action.NO_ACTION))
 			super.execAction2D(eventPoint, viewWindow);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
@@ -289,13 +289,13 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	
 	@Override
 	protected void execAction3D(Point eventPoint, Camera camera) {
-		if ((action == DLDeviceAction.MOVE_FORWARD)
-				|| (action == DLDeviceAction.MOVE_BACKWARD)
-				|| (action == DLDeviceAction.DRIVE)
-				|| (action == DLDeviceAction.LOOK_AROUND)
-				|| (action == DLDeviceAction.ROLL)
-				|| (action == DLDeviceAction.ZOOM_ON_REGION)
-				|| (action == DLDeviceAction.NO_DEVICE_ACTION))
+		if ((action == DOF_6Action.MOVE_FORWARD)
+				|| (action == DOF_6Action.MOVE_BACKWARD)
+				|| (action == DOF_6Action.DRIVE)
+				|| (action == DOF_6Action.LOOK_AROUND)
+				|| (action == DOF_6Action.ROLL)
+				|| (action == DOF_6Action.ZOOM_ON_REGION)
+				|| (action == DOF_6Action.NO_ACTION))
 			super.execAction3D(eventPoint, camera);
 		else {
 			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
@@ -459,7 +459,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			return;
 		
 		// Added by pierre: #CONNECTION# seems that startAction should always be called before :)
-		if (action == DLDeviceAction.ZOOM_ON_REGION) {
+		if (action == DOF_6Action.ZOOM_ON_REGION) {
 			// the rectangle needs to be normalized!
 			int w = Math.abs((int) eventPoint.x - (int) pressPos.x);
 			int tlX = (int) pressPos.x < (int) eventPoint.x ? (int) pressPos.x : (int) eventPoint.x;
@@ -536,7 +536,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		if( flyTimerJob.timer() != null )
 			flyTimerJob.runOnce(finalDrawAfterWheelEventDelay);
 
-		action = DLDeviceAction.NO_DEVICE_ACTION;
+		action = DLDeviceAction.NO_ACTION;
 	}
 	*/
 	

@@ -25,7 +25,7 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.action.DLDeviceAction;
+import remixlab.remixcam.action.DOF_6Action;
 import remixlab.remixcam.constraint.Constraint;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.event.*;
@@ -152,7 +152,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	// MouseGrabber
 	protected boolean keepsGrabbingDevice;
 
-	protected DLDeviceAction action;
+	protected DOF_6Action action;
 	//TODO define if this shpuld go
 	//protected Constraint prevConstraint; // When manipulation is without Constraint.
 	// Previous mouse position (used for incremental updates) and mouse press position.
@@ -181,7 +181,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		super(scn.is3D());		
 		scene = scn;		
 		
-		action = DLDeviceAction.NO_DEVICE_ACTION;
+		action = DOF_6Action.NO_ACTION;
 		horiz = true;
 
 		addInDeviceGrabberPool();
@@ -323,7 +323,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	public InteractiveFrame(AbstractScene scn, InteractiveCameraFrame iFrame) {
 		super(iFrame.rotation(), iFrame.translation(), iFrame.scaling());
 		scene = scn;
-		action = DLDeviceAction.NO_DEVICE_ACTION;
+		action = DOF_6Action.NO_ACTION;
 		horiz = true;
 
 		addInDeviceGrabberPool();
@@ -737,7 +737,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 */
 	//TODO how does this fit new model? Maire is using it
 	public boolean isInInteraction() {
-		return action != DLDeviceAction.NO_DEVICE_ACTION;
+		return action != DOF_6Action.NO_ACTION;
 	}
 	
 	public final void stopSpinning() {
@@ -1044,13 +1044,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * Protected internal method used to handle mouse actions.
 	 */
 	//TODO should receive action and device and should call beginInteraction
-	public void beginAction(DLDeviceAction act) {
+	public void beginAction(DOF_6Action act) {
 		if( ( scene.is2D() ) && ( !act.is2D() ) )
 			return;
 		action = act;
 	}
 	
-	public void execAction(DLDeviceAction act) {
+	public void execAction(DOF_6Action act) {
 		
 	}
 	
@@ -1127,7 +1127,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	
 	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {
 		int deltaY = 0;
-		if(action != DLDeviceAction.NO_DEVICE_ACTION) {
+		if(action != DOF_6Action.NO_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
 			if( scene.isRightHanded() )
 				deltaY = -deltaY;
@@ -1221,7 +1221,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			prevPos = eventPoint;
 		}
 
-		case NO_DEVICE_ACTION:
+		case NO_ACTION:
 			// Possible when the InteractiveFrame is a MouseGrabber. This method is
 			// then called without startAction
 			// because of mouseTracking.
@@ -1235,7 +1235,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	
   protected void execAction3D(Point eventPoint, Camera camera) {
   	int deltaY = 0;
-		if(action != DLDeviceAction.NO_DEVICE_ACTION) {
+		if(action != DOF_6Action.NO_ACTION) {
 			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
 			if( scene.isRightHanded() )
 				deltaY = -deltaY;
@@ -1382,7 +1382,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			break;			
 		}
 
-		case NO_DEVICE_ACTION:
+		case NO_ACTION:
 			// Possible when the InteractiveFrame is a MouseGrabber. This method is
 			// then called without startAction
 			// because of mouseTracking.
@@ -1423,7 +1423,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		//System.out.println("mouse speed: " + deviceSpeed + " delay: " + delay);
 		
 		// /**
-		if (((action == DLDeviceAction.ROTATE) || (action == DLDeviceAction.SCREEN_ROTATE) || (action == DLDeviceAction.CAD_ROTATE) )	&& (deviceSpeed >= spinningSensitivity()))
+		if (((action == DOF_6Action.ROTATE) || (action == DOF_6Action.SCREEN_ROTATE) || (action == DOF_6Action.CAD_ROTATE) )	&& (deviceSpeed >= spinningSensitivity()))
 			startSpinning(delay);
 		//*/
 		
@@ -1432,7 +1432,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			startTossing(delay);
 		//*/
 
-		action = DLDeviceAction.NO_DEVICE_ACTION;
+		action = DOF_6Action.NO_ACTION;
 	}
 
 	/**
@@ -1461,7 +1461,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		//if (prevConstraint != null)
 			//setConstraint(prevConstraint);
 
-		action = DLDeviceAction.NO_DEVICE_ACTION;
+		action = DLDeviceAction.NO_ACTION;
 	}
 	*/
 	

@@ -1,6 +1,6 @@
 package remixlab.proscene;
 
-import remixlab.remixcam.action.DLDeviceAction;
+import remixlab.remixcam.action.DOF_6Action;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.device.HIDevice;
 import remixlab.remixcam.event.*;
@@ -2039,9 +2039,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		} else {
 			pinhole().hideAllPaths();
 		}
-		if (eventDispatcher.camMouseAction == DLDeviceAction.ZOOM_ON_REGION)			
+		if (eventDispatcher.camMouseAction == DOF_6Action.ZOOM_ON_REGION)			
 			drawZoomWindowHint();		
-		if (eventDispatcher.camMouseAction == DLDeviceAction.SCREEN_ROTATE)
+		if (eventDispatcher.camMouseAction == DOF_6Action.SCREEN_ROTATE)
 			drawScreenRotateLineHint();
 		if (arpFlag) 
 			drawArcballReferencePointHint();
@@ -2146,6 +2146,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 							+ "endDraw() and they cannot be nested. Check your implementation!");
 		
 		postDraw();
+	}
+	
+	@Override
+	protected void updateCursorPosition() {
+		pcursorX = cursorX;
+		pcursorY = cursorY;
+		cursorX = parent.mouseX;
+		cursorY = parent.mouseY;
 	}
 	
   // 4. Scene dimensions

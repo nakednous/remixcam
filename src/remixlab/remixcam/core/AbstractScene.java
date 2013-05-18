@@ -31,13 +31,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import remixlab.remixcam.action.DLClickAction;
-import remixlab.remixcam.action.DLKeyboardAction;
+import remixlab.remixcam.action.*;
 import remixlab.remixcam.device.HIDevice;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.profile.*;
 import remixlab.remixcam.renderer.*;
+import remixlab.remixcam.shortcut.KeyboardShortcut;
 import remixlab.remixcam.util.*;
 
 public abstract class AbstractScene implements Constants {	
@@ -112,7 +112,7 @@ public abstract class AbstractScene implements Constants {
 	protected CameraProfile currentCameraProfile;
 	
   //S h o r t c u t k e y s
-	protected Bindings<KeyboardShortcut, DLKeyboardAction> gProfile;
+	protected Bindings<KeyboardShortcut, DOF_0Action> gProfile;
 	
   //K E Y F R A M E S
 	protected Bindings<Integer, Integer> pathKeys;
@@ -124,10 +124,10 @@ public abstract class AbstractScene implements Constants {
 	protected boolean offscreen;
 	
 	/**
-   * The system variables <b>mouseX</b> and <b>mouseY</b> always contains the current horizontal
+   * The system variables <b>cursorX</b> and <b>cursorY</b> always contains the current horizontal
    * and vertical coordinates of the mouse.
    */ 
-  public int mouseX, mouseY;  
+  public int cursorX, cursorY, pcursorX, pcursorY;
 	
 	protected long frameCount;
 	protected float frameRate;
@@ -171,7 +171,7 @@ public abstract class AbstractScene implements Constants {
 		setDottedGrid(true);
 		setRightHanded();
 		
-		gProfile = new Bindings<KeyboardShortcut, DLKeyboardAction>(this);
+		gProfile = new Bindings<KeyboardShortcut, DOF_0Action>(this);
 		pathKeys = new Bindings<Integer, Integer>(this);		
 		setDefaultShortcuts();
 	}
@@ -220,7 +220,7 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Internal method. Handles the different global keyboard actions.
 	 */
-	public void handleKeyboardAction(DLKeyboardAction id) {			
+	public void handleKeyboardAction(DOF_0Action id) {			
 		//if( !keyboardIsHandled() )
 			//return;
 		switch (id) {
@@ -243,7 +243,7 @@ public abstract class AbstractScene implements Constants {
 			toggleAnimation();
 			break;
 		case ARP_FROM_PIXEL:
-			if (setArcballReferencePointFromPixel(new Point(mouseX, mouseY))) {
+			if (setArcballReferencePointFromPixel(new Point(cursorX, cursorY))) {
 				arpFlag = true;
 				timerFx.runOnce(1000);					
 			}
@@ -269,7 +269,186 @@ public abstract class AbstractScene implements Constants {
 			toggleFrameSelectionHintIsDrawn();
 			break;
 		case CONSTRAIN_FRAME:
-			toggleDrawInteractiveFrame();
+			//toggleDrawWithConstraint();
+			break;
+		}
+	}
+	
+	/**
+	 * Internal method. Handles the different camera keyboard actions.
+	 */
+	public void handleCameraKeyboardAction(DOF_0Action id) {
+		System.out.println("enter handleCameraKeyboardAction");
+		//if( !keyboardIsHandled() )
+			//return;
+		if( !id.is2D() && this.is2D() )
+			return;
+		Vector3D trans;
+		switch (id) {		
+		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
+			if( this.is3D() ) {
+				Camera.WorldPoint wP = camera().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
+				if (wP.found) {
+					pupVec = wP.point;
+					pupFlag = true;
+					timerFx.runOnce(1000);
+				}
+			}
+			else {
+				viewWindow().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
+				pupVec = viewWindow().unprojectedCoordinatesOf(new Vector3D((float)cursorX, (float)cursorY, 0.5f));
+				pupFlag = true;
+				timerFx.runOnce(1000);
+			}
+			break;
+		case INTERPOLATE_TO_FIT_SCENE:
+			pinhole().interpolateToFitScene();
+			break;
+		case SHOW_ALL:
+			showAll();
+			break;
+		case MOVE_CAMERA_LEFT:
+			trans = new Vector3D(-10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
+			if(this.is3D())
+				trans.div(camera().frame().magnitude());
+			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
+			break;
+		case MOVE_CAMERA_RIGHT:
+			trans = new Vector3D(10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
+			if(this.is3D())
+				trans.div(camera().frame().magnitude());
+			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
+			break;
+		case MOVE_CAMERA_UP:
+			trans = pinhole().frame().inverseTransformOf(new Vector3D(0.0f, isRightHanded() ? 10.0f : -10.0f * pinhole().flySpeed(), 0.0f));
+			if(this.is3D())
+				trans.div(camera().frame().magnitude());
+			pinhole().frame().translate(trans);					  
+			break;
+		case MOVE_CAMERA_DOWN:
+			trans = pinhole().frame().inverseTransformOf(new Vector3D(0.0f, isRightHanded() ? -10.0f : 10.0f * pinhole().flySpeed(), 0.0f));
+			if(this.is3D())
+				trans.div(camera().frame().magnitude());
+			pinhole().frame().translate(trans);			
+			break;
+		case INCREASE_ROTATION_SENSITIVITY:
+			pinhole().setRotationSensitivity(pinhole().rotationSensitivity() * 1.2f);
+			break;
+		case DECREASE_ROTATION_SENSITIVITY:
+			pinhole().setRotationSensitivity(pinhole().rotationSensitivity() / 1.2f);
+			break;
+		case INCREASE_CAMERA_FLY_SPEED:
+			((Camera) pinhole()).setFlySpeed(((Camera) pinhole()).flySpeed() * 1.2f);
+			break;
+		case DECREASE_CAMERA_FLY_SPEED:
+			((Camera) pinhole()).setFlySpeed(((Camera) pinhole()).flySpeed() / 1.2f);
+			break;
+		case INCREASE_AVATAR_FLY_SPEED:
+			if (avatar() != null)
+				if (avatarIsInteractiveDrivableFrame)
+					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() * 1.2f);
+			break;
+		case DECREASE_AVATAR_FLY_SPEED:
+			if (avatar() != null)
+				if (avatarIsInteractiveDrivableFrame)
+					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() / 1.2f);
+			break;
+		case INCREASE_AZYMUTH:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() + PI / 64);
+			break;
+		case DECREASE_AZYMUTH:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() - PI / 64);
+			break;
+		case INCREASE_INCLINATION:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() + PI / 64);
+			break;
+		case DECREASE_INCLINATION:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() - PI / 64);
+			break;
+		case INCREASE_TRACKING_DISTANCE:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() + radius() / 50);
+			break;
+		case DECREASE_TRACKING_DISTANCE:
+			if (avatar() != null)
+				if (avatarIsInteractiveAvatarFrame)
+					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() - radius() / 50);
+			break;
+		}
+	}
+	
+	/**
+	 * Internal method. Handles the different mouse click actions.
+	 */
+	public void handleClickAction(DOF_0Action action) {
+		// public enum ClickAction { NO_CLICK_ACTION, ZOOM_ON_PIXEL, ZOOM_TO_FIT,
+		// SELECT, ARP_FROM_PIXEL, RESET_ARP,
+		// CENTER_FRAME, CENTER_SCENE, SHOW_ALL, ALIGN_FRAME, ALIGN_CAMERA }
+		//if( !mouseIsHandled() )
+			//return;
+		
+		if( !action.is2D() && this.is2D() )
+			return;
+		
+		switch (action) {
+		case NO_ACTION:
+			break;
+		case ZOOM_ON_PIXEL:
+			if (this.is2D()) {
+				viewWindow().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
+				pupVec = viewWindow().unprojectedCoordinatesOf(new Vector3D((float)cursorX, (float)cursorY, 0.5f));
+				pupFlag = true;
+				timerFx.runOnce(1000);
+			}				
+			else {
+				Camera.WorldPoint wP = camera().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
+				if (wP.found) {
+					pupVec = wP.point;
+					pupFlag = true;
+					timerFx.runOnce(1000);						
+				}
+			}
+			break;
+		case ZOOM_TO_FIT:
+			pinhole().interpolateToFitScene();
+			break;
+		case ARP_FROM_PIXEL:
+			if (setArcballReferencePointFromPixel(new Point(cursorX, cursorY))) {			  
+				arpFlag = true;
+				timerFx.runOnce(1000);					
+			}
+			break;
+		case RESET_ARP:		  
+			pinhole().setArcballReferencePoint(new Vector3D(0, 0, 0));
+			arpFlag = true;
+			timerFx.runOnce(1000);				
+			break;
+		case CENTER_FRAME:
+			// TODO test 2d case
+			if (interactiveFrame() != null)
+				interactiveFrame().projectOnLine(pinhole().position(), pinhole().viewDirection());
+			break;
+		case CENTER_SCENE:
+			pinhole().centerScene();
+			break;
+		case SHOW_ALL:
+			pinhole().showEntireScene();
+			break;
+		case ALIGN_FRAME:
+			if (interactiveFrame() != null)
+				interactiveFrame().alignWithFrame(pinhole().frame());
+			break;
+		case ALIGN_CAMERA:
+			pinhole().frame().alignWithFrame(null, true);
 			break;
 		}
 	}
@@ -602,9 +781,9 @@ public abstract class AbstractScene implements Constants {
    * @param key shortcut
    * @param action keyboard action
    */
-	public void setShortcut(Character key, DLKeyboardAction action) {
+	public void setShortcut(Character key, DOF_0Action action) {
 		if ( isKeyInUse(key) ) {
-			DLKeyboardAction a = shortcut(key);
+			DOF_0Action a = shortcut(key);
 			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
 		}
 		gProfile.setBinding(new KeyboardShortcut(key), action);
@@ -612,31 +791,31 @@ public abstract class AbstractScene implements Constants {
 	
   /**
    * Defines a global keyboard shortcut to bind the given action. High-level version
-   * of {@link #setShortcut(Integer, Integer, DLKeyboardAction)}.
+   * of {@link #setShortcut(Integer, Integer, DOF_0Action)}.
    * 
    * @param mask modifier mask defining the shortcut
    * @param key character (internally converted to a coded key) defining the shortcut
    * @param action keyboard action
    * 
-   * @see #setShortcut(Integer, Integer, DLKeyboardAction)
+   * @see #setShortcut(Integer, Integer, DOF_0Action)
    */
-	public void setShortcut(Integer mask, Character key, DLKeyboardAction action) {
+	public void setShortcut(Integer mask, Character key, DOF_0Action action) {
 		setShortcut(mask, DLKeyEvent.getKeyCode(key), action);
 	}
 	
   /**
    * Defines a global keyboard shortcut to bind the given action. High-level version
-   * of {@link #setShortcut(Integer, Character, DLKeyboardAction)}.
+   * of {@link #setShortcut(Integer, Character, DOF_0Action)}.
    * 
    * @param mask modifier mask defining the shortcut
    * @param vKey coded key defining the shortcut
    * @param action keyboard action
    * 
-   * @see #setShortcut(Integer, Character, DLKeyboardAction)
+   * @see #setShortcut(Integer, Character, DOF_0Action)
    */
-	public void setShortcut(Integer mask, Integer vKey, DLKeyboardAction action) {
+	public void setShortcut(Integer mask, Integer vKey, DOF_0Action action) {
 		if ( isKeyInUse(mask, vKey) ) {
-			DLKeyboardAction a = shortcut(mask, vKey);
+			DOF_0Action a = shortcut(mask, vKey);
 			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
 		}
 		gProfile.setBinding(new KeyboardShortcut(mask, vKey), action);
@@ -648,9 +827,9 @@ public abstract class AbstractScene implements Constants {
 	 * @param vKey coded key defining the shortcut
 	 * @param action keyboard action
 	 */
-	public void setShortcut(Integer vKey, DLKeyboardAction action) {
+	public void setShortcut(Integer vKey, DOF_0Action action) {
 		if ( isKeyInUse(vKey) ) {
-			DLKeyboardAction a = shortcut(vKey);
+			DOF_0Action a = shortcut(vKey);
 			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
 		}
 		gProfile.setBinding(new KeyboardShortcut(vKey), action);
@@ -712,7 +891,7 @@ public abstract class AbstractScene implements Constants {
 	 * 
 	 * @param key shortcut
 	 */
-	public DLKeyboardAction shortcut(Character key) {
+	public DOF_0Action shortcut(Character key) {
 		return gProfile.binding(new KeyboardShortcut(key));
 	}
 	
@@ -725,7 +904,7 @@ public abstract class AbstractScene implements Constants {
    * 
    * @see #shortcut(Integer, Integer)
    */
-	public DLKeyboardAction shortcut(Integer mask, Character key) {
+	public DOF_0Action shortcut(Integer mask, Character key) {
 		return shortcut(mask, DLKeyEvent.getKeyCode(key));
 	}
 
@@ -738,7 +917,7 @@ public abstract class AbstractScene implements Constants {
    * 
    * @see #shortcut(Integer, Character)
    */
-	public DLKeyboardAction shortcut(Integer mask, Integer vKey) {
+	public DOF_0Action shortcut(Integer mask, Integer vKey) {
 		return gProfile.binding(new KeyboardShortcut(mask, vKey));
 	}
 
@@ -747,7 +926,7 @@ public abstract class AbstractScene implements Constants {
 	 * 
 	 * @param vKey virtual coded-key defining the shortcut
 	 */
-	public DLKeyboardAction shortcut(Integer vKey) {
+	public DOF_0Action shortcut(Integer vKey) {
 		return gProfile.binding(new KeyboardShortcut(vKey));
 	}
 
@@ -798,7 +977,7 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Returns true if there is a global keyboard shortcut for the given action.
 	 */
-	public boolean isActionBinded(DLKeyboardAction action) {
+	public boolean isActionBinded(DOF_0Action action) {
 		return gProfile.isActionMapped(action);
 	}
 	
@@ -863,13 +1042,13 @@ public abstract class AbstractScene implements Constants {
 	 * Default global keyboard shortcuts are:
 	 * <p>
 	 * <ul>
-	 * <li><b>'a'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#DRAW_AXIS}.
-	 * <li><b>'e'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#CAMERA_TYPE}.
-	 * <li><b>'g'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#DRAW_GRID}.
-	 * <li><b>'h'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#GLOBAL_HELP}
-	 * <li><b>'H'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#CURRENT_CAMERA_PROFILE_HELP}
-	 * <li><b>'r'</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#EDIT_CAMERA_PATH}.
-	 * <li><b>space bar</b>: {@link remixlab.proscene.Scene.DLKeyboardAction#CAMERA_PROFILE}.
+	 * <li><b>'a'</b>: {@link remixlab.proscene.Scene.DOF_0Action#DRAW_AXIS}.
+	 * <li><b>'e'</b>: {@link remixlab.proscene.Scene.DOF_0Action#CAMERA_TYPE}.
+	 * <li><b>'g'</b>: {@link remixlab.proscene.Scene.DOF_0Action#DRAW_GRID}.
+	 * <li><b>'h'</b>: {@link remixlab.proscene.Scene.DOF_0Action#GLOBAL_HELP}
+	 * <li><b>'H'</b>: {@link remixlab.proscene.Scene.DOF_0Action#CURRENT_CAMERA_PROFILE_HELP}
+	 * <li><b>'r'</b>: {@link remixlab.proscene.Scene.DOF_0Action#EDIT_CAMERA_PATH}.
+	 * <li><b>space bar</b>: {@link remixlab.proscene.Scene.DOF_0Action#CAMERA_PROFILE}.
 	 * </ul> 
 	 * <p>
 	 * Default key-frame shortcuts keys are:
@@ -881,13 +1060,13 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void setDefaultShortcuts() {
 		// D e f a u l t s h o r t c u t s		
-		setShortcut('a', DLKeyboardAction.DRAW_AXIS);
-		setShortcut('g', DLKeyboardAction.DRAW_GRID);
-		setShortcut(' ', DLKeyboardAction.CAMERA_PROFILE);
-		setShortcut('e', DLKeyboardAction.CAMERA_TYPE);		
-		setShortcut('h', DLKeyboardAction.GLOBAL_HELP);
-		setShortcut('H', DLKeyboardAction.CURRENT_CAMERA_PROFILE_HELP);
-		setShortcut('r', DLKeyboardAction.EDIT_CAMERA_PATH);
+		setShortcut('a', DOF_0Action.DRAW_AXIS);
+		setShortcut('g', DOF_0Action.DRAW_GRID);
+		setShortcut(' ', DOF_0Action.CAMERA_PROFILE);
+		setShortcut('e', DOF_0Action.CAMERA_TYPE);		
+		setShortcut('h', DOF_0Action.GLOBAL_HELP);
+		setShortcut('H', DOF_0Action.CURRENT_CAMERA_PROFILE_HELP);
+		setShortcut('r', DOF_0Action.EDIT_CAMERA_PATH);
 
 		// K e y f r a m e s s h o r t c u t k e y s
 		setAddKeyFrameKeyboardModifier(CTRL);
@@ -1022,7 +1201,7 @@ public abstract class AbstractScene implements Constants {
 	public String globalHelp() {
 		String description = new String();
 		description += "GLOBAL keyboard shortcuts\n";
-		for (Entry<KeyboardShortcut, DLKeyboardAction> entry : gProfile.map().entrySet()) {			
+		for (Entry<KeyboardShortcut, DOF_0Action> entry : gProfile.map().entrySet()) {			
 			Character space = ' ';
 			if (!entry.getKey().description().equals(space.toString())) 
 				description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";
@@ -1064,186 +1243,7 @@ public abstract class AbstractScene implements Constants {
 	public float aspectRatio() {
 		return (float) width() / (float) height();
 	}
-	
-	/**
-	 * Internal method. Handles the different camera keyboard actions.
-	 */
-	public void handleCameraKeyboardAction(DLCameraKeyboardAction id) {
-		System.out.println("enter handleCameraKeyboardAction");
-		//if( !keyboardIsHandled() )
-			//return;
-		if( !id.is2D() && this.is2D() )
-			return;
-		Vector3D trans;
-		switch (id) {		
-		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
-			if( this.is3D() ) {
-				Camera.WorldPoint wP = camera().interpolateToZoomOnPixel(new Point(mouseX, mouseY));
-				if (wP.found) {
-					pupVec = wP.point;
-					pupFlag = true;
-					timerFx.runOnce(1000);
-				}
-			}
-			else {
-				viewWindow().interpolateToZoomOnPixel(new Point(mouseX, mouseY));
-				pupVec = viewWindow().unprojectedCoordinatesOf(new Vector3D((float)mouseX, (float)mouseY, 0.5f));
-				pupFlag = true;
-				timerFx.runOnce(1000);
-			}
-			break;
-		case INTERPOLATE_TO_FIT_SCENE:
-			pinhole().interpolateToFitScene();
-			break;
-		case SHOW_ALL:
-			showAll();
-			break;
-		case MOVE_CAMERA_LEFT:
-			trans = new Vector3D(-10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
-			if(this.is3D())
-				trans.div(camera().frame().magnitude());
-			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
-			break;
-		case MOVE_CAMERA_RIGHT:
-			trans = new Vector3D(10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
-			if(this.is3D())
-				trans.div(camera().frame().magnitude());
-			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
-			break;
-		case MOVE_CAMERA_UP:
-			trans = pinhole().frame().inverseTransformOf(new Vector3D(0.0f, isRightHanded() ? 10.0f : -10.0f * pinhole().flySpeed(), 0.0f));
-			if(this.is3D())
-				trans.div(camera().frame().magnitude());
-			pinhole().frame().translate(trans);					  
-			break;
-		case MOVE_CAMERA_DOWN:
-			trans = pinhole().frame().inverseTransformOf(new Vector3D(0.0f, isRightHanded() ? -10.0f : 10.0f * pinhole().flySpeed(), 0.0f));
-			if(this.is3D())
-				trans.div(camera().frame().magnitude());
-			pinhole().frame().translate(trans);			
-			break;
-		case INCREASE_ROTATION_SENSITIVITY:
-			pinhole().setRotationSensitivity(pinhole().rotationSensitivity() * 1.2f);
-			break;
-		case DECREASE_ROTATION_SENSITIVITY:
-			pinhole().setRotationSensitivity(pinhole().rotationSensitivity() / 1.2f);
-			break;
-		case INCREASE_CAMERA_FLY_SPEED:
-			((Camera) pinhole()).setFlySpeed(((Camera) pinhole()).flySpeed() * 1.2f);
-			break;
-		case DECREASE_CAMERA_FLY_SPEED:
-			((Camera) pinhole()).setFlySpeed(((Camera) pinhole()).flySpeed() / 1.2f);
-			break;
-		case INCREASE_AVATAR_FLY_SPEED:
-			if (avatar() != null)
-				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() * 1.2f);
-			break;
-		case DECREASE_AVATAR_FLY_SPEED:
-			if (avatar() != null)
-				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() / 1.2f);
-			break;
-		case INCREASE_AZYMUTH:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() + PI / 64);
-			break;
-		case DECREASE_AZYMUTH:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar()).setAzimuth(((InteractiveAvatarFrame) avatar()).azimuth() - PI / 64);
-			break;
-		case INCREASE_INCLINATION:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() + PI / 64);
-			break;
-		case DECREASE_INCLINATION:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar()).setInclination(((InteractiveAvatarFrame) avatar()).inclination() - PI / 64);
-			break;
-		case INCREASE_TRACKING_DISTANCE:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() + radius() / 50);
-			break;
-		case DECREASE_TRACKING_DISTANCE:
-			if (avatar() != null)
-				if (avatarIsInteractiveAvatarFrame)
-					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() - radius() / 50);
-			break;
-		}
-	}
-	
-	/**
-	 * Internal method. Handles the different mouse click actions.
-	 */
-	public void handleClickAction(DLClickAction action) {
-		// public enum ClickAction { NO_CLICK_ACTION, ZOOM_ON_PIXEL, ZOOM_TO_FIT,
-		// SELECT, ARP_FROM_PIXEL, RESET_ARP,
-		// CENTER_FRAME, CENTER_SCENE, SHOW_ALL, ALIGN_FRAME, ALIGN_CAMERA }
-		//if( !mouseIsHandled() )
-			//return;
 		
-		if( !action.is2D() && this.is2D() )
-			return;
-		
-		switch (action) {
-		case NO_CLICK_ACTION:
-			break;
-		case ZOOM_ON_PIXEL:
-			if (this.is2D()) {
-				viewWindow().interpolateToZoomOnPixel(new Point(mouseX, mouseY));
-				pupVec = viewWindow().unprojectedCoordinatesOf(new Vector3D((float)mouseX, (float)mouseY, 0.5f));
-				pupFlag = true;
-				timerFx.runOnce(1000);
-			}				
-			else {
-				Camera.WorldPoint wP = camera().interpolateToZoomOnPixel(new Point(mouseX, mouseY));
-				if (wP.found) {
-					pupVec = wP.point;
-					pupFlag = true;
-					timerFx.runOnce(1000);						
-				}
-			}
-			break;
-		case ZOOM_TO_FIT:
-			pinhole().interpolateToFitScene();
-			break;
-		case ARP_FROM_PIXEL:
-			if (setArcballReferencePointFromPixel(new Point(mouseX, mouseY))) {			  
-				arpFlag = true;
-				timerFx.runOnce(1000);					
-			}
-			break;
-		case RESET_ARP:		  
-			pinhole().setArcballReferencePoint(new Vector3D(0, 0, 0));
-			arpFlag = true;
-			timerFx.runOnce(1000);				
-			break;
-		case CENTER_FRAME:
-			// TODO test 2d case
-			if (interactiveFrame() != null)
-				interactiveFrame().projectOnLine(pinhole().position(), pinhole().viewDirection());
-			break;
-		case CENTER_SCENE:
-			pinhole().centerScene();
-			break;
-		case SHOW_ALL:
-			pinhole().showEntireScene();
-			break;
-		case ALIGN_FRAME:
-			if (interactiveFrame() != null)
-				interactiveFrame().alignWithFrame(pinhole().frame());
-			break;
-		case ALIGN_CAMERA:
-			pinhole().frame().alignWithFrame(null, true);
-			break;
-		}
-	}
-	
 	/**
 	 * Returns {@code true} if the mouse is currently being handled by proscene and
 	 * {@code false} otherwise. Set mouse handling with
@@ -1319,7 +1319,7 @@ public abstract class AbstractScene implements Constants {
 	}
 	
 	/**
-	 * Internal method. Called by {@link #draw()} and {@link #beginDraw()}.
+	 * Internal method. Called by {@link #draw()} and {@link #endDraw()}.
 	 * <p>
 	 * First performs any scheduled animation, then calls {@link #proscenium()}
 	 * which is the main drawing method that could be overloaded. Then, if
@@ -1353,6 +1353,8 @@ public abstract class AbstractScene implements Constants {
 		invokeRegisteredMethod(); // abstract
 		
 	  // 4. HIDevices
+		updateCursorPosition();
+		
 		for (HIDevice device : devices)
 			device.handle();
 			
@@ -1375,6 +1377,8 @@ public abstract class AbstractScene implements Constants {
 		
 		//updateFrameRate();
 	}	
+	
+	protected abstract void updateCursorPosition();
 	
 	private void updateFrameRate() {
 		long now = System.nanoTime();

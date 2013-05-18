@@ -1,8 +1,6 @@
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.action.DLClickAction;
-import remixlab.remixcam.action.DLDeviceAction;
-import remixlab.remixcam.action.DLKeyboardAction;
+import remixlab.remixcam.action.*;
 import remixlab.remixcam.core.AbstractScene.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.Point;
@@ -20,7 +18,7 @@ import remixlab.remixcam.geom.Point;
 //TODO should be AbstractScene inner class
 public class EventDispatcher implements Constants {
 	protected AbstractScene scene;
-	public DLDeviceAction camMouseAction;
+	public DOF_6Action camMouseAction;
 	protected boolean keyHandled;
   //Z O O M _ O N _ R E G I O N
 	public Point fCorner;// also used for SCREEN_ROTATE
@@ -28,7 +26,7 @@ public class EventDispatcher implements Constants {
 	
 	public EventDispatcher(AbstractScene s) {
 		scene = s;
-		camMouseAction = DLDeviceAction.NO_DEVICE_ACTION;
+		camMouseAction = DOF_6Action.NO_ACTION;
 		keyHandled = false;
 		fCorner = new Point();
 		lCorner = new Point();
@@ -122,7 +120,7 @@ public class EventDispatcher implements Constants {
 	 * @return true if a binding was found 
 	 */
 	protected boolean keyCharCameraKeyboardAction(DLKeyEvent e) {
-		DLCameraKeyboardAction kba = null;
+		DOF_0Action kba = null;
 		kba = scene.currentCameraProfile().shortcut( e.getKey() );
 		if (kba == null)
 			return false;
@@ -149,7 +147,7 @@ public class EventDispatcher implements Constants {
 			}
 		}
 		
-		DLKeyboardAction kba = null;
+		DOF_0Action kba = null;
 		kba = scene.shortcut(e.getKey());
 		if (kba == null)
 			return false;
@@ -169,7 +167,7 @@ public class EventDispatcher implements Constants {
 	 * @return true if a binding was found 
 	 */
 	protected boolean keyCodedCameraKeyboardAction(DLKeyEvent e) {
-		DLCameraKeyboardAction kba = null;
+		DOF_0Action kba = null;
 		kba = scene.currentCameraProfile().shortcut( e.getModifiers(), e.getKeyCode() );
 		if (kba == null)
 			return false;
@@ -214,7 +212,7 @@ public class EventDispatcher implements Constants {
 			}
 		}		
 		// 2. General actions
-		DLKeyboardAction kba = null;
+		DOF_0Action kba = null;
 		kba = scene.shortcut( e.getModifiers(), e.getKeyCode() );
 		if (kba == null)
 			return false;
@@ -233,8 +231,11 @@ public class EventDispatcher implements Constants {
 	 * @see remixlab.proscene.Scene#enableMouseHandling(boolean)
 	 */
 	public void handleMouseEvent(DLMouseEvent e) {
+		//TODO should be set by the scene
+		/**
 		scene.mouseX = e.getX();
 		scene.mouseY = e.getY();
+		*/
 		/**
 		switch (e.getAction() ) {
 		case DLMouseEvent.CLICK:
@@ -270,7 +271,7 @@ public class EventDispatcher implements Constants {
 		if (scene.deviceGrabber() != null)
 			scene.deviceGrabber().buttonClicked(/**event.getPoint(),*/ event.getButton(), event.getClickCount());
 		else {
-			DLClickAction ca = scene.currentCameraProfile().clickBinding(event.getModifiers(), event.getButton(), event.getClickCount());
+			DOF_0Action ca = scene.currentCameraProfile().clickBinding(event.getModifiers(), event.getButton(), event.getClickCount());
 			if (ca != null)
 				scene.handleClickAction(ca);
 		}
@@ -324,11 +325,11 @@ public class EventDispatcher implements Constants {
 		}
 		//camMouseAction = scene.currentCameraProfile().cameraMouseAction(e);
 		camMouseAction = scene.currentCameraProfile().cameraMouseAction(e.getModifiers(), e.getButton());
-		if (camMouseAction == DLDeviceAction.ZOOM_ON_REGION) {
+		if (camMouseAction == DOF_6Action.ZOOM_ON_REGION) {
 			fCorner.set(event.getX(), event.getY());
 			lCorner.set(event.getX(), event.getY());
 		}
-		if (camMouseAction == DLDeviceAction.SCREEN_ROTATE)
+		if (camMouseAction == DOF_6Action.SCREEN_ROTATE)
 			fCorner.set(event.getX(), event.getY());
 		scene.pinhole().frame().beginAction(camMouseAction);
 		scene.pinhole().frame().beginInteraction(new Point(event.getX(), event.getY()));
@@ -363,10 +364,10 @@ public class EventDispatcher implements Constants {
 		  scene.interactiveFrame().performInteraction(new Point(event.getX(), event.getY()));
 			return;
 		}
-		if (camMouseAction == DLDeviceAction.ZOOM_ON_REGION)
+		if (camMouseAction == DOF_6Action.ZOOM_ON_REGION)
 			lCorner.set(event.getX(), event.getY());
 		else {
-			if (camMouseAction == DLDeviceAction.SCREEN_ROTATE)
+			if (camMouseAction == DOF_6Action.SCREEN_ROTATE)
 				fCorner.set(event.getX(), event.getY());
 			scene.pinhole().frame().performInteraction(new Point(event.getX(), event.getY()));
 		}
@@ -404,12 +405,12 @@ public class EventDispatcher implements Constants {
 			return;
 		}
 
-		if ((camMouseAction == DLDeviceAction.ZOOM_ON_REGION)
-				|| (camMouseAction == DLDeviceAction.SCREEN_ROTATE)
-				|| (camMouseAction == DLDeviceAction.SCREEN_TRANSLATE))
+		if ((camMouseAction == DOF_6Action.ZOOM_ON_REGION)
+				|| (camMouseAction == DOF_6Action.SCREEN_ROTATE)
+				|| (camMouseAction == DOF_6Action.SCREEN_TRANSLATE))
 			lCorner.set(event.getX(), event.getY());
 		scene.pinhole().frame().endInteraction(new Point(event.getX(), event.getY()));
-		camMouseAction = DLDeviceAction.NO_DEVICE_ACTION;
+		camMouseAction = DOF_6Action.NO_ACTION;
 		// iFrameMouseAction = MouseAction.NO_MOUSE_ACTION;
 	}
 	

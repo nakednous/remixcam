@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.profile;
+package remixlab.remixcam.shortcut;
 
 import remixlab.remixcam.event.DLEvent;
 import remixlab.remixcam.event.DLKeyEvent;
@@ -36,11 +36,11 @@ import com.flipthebird.gwthashcodeequals.*;
  * Keyboard shortcuts can be of one out of three forms: 1. Characters (e.g., 'a');
  * 2. Virtual keys (e.g., right arrow key); or, 3. Key combinations (e.g., 'a' + CTRL key).
  */
-public final class KeyboardShortcut {
+public final class KeyboardShortcut extends AbstractShortcut {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
-		append(mask).
+    appendSuper(super.hashCode()).
 		append(vKey).
 		append(key).
     toHashCode();		
@@ -53,7 +53,7 @@ public final class KeyboardShortcut {
 		
 		KeyboardShortcut rhs = (KeyboardShortcut) obj;
 		return new EqualsBuilder()
-    .append(mask, rhs.mask)
+		.appendSuper(super.equals(obj))
     .append(vKey, rhs.vKey)
     .append(key, rhs.key)
     .isEquals();
@@ -65,8 +65,9 @@ public final class KeyboardShortcut {
 	 * @param k the character that defines the keyboard shortcut.
 	 */
 	public KeyboardShortcut(Character k) {
+		super();
 		this.key = k;
-		this.mask = null;
+		//this.mask = null; //TODO test
 		this.vKey = null;
 	}
 	
@@ -86,7 +87,7 @@ public final class KeyboardShortcut {
 	 * @param vk the virtual key that defines the keyboard shortcut.
 	 */
 	public KeyboardShortcut(Integer m, Integer vk) {
-		this.mask = m;
+		super(m);
 		this.vKey = vk;
 		this.key = null;
 	}	
@@ -109,7 +110,6 @@ public final class KeyboardShortcut {
 		return description;
 	}
 
-	protected final Integer mask;
 	protected final Integer vKey;
 	protected final Character key;
 }

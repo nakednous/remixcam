@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.profile;
+package remixlab.remixcam.shortcut;
 
 import com.flipthebird.gwthashcodeequals.*;
 import remixlab.remixcam.core.Constants;
@@ -36,11 +36,11 @@ import remixlab.remixcam.event.DLEvent;
  * and can be of one out of two forms: 1. A mouse button; and, 2. A mouse
  * button plus a key-modifier (such as the CTRL key).
  */
-public class ClickBinding implements Constants {	
+public class ClickShortcut extends AbstractShortcut implements Constants {	
 	@Override
 	public int hashCode() {
-    return new HashCodeBuilder(17, 37).		
-		append(mask).
+    return new HashCodeBuilder(17, 37).
+    appendSuper(super.hashCode()).
 		append(numberOfClicks).
 		append(button).
     toHashCode();		
@@ -52,9 +52,9 @@ public class ClickBinding implements Constants {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;		
 		
-		ClickBinding other = (ClickBinding) obj;
-	  return new EqualsBuilder()		
-		.append(mask, other.mask)
+		ClickShortcut other = (ClickShortcut) obj;
+	  return new EqualsBuilder()
+	  .appendSuper(super.equals(obj))
 		.append(numberOfClicks, other.numberOfClicks)
 		.append(button, other.button)
 		.isEquals();
@@ -65,7 +65,7 @@ public class ClickBinding implements Constants {
    * 
    * @param b mouse button
    */
-  public ClickBinding(Integer b) {
+  public ClickShortcut(Integer b) {
   	this(0, b, 1);
   }
   
@@ -89,7 +89,7 @@ public class ClickBinding implements Constants {
    * @param b mouse button
    * @param c number of clicks
    */
-  public ClickBinding(Integer b, Integer c) {
+  public ClickShortcut(Integer b, Integer c) {
   	this(0, b, c);
   }
 	
@@ -102,8 +102,8 @@ public class ClickBinding implements Constants {
 	 * @param b mouse button
 	 * @param c bumber of clicks
 	 */
-	public ClickBinding(Integer m, Integer b, Integer c) {
-		this.mask = m;
+	public ClickShortcut(Integer m, Integer b, Integer c) {
+		super(m);
 		this.button = b;
 		if(c <= 0)
 			this.numberOfClicks = 1;
@@ -138,7 +138,6 @@ public class ClickBinding implements Constants {
 		return description;
 	}
 	
-	private final Integer mask;
-	private final Integer numberOfClicks;
-	private final Integer button;
+	protected final Integer numberOfClicks;
+	protected final Integer button;
 }

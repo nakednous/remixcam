@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.profile;
+package remixlab.remixcam.shortcut;
 
 import com.flipthebird.gwthashcodeequals.*;
 import remixlab.remixcam.core.Constants;
@@ -35,11 +35,11 @@ import remixlab.remixcam.event.DLEvent;
  * Mouse shortcuts can be of one out of two forms: 1. Mouse buttons (e.g., 'LEFT');
  * 2. Mouse button + Key combinations (e.g., 'RIGHT' + CTRL key).
  */
-public final class DeviceButtonShortcut implements Constants {
+public final class ButtonShortcut extends AbstractShortcut implements Constants {
 	@Override
 	public int hashCode() {
    return new HashCodeBuilder(17, 37).		
-		append(mask).
+    appendSuper(super.hashCode()).
 		append(button).
    toHashCode();		
 	}
@@ -50,9 +50,9 @@ public final class DeviceButtonShortcut implements Constants {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;		
 		
-		DeviceButtonShortcut other = (DeviceButtonShortcut) obj;
+		ButtonShortcut other = (ButtonShortcut) obj;
 	  return new EqualsBuilder()		
-		.append(mask, other.mask)
+	  .appendSuper(super.equals(obj))
 		.append(button, other.button)
 		.isEquals();
 	}	
@@ -62,7 +62,7 @@ public final class DeviceButtonShortcut implements Constants {
 	 * 
 	 * @param b mouse button
 	 */
-	public DeviceButtonShortcut(Integer b) {
+	public ButtonShortcut(Integer b) {
 		this(0, b);
 	}
 
@@ -72,8 +72,8 @@ public final class DeviceButtonShortcut implements Constants {
 	 * @param m the mask 
 	 * @param b mouse button
 	 */
-	public DeviceButtonShortcut(Integer m, Integer b) {
-		this.mask = m;
+	public ButtonShortcut(Integer m, Integer b) {
+		super(m);
 		this.button = b;
 	}	
 	
@@ -117,6 +117,5 @@ public final class DeviceButtonShortcut implements Constants {
 	}	
 	*/
 
-	protected final Integer mask;
 	protected final Integer button;
 }

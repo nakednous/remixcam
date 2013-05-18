@@ -86,8 +86,9 @@ public interface Constants {
   
   //Actions
   public enum DLAction {
-  	// CLICk ACTIONs		
-  	NO_CLICK_ACTION("No click action", true, 0),
+  	NO_ACTION("No action", true, 0),
+  	
+  	// CLICk ACTIONs	  	
   	ZOOM_TO_FIT("Zoom to fit the scene", true, 0),
   	//ARP_FROM_PIXEL("Set the arcball reference point from the pixel under the mouse"),
   	//RESET_ARP("Reset the arcball reference point to the 3d frame world origin"),
@@ -97,14 +98,18 @@ public interface Constants {
   	ALIGN_FRAME("Align interactive frame (if any) with world", true, 0),
   	ALIGN_CAMERA("Align camera with world", true, 0),
   	
+    //Click actions require cursor pos:
+    ZOOM_ON_PIXEL("Zoom on pixel", true, 0),
+    INTERPOLATE_TO_ZOOM_ON_PIXEL("Interpolate the camera to zoom on pixel", true, 0),
+    ARP_FROM_PIXEL("Set the arcball reference point from the pixel under the mouse", true, 0),
+  	
   	//GENERAL KEYBOARD ACTIONs	
-  	DRAW_AXIS("Toggles the display of the world axis", true,0),
+  	DRAW_AXIS("Toggles the display of the world axis", true, 0),
   	DRAW_GRID("Toggles the display of the XY grid", true, 0),
   	CAMERA_PROFILE("Cycles to the registered camera profiles", true, 0),
   	CAMERA_TYPE("Toggles camera type (orthographic or perspective)", false, 0),
   	CAMERA_KIND("Toggles camera kind (proscene or standard)", false, 0),
-  	ANIMATION("Toggles animation", true, 0),
-  	ARP_FROM_PIXEL("Set the arcball reference point from the pixel under the mouse", true, 0),
+  	ANIMATION("Toggles animation", true, 0),  	
   	RESET_ARP("Reset the arcball reference point to the 3d frame world origin", true, 0),
   	GLOBAL_HELP("Displays the global help", true, 0),
   	CURRENT_CAMERA_PROFILE_HELP("Displays the current camera profile help", true, 0),
@@ -112,11 +117,10 @@ public interface Constants {
   	FOCUS_INTERACTIVE_FRAME("Toggle interactivity between camera and interactive frame (if any)", true, 0),
   	DRAW_FRAME_SELECTION_HINT("Toggle interactive frame selection region drawing", true, 0),
   	CONSTRAIN_FRAME("Toggles on and off frame constraints (if any)", true, 0),
-  	
-    //CAMERA KEYBOARD ACTIONs
-  	INTERPOLATE_TO_ZOOM_ON_PIXEL("Interpolate the camera to zoom on pixel", true, 0),
   	INTERPOLATE_TO_FIT_SCENE("Interpolate the camera to fit the whole scene", true, 0),
   	SHOW_ALL("Show the whole scene", true, 0),
+  	
+    //CAMERA KEYBOARD ACTIONs  // TODO all of these could be dof_1
   	MOVE_CAMERA_LEFT("Move camera to the left", true, 0),
   	MOVE_CAMERA_RIGHT("Move camera to the right", true, 0),
   	MOVE_CAMERA_UP("Move camera up", true, 0),
@@ -134,12 +138,11 @@ public interface Constants {
   	INCREASE_TRACKING_DISTANCE("Increase camera tracking distance respect to the avatar (only meaningful in third-person mode)", false, 0),
   	DECREASE_TRACKING_DISTANCE("Decrease camera tracking distance respect to the avatar (only meaningful in third-person mode)", false, 0),
   	
-  	
+    // Typically wheel
   	ZOOM("Zoom", true, 1),
-    ZOOM_ON_PIXEL("Zoom on pixel", true, 1),
-  	
+    
   	// DEVICE ACTIONs
-  	NO_DEVICE_ACTION("No device action", true, 2),
+  	//NO_DEVICE_ACTION("No device action", true, 2),
   	ROTATE("Rotate frame (camera or interactive frame)", true, 2),
   	CAD_ROTATE("Rotate (only) camera frame as in CAD applications)", false, 2),
   	//ZOOM("Zoom", true, 1),
@@ -155,11 +158,11 @@ public interface Constants {
   	
   	TRANSLATE3("Translate frame (camera or interactive frame) from dx, dy, dz simultaneously", false, 3),	
   	FROM_EULER_ANGLES("Rotate frame (camera or interactive frame) from Euler angles", false, 3),	
+  	
   	GOOGLE_EARTH("Google earth emulation", false, 6),	
   	NATURAL("Natural (camera or interactive frame)", false, 6),
   	
-  	//CUSTOM ACTIONs
-  	
+  	//CUSTOM ACTIONs  	
   	CUSTOM1("User defined action no 1"),
   	CUSTOM2("User defined action no 2"),
   	CUSTOM3("User defined action no 3"),
@@ -186,11 +189,11 @@ public interface Constants {
       this.twoD = td;
       this.dofs = 2;
     }
-  	
+     	
   	DLAction(String description) {
       this.description = description;
       this.twoD = true;
-      this.dofs = 6;
+      this.dofs = 0;
     }
     
     public String description() {
@@ -199,6 +202,10 @@ public interface Constants {
     
     public boolean is2D() {
     	return twoD;
+    }
+    
+    public int dofs() {
+    	return dofs;
     }
   }
 }
