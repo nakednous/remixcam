@@ -99,10 +99,16 @@ public class DLKeyEvent extends DLEvent {
 	  }
 	};
   
-  Character key;
-  Integer vKey;
+  protected Character key;
+  protected Integer vKey;
   
   public DLKeyEvent() {
+  	this.key = null;
+  	this.vKey = null;
+  }
+  
+  public DLKeyEvent(DLAction a) {
+  	super(a);
   	this.key = null;
   	this.vKey = null;
   }
@@ -131,6 +137,30 @@ public class DLKeyEvent extends DLEvent {
     this.vKey = null;
   }
   
+  public DLKeyEvent(Integer modifiers, Character c, Integer vk, DLAction a) {
+    super(modifiers, a);
+    this.vKey = vk;
+    this.key = c;
+  }
+  
+  public DLKeyEvent(Integer modifiers, Character c, DLAction a) {
+    super(modifiers, a);
+    this.key = c;
+    this.vKey = null;
+  }
+  
+  public DLKeyEvent(Integer modifiers, Integer vk, DLAction a) {
+    super(modifiers, a);
+    this.key = null;
+    this.vKey = vk;
+  }
+  
+  public DLKeyEvent(Character c, DLAction a) {
+  	super(a);
+    this.key = c;
+    this.vKey = null;
+  }
+  
   protected DLKeyEvent(DLKeyEvent other) {
   	super(other);
 		this.key = other.key;
@@ -141,6 +171,24 @@ public class DLKeyEvent extends DLEvent {
 	public DLKeyEvent get() {
 		return new DLKeyEvent(this);
 	}
+  
+  public Character getKey() {
+  	return key;
+  }
+  
+  public Integer getKeyCode() {
+    return vKey;
+  }	
+  
+  /**
+  public void setKeyCode(Integer vk) {
+  	this.vKey = vk;
+  }
+  
+  public void setKey(Character k) {
+  	this.key = k;
+  }  
+  */
   
   public void setCharacterKeyCode(Character c, Integer i) {
   	map.put(c, i);
@@ -161,22 +209,6 @@ public class DLKeyEvent extends DLEvent {
   public static Integer getKeyCode(Character key) {
   	return map.get(key);
   }
-  
-  public void setKeyCode(Integer vk) {
-  	this.vKey = vk;
-  }
-  
-  public void setKey(Character k) {
-  	this.key = k;
-  }
-
-  public Character getKey() {
-  	return key;
-  }
-  
-  public Integer getKeyCode() {
-    return vKey;
-  }	
 	
 	public String getKeyText() {
 		return getKeyText(vKey);

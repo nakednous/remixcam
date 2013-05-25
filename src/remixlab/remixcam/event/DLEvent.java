@@ -3,18 +3,15 @@ package remixlab.remixcam.event;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.core.AbstractScene;
-import remixlab.remixcam.core.Constants;
-import remixlab.remixcam.core.Copyable;
-import remixlab.remixcam.device.HIDevice;
+import remixlab.remixcam.core.*;
 
 public class DLEvent implements Constants, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
-		//append(action).
+		append(action).
 		append(modifiers).
-    toHashCode();		
+    toHashCode();
 	}
 
 	@Override
@@ -25,32 +22,42 @@ public class DLEvent implements Constants, Copyable {
 		
 		DLEvent other = (DLEvent) obj;
 	  return new EqualsBuilder()		
-		//.append(action, other.action)
+		.append(action, other.action)
 		.append(modifiers, other.modifiers)
 		.isEquals();
 	}
 	
-  //protected Integer action;
+  protected DLAction action;
   protected Integer modifiers;
-  //protected Integer ds;//TODO pending
-  //HIDevice hid;//TODO pending
   
   public DLEvent() {    
     this.modifiers = 0;
+    this.action = DLAction.NO_ACTION;
   }
  
   public DLEvent(Integer modifiers) {
     this.modifiers = modifiers;
+    this.action = DLAction.NO_ACTION;
+  }  
+  
+  public DLEvent(DLAction a) {    
+    this.modifiers = 0;
+    this.action = a;
+    if(action == null)
+    	action = DLAction.NO_ACTION;
   }
+ 
+  public DLEvent(Integer modifiers, DLAction a) {
+    this.modifiers = modifiers;
+    this.action = a;
+    if(action == null)
+    	action = DLAction.NO_ACTION;
+  } 
   
   protected DLEvent(DLEvent other) {
 		this.modifiers = other.modifiers;
+		this.action = other.action;
 	}  
-  
-  public int dofs() {
-  	//TODO pending
-  	return 0;
-  }
   
   public void queueEvent(AbstractScene scn) {
   	scn.enqueueEvent(this);
@@ -60,14 +67,26 @@ public class DLEvent implements Constants, Copyable {
 	public DLEvent get() {
 		return new DLEvent(this);
 	}
+  
+  public DLAction getAction() {
+  	return action;
+  }
+  
+  public void setAction(DLAction a) {
+  	action = a;
+  	if(action == null)
+    	action = DLAction.NO_ACTION;
+  }
 
   public Integer getModifiers() {
     return modifiers;
   }
   
+  /**
   public void setModifiers(Integer m) {
   	this.modifiers = m;
   }
+  */
 
   public boolean isShiftDown() {
     return (modifiers & SHIFT) != 0;

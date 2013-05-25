@@ -29,15 +29,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 
-import remixlab.remixcam.action.*;
-import remixlab.remixcam.device.HIDevice;
+//import remixlab.remixcam.deprecatedprofile.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.profile.*;
 import remixlab.remixcam.renderer.*;
-import remixlab.remixcam.shortcut.KeyboardShortcut;
 import remixlab.remixcam.util.*;
 
 public abstract class AbstractScene implements Constants {	
@@ -51,10 +48,6 @@ public abstract class AbstractScene implements Constants {
 	protected Trackable trck;
 	public boolean avatarIsInteractiveDrivableFrame;
 	protected boolean avatarIsInteractiveAvatarFrame;
-	
-  //O B J E C T S
-	//TODO pending
-	protected EventDispatcher eventDispatcher;
 	
   //E X C E P T I O N H A N D L I N G
 	protected int startCoordCalls;
@@ -90,7 +83,8 @@ public abstract class AbstractScene implements Constants {
 	protected long animationPeriod;	
 	
   //D E V I C E S	  &   E V E N T S
-	protected ArrayList<HIDevice> devices;
+	protected HashMap<String, AbstractProfile<?>> profiles;
+	//protected ArrayList<HIDevice> devices;
 	protected LinkedList<DLEvent> eventQueue;
 	
 	// L O C A L   T I M E R
@@ -105,19 +99,6 @@ public abstract class AbstractScene implements Constants {
   //K E Y B O A R D A N D M O U S E
 	protected boolean mouseHandling;
 	protected boolean keyboardHandling;
-	
-  //c a m e r a p r o f i l e s
-	protected HashMap<String, CameraProfile> cameraProfileMap;
-	protected ArrayList<String> cameraProfileNames;
-	protected CameraProfile currentCameraProfile;
-	
-  //S h o r t c u t k e y s
-	protected Bindings<KeyboardShortcut, DOF_0Action> gProfile;
-	
-  //K E Y F R A M E S
-	protected Bindings<Integer, Integer> pathKeys;
-	public Integer addKeyFrameKeyboardModifier;
-	public Integer deleteKeyFrameKeyboardModifier;
 	
 	//offscreen
 	public Point upperLeftCorner;
@@ -163,7 +144,7 @@ public abstract class AbstractScene implements Constants {
 		//mouse grabber pool
 		msGrabberPool = new ArrayList<DeviceGrabbable>();
 		//devices
-		devices = new ArrayList<HIDevice>();
+	  profiles = new HashMap<String, AbstractProfile<?>>();
 		//events
 		eventQueue = new LinkedList<DLEvent>();
 		// <- 1
@@ -171,9 +152,8 @@ public abstract class AbstractScene implements Constants {
 		setDottedGrid(true);
 		setRightHanded();
 		
-		gProfile = new Bindings<KeyboardShortcut, DOF_0Action>(this);
-		pathKeys = new Bindings<Integer, Integer>(this);		
-		setDefaultShortcuts();
+		//TODO pending
+		//setDefaultShortcuts();
 	}
 	
 	protected void setRenderer(Renderable r) {
@@ -209,9 +189,9 @@ public abstract class AbstractScene implements Constants {
 	public void setDrawInteractiveFrame(boolean draw) {
 		if (draw && (glIFrame == null))
 			return;
-		if (!draw && currentCameraProfile() instanceof ThirdPersonCameraProfile
-				&& interactiveFrame().equals(avatar()))// more natural than to bypass it
-			return;
+		//TODO pending
+		//if (!draw && currentCameraProfile() instanceof ThirdPersonCameraProfile	&& interactiveFrame().equals(avatar()))// more natural than to bypass it
+			//return;
 		iFrameIsDrwn = draw;
 	}
 	
@@ -220,10 +200,17 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Internal method. Handles the different global keyboard actions.
 	 */
-	public void handleKeyboardAction(DOF_0Action id) {			
+	//public void handleKeyboardAction(DOF_0Action id) {
+	public void handleEvent(DLEvent event) {
 		//if( !keyboardIsHandled() )
 			//return;
+		DLAction id = event.getAction();
+		if( !id.is2D() && this.is2D() )
+			return;
+		Vector3D trans;
 		switch (id) {
+		case NO_ACTION:
+			break;
 		case DRAW_AXIS:
 			toggleAxisIsDrawn();
 			break;
@@ -231,7 +218,8 @@ public abstract class AbstractScene implements Constants {
 			toggleGridIsDrawn();
 			break;
 		case CAMERA_PROFILE:
-			nextCameraProfile();
+			//TODO pending
+			//nextCameraProfile();
 			break;
 		case CAMERA_TYPE:
 			toggleCameraType();
@@ -241,17 +229,6 @@ public abstract class AbstractScene implements Constants {
 			break;
 		case ANIMATION:
 			toggleAnimation();
-			break;
-		case ARP_FROM_PIXEL:
-			if (setArcballReferencePointFromPixel(new Point(cursorX, cursorY))) {
-				arpFlag = true;
-				timerFx.runOnce(1000);					
-			}
-			break;
-		case RESET_ARP:
-			pinhole().setArcballReferencePoint(new Vector3D(0, 0, 0));
-			arpFlag = true;
-			timerFx.runOnce(1000);				
 			break;
 		case GLOBAL_HELP:
 			displayGlobalHelp();
@@ -270,21 +247,8 @@ public abstract class AbstractScene implements Constants {
 			break;
 		case CONSTRAIN_FRAME:
 			//toggleDrawWithConstraint();
-			break;
-		}
-	}
-	
-	/**
-	 * Internal method. Handles the different camera keyboard actions.
-	 */
-	public void handleCameraKeyboardAction(DOF_0Action id) {
-		System.out.println("enter handleCameraKeyboardAction");
-		//if( !keyboardIsHandled() )
-			//return;
-		if( !id.is2D() && this.is2D() )
-			return;
-		Vector3D trans;
-		switch (id) {		
+			break;			
+		// --
 		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
 			if( this.is3D() ) {
 				Camera.WorldPoint wP = camera().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
@@ -383,25 +347,7 @@ public abstract class AbstractScene implements Constants {
 				if (avatarIsInteractiveAvatarFrame)
 					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() - radius() / 50);
 			break;
-		}
-	}
-	
-	/**
-	 * Internal method. Handles the different mouse click actions.
-	 */
-	public void handleClickAction(DOF_0Action action) {
-		// public enum ClickAction { NO_CLICK_ACTION, ZOOM_ON_PIXEL, ZOOM_TO_FIT,
-		// SELECT, ARP_FROM_PIXEL, RESET_ARP,
-		// CENTER_FRAME, CENTER_SCENE, SHOW_ALL, ALIGN_FRAME, ALIGN_CAMERA }
-		//if( !mouseIsHandled() )
-			//return;
-		
-		if( !action.is2D() && this.is2D() )
-			return;
-		
-		switch (action) {
-		case NO_ACTION:
-			break;
+		// ---
 		case ZOOM_ON_PIXEL:
 			if (this.is2D()) {
 				viewWindow().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
@@ -426,7 +372,7 @@ public abstract class AbstractScene implements Constants {
 				arpFlag = true;
 				timerFx.runOnce(1000);					
 			}
-			break;
+			break;			
 		case RESET_ARP:		  
 			pinhole().setArcballReferencePoint(new Vector3D(0, 0, 0));
 			arpFlag = true;
@@ -440,310 +386,17 @@ public abstract class AbstractScene implements Constants {
 		case CENTER_SCENE:
 			pinhole().centerScene();
 			break;
-		case SHOW_ALL:
-			pinhole().showEntireScene();
-			break;
 		case ALIGN_FRAME:
 			if (interactiveFrame() != null)
 				interactiveFrame().alignWithFrame(pinhole().frame());
 			break;
 		case ALIGN_CAMERA:
 			pinhole().frame().alignWithFrame(null, true);
-			break;
+			break;		
+		default: 
+			System.out.println("Action cannot be handled here!");
+    break;
 		}
-	}
-	
-	// 7. Camera profiles
-
-	/**
-	 * Internal method that defines the default camera profiles: WHEELED_ARCBALL
-	 * and FIRST_PERSON.
-	 */
-	protected void initDefaultCameraProfiles() {
-		cameraProfileMap = new HashMap<String, CameraProfile>();
-		cameraProfileNames = new ArrayList<String>();
-		currentCameraProfile = null;
-		// register here the default profiles
-		//registerCameraProfile(new CameraProfile(this, "ARCBALL", CameraProfile.Mode.ARCBALL));
-		registerCameraProfile( new WheeledArcballCameraProfile(this, "WHEELED_ARCBALL") );
-		registerCameraProfile( new FirstPersonCameraProfile(this, "FIRST_PERSON") );
-		//setCurrentCameraProfile("ARCBALL");
-		setCurrentCameraProfile("WHEELED_ARCBALL");
-	}
-
-	/**
-	 * Registers a camera profile. Returns true if succeeded. If there's a
-	 * registered camera profile with the same name, registration will fail. 
-	 * <p>
-	 * <b>Attention:</b> This method doesn't make current {@code cp}. For that call
-	 * {@link #setCurrentCameraProfile(CameraProfile)}.
-	 * 
-	 * @param cp camera profile
-	 * 
-	 * @see #setCurrentCameraProfile(CameraProfile)
-	 * @see #unregisterCameraProfile(CameraProfile) 
-	 */
-	public boolean registerCameraProfile(CameraProfile cp) {
-		// if(!isCameraProfileRegistered(cp)) {
-		if (cp == null)
-			return false;
-		if (!isCameraProfileRegistered(cp)) {
-			cameraProfileNames.add(cp.name());
-			cameraProfileMap.put(cp.name(), cp);
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Convenience function that simply returns {@code unregisterCameraProfile(cp.name())}.
-	 */
-	public boolean unregisterCameraProfile(CameraProfile cp) {
-		return unregisterCameraProfile(cp.name());
-	}
-
-	/**
-	 * Unregisters the given camera profile by its name. Returns true if succeeded.
-	 * Registration will fail in two cases: no camera profile is registered under
-	 * the provided name, or the camera profile is the only registered camera profile which
-	 * mode is different than THIRD_PERSON.
-	 * <p>
-	 * The last condition above guarantees that there should always be registered at least
-	 * one camera profile which mode is different than THIRD_PERSON. 
-	 * 
-	 * @param cp camera profile
-	 * @return true if succeeded
-	 */
-	public boolean unregisterCameraProfile(String cp) {
-		if (!isCameraProfileRegistered(cp))
-			return false;
-
-		CameraProfile cProfile = cameraProfile(cp);
-		int instancesDifferentThanThirdPerson = 0;
-
-		for (CameraProfile camProfile : cameraProfileMap.values())
-			if (!(camProfile instanceof ThirdPersonCameraProfile))
-				instancesDifferentThanThirdPerson++;
-
-		if (!(cProfile instanceof ThirdPersonCameraProfile)
-				&& (instancesDifferentThanThirdPerson == 1))
-			return false;
-
-		if (isCurrentCameraProfile(cp))
-			nextCameraProfile();
-
-		if (cameraProfileNames.remove(cp)) {
-			cameraProfileMap.remove(cp);
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Returns the camera profile which name matches the one provided.
-	 * Returns null if there's no camera profile registered by this name.
-	 * 
-	 * @param name camera profile name
-	 * @return camera profile object
-	 */
-	public CameraProfile cameraProfile(String name) {
-		return cameraProfileMap.get(name);
-	}
-	
-	/**
-	 * Returns an array of the camera profile objects that are currently
-	 * registered at the Scene.
-	 */
-	public CameraProfile [] getCameraProfiles() {		
-		return cameraProfileMap.values().toArray(new CameraProfile[0]);
-	}
-
-	/**
-	 * Returns true the given camera profile is currently registered.
-	 */
-	public boolean isCameraProfileRegistered(CameraProfile cp) {
-		return cameraProfileMap.containsValue(cp);
-	}
-
-	/**
-	 * Returns true if currently there's a camera profile registered by
-	 * the given name.
-	 */
-	public boolean isCameraProfileRegistered(String name) {
-		return cameraProfileMap.containsKey(name);
-	}
-
-	/**
-	 * Returns the current camera profile object. Never null.
-	 */
-	public CameraProfile currentCameraProfile() {
-		return currentCameraProfile;
-	}
-
-	/**
-	 * Returns true if the {@link #currentCameraProfile()} matches 
-	 * the one by the given name.
-	 */
-	boolean isCurrentCameraProfile(String cp) {
-		return isCurrentCameraProfile(cameraProfileMap.get(cp));
-	}
-
-	/**
-	 * Returns true if the {@link #currentCameraProfile()} matches 
-	 * the one given.
-	 */
-	boolean isCurrentCameraProfile(CameraProfile cp) {
-		return currentCameraProfile() == cp;
-	}
-
-	/**
-	 * Set current the given camera profile. Returns true if succeeded.
-	 * <p>
-	 * Registers first the given camera profile if it is not registered.
-	 */
-	public boolean setCurrentCameraProfile(CameraProfile cp) {
-		if (cp == null) {
-			return false;
-		}
-		if (!isCameraProfileRegistered(cp))
-			if (!registerCameraProfile(cp))
-				return false;
-
-		return setCurrentCameraProfile(cp.name());
-	}
-	
-	/**
-	 * Set current the camera profile associated to the given name.
-	 * Returns true if succeeded.
-	 * <p>
-	 * This method triggers smooth transition animations
-	 * when switching between camera profile modes.
-	 */
-	public boolean setCurrentCameraProfile(String cp) {
-		CameraProfile camProfile = cameraProfileMap.get(cp);
-		if (camProfile == null)
-			return false;
-		if ((camProfile instanceof ThirdPersonCameraProfile) && (avatar() == null))
-			return false;
-		else {
-			if (camProfile instanceof ThirdPersonCameraProfile) {
-				setDrawInteractiveFrame();
-				setCameraType(Camera.Type.PERSPECTIVE);
-				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar()).removeFromDeviceGrabberPool();
-				pinhole().frame().updateFlyUpVector();// ?
-				pinhole().frame().stopDampedSpinning();
-				if (avatarIsInteractiveDrivableFrame) {
-					((InteractiveDrivableFrame) (avatar())).updateFlyUpVector();
-					((InteractiveDrivableFrame) (avatar())).stopDampedSpinning();
-				}
-				// perform small animation ;)
-				if (pinhole().anyInterpolationIsStarted())
-					pinhole().stopAllInterpolations();
-				// /**
-				// TODO should Pinhole be non-abstract?
-				Pinhole cm;
-				if(is3D())
-				  cm = camera().get();
-				else
-					cm = viewWindow().get();
-				// */
-				cm.setPosition(avatar().cameraPosition());
-				cm.setUpVector(avatar().upVector());
-				cm.lookAt(avatar().target());
-				pinhole().interpolateTo(cm.frame());
-				currentCameraProfile = camProfile;
-			} else {
-				pinhole().frame().updateFlyUpVector();
-				pinhole().frame().stopDampedSpinning();
-				
-				if(currentCameraProfile != null)
-					if (currentCameraProfile instanceof ThirdPersonCameraProfile)
-						pinhole().interpolateToFitScene();
-        
-				currentCameraProfile = camProfile;        
-				
-				setDrawInteractiveFrame(false);
-				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar()).addInDeviceGrabberPool();
-			}
-			return true;
-		}
-	}
-
-	/**
-	 * Sets the next registered camera profile as current.
-	 * <p>
-	 * Camera profiles are ordered by their registration order.
-	 */
-	public void nextCameraProfile() {
-		int currentCameraProfileIndex = cameraProfileNames.indexOf(currentCameraProfile().name());
-		nextCameraProfile(++currentCameraProfileIndex);
-	}
-
-	/**
-	 * Internal use. Used by {@link #nextCameraProfile()}.
-	 */
-	private void nextCameraProfile(int index) {
-		if (!cameraProfileNames.isEmpty()) {
-			if (index == cameraProfileNames.size())
-				index = 0;
-
-			if (!setCurrentCameraProfile(cameraProfileNames.get(index)))
-				nextCameraProfile(++index);
-			// debug:
-			else
-				System.out.println("Camera profile changed to: "
-						+ cameraProfileNames.get(index));
-		}
-	}
-	
-	/**
-	 * Returns a String with the {@link #currentCameraProfile()} keyboard and mouse bindings.
-	 * 
-	 * @see remixlab.remixcam.profile.CameraProfile#cameraDeviceBindingsDescription()
-	 * @see remixlab.remixcam.profile.CameraProfile#frameDeviceBindingsDescription()
-	 * @see remixlab.remixcam.profile.CameraProfile#deviceClickBindingsDescription()
-	 * @see remixlab.remixcam.profile.CameraProfile#keyboardShortcutsDescription()
-	 * @see remixlab.remixcam.profile.CameraProfile#cameraWheelBindingsDescription()
-	 * @see remixlab.remixcam.profile.CameraProfile#frameWheelBindingsDescription()
-	 */
-	public String currentCameraProfileHelp() {
-		String description = new String();
-		description += currentCameraProfile().name() + " camera profile keyboard shortcuts and mouse bindings\n";
-		int index = 1;
-		if( currentCameraProfile().keyboardShortcutsDescription().length() != 0 ) {
-			description += index + ". " + "Keyboard shortcuts\n";
-			description += currentCameraProfile().keyboardShortcutsDescription();
-			index++;
-		}
-		if( currentCameraProfile().cameraDeviceBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Camera mouse bindings\n";
-			description += currentCameraProfile().cameraDeviceBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().deviceClickBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Mouse click bindings\n";
-			description += currentCameraProfile().deviceClickBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().frameDeviceBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Interactive frame mouse bindings\n";
-			description += currentCameraProfile().frameDeviceBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().cameraWheelBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Camera mouse wheel bindings\n";
-			description += currentCameraProfile().cameraWheelBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().frameWheelBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Interactive frame mouse wheel bindings\n";
-			description += currentCameraProfile().frameWheelBindingsDescription();
-			index++;
-		}
-		return description;
 	}
 	
 	/**
@@ -767,220 +420,14 @@ public abstract class AbstractScene implements Constants {
 	}
 	
 	public void displayCurrentCameraProfileHelp(boolean onConsole) {
+		//TODO pending
+		/**
 		if (onConsole)
 			System.out.println(currentCameraProfileHelp());
 		else
 			AbstractScene.showMissingImplementationWarning("displayCurrentCameraProfileHelp");
+		*/
 	}
-	
-	// Shortcuts
-	
-	/**
-   * Defines a global keyboard shortcut to bind the given action.
-   * 
-   * @param key shortcut
-   * @param action keyboard action
-   */
-	public void setShortcut(Character key, DOF_0Action action) {
-		if ( isKeyInUse(key) ) {
-			DOF_0Action a = shortcut(key);
-			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
-		}
-		gProfile.setBinding(new KeyboardShortcut(key), action);
-	}
-	
-  /**
-   * Defines a global keyboard shortcut to bind the given action. High-level version
-   * of {@link #setShortcut(Integer, Integer, DOF_0Action)}.
-   * 
-   * @param mask modifier mask defining the shortcut
-   * @param key character (internally converted to a coded key) defining the shortcut
-   * @param action keyboard action
-   * 
-   * @see #setShortcut(Integer, Integer, DOF_0Action)
-   */
-	public void setShortcut(Integer mask, Character key, DOF_0Action action) {
-		setShortcut(mask, DLKeyEvent.getKeyCode(key), action);
-	}
-	
-  /**
-   * Defines a global keyboard shortcut to bind the given action. High-level version
-   * of {@link #setShortcut(Integer, Character, DOF_0Action)}.
-   * 
-   * @param mask modifier mask defining the shortcut
-   * @param vKey coded key defining the shortcut
-   * @param action keyboard action
-   * 
-   * @see #setShortcut(Integer, Character, DOF_0Action)
-   */
-	public void setShortcut(Integer mask, Integer vKey, DOF_0Action action) {
-		if ( isKeyInUse(mask, vKey) ) {
-			DOF_0Action a = shortcut(mask, vKey);
-			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
-		}
-		gProfile.setBinding(new KeyboardShortcut(mask, vKey), action);
-	}
-
-	/**
-	 * Defines a global keyboard shortcut to bind the given action.
-	 * 
-	 * @param vKey coded key defining the shortcut
-	 * @param action keyboard action
-	 */
-	public void setShortcut(Integer vKey, DOF_0Action action) {
-		if ( isKeyInUse(vKey) ) {
-			DOF_0Action a = shortcut(vKey);
-			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
-		}
-		gProfile.setBinding(new KeyboardShortcut(vKey), action);
-	}
-
-	/**
-	 * Removes all global keyboard shortcuts.
-	 */
-	public void removeAllShortcuts() {
-		gProfile.removeAllBindings();
-	}
-	
-	/**
-	 * Removes the global keyboard shortcut.
-	 * 
-	 * @param key shortcut
-	 */
-	public void removeShortcut(Character key) {
-		gProfile.removeBinding(new KeyboardShortcut(key));
-	}
-	
-  /**
-   * Removes the global keyboard shortcut. High-level version
-   * of {@link #removeShortcut(Integer, Integer)}.
-   * 
-   * @param mask modifier mask defining the shortcut
-   * @param key character (internally converted to a coded key) defining the shortcut
-   * 
-   * @see #removeShortcut(Integer, Integer)
-   */
-	public void removeShortcut(Integer mask, Character key) {
-		removeShortcut(mask, DLKeyEvent.getKeyCode(key));
-	}
-
-	/**
-   * Removes the global keyboard shortcut. Low-level version
-   * of {@link #removeShortcut(Integer, Character)}.
-   * 
-   * @param mask modifier mask defining the shortcut
-   * @param vKey virtual coded-key defining the shortcut
-   * 
-   * @see #removeShortcut(Integer, Character)
-   */
-	public void removeShortcut(Integer mask, Integer vKey) {
-		gProfile.removeBinding(new KeyboardShortcut(mask, vKey));
-	}
-
-	/**
-	 * Removes the global keyboard shortcut.
-	 * 
-	 * @param vKey virtual coded-key defining the shortcut
-	 */
-	public void removeShortcut(Integer vKey) {
-		gProfile.removeBinding(new KeyboardShortcut(vKey));
-	}
-	
-	/**
-	 * Returns the action that is binded to the given global keyboard shortcut.
-	 * 
-	 * @param key shortcut
-	 */
-	public DOF_0Action shortcut(Character key) {
-		return gProfile.binding(new KeyboardShortcut(key));
-	}
-	
-  /**
-   * Returns the action that is binded to the given global keyboard shortcut.
-   * High-level version of {@link #shortcut(Integer, Integer)}.
-   * 
-   * @param mask modifier mask defining the shortcut
-   * @param key character (internally converted to a coded key) defining the shortcut
-   * 
-   * @see #shortcut(Integer, Integer)
-   */
-	public DOF_0Action shortcut(Integer mask, Character key) {
-		return shortcut(mask, DLKeyEvent.getKeyCode(key));
-	}
-
-	/**
-   * Returns the action that is binded to the given global keyboard shortcut.
-   * Low-level version of {@link #shortcut(Integer, Character)}.
-   * 
-   * @param mask modifier mask defining the shortcut
-   * @param vKey virtual coded-key defining the shortcut
-   * 
-   * @see #shortcut(Integer, Character)
-   */
-	public DOF_0Action shortcut(Integer mask, Integer vKey) {
-		return gProfile.binding(new KeyboardShortcut(mask, vKey));
-	}
-
-	/**
-	 * Returns the action that is binded to the given global keyboard shortcut.
-	 * 
-	 * @param vKey virtual coded-key defining the shortcut
-	 */
-	public DOF_0Action shortcut(Integer vKey) {
-		return gProfile.binding(new KeyboardShortcut(vKey));
-	}
-
-	/**
-	 * Returns true if the given global keyboard shortcut binds an action.
-	 * 
-	 * @param key shortcut
-	 */
-	public boolean isKeyInUse(Character key) {
-		return gProfile.isShortcutInUse(new KeyboardShortcut(key));
-	}
-	
-  /**
-   * Returns true if the given global keyboard shortcut binds an action.
-   * High-level version of {@link #isKeyInUse(Integer, Integer)}.
-   * 
-   * @param mask modifier mask defining the shortcut
-   * @param key character (internally converted to a coded key) defining the shortcut
-   * 
-   * @see #isKeyInUse(Integer, Integer)
-   */
-	public boolean isKeyInUse(Integer mask, Character key) {
-		return isKeyInUse(mask, DLKeyEvent.getKeyCode(key));
-	}
-	
-	/**
-   * Returns true if the given global keyboard shortcut binds an action.
-   * Low-level version of {@link #isKeyInUse(Integer, Character)}.
-   * 
-   * @param mask modifier mask defining the shortcut
-   * @param vKey virtual coded-key defining the shortcut
-   * 
-   * @see #isKeyInUse(Integer, Character)
-   */
-	public boolean isKeyInUse(Integer mask, Integer vKey) {
-		return gProfile.isShortcutInUse(new KeyboardShortcut(mask, vKey));
-	}
-	
-	/**
-	 * Returns true if the given global keyboard shortcut binds an action.
-	 * 
-	 * @param vKey virtual coded-key defining the shortcut
-	 */
-	public boolean isKeyInUse(Integer vKey) {
-		return gProfile.isShortcutInUse(new KeyboardShortcut(vKey));
-	}
-
-	/**
-	 * Returns true if there is a global keyboard shortcut for the given action.
-	 */
-	public boolean isActionBinded(DOF_0Action action) {
-		return gProfile.isActionMapped(action);
-	}
-	
 	
 	/**
 	 * Returns {@code true} if the keyboard is currently being handled by proscene
@@ -1058,6 +505,8 @@ public abstract class AbstractScene implements Constants {
 	 * <li><b>'ALT'+'[1..5]'</b>: Remove path [1..5].
 	 * </ul> 
 	 */
+	/**
+	//TODO pend: implement me when you are done with the keyboard profile
 	public void setDefaultShortcuts() {
 		// D e f a u l t s h o r t c u t s		
 		setShortcut('a', DOF_0Action.DRAW_AXIS);
@@ -1077,127 +526,9 @@ public abstract class AbstractScene implements Constants {
 		setPathKey('4', 4);
 		setPathKey('5', 5);
 	}
-
-	/**
-	 * Associates key-frame interpolator path to key. High-level version
-	 * of {@link #setPathKey(Integer, Integer)}.
-	 *  
-	 * @param key character (internally converted to a key coded) defining the shortcut
-	 * @param path key-frame interpolator path
-	 * 
-	 * @see #setPathKey(Integer, Integer)
-	 */
-	public void setPathKey(Character key, Integer path) {
-		setPathKey(DLKeyEvent.getKeyCode(key), path);
-	}
+	*/
 	
 	/**
-	 * Associates key-frame interpolator path to the given virtual key. Low-level version
-	 * of {@link #setPathKey(Character, Integer)}.
-	 * 
-	 * @param vKey shortcut
-	 * @param path key-frame interpolator path
-	 * 
-	 * @see #setPathKey(Character, Integer)
-	 */
-	public void setPathKey(Integer vKey, Integer path) {
-		if ( isPathKeyInUse(vKey) ) {
-			Integer p = path(vKey);
-			System.out.println("Warning: overwritting path key which was previously binded to path " + p);
-		}
-		pathKeys.setBinding(vKey, path);
-	}
-
-	/**
-	 * Returns the key-frame interpolator path associated with key. High-level version
-	 * of {@link #path(Integer)}.
-	 * 
-	 * @param key character (internally converted to a key coded) defining the shortcut
-	 * 
-	 * @see #path(Integer)
-	 */
-	public Integer path(Character key) {
-		return path(DLKeyEvent.getKeyCode(key));
-	}
-	
-	/**
-	 * Returns the key-frame interpolator path associated with key. Low-level version
-	 * of {@link #path(Character)}.
-	 * 
-	 * @param vKey shortcut
-	 * 
-	 * @see #path(Character)
-	 */
-	public Integer path(Integer vKey) {
-		return pathKeys.binding(vKey);
-	}
-
-	/**
-	 * Removes the key-frame interpolator shortcut. High-level version
-	 * of {@link #removePathKey(Integer)}.
-	 * 
-	 * @param key character (internally converted to a key coded) defining the shortcut
-	 * 
-	 * @see #removePathKey(Integer)
-	 */
-	public void removePathKey(Character key) {
-		removePathKey(DLKeyEvent.getKeyCode(key));
-	}
-	
-	/**
-	 * Removes the key-frame interpolator shortcut. Low-level version
-	 * of {@link #removePathKey(Character)}.
-	 * 
-	 * @param vKey shortcut
-	 * 
-	 * @see #removePathKey(Character)
-	 */
-	public void removePathKey(Integer vKey) {
-		pathKeys.removeBinding(vKey);
-	}
-	
-	/**
-	 * Returns true if the given key binds a key-frame interpolator path. High-level version
-	 * of {@link #isPathKeyInUse(Integer)}.
-	 * 
-	 * @param key character (internally converted to a key coded) defining the shortcut
-	 * 
-	 * @see #isPathKeyInUse(Integer)
-	 */
-	public boolean isPathKeyInUse(Character key) {
-		return isPathKeyInUse(DLKeyEvent.getKeyCode(key));
-	}
-	
-	/**
-	 * Returns true if the given virtual key binds a key-frame interpolator path. Low-level version
-	 * of {@link #isPathKeyInUse(Character)}.
-	 * 
-	 * @param vKey shortcut
-	 * 
-	 * @see #isPathKeyInUse(Character)
-	 */
-	public boolean isPathKeyInUse(Integer vKey) {
-		return pathKeys.isShortcutInUse(vKey);
-	}
-
-	/**
-	 * Sets the modifier key needed to play the key-frame interpolator paths.
-	 * 
-	 * @param modifier
-	 */
-	public void setAddKeyFrameKeyboardModifier(Integer modifier) {
-		addKeyFrameKeyboardModifier = modifier;
-	}
-
-	/**
-	 * Sets the modifier key needed to delete the key-frame interpolator paths.
-	 * 
-	 * @param modifier
-	 */
-	public void setDeleteKeyFrameKeyboardModifier(Integer modifier) {
-		deleteKeyFrameKeyboardModifier = modifier;
-	}
-	
 	public String globalHelp() {
 		String description = new String();
 		description += "GLOBAL keyboard shortcuts\n";
@@ -1216,6 +547,7 @@ public abstract class AbstractScene implements Constants {
 		
 		return description;		
 	}
+	*/
 	
 	/**
 	 * Toggles the {@link #interactiveFrame()} interactivity on and off.
@@ -1355,12 +687,22 @@ public abstract class AbstractScene implements Constants {
 	  // 4. HIDevices
 		updateCursorPosition();
 		
-		for (HIDevice device : devices)
-			device.handle();
+		for (AbstractProfile<?> profile : profiles.values()) 
+			if(isProfileRegistered(profile))
+				if( profile.isActive() ) {
+					eventQueue.add(profile.handle());
+					profile.deactivate();
+				}
+		//for (HIDevice device : devices) device.handle();
 			
 		// 5. Events
-    while( !eventQueue.isEmpty() ) 
-    	eventDispatcher.handle(eventQueue.remove());
+		DLEvent event;
+    while( !eventQueue.isEmpty() ) {
+    	event = eventQueue.remove();
+    	if( event instanceof DLKeyEvent )
+    		this.handleEvent(event);
+    	//TODO implement what is actually to be done with the event
+    }
 		
 		// 6. Grid and axis drawing
 		if (gridIsDrawn()) {
@@ -1675,39 +1017,144 @@ public abstract class AbstractScene implements Constants {
   //Device registration
 	
 	/**
-	 * Adds an HIDevice to the scene.
+	 * Returns a String with the {@link #currentCameraProfile()} keyboard and mouse bindings.
 	 * 
-	 * @see #removeDevice(HIDevice)
-	 * @see #removeAllDevices()
+	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#cameraDeviceBindingsDescription()
+	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#frameDeviceBindingsDescription()
+	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#deviceClickBindingsDescription()
+	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#keyboardShortcutsDescription()
+	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#cameraWheelBindingsDescription()
+	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#frameWheelBindingsDescription()
 	 */
-	public void addDevice(HIDevice device) {
-		if(!isDeviceRegistered(device))
-			devices.add(device);
+	/**
+	public String currentCameraProfileHelp() {
+		String description = new String();
+		description += currentCameraProfile().name() + " camera profile keyboard shortcuts and mouse bindings\n";
+		int index = 1;
+		if( currentCameraProfile().keyboardShortcutsDescription().length() != 0 ) {
+			description += index + ". " + "Keyboard shortcuts\n";
+			description += currentCameraProfile().keyboardShortcutsDescription();
+			index++;
+		}
+		if( currentCameraProfile().cameraDeviceBindingsDescription().length() != 0 ) {
+			description += index + ". " + "Camera mouse bindings\n";
+			description += currentCameraProfile().cameraDeviceBindingsDescription();
+			index++;
+		}
+		if( currentCameraProfile().deviceClickBindingsDescription().length() != 0 ) {
+			description += index + ". " + "Mouse click bindings\n";
+			description += currentCameraProfile().deviceClickBindingsDescription();
+			index++;
+		}
+		if( currentCameraProfile().frameDeviceBindingsDescription().length() != 0 ) {
+			description += index + ". " + "Interactive frame mouse bindings\n";
+			description += currentCameraProfile().frameDeviceBindingsDescription();
+			index++;
+		}
+		if( currentCameraProfile().cameraWheelBindingsDescription().length() != 0 ) {
+			description += index + ". " + "Camera mouse wheel bindings\n";
+			description += currentCameraProfile().cameraWheelBindingsDescription();
+			index++;
+		}
+		if( currentCameraProfile().frameWheelBindingsDescription().length() != 0 ) {
+			description += index + ". " + "Interactive frame mouse wheel bindings\n";
+			description += currentCameraProfile().frameWheelBindingsDescription();
+			index++;
+		}
+		return description;
+	}
+	*/
+	
+	/**
+	 * Returns an array of the camera profile objects that are currently
+	 * registered at the Scene.
+	 */
+	public AbstractProfile<?> [] getProfiles() {
+		return profiles.values().toArray(new AbstractProfile<?>[0]);
 	}
 	
-	public boolean isDeviceRegistered(HIDevice device) {
-		return devices.contains(device);
+	/**
+	 * Adds an HIDevice to the scene.
+	 * 
+	 * @see #unregisterProfile(HIDevice)
+	 * @see #removeAllDevices()
+	 */
+	public void registerProfile(AbstractProfile<?> profile) {
+		if(!isProfileRegistered(profile))
+			profiles.put(profile.name(), profile);
+		else {
+			System.out.println("Nothing done. A profile with the same name is already registered. Current profile names are:");
+			for (AbstractProfile<?> dev : profiles.values())
+				System.out.println(dev.name());
+		}
+	}
+	
+	public boolean isProfileRegistered(AbstractProfile<?> profile) {
+		return profiles.containsKey(profile.name());
+	}
+	
+	public boolean isProfileRegistered(String name) {
+		return profiles.containsKey(name);
+	}
+	
+	public AbstractProfile<?> getProfile(String name) {
+		return profiles.get(name);
 	}
 	
 	/**
 	 * Removes the device from the scene.
 	 * 
-	 * @see #addDevice(HIDevice)
+	 * @see #registerProfile(HIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void removeDevice(HIDevice device) {
-		devices.remove(device);
+	public AbstractProfile<?> unregisterProfile(AbstractProfile<?> profile) {
+		return profiles.remove(profile.name());
+	}
+	
+	public AbstractProfile<?> unregisterProfile(String name) {
+		return profiles.remove(name);
 	}
 	
 	/**
 	 * Removes all registered devices from the scene.
 	 * 
-	 * @see #addDevice(HIDevice)
-	 * @see #removeDevice(HIDevice)
+	 * @see #registerProfile(HIDevice)
+	 * @see #unregisterProfile(HIDevice)
 	 */
-	public void removeAllDevices() {
-		devices.clear();
+	public void unregisterAllProfiles() {
+		profiles.clear();
 	}
+	
+	/**
+	public List<AbstractProfile<?>> getActivatedDevices() {
+		//TODO test me
+		// see: http://viralpatel.net/blogs/convert-arraylist-to-arrays-in-java/
+		List<AbstractProfile<?>> list = Arrays.asList(profiles.values().toArray(new AbstractProfile<?>[0]));
+		
+		Iterator<AbstractProfile<?>> iterator = list.iterator();
+		while (iterator.hasNext()) {
+			if(!iterator.next().isActive()) 
+				iterator.remove();
+		}		
+		return list;
+	}
+	*/
+	
+	/**
+	public void activateAllDevices() {
+		Iterator<AbstractProfile<?>> iterator = profiles.values().iterator();
+		while (iterator.hasNext()) {
+			iterator.next().activate();
+		}	
+	}
+	
+	public void deactivateAllDevices() {
+		Iterator<AbstractProfile<?>> iterator = profiles.values().iterator();
+		while (iterator.hasNext()) {
+			iterator.next().deactivate();
+		}	
+	}
+	*/
 	
   // Event registration
 	
@@ -1718,7 +1165,7 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Adds an HIDevice to the scene.
 	 * 
-	 * @see #removeDevice(AbstractHIDevice)
+	 * @see #unregisterProfile(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
 	public void enqueueEvent(DLEvent event) {
@@ -1729,7 +1176,7 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Removes the device from the scene.
 	 * 
-	 * @see #addDevice(AbstractHIDevice)
+	 * @see #registerProfile(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
 	public void removeEvent(DLEvent event) {
@@ -1739,8 +1186,8 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * Removes all registered devices from the scene.
 	 * 
-	 * @see #addDevice(AbstractHIDevice)
-	 * @see #removeDevice(AbstractHIDevice)
+	 * @see #registerProfile(AbstractHIDevice)
+	 * @see #unregisterProfile(AbstractHIDevice)
 	 */
 	public void removeAllEvents() {
 		eventQueue.clear();

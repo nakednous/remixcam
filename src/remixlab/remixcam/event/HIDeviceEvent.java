@@ -47,7 +47,7 @@ public class HIDeviceEvent extends DLEvent {
 	
   public HIDeviceEvent(Integer modifiers) {
   	this();  
-  	setModifiers(modifiers);  	  
+  	//setModifiers(modifiers);  	  
   }
   
   protected HIDeviceEvent(HIDeviceEvent other) {

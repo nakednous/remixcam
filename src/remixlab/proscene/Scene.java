@@ -1,8 +1,6 @@
 package remixlab.proscene;
 
-import remixlab.remixcam.action.DOF_6Action;
 import remixlab.remixcam.core.*;
-import remixlab.remixcam.device.HIDevice;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.*;
@@ -76,7 +74,7 @@ import java.util.TimerTask;
  * such as {@link #drawGrid()} or {@link #drawAxis()} that are common among
  * the different registered camera profiles. To define a global keyboard shortcut use
  * {@link #setShortcut(Character, KeyboardAction)} or one of its different forms.
- * Check {@link #setDefaultShortcuts()} to see the default global keyboard shortcuts.
+ * Check {@link #setDefaultBindings()} to see the default global keyboard shortcuts.
  * <li><b>Camera profiles</b> represent a set of camera keyboard shortcuts, and camera and
  * frame mouse bindings which together represent a "camera mode". The scene provide
  * high-level methods to manage camera profiles such as
@@ -104,64 +102,123 @@ import java.util.TimerTask;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {	
-	public class P5EventDispatcher extends EventDispatcher {
-		public P5EventDispatcher(Scene s) {
-			super(s);
+	public class ProsceneKeyboard extends KeyboardProfile {
+		protected Method handlerMethod;
+		private Integer m;
+		private Character c;
+		private Integer kc;
+		
+		KeyEvent event;
+
+		public ProsceneKeyboard(AbstractScene scn, String n) {
+			super(scn, n);
 		}
-		// two options here:
-		// 1. Bypass -> DLEventHandler methods are called directly, e.g., handleKeyEvent and handleMouseEvent
-		// 2. Remix events are enqueued first and then passed to the DLEventHandler @postDraw
+		
+		@Override
+		public Character feedKey() {
+			return event.getKey();
+			/**
+			if(event != null)
+				return event.getKey();
+			else
+				return null;
+			*/
+		}
+
+		@Override
+		public Integer feedKeyCode() {
+			return event.getKeyCode();
+			/**
+			if(event != null)
+				return event.getKeyCode();
+			else
+				return null;
+			*/
+		}
+
+		@Override
+		public Integer feedModifiers() {
+			return event.getModifiers();
+			/**
+			if(event != null)
+				return event.getModifiers();
+			else
+				return null;
+			*/
+		}
+		
 		public void keyEvent(KeyEvent e) {
-			//TODO: may be broken if p5 > 2b8)
-			if(scene.keyboardIsHandled() && scene.currentCameraProfile() != null) {				
-				//if(e.getAction() == KeyEvent.TYPE) handleKeyEvent(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
-					
-				// /**
-				keyHandled = false;
-				if( e.getAction() == KeyEvent.TYPE)
-					keyChar(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
-				else
-					if (e.getAction() == KeyEvent.RELEASE)
-						keyCoded(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
-				// */
-				
-				/**
-				//debug:
-				switch (e.getAction() ) {
-				case KeyEvent.PRESS:
-					System.out.print("KeyPressed: ");
-					break;
-				case KeyEvent.TYPE:
-					//keyTyped(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
-					System.out.print("KeyTyped: ");
-					break;
-				case KeyEvent.RELEASE:
-					System.out.print("KeyReleased: ");
-					//keyReleased(new DLKeyEvent(e.getModifiers(), e.getKey(), e.getKeyCode()));
-					break;			
-				}
-				System.out.println("e.getModifiers(): " + e.getModifiers() + ", e.getKey(): " + e.getKey() + ", e.getKeyCode(): " + e.getKeyCode());
-				// */
+			event = e;
+			if( (e.getAction() == KeyEvent.TYPE && e.getModifiers() == 0) || (e.getAction() == KeyEvent.RELEASE) )
+				activate();
+		}
+		
+	  public void feed(Integer _m, Character _c, Integer _kc) {
+	  	m = _m;
+	  	c = _c;
+	  	kc = _kc;
+		}
+		
+		/**
+		 * Overriding of
+		 * {@link remixlab.remixcam.devices.AbstractHIDevice#addHandler(Object, String)}.
+		 */
+		@Override
+		public void addHandler(Object obj, String methodName) {
+			try {
+				handlerMethod = obj.getClass().getMethod(methodName, new Class[] { ProsceneKeyboard.class });
+				handlerObject = obj;
+				handlerMethodName = methodName;
+			} catch (Exception e) {
+				  System.out.println("Something went wrong when registering your " + methodName + " method");
+				  e.printStackTrace();
 			}
 		}
-		public void mouseEvent(MouseEvent e) {
-			if(scene.mouseIsHandled() && scene.currentCameraProfile() != null) {
-				//handleMouseEvent(new DLMouseEvent(e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount()));
-				//new DLMouseEvent(scene, e.getAction(), e.getModifiers(), e.getX(), e.getY(), e.getButton(), e.getAmount());
+		
+		/**
+		 * Overriding of
+		 * {@link remixlab.remixcam.devices.AbstractHIDevice#removeHandler()}.
+		 */
+		@Override
+		public void removeHandler() {
+			handlerMethod = null;
+			handlerObject = null;
+			handlerMethodName = null;
+		}
+		
+		@Override
+		public DLKeyEvent handle() {
+			if (handlerObject != null) {
+				try {
+					handlerMethod.invoke(handlerObject, new Object[] { this });
+				} catch (Exception e) {
+					System.out.println("Something went wrong when invoking your "	+ handlerMethodName + " method");
+					e.printStackTrace();
+				}
+				//--
+				DLAction action = shortcut(c);
+				if (action == null)
+					action = shortcut(m, kc);
+				return new DLKeyEvent(m, c, kc, action);
+				//-
 			}
+			else
+				return super.handle();
 		}
 	}
 	
-	public class Device extends HIDevice {
+	public class Device extends HIDeviceProfile {
 		protected Method handlerMethod;
 		
-		public Device(AbstractScene scn) {
-			super(scn);
+		public Device(AbstractScene scn, String n) {
+			super(scn, n);
 		}
 		
-		public Device(AbstractScene scn, Mode m) {
-			super(scn, m);
-		}	
+		@Override
+		public Integer feedModifiers() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 		
 		/**
 		 * Overriding of
@@ -188,25 +245,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			handlerMethod = null;
 			handlerObject = null;
 			handlerMethodName = null;
-		}
-		
-		/**
-		 * Overriding of
-		 * {@link remixlab.remixcam.devices.AbstractHIDevice#invoke()}.
-		 */
-		@Override
-		public boolean invoke() {
-			boolean result = false;
-			if (handlerObject != null) {
-				try {
-					handlerMethod.invoke(handlerObject, new Object[] { this });
-					result = true;
-				} catch (Exception e) {
-					System.out.println("Something went wrong when invoking your "	+ handlerMethodName + " method");
-					e.printStackTrace();
-				}
-			}
-			return result;
 		}	
 	}
 	
@@ -418,8 +456,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().popStyle();
 		}	
 
+		//TODO these two are pending
 		@Override
 		public void drawZoomWindowHint() {
+			/**
 			float p1x = (float) ((Scene)scene).eventDispatcher.fCorner.getX();
 			float p1y = (float) ((Scene)scene).eventDispatcher.fCorner.getY();
 			float p2x = (float) ((Scene)scene).eventDispatcher.lCorner.getX();
@@ -436,11 +476,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().vertex(p1x, p2y);
 			pg().endShape(CLOSE);
 			pg().popStyle();
-			scene.endScreenDrawing();		
+			scene.endScreenDrawing();	
+			*/	
 		}
 
 		@Override
 		public void drawScreenRotateLineHint() {
+			/**
 			float p1x = (float) ((Scene)scene).eventDispatcher.fCorner.getX();
 			float p1y = (float) ((Scene)scene).eventDispatcher.fCorner.getY();
 			Vector3D p2 = scene.pinhole().projectedCoordinatesOf(scene.arcballReferencePoint());
@@ -452,6 +494,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().line(p2.x(), p2.y(), p1x, p1y);
 			pg().popStyle();
 			scene.endScreenDrawing();
+			*/
 		}
 
 		@Override
@@ -1643,8 +1686,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 
 	// P R O C E S S I N G   A P P L E T   A N D   O B J E C T S
-	public PApplet parent;		
-
+	public PApplet parent;
+	
+	// H A R D W A R E
+	protected ProsceneKeyboard keyboard;
+	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
   	
@@ -1750,9 +1796,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		setMouseGrabberCameraPathOffSelectionHintColor(pg3d.color(0, 255, 255));
 		*/		
 		
-		//event handler
-		eventDispatcher = new P5EventDispatcher(this);
-		
 		// 1 ->   	
 
 		/**
@@ -1772,9 +1815,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		else
 			ph = new ViewWindow(this);
 		setViewPort(pinhole());//calls showAll();
-		
-		//TODO pull up to AbstractScene
-		initDefaultCameraProfiles();
 				
 		setInteractiveFrame(null);
 		setAvatar(null);
@@ -1807,7 +1847,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		setFrameSelectionHintIsDrawn(false);
 		setCameraPathsAreDrawn(false);
 		
-		disableFrustumEquationsUpdate();		
+		disableFrustumEquationsUpdate();
+		
+		//TODO testing keyboard
+		keyboard = new ProsceneKeyboard(this, "ProsceneKeyboard");
+		parent.registerMethod("keyEvent", keyboard);
+		this.registerProfile(keyboard);
 
 		parent.registerMethod("pre", this);
 		parent.registerMethod("draw", this);
@@ -1825,6 +1870,72 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		// called only once
 		init();
 	}	
+	
+	//TODO all these should be pending now
+	
+	/**
+	 * Enables Proscene keyboard handling.
+	 * 
+	 * @see #keyboardIsHandled()
+	 * @see #enableMouseHandling()
+	 * @see #disableKeyboardHandling()
+	 */
+	/**
+	@Override
+	public void enableKeyboardHandling() {
+		if( !this.keyboardIsHandled() ) {
+			super.enableKeyboardHandling();
+			parent.registerMethod("keyEvent", eventDispatcher);
+		}
+	}
+	*/
+
+	/**
+	 * Disables Proscene keyboard handling.
+	 * 
+	 * @see #keyboardIsHandled()
+	 */
+	/**
+	@Override
+	public void disableKeyboardHandling() {
+		if( this.keyboardIsHandled() ) {
+			super.disableKeyboardHandling();
+			parent.unregisterMethod("keyEvent", eventDispatcher);
+		}
+	}
+	*/
+
+	/**
+	 * Enables Proscene mouse handling.
+	 * 
+	 * @see #mouseIsHandled()
+	 * @see #disableMouseHandling()
+	 * @see #enableKeyboardHandling()
+	 */
+	/**
+	@Override
+	public void enableMouseHandling() {
+		if( !this.mouseIsHandled() ) {
+			super.enableMouseHandling();
+			parent.registerMethod("mouseEvent", eventDispatcher);
+		}
+	}
+	*/
+	
+	/**
+	 * Disables Proscene mouse handling.
+	 * 
+	 * @see #mouseIsHandled()
+	 */
+	/**
+	@Override
+	public void disableMouseHandling() {
+		if( this.mouseIsHandled() ) {
+			super.disableMouseHandling();
+			parent.unregisterMethod("mouseEvent", eventDispatcher);
+		}
+	}
+	*/
 	
 	// matrix stuff
 	
@@ -2039,10 +2150,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		} else {
 			pinhole().hideAllPaths();
 		}
+		//TODO pending
+		/**
 		if (eventDispatcher.camMouseAction == DOF_6Action.ZOOM_ON_REGION)			
 			drawZoomWindowHint();		
 		if (eventDispatcher.camMouseAction == DOF_6Action.SCREEN_ROTATE)
 			drawScreenRotateLineHint();
+		*/
 		if (arpFlag) 
 			drawArcballReferencePointHint();
 		if (pupFlag) {
@@ -2071,7 +2185,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			width = pg().width;
 			height = pg().height;				
 			pinhole().setScreenWidthAndHeight(width, height);				
-		} else {
+		}
+		//TODO pending
+		/**
+		else {
 			if ((currentCameraProfile() instanceof ThirdPersonCameraProfile)
 					&& (!pinhole().anyInterpolationIsStarted())) {
 				pinhole().setPosition(avatar().cameraPosition());
@@ -2079,6 +2196,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				pinhole().lookAt(avatar().target());
 			}
 		}
+		*/
 
 		preDraw();
 	}
@@ -2120,12 +2238,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 								+ "endDraw() and they cannot be nested. Check your implementation!");			
 			beginOffScreenDrawingCalls++;
 						
+			//TODO pending
+			/**
 			if ((currentCameraProfile() instanceof ThirdPersonCameraProfile)
 					&& (!pinhole().anyInterpolationIsStarted())) {
 				pinhole().setPosition(avatar().cameraPosition());
 				pinhole().setUpVector(avatar().upVector());
 				pinhole().lookAt(avatar().target());
 			}
+			*/
 			
 			preDraw();	
 		}
@@ -2404,34 +2525,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					"keyboard handling with Scene.disableKeyboardHandling() (you can re-enable it later with Scene.enableKeyboardHandling()).");
 		}
 	}	
-
-	/**
-	 * Enables Proscene keyboard handling.
-	 * 
-	 * @see #keyboardIsHandled()
-	 * @see #enableMouseHandling()
-	 * @see #disableKeyboardHandling()
-	 */
-	@Override
-	public void enableKeyboardHandling() {
-		if( !this.keyboardIsHandled() ) {
-			super.enableKeyboardHandling();
-			parent.registerMethod("keyEvent", eventDispatcher);
-		}
-	}
-
-	/**
-	 * Disables Proscene keyboard handling.
-	 * 
-	 * @see #keyboardIsHandled()
-	 */
-	@Override
-	public void disableKeyboardHandling() {
-		if( this.keyboardIsHandled() ) {
-			super.disableKeyboardHandling();
-			parent.unregisterMethod("keyEvent", eventDispatcher);
-		}
-	}
 		
 	/**
 	 * Displays global keyboard bindings.
@@ -2441,10 +2534,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * 
 	 * @see #displayGlobalHelp()
 	 */
+	//TODO pending
 	@Override
 	public void displayGlobalHelp(boolean onConsole) {
+		/**
 		if (onConsole)
-			PApplet.println(globalHelp());
+			System.out.println(globalHelp());
 		else { //on applet
 			pg().textFont(parent.createFont("Arial", 12));
 			//pGraphics().textMode(SCREEN);
@@ -2455,6 +2550,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().text(globalHelp(), 10, 10, (pg().width-20), (pg().height-20));
 			endScreenDrawing();
 		}
+		*/
 	}	
 	
 	/**
@@ -2467,6 +2563,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 */
 	@Override
 	public void displayCurrentCameraProfileHelp(boolean onConsole) {
+		//TODO pending
+		/**
 		if (onConsole)
 			PApplet.println(currentCameraProfileHelp());
 		else { //on applet
@@ -2478,6 +2576,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().text(currentCameraProfileHelp(), 10, 10, (pg().width-20), (pg().height-20));
 			endScreenDrawing();
 		}
+		*/
 	}	
 
 	// 9. Mouse customization
@@ -2545,34 +2644,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		if ( (foundMD || foundMM || foundMR || foundMP || foundMC) && mouseIsHandled() ) {			
 			PApplet.println("Warning: it seems that you have implemented some mouseXxxxMethod in your sketch. You may temporarily disable proscene " +
 			"mouse handling with Scene.disableMouseHandling() (you can re-enable it later with Scene.enableMouseHandling()).");
-		}
-	}	
-
-	/**
-	 * Enables Proscene mouse handling.
-	 * 
-	 * @see #mouseIsHandled()
-	 * @see #disableMouseHandling()
-	 * @see #enableKeyboardHandling()
-	 */
-	@Override
-	public void enableMouseHandling() {
-		if( !this.mouseIsHandled() ) {
-			super.enableMouseHandling();
-			parent.registerMethod("mouseEvent", eventDispatcher);
-		}
-	}
-
-	/**
-	 * Disables Proscene mouse handling.
-	 * 
-	 * @see #mouseIsHandled()
-	 */
-	@Override
-	public void disableMouseHandling() {
-		if( this.mouseIsHandled() ) {
-			super.disableMouseHandling();
-			parent.unregisterMethod("mouseEvent", eventDispatcher);
 		}
 	}
 

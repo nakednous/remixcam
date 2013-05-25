@@ -23,11 +23,9 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.device;
+package remixlab.remixcam.profile;
 
-import java.util.ArrayList;
-
-import remixlab.remixcam.core.AbstractScene;
+import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
 
 /**
@@ -38,42 +36,10 @@ import remixlab.remixcam.geom.*;
  * has no such neutral position. Examples of RELATIVE devices are the space navigator and the joystick,
  * examples of ABSOLUTE devices are the wii or the kinect.
  */
-public class HIDevice {
-	/**
-	 * This enum holds the device type.
-	 *
-	 */
-	public enum Mode {RELATIVE, ABSOLUTE}
+public abstract class HIDeviceProfile extends MouseProfile {	
+	//public enum PointerMode {POINTER, POINTERLESS}	
+	//protected PointerMode pmode;
 	
-	public enum PointerMode {POINTER, POINTERLESS}
-	
-	protected Mode mode;
-	
-	protected PointerMode pmode;
-	
-	protected Object handlerObject;	
-	protected String handlerMethodName;
-	
-	protected AbstractScene scene;
-	
-	protected class Button {
-		static public final int PRESS = 1;
-	  static public final int RELEASE = 2;
-	  static public final int CLICK = 3;
-	  static public final int DRAG = 4;
-	  static public final int MOVE = 5;
-	  static public final int ENTER = 6;
-	  static public final int EXIT = 7;
-	}
-	
-	protected class Wheel {
-		protected Float amount;
-	}
-	
-	ArrayList<Button> buttons;
-	
-	ArrayList<Wheel> wheels;
-
 	protected Vector3D rotation, rotSens;
 	protected Vector3D translation, transSens;
 	
@@ -90,17 +56,6 @@ public class HIDevice {
   protected float yaw;
 
 	protected Quaternion quaternion;
-	
-	/**
-	 * Convenience constructor that simply calls {@code this(scn, Mode.RELATIVE)}.
-	 * 
-	 * @param scn The Scene object this Device belongs to.
-	 * 
-	 * @see #AbstractDevice(AbstractScene)
-	 */
-	public HIDevice(AbstractScene scn) {
-		this(scn, Mode.RELATIVE);
-	}
 
 	/**
 	 * Main constructor.
@@ -108,8 +63,8 @@ public class HIDevice {
 	 * @param scn The Scene object this HIDevice belongs to.
 	 * @param m The device {@link #mode()}.
 	 */
-	public HIDevice(AbstractScene scn, Mode m) {
-		scene = scn;
+	public HIDeviceProfile(AbstractScene scn, String n) {
+		super(scn, n);
 		translation = new Vector3D();
 		transSens = new Vector3D(1, 1, 1);
 		rotation = new Vector3D();
@@ -123,8 +78,6 @@ public class HIDevice {
   	roll = rotation.vec[0] * rotSens.vec[0];
     pitch = rotation.vec[1] * rotSens.vec[1];
     yaw = rotation.vec[2] * rotSens.vec[2];
-    
-    setMode(m);
 	}
 	
 	/**
@@ -155,8 +108,6 @@ public class HIDevice {
 	 * @see #feedRotation(float, float, float)
 	 */
 	public void feedTranslation(float x, float y, float z) {
-		if ( mode() == Mode.ABSOLUTE )
-			prevTranslation.set(translation);
 		translation.set(x, y, z);
 	}
 	
@@ -173,8 +124,6 @@ public class HIDevice {
 	 * @see #feedTranslation(float, float, float)
 	 */
 	public void feedRotation(float x, float y, float z) {
-		if ( mode() == Mode.ABSOLUTE )
-			prevRotation.set(rotation);
 		rotation.set(x, y, z);
 	}
 	
@@ -184,8 +133,6 @@ public class HIDevice {
 	 * Useful when {@link #addHandler(Object, String)} has been called on this HIDevice.
 	 */
 	public void feedXTranslation(float t) {
-		if ( mode() == Mode.ABSOLUTE )
-			prevTranslation.vec[0] = translation.vec[0]; 
 		translation.vec[0] = t;
 	}
 
@@ -195,9 +142,6 @@ public class HIDevice {
 	 * Useful when {@link #addHandler(Object, String)} has been called on this HIDevice.
 	 */
 	public void feedYTranslation(float t) {
-		if ( mode() == Mode.ABSOLUTE ) {
-			prevTranslation.vec[1] = translation.vec[1]; 
-		}
 		translation.vec[1] = t;
 	}
 
@@ -207,8 +151,6 @@ public class HIDevice {
 	 * Useful when {@link #addHandler(Object, String)} has been called on this HIDevice.
 	 */
 	public void feedZTranslation(float t) {
-		if ( mode() == Mode.ABSOLUTE )
-			prevTranslation.vec[2] = translation.vec[2]; 
 		translation.vec[2] = t;
 	}	
 
@@ -218,8 +160,6 @@ public class HIDevice {
 	 * Useful when {@link #addHandler(Object, String)} has been called on this HIDevice. 
 	 */
 	public void feedXRotation(float t) {
-		if ( mode() == Mode.ABSOLUTE )
-			prevRotation.vec[0] = rotation.vec[0]; 
 		rotation.vec[0] = t;
 	}
 
@@ -229,8 +169,6 @@ public class HIDevice {
 	 * Useful when {@link #addHandler(Object, String)} has been called on this HIDevice. 
 	 */
 	public void feedYRotation(float t) {
-		if ( mode() == Mode.ABSOLUTE )
-			prevRotation.vec[1] = rotation.vec[1];
 		rotation.vec[1] = t;
 	}
 
@@ -240,8 +178,6 @@ public class HIDevice {
 	 * Useful when {@link #addHandler(Object, String)} has been called on this HIDevice. 
 	 */
 	public void feedZRotation(float t) {
-		if ( mode() == Mode.ABSOLUTE )
-			prevRotation.vec[2] = rotation.vec[2];
 		rotation.vec[2] = t;
 	}
 	
@@ -362,51 +298,15 @@ public class HIDevice {
 	public void setZRotationSensitivity(float sensitivity) {
 		rotSens.vec[2] = sensitivity;
 	}	
-	
-	/**
-	 * Attempt to add a 'feed' handler method to the HIDevice. The default feed
-	 * handler is a method that returns void and has one single HIDevice parameter.
-	 * 
-	 * @param obj the object to handle the feed
-	 * @param methodName the method to execute the feed in the object handler class
-	 * 
-	 * @see #removeHandler()
-	 * @see #invoke()
-	 */
-	public void addHandler(Object obj, String methodName) {
-		AbstractScene.showMissingImplementationWarning("addHandler");
-	}
-	
-	/**
-	 * Unregisters the 'feed' handler method (if any has previously been added to
-	 * the HIDevice).
-	 * 
-	 * @see #addHandler(Object, String)
-	 * @see #invoke()
-	 */
-	public void removeHandler() {
-		AbstractScene.showMissingImplementationWarning("removeHandler");
-	}
-	
-	/**
-	 * called by {@link #handle()}. Invokes the method added by
-	 * {@link #addHandler(Object, String)}. Returns {@code true} if
-	 * succeeded and {@code false} otherwise (e.g., no method was added).
-	 * 
-	 * @see #addHandler(Object, String)
-	 * @see #removeHandler()
-	 */
-	public boolean invoke() {
-		AbstractScene.showMissingImplementationWarning("invoke");
-		return false;
-	}
 
 	/**
 	 * Handle the feed by properly calling {@link #handleCamera()} or {@link #handleIFrame()}.
 	 * 
 	 * <b>Attention</b>: Handled by the scene. You should not call this method by yourself.
 	 */
-	public void handle() {
+	/**
+	//TODO que cha rala mbon ;)
+	public void handleLocal() {
 		// TODO it should produce a remix event to be enqueued by the scene and then process by the EventHandler
 		if(!invoke()) {			
 			feedXTranslation(feedXTranslation());
@@ -417,65 +317,18 @@ public class HIDevice {
 			feedZRotation(feedZRotation());
 		}
 		
-		if ( mode() == Mode.ABSOLUTE ) {
-			tx = (translation.vec[0] - prevTranslation.vec[0]) * transSens.vec[0];
-			if( scene.isRightHanded() )
-				ty = (prevTranslation.vec[1] - translation.vec[1]) * transSens.vec[1];
-			else
-				ty = (translation.vec[1] - prevTranslation.vec[1]) * transSens.vec[1];
-			tz = (translation.vec[2] - prevTranslation.vec[2]) * transSens.vec[2];
-			roll = (rotation.vec[0] - prevRotation.vec[0]) * rotSens.vec[0];			
-			if( scene.isRightHanded() )
-				pitch = (prevRotation.vec[1] - rotation.vec[1]) * rotSens.vec[1];
-			else
-				pitch = (rotation.vec[1] - prevRotation.vec[1]) * rotSens.vec[1];
-			yaw = (rotation.vec[2] - prevRotation.vec[2]) * rotSens.vec[2];
-		}
-		else {
-			tx = translation.vec[0] * transSens.vec[0];
-			if( scene.isRightHanded() )
-				ty = translation.vec[1] * (- transSens.vec[1]);
-			else
-				ty = translation.vec[1] * transSens.vec[1];
-			tz = translation.vec[2] * transSens.vec[2];
-			roll = rotation.vec[0] * rotSens.vec[0];		  
-			if( scene.isRightHanded() )
-				pitch = rotation.vec[1] * (- rotSens.vec[1]);
-			else
-				pitch = rotation.vec[1] * rotSens.vec[1];
-			yaw = rotation.vec[2] * rotSens.vec[2];
-		}
+		tx = translation.vec[0] * transSens.vec[0];
+		if( scene.isRightHanded() )
+			ty = translation.vec[1] * (- transSens.vec[1]);
+		else
+			ty = translation.vec[1] * transSens.vec[1];
+		tz = translation.vec[2] * transSens.vec[2];
+		roll = rotation.vec[0] * rotSens.vec[0];
+		if( scene.isRightHanded() )
+			pitch = rotation.vec[1] * (- rotSens.vec[1]);
+		else
+			pitch = rotation.vec[1] * rotSens.vec[1];
+		yaw = rotation.vec[2] * rotSens.vec[2];
   }
-  
-  /**
-   * Sets the device type.
-   */
-  public void setMode(Mode m) {
-  	if(m == Mode.ABSOLUTE) {
-  		if(prevTranslation == null)
-  			prevTranslation = new Vector3D();
-  		if(prevRotation == null)
-  			prevRotation = new Vector3D();
-    }
-  	mode = m;
-  }
-  
-  /**
-   * Return the device type.
-   */
-  public Mode mode() {
-  	return mode;
-  }
-	
-  /**
-   * Overload this method in your HIDevice derived class if you plan to define your own camera handle method.
-   * Default implementation is empty.
-   */
-	protected void customCameraHandle() {}
-	
-	/**
-   * Overload this method in your HIDevice derived class if you plan to define your own
-   * interactive frame handle method. Default implementation is empty.
-   */
-  protected void customIFrameHandle() {}
+  */
 }

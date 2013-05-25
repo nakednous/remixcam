@@ -26,7 +26,10 @@
 package remixlab.remixcam.profile;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
+
 import remixlab.remixcam.core.*;
+import remixlab.remixcam.shortcut.Shortcut;
 
 /**
  * A parameterized template class used to define shortcut bindings. This is
@@ -37,29 +40,27 @@ import remixlab.remixcam.core.*;
  * and mouse (and mouse-click) actions.
  * <p>
  * Internally, this class is simply a parameterized hash-map wrap
- * (HashMap<K, A>). 
+ * (HashMap<K, DLAction>). 
  */
-public class Bindings<K, A> {
-	protected AbstractScene scene;
-	protected HashMap<K, A> map;
+public class Bindings<K extends Shortcut> implements Constants {
+	protected HashMap<K, DLAction> map;
 
-	public Bindings(AbstractScene scn) {
-		scene = scn;
-		map = new HashMap<K, A>();
+	public Bindings() {
+		map = new HashMap<K, DLAction>();
 	}
 	
 	/**
 	 * Returns the {@code map} (which is simply an instance of {@code HashMap})
 	 * encapsulated by this object.
 	 */
-	public HashMap<K, A> map() {
+	public HashMap<K, DLAction> map() {
 		return map;
 	}
 
 	/**
 	 * Returns the action associated to a given Keyboard shortcut {@code key}.
 	 */
-	public A binding(K key) {
+	public DLAction binding(K key) {
 		return map.get(key);
 	}
 	
@@ -69,7 +70,7 @@ public class Bindings<K, A> {
 	 * @param key shortcut.
 	 * @param action action.
 	 */
-	public void setBinding(K key, A action) {
+	public void setBinding(K key, DLAction action) {
 		map.put(key, action);
 	}
 	
@@ -105,7 +106,14 @@ public class Bindings<K, A> {
 	 * @param action action whose presence in this object is to be tested
 	 * @return true if this object maps one or more shortcuts to the specified action.
 	 */
-	public boolean isActionMapped(A action) {
+	public boolean isActionMapped(DLAction action) {
 		return map.containsValue(action);
+	}
+	
+	public String description() {
+		String result = new String();
+		for (Entry<K, DLAction> entry : map.entrySet())
+			result += entry.getKey().description() + " -> " + entry.getValue().description() + "\n"; 
+		return result;
 	}
 }

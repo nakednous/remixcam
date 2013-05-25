@@ -88,6 +88,11 @@ public interface Constants {
   public enum DLAction {
   	NO_ACTION("No action", true, 0),
   	
+  	//KEYfRAMES
+  	ADD_KEYFRAME_TO_PATH("Add keyframe to path", true, 0),
+  	PLAY_PATH("Play keyframe path", true, 0),
+  	DELETE_PATH("Delete keyframepath", true, 0),
+  	
   	// CLICk ACTIONs	  	
   	ZOOM_TO_FIT("Zoom to fit the scene", true, 0),
   	//ARP_FROM_PIXEL("Set the arcball reference point from the pixel under the mouse"),
@@ -207,5 +212,277 @@ public interface Constants {
     public int dofs() {
     	return dofs;
     }
+  }
+  
+  public interface Actionable {
+  	DLAction action();
+  	String description();
+  	public boolean is2D();
+  }
+  
+  public enum DOF_0Action implements Actionable {
+    //DOF_0
+  	NO_ACTION(DLAction.NO_ACTION),
+  	
+    //KEYfRAMES
+  	ADD_KEYFRAME_TO_PATH(DLAction.ADD_KEYFRAME_TO_PATH),
+  	PLAY_PATH(DLAction.PLAY_PATH),
+  	DELETE_PATH(DLAction.DELETE_PATH),
+  	
+  	// CLICk ACTIONs	  	
+  	ZOOM_TO_FIT(DLAction.ZOOM_TO_FIT),
+  	CENTER_FRAME(DLAction.CENTER_FRAME),
+  	CENTER_SCENE(DLAction.CENTER_SCENE),
+  	ALIGN_FRAME(DLAction.ALIGN_FRAME),
+  	ALIGN_CAMERA(DLAction.ALIGN_CAMERA),
+  	
+    //Click actions require cursor pos:
+    ZOOM_ON_PIXEL(DLAction.ZOOM_ON_PIXEL),
+    INTERPOLATE_TO_ZOOM_ON_PIXEL(DLAction.INTERPOLATE_TO_ZOOM_ON_PIXEL),
+    ARP_FROM_PIXEL(DLAction.ARP_FROM_PIXEL),
+  	
+  	//GENERAL KEYBOARD ACTIONs	
+  	DRAW_AXIS(DLAction.DRAW_AXIS),
+  	DRAW_GRID(DLAction.DRAW_GRID),
+  	CAMERA_PROFILE(DLAction.CAMERA_PROFILE),
+  	CAMERA_TYPE(DLAction.CAMERA_TYPE),
+  	CAMERA_KIND(DLAction.CAMERA_KIND),
+  	ANIMATION(DLAction.ANIMATION),  	
+  	RESET_ARP(DLAction.RESET_ARP),
+  	GLOBAL_HELP(DLAction.GLOBAL_HELP),
+  	CURRENT_CAMERA_PROFILE_HELP(DLAction.CURRENT_CAMERA_PROFILE_HELP),
+  	EDIT_CAMERA_PATH(DLAction.EDIT_CAMERA_PATH),
+  	FOCUS_INTERACTIVE_FRAME(DLAction.FOCUS_INTERACTIVE_FRAME),
+  	DRAW_FRAME_SELECTION_HINT(DLAction.DRAW_FRAME_SELECTION_HINT),
+  	CONSTRAIN_FRAME(DLAction.CONSTRAIN_FRAME),
+  	INTERPOLATE_TO_FIT_SCENE(DLAction.INTERPOLATE_TO_FIT_SCENE),
+  	SHOW_ALL(DLAction.SHOW_ALL),
+  	
+    //CAMERA KEYBOARD ACTIONs
+  	MOVE_CAMERA_LEFT(DLAction.MOVE_CAMERA_LEFT),
+  	MOVE_CAMERA_RIGHT(DLAction.MOVE_CAMERA_RIGHT),
+  	MOVE_CAMERA_UP(DLAction.MOVE_CAMERA_UP),
+  	MOVE_CAMERA_DOWN(DLAction.MOVE_CAMERA_DOWN),
+  	INCREASE_ROTATION_SENSITIVITY(DLAction.INCREASE_ROTATION_SENSITIVITY),
+  	DECREASE_ROTATION_SENSITIVITY(DLAction.DECREASE_ROTATION_SENSITIVITY),
+  	INCREASE_CAMERA_FLY_SPEED(DLAction.INCREASE_CAMERA_FLY_SPEED),
+  	DECREASE_CAMERA_FLY_SPEED(DLAction.DECREASE_CAMERA_FLY_SPEED),
+  	INCREASE_AVATAR_FLY_SPEED(DLAction.INCREASE_AVATAR_FLY_SPEED),
+  	DECREASE_AVATAR_FLY_SPEED(DLAction.DECREASE_AVATAR_FLY_SPEED),
+  	INCREASE_AZYMUTH(DLAction.INCREASE_AZYMUTH),
+  	DECREASE_AZYMUTH(DLAction.DECREASE_AZYMUTH),
+  	INCREASE_INCLINATION(DLAction.INCREASE_INCLINATION),
+  	DECREASE_INCLINATION(DLAction.DECREASE_INCLINATION),
+  	INCREASE_TRACKING_DISTANCE(DLAction.INCREASE_TRACKING_DISTANCE),
+  	DECREASE_TRACKING_DISTANCE(DLAction.DECREASE_TRACKING_DISTANCE),
+  	
+  	CUSTOM1(DLAction.CUSTOM1),
+  	CUSTOM2(DLAction.CUSTOM2),
+  	CUSTOM3(DLAction.CUSTOM3),
+  	CUSTOM4(DLAction.CUSTOM4);
+
+  	@Override
+  	public DLAction action() {
+  		return act;
+  	}
+
+  	@Override
+  	public String description() {
+  		return this.action().description();
+  	}
+  	
+  	@Override
+  	public boolean is2D() {
+  		return act.is2D();
+  	}
+
+  	DLAction act;
+
+  	DOF_0Action(DLAction a) {
+  		act = a;
+  	}
+  }
+  
+  public enum DOF_1Action implements Actionable {
+    //DOF_0
+  	NO_ACTION(DLAction.NO_ACTION),
+  	
+  	ZOOM(DLAction.ZOOM),
+  	
+  	CUSTOM1(DLAction.CUSTOM1),
+  	CUSTOM2(DLAction.CUSTOM2),
+  	CUSTOM3(DLAction.CUSTOM3),
+  	CUSTOM4(DLAction.CUSTOM4);
+
+  	@Override
+  	public DLAction action() {
+  		return act;
+  	}
+
+  	@Override
+  	public String description() {
+  		return this.action().description();
+  	}
+  	
+  	@Override
+  	public boolean is2D() {
+  		return act.is2D();
+  	}
+
+  	DLAction act;
+
+  	DOF_1Action(DLAction a) {
+  		act = a;
+  	}
+  }
+  
+  public enum DOF_2Action implements Actionable {
+  	NO_ACTION(DLAction.NO_ACTION),
+  	
+    //DOF_1
+  	ZOOM(DLAction.ZOOM),
+    
+  	//DOF_2
+  	ROTATE(DLAction.ROTATE),
+  	CAD_ROTATE(DLAction.CAD_ROTATE),
+  	TRANSLATE(DLAction.TRANSLATE),
+  	MOVE_FORWARD(DLAction.MOVE_FORWARD),
+  	MOVE_BACKWARD(DLAction.MOVE_BACKWARD),
+  	LOOK_AROUND(DLAction.LOOK_AROUND),
+  	SCREEN_ROTATE(DLAction.SCREEN_ROTATE),
+  	ROLL(DLAction.ROLL),
+  	DRIVE(DLAction.DRIVE),
+  	SCREEN_TRANSLATE(DLAction.SCREEN_TRANSLATE),
+  	ZOOM_ON_REGION(DLAction.ZOOM_ON_REGION),
+  	
+  	CUSTOM1(DLAction.CUSTOM1),
+  	CUSTOM2(DLAction.CUSTOM2),
+  	CUSTOM3(DLAction.CUSTOM3),
+  	CUSTOM4(DLAction.CUSTOM4);
+
+  	@Override
+  	public DLAction action() {
+  		return act;
+  	}
+
+  	@Override
+  	public String description() {
+  		return this.action().description();
+  	}
+  	
+  	@Override
+  	public boolean is2D() {
+  		return act.is2D();
+  	}
+
+  	DLAction act;
+
+  	DOF_2Action(DLAction a) {
+  		act = a;
+  	}
+  }
+  
+  public enum DOF_3Action implements Actionable {
+    NO_ACTION(DLAction.NO_ACTION),
+  	
+    //DOF_1
+  	ZOOM(DLAction.ZOOM),
+    
+  	//DOF_2
+  	ROTATE(DLAction.ROTATE),
+  	CAD_ROTATE(DLAction.CAD_ROTATE),
+  	TRANSLATE(DLAction.TRANSLATE),
+  	MOVE_FORWARD(DLAction.MOVE_FORWARD),
+  	MOVE_BACKWARD(DLAction.MOVE_BACKWARD),
+  	LOOK_AROUND(DLAction.LOOK_AROUND),
+  	SCREEN_ROTATE(DLAction.SCREEN_ROTATE),
+  	ROLL(DLAction.ROLL),
+  	DRIVE(DLAction.DRIVE),
+  	SCREEN_TRANSLATE(DLAction.SCREEN_TRANSLATE),
+  	ZOOM_ON_REGION(DLAction.ZOOM_ON_REGION),
+  	
+    //DOF_3
+  	TRANSLATE3(DLAction.TRANSLATE3),	
+  	FROM_EULER_ANGLES(DLAction.TRANSLATE3),
+  	
+  	CUSTOM1(DLAction.CUSTOM1),
+  	CUSTOM2(DLAction.CUSTOM2),
+  	CUSTOM3(DLAction.CUSTOM3),
+  	CUSTOM4(DLAction.CUSTOM4);
+
+  	@Override
+  	public DLAction action() {
+  		return act;
+  	}
+
+  	@Override
+  	public String description() {
+  		return this.action().description();
+  	}
+  	
+  	@Override
+  	public boolean is2D() {
+  		return act.is2D();
+  	}
+
+  	DLAction act;
+
+  	DOF_3Action(DLAction a) {
+  		act = a;
+  	}
+  }
+  
+  public enum DOF_6Action implements Actionable {
+    NO_ACTION(DLAction.NO_ACTION),
+  	
+    //DOF_1
+  	ZOOM(DLAction.ZOOM),
+    
+  	//DOF_2
+  	ROTATE(DLAction.ROTATE),
+  	CAD_ROTATE(DLAction.CAD_ROTATE),
+  	TRANSLATE(DLAction.TRANSLATE),
+  	MOVE_FORWARD(DLAction.MOVE_FORWARD),
+  	MOVE_BACKWARD(DLAction.MOVE_BACKWARD),
+  	LOOK_AROUND(DLAction.LOOK_AROUND),
+  	SCREEN_ROTATE(DLAction.SCREEN_ROTATE),
+  	ROLL(DLAction.ROLL),
+  	DRIVE(DLAction.DRIVE),
+  	SCREEN_TRANSLATE(DLAction.SCREEN_TRANSLATE),
+  	ZOOM_ON_REGION(DLAction.ZOOM_ON_REGION),
+  	
+    //DOF_3
+  	TRANSLATE3(DLAction.TRANSLATE3),	
+  	FROM_EULER_ANGLES(DLAction.TRANSLATE3),
+  	
+    //DOF_6
+  	GOOGLE_EARTH(DLAction.GOOGLE_EARTH),	
+  	NATURAL(DLAction.NATURAL),
+  	
+  	CUSTOM1(DLAction.CUSTOM1),
+  	CUSTOM2(DLAction.CUSTOM2),
+  	CUSTOM3(DLAction.CUSTOM3),
+  	CUSTOM4(DLAction.CUSTOM4);
+
+  	@Override
+  	public DLAction action() {
+  		return act;
+  	}
+
+  	@Override
+  	public String description() {
+  		return this.action().description();
+  	}
+  	
+  	@Override
+  	public boolean is2D() {
+  		return act.is2D();
+  	}
+
+  	DLAction act;
+
+  	DOF_6Action(DLAction a) {
+  		act = a;
+  	}
   }
 }

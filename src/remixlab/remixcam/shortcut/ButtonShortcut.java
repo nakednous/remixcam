@@ -35,7 +35,7 @@ import remixlab.remixcam.event.DLEvent;
  * Mouse shortcuts can be of one out of two forms: 1. Mouse buttons (e.g., 'LEFT');
  * 2. Mouse button + Key combinations (e.g., 'RIGHT' + CTRL key).
  */
-public final class ButtonShortcut extends AbstractShortcut implements Constants {
+public final class ButtonShortcut extends Shortcut implements Constants {
 	@Override
 	public int hashCode() {
    return new HashCodeBuilder(17, 37).		
@@ -90,6 +90,7 @@ public final class ButtonShortcut extends AbstractShortcut implements Constants 
 	 * Internal. Low-level description() function.
 	 */
 	protected String description(Integer b) {
+		//TODO: NO_BUTTON should be defined -> e.g., mouse move
 		String r = DLEvent.getModifiersText(mask);
 		switch (b) {
 		case LEFT:

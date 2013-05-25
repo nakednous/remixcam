@@ -3,9 +3,10 @@ package remixlab.remixcam.shortcut;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.core.AbstractScene;
+import remixlab.remixcam.event.DLEvent;
 
-public abstract class AbstractShortcut {
+//WHEEL
+public class Shortcut {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -19,7 +20,7 @@ public abstract class AbstractShortcut {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;		
 		
-		AbstractShortcut other = (AbstractShortcut) obj;
+		Shortcut other = (Shortcut) obj;
 	  return new EqualsBuilder()		
 		.append(mask, other.mask)
 		.isEquals();
@@ -27,16 +28,15 @@ public abstract class AbstractShortcut {
 	
 	protected final Integer mask;
 	
-	public AbstractShortcut(Integer m) {
+	public Shortcut(Integer m) {
 		mask = m;
 	}
 	
-	public AbstractShortcut() {
+	public Shortcut() {
 		mask = 0;
 	}
 	
 	public String description() {
-		AbstractScene.showMissingImplementationWarning("description");
-		return null;
+		return DLEvent.getModifiersText(mask);
 	}
 }

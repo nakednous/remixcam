@@ -25,7 +25,6 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.action.DOF_6Action;
 import remixlab.remixcam.constraint.Constraint;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.event.*;

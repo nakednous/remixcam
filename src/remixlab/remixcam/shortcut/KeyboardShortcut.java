@@ -36,7 +36,7 @@ import com.flipthebird.gwthashcodeequals.*;
  * Keyboard shortcuts can be of one out of three forms: 1. Characters (e.g., 'a');
  * 2. Virtual keys (e.g., right arrow key); or, 3. Key combinations (e.g., 'a' + CTRL key).
  */
-public final class KeyboardShortcut extends AbstractShortcut {
+public final class KeyboardShortcut extends Shortcut {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		

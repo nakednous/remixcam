@@ -36,7 +36,7 @@ import remixlab.remixcam.event.DLEvent;
  * and can be of one out of two forms: 1. A mouse button; and, 2. A mouse
  * button plus a key-modifier (such as the CTRL key).
  */
-public class ClickShortcut extends AbstractShortcut implements Constants {	
+public class ClickShortcut extends Shortcut implements Constants {	
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).

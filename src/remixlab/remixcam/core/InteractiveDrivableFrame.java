@@ -25,7 +25,6 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.action.DOF_6Action;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.AbstractTimerJob;
