@@ -28,7 +28,7 @@ public class DLEvent implements Constants, Copyable {
 	}
 	
   protected DLAction action;
-  protected Integer modifiers;
+  protected final Integer modifiers;
   
   public DLEvent() {    
     this.modifiers = 0;

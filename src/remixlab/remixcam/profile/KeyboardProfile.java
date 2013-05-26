@@ -25,11 +25,11 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 		setShortcut('S', DOF_0Action.SHOW_ALL);
 		
 		setShortcut(DLKeyEvent.RIGHT, DOF_0Action.MOVE_CAMERA_RIGHT);		
-	  setShortcut(DLKeyEvent.LEFT, DOF_0Action.MOVE_CAMERA_LEFT);
+	  //setShortcut(DLKeyEvent.LEFT, DOF_0Action.MOVE_CAMERA_LEFT);
 		setShortcut(DLKeyEvent.UP, DOF_0Action.MOVE_CAMERA_UP);
 		setShortcut(DLKeyEvent.DOWN, DOF_0Action.MOVE_CAMERA_DOWN);
 		
-		//setShortcut((DLKeyEvent.ALT | DLKeyEvent.SHIFT), 'l', DOF_0Action.MOVE_CAMERA_LEFT);
+		setShortcut((DLKeyEvent.ALT | DLKeyEvent.SHIFT), 'l', DOF_0Action.MOVE_CAMERA_LEFT);
 
 		/**
 		// K e y f r a m e s s h o r t c u t k e y s
@@ -66,12 +66,12 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 	 * Defines a camera keyboard shortcut to bind the given action.
 	 * 
 	 * @param key shortcut
-	 * @param action action to be binded
+	 * @param action action to be bound
 	 */
 	public void setShortcut(Character key, DOF_0Action action) {
 		if ( isKeyInUse(key) ) {
 			DLAction a = shortcut(key);
-			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
+			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
 		bindings.setBinding(new KeyboardShortcut(key), action.action());
 	}
@@ -83,7 +83,7 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 	 * 
 	 * @param mask modifier mask defining the shortcut
 	 * @param key character (internally converted to a key coded) defining the shortcut
-	 * @param action action to be binded
+	 * @param action action to be bound
 	 * 
 	 * @see #setShortcut(Integer, Integer, Scene.DOF_0Action)
 	 */
@@ -98,14 +98,14 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 	 * 
 	 * @param mask modifier mask defining the shortcut
 	 * @param vKey coded key defining the shortcut
-	 * @param action action to be binded
+	 * @param action action to be bound
 	 * 
 	 * @see #setShortcut(Integer, Character, Scene.DOF_0Action)
 	 */
 	public void setShortcut(Integer mask, Integer vKey, DOF_0Action action) {
 		if ( isKeyInUse(mask, vKey) ) {
 			DLAction a = shortcut(mask, vKey);
-			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
+			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
 		bindings.setBinding(new KeyboardShortcut(mask, vKey), action.action());
 	}
@@ -114,12 +114,12 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 	 * Defines a camera keyboard shortcut to bind the given action.
 	 * 
 	 * @param vKey coded key (such PApplet.UP) that defines the shortcut
-	 * @param action action to be binded
+	 * @param action action to be bound
 	 */
 	public void setShortcut(Integer vKey, DOF_0Action action) {
 		if ( isKeyInUse(vKey) ) {
 			DLAction a = shortcut(vKey);
-			System.out.println("Warning: overwritting shortcut which was previously binded to " + a);
+			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
 		bindings.setBinding(new KeyboardShortcut(vKey), action.action());
 	}
@@ -171,7 +171,7 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 	}
 
 	/**
-	 * Returns the action that is binded to the given camera keyboard shortcut.
+	 * Returns the action that is bound to the given camera keyboard shortcut.
 	 * 
 	 * @param key shortcut
 	 * @return action
@@ -181,7 +181,7 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 	}
 
 	/**
-   * Returns the action that is binded to the given camera keyboard shortcut.
+   * Returns the action that is bound to the given camera keyboard shortcut.
    * <p>
    * Low-level version of {@link #shortcut(Integer, Character)}
    * 
@@ -196,7 +196,7 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 	}
 	
 	/**
-   * Returns the action that is binded to the given camera keyboard shortcut.
+   * Returns the action that is bound to the given camera keyboard shortcut.
    * <p>
    * High-level version of {@link #shortcut(Integer, Integer)}
    * 
@@ -211,7 +211,7 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 	}
 
 	/**
-	 * Returns the action that is binded to the given camera keyboard shortcut.
+	 * Returns the action that is bound to the given camera keyboard shortcut.
 	 * 
 	 * @param vKey coded key (such PApplet.UP) that defines the shortcut
 	 * @return action
@@ -269,7 +269,7 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 	/**
 	 * Returns true if there is a camera keyboard shortcut for the given action.
 	 */
-	public boolean isKeyboardActionBinded(DOF_0Action action) {
+	public boolean isKeyboardActionBound(DOF_0Action action) {
 		return bindings.isActionMapped(action.action());
 	}
 	
@@ -312,7 +312,7 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 	public void setPathKey(Integer vKey, Integer path) {
 		if ( isPathKeyInUse(vKey) ) {
 			Integer p = path(vKey);
-			System.out.println("Warning: overwritting path key which was previously binded to path " + p);
+			System.out.println("Warning: overwritting path key which was previously bound to path " + p);
 		}
 		pathKeys.setBinding(vKey, path);
 	}

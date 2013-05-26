@@ -207,6 +207,42 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 	}
 	
+	public class ProsceneClickDevice extends ClickProfile {
+		MouseEvent event;
+
+		public ProsceneClickDevice(AbstractScene scn, String n) {
+			super(scn, n);
+		}
+		
+		@Override
+		public void setDefaultBindings() {
+			setClickBinding(PApplet.LEFT, 1, DOF_0Action.DRAW_AXIS);
+			setClickBinding(PApplet.RIGHT, 2, DOF_0Action.DRAW_GRID);
+			setClickBinding(DLKeyEvent.SHIFT, PApplet.RIGHT, 1, DOF_0Action.DRAW_FRAME_SELECTION_HINT);
+		}
+
+		@Override
+		public Integer feedModifiers() {
+			return event.getModifiers();
+		}
+		
+		@Override
+		public Integer feedButton() {
+			return event.getButton();
+		}
+
+		@Override
+		public Integer feedClickCount() {
+			return event.getCount();
+		}
+		
+		public void mouseEvent(MouseEvent e) {
+			event = e;
+			if( e.getAction() == MouseEvent.CLICK )
+				activate();
+		}
+	}
+	
 	public class Device extends HIDeviceProfile {
 		protected Method handlerMethod;
 		
@@ -1690,6 +1726,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	// H A R D W A R E
 	protected ProsceneKeyboard keyboard;
+	protected ProsceneClickDevice clicker;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1853,6 +1890,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		keyboard = new ProsceneKeyboard(this, "ProsceneKeyboard");
 		parent.registerMethod("keyEvent", keyboard);
 		this.registerProfile(keyboard);
+		
+		clicker = new ProsceneClickDevice(this, "Clicker");
+		parent.registerMethod("mouseEvent", clicker);
+		this.registerProfile(clicker);
 
 		parent.registerMethod("pre", this);
 		parent.registerMethod("draw", this);

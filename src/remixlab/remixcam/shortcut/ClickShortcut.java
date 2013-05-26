@@ -119,18 +119,7 @@ public class ClickShortcut extends Shortcut implements Constants {
 	public String description() {
 		String description = new String();
 		if(mask != 0)
-			description += DLEvent.getModifiersText(mask) + " + ";
-		switch (button) {
-		case LEFT :
-			description += "LEFT_BUTTON";
-			break;
-		case CENTER :
-			description += "MIDDLE_BUTTON";
-			break;
-		case RIGHT :
-			description += "RIGHT_BUTTON";
-			break;		
-		}
+			description += DLEvent.getModifiersText(mask) + " + " + button.toString() + "_BUTTON";
 		if(numberOfClicks==1)
 		  description += " + " + numberOfClicks.toString() + " click";
 		else

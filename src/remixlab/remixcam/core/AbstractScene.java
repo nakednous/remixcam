@@ -699,7 +699,7 @@ public abstract class AbstractScene implements Constants {
 		DLEvent event;
     while( !eventQueue.isEmpty() ) {
     	event = eventQueue.remove();
-    	if( event instanceof DLKeyEvent )
+    	if( event instanceof DLKeyEvent || event instanceof DLClickEvent )
     		this.handleEvent(event);
     	//TODO implement what is actually to be done with the event
     }

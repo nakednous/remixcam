@@ -8,6 +8,7 @@ public class DLClickEvent extends DLEvent {
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
     appendSuper(super.hashCode()).
+    append(button).
 		append(numberOfClicks).
     toHashCode();
 	}
@@ -20,35 +21,68 @@ public class DLClickEvent extends DLEvent {
 		
 		DLClickEvent other = (DLClickEvent) obj;
 		return new EqualsBuilder()
-    .appendSuper(super.equals(obj))		
+    .appendSuper(super.equals(obj))
+    .append(button, other.button)
     .append(numberOfClicks, other.numberOfClicks)
 		.isEquals();
 	}
 	
-	protected Integer numberOfClicks;
+	protected final Integer numberOfClicks;
+	protected final Integer button;
+	
+	public DLClickEvent(int b) {
+		this.button = b;
+  	this.numberOfClicks = 1;  	
+  }
+	
+	public DLClickEvent(int b, DLAction a) {
+		super(a);
+		this.button = b;
+  	this.numberOfClicks = 1;
+  }
+	
+	public DLClickEvent(int b, int clicks) {
+		this.button = b;
+  	this.numberOfClicks = clicks;
+  }
+	
+	public DLClickEvent(int b, int clicks, DLAction a) {
+		super(a);
+		this.button = b;
+  	this.numberOfClicks = clicks;
+  }
+	
+	//--
+	
+	public DLClickEvent(Integer modifiers, int b) {
+		super(modifiers);
+		this.button = b;
+  	this.numberOfClicks = 1;  	
+  }
+	
+	public DLClickEvent(Integer modifiers, int b, DLAction a) {
+		super(modifiers, a);
+		this.button = b;
+  	this.numberOfClicks = 1;
+  }
+	
+	public DLClickEvent(Integer modifiers, int b, int clicks) {
+		super(modifiers);
+		this.button = b;
+  	this.numberOfClicks = clicks;
+  }
+	
+	public DLClickEvent(Integer modifiers, int b, int clicks, DLAction a) {
+		super(modifiers, a);
+		this.button = b;
+  	this.numberOfClicks = clicks;
+  }
 	
 	protected DLClickEvent(DLClickEvent other) {
 		super(other);
-		this.numberOfClicks = other.numberOfClicks;
+		this.button = other.button;
+		this.numberOfClicks = other.numberOfClicks;		
 	}
-	
-	public DLClickEvent() {
-  	this.numberOfClicks = 1;
-  }
-	
-	public DLClickEvent(int clicks) {
-  	this.numberOfClicks = clicks;
-  }
-	
-	public DLClickEvent(DLAction a) {
-		super(a);
-  	this.numberOfClicks = 1;
-  }
-	
-	public DLClickEvent(int clicks, DLAction a) {
-		super(a);
-  	this.numberOfClicks = clicks;
-  }
 	
 	@Override
 	public DLClickEvent get() {
@@ -57,5 +91,9 @@ public class DLClickEvent extends DLEvent {
 	
 	public int getClickCount() {
 		return numberOfClicks;
+	}
+	
+	public int getButton() {
+		return button;
 	}
 }
