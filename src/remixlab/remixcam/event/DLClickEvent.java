@@ -1,5 +1,7 @@
 package remixlab.remixcam.event;
 
+import remixlab.remixcam.shortcut.*;
+
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
@@ -87,6 +89,11 @@ public class DLClickEvent extends DLEvent {
 	@Override
 	public DLClickEvent get() {
 		return new DLClickEvent(this);
+	}
+	
+	@Override
+	public ClickShortcut shortcut() {
+		return new ClickShortcut(getModifiers(), getButton(), getClickCount());
 	}
 	
 	public int getClickCount() {

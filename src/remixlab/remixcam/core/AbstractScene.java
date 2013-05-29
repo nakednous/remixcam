@@ -203,8 +203,16 @@ public abstract class AbstractScene implements Constants {
 	//public void handleKeyboardAction(DOF_0Action id) {
 	public void handleEvent(DLEvent event) {
 		//if( !keyboardIsHandled() )
-			//return;
+			//return;		
 		DLAction id = event.getAction();
+		
+	  //TODO debug
+		if( event instanceof DLKeyEvent )
+			System.out.println("Key event " + id.description());
+		else
+			if( event instanceof DLClickEvent )
+				System.out.println("click event " + id.description());
+		
 		if( !id.is2D() && this.is2D() )
 			return;
 		Vector3D trans;
@@ -684,27 +692,36 @@ public abstract class AbstractScene implements Constants {
 		// 3. Draw external registered method (only in java sub-classes)
 		invokeRegisteredMethod(); // abstract
 		
-	  // 4. HIDevices
+		//TODO 4 INTERACTIVITY, MAYBE SHOULD BELONG TO ITS OWN METHOD
+	  // 4a. HIDevices
 		updateCursorPosition();
+		//pending
 		
+		// 4b. Profiles
+		/**
 		for (AbstractProfile<?> profile : profiles.values()) 
 			if(isProfileRegistered(profile))
-				if( profile.isActive() ) {
+				//if( profile.isActive() ) {
+				if(profile.event != null) {
 					eventQueue.add(profile.handle());
-					profile.deactivate();
+					profile.event = null;
+					//profile.deactivate();
 				}
+		*/
 		//for (HIDevice device : devices) device.handle();
 			
-		// 5. Events
+		// 4c. Events
+	  //TODO implement what is actually to be done with the event
 		DLEvent event;
     while( !eventQueue.isEmpty() ) {
     	event = eventQueue.remove();
     	if( event instanceof DLKeyEvent || event instanceof DLClickEvent )
     		this.handleEvent(event);
-    	//TODO implement what is actually to be done with the event
+    	//else
+    		
     }
 		
-		// 6. Grid and axis drawing
+		// 5. Grid and axis drawing
 		if (gridIsDrawn()) {
 			if(gridIsDotted())
 				drawDottedGrid(pinhole().sceneRadius());
@@ -714,7 +731,7 @@ public abstract class AbstractScene implements Constants {
 		if (axisIsDrawn())
 			drawAxis(pinhole().sceneRadius());		
 		
-		// 7. Display visual hints
+		// 6. Display visual hints
 		displayVisualHints(); // abstract
 		
 		//updateFrameRate();

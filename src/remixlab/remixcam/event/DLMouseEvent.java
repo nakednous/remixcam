@@ -1,7 +1,5 @@
 package remixlab.remixcam.event;
 
-import remixlab.remixcam.core.AbstractScene;
-
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 

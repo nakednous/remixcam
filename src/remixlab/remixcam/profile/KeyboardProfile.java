@@ -43,6 +43,12 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 		*/
 	}
 	
+	public void handleKey(DLEvent e) {
+		if(e != null)
+			e.setAction( binding(((DLKeyEvent)e).keyShortcut()) );
+	}
+	
+	/**
 	@Override
 	public DLKeyEvent handle() {
 		DLAction action = shortcut(feedKey());
@@ -50,15 +56,19 @@ public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> 
 			action = shortcut(feedModifiers(), feedKeyCode());
 		return new DLKeyEvent(feedModifiers(), feedKey(), feedKeyCode(), action);
 	}
+	*/
 	
 	/**
 	 * Overload this method to define the z-axis translation feed this method
 	 * if you plan to implement your own HIDevice. Otherwise use {@link #feedZTranslation(float)}
 	 * and {@link #addHandler(Object, String)} to the HIDevice.
 	 */
+	
+	/**
 	public abstract Character feedKey();
 	
 	public abstract Integer feedKeyCode();
+	*/
 	
 	// ---
 

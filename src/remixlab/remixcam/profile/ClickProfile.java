@@ -1,7 +1,8 @@
 package remixlab.remixcam.profile;
 
 import remixlab.remixcam.core.*;
-import remixlab.remixcam.event.*;
+//import remixlab.remixcam.core.*;
+//import remixlab.remixcam.event.*;
 import remixlab.remixcam.shortcut.*;
 
 public abstract class ClickProfile extends AbstractProfile<ClickShortcut> {
@@ -9,15 +10,19 @@ public abstract class ClickProfile extends AbstractProfile<ClickShortcut> {
 		super(scn, n);
 	}
 
+	/**
 	@Override
 	public DLEvent handle() {
 		return new DLClickEvent(feedModifiers(), feedButton(), feedClickCount(),
 				                    clickBinding(feedModifiers(), feedButton(), feedClickCount()));
 	}
+	*/
 	
+	/**
   public abstract Integer feedButton();
 	
 	public abstract Integer feedClickCount();
+	*/
 
   /**
    * Returns true if the given binding binds a click-action.

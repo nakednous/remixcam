@@ -6,6 +6,7 @@ import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.*;
 import remixlab.remixcam.profile.*;
 import remixlab.remixcam.renderer.*;
+//import remixlab.remixcam.shortcut.*;
 
 /**
 import remixlab.remixcam.core.AbstractScene;
@@ -101,72 +102,101 @@ import java.util.TimerTask;
  * otherwise), which is useful to notify the outside world when an animation event
  * occurs. See the example <i>Flock</i>.
  */
-public class Scene extends AbstractScene /**implements PConstants*/ {	
-	public class ProsceneKeyboard extends KeyboardProfile {
+public class Scene extends AbstractScene /**implements PConstants*/ {
+	
+	public class ProsceneKeyboardProfile extends KeyboardProfile {
+		/**
 		protected Method handlerMethod;
 		private Integer m;
 		private Character c;
 		private Integer kc;
+		*/
 		
-		KeyEvent event;
+		//KeyEvent event;
 
-		public ProsceneKeyboard(AbstractScene scn, String n) {
+		public ProsceneKeyboardProfile(AbstractScene scn, String n) {
 			super(scn, n);
 		}
 		
+		/**
 		@Override
 		public Character feedKey() {
-			return event.getKey();
-			/**
-			if(event != null)
-				return event.getKey();
-			else
-				return null;
-			*/
+			return event.getKey();			
+			//if(event != null) return event.getKey(); else	return null;			
 		}
 
 		@Override
 		public Integer feedKeyCode() {
 			return event.getKeyCode();
-			/**
-			if(event != null)
-				return event.getKeyCode();
-			else
-				return null;
-			*/
+			//if(event != null) return event.getKeyCode(); else return null;
 		}
 
 		@Override
 		public Integer feedModifiers() {
 			return event.getModifiers();
-			/**
-			if(event != null)
-				return event.getModifiers();
-			else
-				return null;
-			*/
+			//if(event != null) return event.getModifiers(); else return null;
 		}
+		*/
 		
+		//@Override
+		public void keyEvent(KeyEvent e) {
+			DLKeyEvent event;
+			if(e.getAction() == KeyEvent.TYPE && e.getModifiers() == 0) {
+				event = new DLKeyEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
+				handleKey(event);
+				eventQueue.add(event);
+			}
+			else
+				if(e.getAction() == KeyEvent.RELEASE) {
+					event = new DLKeyEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
+					handle(event);
+					eventQueue.add(event);
+				}
+			
+			/**
+			if( (e.getAction() == KeyEvent.TYPE && e.getModifiers() == 0) || 
+					(e.getAction() == KeyEvent.RELEASE) ) {
+				//TODO debug
+				if( e.getAction() == KeyEvent.TYPE )
+					System.out.println("KeyEvent.TYPE");
+				else
+					if( e.getAction() == KeyEvent.RELEASE )
+						System.out.println("KeyEvent.RELEASE");
+					else
+						if( (e.getAction() !=  KeyEvent.TYPE) && (e.getAction() !=  KeyEvent.RELEASE) )
+							System.out.println("KeyEvent.IMPOSSSIBLE DIFFERENT");
+				event = new DLKeyEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
+				handle(event);
+			  eventQueue.add(event);
+			}
+			*/
+		}		
+		
+		/**
 		public void keyEvent(KeyEvent e) {
 			event = e;
 			if( (e.getAction() == KeyEvent.TYPE && e.getModifiers() == 0) || (e.getAction() == KeyEvent.RELEASE) )
 				activate();
 		}
+		*/
 		
+		/**
 	  public void feed(Integer _m, Character _c, Integer _kc) {
 	  	m = _m;
 	  	c = _c;
 	  	kc = _kc;
 		}
+		*/
 		
 		/**
 		 * Overriding of
 		 * {@link remixlab.remixcam.devices.AbstractHIDevice#addHandler(Object, String)}.
 		 */
+		/**
 		@Override
 		public void addHandler(Object obj, String methodName) {
 			try {
-				handlerMethod = obj.getClass().getMethod(methodName, new Class[] { ProsceneKeyboard.class });
+				handlerMethod = obj.getClass().getMethod(methodName, new Class[] { ProsceneKeyboardProfile.class });
 				handlerObject = obj;
 				handlerMethodName = methodName;
 			} catch (Exception e) {
@@ -174,18 +204,22 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				  e.printStackTrace();
 			}
 		}
+		*/
 		
 		/**
 		 * Overriding of
 		 * {@link remixlab.remixcam.devices.AbstractHIDevice#removeHandler()}.
-		 */
+		 */		
+		/**
 		@Override
 		public void removeHandler() {
 			handlerMethod = null;
 			handlerObject = null;
 			handlerMethodName = null;
 		}
+		*/
 		
+		/**
 		@Override
 		public DLKeyEvent handle() {
 			if (handlerObject != null) {
@@ -205,22 +239,37 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			else
 				return super.handle();
 		}
+		*/
 	}
 	
-	public class ProsceneClickDevice extends ClickProfile {
-		MouseEvent event;
+	public class ProsceneClickProfile extends ClickProfile {
+		//MouseEvent event;
 
-		public ProsceneClickDevice(AbstractScene scn, String n) {
+		public ProsceneClickProfile(AbstractScene scn, String n) {
 			super(scn, n);
 		}
 		
 		@Override
 		public void setDefaultBindings() {
-			setClickBinding(PApplet.LEFT, 1, DOF_0Action.DRAW_AXIS);
-			setClickBinding(PApplet.RIGHT, 2, DOF_0Action.DRAW_GRID);
-			setClickBinding(DLKeyEvent.SHIFT, PApplet.RIGHT, 1, DOF_0Action.DRAW_FRAME_SELECTION_HINT);
+			//setClickBinding(PApplet.LEFT, 1, DOF_0Action.DRAW_AXIS);
+			//setClickBinding(PApplet.RIGHT, 2, DOF_0Action.DRAW_GRID);
+			setClickBinding(PApplet.RIGHT, 1, DOF_0Action.DRAW_FRAME_SELECTION_HINT);
+			
+			setClickBinding(DLKeyEvent.SHIFT, PApplet.LEFT, 2, DOF_0Action.ALIGN_CAMERA);
+			setClickBinding(DLKeyEvent.SHIFT, PApplet.CENTER, 2, DOF_0Action.SHOW_ALL);
+			setClickBinding((DLKeyEvent.SHIFT | DLKeyEvent.CTRL ), PApplet.RIGHT, 2, DOF_0Action.ZOOM_TO_FIT);
 		}
+		
+		public void mouseEvent(MouseEvent e) {
+			DLClickEvent event;
+			if( ((MouseEvent)e).getAction() == MouseEvent.CLICK ) {
+				event = new DLClickEvent(((MouseEvent)e).getModifiers(), ((MouseEvent)e).getButton(), ((MouseEvent)e).getCount());
+				handle(event);
+			  eventQueue.add(event);
+			}
+		}		
 
+		/**
 		@Override
 		public Integer feedModifiers() {
 			return event.getModifiers();
@@ -236,30 +285,66 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			return event.getCount();
 		}
 		
-		public void mouseEvent(MouseEvent e) {
+		public boolean mouseEvent(MouseEvent e) {
 			event = e;
 			if( e.getAction() == MouseEvent.CLICK )
 				activate();
+			return true;
 		}
+		*/
+	}
+	
+	public class ProsceneWheelProfile extends WheelProfile {
+		//MouseEvent event;
+
+		public ProsceneWheelProfile(AbstractScene scn, String n) {
+			super(scn, n);
+		}
+		
+		@Override
+		public void setDefaultBindings() {
+			setWheelBinding(DOF_1Action.ZOOM);
+		}
+		
+		/**
+		@Override
+		public Integer feedModifiers() {
+			return event.getModifiers();
+		}
+		
+		public void mouseEvent(MouseEvent e) {
+			event = e;
+			if( e.getAction() == MouseEvent.WHEEL )
+				activate();
+		}
+
+		@Override
+		public Float feedAmount() {
+			return (float) event.getCount();
+		}
+		*/
 	}
 	
 	public class Device extends HIDeviceProfile {
-		protected Method handlerMethod;
+		//protected Method handlerMethod;
 		
 		public Device(AbstractScene scn, String n) {
 			super(scn, n);
 		}
 		
+		/**
 		@Override
 		public Integer feedModifiers() {
 			// TODO Auto-generated method stub
 			return null;
 		}
+		*/
 		
 		/**
 		 * Overriding of
 		 * {@link remixlab.remixcam.devices.AbstractHIDevice#addHandler(Object, String)}.
 		 */
+		/**
 		@Override
 		public void addHandler(Object obj, String methodName) {
 			try {
@@ -271,17 +356,20 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				  e.printStackTrace();
 			}
 		}
+		*/
 		
 		/**
 		 * Overriding of
 		 * {@link remixlab.remixcam.devices.AbstractHIDevice#removeHandler()}.
 		 */
+		/**
 		@Override
 		public void removeHandler() {
 			handlerMethod = null;
 			handlerObject = null;
 			handlerMethodName = null;
 		}	
+		*/
 	}
 	
 	protected class TimerWrap implements Timable {
@@ -1725,8 +1813,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public PApplet parent;
 	
 	// H A R D W A R E
-	protected ProsceneKeyboard keyboard;
-	protected ProsceneClickDevice clicker;
+	protected ProsceneKeyboardProfile keyboard;
+	protected ProsceneClickProfile clicker;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1887,12 +1975,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		disableFrustumEquationsUpdate();
 		
 		//TODO testing keyboard
-		keyboard = new ProsceneKeyboard(this, "ProsceneKeyboard");
+		keyboard = new ProsceneKeyboardProfile(this, "ProsceneKeyboard");
 		parent.registerMethod("keyEvent", keyboard);
 		this.registerProfile(keyboard);
 		
-		clicker = new ProsceneClickDevice(this, "Clicker");
+		clicker = new ProsceneClickProfile(this, "Clicker");
 		parent.registerMethod("mouseEvent", clicker);
+		//parent.registerMethod("feed", clicker);
 		this.registerProfile(clicker);
 
 		parent.registerMethod("pre", this);

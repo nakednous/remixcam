@@ -8,41 +8,36 @@ public abstract class AbstractProfile<K extends Shortcut> implements Constants {
 	protected AbstractScene scene;
 	protected String nm;
 	Bindings<K> bindings;
-	protected boolean active;
 	
+	/**
 	protected Object handlerObject;	
 	protected String handlerMethodName;
+	*/
 	
 	public AbstractProfile(AbstractScene scn, String n) {		
 		scene = scn;
 		nm = n;
 		bindings = new Bindings<K>();
 		setDefaultBindings();
-		active = false;
+		//active = false;
 	}
 	
 	public String name() {
 		return nm;
 	}
 	
+	//TODO should go at device
+	//public abstract DLEvent<K> feed(Object event);
+	
 	public abstract void setDefaultBindings();
 	
-	public void activate() {
-		active = true;
+	public void handle(DLEvent e) {
+		if(e != null)
+			e.setAction( binding(e.shortcut()) );		
 	}
-	
-	public void deactivate() {
-		active = false;
-	}
-	
-	public boolean isActive() {
-		return active;
-	}
-	
-	public abstract DLEvent handle();
 	
 	//female
-  public abstract Integer feedModifiers();
+  //public abstract Integer feedModifiers();
 	
   /**
 	public boolean isRegistered() {
@@ -65,9 +60,19 @@ public abstract class AbstractProfile<K extends Shortcut> implements Constants {
 	/**
 	 * Removes all camera keyboard shortcuts.
 	 */
-	public void removeAllShortcuts() {
+	public void removeAllBindings() {
 		bindings.removeAllBindings();
 	}
+	
+	public DLAction binding(Shortcut k) {
+  	return bindings.binding(k);
+  }
+	
+	/**
+	public DLAction binding(K k) {
+  	return bindings.binding(k);
+  }
+  */
 	
 	/**
 	 * Attempt to add a 'feed' handler method to the HIDevice. The default feed
@@ -79,9 +84,11 @@ public abstract class AbstractProfile<K extends Shortcut> implements Constants {
 	 * @see #removeHandler()
 	 * @see #invoke()
 	 */
+	/**
 	public void addHandler(Object obj, String methodName) {
 		AbstractScene.showMissingImplementationWarning("addHandler");
 	}
+	*/
 	
 	/**
 	 * Unregisters the 'feed' handler method (if any has previously been added to
@@ -90,7 +97,9 @@ public abstract class AbstractProfile<K extends Shortcut> implements Constants {
 	 * @see #addHandler(Object, String)
 	 * @see #invoke()
 	 */
+	/**
 	public void removeHandler() {
 		AbstractScene.showMissingImplementationWarning("removeHandler");
 	}
+	*/
 }

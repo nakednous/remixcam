@@ -27,8 +27,7 @@ package remixlab.remixcam.core;
 
 import remixlab.remixcam.geom.Point;
 
-//TODO event point should bew replaced by HIDeviceEvent
-
+//TODO event point should be replaced by HIDeviceEvent. Really?
 
 /**
  * Interface for objects that grab mouse focus in a Scene.

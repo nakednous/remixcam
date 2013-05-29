@@ -3,6 +3,8 @@ package remixlab.remixcam.event;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import remixlab.remixcam.shortcut.*;
+
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
@@ -171,6 +173,16 @@ public class DLKeyEvent extends DLEvent {
 	public DLKeyEvent get() {
 		return new DLKeyEvent(this);
 	}
+  
+  @Override
+  public KeyboardShortcut shortcut() {
+  	return new KeyboardShortcut(getModifiers(), getKeyCode());
+  }
+  
+  //TODO hack
+  public KeyboardShortcut keyShortcut() {
+  	return new KeyboardShortcut(getKey());
+  }
   
   public Character getKey() {
   	return key;

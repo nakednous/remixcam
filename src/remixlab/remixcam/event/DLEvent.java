@@ -4,6 +4,7 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.remixcam.core.*;
+import remixlab.remixcam.shortcut.Shortcut;
 
 public class DLEvent implements Constants, Copyable {
 	@Override
@@ -67,6 +68,10 @@ public class DLEvent implements Constants, Copyable {
 	public DLEvent get() {
 		return new DLEvent(this);
 	}
+  
+  public Shortcut shortcut() {
+  	return new Shortcut(getModifiers());
+  }
   
   public DLAction getAction() {
   	return action;

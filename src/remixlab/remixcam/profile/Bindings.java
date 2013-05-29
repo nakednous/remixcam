@@ -56,13 +56,19 @@ public class Bindings<K extends Shortcut> implements Constants {
 	public HashMap<K, DLAction> map() {
 		return map;
 	}
+	
+	public DLAction binding(Shortcut key) {
+		return map.get(key);
+	}
 
 	/**
 	 * Returns the action associated to a given Keyboard shortcut {@code key}.
 	 */
+	/**
 	public DLAction binding(K key) {
 		return map.get(key);
 	}
+	*/
 	
 	/**
 	 * Defines the shortcut that triggers a given action.
