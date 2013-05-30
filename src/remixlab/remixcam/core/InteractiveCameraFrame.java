@@ -28,6 +28,7 @@ package remixlab.remixcam.core;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
+import remixlab.remixcam.core.Constants.DLAction;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 
@@ -177,7 +178,46 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 */
 	public void setArcballReferencePoint(Vector3D refP) {
 		arcballRefPnt = refP;
-	}	
+	}
+	
+	@Override
+	protected void execAction2D(DLEvent event) {
+	}
+	
+	@Override
+	protected void execAction3D(DLEvent event) {
+		DLAction a = event.getAction();
+		switch (a) {
+		case ZOOM: {
+			float wheelSensitivityCoef = 8E-4f;
+			float coef = 0;
+			Vector3D trans = new Vector3D();
+		  //TODO 1-DOF -> wheel
+			if( a.dofs() == 1 ) {
+			  coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * scene.camera().sceneRadius());
+				trans = new Vector3D(0.0f, 0.0f, coef * ((DLWheelEvent)event).getAmount() * wheelSensitivity() * wheelSensitivityCoef);
+			}			
+		  //TODO higher dofs
+			/**
+			else {
+				coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * camera.sceneRadius());
+			  //float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
+			  // Warning: same for left and right CoordinateSystemConvention:
+			  trans = new Vector3D(0.0f, 0.0f,	-coef	* ((int) (eventPoint.y - prevPos.y)) / scene.camera().screenHeight());
+			}
+			*/
+			
+			//No Scl
+			Vector3D mag = magnitude();
+			trans.div(mag);
+			
+			translate(inverseTransformOf(trans));
+			break;
+		}
+		default:
+			break;
+		}
+	}
 	
 	@Override
 	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {

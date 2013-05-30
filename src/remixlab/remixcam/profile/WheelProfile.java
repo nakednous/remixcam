@@ -1,12 +1,18 @@
 package remixlab.remixcam.profile;
 
 import remixlab.remixcam.core.*;
+import remixlab.remixcam.core.Constants.DOF_1Action;
 //import remixlab.remixcam.event.*;
 import remixlab.remixcam.shortcut.*;
 
 public abstract class WheelProfile extends AbstractProfile<Shortcut> {
 	public WheelProfile(AbstractScene scn, String n) {
 		super(scn, n);
+	}
+	
+	@Override
+	public void setDefaultBindings() {
+		setWheelBinding(DOF_1Action.ZOOM);
 	}
 	
 	/**

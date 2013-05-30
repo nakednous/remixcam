@@ -717,8 +717,8 @@ public abstract class AbstractScene implements Constants {
     	event = eventQueue.remove();
     	if( event instanceof DLKeyEvent || event instanceof DLClickEvent )
     		this.handleEvent(event);
-    	//else
-    		
+    	else
+    		camera().frame().execAction3D(event);
     }
 		
 		// 5. Grid and axis drawing

@@ -301,28 +301,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			super(scn, n);
 		}
 		
-		@Override
-		public void setDefaultBindings() {
-			setWheelBinding(DOF_1Action.ZOOM);
-		}
-		
-		/**
-		@Override
-		public Integer feedModifiers() {
-			return event.getModifiers();
-		}
-		
 		public void mouseEvent(MouseEvent e) {
-			event = e;
-			if( e.getAction() == MouseEvent.WHEEL )
-				activate();
+			DLWheelEvent event;
+			if( ((MouseEvent)e).getAction() == MouseEvent.WHEEL ) {
+				event = new DLWheelEvent(((MouseEvent)e).getModifiers(), ((MouseEvent)e).getCount());
+				handle(event);
+			  eventQueue.add(event);
+			}
 		}
-
-		@Override
-		public Float feedAmount() {
-			return (float) event.getCount();
-		}
-		*/
 	}
 	
 	public class Device extends HIDeviceProfile {
@@ -1815,6 +1801,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	// H A R D W A R E
 	protected ProsceneKeyboardProfile keyboard;
 	protected ProsceneClickProfile clicker;
+	protected ProsceneWheelProfile wheel;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1981,8 +1968,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		clicker = new ProsceneClickProfile(this, "Clicker");
 		parent.registerMethod("mouseEvent", clicker);
-		//parent.registerMethod("feed", clicker);
 		this.registerProfile(clicker);
+		
+		wheel = new ProsceneWheelProfile(this, "Wheel");
+		parent.registerMethod("mouseEvent", wheel);
+		this.registerProfile(wheel);
 
 		parent.registerMethod("pre", this);
 		parent.registerMethod("draw", this);

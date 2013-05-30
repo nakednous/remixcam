@@ -11,7 +11,6 @@ public class DLMouseEvent extends HIDeviceEvent {
 		append(x).
 		append(y).
 		append(button).
-		append(count).
     toHashCode();
 	}
 	
@@ -27,19 +26,16 @@ public class DLMouseEvent extends HIDeviceEvent {
     .append(x, other.x)
 		.append(y, other.y)
 		.append(button, other.button)
-		.append(count, other.count)
 		.isEquals();
 	}
 
   protected Integer x, y;
   protected Integer button;
-  protected Integer count;
   
   public DLMouseEvent() {
   	this.x = null;
   	this.y = null;
   	this.button = null;
-  	this.count = null;
   }
   
   public DLMouseEvent(int modifiers, int x, int y, int button, int amount) {
@@ -47,7 +43,6 @@ public class DLMouseEvent extends HIDeviceEvent {
   	this.x = x;
   	this.y = y;
   	this.button = button;
-  	this.count = amount;
   }
 
   public DLMouseEvent(int action, int modifiers, int x, int y, int button, int amount) {
@@ -55,7 +50,6 @@ public class DLMouseEvent extends HIDeviceEvent {
     this.x = x;
     this.y = y;
     this.button = button;
-    this.count = amount;
   }
   
   protected DLMouseEvent(DLMouseEvent other) {
@@ -63,7 +57,6 @@ public class DLMouseEvent extends HIDeviceEvent {
 		this.x = other.x;
 		this.y = other.y;
 		this.button = other.button;
-  	this.count = other.count;
 	}
   
   @Override
@@ -94,25 +87,5 @@ public class DLMouseEvent extends HIDeviceEvent {
   
   public void setButton(int val) {
   	button = val;
-  }
-
-  public Integer getClickCount() {
-    return count; //clickCount;
-  }
-  
-  public void setClickCount(int val) {
-  	count = val;
-  }
-
-  /**
-   * Number of clicks for mouse button events, or the number of steps (positive
-   * or negative depending on direction) for a mouse wheel event.
-   */
-  public float getCount() {
-    return count;
-  }
-  
-  public void setCount(int val) {
-  	count = val;
   }
 }

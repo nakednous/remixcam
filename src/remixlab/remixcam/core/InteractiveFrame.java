@@ -1124,6 +1124,42 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			execAction3D(eventPoint, (Camera) scene.pinhole());
 	}
 	
+	public void execAction(DLEvent event) {
+		if( ( scene.is2D() ) && ( !action.is2D() ) )
+			return;
+		
+		if( scene.is2D() )
+			execAction2D(event);
+		else
+			execAction3D(event);
+	}
+	
+	protected void execAction2D(DLEvent event) {
+	}
+	
+	protected void execAction3D(DLEvent event) {
+		DLAction a = event.getAction();
+		switch (a) {
+		case ZOOM: {
+			float delta = 0;
+			//TODO 1-DOF -> wheel
+			if( a.dofs() == 1 )
+				delta = -((DLWheelEvent)event).getAmount() * wheelSensitivity();	 
+			//delta = -rotation * wheelSensitivity();
+			//TODO:  other dofs
+			//else
+			//delta = ((float)eventPoint.y - (float)prevPos.y);	
+			if(delta >= 0)
+				scale(1 + Math.abs(delta) / (float) scene.height());
+			else
+				inverseScale(1 + Math.abs(delta) / (float) scene.height());
+			break;
+		}
+		default:
+			break;
+		}
+	}
+	
 	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {
 		int deltaY = 0;
 		if(action != DOF_6Action.NO_ACTION) {
