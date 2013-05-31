@@ -672,8 +672,8 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * convention used here these angles represent a composition of extrinsic
 	 * rotations (rotations about the reference frame axes), which is also known
 	 * as {@link #taitBryanAngles()} (See
-	 * http://en.quat[3]ikipedia.org/wiki/Euler_angles and
-	 * http://en.quat[3]ikipedia.org/wiki/Tait-Bryan_angles). {@link #eulerAngles()}
+	 * http://en.wikipedia.org/wiki/Euler_angles and
+	 * http://en.wikipedia.org/wiki/Tait-Bryan_angles). {@link #eulerAngles()}
 	 * performs the inverse operation.
 	 * <p>
 	 * Each rotation angle is converted to an axis-angle pair, with the axis

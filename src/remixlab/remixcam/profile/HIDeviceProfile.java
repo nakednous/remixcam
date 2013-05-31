@@ -36,7 +36,7 @@ import remixlab.remixcam.geom.*;
  * has no such neutral position. Examples of RELATIVE devices are the space navigator and the joystick,
  * examples of ABSOLUTE devices are the wii or the kinect.
  */
-public abstract class HIDeviceProfile extends MouseProfile {	
+public abstract class HIDeviceProfile extends DOF2Profile {	
 	//public enum PointerMode {POINTER, POINTERLESS}	
 	//protected PointerMode pmode;
 	

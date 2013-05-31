@@ -1144,7 +1144,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			float delta = 0;
 			//TODO 1-DOF -> wheel
 			if( a.dofs() == 1 )
-				delta = -((DLWheelEvent)event).getAmount() * wheelSensitivity();	 
+				delta = -((DOFEvent)event).getX() * wheelSensitivity();	 
 			//delta = -rotation * wheelSensitivity();
 			//TODO:  other dofs
 			//else

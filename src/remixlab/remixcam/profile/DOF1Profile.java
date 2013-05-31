@@ -3,8 +3,8 @@ package remixlab.remixcam.profile;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.*;
 
-public abstract class WheelProfile extends AbstractProfile<Shortcut> {
-	public WheelProfile(AbstractScene scn, String n) {
+public abstract class DOF1Profile extends AbstractProfile<ButtonShortcut> {
+	public DOF1Profile(AbstractScene scn, String n) {
 		super(scn, n);
 	}
 	
@@ -19,7 +19,7 @@ public abstract class WheelProfile extends AbstractProfile<Shortcut> {
 	 * @param mask binding
 	 */
 	public boolean isWheelBindingInUse(Integer mask) {
-		return bindings.isShortcutInUse(new Shortcut(mask));
+		return bindings.isShortcutInUse(new ButtonShortcut(mask));
 	}
 
 	/**
@@ -55,7 +55,7 @@ public abstract class WheelProfile extends AbstractProfile<Shortcut> {
 			DLAction a = wheelBinding(mask);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
-		bindings.setBinding(new Shortcut(mask), action.action());
+		bindings.setBinding(new ButtonShortcut(mask), action.action());
 	}
 	
 	/**
@@ -75,7 +75,7 @@ public abstract class WheelProfile extends AbstractProfile<Shortcut> {
 	 * @see #removeWheelBinding()
 	 */
 	public void removeWheelBinding(Integer mask) {
-		bindings.removeBinding(new Shortcut(mask));
+		bindings.removeBinding(new ButtonShortcut(mask));
 	}
 
 	/**
@@ -84,7 +84,7 @@ public abstract class WheelProfile extends AbstractProfile<Shortcut> {
 	 * @see #wheelBinding(Integer)
 	 */
 	public DLAction wheelBinding() {
-		return bindings.binding(new Shortcut(0));
+		return bindings.binding(new ButtonShortcut(0));
 	}
 	
 	/**
@@ -95,6 +95,6 @@ public abstract class WheelProfile extends AbstractProfile<Shortcut> {
 	 * @see #wheelBinding()
 	 */
 	public DLAction wheelBinding(Integer mask) {
-		return bindings.binding(new Shortcut(mask));
+		return bindings.binding(new ButtonShortcut(mask));
 	}	
 }

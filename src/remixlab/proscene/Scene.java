@@ -294,22 +294,39 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		*/
 	}
 	
+	// /**
 	public class ProsceneWheelProfile extends WheelProfile {
-		//MouseEvent event;
-
 		public ProsceneWheelProfile(AbstractScene scn, String n) {
 			super(scn, n);
 		}
 		
 		public void mouseEvent(MouseEvent e) {
-			DLWheelEvent event;
+			DOFEvent event;
 			if( ((MouseEvent)e).getAction() == MouseEvent.WHEEL ) {
-				event = new DLWheelEvent(((MouseEvent)e).getModifiers(), ((MouseEvent)e).getCount());
+				event = new DOFEvent(((MouseEvent)e).getCount(), ((MouseEvent)e).getModifiers());
 				handle(event);
 			  eventQueue.add(event);
 			}
 		}
 	}
+	// */
+	
+	/**
+	public class ProsceneDOF1Profile extends DOF1Profile {
+		public ProsceneDOF1Profile(AbstractScene scn, String n) {
+			super(scn, n);
+		}
+		
+		public void mouseEvent(MouseEvent e) {
+			DOF1Event event;
+			if( ((MouseEvent)e).getAction() == MouseEvent.WHEEL ) {
+				event = new DOF1Event(((MouseEvent)e).getCount(), ((MouseEvent)e).getModifiers(), 0);
+				handle(event);
+			  eventQueue.add(event);
+			}
+		}
+	}
+	// */
 	
 	public class Device extends HIDeviceProfile {
 		//protected Method handlerMethod;
@@ -1802,6 +1819,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected ProsceneKeyboardProfile keyboard;
 	protected ProsceneClickProfile clicker;
 	protected ProsceneWheelProfile wheel;
+	//protected ProsceneDOF1Profile wheel;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1970,6 +1988,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		parent.registerMethod("mouseEvent", clicker);
 		this.registerProfile(clicker);
 		
+		//wheel = new ProsceneDOF1Profile(this, "Wheel");
 		wheel = new ProsceneWheelProfile(this, "Wheel");
 		parent.registerMethod("mouseEvent", wheel);
 		this.registerProfile(wheel);
