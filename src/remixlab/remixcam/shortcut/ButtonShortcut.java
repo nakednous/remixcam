@@ -55,7 +55,11 @@ public final class ButtonShortcut extends Shortcut implements Constants {
 	  .appendSuper(super.equals(obj))
 		.append(button, other.button)
 		.isEquals();
-	}	
+	}
+	
+	public ButtonShortcut() {
+		this(NOMODIFIER_MASK, NOBUTTON);
+	}
 
 	/**
 	 * Defines a mouse shortcut from the given mouse button.
@@ -63,7 +67,7 @@ public final class ButtonShortcut extends Shortcut implements Constants {
 	 * @param b mouse button
 	 */
 	public ButtonShortcut(Integer b) {
-		this(0, b);
+		this(NOMODIFIER_MASK, b);
 	}
 
 	/**

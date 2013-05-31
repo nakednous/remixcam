@@ -3,10 +3,11 @@ package remixlab.remixcam.shortcut;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.event.DLEvent;
+import remixlab.remixcam.core.*;
+import remixlab.remixcam.event.*;
 
 //WHEEL
-public class Shortcut {
+public class Shortcut implements Constants {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -33,7 +34,7 @@ public class Shortcut {
 	}
 	
 	public Shortcut() {
-		mask = 0;
+		mask = NOMODIFIER_MASK;
 	}
 	
 	public String description() {

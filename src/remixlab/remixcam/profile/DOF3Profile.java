@@ -2,8 +2,8 @@ package remixlab.remixcam.profile;
 
 import remixlab.remixcam.core.*;
 
-public class DOF2Profile extends DOFProfile<Constants.DOF_2Action> {
-	public DOF2Profile(AbstractScene scn, String n) {
+public class DOF3Profile extends DOFProfile<Constants.DOF_3Action> {
+	public DOF3Profile(AbstractScene scn, String n) {
 		super(scn, n);
 	}
 	

@@ -29,7 +29,7 @@ public abstract class AbstractProfile<K extends Shortcut> implements Constants {
 	//TODO should go at device
 	//public abstract DLEvent<K> feed(Object event);
 	
-	public abstract void setDefaultBindings();
+	public void setDefaultBindings() {}
 	
 	public void handle(DLEvent e) {
 		if(e != null)

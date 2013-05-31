@@ -294,7 +294,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		*/
 	}
 	
-	// /**
+	/**
 	public class ProsceneWheelProfile extends WheelProfile {
 		public ProsceneWheelProfile(AbstractScene scn, String n) {
 			super(scn, n);
@@ -311,7 +311,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	// */
 	
-	/**
+	// /**
 	public class ProsceneDOF1Profile extends DOF1Profile {
 		public ProsceneDOF1Profile(AbstractScene scn, String n) {
 			super(scn, n);
@@ -320,60 +320,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		public void mouseEvent(MouseEvent e) {
 			DOF1Event event;
 			if( ((MouseEvent)e).getAction() == MouseEvent.WHEEL ) {
-				event = new DOF1Event(((MouseEvent)e).getCount(), ((MouseEvent)e).getModifiers(), 0);
+				event = new DOF1Event(((MouseEvent)e).getCount(), ((MouseEvent)e).getModifiers(), NOBUTTON);
 				handle(event);
 			  eventQueue.add(event);
 			}
 		}
 	}
 	// */
-	
-	public class Device extends HIDeviceProfile {
-		//protected Method handlerMethod;
-		
-		public Device(AbstractScene scn, String n) {
-			super(scn, n);
-		}
-		
-		/**
-		@Override
-		public Integer feedModifiers() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		*/
-		
-		/**
-		 * Overriding of
-		 * {@link remixlab.remixcam.devices.AbstractHIDevice#addHandler(Object, String)}.
-		 */
-		/**
-		@Override
-		public void addHandler(Object obj, String methodName) {
-			try {
-				handlerMethod = obj.getClass().getMethod(methodName, new Class[] { Device.class });
-				handlerObject = obj;
-				handlerMethodName = methodName;
-			} catch (Exception e) {
-				  System.out.println("Something went wrong when registering your " + methodName + " method");
-				  e.printStackTrace();
-			}
-		}
-		*/
-		
-		/**
-		 * Overriding of
-		 * {@link remixlab.remixcam.devices.AbstractHIDevice#removeHandler()}.
-		 */
-		/**
-		@Override
-		public void removeHandler() {
-			handlerMethod = null;
-			handlerObject = null;
-			handlerMethodName = null;
-		}	
-		*/
-	}
 	
 	protected class TimerWrap implements Timable {
 		Scene scene;
@@ -1818,8 +1771,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	// H A R D W A R E
 	protected ProsceneKeyboardProfile keyboard;
 	protected ProsceneClickProfile clicker;
-	protected ProsceneWheelProfile wheel;
-	//protected ProsceneDOF1Profile wheel;
+	//protected ProsceneWheelProfile wheel;
+	protected ProsceneDOF1Profile wheel;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1988,8 +1941,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		parent.registerMethod("mouseEvent", clicker);
 		this.registerProfile(clicker);
 		
-		//wheel = new ProsceneDOF1Profile(this, "Wheel");
-		wheel = new ProsceneWheelProfile(this, "Wheel");
+		wheel = new ProsceneDOF1Profile(this, "Wheel");
+		//wheel = new ProsceneWheelProfile(this, "Wheel");
 		parent.registerMethod("mouseEvent", wheel);
 		this.registerProfile(wheel);
 

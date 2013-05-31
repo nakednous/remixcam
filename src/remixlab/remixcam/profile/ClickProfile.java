@@ -5,24 +5,10 @@ import remixlab.remixcam.core.*;
 //import remixlab.remixcam.event.*;
 import remixlab.remixcam.shortcut.*;
 
-public abstract class ClickProfile extends AbstractProfile<ClickShortcut> {
+public class ClickProfile extends AbstractProfile<ClickShortcut> {
 	public ClickProfile(AbstractScene scn, String n) {
 		super(scn, n);
 	}
-
-	/**
-	@Override
-	public DLEvent handle() {
-		return new DLClickEvent(feedModifiers(), feedButton(), feedClickCount(),
-				                    clickBinding(feedModifiers(), feedButton(), feedClickCount()));
-	}
-	*/
-	
-	/**
-  public abstract Integer feedButton();
-	
-	public abstract Integer feedClickCount();
-	*/
 
   /**
    * Returns true if the given binding binds a click-action.

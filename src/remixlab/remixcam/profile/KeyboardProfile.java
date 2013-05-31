@@ -5,7 +5,7 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.shortcut.*;
 
-public abstract class KeyboardProfile extends AbstractProfile<KeyboardShortcut> implements Constants {
+public class KeyboardProfile extends AbstractProfile<KeyboardShortcut> implements Constants {
 	public KeyboardProfile(AbstractScene scn, String n) {
 		super(scn, n);		
 	}

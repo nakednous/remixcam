@@ -70,15 +70,18 @@ public interface Constants {
   static final float TWO_PI     = PI * 2.0f;  
   
   //modifier keys
-  static public final int SHIFT     = 1 << 0;
-  static public final int CTRL      = 1 << 1;
-  static public final int META      = 1 << 2;
-  static public final int ALT       = 1 << 3;
-  static public final int ALT_GRAPH = 1 << 4;
+  static public final int NOMODIFIER_MASK    = 0;
+  static public final int SHIFT              = 1 << 0;
+  static public final int CTRL               = 1 << 1;
+  static public final int META               = 1 << 2;
+  static public final int ALT                = 1 << 3;
+  static public final int ALT_GRAPH          = 1 << 4;
   
   static final int CENTER = 3;
   
-  //Arrows
+  //Arrows and Buttons
+  static final int NOBUTTON	= 0;
+  
   static final int LEFT  = 37;
   static final int UP    = 38;
   static final int RIGHT = 39;

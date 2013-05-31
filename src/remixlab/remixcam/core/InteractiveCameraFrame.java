@@ -195,8 +195,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		  //TODO 1-DOF -> wheel
 			if( a.dofs() == 1 ) {
 			  coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * scene.camera().sceneRadius());
-				trans = new Vector3D(0.0f, 0.0f, coef * ((DOFEvent)event).getX() * wheelSensitivity() * wheelSensitivityCoef);
-			  //trans = new Vector3D(0.0f, 0.0f, coef * ((DOF1Event)event).getX() * wheelSensitivity() * wheelSensitivityCoef);
+				//trans = new Vector3D(0.0f, 0.0f, coef * ((DOFEvent)event).getX() * wheelSensitivity() * wheelSensitivityCoef);
+			  trans = new Vector3D(0.0f, 0.0f, coef * ((DOF1Event)event).getX() * wheelSensitivity() * wheelSensitivityCoef);
 			}			
 		  //TODO higher dofs
 			/**

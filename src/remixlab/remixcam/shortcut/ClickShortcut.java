@@ -66,7 +66,7 @@ public class ClickShortcut extends Shortcut implements Constants {
    * @param b mouse button
    */
   public ClickShortcut(Integer b) {
-  	this(0, b, 1);
+  	this(NOMODIFIER_MASK, b, 1);
   }
   
   /**
@@ -90,7 +90,7 @@ public class ClickShortcut extends Shortcut implements Constants {
    * @param c number of clicks
    */
   public ClickShortcut(Integer b, Integer c) {
-  	this(0, b, c);
+  	this(NOMODIFIER_MASK, b, c);
   }
 	
 		
