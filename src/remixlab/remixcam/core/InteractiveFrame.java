@@ -776,6 +776,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		computeDeviceSpeed(eP);
 		startDampedSpinning(delay);
 	}
+	
+	public void startDampedSpinning(DOF2Event e) {
+		computeDeviceSpeed(e);
+		startDampedSpinning(delay);
+	}
 
 	/**
 	 * Starts the spinning of the InteractiveFrame.
@@ -1124,7 +1129,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			execAction3D(eventPoint, (Camera) scene.pinhole());
 	}
 	
-	public void execAction(DLEvent event) {
+	public void execAction(DOF1Event event) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -1134,18 +1139,19 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			execAction3D(event);
 	}
 	
-	protected void execAction2D(DLEvent event) {
+	//TODO should be protected
+	public void execAction2D(DOF1Event event) {
 	}
 	
-	protected void execAction3D(DLEvent event) {
+//TODO should be protected
+	public void execAction3D(DOF1Event event) {
 		DLAction a = event.getAction();
 		switch (a) {
 		case ZOOM: {
 			float delta = 0;
 			//TODO 1-DOF -> wheel
 			if( a.dofs() == 1 )
-				delta = -((DOF1Event)event).getX() * wheelSensitivity();	 
-			//delta = -rotation * wheelSensitivity();
+				delta = -event.getX() * wheelSensitivity();	 
 			//TODO:  other dofs
 			//else
 			//delta = ((float)eventPoint.y - (float)prevPos.y);	
@@ -1155,6 +1161,49 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 				inverseScale(1 + Math.abs(delta) / (float) scene.height());
 			break;
 		}
+		
+		case ROTATE: {
+			Vector3D trans = scene.camera().projectedCoordinatesOf(position());
+			Quaternion rot = deformedBallQuaternion((DOF2Event)event, trans.x(), trans.y(), scene.camera());
+			rot = iFrameQuaternion(rot, scene.camera());			
+			setSpinningQuaternion(rot);
+			rotate(spinningQuaternion());
+			break;			
+		}
+		
+		case TRANSLATE: {
+			//Point delta = new Point(event.getX(), scene.isRightHanded() ? ((DOF2Event) event).getY() : -((DOF2Event) event).getY());
+			Vector3D trans = new Vector3D(event.getDX(), scene.isRightHanded() ? -((DOF2Event)event).getDY() : ((DOF2Event)event).getDY(), 0.0f);			
+			
+			// Scale to fit the screen mouse displacement
+			switch ( scene.camera().type() ) {
+			case PERSPECTIVE:
+				trans.mult(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
+						            * Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2] * magnitude().z())
+						            //* Math.abs((camera.frame().coordinatesOf(position())).vec[2])						            
+						            / scene.camera().screenHeight());
+				break;
+			case ORTHOGRAPHIC: {
+				float[] wh = scene.camera().getOrthoWidthHeight();
+				trans.vec[0] *= 2.0 * wh[0] / scene.camera().screenWidth();
+				trans.vec[1] *= 2.0 * wh[1] / scene.camera().screenHeight();
+				break;
+				}
+			}
+		  // same as:
+			trans = scene.camera().frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));
+			// but takes into account scaling			
+			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));			
+			// And then down to frame						
+			if (referenceFrame() != null)
+				trans = referenceFrame().transformOf(trans);			
+			
+			setTossingDirection(trans);
+			translate(tossingDirection());									
+			break;
+		}
+		
+		
 		default:
 			break;
 		}
@@ -1503,6 +1552,25 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	public boolean isFlipped() {
 		return ( scene.isRightHanded() && !isInverted() ) || ( scene.isLeftHanded() && isInverted() );
 	}
+	
+  //TODO should go in HIDevice
+	protected void computeDeviceSpeed(DOF1Event eventPoint) {
+		float dist = (float) Point.distance(eventPoint.getX(), ((DOF2Event)eventPoint).getY());
+
+		if (startedTime == 0) {
+			delay = 0;
+			startedTime = (int) System.currentTimeMillis();
+		} else {
+			delay = (int) System.currentTimeMillis() - startedTime;
+			startedTime = (int) System.currentTimeMillis();
+		}
+
+		if (delay == 0)
+			// Less than a millisecond: assume delay = 1ms
+			deviceSpeed = dist;
+		else
+			deviceSpeed = dist / delay;
+	}
 
 	/**
 	 * Updates mouse speed, measured in pixels/milliseconds. Should be called by
@@ -1512,6 +1580,24 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	//TODO should go in HIDevice
 	protected void computeDeviceSpeed(Point eventPoint) {
 		float dist = (float) Point.distance(eventPoint.x, eventPoint.y, prevPos.getX(), prevPos.getY());
+
+		if (startedTime == 0) {
+			delay = 0;
+			startedTime = (int) System.currentTimeMillis();
+		} else {
+			delay = (int) System.currentTimeMillis() - startedTime;
+			startedTime = (int) System.currentTimeMillis();
+		}
+
+		if (delay == 0)
+			// Less than a millisecond: assume delay = 1ms
+			deviceSpeed = dist;
+		else
+			deviceSpeed = dist / delay;
+	}
+	
+	protected void computeDeviceSpeed(DOF2Event event) {
+		float dist = (float) Point.distance(event.getDX(), event.getDY());
 
 		if (startedTime == 0) {
 			delay = 0;
@@ -1554,10 +1640,31 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * Returns a Quaternion computed according to the mouse motion. Mouse positions
 	 * are projected on a deformed ball, centered on ({@code cx}, {@code cy}).
 	 */
+	// /**
 	protected Quaternion deformedBallQuaternion(int x, int y, float cx, float cy, Camera camera) {			
 		// Points on the deformed ball		
     float px = rotationSensitivity() *                         ((int)prevPos.x - cx)                           / camera.screenWidth();
     float py = rotationSensitivity() * (scene.isLeftHanded() ? ((int)prevPos.y - cy) : ( cy - (int)prevPos.y)) / camera.screenHeight();
+    float dx = rotationSensitivity() *                         (x - cx)             / camera.screenWidth();
+    float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();    
+
+		Vector3D p1 = new Vector3D(px, py, projectOnBall(px, py));
+		Vector3D p2 = new Vector3D(dx, dy, projectOnBall(dx, dy));
+		// Approximation of rotation angle Should be divided by the projectOnBall size, but it is 1.0
+		Vector3D axis = p2.cross(p1);
+		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));			
+		return new Quaternion(axis, angle);
+	}
+	// */
+	
+	protected Quaternion deformedBallQuaternion(DOF2Event event, float cx, float cy, Camera camera) {
+		float x = event.getX();
+		float y = event.getY();
+		float prevX = event.getDX() - x;
+		float prevY = event.getDY() - y;
+		// Points on the deformed ball		
+    float px = rotationSensitivity() *                         ((int)prevX - cx)                       / camera.screenWidth();
+    float py = rotationSensitivity() * (scene.isLeftHanded() ? ((int)prevY - cy) : ( cy - (int)prevY)) / camera.screenHeight();
     float dx = rotationSensitivity() *                         (x - cx)             / camera.screenWidth();
     float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();    
 

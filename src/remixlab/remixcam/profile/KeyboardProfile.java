@@ -25,7 +25,7 @@ public class KeyboardProfile extends AbstractProfile<KeyboardShortcut> implement
 		setShortcut('S', DOF_0Action.SHOW_ALL);
 		
 		setShortcut(DLKeyEvent.RIGHT, DOF_0Action.MOVE_CAMERA_RIGHT);		
-	  //setShortcut(DLKeyEvent.LEFT, DOF_0Action.MOVE_CAMERA_LEFT);
+	  setShortcut(DLKeyEvent.LEFT, DOF_0Action.MOVE_CAMERA_LEFT);
 		setShortcut(DLKeyEvent.UP, DOF_0Action.MOVE_CAMERA_UP);
 		setShortcut(DLKeyEvent.DOWN, DOF_0Action.MOVE_CAMERA_DOWN);
 		

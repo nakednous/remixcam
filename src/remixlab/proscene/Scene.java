@@ -319,14 +319,50 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		public void mouseEvent(MouseEvent e) {
 			DOF1Event event;
-			if( ((MouseEvent)e).getAction() == MouseEvent.WHEEL ) {
-				event = new DOF1Event(((MouseEvent)e).getCount(), ((MouseEvent)e).getModifiers(), NOBUTTON);
+			if( e.getAction() == MouseEvent.WHEEL ) {
+				event = new DOF1Event(e.getCount(), e.getModifiers(), NOBUTTON);
 				handle(event);
 			  eventQueue.add(event);
 			}
 		}
 	}
 	// */
+	
+	public class ProsceneDOF2Profile extends DOF2Profile {
+		DOF2Event event, prevEvent;
+		
+		public ProsceneDOF2Profile(AbstractScene scn, String n) {
+			super(scn, n);
+			prevEvent = new DOF2Event(0,0,DLAction.NO_ACTION);
+			event = new DOF2Event(0,0,DLAction.NO_ACTION);
+		}
+		
+		@Override
+		public void setDefaultBindings() {
+			setBinding(PApplet.LEFT, DOF_2Action.ROTATE);
+			setBinding(PApplet.RIGHT, DOF_2Action.TRANSLATE);
+		}
+		
+		public void mouseEvent(MouseEvent e) {
+			/**
+			if( ((MouseEvent)e).getAction() == MouseEvent.PRESS ) {
+				prevEvent = new DOF2Event(e.getX(), e.getY(), e.getModifiers(), e.getButton());
+			}
+			// */
+			if( e.getAction() == MouseEvent.DRAG ) {
+				//TODO debug
+				System.out.println("P5 coord: x: " + e.getX() + " y: " + e.getY());
+				event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+				//event = new DOF2Event(e.getX(), e.getY(), e.getModifiers(), e.getButton());
+				handle(event);
+			  eventQueue.add(event);
+				//camera().frame().execAction3D((DOF1Event)event);
+			  prevEvent = event.get();
+			  //System.out.println("RC coord: x: " + event.getX() + " y: " + event.getY());
+			  //System.out.println("RC coord: dx: " + event.getDX() + " dy: " + event.getDY());
+			}
+		}
+	}
 	
 	protected class TimerWrap implements Timable {
 		Scene scene;
@@ -1773,6 +1809,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected ProsceneClickProfile clicker;
 	//protected ProsceneWheelProfile wheel;
 	protected ProsceneDOF1Profile wheel;
+	protected ProsceneDOF2Profile dof2mouse;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1945,6 +1982,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		//wheel = new ProsceneWheelProfile(this, "Wheel");
 		parent.registerMethod("mouseEvent", wheel);
 		this.registerProfile(wheel);
+		
+		dof2mouse = new ProsceneDOF2Profile(this, "dof2mouse");
+		parent.registerMethod("mouseEvent", dof2mouse);
+		this.registerProfile(dof2mouse);
 
 		parent.registerMethod("pre", this);
 		parent.registerMethod("draw", this);

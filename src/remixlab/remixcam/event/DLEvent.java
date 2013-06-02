@@ -12,6 +12,7 @@ public class DLEvent implements Constants, Copyable {
     return new HashCodeBuilder(17, 37).		
 		append(action).
 		append(modifiers).
+		append(timestamp).
     toHashCode();
 	}
 
@@ -25,20 +26,24 @@ public class DLEvent implements Constants, Copyable {
 	  return new EqualsBuilder()		
 		.append(action, other.action)
 		.append(modifiers, other.modifiers)
+		.append(timestamp, other.timestamp)
 		.isEquals();
 	}
 	
   protected DLAction action;
   protected final Integer modifiers;
+  protected final Long timestamp;
   
-  public DLEvent() {    
+  public DLEvent() {
     this.modifiers = 0;
     this.action = DLAction.NO_ACTION;
+    timestamp = System.currentTimeMillis();
   }
  
   public DLEvent(Integer modifiers) {
     this.modifiers = modifiers;
     this.action = DLAction.NO_ACTION;
+    timestamp = System.currentTimeMillis();
   }  
   
   public DLEvent(DLAction a) {    
@@ -46,6 +51,7 @@ public class DLEvent implements Constants, Copyable {
     this.action = a;
     if(action == null)
     	action = DLAction.NO_ACTION;
+    timestamp = System.currentTimeMillis();
   }
  
   public DLEvent(Integer modifiers, DLAction a) {
@@ -53,11 +59,13 @@ public class DLEvent implements Constants, Copyable {
     this.action = a;
     if(action == null)
     	action = DLAction.NO_ACTION;
+    timestamp = System.currentTimeMillis();
   } 
   
   protected DLEvent(DLEvent other) {
 		this.modifiers = other.modifiers;
 		this.action = other.action;
+		timestamp = System.currentTimeMillis();
 	}  
   
   public void queueEvent(AbstractScene scn) {
@@ -85,6 +93,10 @@ public class DLEvent implements Constants, Copyable {
 
   public Integer getModifiers() {
     return modifiers;
+  }
+  
+  public long timestamp() {
+  	return timestamp;
   }
   
   /**

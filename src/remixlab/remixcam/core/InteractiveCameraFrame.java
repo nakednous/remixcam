@@ -25,12 +25,19 @@
 
 package remixlab.remixcam.core;
 
+import remixlab.remixcam.event.DLEvent;
+import remixlab.remixcam.event.DOF1Event;
+import remixlab.remixcam.event.DOF2Event;
+import remixlab.remixcam.geom.Geom;
+import remixlab.remixcam.geom.Orientable;
+import remixlab.remixcam.geom.Point;
+import remixlab.remixcam.geom.Quaternion;
+import remixlab.remixcam.geom.Rectangle;
+import remixlab.remixcam.geom.Rotation;
+import remixlab.remixcam.geom.Vector3D;
+
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
-import remixlab.remixcam.core.Constants.DLAction;
-import remixlab.remixcam.event.*;
-import remixlab.remixcam.geom.*;
 
 /**
  * The InteractiveCameraFrame class represents an InteractiveFrame with Camera
@@ -180,12 +187,14 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		arcballRefPnt = refP;
 	}
 	
+  //TODO should be protected
 	@Override
-	protected void execAction2D(DLEvent event) {
+	public void execAction2D(DOF1Event event) {
 	}
 	
+  //TODO should be protected
 	@Override
-	protected void execAction3D(DLEvent event) {
+	public void execAction3D(DOF1Event event) {
 		DLAction a = event.getAction();
 		switch (a) {
 		case ZOOM: {
@@ -215,6 +224,64 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			translate(inverseTransformOf(trans));
 			break;
 		}
+		
+		case ROTATE: {
+			Vector3D trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
+			Quaternion rot = deformedBallQuaternion((DOF2Event)event, trans.vec[0], trans.vec[1], scene.camera());	
+			setSpinningQuaternion(rot);
+			//startDampedSpinning(eventPoint);
+			spin();
+			break;
+			
+			/**
+			Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
+			Quaternion rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], camera);				
+			// #CONNECTION# These two methods should go together (spinning detection and activation)				
+			setSpinningQuaternion(rot);
+			//computeDeviceSpeed(eventPoint);
+			//spin();				
+			startDampedSpinning(eventPoint);
+			prevPos = eventPoint;
+			break;
+			*/
+		}
+		
+		case TRANSLATE: {
+			///**
+			Point delta = new Point(-event.getDX(),
+					                     scene.isRightHanded() ? -((DOF2Event)event).getDY() : ((DOF2Event)event).getDY());
+			//System.out.println("RC coord: dx: " + delta.x + " dy: " + delta.y);
+			
+			Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
+			//*/	
+			
+			/**
+			Vector3D trans = new Vector3D(-event.getDX(),
+					                           scene.isRightHanded() ? ((DOF2Event)event).getDY() : -((DOF2Event)event).getDY(),
+					                           0.0f);
+			//*/
+			
+			// Scale to fit the screen mouse displacement
+			switch (scene.camera().type()) {
+			case PERSPECTIVE:
+				trans.mult(2.0f
+						       * (float) Math.tan( scene.camera().fieldOfView() / 2.0f)
+						       * Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
+						       / scene.camera().screenHeight());
+				break;
+			case ORTHOGRAPHIC:
+				float[] wh = scene.camera().getOrthoWidthHeight();
+				trans.vec[0] *= 2.0f * wh[0] / scene.camera().screenWidth();
+				trans.vec[1] *= 2.0f * wh[1] / scene.camera().screenHeight();
+				break;
+			}			
+			
+			setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
+			translate(tossingDirection());
+			
+			break;
+		}
+		
 		default:
 			break;
 		}

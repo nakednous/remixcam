@@ -77,7 +77,6 @@ public DOFEvent deltaEvent(DOFEvent prev) {
 }
 //*/
 
-
 /**
 public class DOF1Event extends DOFEvent {
 	@Override
@@ -178,6 +177,10 @@ public class DOF1Event extends DLEvent {
     appendSuper(super.hashCode()).
 		append(button).
 		append(x).
+		append(dx).
+		append(delay).
+		append(distance).
+		append(speed).
     toHashCode();
 	}
 	
@@ -192,52 +195,65 @@ public class DOF1Event extends DLEvent {
     .appendSuper(super.equals(obj))
 		.append(button, other.button)
 		.append(x, other.x)
+		.append(dx, other.dx)
+		.append(delay, other.delay)
+		.append(distance, other.distance)
+		.append(speed, other.speed)
 		.isEquals();
 	}
 
-	protected Float x;
+	protected Float x, dx;
 	protected Integer button;
 	
-  public DOF1Event(float x) {
-  	super();
-  	this.x = x;
-  	this.button = NOBUTTON;
-  }
-  
-  public DOF1Event(float x, int button) {
-  	super();
-  	this.x = x;
-  	this.button = button;
-  }
-  
-  public DOF1Event(float x, int modifiers, int button) {
-  	super(modifiers);
-  	this.x = x;
-  	this.button = button;
-  }  
-  
-  public DOF1Event(float x, DLAction a) {
-  	super(a);
-  	this.x = x;
-  	this.button = NOBUTTON;
-  }
-  
-  public DOF1Event(float x, int button, DLAction a) {
-  	super(a);
-  	this.x = x;
-  	this.button = button;
-  }
-
-  public DOF1Event(float x, int modifiers, int button, DLAction a) {
-    super(modifiers, a);
+	//defaulting to zero:
+  //http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
+	protected long delay;
+	protected float distance, speed;		
+	
+	public DOF1Event(float x, int modifiers, int button) {
+    super(modifiers);
     this.x = x;
+    this.dx = 0f;
     this.button = button;
   }
+	
+	public DOF1Event(DOF1Event prevEvent, float x, int modifiers, int button) {
+    this(x, modifiers, button);    
+    distance = this.getX() - prevEvent.getX();
+    if( sameSequence(prevEvent) ) {
+    	this.action = prevEvent.getAction();
+    	this.dx = this.getX() - prevEvent.getX();
+    }
+  }
+	
+	//ready to be enqueued
+	public DOF1Event(float x, DLAction a) {
+    super(a);
+    this.x = x;
+    this.dx = 0f;
+    this.button = NOBUTTON;
+	}
+	
+  //idem
+	public DOF1Event(DOF1Event prevEvent, float x, DLAction a) {
+    super(a);
+    this.button = NOBUTTON;
+    this.x = x;    
+    distance = this.getX() - prevEvent.getX();
+    if( sameSequence(prevEvent) )
+    	this.dx = this.getX() - prevEvent.getX();    
+	}
   
+	// ---
+	
   protected DOF1Event(DOF1Event other) {
   	super(other);
   	this.x = other.x;
+  	this.dx = other.dx;
 		this.button = other.button;
+		this.delay = other.delay;
+		this.distance = other.distance;
+		this.speed = other.speed;
 	}
   
   @Override
@@ -247,6 +263,14 @@ public class DOF1Event extends DLEvent {
   
   public float getX() {
     return x;
+  }
+  
+  public float getDX() {
+  	return dx;
+  }
+  
+  public float getPrevX() {
+  	return getX() - getDX();
   }
   
 	public int getButton() {
@@ -259,13 +283,49 @@ public class DOF1Event extends DLEvent {
 			return new ButtonShortcut(getModifiers());
 		return new ButtonShortcut(getModifiers(), getButton());
 	}
-  
-  public static DOF1Event deltaEvent(DOF1Event current, DOF1Event prev) {
-  	return new DOF1Event((current.getX() - prev.getX()), current.modifiers, current.button, current.action);
-  }
-  
-  public DOF1Event deltaEvent(DOF1Event prev) {
-  	return deltaEvent(this, prev);
-  }
+	
+	public long delay() {
+		return delay;
+	}
+	
+	public float distance() {
+		return distance;
+	}
+	
+	public float speed() {
+		return speed;
+	}
+	
+	public boolean relative() {
+		return distance() != 0;
+	}
+	
+	public boolean absolute() {
+		return !relative();
+	}
+	
+	//-- 
+	protected boolean sameSequence(DOF1Event prevEvent) {
+		boolean result = false;
+		long tThreshold = 5000;
+		float dThreshold = 30;
+		delay = this.timestamp() - prevEvent.timestamp();
+		
+		if(delay==0)
+			speed = distance;
+		else
+			speed = distance / (float)delay;
+		
+		if(prevEvent != null)
+    	if( prevEvent.shortcut().equals(this.shortcut()) )
+    		if( ( distance <= dThreshold) && ( delay <= tThreshold ) ) {    			
+    			result = true;    			
+    		} else {
+    			delay = 0L;
+        	speed = 0f;
+        	distance = 0f;
+    		}
+		return result;
+	}
 }
 // */

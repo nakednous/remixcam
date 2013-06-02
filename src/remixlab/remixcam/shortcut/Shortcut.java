@@ -6,7 +6,6 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 
-//WHEEL
 public class Shortcut implements Constants {
 	@Override
 	public int hashCode() {

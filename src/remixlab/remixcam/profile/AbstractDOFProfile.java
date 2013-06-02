@@ -3,8 +3,8 @@ package remixlab.remixcam.profile;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.*;
 
-public abstract class DOFProfile<A extends Constants.Actionable> extends AbstractProfile<ButtonShortcut> {
-	public DOFProfile(AbstractScene scn, String n) {
+public abstract class AbstractDOFProfile<A extends Constants.Actionable> extends AbstractProfile<ButtonShortcut> {
+	public AbstractDOFProfile(AbstractScene scn, String n) {
 		super(scn, n);
 	}
 	

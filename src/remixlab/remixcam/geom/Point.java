@@ -154,4 +154,8 @@ public class Point {
 	public static float distance(Point p1, Point p2) {
 		return Point.distance(p1.getX(), p1.getY(), p2.getX(), p2.getY());
 	}
+	
+	public static float distance(float deltaX, float deltaY) {
+		return (float) Math.sqrt((float) Math.pow((deltaX), 2.0)	+ (float) Math.pow((deltaY), 2.0));
+	}
 }

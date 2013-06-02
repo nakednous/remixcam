@@ -1,5 +1,7 @@
 package remixlab.remixcam.event;
 
+import remixlab.remixcam.geom.Geom;
+
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
@@ -9,6 +11,7 @@ public class DOF2Event extends DOF1Event {
     return new HashCodeBuilder(17, 37).
     appendSuper(super.hashCode()).
 		append(y).
+		append(dy).
     toHashCode();
 	}
 	
@@ -22,44 +25,73 @@ public class DOF2Event extends DOF1Event {
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
 		.append(y, other.y)
+		.append(dy, other.dy)
 		.isEquals();
 	}
 
-  protected Float y;
+  protected Float y, dy;
   
-  public DOF2Event(float x, float y) {
-  	super(x);
-  	this.y = y;
-  }
-  
-  public DOF2Event(float x, float y, int button) {
-  	super(x, button);
-  	this.y = y;
-  }
-  
-  public DOF2Event(float x, float y, int modifiers, int button) {
-  	super(x, modifiers, button);
-  	this.y = y;
-  }  
-  
-  public DOF2Event(float x, float y, DLAction a) {
-  	super(x, a);
-  	this.y = y;
-  }
-  
-  public DOF2Event(float x, float y, int button, DLAction a) {
-  	super(x, button, a);
-  	this.y = y;
-  }
-
-  public DOF2Event(float x, float y, int modifiers, int button, DLAction a) {
-    super(x, modifiers, button, a);
+	public DOF2Event(float x, float y, int modifiers, int button) {
+    super(x, modifiers, button);
     this.y = y;
+    this.dy = 0f;
   }
+	
+	public DOF2Event(DOF2Event prevEvent, float x, float y, int modifiers, int button) {
+		this(x, y, modifiers, button);
+    distance = Geom.distance(x, y, prevEvent.getX(), prevEvent.getY());    
+		/**
+		this(x, y, modifiers, button);
+    distance = Geom.distance(x, y, prevEvent.getX(), prevEvent.getY());
+    if( sameSequence(prevEvent) ) {
+    	this.dx = this.getX() - prevEvent.getX();
+  		this.dy = this.getY() - prevEvent.getY();
+  		this.action = prevEvent.getAction();
+    }
+    // */
+		
+    // /**
+    //TODO debug
+    if( sameSequence(prevEvent) ) {
+    	this.dx = this.getX() - prevEvent.getX();
+  		this.dy = this.getY() - prevEvent.getY();
+  		this.action = prevEvent.getAction();
+  		System.out.println("Current event: x: " + getX() + " y: " + getY());
+  		System.out.println("Prev event: x: " + getPrevX() + " y: " + getPrevY());
+  		//System.out.println("Distance: " + distance());
+  		//System.out.println("Delay: " + delay());
+  		//System.out.println("Speed: " + speed());
+    }
+    else {
+    	System.out.println("different sequence!");
+    }
+    // */
+  }
+	
+	//ready to be enqueued
+	public DOF2Event(float x, float y, DLAction a) {
+    super(x, a);
+    this.y = y;
+    this.dy = 0f;
+    this.button = NOBUTTON;
+	}
+
+	//idem
+	public DOF2Event(DOF2Event prevEvent, float x, float y, DLAction a) {
+    super(prevEvent, x, a);
+    this.y = y;
+    this.button = NOBUTTON;    
+    distance = Geom.distance(x, y, prevEvent.getX(), prevEvent.getY());
+    if( sameSequence(prevEvent) ) {
+    	this.dx = this.getX() - prevEvent.getX();
+  		this.dy = this.getY() - prevEvent.getY();
+    }
+	}
   
   protected DOF2Event(DOF2Event other) {
   	super(other);
   	this.y = other.y;
+  	this.dy = other.dy;
 	}
   
   @Override
@@ -71,11 +103,11 @@ public class DOF2Event extends DOF1Event {
     return y;
   }
   
-  public static DOF2Event deltaEvent(DOF2Event current, DOF2Event prev) {
-  	return new DOF2Event((current.getX() - prev.getX()), (current.getY() - prev.getY()), current.modifiers, current.button, current.action);
+  public float getDY() {
+    return dy;
   }
   
-  public DOF2Event deltaEvent(DOF2Event prev) {
-  	return deltaEvent(this, prev);
+  public float getPrevY() {
+  	return getY() - getDY();
   }
 }
