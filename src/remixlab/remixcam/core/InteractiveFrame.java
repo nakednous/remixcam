@@ -1660,8 +1660,8 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	protected Quaternion deformedBallQuaternion(DOF2Event event, float cx, float cy, Camera camera) {
 		float x = event.getX();
 		float y = event.getY();
-		float prevX = event.getDX() - x;
-		float prevY = event.getDY() - y;
+		float prevX = event.getPrevX();
+		float prevY = event.getPrevY();
 		// Points on the deformed ball		
     float px = rotationSensitivity() *                         ((int)prevX - cx)                       / camera.screenWidth();
     float py = rotationSensitivity() * (scene.isLeftHanded() ? ((int)prevY - cy) : ( cy - (int)prevY)) / camera.screenHeight();
