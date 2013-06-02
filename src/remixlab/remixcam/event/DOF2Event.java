@@ -5,7 +5,7 @@ import remixlab.remixcam.geom.Geom;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-public class DOF2Event extends DOF1Event {
+public class DOF2Event extends MotionEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -40,9 +40,7 @@ public class DOF2Event extends DOF1Event {
 	public DOF2Event(DOF2Event prevEvent, float x, float y, int modifiers, int button) {
 		this(x, y, modifiers, button);
     distance = Geom.distance(x, y, prevEvent.getX(), prevEvent.getY());    
-		/**
-		this(x, y, modifiers, button);
-    distance = Geom.distance(x, y, prevEvent.getX(), prevEvent.getY());
+		// /**
     if( sameSequence(prevEvent) ) {
     	this.dx = this.getX() - prevEvent.getX();
   		this.dy = this.getY() - prevEvent.getY();
@@ -50,7 +48,7 @@ public class DOF2Event extends DOF1Event {
     }
     // */
 		
-    // /**
+    /**
     //TODO debug
     if( sameSequence(prevEvent) ) {
     	this.dx = this.getX() - prevEvent.getX();
@@ -80,6 +78,7 @@ public class DOF2Event extends DOF1Event {
 	public DOF2Event(DOF2Event prevEvent, float x, float y, DLAction a) {
     super(prevEvent, x, a);
     this.y = y;
+    this.dy = 0f;
     this.button = NOBUTTON;    
     distance = Geom.distance(x, y, prevEvent.getX(), prevEvent.getY());
     if( sameSequence(prevEvent) ) {

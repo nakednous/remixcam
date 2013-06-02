@@ -59,7 +59,8 @@ public class DOF3Event extends DOF2Event {
 	//idem
 	public DOF3Event(DOF3Event prevEvent, float x, float y, float z, DLAction a) {
     super(prevEvent, x, y, a);
-    this.z = z;    
+    this.z = z;
+    this.dz = 0f;
     this.button = NOBUTTON;    
     distance = Geom.distance(x, y, z, prevEvent.getX(), prevEvent.getY(), prevEvent.getZ());
     if( sameSequence(prevEvent) ) {

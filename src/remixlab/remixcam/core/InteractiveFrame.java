@@ -198,7 +198,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		
 		isSpng = false;
 		setSpinningSensitivity(0.3f);
-		setSpinningFriction(0.0f);
+		setSpinningFriction(0.5f);
 		
 		isTossed = false;
 		setTossingSensitivity(0.3f);
@@ -348,11 +348,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		
 		isSpng = false;
 		setSpinningSensitivity(0.3f);
-		setSpinningFriction(0.0f);
+		setSpinningFriction(0.5f);
 		
 		isTossed = false;
 		setTossingSensitivity(0.3f);
-		setTossingFriction(1.0f);
+		setTossingFriction(0.6f);
 				
 		dampedSpinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -778,7 +778,8 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	}
 	
 	public void startDampedSpinning(DOF2Event e) {
-		computeDeviceSpeed(e);
+		deviceSpeed = e.speed();
+		delay = (int) e.delay();
 		startDampedSpinning(delay);
 	}
 
@@ -1129,7 +1130,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			execAction3D(eventPoint, (Camera) scene.pinhole());
 	}
 	
-	public void execAction(DOF1Event event) {
+	public void execAction(MotionEvent event) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -1140,11 +1141,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	}
 	
 	//TODO should be protected
-	public void execAction2D(DOF1Event event) {
+	public void execAction2D(MotionEvent event) {
 	}
 	
 //TODO should be protected
-	public void execAction3D(DOF1Event event) {
+	public void execAction3D(MotionEvent event) {
 		DLAction a = event.getAction();
 		switch (a) {
 		case ZOOM: {
@@ -1552,25 +1553,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	public boolean isFlipped() {
 		return ( scene.isRightHanded() && !isInverted() ) || ( scene.isLeftHanded() && isInverted() );
 	}
-	
-  //TODO should go in HIDevice
-	protected void computeDeviceSpeed(DOF1Event eventPoint) {
-		float dist = (float) Point.distance(eventPoint.getX(), ((DOF2Event)eventPoint).getY());
-
-		if (startedTime == 0) {
-			delay = 0;
-			startedTime = (int) System.currentTimeMillis();
-		} else {
-			delay = (int) System.currentTimeMillis() - startedTime;
-			startedTime = (int) System.currentTimeMillis();
-		}
-
-		if (delay == 0)
-			// Less than a millisecond: assume delay = 1ms
-			deviceSpeed = dist;
-		else
-			deviceSpeed = dist / delay;
-	}
 
 	/**
 	 * Updates mouse speed, measured in pixels/milliseconds. Should be called by
@@ -1580,24 +1562,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	//TODO should go in HIDevice
 	protected void computeDeviceSpeed(Point eventPoint) {
 		float dist = (float) Point.distance(eventPoint.x, eventPoint.y, prevPos.getX(), prevPos.getY());
-
-		if (startedTime == 0) {
-			delay = 0;
-			startedTime = (int) System.currentTimeMillis();
-		} else {
-			delay = (int) System.currentTimeMillis() - startedTime;
-			startedTime = (int) System.currentTimeMillis();
-		}
-
-		if (delay == 0)
-			// Less than a millisecond: assume delay = 1ms
-			deviceSpeed = dist;
-		else
-			deviceSpeed = dist / delay;
-	}
-	
-	protected void computeDeviceSpeed(DOF2Event event) {
-		float dist = (float) Point.distance(event.getDX(), event.getDY());
 
 		if (startedTime == 0) {
 			delay = 0;

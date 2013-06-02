@@ -718,7 +718,7 @@ public abstract class AbstractScene implements Constants {
     	if( event instanceof DLKeyEvent || event instanceof DLClickEvent )
     		this.handleEvent(event);
     	else {
-    		if( event instanceof DOF1Event ) camera().frame().execAction3D((DOF1Event)event);
+    		if( event instanceof MotionEvent ) camera().frame().execAction3D((MotionEvent)event);
     		//if( event instanceof DOF2Event ) camera().frame().execAction3D((DOF2Event)event);
     		}
     }

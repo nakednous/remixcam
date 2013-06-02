@@ -68,7 +68,7 @@ public class DLEvent implements Constants, Copyable {
 		timestamp = System.currentTimeMillis();
 	}  
   
-  public void queueEvent(AbstractScene scn) {
+  public void enqueue(AbstractScene scn) {
   	scn.enqueueEvent(this);
   }
   

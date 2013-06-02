@@ -82,6 +82,9 @@ public class DOF6Event extends DOF3Event {
     this.rx = rx;
     this.ry = ry;
     this.rz = rz;
+    this.drx = 0f;
+    this.dry = 0f;
+    this.drz = 0f;
     this.button = NOBUTTON;    
     distance = Geom.distance(x, y, z, rx, ry, rz,
                              prevEvent.getX(), prevEvent.getY(), prevEvent.getZ(), prevEvent.getRX(), prevEvent.getRY(), prevEvent.getRZ());

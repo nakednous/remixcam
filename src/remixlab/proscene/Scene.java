@@ -318,9 +318,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		public void mouseEvent(MouseEvent e) {
-			DOF1Event event;
+			MotionEvent event;
 			if( e.getAction() == MouseEvent.WHEEL ) {
-				event = new DOF1Event(e.getCount(), e.getModifiers(), NOBUTTON);
+				event = new MotionEvent(e.getCount(), e.getModifiers(), NOBUTTON);
 				handle(event);
 			  eventQueue.add(event);
 			}
@@ -341,6 +341,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		public void setDefaultBindings() {
 			setBinding(PApplet.LEFT, DOF_2Action.ROTATE);
 			setBinding(PApplet.RIGHT, DOF_2Action.TRANSLATE);
+			//setBinding(DOF_2Action.TRANSLATE);
 		}
 		
 		public void mouseEvent(MouseEvent e) {
@@ -351,7 +352,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			// */
 			if( e.getAction() == MouseEvent.DRAG ) {
 				//TODO debug
-				System.out.println("P5 coord: x: " + e.getX() + " y: " + e.getY());
+				//System.out.println("P5 coord: x: " + e.getX() + " y: " + e.getY());
 				event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 				//event = new DOF2Event(e.getX(), e.getY(), e.getModifiers(), e.getButton());
 				handle(event);
@@ -1971,21 +1972,21 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		//TODO testing keyboard
 		keyboard = new ProsceneKeyboardProfile(this, "ProsceneKeyboard");
-		parent.registerMethod("keyEvent", keyboard);
-		this.registerProfile(keyboard);
+		//parent.registerMethod("keyEvent", keyboard);
+		//this.registerProfile(keyboard);
 		
 		clicker = new ProsceneClickProfile(this, "Clicker");
-		parent.registerMethod("mouseEvent", clicker);
-		this.registerProfile(clicker);
+		//parent.registerMethod("mouseEvent", clicker);
+		//this.registerProfile(clicker);
 		
 		wheel = new ProsceneDOF1Profile(this, "Wheel");
 		//wheel = new ProsceneWheelProfile(this, "Wheel");
-		parent.registerMethod("mouseEvent", wheel);
-		this.registerProfile(wheel);
+		//parent.registerMethod("mouseEvent", wheel);
+		//this.registerProfile(wheel);
 		
 		dof2mouse = new ProsceneDOF2Profile(this, "dof2mouse");
-		parent.registerMethod("mouseEvent", dof2mouse);
-		this.registerProfile(dof2mouse);
+		//parent.registerMethod("mouseEvent", dof2mouse);
+		//this.registerProfile(dof2mouse);
 
 		parent.registerMethod("pre", this);
 		parent.registerMethod("draw", this);

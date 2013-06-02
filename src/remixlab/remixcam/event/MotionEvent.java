@@ -170,7 +170,7 @@ public class DOF1Event extends DOFEvent {
 //*/
 
 // /**
-public class DOF1Event extends DLEvent {
+public class MotionEvent extends DLEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -190,7 +190,7 @@ public class DOF1Event extends DLEvent {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		DOF1Event other = (DOF1Event) obj;
+		MotionEvent other = (MotionEvent) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))
 		.append(button, other.button)
@@ -210,14 +210,14 @@ public class DOF1Event extends DLEvent {
 	protected long delay;
 	protected float distance, speed;		
 	
-	public DOF1Event(float x, int modifiers, int button) {
+	public MotionEvent(float x, int modifiers, int button) {
     super(modifiers);
     this.x = x;
     this.dx = 0f;
     this.button = button;
   }
 	
-	public DOF1Event(DOF1Event prevEvent, float x, int modifiers, int button) {
+	public MotionEvent(MotionEvent prevEvent, float x, int modifiers, int button) {
     this(x, modifiers, button);    
     distance = this.getX() - prevEvent.getX();
     if( sameSequence(prevEvent) ) {
@@ -227,7 +227,7 @@ public class DOF1Event extends DLEvent {
   }
 	
 	//ready to be enqueued
-	public DOF1Event(float x, DLAction a) {
+	public MotionEvent(float x, DLAction a) {
     super(a);
     this.x = x;
     this.dx = 0f;
@@ -235,10 +235,11 @@ public class DOF1Event extends DLEvent {
 	}
 	
   //idem
-	public DOF1Event(DOF1Event prevEvent, float x, DLAction a) {
+	public MotionEvent(MotionEvent prevEvent, float x, DLAction a) {
     super(a);
     this.button = NOBUTTON;
-    this.x = x;    
+    this.x = x;
+    this.dx = 0f;
     distance = this.getX() - prevEvent.getX();
     if( sameSequence(prevEvent) )
     	this.dx = this.getX() - prevEvent.getX();    
@@ -246,7 +247,7 @@ public class DOF1Event extends DLEvent {
   
 	// ---
 	
-  protected DOF1Event(DOF1Event other) {
+  protected MotionEvent(MotionEvent other) {
   	super(other);
   	this.x = other.x;
   	this.dx = other.dx;
@@ -257,8 +258,8 @@ public class DOF1Event extends DLEvent {
 	}
   
   @Override
-	public DOF1Event get() {
-		return new DOF1Event(this);
+	public MotionEvent get() {
+		return new MotionEvent(this);
 	}
   
   public float getX() {
@@ -305,7 +306,7 @@ public class DOF1Event extends DLEvent {
 	}
 	
 	//-- 
-	protected boolean sameSequence(DOF1Event prevEvent) {
+	protected boolean sameSequence(MotionEvent prevEvent) {
 		boolean result = false;
 		long tThreshold = 5000;
 		float dThreshold = 30;
