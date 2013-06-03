@@ -25,9 +25,7 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.event.DLEvent;
-import remixlab.remixcam.event.MotionEvent;
-import remixlab.remixcam.event.DOF2Event;
+import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.Geom;
 import remixlab.remixcam.geom.Orientable;
 import remixlab.remixcam.geom.Point;
@@ -189,15 +187,16 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	
   //TODO should be protected
 	@Override
-	public void execAction2D(MotionEvent event) {
+	public void execAction2D(MotionEvent<?> event) {
 	}
 	
   //TODO should be protected
 	@Override
-	public void execAction3D(MotionEvent event) {
-		DLAction a = event.getAction();
+	public void execAction3D(MotionEvent<?> e) {
+		DLAction a = e.getAction();
+		DOF2Event event;
 		switch (a) {
-		case ZOOM: {
+		case ZOOM: {			
 			float wheelSensitivityCoef = 8E-4f;
 			float coef = 0;
 			Vector3D trans = new Vector3D();
@@ -205,7 +204,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			if( a.dofs() == 1 ) {
 			  coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * scene.camera().sceneRadius());
 				//trans = new Vector3D(0.0f, 0.0f, coef * ((DOFEvent)event).getX() * wheelSensitivity() * wheelSensitivityCoef);
-			  trans = new Vector3D(0.0f, 0.0f, coef * ((MotionEvent)event).getX() * wheelSensitivity() * wheelSensitivityCoef);
+			  trans = new Vector3D(0.0f, 0.0f, coef * ((DOF1Event)e).getX() * wheelSensitivity() * wheelSensitivityCoef);
 			}			
 		  //TODO higher dofs
 			/**
@@ -226,10 +225,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		}
 		
 		case ROTATE: {
+			event = (DOF2Event)e;
 			Vector3D trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
-			Quaternion rot = deformedBallQuaternion((DOF2Event)event, trans.vec[0], trans.vec[1], scene.camera());	
+			Quaternion rot = deformedBallQuaternion(event, trans.vec[0], trans.vec[1], scene.camera());	
 			setSpinningQuaternion(rot);
-			startDampedSpinning((DOF2Event)event);
+			startDampedSpinning(event);
 			//spin();
 			break;
 			
@@ -247,9 +247,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		}
 		
 		case TRANSLATE: {
+			event = (DOF2Event)e;
 			///**
 			Point delta = new Point(-event.getDX(),
-					                     scene.isRightHanded() ? -((DOF2Event)event).getDY() : ((DOF2Event)event).getDY());
+					                     scene.isRightHanded() ? -event.getDY() : event.getDY());
 			//System.out.println("RC coord: dx: " + delta.x + " dy: " + delta.y);
 			
 			Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);

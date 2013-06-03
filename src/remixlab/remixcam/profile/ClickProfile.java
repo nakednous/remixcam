@@ -1,15 +1,13 @@
 package remixlab.remixcam.profile;
 
 import remixlab.remixcam.core.*;
-//import remixlab.remixcam.core.*;
-//import remixlab.remixcam.event.*;
 import remixlab.remixcam.shortcut.*;
 
-public class ClickProfile extends AbstractProfile<ClickShortcut> {
+public class ClickProfile extends AbstractProfile<ClickShortcut, Constants.DOF_0Action> {
 	public ClickProfile(AbstractScene scn, String n) {
 		super(scn, n);
 	}
-
+	
   /**
    * Returns true if the given binding binds a click-action.
    *      
@@ -70,7 +68,7 @@ public class ClickProfile extends AbstractProfile<ClickShortcut> {
   		DLAction a = clickBinding(button);
   		System.out.println("Warning: overwritting binding which was previously associated to " + a);
   	}
-  	bindings.setBinding(new ClickShortcut(button), action.action());
+  	bindings.setBinding(new ClickShortcut(button), action);
   }
 
   /**
@@ -105,7 +103,7 @@ public class ClickProfile extends AbstractProfile<ClickShortcut> {
   		DLAction a = clickBinding(button, nc);
   		System.out.println("Warning: overwritting binding which was previously associated to " + a);
   	}
-  	bindings.setBinding(new ClickShortcut(button, nc), action.action());
+  	bindings.setBinding(new ClickShortcut(button, nc), action);
   }
 
   /**
@@ -124,7 +122,7 @@ public class ClickProfile extends AbstractProfile<ClickShortcut> {
   		DLAction a = clickBinding(mask, button, nc);
   		System.out.println("Warning: overwritting binding which was previously associated to " + a);
   	}
-  	bindings.setBinding(new ClickShortcut(mask, button, nc), action.action());
+  	bindings.setBinding(new ClickShortcut(mask, button, nc), action);
   }
   
   /**
@@ -175,7 +173,7 @@ public class ClickProfile extends AbstractProfile<ClickShortcut> {
    * @param button binding
    */
   public DLAction clickBinding(Integer button) {
-  	return bindings.binding(new ClickShortcut(button));
+  	return bindings.binding(new ClickShortcut(button)).action();
   }
 
   /**
@@ -197,7 +195,7 @@ public class ClickProfile extends AbstractProfile<ClickShortcut> {
    * @param nc number of clicks defining the binding
    */
   public DLAction clickBinding(Integer button, Integer nc) {
-  	return bindings.binding(new ClickShortcut(button, nc));
+  	return bindings.binding(new ClickShortcut(button, nc)).action();
   }
 
   /**
@@ -208,6 +206,6 @@ public class ClickProfile extends AbstractProfile<ClickShortcut> {
    * @param nc number of clicks defining the binding
    */
   public DLAction clickBinding(Integer mask, Integer button, Integer nc) {
-  	return bindings.binding(new ClickShortcut(mask, button, nc));
+  	return bindings.binding(new ClickShortcut(mask, button, nc)).action();
   }
 }

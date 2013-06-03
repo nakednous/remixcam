@@ -3,12 +3,13 @@ package remixlab.remixcam.event;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.shortcut.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-public class DLKeyEvent extends DLEvent {
+public class DLKeyEvent extends DLEvent<Constants.DOF_0Action> {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -109,7 +110,7 @@ public class DLKeyEvent extends DLEvent {
   	this.vKey = null;
   }
   
-  public DLKeyEvent(DLAction a) {
+  public DLKeyEvent(DOF_0Action a) {
   	super(a);
   	this.key = null;
   	this.vKey = null;
@@ -139,25 +140,25 @@ public class DLKeyEvent extends DLEvent {
     this.vKey = null;
   }
   
-  public DLKeyEvent(Integer modifiers, Character c, Integer vk, DLAction a) {
+  public DLKeyEvent(Integer modifiers, Character c, Integer vk, DOF_0Action a) {
     super(modifiers, a);
     this.vKey = vk;
     this.key = c;
   }
   
-  public DLKeyEvent(Integer modifiers, Character c, DLAction a) {
+  public DLKeyEvent(Integer modifiers, Character c, DOF_0Action a) {
     super(modifiers, a);
     this.key = c;
     this.vKey = null;
   }
   
-  public DLKeyEvent(Integer modifiers, Integer vk, DLAction a) {
+  public DLKeyEvent(Integer modifiers, Integer vk, DOF_0Action a) {
     super(modifiers, a);
     this.key = null;
     this.vKey = vk;
   }
   
-  public DLKeyEvent(Character c, DLAction a) {
+  public DLKeyEvent(Character c, DOF_0Action a) {
   	super(a);
     this.key = c;
     this.vKey = null;

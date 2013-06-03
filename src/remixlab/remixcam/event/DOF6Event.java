@@ -1,20 +1,27 @@
 package remixlab.remixcam.event;
 
+import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.geom.Geom;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-public class DOF6Event extends DOF3Event {
+public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
     appendSuper(super.hashCode()).
+		append(x).
+		append(dx).
+		append(y).
+		append(dy).
+		append(z).
+		append(dz).
 		append(rx).
-		append(ry).
-		append(rz).
 		append(drx).
+		append(ry).
 		append(dry).
+		append(rz).		
 		append(drz).
     toHashCode();
 	}
@@ -27,84 +34,124 @@ public class DOF6Event extends DOF3Event {
 		
 		DOF6Event other = (DOF6Event) obj;
 		return new EqualsBuilder()
-    .appendSuper(super.equals(obj))		
+    .appendSuper(super.equals(obj))
+    .append(x, other.x)
+		.append(dx, other.dx)
+		.append(y, other.y)
+		.append(dy, other.dy)
+		.append(z, other.z)
+		.append(dz, other.dz)
 		.append(rx, other.rx)
-		.append(ry, other.ry)
-		.append(rz, other.rz)
 		.append(drx, other.drx)
+		.append(ry, other.ry)
 		.append(dry, other.dry)
+		.append(rz, other.rz)		
 		.append(drz, other.drz)
 		.isEquals();
 	}
 
-  protected Float rx, ry, rz, drx, dry, drz;  
+	protected Float x, dx;
+  protected Float y, dy;
+  protected Float z, dz;
+  
+  protected Float rx, drx;
+  protected Float ry, dry;
+  protected Float rz, drz;  
 
 	public DOF6Event(float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
-    super(x, y, z, modifiers, button);
+    super(modifiers, button);
+		this.x = x;
+		this.dx = 0f;
+    this.y = y;
+    this.dy = 0f;
+    this.z = z;
+    this.dz = 0f;
     this.rx = rx;
-    this.ry = ry;
-    this.rz = rz;
     this.drx = 0f;
+    this.ry = ry;
     this.dry = 0f;
+    this.rz = rz;    
     this.drz = 0f;
   }
 	
 	public DOF6Event(DOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
     this(x, y, z, rx, ry, rz, modifiers, button);
-    distance = Geom.distance(x, y, z, rx, ry, rz,
-    		                     prevEvent.getX(), prevEvent.getY(), prevEvent.getZ(), prevEvent.getRX(), prevEvent.getRY(), prevEvent.getRZ());
-    if( sameSequence(prevEvent) ) {
-    	this.dx = this.getX() - prevEvent.getX();
-    	this.dy = this.getY() - prevEvent.getY();
-    	this.dz = this.getZ() - prevEvent.getZ();
-    	this.drx = this.getRX() - prevEvent.getRX();
-    	this.dry = this.getRY() - prevEvent.getRY();
-    	this.drz = this.getRZ() - prevEvent.getRZ();
-    	this.action = prevEvent.getAction();
+    if(prevEvent!=null) {
+    	distance = Geom.distance(x, y, z, rx, ry, rz,
+                 prevEvent.getX(), prevEvent.getY(), prevEvent.getZ(), prevEvent.getRX(), prevEvent.getRY(), prevEvent.getRZ());
+    	if( sameSequence(prevEvent) ) {
+    		this.dx = this.getX() - prevEvent.getX();
+    		this.dy = this.getY() - prevEvent.getY();
+    		this.dz = this.getZ() - prevEvent.getZ();
+    		this.drx = this.getRX() - prevEvent.getRX();
+    		this.dry = this.getRY() - prevEvent.getRY();
+    		this.drz = this.getRZ() - prevEvent.getRZ();
+    		this.action = prevEvent.getAction();
+    	}
     }
   }
 	
 	//ready to be enqueued
-	public DOF6Event(float x, float y, float z, float rx, float ry, float rz, DLAction a) {
-    super(x, y, z, a);
+	public DOF6Event(float x, float y, float z, float rx, float ry, float rz, DOF_6Action a) {
+    super(a);
+    this.x = x;
+		this.dx = 0f;
+    this.y = y;
+    this.dy = 0f;
+    this.z = z;
+    this.dz = 0f;
     this.rx = rx;
-    this.ry = ry;
-    this.rz = rz;
     this.drx = 0f;
+    this.ry = ry;
     this.dry = 0f;
+    this.rz = rz;    
     this.drz = 0f;
     this.button = NOBUTTON;
 	}
 
 	//idem
-	public DOF6Event(DOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, DLAction a) {
-    super(prevEvent, x, y, z, a);
+	public DOF6Event(DOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, DOF_6Action a) {
+    super(a);
+    this.x = x;
+ 		this.dx = 0f;
+    this.y = y;
+    this.dy = 0f;
+    this.z = z;
+    this.dz = 0f;
     this.rx = rx;
-    this.ry = ry;
-    this.rz = rz;
     this.drx = 0f;
+    this.ry = ry;
     this.dry = 0f;
+    this.rz = rz;    
     this.drz = 0f;
-    this.button = NOBUTTON;    
-    distance = Geom.distance(x, y, z, rx, ry, rz,
-                             prevEvent.getX(), prevEvent.getY(), prevEvent.getZ(), prevEvent.getRX(), prevEvent.getRY(), prevEvent.getRZ());
-    if( sameSequence(prevEvent) ) {
-    	this.dx = this.getX() - prevEvent.getX();
-    	this.dy = this.getY() - prevEvent.getY();
-    	this.dz = this.getZ() - prevEvent.getZ();
-    	this.drx = this.getRX() - prevEvent.getRX();
-    	this.dry = this.getRY() - prevEvent.getRY();
-    	this.drz = this.getRZ() - prevEvent.getRZ();
+    this.button = NOBUTTON;
+    if(prevEvent!=null) {
+    	distance = Geom.distance(x, y, z, rx, ry, rz,
+                 prevEvent.getX(), prevEvent.getY(), prevEvent.getZ(), prevEvent.getRX(), prevEvent.getRY(), prevEvent.getRZ());
+    	if( sameSequence(prevEvent) ) {
+    		this.dx = this.getX() - prevEvent.getX();
+    		this.dy = this.getY() - prevEvent.getY();
+    		this.dz = this.getZ() - prevEvent.getZ();
+    		this.drx = this.getRX() - prevEvent.getRX();
+    		this.dry = this.getRY() - prevEvent.getRY();
+    		this.drz = this.getRZ() - prevEvent.getRZ();
+    	}
     }
 	}
   
   protected DOF6Event(DOF6Event other) {
   	super(other);
+		this.x = other.x;
+		this.dx = other.dx;
+  	this.y = other.y;
+  	this.dy = other.dy;
+  	this.z = other.z;
+  	this.dz = other.z;
   	this.rx = other.rx;
-  	this.ry = other.ry;
-  	this.rz = other.rz;
   	this.drx = other.drx;
+  	this.ry = other.ry;
   	this.dry = other.dry;
+  	this.rz = other.rz;  	
   	this.drz = other.drz;
 	}
   
@@ -112,6 +159,42 @@ public class DOF6Event extends DOF3Event {
 	public DOF6Event get() {
 		return new DOF6Event(this);
 	}
+  
+	public float getX() {
+		return x;
+	}
+
+	public float getDX() {
+		return dx;
+	}
+
+	public float getPrevX() {
+		return getX() - getDX();
+	}
+  
+  public float getY() {
+    return y;
+  }
+  
+  public float getDY() {
+    return dy;
+  }
+  
+  public float getPrevY() {
+  	return getY() - getDY();
+  }
+  
+  public float getZ() {
+    return z;
+  }
+  
+  public float getDZ() {
+    return dz;
+  }
+  
+  public float getPrevZ() {
+  	return getZ() - getDZ();
+  }
   
   public float roll() {
   	return getRX();

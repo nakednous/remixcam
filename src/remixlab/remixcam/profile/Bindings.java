@@ -42,22 +42,22 @@ import remixlab.remixcam.shortcut.Shortcut;
  * Internally, this class is simply a parameterized hash-map wrap
  * (HashMap<K, DLAction>). 
  */
-public class Bindings<K extends Shortcut> implements Constants {
-	protected HashMap<K, DLAction> map;
+public class Bindings<K extends Shortcut, A extends Constants.Actionable> implements Constants {
+	protected HashMap<K, A> map;
 
 	public Bindings() {
-		map = new HashMap<K, DLAction>();
+		map = new HashMap<K, A>();
 	}
 	
 	/**
 	 * Returns the {@code map} (which is simply an instance of {@code HashMap})
 	 * encapsulated by this object.
 	 */
-	public HashMap<K, DLAction> map() {
+	public HashMap<K, A> map() {
 		return map;
 	}
 	
-	public DLAction binding(Shortcut key) {
+	public Actionable binding(Shortcut key) {
 		return map.get(key);
 	}
 
@@ -76,7 +76,7 @@ public class Bindings<K extends Shortcut> implements Constants {
 	 * @param key shortcut.
 	 * @param action action.
 	 */
-	public void setBinding(K key, DLAction action) {
+	public void setBinding(K key, A action) {
 		map.put(key, action);
 	}
 	
@@ -118,7 +118,7 @@ public class Bindings<K extends Shortcut> implements Constants {
 	
 	public String description() {
 		String result = new String();
-		for (Entry<K, DLAction> entry : map.entrySet())
+		for (Entry<K, A> entry : map.entrySet())
 			result += entry.getKey().description() + " -> " + entry.getValue().description() + "\n"; 
 		return result;
 	}

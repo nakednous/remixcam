@@ -83,9 +83,9 @@ public abstract class AbstractScene implements Constants {
 	protected long animationPeriod;	
 	
   //D E V I C E S	  &   E V E N T S
-	protected HashMap<String, AbstractProfile<?>> profiles;
+	protected HashMap<String, AbstractProfile<?, ?>> profiles;
 	//protected ArrayList<HIDevice> devices;
-	protected LinkedList<DLEvent> eventQueue;
+	protected LinkedList<DLEvent<?>> eventQueue;
 	
 	// L O C A L   T I M E R
 	protected boolean arpFlag;
@@ -144,9 +144,9 @@ public abstract class AbstractScene implements Constants {
 		//mouse grabber pool
 		msGrabberPool = new ArrayList<DeviceGrabbable>();
 		//devices
-	  profiles = new HashMap<String, AbstractProfile<?>>();
+	  profiles = new HashMap<String, AbstractProfile<?,?>>();
 		//events
-		eventQueue = new LinkedList<DLEvent>();
+		eventQueue = new LinkedList<DLEvent<?>>();
 		// <- 1
 		
 		setDottedGrid(true);
@@ -201,7 +201,7 @@ public abstract class AbstractScene implements Constants {
 	 * Internal method. Handles the different global keyboard actions.
 	 */
 	//public void handleKeyboardAction(DOF_0Action id) {
-	public void handleEvent(DLEvent event) {
+	public void handleEvent(DLEvent<?> event) {
 		//if( !keyboardIsHandled() )
 			//return;		
 		DLAction id = event.getAction();
@@ -712,13 +712,13 @@ public abstract class AbstractScene implements Constants {
 			
 		// 4c. Events
 	  //TODO implement what is actually to be done with the event
-		DLEvent event;
+		DLEvent<?> event;
     while( !eventQueue.isEmpty() ) {
     	event = eventQueue.remove();
     	if( event instanceof DLKeyEvent || event instanceof DLClickEvent )
     		this.handleEvent(event);
     	else {
-    		if( event instanceof MotionEvent ) camera().frame().execAction3D((MotionEvent)event);
+    		if( event instanceof MotionEvent ) camera().frame().execAction3D((MotionEvent<?>)event);
     		//if( event instanceof DOF2Event ) camera().frame().execAction3D((DOF2Event)event);
     		}
     }
@@ -1088,8 +1088,8 @@ public abstract class AbstractScene implements Constants {
 	 * Returns an array of the camera profile objects that are currently
 	 * registered at the Scene.
 	 */
-	public AbstractProfile<?> [] getProfiles() {
-		return profiles.values().toArray(new AbstractProfile<?>[0]);
+	public AbstractProfile<?,?> [] getProfiles() {
+		return profiles.values().toArray(new AbstractProfile<?,?>[0]);
 	}
 	
 	/**
@@ -1098,17 +1098,17 @@ public abstract class AbstractScene implements Constants {
 	 * @see #unregisterProfile(HIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void registerProfile(AbstractProfile<?> profile) {
+	public void registerProfile(AbstractProfile<?,?> profile) {
 		if(!isProfileRegistered(profile))
 			profiles.put(profile.name(), profile);
 		else {
 			System.out.println("Nothing done. A profile with the same name is already registered. Current profile names are:");
-			for (AbstractProfile<?> dev : profiles.values())
+			for (AbstractProfile<?,?> dev : profiles.values())
 				System.out.println(dev.name());
 		}
 	}
 	
-	public boolean isProfileRegistered(AbstractProfile<?> profile) {
+	public boolean isProfileRegistered(AbstractProfile<?,?> profile) {
 		return profiles.containsKey(profile.name());
 	}
 	
@@ -1116,7 +1116,7 @@ public abstract class AbstractScene implements Constants {
 		return profiles.containsKey(name);
 	}
 	
-	public AbstractProfile<?> getProfile(String name) {
+	public AbstractProfile<?,?> getProfile(String name) {
 		return profiles.get(name);
 	}
 	
@@ -1126,11 +1126,11 @@ public abstract class AbstractScene implements Constants {
 	 * @see #registerProfile(HIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public AbstractProfile<?> unregisterProfile(AbstractProfile<?> profile) {
+	public AbstractProfile<?,?> unregisterProfile(AbstractProfile<?,?> profile) {
 		return profiles.remove(profile.name());
 	}
 	
-	public AbstractProfile<?> unregisterProfile(String name) {
+	public AbstractProfile<?,?> unregisterProfile(String name) {
 		return profiles.remove(name);
 	}
 	
@@ -1177,7 +1177,7 @@ public abstract class AbstractScene implements Constants {
 	
   // Event registration
 	
-	public boolean isEventRegistered(DLEvent event) {
+	public boolean isEventRegistered(DLEvent<?> event) {
 		return eventQueue.contains(event);
 	}
 	
@@ -1187,7 +1187,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #unregisterProfile(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void enqueueEvent(DLEvent event) {
+	public void enqueueEvent(DLEvent<?> event) {
 		if(!isEventRegistered(event))
 			eventQueue.add(event);
 	}
@@ -1198,7 +1198,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #registerProfile(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void removeEvent(DLEvent event) {
+	public void removeEvent(DLEvent<?> event) {
 		eventQueue.remove(event);
 	}
 	

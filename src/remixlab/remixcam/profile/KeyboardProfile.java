@@ -5,7 +5,7 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.shortcut.*;
 
-public class KeyboardProfile extends AbstractProfile<KeyboardShortcut> implements Constants {
+public class KeyboardProfile extends AbstractProfile<KeyboardShortcut, Constants.DOF_0Action> implements Constants {
 	public KeyboardProfile(AbstractScene scn, String n) {
 		super(scn, n);		
 	}
@@ -43,20 +43,11 @@ public class KeyboardProfile extends AbstractProfile<KeyboardShortcut> implement
 		*/
 	}
 	
-	public void handleKey(DLEvent e) {
+	public void handleKey(DLEvent<?> e) {
+	//public void handleKey(DLKeyEvent e) {
 		if(e != null)
 			e.setAction( binding(((DLKeyEvent)e).keyShortcut()) );
 	}
-	
-	/**
-	@Override
-	public DLKeyEvent handle() {
-		DLAction action = shortcut(feedKey());
-		if (action == null)
-			action = shortcut(feedModifiers(), feedKeyCode());
-		return new DLKeyEvent(feedModifiers(), feedKey(), feedKeyCode(), action);
-	}
-	*/
 	
 	/**
 	 * Overload this method to define the z-axis translation feed this method
@@ -83,7 +74,7 @@ public class KeyboardProfile extends AbstractProfile<KeyboardShortcut> implement
 			DLAction a = shortcut(key);
 			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
-		bindings.setBinding(new KeyboardShortcut(key), action.action());
+		bindings.setBinding(new KeyboardShortcut(key), action);
 	}
 	
 	/**
@@ -117,7 +108,7 @@ public class KeyboardProfile extends AbstractProfile<KeyboardShortcut> implement
 			DLAction a = shortcut(mask, vKey);
 			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
-		bindings.setBinding(new KeyboardShortcut(mask, vKey), action.action());
+		bindings.setBinding(new KeyboardShortcut(mask, vKey), action);
 	}
 	
 	/**
@@ -131,7 +122,7 @@ public class KeyboardProfile extends AbstractProfile<KeyboardShortcut> implement
 			DLAction a = shortcut(vKey);
 			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
-		bindings.setBinding(new KeyboardShortcut(vKey), action.action());
+		bindings.setBinding(new KeyboardShortcut(vKey), action);
 	}
 	
 	/**
@@ -187,7 +178,7 @@ public class KeyboardProfile extends AbstractProfile<KeyboardShortcut> implement
 	 * @return action
 	 */
 	public DLAction shortcut(Character key) {
-		return bindings.binding(new KeyboardShortcut(key));
+		return bindings.binding(new KeyboardShortcut(key)).action();
 	}
 
 	/**
@@ -202,7 +193,7 @@ public class KeyboardProfile extends AbstractProfile<KeyboardShortcut> implement
    * @see #shortcut(Integer, Character)
    */
 	public DLAction shortcut(Integer mask, Integer vKey) {
-		return bindings.binding(new KeyboardShortcut(mask, vKey));
+		return bindings.binding(new KeyboardShortcut(mask, vKey)).action();
 	}
 	
 	/**
@@ -227,7 +218,7 @@ public class KeyboardProfile extends AbstractProfile<KeyboardShortcut> implement
 	 * @return action
 	 */
 	public DLAction shortcut(Integer vKey) {
-		return bindings.binding(new KeyboardShortcut(vKey));
+		return bindings.binding(new KeyboardShortcut(vKey)).action();
 	}
 
 	/**

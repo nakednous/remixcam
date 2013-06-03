@@ -3,7 +3,7 @@ package remixlab.remixcam.profile;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.*;
 
-public abstract class AbstractMotionProfile<A extends Constants.Actionable> extends AbstractProfile<ButtonShortcut> {
+public abstract class AbstractMotionProfile<A extends Constants.Actionable> extends AbstractProfile<ButtonShortcut, A> {
 	public AbstractMotionProfile(AbstractScene scn, String n) {
 		super(scn, n);
 	}
@@ -72,7 +72,7 @@ public abstract class AbstractMotionProfile<A extends Constants.Actionable> exte
 			DLAction a = binding(mask, button);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
-		bindings.setBinding(new ButtonShortcut(mask, button), action.action());
+		bindings.setBinding(new ButtonShortcut(mask, button), action);
 	}
 	
 	/**
@@ -123,6 +123,6 @@ public abstract class AbstractMotionProfile<A extends Constants.Actionable> exte
 	 * @param button
 	 */
 	public DLAction binding(Integer mask, Integer button) {
-		return bindings.binding(new ButtonShortcut(mask, button));
+		return bindings.binding(new ButtonShortcut(mask, button)).action();
 	}
 }

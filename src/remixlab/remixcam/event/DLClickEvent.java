@@ -1,11 +1,12 @@
 package remixlab.remixcam.event;
 
+import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.shortcut.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-public class DLClickEvent extends DLEvent {
+public class DLClickEvent extends DLEvent<Constants.DOF_0Action> {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -37,7 +38,7 @@ public class DLClickEvent extends DLEvent {
   	this.numberOfClicks = 1;  	
   }
 	
-	public DLClickEvent(int b, DLAction a) {
+	public DLClickEvent(int b, DOF_0Action a) {
 		super(a);
 		this.button = b;
   	this.numberOfClicks = 1;
@@ -48,7 +49,7 @@ public class DLClickEvent extends DLEvent {
   	this.numberOfClicks = clicks;
   }
 	
-	public DLClickEvent(int b, int clicks, DLAction a) {
+	public DLClickEvent(int b, int clicks, DOF_0Action a) {
 		super(a);
 		this.button = b;
   	this.numberOfClicks = clicks;
@@ -62,7 +63,7 @@ public class DLClickEvent extends DLEvent {
   	this.numberOfClicks = 1;  	
   }
 	
-	public DLClickEvent(Integer modifiers, int b, DLAction a) {
+	public DLClickEvent(Integer modifiers, int b, DOF_0Action a) {
 		super(modifiers, a);
 		this.button = b;
   	this.numberOfClicks = 1;
@@ -74,7 +75,7 @@ public class DLClickEvent extends DLEvent {
   	this.numberOfClicks = clicks;
   }
 	
-	public DLClickEvent(Integer modifiers, int b, int clicks, DLAction a) {
+	public DLClickEvent(Integer modifiers, int b, int clicks, DOF_0Action a) {
 		super(modifiers, a);
 		this.button = b;
   	this.numberOfClicks = clicks;

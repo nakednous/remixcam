@@ -1130,7 +1130,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			execAction3D(eventPoint, (Camera) scene.pinhole());
 	}
 	
-	public void execAction(MotionEvent event) {
+	public void execAction(MotionEvent<?> event) {
 		if( ( scene.is2D() ) && ( !action.is2D() ) )
 			return;
 		
@@ -1141,14 +1141,16 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	}
 	
 	//TODO should be protected
-	public void execAction2D(MotionEvent event) {
+	public void execAction2D(MotionEvent<?> event) {
 	}
 	
 //TODO should be protected
-	public void execAction3D(MotionEvent event) {
-		DLAction a = event.getAction();
+	public void execAction3D(MotionEvent<?> e) {		
+		DLAction a = e.getAction();
+		DOF2Event event;;
 		switch (a) {
 		case ZOOM: {
+			event = (DOF2Event)e;
 			float delta = 0;
 			//TODO 1-DOF -> wheel
 			if( a.dofs() == 1 )
@@ -1164,8 +1166,9 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 		
 		case ROTATE: {
+			event = (DOF2Event)e;
 			Vector3D trans = scene.camera().projectedCoordinatesOf(position());
-			Quaternion rot = deformedBallQuaternion((DOF2Event)event, trans.x(), trans.y(), scene.camera());
+			Quaternion rot = deformedBallQuaternion(event, trans.x(), trans.y(), scene.camera());
 			rot = iFrameQuaternion(rot, scene.camera());			
 			setSpinningQuaternion(rot);
 			rotate(spinningQuaternion());
@@ -1173,8 +1176,9 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 		
 		case TRANSLATE: {
-			//Point delta = new Point(event.getX(), scene.isRightHanded() ? ((DOF2Event) event).getY() : -((DOF2Event) event).getY());
-			Vector3D trans = new Vector3D(event.getDX(), scene.isRightHanded() ? -((DOF2Event)event).getDY() : ((DOF2Event)event).getDY(), 0.0f);			
+			event = (DOF2Event)e;
+			//Point delta = new Point(event.getX(), scene.isRightHanded() ? event.getY() : -event.getY());
+			Vector3D trans = new Vector3D(event.getDX(), scene.isRightHanded() ? -event.getDY() : event.getDY(), 0.0f);			
 			
 			// Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {

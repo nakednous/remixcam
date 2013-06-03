@@ -4,10 +4,10 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.*;
 import remixlab.remixcam.event.*;
 
-public abstract class AbstractProfile<K extends Shortcut> implements Constants {
+public abstract class AbstractProfile<K extends Shortcut, A extends Constants.Actionable> implements Constants {
 	protected AbstractScene scene;
 	protected String nm;
-	Bindings<K> bindings;
+	Bindings<K, A> bindings;
 	
 	/**
 	protected Object handlerObject;	
@@ -17,7 +17,7 @@ public abstract class AbstractProfile<K extends Shortcut> implements Constants {
 	public AbstractProfile(AbstractScene scn, String n) {		
 		scene = scn;
 		nm = n;
-		bindings = new Bindings<K>();
+		bindings = new Bindings<K, A>();
 		setDefaultBindings();
 		//active = false;
 	}
@@ -31,10 +31,10 @@ public abstract class AbstractProfile<K extends Shortcut> implements Constants {
 	
 	public void setDefaultBindings() {}
 	
-	public void handle(DLEvent e) {
+	public void handle(DLEvent<A> e) {
 		if(e != null)
-			e.setAction( binding(e.shortcut()) );		
-	}
+			e.setAction(binding(e.shortcut()));
+	}	
 	
 	//female
   //public abstract Integer feedModifiers();
@@ -64,7 +64,7 @@ public abstract class AbstractProfile<K extends Shortcut> implements Constants {
 		bindings.removeAllBindings();
 	}
 	
-	public DLAction binding(Shortcut k) {
+	public Actionable binding(Shortcut k) {
   	return bindings.binding(k);
   }
 	
@@ -72,7 +72,7 @@ public abstract class AbstractProfile<K extends Shortcut> implements Constants {
 	public DLAction binding(K k) {
   	return bindings.binding(k);
   }
-  */
+  // */
 	
 	/**
 	 * Attempt to add a 'feed' handler method to the HIDevice. The default feed

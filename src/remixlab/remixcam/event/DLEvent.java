@@ -6,7 +6,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.Shortcut;
 
-public class DLEvent implements Constants, Copyable {
+public class DLEvent<A extends Constants.Actionable> implements Constants, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -22,7 +22,7 @@ public class DLEvent implements Constants, Copyable {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;		
 		
-		DLEvent other = (DLEvent) obj;
+		DLEvent<?> other = (DLEvent<?>) obj;
 	  return new EqualsBuilder()		
 		.append(action, other.action)
 		.append(modifiers, other.modifiers)
@@ -46,23 +46,23 @@ public class DLEvent implements Constants, Copyable {
     timestamp = System.currentTimeMillis();
   }  
   
-  public DLEvent(DLAction a) {    
+  public DLEvent(A a) {    
     this.modifiers = 0;
-    this.action = a;
+    this.action = a.action();
     if(action == null)
     	action = DLAction.NO_ACTION;
     timestamp = System.currentTimeMillis();
   }
  
-  public DLEvent(Integer modifiers, DLAction a) {
+  public DLEvent(Integer modifiers, A a) {
     this.modifiers = modifiers;
-    this.action = a;
+    this.action = a.action();
     if(action == null)
     	action = DLAction.NO_ACTION;
     timestamp = System.currentTimeMillis();
   } 
   
-  protected DLEvent(DLEvent other) {
+  protected DLEvent(DLEvent<?> other) {
 		this.modifiers = other.modifiers;
 		this.action = other.action;
 		timestamp = System.currentTimeMillis();
@@ -73,11 +73,12 @@ public class DLEvent implements Constants, Copyable {
   }
   
   @Override
-	public DLEvent get() {
-		return new DLEvent(this);
+	public DLEvent<?> get() {
+		return new DLEvent<A>(this);
 	}
   
   public Shortcut shortcut() {
+  	System.out.println("calling DLEvent shortcut");
   	return new Shortcut(getModifiers());
   }
   
@@ -85,10 +86,18 @@ public class DLEvent implements Constants, Copyable {
   	return action;
   }
   
-  public void setAction(DLAction a) {
-  	action = a;
-  	if(action == null)
+  public void setAction(Actionable actionable) {
+  	if(actionable != null)
+  		setAction(actionable.action());
+  	else
+  		setAction(DLAction.NO_ACTION);
+  }
+  
+  protected void setAction(DLAction a) {
+  	if(a == null)
     	action = DLAction.NO_ACTION;
+  	else
+  		action = a;
   }
 
   public Integer getModifiers() {
@@ -98,12 +107,6 @@ public class DLEvent implements Constants, Copyable {
   public long timestamp() {
   	return timestamp;
   }
-  
-  /**
-  public void setModifiers(Integer m) {
-  	this.modifiers = m;
-  }
-  */
 
   public boolean isShiftDown() {
     return (modifiers & SHIFT) != 0;
