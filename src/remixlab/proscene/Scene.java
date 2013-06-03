@@ -1973,6 +1973,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		disableFrustumEquationsUpdate();
 		
+		/**
 		//TODO testing keyboard
 		keyboard = new ProsceneKeyboardProfile(this, "ProsceneKeyboard");
 		parent.registerMethod("keyEvent", keyboard);
@@ -1990,6 +1991,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		dof2mouse = new ProsceneDOF2Profile(this, "dof2mouse");
 		parent.registerMethod("mouseEvent", dof2mouse);
 		this.registerProfile(dof2mouse);
+		*/
 
 		parent.registerMethod("pre", this);
 		parent.registerMethod("draw", this);
