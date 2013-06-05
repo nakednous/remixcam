@@ -243,4 +243,40 @@ public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
   public float getPrevRZ() {
   	return getRZ() - getDRZ();
   }
+  
+  public DOF3Event dof3Event(DOF_3Action a3) {
+  	return dof3Event(true, a3);
+  }
+  
+  public DOF3Event dof3Event(boolean fromTranslation, DOF_3Action a3) {
+  	DOF3Event e3 = dof3Event(fromTranslation);
+  	e3.setAction(a3);
+  	return e3;
+  }
+  
+  public DOF3Event dof3Event() {
+  	return dof3Event(true);
+  }
+  
+  public DOF3Event dof3Event(boolean fromTranslation) {
+  	DOF3Event pe3;
+  	DOF3Event e3;
+  	if(relative()) {
+  		if(fromTranslation) {
+  			pe3 = new DOF3Event(getPrevX(), getPrevY(), getPrevZ(), getModifiers(), getButton());
+  			e3 = new DOF3Event(pe3, getX(), getY(), getZ(), getModifiers(), getButton());
+  		}
+  		else {
+  			pe3 = new DOF3Event(getPrevRX(), getPrevRY(), getPrevRZ(), getModifiers(), getButton());
+  			e3 = new DOF3Event(pe3, getRX(), getRY(), getRZ(), getModifiers(), getButton());
+  		}
+  	}
+  	else {
+  		if(fromTranslation)
+    		e3 = new DOF3Event(getX(), getY(), getZ(), getModifiers(), getButton());
+  		else
+  			e3 = new DOF3Event(getRX(), getRY(), getRZ(), getModifiers(), getButton());  		
+  	}
+  	return e3;
+  }
 }

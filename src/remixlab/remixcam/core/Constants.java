@@ -215,6 +215,78 @@ public interface Constants {
     public int dofs() {
     	return dofs;
     }
+    
+    /**
+    public DOF_6Action dof6Action() {
+    	DOF_6Action a6;
+    	switch (this) {
+  			case CAD_ROTATE:
+  				a6 = DOF_6Action.CAD_ROTATE;
+  				break;
+  			case CUSTOM1:
+  				a6 = DOF_6Action.CUSTOM1;
+  				break;
+  			case CUSTOM2:
+  				a6 = DOF_6Action.CUSTOM2;
+  				break;
+  			case CUSTOM3:
+  				a6 = DOF_6Action.CUSTOM3;
+  				break;
+  			case CUSTOM4:
+  				a6 = DOF_6Action.CUSTOM4;
+  				break;
+  			case DRIVE:
+  				a6 = DOF_6Action.DRIVE;
+  				break;
+  			case FROM_EULER_ANGLES:
+  				a6 = DOF_6Action.FROM_EULER_ANGLES;
+  				break;
+  			case GOOGLE_EARTH:
+  				a6 = DOF_6Action.GOOGLE_EARTH;
+  				break;
+  			case LOOK_AROUND:
+  				a6 = DOF_6Action.LOOK_AROUND;
+  				break;
+  			case MOVE_BACKWARD:
+  				a6 = DOF_6Action.MOVE_BACKWARD;
+  				break;
+  			case MOVE_FORWARD:
+  				a6 = DOF_6Action.MOVE_FORWARD;
+  				break;
+  			case NATURAL:
+  				a6 = DOF_6Action.NATURAL;
+  				break;  			
+  			case ROLL:
+  				a6 = DOF_6Action.ROLL;
+  				break;
+  			case ROTATE:
+  				a6 = DOF_6Action.ROTATE;
+  				break;
+  			case SCREEN_ROTATE:
+  				a6 = DOF_6Action.SCREEN_ROTATE;
+  				break;
+  			case SCREEN_TRANSLATE:
+  				a6 = DOF_6Action.SCREEN_TRANSLATE;
+  				break;
+  			case TRANSLATE:
+  				a6 = DOF_6Action.TRANSLATE;
+  				break;
+  			case TRANSLATE3:
+  				a6 = DOF_6Action.TRANSLATE3;
+  				break;
+  			case ZOOM:
+  				a6 = DOF_6Action.ZOOM;
+  				break;
+  			case ZOOM_ON_REGION:
+  				a6 = DOF_6Action.ZOOM_ON_REGION;
+  				break;
+  			default:
+  				a6 = DOF_6Action.NO_ACTION;
+  				break;    	
+      	}
+    		return a6;
+    	}
+    	*/   
   }
   
   public interface Actionable {
@@ -426,7 +498,7 @@ public interface Constants {
   	@Override
   	public boolean is2D() {
   		return act.is2D();
-  	}
+  	}  	
 
   	DLAction act;
 
@@ -486,6 +558,6 @@ public interface Constants {
 
   	DOF_6Action(DLAction a) {
   		act = a;
-  	}
+  	}  	
   }
 }

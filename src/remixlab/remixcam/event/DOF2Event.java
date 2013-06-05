@@ -140,4 +140,42 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
   public float getPrevY() {
   	return getY() - getDY();
   }
+  
+  public DOF1Event dof1Event(DOF_1Action a1) {
+  	return dof1Event(true, a1);
+  } 
+  
+  public DOF1Event dof1Event(boolean fromX, DOF_1Action a1) {
+  	DOF1Event e1 = dof1Event(fromX);
+  	e1.setAction(a1);
+  	return e1;
+  }  
+  
+  public DOF1Event dof1Event() {
+  	return dof1Event(true);
+  }
+  
+  public DOF1Event dof1Event(boolean fromX) {
+  	DOF1Event pe1;
+  	DOF1Event e1;
+  	if(fromX) {
+  		if(relative()) {
+  			pe1 = new DOF1Event(getPrevX(), getModifiers(), getButton());
+  			e1 = new DOF1Event(pe1, getX(), getModifiers(), getButton());
+  		}
+  		else {
+  			e1 = new DOF1Event(getX(), getModifiers(), getButton());
+  		}
+  	}
+  	else {
+  		if(relative()) {
+  			pe1 = new DOF1Event(getPrevY(), getModifiers(), getButton());
+  			e1 = new DOF1Event(pe1, getY(), getModifiers(), getButton());
+  		}
+  		else {
+  			e1 = new DOF1Event(getY(), getModifiers(), getButton());
+  		}
+  	}
+  	return e1;
+  }
 }

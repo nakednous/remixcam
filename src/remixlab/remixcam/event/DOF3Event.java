@@ -147,4 +147,23 @@ public class DOF3Event extends MotionEvent<Constants.DOF_3Action> {
   public float getPrevZ() {
   	return getZ() - getDZ();
   }
+  
+  public DOF2Event dof2Event(DOF_2Action a2) {
+  	DOF2Event e2 = dof2Event();
+  	e2.setAction(a2);
+  	return e2;
+  }
+  
+  public DOF2Event dof2Event() {
+  	DOF2Event pe2;
+  	DOF2Event e2;
+  	if(relative()) {  		
+  			pe2 = new DOF2Event(getPrevX(), getPrevY(), getModifiers(), getButton());
+  			e2 = new DOF2Event(pe2, getX(), getY(), getModifiers(), getButton());  		
+  	}
+  	else {
+  		e2 = new DOF2Event(getX(), getY(), getModifiers(), getButton()); 
+  	}
+  	return e2;
+  }
 }
