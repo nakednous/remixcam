@@ -76,8 +76,8 @@ public class DOF1Event extends MotionEvent<Constants.DOF_1Action> {
 
 	protected DOF1Event(DOF1Event other) {
 		super(other);
-		this.x = other.x;
-		this.dx = other.dx;
+		this.x = new Float(other.x);
+		this.dx = new Float(other.dx);
 	}
 
 	@Override

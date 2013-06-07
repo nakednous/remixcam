@@ -1,12 +1,41 @@
 package remixlab.remixcam.profile;
 
+import java.util.Map;
+
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.*;
 
 public class ClickProfile extends AbstractProfile<ClickShortcut, Constants.DOF_0Action> {
+	public ClickProfile() {
+		super();
+	}
+	
+	protected ClickProfile(ClickProfile other) {
+		bindings = new Bindings<ClickShortcut, DOF_0Action>();    
+    for (Map.Entry<ClickShortcut, DOF_0Action> entry : other.bindings.map.entrySet()) {
+    	ClickShortcut key = entry.getKey().get();
+    	DOF_0Action value = entry.getValue();
+    	bindings.setBinding(key, value);
+    }
+	}
+	
+  @Override
+	public ClickProfile get() {
+		return new ClickProfile(this);
+	}
+  
+  /**
+	@Override
+	public void handle(DLEvent<DOF_0Action> e) {
+		super.handle(e);
+	}
+	*/
+	
+	/**
 	public ClickProfile(AbstractScene scn, String n) {
 		super(scn, n);
 	}
+	*/
 	
   /**
    * Returns true if the given binding binds a click-action.

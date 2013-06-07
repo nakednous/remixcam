@@ -166,8 +166,8 @@ public class DLKeyEvent extends DLEvent<Constants.DOF_0Action> {
   
   protected DLKeyEvent(DLKeyEvent other) {
   	super(other);
-		this.key = other.key;
-		this.vKey = other.vKey;
+		this.key = new Character(other.key);
+		this.vKey = new Integer(other.vKey);
 	}
   
   @Override

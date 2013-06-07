@@ -1,14 +1,36 @@
 package remixlab.remixcam.profile;
 
+import java.util.Map;
+
 import remixlab.proscene.Scene;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.shortcut.*;
 
 public class KeyboardProfile extends AbstractProfile<KeyboardShortcut, Constants.DOF_0Action> implements Constants {
+	public KeyboardProfile() {
+		super();
+	}
+	
+	protected KeyboardProfile(KeyboardProfile other) {
+		bindings = new Bindings<KeyboardShortcut, DOF_0Action>();    
+    for (Map.Entry<KeyboardShortcut, DOF_0Action> entry : other.bindings.map.entrySet()) {
+    	KeyboardShortcut key = entry.getKey().get();
+    	DOF_0Action value = entry.getValue();
+    	bindings.setBinding(key, value);
+    }
+	}
+	
+  @Override
+	public KeyboardProfile get() {
+		return new KeyboardProfile(this);
+	}
+  
+  /**
 	public KeyboardProfile(AbstractScene scn, String n) {
 		super(scn, n);		
 	}
+	*/
 	
 	@Override
 	public void setDefaultBindings() {
@@ -42,6 +64,14 @@ public class KeyboardProfile extends AbstractProfile<KeyboardShortcut, Constants
 		setPathKey('5', 5);
 		*/
 	}
+	
+	/**
+	@Override
+	public void handle(DLEvent<DOF_0Action> e) {
+		//super.handle((DLKeyEvent)e);
+		super.handle(e);
+	}
+	*/
 	
 	public void handleKey(DLEvent<?> e) {
 	//public void handleKey(DLKeyEvent e) {

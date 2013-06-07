@@ -99,12 +99,12 @@ public class DOF3Event extends MotionEvent<Constants.DOF_3Action> {
   
   protected DOF3Event(DOF3Event other) {
   	super(other);
-		this.x = other.x;
-		this.dx = other.dx;
-  	this.y = other.y;
-  	this.dy = other.dy;
-  	this.z = other.z;
-  	this.dz = other.z;
+		this.x = new Float(other.x);
+		this.dx = new Float(other.dx);
+  	this.y = new Float(other.y);
+  	this.dy = new Float(other.dy);
+  	this.z = new Float(other.z);
+  	this.dz = new Float(other.z);
 	}
   
   @Override

@@ -27,6 +27,7 @@ package remixlab.remixcam.shortcut;
 
 import com.flipthebird.gwthashcodeequals.*;
 import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.core.Copyable;
 import remixlab.remixcam.event.DLEvent;
 
 /**
@@ -35,7 +36,7 @@ import remixlab.remixcam.event.DLEvent;
  * Mouse shortcuts can be of one out of two forms: 1. Mouse buttons (e.g., 'LEFT');
  * 2. Mouse button + Key combinations (e.g., 'RIGHT' + CTRL key).
  */
-public final class ButtonShortcut extends Shortcut implements Constants {
+public final class ButtonShortcut extends Shortcut implements Constants, Copyable {
 	@Override
 	public int hashCode() {
    return new HashCodeBuilder(17, 37).		
@@ -79,7 +80,17 @@ public final class ButtonShortcut extends Shortcut implements Constants {
 	public ButtonShortcut(Integer m, Integer b) {
 		super(m);
 		this.button = b;
-	}	
+	}
+	
+	protected ButtonShortcut(ButtonShortcut other) {
+		super(other);
+		this.button = new Integer(other.button);
+	}
+	
+	@Override
+	public ButtonShortcut get() {
+		return new ButtonShortcut(this);
+	}
 	
 	/**
 	 * Returns a textual description of this mouse shortcut.

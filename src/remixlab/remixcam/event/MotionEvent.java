@@ -61,7 +61,7 @@ public class MotionEvent<A extends Constants.Actionable> extends DLEvent<A> {
 	
   protected MotionEvent(MotionEvent<?> other) {
   	super(other);
-		this.button = other.button;
+		this.button = new Integer(other.button);
 		this.delay = other.delay;
 		this.distance = other.distance;
 		this.speed = other.speed;

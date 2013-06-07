@@ -63,9 +63,9 @@ public class DLEvent<A extends Constants.Actionable> implements Constants, Copya
   } 
   
   protected DLEvent(DLEvent<?> other) {
-		this.modifiers = other.modifiers;
+		this.modifiers = new Integer(other.modifiers);
 		this.action = other.action;
-		timestamp = System.currentTimeMillis();
+		this.timestamp = new Long(System.currentTimeMillis());
 	}  
   
   public void enqueue(AbstractScene scn) {

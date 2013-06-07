@@ -28,6 +28,9 @@ package remixlab.remixcam.profile;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.Shortcut;
 
@@ -43,6 +46,25 @@ import remixlab.remixcam.shortcut.Shortcut;
  * (HashMap<K, DLAction>). 
  */
 public class Bindings<K extends Shortcut, A extends Constants.Actionable> implements Constants {
+	@Override
+	public int hashCode() {
+    return new HashCodeBuilder(17, 37).		
+		append(map).
+    toHashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (obj == this) return true;		
+		if (obj.getClass() != getClass()) return false;		
+		
+		Bindings<?,?> other = (Bindings<?,?>) obj;
+	  return new EqualsBuilder()		
+		.append(map, other.map)
+		.isEquals();
+	}
+	
 	protected HashMap<K, A> map;
 
 	public Bindings() {

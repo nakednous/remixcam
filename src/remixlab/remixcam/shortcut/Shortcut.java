@@ -6,7 +6,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 
-public class Shortcut implements Constants {
+public class Shortcut implements Constants, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -34,6 +34,15 @@ public class Shortcut implements Constants {
 	
 	public Shortcut() {
 		mask = NOMODIFIER_MASK;
+	}
+	
+	protected Shortcut(Shortcut other) {
+		this.mask = new Integer(other.mask);
+	}
+	
+	@Override
+	public Shortcut get() {
+		return new Shortcut(this);
 	}
 	
 	public String description() {

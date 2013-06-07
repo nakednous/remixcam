@@ -293,6 +293,7 @@ public interface Constants {
   	DLAction action();
   	String description();
   	public boolean is2D();
+  	public int dofs();
   }
   
   public enum DOF_0Action implements Actionable {
@@ -370,6 +371,11 @@ public interface Constants {
   	public boolean is2D() {
   		return act.is2D();
   	}
+  	
+  	@Override
+  	public int dofs() {
+  		return act.dofs();
+  	}
 
   	DLAction act;
 
@@ -402,6 +408,11 @@ public interface Constants {
   	@Override
   	public boolean is2D() {
   		return act.is2D();
+  	}
+  	
+  	@Override
+  	public int dofs() {
+  		return act.dofs();
   	}
 
   	DLAction act;
@@ -448,6 +459,11 @@ public interface Constants {
   	@Override
   	public boolean is2D() {
   		return act.is2D();
+  	}
+  	
+  	@Override
+  	public int dofs() {
+  		return act.dofs();
   	}
 
   	DLAction act;
@@ -498,7 +514,12 @@ public interface Constants {
   	@Override
   	public boolean is2D() {
   		return act.is2D();
-  	}  	
+  	}
+  	
+  	@Override
+  	public int dofs() {
+  		return act.dofs();
+  	}
 
   	DLAction act;
 
@@ -552,6 +573,11 @@ public interface Constants {
   	@Override
   	public boolean is2D() {
   		return act.is2D();
+  	}
+  	
+  	@Override
+  	public int dofs() {
+  		return act.dofs();
   	}
 
   	DLAction act;

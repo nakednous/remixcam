@@ -106,10 +106,10 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
   
   protected DOF2Event(DOF2Event other) {
   	super(other);
-		this.x = other.x;
-		this.dx = other.dx;
-  	this.y = other.y;
-  	this.dy = other.dy;
+		this.x = new Float(other.x);
+		this.dx = new Float(other.dx);
+  	this.y = new Float(other.y);
+  	this.dy = new Float(other.dy);
 	}
   
   @Override

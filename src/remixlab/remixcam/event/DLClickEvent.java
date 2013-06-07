@@ -83,8 +83,8 @@ public class DLClickEvent extends DLEvent<Constants.DOF_0Action> {
 	
 	protected DLClickEvent(DLClickEvent other) {
 		super(other);
-		this.button = other.button;
-		this.numberOfClicks = other.numberOfClicks;		
+		this.button = new Integer(other.button);
+		this.numberOfClicks = new Integer(other.numberOfClicks);		
 	}
 	
 	@Override

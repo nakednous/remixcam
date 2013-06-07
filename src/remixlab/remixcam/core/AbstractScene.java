@@ -33,7 +33,7 @@ import java.util.List;
 //import remixlab.remixcam.deprecatedprofile.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.profile.*;
+import remixlab.remixcam.device.*;
 import remixlab.remixcam.renderer.*;
 import remixlab.remixcam.util.*;
 
@@ -83,7 +83,6 @@ public abstract class AbstractScene implements Constants {
 	protected long animationPeriod;	
 	
   //D E V I C E S	  &   E V E N T S
-	protected HashMap<String, AbstractProfile<?, ?>> profiles;
 	//protected ArrayList<HIDevice> devices;
 	protected LinkedList<DLEvent<?>> eventQueue;
 	
@@ -144,7 +143,7 @@ public abstract class AbstractScene implements Constants {
 		//mouse grabber pool
 		msGrabberPool = new ArrayList<DeviceGrabbable>();
 		//devices
-	  profiles = new HashMap<String, AbstractProfile<?,?>>();
+		//TODO pending device intantiation here
 		//events
 		eventQueue = new LinkedList<DLEvent<?>>();
 		// <- 1
@@ -1083,66 +1082,6 @@ public abstract class AbstractScene implements Constants {
 		return description;
 	}
 	*/
-	
-	/**
-	 * Returns an array of the camera profile objects that are currently
-	 * registered at the Scene.
-	 */
-	public AbstractProfile<?,?> [] getProfiles() {
-		return profiles.values().toArray(new AbstractProfile<?,?>[0]);
-	}
-	
-	/**
-	 * Adds an HIDevice to the scene.
-	 * 
-	 * @see #unregisterProfile(HIDevice)
-	 * @see #removeAllDevices()
-	 */
-	public void registerProfile(AbstractProfile<?,?> profile) {
-		if(!isProfileRegistered(profile))
-			profiles.put(profile.name(), profile);
-		else {
-			System.out.println("Nothing done. A profile with the same name is already registered. Current profile names are:");
-			for (AbstractProfile<?,?> dev : profiles.values())
-				System.out.println(dev.name());
-		}
-	}
-	
-	public boolean isProfileRegistered(AbstractProfile<?,?> profile) {
-		return profiles.containsKey(profile.name());
-	}
-	
-	public boolean isProfileRegistered(String name) {
-		return profiles.containsKey(name);
-	}
-	
-	public AbstractProfile<?,?> getProfile(String name) {
-		return profiles.get(name);
-	}
-	
-	/**
-	 * Removes the device from the scene.
-	 * 
-	 * @see #registerProfile(HIDevice)
-	 * @see #removeAllDevices()
-	 */
-	public AbstractProfile<?,?> unregisterProfile(AbstractProfile<?,?> profile) {
-		return profiles.remove(profile.name());
-	}
-	
-	public AbstractProfile<?,?> unregisterProfile(String name) {
-		return profiles.remove(name);
-	}
-	
-	/**
-	 * Removes all registered devices from the scene.
-	 * 
-	 * @see #registerProfile(HIDevice)
-	 * @see #unregisterProfile(HIDevice)
-	 */
-	public void unregisterAllProfiles() {
-		profiles.clear();
-	}
 	
 	/**
 	public List<AbstractProfile<?>> getActivatedDevices() {

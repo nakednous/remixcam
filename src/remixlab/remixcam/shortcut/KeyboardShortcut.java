@@ -25,6 +25,7 @@
 
 package remixlab.remixcam.shortcut;
 
+import remixlab.remixcam.core.Copyable;
 import remixlab.remixcam.event.DLEvent;
 import remixlab.remixcam.event.DLKeyEvent;
 
@@ -36,7 +37,7 @@ import com.flipthebird.gwthashcodeequals.*;
  * Keyboard shortcuts can be of one out of three forms: 1. Characters (e.g., 'a');
  * 2. Virtual keys (e.g., right arrow key); or, 3. Key combinations (e.g., 'a' + CTRL key).
  */
-public final class KeyboardShortcut extends Shortcut {
+public final class KeyboardShortcut extends Shortcut implements Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -90,7 +91,18 @@ public final class KeyboardShortcut extends Shortcut {
 		super(m);
 		this.vKey = vk;
 		this.key = null;
-	}	
+	}
+	
+	protected KeyboardShortcut(KeyboardShortcut other) {
+		super(other);
+		this.vKey = new Integer(other.vKey);
+		this.key = new Character(other.key);
+	}
+	
+	@Override
+	public KeyboardShortcut get() {
+		return new KeyboardShortcut(this);
+	}
 	
 	/**
 	 * Returns a textual description of this keyboard shortcut.
