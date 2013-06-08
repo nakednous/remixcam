@@ -28,9 +28,4 @@ public class DOF6Profile extends AbstractMotionProfile<Constants.DOF_6Action> {
 		super(scn, n);
 	}
 	*/
-	
-	@Override
-	public void setDefaultBindings() {
-		//setBinding(DOF_2Action.ZOOM);
-	}	
 }

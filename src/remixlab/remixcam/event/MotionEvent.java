@@ -1,5 +1,7 @@
 package remixlab.remixcam.event;
 
+import java.util.ArrayList;
+
 import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.shortcut.*;
 
@@ -71,6 +73,8 @@ public class MotionEvent<A extends Constants.Actionable> extends DLEvent<A> {
 	public MotionEvent<?> get() {
 		return new MotionEvent<A>(this);
 	}
+  
+  public void modulate(ArrayList<Float> sens) {}
   
 	public int getButton() {
 		return button;

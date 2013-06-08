@@ -1,5 +1,7 @@
 package remixlab.remixcam.event;
 
+import java.util.ArrayList;
+
 import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.geom.Geom;
 
@@ -279,4 +281,17 @@ public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
   	}
   	return e3;
   }
+  
+	@Override
+	public void modulate(ArrayList<Float> sens) {
+		if(sens != null)
+		if(sens.size()>=6 && this.absolute()) {
+			x = x*sens.get(0);
+			y = y*sens.get(1);
+			z = z*sens.get(2);
+			rx = rx*sens.get(3);
+			ry = ry*sens.get(4);
+			rz = rz*sens.get(5);
+		}
+	}
 }

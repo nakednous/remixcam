@@ -9,20 +9,6 @@ public abstract class AbstractDevice {
 	protected String handlerMethodName;
 	*/
 	
-  /**
-	public boolean isRegistered() {
-		return scene.isProfileRegistered(this);
-	}
-	
-	public void register() {
-		scene.registerProfile(this);
-	}
-	
-	public void unregister() {
-		scene.unregisterProfile(this);
-	}
-	*/
-	
 	/**
 	 * Attempt to add a 'feed' handler method to the HIDevice. The default feed
 	 * handler is a method that returns void and has one single HIDevice parameter.
@@ -50,9 +36,7 @@ public abstract class AbstractDevice {
 	public void removeHandler() {
 		AbstractScene.showMissingImplementationWarning("removeHandler");
 	}
-	*/
-	
-	//protected HashMap<String, AbstractProfile<?, ?>> profiles;
+	*/	
 	
 	protected AbstractScene scene;
 	protected String nm;
@@ -61,7 +45,6 @@ public abstract class AbstractDevice {
 		scene = scn;
 		nm = n;
 		scene.registerDevice(this);
-		//profiles = new HashMap<String, AbstractProfile<?,?>>();
 	}
 	
 	public String name() {
@@ -69,77 +52,6 @@ public abstract class AbstractDevice {
 	}
 	
 	public abstract void handle(DLEvent<?> event);
-	
-	/**
-	 * Returns an array of the camera profile objects that are currently
-	 * registered at the Scene.
-	 */
-	/**
-	public AbstractProfile<?,?> [] getProfiles() {
-		return profiles.values().toArray(new AbstractProfile<?,?>[0]);
-	}
-	*/
-	
-	/**
-	 * Adds an HIDevice to the scene.
-	 * 
-	 * @see #unregisterProfile(HIDevice)
-	 * @see #removeAllDevices()
-	 */
-	/**
-	public void registerProfile(AbstractProfile<?,?> profile) {
-		if(!isProfileRegistered(profile))
-			profiles.put(profile.name(), profile);
-		else {
-			System.out.println("Nothing done. A profile with the same name is already registered. Current profile names are:");
-			for (AbstractProfile<?,?> dev : profiles.values())
-				System.out.println(dev.name());
-		}
-	}
-	*/
-	
-	/**
-	public boolean isProfileRegistered(AbstractProfile<?,?> profile) {
-		return profiles.containsKey(profile.name());
-	}
-	
-	public boolean isProfileRegistered(String name) {
-		return profiles.containsKey(name);
-	}
-	
-	public AbstractProfile<?,?> getProfile(String name) {
-		return profiles.get(name);
-	}
-	*/
-	
-	/**
-	 * Removes the device from the scene.
-	 * 
-	 * @see #registerProfile(HIDevice)
-	 * @see #removeAllDevices()
-	 */
-	/**
-	public AbstractProfile<?,?> unregisterProfile(AbstractProfile<?,?> profile) {
-		return profiles.remove(profile.name());
-	}
-
-	public AbstractProfile<?,?> unregisterProfile(String name) {
-		return profiles.remove(name);
-	}
-	*/
-	
-	/**
-	 * Removes all registered devices from the scene.
-	 * 
-	 * @see #registerProfile(HIDevice)
-	 * @see #unregisterProfile(HIDevice)
-	 */
-	/**
-	public void unregisterAllProfiles() {
-		profiles.clear();
-	}
-	*/
-	
 	
 	//public class ProsceneKeyboardProfile extends KeyboardProfile {
 		/**

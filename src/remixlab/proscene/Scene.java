@@ -34,7 +34,7 @@ import remixlab.remixcam.util.Taskable;
 import remixlab.remixcam.util.Timable;
 // */
 
-import java.awt.event.MouseEvent;
+//import java.awt.event.MouseEvent;
 import processing.core.*;
 import processing.event.*;
 import processing.opengl.*;
@@ -128,17 +128,17 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	//public class Mouse extends AbstractMouse {
-	public class Mouse extends AbstractWheelMouse {
+	public class Mouse extends AbstractWheeledMouse {
 		DOF2Event event, prevEvent;
 		
 		public Mouse(AbstractScene scn, String n) {
 			super(scn, n);
-			//((DOF2Profile)cameraProfile()).setBinding(PApplet.CENTER, DOF_2Action.TRANSLATE);
-			((DOF2Profile)cameraProfile()).setBinding(PApplet.LEFT, DOF_2Action.ROTATE);
-			((DOF2Profile)cameraProfile()).setBinding(PApplet.RIGHT, DOF_2Action.TRANSLATE);
-			((DOF2Profile)cameraProfile()).setBinding(PApplet.CENTER, DOF_2Action.ZOOM);
+			
+			//((DOF2Profile)cameraProfile()).setBinding(PApplet.CENTER, DOF_2Action.ZOOM);
 			//cameraProfile().setBinding(PApplet.RIGHT, DOF_2Action.TRANSLATE);
-			System.out.println(cameraProfile().bindingsDescription());
+			
+			//((DOF2Profile)cameraProfile()).setBinding(DOF_2Action.ROTATE);
+			//System.out.println(cameraProfile().bindingsDescription());
 		}
 		
 		public void mouseEvent(processing.event.MouseEvent e) {
@@ -146,7 +146,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			//	prevEvent = new DOF2Event(e.getX(), e.getY(), e.getModifiers(), e.getButton());
 			//}
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
-			//if( e.getAction() == MouseEvent.MOVE ) {
+			//if( e.getAction() == processing.event.MouseEvent.MOVE ) {
 				//TODO debug
 				//System.out.println("P5 coord: x: " + e.getX() + " y: " + e.getY());
 				//TODO pending fix modifiers!
@@ -1769,7 +1769,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		disableFrustumEquationsUpdate();
 		
 		// /**
-		keyboard = new Keyboard(this, "KeyboardMouse");
+		keyboard = new Keyboard(this, "Keyboard");
 		parent.registerMethod("keyEvent", keyboard);
 		mouse = new Mouse(this, "ProsceneMouse");
 		parent.registerMethod("mouseEvent", mouse);
@@ -1778,10 +1778,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		parent.registerMethod("pre", this);
 		parent.registerMethod("draw", this);
 		// parent.registerPost(this);
-		enableKeyboardHandling();
-		enableMouseHandling();
-		parseKeyXxxxMethods();
-		parseMouseXxxxMethods();
+		//parseKeyXxxxMethods();
+		//parseMouseXxxxMethods();
 
 		// register draw method
 		removeDrawHandler();
@@ -2407,6 +2405,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * The methods sought are: {@code keyPressed}, {@code keyReleased}, and
 	 * {@code keyTyped}.
 	 */
+	/**
 	protected void parseKeyXxxxMethods() {
 		boolean foundKP = true;
 		boolean foundKR = true;
@@ -2445,7 +2444,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			PApplet.println("Warning: it seems that you have implemented some KeyXxxxMethod in your sketch. You may temporarily disable proscene " +
 					"keyboard handling with Scene.disableKeyboardHandling() (you can re-enable it later with Scene.enableKeyboardHandling()).");
 		}
-	}	
+	}
+	*/
 		
 	/**
 	 * Displays global keyboard bindings.
@@ -2510,6 +2510,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * The methods sought are: {@code mouseDragged}, {@code mouseMoved}, {@code
 	 * mouseReleased}, {@code mousePressed}, and {@code mouseClicked}.
 	 */
+	/**
 	protected void parseMouseXxxxMethods() {
 		boolean foundMD = true;
 		boolean foundMM = true;
@@ -2567,6 +2568,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			"mouse handling with Scene.disableMouseHandling() (you can re-enable it later with Scene.enableMouseHandling()).");
 		}
 	}
+	*/
 
 	// 10. Draw method registration
 

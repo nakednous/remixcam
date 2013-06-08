@@ -13,27 +13,20 @@ public abstract class AbstractProfile<K extends Shortcut, A extends Constants.Ac
 	
 	public AbstractProfile() {
 		bindings = new Bindings<K, A>();
-		setDefaultBindings();
 	}
 	
-	public void setDefaultBindings() {}
-	
-	// /**
+	/**
 	public void handle(DLEvent<A> e) {
 		if(e != null)
 			e.setAction(binding(e.shortcut()));
 	}
 	// */
 	
-	/**
+	// /**
 	//TODO testing
 	public void handle(DLEvent<?> event) {
-		if(event != null) {
-			//TODO testing
-			System.out.println("Try to handle event...");
-			System.out.println(event.shortcut().description());
+		if(event != null)
 			event.setAction(binding(event.shortcut()));
-		}		
 	}	
 	// */
 

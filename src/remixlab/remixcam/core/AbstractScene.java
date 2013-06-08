@@ -95,10 +95,6 @@ public abstract class AbstractScene implements Constants {
 	// S I Z E
 	protected int width, height;
 	
-  //K E Y B O A R D A N D M O U S E
-	protected boolean mouseHandling;
-	protected boolean keyboardHandling;
-	
 	//offscreen
 	public Point upperLeftCorner;
 	protected boolean offscreen;
@@ -154,6 +150,22 @@ public abstract class AbstractScene implements Constants {
 		
 		//TODO pending
 		//setDefaultShortcuts();
+	}
+	
+	public InteractiveFrame activeFrame() {
+		//InteractiveFrame iFrame = null;
+		if (deviceGrabber() != null) {
+			if (deviceGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
+				return (InteractiveFrame) deviceGrabber();
+			} else
+				//scene.mouseGrabber().mousePressed(new Point(event.getX(), event.getY()), scene.camera());
+			return null;
+		}
+		if (interactiveFrameIsDrawn()) {
+			return interactiveFrame();
+		}
+		return null;
+		//return iFrame;
 	}
 	
 	/**
@@ -496,61 +508,7 @@ public abstract class AbstractScene implements Constants {
 			AbstractScene.showMissingImplementationWarning("displayCurrentCameraProfileHelp");
 		*/
 	}
-	
-	/**
-	 * Returns {@code true} if the keyboard is currently being handled by proscene
-	 * and {@code false} otherwise. Set keyboard handling with
-	 * {@link #enableMouseHandling(boolean)}.
-	 * <p>
-	 * Keyboard handling is enable by default.
-	 */
-	public boolean keyboardIsHandled() {
-		return keyboardHandling;
-	}
-
-	/**
-	 * Toggles the state of {@link #keyboardIsHandled()}
-	 */
-	public void toggleKeyboardHandling() {
-		enableKeyboardHandling(!keyboardHandling);
-	}
-
-	/**
-	 * Enables or disables proscene keyboard handling according to {@code enable}
-	 * 
-	 * @see #keyboardIsHandled()
-	 */
-	public void enableKeyboardHandling(boolean enable) {
-		if (enable)
-			enableKeyboardHandling();
-		else
-			disableKeyboardHandling();
-	}
-	
-	/**
-	 * Enables Proscene keyboard handling.
-	 * 
-	 * @see #keyboardIsHandled()
-	 * @see #enableMouseHandling()
-	 * @see #disableKeyboardHandling()
-	 */
-	public void enableKeyboardHandling() {
-		if( keyboardIsHandled() )
-			return;
-		keyboardHandling = true;
-	}
-
-	/**
-	 * Disables Proscene keyboard handling.
-	 * 
-	 * @see #keyboardIsHandled()
-	 */
-	public void disableKeyboardHandling() {
-		if( !keyboardIsHandled() )
-			return;
-		keyboardHandling = false;
-	}
-	
+		
 	/**
 	 * Sets global default keyboard shortcuts and the default key-frame shortcut keys.
 	 * <p>
@@ -643,60 +601,6 @@ public abstract class AbstractScene implements Constants {
 	public float aspectRatio() {
 		return (float) width() / (float) height();
 	}
-		
-	/**
-	 * Returns {@code true} if the mouse is currently being handled by proscene and
-	 * {@code false} otherwise. Set mouse handling with
-	 * {@link #enableMouseHandling(boolean)}.
-	 * <p>
-	 * Mouse handling is enable by default.
-	 */
-	public boolean mouseIsHandled() {
-		return mouseHandling;
-	}
-
-	/**
-	 * Toggles the state of {@link #mouseIsHandled()}
-	 */
-	public void toggleMouseHandling() {
-		enableMouseHandling(!mouseHandling);
-	}
-
-	/**
-	 * Enables or disables proscene mouse handling according to {@code enable}
-	 * 
-	 * @see #mouseIsHandled()
-	 */
-	public void enableMouseHandling(boolean enable) {
-		if (enable)
-			enableMouseHandling();
-		else
-			disableMouseHandling();
-	}
-
-	/**
-	 * Enables Proscene mouse handling.
-	 * 
-	 * @see #mouseIsHandled()
-	 * @see #disableMouseHandling()
-	 * @see #enableKeyboardHandling()
-	 */
-	public void enableMouseHandling() {
-		if( mouseIsHandled() )
-			return;
-		mouseHandling = true;
-	}
-
-	/**
-	 * Disables Proscene mouse handling.
-	 * 
-	 * @see #mouseIsHandled()
-	 */
-	public void disableMouseHandling() {
-		if( !mouseIsHandled() )
-			return;
-		mouseHandling = false;
-	}
 	
 	// D R A W I N G   M E T H O D S
 	
@@ -769,8 +673,11 @@ public abstract class AbstractScene implements Constants {
     	if( event instanceof DLKeyEvent || event instanceof DLClickEvent )
     		this.handleEvent(event);
     	else {
-    		if( event instanceof MotionEvent ) camera().frame().execAction3D((MotionEvent<?>)event);
-    		//if( event instanceof DOF2Event ) camera().frame().execAction3D((DOF2Event)event);
+    		if( event instanceof MotionEvent ) 
+    			if( this.activeFrame() != null )
+    				activeFrame().execAction3D((MotionEvent<?>)event);
+    			else
+    				camera().frame().execAction3D((MotionEvent<?>)event);
     		}
     }
 		

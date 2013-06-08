@@ -28,12 +28,7 @@ public class DOF1Profile extends AbstractMotionProfile<Constants.DOF_1Action> {
 	public DOF1Profile(AbstractScene scn, String n) {
 		super(scn, n);
 	}
-	*/
-	
-	@Override
-	public void setDefaultBindings() {
-		setBinding(DOF_1Action.ZOOM);
-	}
+	*/	
 }
 
 /**

@@ -1147,17 +1147,21 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 //TODO should be protected
 	public void execAction3D(MotionEvent<?> e) {		
 		DLAction a = e.getAction();
-		DOF2Event event;;
+		DOF2Event event;
+		float delta = 0;
+		
 		switch (a) {
 		case ZOOM: {
-			event = (DOF2Event)e;
-			float delta = 0;
-			//TODO 1-DOF -> wheel
-			if( a.dofs() == 1 )
-				delta = -event.getX() * wheelSensitivity();	 
-			//TODO:  other dofs
-			//else
-			//delta = ((float)eventPoint.y - (float)prevPos.y);	
+			if( e instanceof DOF1Event ) {
+				delta = ((DOF1Event)e).getX() * wheelSensitivity();	
+			}
+			else {
+				event = (DOF2Event)e;
+				delta = ((float)event.getY() - (float)event.getPrevY());
+			}		
+			
+			//System.out.println("try to zoom iFrame!");		
+			
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
 			else
@@ -1166,6 +1170,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 		
 		case ROTATE: {
+			System.out.println("try to rotate iFrame!");
 			event = (DOF2Event)e;
 			Vector3D trans = scene.camera().projectedCoordinatesOf(position());
 			Quaternion rot = deformedBallQuaternion(event, trans.x(), trans.y(), scene.camera());
@@ -1176,6 +1181,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 		
 		case TRANSLATE: {
+			System.out.println("try to translate iFrame!");
 			event = (DOF2Event)e;
 			//Point delta = new Point(event.getX(), scene.isRightHanded() ? event.getY() : -event.getY());
 			Vector3D trans = new Vector3D(event.getDX(), scene.isRightHanded() ? -event.getDY() : event.getDY(), 0.0f);			
