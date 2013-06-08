@@ -131,6 +131,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public class Mouse extends AbstractWheeledMouse {
 		DOF2Event event, prevEvent;
 		
+		
 		public Mouse(AbstractScene scn, String n) {
 			super(scn, n);
 			
@@ -161,6 +162,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
 				handle(new DOF1Event(e.getCount(), e.getModifiers(), NOBUTTON));
+			}
+			
+			if( e.getAction() == MouseEvent.CLICK ) {
+				handle(new DLClickEvent(e.getModifiers(), e.getButton(), e.getCount()));
 			}
 			
 		}
