@@ -1,10 +1,11 @@
 package remixlab.proscene;
 
 import remixlab.remixcam.core.*;
+import remixlab.remixcam.profile.*;
+import remixlab.remixcam.device.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.*;
-import remixlab.remixcam.profile.*;
 import remixlab.remixcam.renderer.*;
 //import remixlab.remixcam.shortcut.*;
 
@@ -33,6 +34,7 @@ import remixlab.remixcam.util.Taskable;
 import remixlab.remixcam.util.Timable;
 // */
 
+import java.awt.event.MouseEvent;
 import processing.core.*;
 import processing.event.*;
 import processing.opengl.*;
@@ -103,6 +105,67 @@ import java.util.TimerTask;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {
+	public class Keyboard extends AbstractKeyboard {
+		public Keyboard(AbstractScene scn, String n) {
+			super(scn, n);
+		}
+		
+		public void keyEvent(KeyEvent e) {
+			DLKeyEvent event;
+			if(e.getAction() == KeyEvent.TYPE && e.getModifiers() == 0) {
+				//event = new DLKeyEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
+				event = new DLKeyEvent(e.getKey());
+				handleKey(event);
+			}
+			else
+				if(e.getAction() == KeyEvent.RELEASE) {
+					System.out.println("trying to handle key release... ");
+					event = new DLKeyEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
+					System.out.println("passed event creation... ");
+					handle(event);
+				}
+		}
+	}
+	
+	//public class Mouse extends AbstractMouse {
+	public class Mouse extends AbstractWheelMouse {
+		DOF2Event event, prevEvent;
+		
+		public Mouse(AbstractScene scn, String n) {
+			super(scn, n);
+			//((DOF2Profile)cameraProfile()).setBinding(PApplet.CENTER, DOF_2Action.TRANSLATE);
+			((DOF2Profile)cameraProfile()).setBinding(PApplet.LEFT, DOF_2Action.ROTATE);
+			((DOF2Profile)cameraProfile()).setBinding(PApplet.RIGHT, DOF_2Action.TRANSLATE);
+			((DOF2Profile)cameraProfile()).setBinding(PApplet.CENTER, DOF_2Action.ZOOM);
+			//cameraProfile().setBinding(PApplet.RIGHT, DOF_2Action.TRANSLATE);
+			System.out.println(cameraProfile().bindingsDescription());
+		}
+		
+		public void mouseEvent(processing.event.MouseEvent e) {
+			//if( ((MouseEvent)e).getAction() == MouseEvent.PRESS ) {
+			//	prevEvent = new DOF2Event(e.getX(), e.getY(), e.getModifiers(), e.getButton());
+			//}
+			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
+			//if( e.getAction() == MouseEvent.MOVE ) {
+				//TODO debug
+				//System.out.println("P5 coord: x: " + e.getX() + " y: " + e.getY());
+				//TODO pending fix modifiers!
+				/**
+				int mod = ((java.awt.event.MouseEvent) e.getNative()).getModifiersEx();				
+				event = new DOF2Event(prevEvent, e.getX(), e.getY(), mod, e.getButton());
+				// */
+			  event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+				handle(event);
+				//camera().frame().execAction3D((DOF1Event)event);
+			  prevEvent = event.get();
+			}
+			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
+				handle(new DOF1Event(e.getCount(), e.getModifiers(), NOBUTTON));
+			}
+			
+		}
+	}
+	
 	protected class TimerWrap implements Timable {
 		Scene scene;
 		Timer timer;
@@ -1544,7 +1607,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public PApplet parent;
 	
 	// H A R D W A R E
-  //TODO pending
+  Mouse mouse;
+  Keyboard keyboard;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1703,6 +1767,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		setCameraPathsAreDrawn(false);
 		
 		disableFrustumEquationsUpdate();
+		
+		// /**
+		keyboard = new Keyboard(this, "KeyboardMouse");
+		parent.registerMethod("keyEvent", keyboard);
+		mouse = new Mouse(this, "ProsceneMouse");
+		parent.registerMethod("mouseEvent", mouse);
+		// */
 
 		parent.registerMethod("pre", this);
 		parent.registerMethod("draw", this);

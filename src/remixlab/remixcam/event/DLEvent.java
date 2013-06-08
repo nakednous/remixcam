@@ -7,6 +7,7 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.Shortcut;
 
 public class DLEvent<A extends Constants.Actionable> implements Constants, Copyable {
+	//TODO fix modifiers!
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -108,6 +109,7 @@ public class DLEvent<A extends Constants.Actionable> implements Constants, Copya
   	return timestamp;
   }
 
+  // /**
   public boolean isShiftDown() {
     return (modifiers & SHIFT) != 0;
   }
@@ -137,4 +139,37 @@ public class DLEvent<A extends Constants.Actionable> implements Constants, Copya
 		if((ALT_GRAPH & mask) == ALT_GRAPH) r += (r.length() > 0) ? "+ALT_GRAPH" : "ALT_GRAPH";
 		return r;
 	}
+	// */
+  
+  /**
+  public boolean isShiftDown() {
+    return (modifiers & SHIFT_DOWN) != 0;
+  }
+
+  public boolean isControlDown() {
+    return (modifiers & CTRL_DOWN) != 0;
+  }
+
+  public boolean isMetaDown() {
+    return (modifiers & META_DOWN) != 0;
+  }
+
+  public boolean isAltDown() {
+    return (modifiers & ALT_DOWN) != 0;
+  }
+  
+  public boolean isAltGraph() {
+    return (modifiers & ALT_GRAPH_DOWN) != 0;
+  }
+  
+	public static String getModifiersText(int mask) {
+		String r = new String();
+		if((ALT_DOWN & mask)       == ALT_DOWN) r += "ALT";						
+		if((SHIFT_DOWN & mask)     == SHIFT_DOWN) r += (r.length() > 0) ? "+SHIFT" : "SHIFT";
+		if((CTRL_DOWN & mask)      == CTRL_DOWN) r += (r.length() > 0) ? "+CTRL" : "CTRL";
+		if((META_DOWN & mask)      == META_DOWN) r += (r.length() > 0) ? "+META" : "META";
+		if((ALT_GRAPH_DOWN & mask) == ALT_GRAPH_DOWN) r += (r.length() > 0) ? "+ALT_GRAPH" : "ALT_GRAPH";
+		return r;
+	}
+	// */
 }

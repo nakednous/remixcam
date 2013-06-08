@@ -78,8 +78,23 @@ public final class ButtonShortcut extends Shortcut implements Constants, Copyabl
 	 * @param b mouse button
 	 */
 	public ButtonShortcut(Integer m, Integer b) {
-		super(m);
+		//super(m);
+		//this.button = b;
+		
 		this.button = b;
+	  //this.mask = m;
+		// /**
+		//HACK see issue: https://github.com/processing/processing/issues/1693
+		//ALT
+		if(button == CENTER) {
+			mask = (ALT | m);
+		}
+		//META
+		else if(button == RIGHT) {
+    	mask = (META | m);
+		}
+		else
+			mask = m;
 	}
 	
 	protected ButtonShortcut(ButtonShortcut other) {

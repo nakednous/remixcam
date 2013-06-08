@@ -60,6 +60,7 @@ public abstract class AbstractDevice {
 	public AbstractDevice(AbstractScene scn, String n) {
 		scene = scn;
 		nm = n;
+		scene.registerDevice(this);
 		//profiles = new HashMap<String, AbstractProfile<?,?>>();
 	}
 	
@@ -137,7 +138,7 @@ public abstract class AbstractDevice {
 	public void unregisterAllProfiles() {
 		profiles.clear();
 	}
-	*/	
+	*/
 	
 	
 	//public class ProsceneKeyboardProfile extends KeyboardProfile {

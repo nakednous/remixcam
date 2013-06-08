@@ -4,10 +4,6 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.*;
 
 public abstract class AbstractMotionProfile<A extends Constants.Actionable> extends AbstractProfile<ButtonShortcut, A> {
-	public AbstractMotionProfile() {
-		super();
-	}
-	
 	/**
 	public AbstractMotionProfile(AbstractScene scn, String n) {
 		super(scn, n);

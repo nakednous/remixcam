@@ -12,8 +12,30 @@ public class AbstractKeyboard extends AbstractDevice {
 		profile = new KeyboardProfile();
 	}
 
+	/**
 	@Override
 	public void handle(DLEvent<?> event) {
 		profile.handle(event);
+		event.enqueue(scene);
 	}
+	
+	public void handleKey(DLEvent<?> event) {
+		profile.handleKey(event);
+		event.enqueue(scene);
+	}
+	// */
+	
+	// /**
+	@Override
+	public void handle(DLEvent event) {
+		profile.handle(event);
+		event.enqueue(scene);
+	}
+	
+	// /**
+	public void handleKey(DLEvent event) {
+		profile.handleKey(event);
+		event.enqueue(scene);
+	}
+	// */
 }

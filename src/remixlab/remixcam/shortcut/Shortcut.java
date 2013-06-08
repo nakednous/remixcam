@@ -26,7 +26,9 @@ public class Shortcut implements Constants, Copyable {
 		.isEquals();
 	}	
 	
-	protected final Integer mask;
+	//TODO pending ButtonShortcut fix!
+	//protected final Integer mask;
+	protected Integer mask;
 	
 	public Shortcut(Integer m) {
 		mask = m;

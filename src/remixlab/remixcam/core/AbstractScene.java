@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-//import remixlab.remixcam.deprecatedprofile.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.device.*;
@@ -83,6 +82,7 @@ public abstract class AbstractScene implements Constants {
 	protected long animationPeriod;	
 	
   //D E V I C E S	  &   E V E N T S
+  protected HashMap<String, AbstractDevice> devices;
 	//protected ArrayList<HIDevice> devices;
 	protected LinkedList<DLEvent<?>> eventQueue;
 	
@@ -143,7 +143,8 @@ public abstract class AbstractScene implements Constants {
 		//mouse grabber pool
 		msGrabberPool = new ArrayList<DeviceGrabbable>();
 		//devices
-		//TODO pending device intantiation here
+		//TODO pending device instantiation here
+		devices = new HashMap<String, AbstractDevice>();
 		//events
 		eventQueue = new LinkedList<DLEvent<?>>();
 		// <- 1
@@ -153,6 +154,66 @@ public abstract class AbstractScene implements Constants {
 		
 		//TODO pending
 		//setDefaultShortcuts();
+	}
+	
+	/**
+	 * Returns an array of the camera profile objects that are currently
+	 * registered at the Scene.
+	 */
+	public AbstractDevice [] getDevices() {
+		return devices.values().toArray(new AbstractDevice[0]);
+	}
+	
+	/**
+	 * Adds an HIDevice to the scene.
+	 * 
+	 * @see #unregisterProfile(HIDevice)
+	 * @see #removeAllDevices()
+	 */
+	public void registerDevice(AbstractDevice device) {
+		if(!isDeviceRegistered(device))
+			devices.put(device.name(), device);
+		else {
+			System.out.println("Nothing done. A device with the same name is already registered. Current profile names are:");
+			for (AbstractDevice dev : devices.values())
+				System.out.println(dev.name());
+		}
+	}
+	
+	public boolean isDeviceRegistered(AbstractDevice device) {
+		return devices.containsKey(device.name());
+	}
+	
+	public boolean isDeviceRegistered(String name) {
+		return devices.containsKey(name);
+	}
+	
+	public AbstractDevice getDevice(String name) {
+		return devices.get(name);
+	}
+	
+	/**
+	 * Removes the device from the scene.
+	 * 
+	 * @see #registerProfile(HIDevice)
+	 * @see #removeAllDevices()
+	 */
+	public AbstractDevice unregisterDevice(AbstractDevice device) {
+		return devices.remove(device.name());
+	}
+
+	public AbstractDevice unregisterDevice(String name) {
+		return devices.remove(name);
+	}
+	
+	/**
+	 * Removes all registered devices from the scene.
+	 * 
+	 * @see #registerProfile(HIDevice)
+	 * @see #unregisterProfile(HIDevice)
+	 */
+	public void unregisterAllDevices() {
+		devices.clear();
 	}
 	
 	protected void setRenderer(Renderable r) {
@@ -691,22 +752,13 @@ public abstract class AbstractScene implements Constants {
 		// 3. Draw external registered method (only in java sub-classes)
 		invokeRegisteredMethod(); // abstract
 		
-		//TODO 4 INTERACTIVITY, MAYBE SHOULD BELONG TO ITS OWN METHOD
+		//4 INTERACTIVITY
 	  // 4a. HIDevices
 		updateCursorPosition();
-		//pending
-		
-		// 4b. Profiles
-		/**
-		for (AbstractProfile<?> profile : profiles.values()) 
-			if(isProfileRegistered(profile))
-				//if( profile.isActive() ) {
-				if(profile.event != null) {
-					eventQueue.add(profile.handle());
-					profile.event = null;
-					//profile.deactivate();
-				}
-		*/
+		// 4b. Devices (external stuff -> Feedable)
+		for (AbstractDevice device : devices.values())
+			if( device instanceof Feedable ) 
+				device.handle(((Feedable)device).feed());
 		//for (HIDevice device : devices) device.handle();
 			
 		// 4c. Events

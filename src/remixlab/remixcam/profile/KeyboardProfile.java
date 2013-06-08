@@ -65,19 +65,13 @@ public class KeyboardProfile extends AbstractProfile<KeyboardShortcut, Constants
 		*/
 	}
 	
-	/**
-	@Override
-	public void handle(DLEvent<DOF_0Action> e) {
-		//super.handle((DLKeyEvent)e);
-		super.handle(e);
-	}
-	*/
-	
+	///**
 	public void handleKey(DLEvent<?> e) {
 	//public void handleKey(DLKeyEvent e) {
 		if(e != null)
 			e.setAction( binding(((DLKeyEvent)e).keyShortcut()) );
 	}
+	// */
 	
 	/**
 	 * Overload this method to define the z-axis translation feed this method
