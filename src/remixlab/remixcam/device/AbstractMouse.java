@@ -1,7 +1,5 @@
 package remixlab.remixcam.device;
 
-import java.util.ArrayList;
-
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.profile.DOF2Profile;
 
@@ -10,7 +8,9 @@ public class AbstractMouse extends AbstractMotionDevice implements Constants {
 		super(scn, n);
 		camProfile = new DOF2Profile();
 		frameProfile = new DOF2Profile();
-		sens = new ArrayList<Float>(2);
+		sens = new float[2];
+		sens[0] = 1f;
+		sens[1] = 1f;
 		cameraProfile().setBinding(CENTER, DOF_2Action.ZOOM);
 		cameraProfile().setBinding(LEFT, DOF_2Action.ROTATE);
 		cameraProfile().setBinding(RIGHT, DOF_2Action.TRANSLATE);
@@ -31,11 +31,11 @@ public class AbstractMouse extends AbstractMotionDevice implements Constants {
 	}
 	
 	public void setXTranslationSensitivity(float s) {
-		sens.set(0, s);
+		sens[0] = s;
 	}
 	
 	public void setYTranslationSensitivity(float s) {
-		sens.set(1, s);
+		sens[1] = s;
 	}
 	
 	

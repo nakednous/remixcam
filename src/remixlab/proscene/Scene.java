@@ -129,8 +129,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public class Mouse extends AbstractWheeledMouse {
 		DOF2Event event, prevEvent;	
 		public Mouse(AbstractScene scn, String n) {
-			super(scn, n);			
-			//cameraProfile().setBinding(PApplet.RIGHT, DOF_2Action.TRANSLATE);			
+			super(scn, n);	
+			//cameraProfile().setBinding(DOF_2Action.ROTATE);//rotate without dragging any button
 			//System.out.println(cameraProfile().bindingsDescription());
 		}
 		
@@ -139,7 +139,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			//	prevEvent = new DOF2Event(e.getX(), e.getY(), e.getModifiers(), e.getButton());
 			//}
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
-			//if( e.getAction() == processing.event.MouseEvent.MOVE ) {
+			//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//rotate without dragging any button
 				event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 				handle(event);
 			  prevEvent = event.get();
@@ -150,8 +150,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			
 			if( e.getAction() == MouseEvent.CLICK ) {
 				handle(new DLClickEvent(e.getModifiers(), e.getButton(), e.getCount()));
-			}
-			
+			}			
 		}
 	}
 	

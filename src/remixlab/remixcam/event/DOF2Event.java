@@ -1,7 +1,5 @@
 package remixlab.remixcam.event;
 
-import java.util.ArrayList;
-
 import remixlab.remixcam.geom.Geom;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -182,11 +180,11 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
   }
   
 	@Override
-	public void modulate(ArrayList<Float> sens) {
+	public void modulate(float [] sens) {
 		if(sens != null)
-		if(sens.size()>=2 && this.absolute()) {
-			x = x*sens.get(0);
-			y = y*sens.get(1);
+		if(sens.length>=2 && this.absolute()) {
+			x = x*sens[0];
+			y = y*sens[1];
 		}
 	}
 }

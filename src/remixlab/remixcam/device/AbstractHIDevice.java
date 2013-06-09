@@ -1,16 +1,23 @@
 package remixlab.remixcam.device;
 
-import java.util.ArrayList;
-
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.profile.DOF6Profile;
 
-public class AbstractHIDevice  extends AbstractMotionDevice {
+public class AbstractHIDevice extends AbstractMotionDevice {
 	public AbstractHIDevice(AbstractScene scn, String n) {
 		super(scn, n);
 		camProfile = new DOF6Profile();
 		frameProfile = new DOF6Profile();
-		sens = new ArrayList<Float>(6);
+		sens = new float[6];
+		sens[0] = 1f;
+		sens[1] = 1f;
+		sens[2] = 1f;
+		sens[3] = 1f;
+		sens[4] = 1f;
+		sens[5] = 1f;
+		cameraProfile().setBinding(DOF_6Action.NATURAL);
+		//cameraProfile().setBinding(DOF_6Action.GOOGLE_EARTH);
+		frameProfile().setBinding(DOF_6Action.NATURAL);
 	}
 	
 	@Override
@@ -24,26 +31,26 @@ public class AbstractHIDevice  extends AbstractMotionDevice {
 	}
 	
 	public void setXTranslationSensitivity(float s) {
-		sens.set(0, s);
+		sens[0] = s;
 	}
 	
 	public void setYTranslationSensitivity(float s) {
-		sens.set(1, s);
+		sens[1] = s;
 	}
 	
 	public void setZTranslationSensitivity(float s) {
-		sens.set(2, s);
+		sens[2] = s;
 	}
 	
 	public void setXRotationSensitivity(float s) {
-		sens.set(3, s);
+		sens[3] = s;
 	}
 	
 	public void setYRotationSensitivity(float s) {
-		sens.set(4, s);
+		sens[4] = s;
 	}
 	
 	public void setZRotationSensitivity(float s) {
-		sens.set(5, s);
+		sens[5] = s;
 	}
 }

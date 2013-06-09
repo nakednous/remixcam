@@ -26,13 +26,7 @@
 package remixlab.remixcam.core;
 
 import remixlab.remixcam.event.*;
-import remixlab.remixcam.geom.Geom;
-import remixlab.remixcam.geom.Orientable;
-import remixlab.remixcam.geom.Point;
-import remixlab.remixcam.geom.Quaternion;
-import remixlab.remixcam.geom.Rectangle;
-import remixlab.remixcam.geom.Rotation;
-import remixlab.remixcam.geom.DLVector;
+import remixlab.remixcam.geom.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
@@ -195,6 +189,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	public void execAction3D(MotionEvent<?> e) {
 		DLAction a = e.getAction();
 		DOF2Event event;
+		
+		DOF6Event event6;
+		DLVector t = new DLVector();
+    Quaternion q = new Quaternion();
 		switch (a) {
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;
@@ -283,6 +281,33 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			
 			break;
 		}
+		
+		case GOOGLE_EARTH:
+			event6 = (DOF6Event)e;
+			float magic = 0.01f; // rotSens/transSens?
+      
+			//t = DLVector.mult(position(), -event6.getZ() * ( rotSens.z/transSens.z ) );
+      t = DLVector.mult(position(), -event6.getZ() * (magic) );
+      translate(t);
+
+      //q.fromEulerAngles(-event6.getY() * ( rotSens.y/transSens.y ), event6.getX() * ( rotSens.x/transSens.x ), 0);
+      q.fromEulerAngles(-event6.getY() * (magic), event6.getX() * (magic), 0);
+      rotateAroundPoint(q, scene.camera().arcballReferencePoint());
+
+      q.fromEulerAngles(0, 0, event6.yaw());
+      rotateAroundPoint(q, scene.camera().arcballReferencePoint());
+
+      q.fromEulerAngles(-event6.roll(), 0, 0);
+      rotate(q);
+			break;
+			
+		case NATURAL:
+			event6 = (DOF6Event)e;
+			translate(localInverseTransformOf(new DLVector(event6.getX(),event6.getY(),-event6.getZ()), false));
+      // Rotate
+      q.fromEulerAngles(-event6.roll(), -event6.pitch(), event6.yaw());
+      rotate(q);
+			break;
 		
 		default:
 			break;

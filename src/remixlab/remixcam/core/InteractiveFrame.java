@@ -1210,6 +1210,28 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			break;
 		}
 		
+		case NATURAL:
+			DOF6Event event6 = (DOF6Event)e;
+			DLVector t = new DLVector();
+	    Quaternion q = new Quaternion();
+      // A. Translate the iFrame
+	    // Transform to world coordinate system
+	    t = scene.camera().frame().inverseTransformOf(new DLVector(event6.getX(),event6.getY(),-event6.getZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
+	    // And then down to frame
+	    if (referenceFrame() != null)
+	    	t = referenceFrame().transformOf(t, false);
+	    translate(t);
+	    // B. Rotate the iFrame
+	    t = scene.camera().projectedCoordinatesOf(position()); 
+	    q.fromEulerAngles(event6.roll(), event6.pitch(), -event6.yaw());
+	    t.set(-q.x(), -q.y(), -q.z());
+	    t = scene.camera().frame().orientation().rotate(t);
+	    t = transformOf(t, false);
+	    q.x(t.x());
+	    q.y(t.y());
+	    q.z(t.z());
+	    rotate(q);
+			break;
 		
 		default:
 			break;

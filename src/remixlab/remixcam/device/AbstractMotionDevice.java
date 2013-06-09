@@ -1,7 +1,5 @@
 package remixlab.remixcam.device;
 
-import java.util.ArrayList;
-
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.profile.*;
@@ -9,7 +7,8 @@ import remixlab.remixcam.profile.*;
 public abstract class AbstractMotionDevice extends AbstractDevice implements Constants {
 	protected AbstractMotionProfile<?> camProfile, frameProfile;
 	protected ClickProfile clickProfile;
-	protected ArrayList<Float> sens;
+	//protected double[] HArrayList<Float> sens;
+	protected float[] sens;
 	
 	public AbstractMotionDevice(AbstractScene scn, String n) {
 		super(scn, n);
