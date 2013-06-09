@@ -41,7 +41,7 @@ public class DLWheeledMouse extends DLMouse {
 			else
 				frameWheelProfile.handle(event);
 			((MotionEvent<?>)event).modulate(sens);
-			event.enqueue(scene);
+			if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 		}
 		else
 			super.handle(event);
