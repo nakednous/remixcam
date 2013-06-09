@@ -662,10 +662,13 @@ public abstract class AbstractScene implements Constants {
 	  // 4a. HIDevices
 		updateCursorPosition();
 		// 4b. Devices (external stuff -> Feedable)
+		/**
 		for (AbstractDevice device : devices.values())
 			if( device instanceof Feedable ) 
 				device.handle(((Feedable)device).feed());
-		//for (HIDevice device : devices) device.handle();
+		// */
+		for (AbstractDevice device : devices.values())
+			device.handle(device.feed());
 			
 		// 4c. Events
 	  //TODO implement what is actually to be done with the event

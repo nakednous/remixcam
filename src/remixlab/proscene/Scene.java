@@ -105,8 +105,8 @@ import java.util.TimerTask;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {
-	public class Keyboard extends AbstractKeyboard {
-		public Keyboard(AbstractScene scn, String n) {
+	public class ProsceneKeyboard extends DLKeyboard {
+		public ProsceneKeyboard(AbstractScene scn, String n) {
 			super(scn, n);
 		}
 		
@@ -126,9 +126,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	//public class Mouse extends AbstractMouse {
-	public class Mouse extends AbstractWheeledMouse {
+	public class ProsceneMouse extends DLWheeledMouse {
 		DOF2Event event, prevEvent;	
-		public Mouse(AbstractScene scn, String n) {
+		public ProsceneMouse(AbstractScene scn, String n) {
 			super(scn, n);	
 			//cameraProfile().setBinding(DOF_2Action.ROTATE);//rotate without dragging any button
 			//System.out.println(cameraProfile().bindingsDescription());
@@ -1595,8 +1595,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public PApplet parent;
 	
 	// H A R D W A R E
-  Mouse mouse;
-  Keyboard keyboard;
+  ProsceneMouse prosceneMouse;
+  ProsceneKeyboard prosceneKeyboard;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1757,10 +1757,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		disableFrustumEquationsUpdate();
 		
 		// /**
-		keyboard = new Keyboard(this, "Keyboard");
-		parent.registerMethod("keyEvent", keyboard);
-		mouse = new Mouse(this, "ProsceneMouse");
-		parent.registerMethod("mouseEvent", mouse);
+		prosceneKeyboard = new ProsceneKeyboard(this, "proscene_keyboard");
+		parent.registerMethod("keyEvent", prosceneKeyboard);
+		prosceneMouse = new ProsceneMouse(this, "proscene_mouse");
+		parent.registerMethod("mouseEvent", prosceneMouse);
 		// */
 
 		parent.registerMethod("pre", this);

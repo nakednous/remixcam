@@ -3,8 +3,8 @@ package remixlab.remixcam.device;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.profile.DOF6Profile;
 
-public class AbstractHIDevice extends AbstractMotionDevice {
-	public AbstractHIDevice(AbstractScene scn, String n) {
+public class HIDevice extends AbstractMotionDevice {
+	public HIDevice(AbstractScene scn, String n) {
 		super(scn, n);
 		camProfile = new DOF6Profile();
 		frameProfile = new DOF6Profile();
@@ -16,7 +16,6 @@ public class AbstractHIDevice extends AbstractMotionDevice {
 		sens[4] = 1f;
 		sens[5] = 1f;
 		cameraProfile().setBinding(DOF_6Action.NATURAL);
-		//cameraProfile().setBinding(DOF_6Action.GOOGLE_EARTH);
 		frameProfile().setBinding(DOF_6Action.NATURAL);
 	}
 	

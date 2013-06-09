@@ -3,8 +3,8 @@ package remixlab.remixcam.device;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.profile.DOF2Profile;
 
-public class AbstractMouse extends AbstractMotionDevice implements Constants {
-	public AbstractMouse(AbstractScene scn, String n) {
+public class DLMouse extends AbstractMotionDevice implements Constants {
+	public DLMouse(AbstractScene scn, String n) {
 		super(scn, n);
 		camProfile = new DOF2Profile();
 		frameProfile = new DOF2Profile();

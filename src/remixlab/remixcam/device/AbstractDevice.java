@@ -52,4 +52,8 @@ public abstract class AbstractDevice {
 	}
 	
 	public abstract void handle(DLEvent<?> event);
+	
+	public DLEvent<?> feed() {
+		return null;
+	}
 }

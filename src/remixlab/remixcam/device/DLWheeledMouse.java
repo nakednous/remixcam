@@ -4,11 +4,11 @@ import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.profile.DOF1Profile;
 
-public class AbstractWheeledMouse extends AbstractMouse {
+public class DLWheeledMouse extends DLMouse {
 	protected DOF1Profile wheelProfile;
 	protected DOF1Profile frameWheelProfile;
 	
-	public AbstractWheeledMouse(AbstractScene scn, String n) {
+	public DLWheeledMouse(AbstractScene scn, String n) {
 		super(scn, n);
 		wheelProfile = new DOF1Profile();
 		frameWheelProfile = new DOF1Profile();

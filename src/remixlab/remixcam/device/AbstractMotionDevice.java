@@ -54,6 +54,7 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 	// /**
 	@Override
 	public void handle(DLEvent<?> event) {
+		if(event == null)	return;
 		if( event instanceof DLClickEvent )
 			clickProfile.handle(event);
 		else {
@@ -63,7 +64,7 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 				camProfile.handle(event);
 			((MotionEvent<?>)event).modulate(sens);
 		}
-		event.enqueue(scene);
+		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 	}
 	// */
 	

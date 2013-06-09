@@ -5,10 +5,10 @@ import remixlab.remixcam.core.Constants.DOF_0Action;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.profile.*;
 
-public class AbstractKeyboard extends AbstractDevice {
+public class DLKeyboard extends AbstractDevice {
 	KeyboardProfile profile;
 
-	public AbstractKeyboard(AbstractScene scn, String n) {
+	public DLKeyboard(AbstractScene scn, String n) {
 		super(scn, n);
 		profile = new KeyboardProfile();
 
@@ -53,13 +53,15 @@ public class AbstractKeyboard extends AbstractDevice {
 	// /**
 	@Override
 	public void handle(DLEvent<?> event) {
+		if(event == null)	return;
 		profile.handle(event);
-		event.enqueue(scene);
+		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 	}
 
 	public void handleKey(DLEvent<?> event) {
+		if(event == null)	return;
 		profile.handleKey(event);
-		event.enqueue(scene);
+		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 	}
 	// */
 
