@@ -104,8 +104,30 @@ public class ClickShortcut extends Shortcut implements Constants, Copyable {
 	 * @param c bumber of clicks
 	 */
 	public ClickShortcut(Integer m, Integer b, Integer c) {
+		/**
 		super(m);
 		this.button = b;
+		if(c <= 0)
+			this.numberOfClicks = 1;
+		else
+			this.numberOfClicks = c;
+		*/
+		
+		// /**
+	  //TODO HACK see issue: https://github.com/processing/processing/issues/1693
+		this.button = b;	  
+		//ALT
+		if(button == CENTER) {
+			mask = (ALT | m);
+		}
+		//META
+		else if(button == RIGHT) {
+    	mask = (META | m);
+		}
+		else
+			mask = m;
+		// */
+		
 		if(c <= 0)
 			this.numberOfClicks = 1;
 		else

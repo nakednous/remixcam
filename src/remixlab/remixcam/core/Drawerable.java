@@ -73,7 +73,7 @@ public interface Drawerable {
 	 * @param radius
 	 *          Circle screen radius.
 	 */	
-	public void drawFilledCircle(int subdivisions, Vector3D center, float radius);
+	public void drawFilledCircle(int subdivisions, DLVector center, float radius);
 	
 	/**
 	 * Draws a filled square using screen coordinates.
@@ -83,7 +83,7 @@ public interface Drawerable {
 	 * @param edge
 	 *          Square edge length.
 	 */
-	public void drawFilledSquare(Vector3D center, float edge);
+	public void drawFilledSquare(DLVector center, float edge);
 	
 	/**
 	 * Draws the classical shooter target on the screen.
@@ -93,7 +93,7 @@ public interface Drawerable {
 	 * @param length
 	 *          Length of the target in pixels
 	 */
-	public void drawShooterTarget(Vector3D center, float length);
+	public void drawShooterTarget(DLVector center, float length);
 		
 	public void drawPath(List<GeomFrame> path, int mask, int nbFrames, int nbSteps, float scale);	
 	
@@ -116,7 +116,7 @@ public interface Drawerable {
 	 * 
 	 * @see #cylinder(float, float)
 	 */
-	public void hollowCylinder(int detail, float w, float h, Vector3D m, Vector3D n);
+	public void hollowCylinder(int detail, float w, float h, DLVector m, DLVector n);
  
  /**
 	 * Draws a cone along the positive {@code z} axis, with its base centered

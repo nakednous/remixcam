@@ -141,7 +141,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	private float tossingSensitivity;//new	
 	private boolean isTossed;//new	
 	private AbstractTimerJob tossingTimerJob;
-	private Vector3D tossingDirection;//new	
+	private DLVector tossingDirection;//new	
 	protected float tossingFriction;//new	
 	private float tFriction;//new	
 
@@ -434,12 +434,12 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * <p>
 	 * The InteractiveFrame {@link #grabsCursor()} when the mouse is within a {@link #grabsDeviceThreshold()}
 	 * pixels region around its
-	 * {@link remixlab.remixcam.core.Camera#projectedCoordinatesOf(Vector3D)}
+	 * {@link remixlab.remixcam.core.Camera#projectedCoordinatesOf(DLVector)}
 	 * {@link #position()}.
 	 */
 	@Override
 	public void checkIfGrabsCursor(int x, int y) {
-		Vector3D proj = scene.pinhole().projectedCoordinatesOf(position());
+		DLVector proj = scene.pinhole().projectedCoordinatesOf(position());
 		setGrabsCursor(keepsGrabbingDevice || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
 	}
 
@@ -716,7 +716,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * 
 	 * @see #spinningQuaternion()
 	 */
-	public final Vector3D tossingDirection() {
+	public final DLVector tossingDirection() {
 		return tossingDirection;
 	}
 	
@@ -725,7 +725,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * 
 	 * @see #setSpinningQuaternion(Quaternion)
 	 */
-	public final void setTossingDirection(Vector3D dir) {
+	public final void setTossingDirection(DLVector dir) {
 		tossingDirection = dir;
 	}
 
@@ -1018,7 +1018,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		if (Math.abs(deviceSpeed) < .001f)
 			deviceSpeed = 0;
 		float currSpeed = deviceSpeed;
-		setTossingDirection(Vector3D.mult(this.tossingDirection(), currSpeed / prevSpeed));
+		setTossingDirection(DLVector.mult(this.tossingDirection(), currSpeed / prevSpeed));
 	}
 	
 	/**
@@ -1158,9 +1158,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			else {
 				event = (DOF2Event)e;
 				delta = ((float)event.getY() - (float)event.getPrevY());
-			}		
-			
-			//System.out.println("try to zoom iFrame!");		
+			}
 			
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
@@ -1170,9 +1168,8 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 		
 		case ROTATE: {
-			System.out.println("try to rotate iFrame!");
 			event = (DOF2Event)e;
-			Vector3D trans = scene.camera().projectedCoordinatesOf(position());
+			DLVector trans = scene.camera().projectedCoordinatesOf(position());
 			Quaternion rot = deformedBallQuaternion(event, trans.x(), trans.y(), scene.camera());
 			rot = iFrameQuaternion(rot, scene.camera());			
 			setSpinningQuaternion(rot);
@@ -1181,10 +1178,9 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 		
 		case TRANSLATE: {
-			System.out.println("try to translate iFrame!");
 			event = (DOF2Event)e;
 			//Point delta = new Point(event.getX(), scene.isRightHanded() ? event.getY() : -event.getY());
-			Vector3D trans = new Vector3D(event.getDX(), scene.isRightHanded() ? -event.getDY() : event.getDY(), 0.0f);			
+			DLVector trans = new DLVector(event.getDX(), scene.isRightHanded() ? -event.getDY() : event.getDY(), 0.0f);			
 			
 			// Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
@@ -1202,7 +1198,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 				}
 			}
 		  // same as:
-			trans = scene.camera().frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));
+			trans = scene.camera().frame().orientation().rotate(DLVector.mult(trans, translationSensitivity()));
 			// but takes into account scaling			
 			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));			
 			// And then down to frame						
@@ -1231,8 +1227,8 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		switch (action) {
 		case TRANSLATE: {
 				Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
-				Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(), 0.0f);
-				trans = viewWindow.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));				
+				DLVector trans = new DLVector((int) delta.getX(), (int) -delta.getY(), 0.0f);
+				trans = viewWindow.frame().inverseTransformOf(DLVector.mult(trans, translationSensitivity()));				
 				// And then down to frame
 				if (referenceFrame() != null)
 					trans = referenceFrame().transformOf(trans);
@@ -1258,7 +1254,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 
 		case SCREEN_ROTATE: {
-			Vector3D trans = viewWindow.projectedCoordinatesOf(position());
+			DLVector trans = viewWindow.projectedCoordinatesOf(position());
 			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.vec[1], (int)prevPos.x - trans.vec[0]);
 			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);			
 			Orientable rot;
@@ -1278,14 +1274,14 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 
 		case SCREEN_TRANSLATE: {
-				Vector3D trans = new Vector3D();
+				DLVector trans = new DLVector();
 				int dir = deviceOriginalDirection(eventPoint);
 				if (dir == 1)
 					trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
 				else if (dir == -1)
 					trans.set(0.0f, -deltaY, 0.0f);				
 				
-				trans = viewWindow.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));				
+				trans = viewWindow.frame().inverseTransformOf(DLVector.mult(trans, translationSensitivity()));				
 				// And then down to frame
 				if (referenceFrame() != null)
 					trans = referenceFrame().transformOf(trans);
@@ -1301,7 +1297,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 
 		case ROTATE: {
-			Vector3D trans = viewWindow.projectedCoordinatesOf(position());
+			DLVector trans = viewWindow.projectedCoordinatesOf(position());
 			Orientable rot;
 			rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
 			rot = new Rotation(rot.angle() * rotationSensitivity());
@@ -1339,7 +1335,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		switch (action) {
 		case TRANSLATE: {
 			Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
-			Vector3D trans = new Vector3D((int) delta.getX(), (int) -delta.getY(), 0.0f);			
+			DLVector trans = new DLVector((int) delta.getX(), (int) -delta.getY(), 0.0f);			
 			
 			// Scale to fit the screen mouse displacement
 			switch ( camera.type() ) {
@@ -1357,7 +1353,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			}
 			}
 		  // same as:
-			trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));
+			trans = camera.frame().orientation().rotate(DLVector.mult(trans, translationSensitivity()));
 			// but takes into account scaling			
 			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));			
 			// And then down to frame						
@@ -1387,12 +1383,12 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 
 		case SCREEN_ROTATE: {
-			Vector3D trans = camera.projectedCoordinatesOf(position());
+			DLVector trans = camera.projectedCoordinatesOf(position());
 			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.vec[1], (int)prevPos.x - trans.vec[0]);
 			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);			
 			Orientable rot;
 			
-			Vector3D axis = transformOf(camera.frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f)));			
+			DLVector axis = transformOf(camera.frame().inverseTransformOf(new DLVector(0.0f, 0.0f, -1.0f)));			
 			//TODO testing handed
 			if( scene.isRightHanded() )
 				rot = new Quaternion(axis, angle - prev_angle);
@@ -1410,7 +1406,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 
 		case SCREEN_TRANSLATE: {
 			// TODO: needs testing to see if it works correctly when left-handed is set
-			Vector3D trans = new Vector3D();
+			DLVector trans = new DLVector();
 			int dir = deviceOriginalDirection(eventPoint);
 			if (dir == 1)
 				trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
@@ -1450,7 +1446,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			
 			// Transform to world coordinate system.			
 			// same as:
-			trans = camera.frame().orientation().rotate(Vector3D.mult(trans, translationSensitivity()));// but takes into account scaling
+			trans = camera.frame().orientation().rotate(DLVector.mult(trans, translationSensitivity()));// but takes into account scaling
 			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
 			// And then down to frame
 			if (referenceFrame() != null)
@@ -1466,7 +1462,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 
 		case ROTATE: {
-			Vector3D trans = camera.projectedCoordinatesOf(position());
+			DLVector trans = camera.projectedCoordinatesOf(position());
 			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y, trans.x(), trans.y(), camera);
 			rot = iFrameQuaternion(rot, camera);			
 			setSpinningQuaternion(rot);
@@ -1622,10 +1618,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
     float dx = rotationSensitivity() *                         (x - cx)             / camera.screenWidth();
     float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();    
 
-		Vector3D p1 = new Vector3D(px, py, projectOnBall(px, py));
-		Vector3D p2 = new Vector3D(dx, dy, projectOnBall(dx, dy));
+		DLVector p1 = new DLVector(px, py, projectOnBall(px, py));
+		DLVector p2 = new DLVector(dx, dy, projectOnBall(dx, dy));
 		// Approximation of rotation angle Should be divided by the projectOnBall size, but it is 1.0
-		Vector3D axis = p2.cross(p1);
+		DLVector axis = p2.cross(p1);
 		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));			
 		return new Quaternion(axis, angle);
 	}
@@ -1642,22 +1638,22 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
     float dx = rotationSensitivity() *                         (x - cx)             / camera.screenWidth();
     float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();    
 
-		Vector3D p1 = new Vector3D(px, py, projectOnBall(px, py));
-		Vector3D p2 = new Vector3D(dx, dy, projectOnBall(dx, dy));
+		DLVector p1 = new DLVector(px, py, projectOnBall(px, py));
+		DLVector p2 = new DLVector(dx, dy, projectOnBall(dx, dy));
 		// Approximation of rotation angle Should be divided by the projectOnBall size, but it is 1.0
-		Vector3D axis = p2.cross(p1);
+		DLVector axis = p2.cross(p1);
 		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));			
 		return new Quaternion(axis, angle);
 	}
 	
 	protected final Quaternion iFrameQuaternion(Quaternion rot, Camera camera) {
-		Vector3D trans = new Vector3D();		
+		DLVector trans = new DLVector();		
 		trans = rot.axis();
 		trans = camera.frame().orientation().rotate(trans);
 		trans = transformOf(trans);
 		//trans = transformOfFrom(trans, camera.frame());
 		
-		Vector3D res = new Vector3D(trans);			
+		DLVector res = new DLVector(trans);			
 		// perform conversion			
 		if (scaling().x() < 0 )	res.x(-trans.x());
 		if (scaling().y() < 0 )	res.y(-trans.y());

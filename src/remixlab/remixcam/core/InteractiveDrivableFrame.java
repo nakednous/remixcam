@@ -73,8 +73,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	protected float flySpd;
 	protected float drvSpd;
 	protected AbstractTimerJob flyTimerJob;
-	protected Vector3D flyUpVec;
-	protected Vector3D flyDisp;
+	protected DLVector flyUpVec;
+	protected DLVector flyDisp;
 	protected static final long FLY_UPDATE_PERDIOD = 10;
 
 	/**
@@ -85,9 +85,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	public InteractiveDrivableFrame(AbstractScene scn) {
 		super(scn);
 		drvSpd = 0.0f;
-		flyUpVec = new Vector3D(0.0f, 1.0f, 0.0f);
+		flyUpVec = new DLVector(0.0f, 1.0f, 0.0f);
 
-		flyDisp = new Vector3D(0.0f, 0.0f, 0.0f);
+		flyDisp = new DLVector(0.0f, 0.0f, 0.0f);
 
 		setFlySpeed(0.0f);
 
@@ -107,9 +107,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	protected InteractiveDrivableFrame(InteractiveDrivableFrame otherFrame) {		
 		super(otherFrame);
 		this.drvSpd = otherFrame.drvSpd;
-		this.flyUpVec = new Vector3D();
+		this.flyUpVec = new DLVector();
 		this.flyUpVec.set(otherFrame.flyUpVector());
-		this.flyDisp = new Vector3D();
+		this.flyDisp = new DLVector();
 		this.flyDisp.set(otherFrame.flyDisp);
 		this.setFlySpeed( otherFrame.flySpeed() );
 		
@@ -180,10 +180,10 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * Default value is (0,1,0), but it is updated by the Camera when set as its
 	 * {@link remixlab.remixcam.core.Camera#frame()}.
 	 * {@link remixlab.remixcam.core.Camera#setOrientation(Quaternion)} and
-	 * {@link remixlab.remixcam.core.Camera#setUpVector(Vector3D)} modify this value and
+	 * {@link remixlab.remixcam.core.Camera#setUpVector(DLVector)} modify this value and
 	 * should be used instead.
 	 */
-	public Vector3D flyUpVector() {
+	public DLVector flyUpVector() {
 		return flyUpVec;
 	}
 
@@ -192,9 +192,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * <p>
 	 * Default value is (0,1,0), but it is updated by the Camera when set as its
 	 * {@link remixlab.remixcam.core.Camera#frame()}. Use
-	 * {@link remixlab.remixcam.core.Camera#setUpVector(Vector3D)} instead in that case.
+	 * {@link remixlab.remixcam.core.Camera#setUpVector(DLVector)} instead in that case.
 	 */
-	public void setFlyUpVector(Vector3D up) {
+	public void setFlyUpVector(DLVector up) {
 		flyUpVec = up;
 	}
 
@@ -207,7 +207,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 			return;
 		
 		flyDisp.set(0.0f, 0.0f, 0.0f);
-		Vector3D trans;
+		DLVector trans;
 		switch (action) {
 		case MOVE_FORWARD:
 			flyDisp.vec[2] = -flySpeed();
@@ -335,7 +335,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 				if ( scene.isLeftHanded() )
 					angle = -angle;
 				
-				Quaternion rot = new Quaternion(new Vector3D(0.0f, 0.0f, 1.0f), angle);
+				Quaternion rot = new Quaternion(new DLVector(0.0f, 0.0f, 1.0f), angle);
 				rotate(rot);
 				setSpinningQuaternion(rot);
 				updateFlyUpVector();
@@ -439,7 +439,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 */
 	public final void updateFlyUpVector() {
 		//flyUpVec = inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f));
-		flyUpVec = inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f), false);
+		flyUpVec = inverseTransformOf(new DLVector(0.0f, 1.0f, 0.0f), false);
 	}
 
 	/**
@@ -447,7 +447,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * proportional to the horizontal mouse position.
 	 */
 	protected final Quaternion turnQuaternion(int x, Camera camera) {
-		return new Quaternion(new Vector3D(0.0f, 1.0f, 0.0f), rotationSensitivity()	* ((int)prevPos.x - x) / camera.screenWidth());
+		return new Quaternion(new DLVector(0.0f, 1.0f, 0.0f), rotationSensitivity()	* ((int)prevPos.x - x) / camera.screenWidth());
 	}
 
 	/**
@@ -461,7 +461,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		else
 			deltaY = (int) (y - prevPos.y);
 		
-		Quaternion rotX = new Quaternion(new Vector3D(1.0f, 0.0f, 0.0f), rotationSensitivity() * deltaY / camera.screenHeight());
+		Quaternion rotX = new Quaternion(new DLVector(1.0f, 0.0f, 0.0f), rotationSensitivity() * deltaY / camera.screenHeight());
 		//Quaternion rotY = new Quaternion(transformOf(flyUpVector()), rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());	
 		Quaternion rotY = new Quaternion(transformOf(flyUpVector(), false), rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());
 		return Quaternion.multiply(rotY, rotX);

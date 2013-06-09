@@ -89,7 +89,7 @@ public abstract class AbstractScene implements Constants {
 	// L O C A L   T I M E R
 	protected boolean arpFlag;
 	protected boolean pupFlag;
-	protected Vector3D pupVec;
+	protected DLVector pupVec;
 	protected AbstractTimerJob timerFx;
 	
 	// S I Z E
@@ -279,15 +279,17 @@ public abstract class AbstractScene implements Constants {
 		DLAction id = event.getAction();
 		
 	  //TODO debug
+		/*+
 		if( event instanceof DLKeyEvent )
 			System.out.println("Key event " + id.description());
 		else
 			if( event instanceof DLClickEvent )
 				System.out.println("click event " + id.description());
+		*/
 		
 		if( !id.is2D() && this.is2D() )
 			return;
-		Vector3D trans;
+		DLVector trans;
 		switch (id) {
 		case NO_ACTION:
 			break;
@@ -340,7 +342,7 @@ public abstract class AbstractScene implements Constants {
 			}
 			else {
 				viewWindow().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
-				pupVec = viewWindow().unprojectedCoordinatesOf(new Vector3D((float)cursorX, (float)cursorY, 0.5f));
+				pupVec = viewWindow().unprojectedCoordinatesOf(new DLVector((float)cursorX, (float)cursorY, 0.5f));
 				pupFlag = true;
 				timerFx.runOnce(1000);
 			}
@@ -352,25 +354,25 @@ public abstract class AbstractScene implements Constants {
 			showAll();
 			break;
 		case MOVE_CAMERA_LEFT:
-			trans = new Vector3D(-10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
+			trans = new DLVector(-10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
 			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
 			break;
 		case MOVE_CAMERA_RIGHT:
-			trans = new Vector3D(10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
+			trans = new DLVector(10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
 			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
 			break;
 		case MOVE_CAMERA_UP:
-			trans = pinhole().frame().inverseTransformOf(new Vector3D(0.0f, isRightHanded() ? 10.0f : -10.0f * pinhole().flySpeed(), 0.0f));
+			trans = pinhole().frame().inverseTransformOf(new DLVector(0.0f, isRightHanded() ? 10.0f : -10.0f * pinhole().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
 			pinhole().frame().translate(trans);					  
 			break;
 		case MOVE_CAMERA_DOWN:
-			trans = pinhole().frame().inverseTransformOf(new Vector3D(0.0f, isRightHanded() ? -10.0f : 10.0f * pinhole().flySpeed(), 0.0f));
+			trans = pinhole().frame().inverseTransformOf(new DLVector(0.0f, isRightHanded() ? -10.0f : 10.0f * pinhole().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
 			pinhole().frame().translate(trans);			
@@ -431,7 +433,7 @@ public abstract class AbstractScene implements Constants {
 		case ZOOM_ON_PIXEL:
 			if (this.is2D()) {
 				viewWindow().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
-				pupVec = viewWindow().unprojectedCoordinatesOf(new Vector3D((float)cursorX, (float)cursorY, 0.5f));
+				pupVec = viewWindow().unprojectedCoordinatesOf(new DLVector((float)cursorX, (float)cursorY, 0.5f));
 				pupFlag = true;
 				timerFx.runOnce(1000);
 			}				
@@ -454,7 +456,7 @@ public abstract class AbstractScene implements Constants {
 			}
 			break;			
 		case RESET_ARP:		  
-			pinhole().setArcballReferencePoint(new Vector3D(0, 0, 0));
+			pinhole().setArcballReferencePoint(new DLVector(0, 0, 0));
 			arpFlag = true;
 			timerFx.runOnce(1000);				
 			break;
@@ -770,26 +772,26 @@ public abstract class AbstractScene implements Constants {
 	// TODO try to optimize assignments in all three matrix getters?
 	// Requires allowing returning references as well as copies of the matrices,
 	// but it seems overkill. 
-	public Matrix3D getModelViewMatrix() {		
-		Matrix3D modelview;
+	public DLMatrix getModelViewMatrix() {		
+		DLMatrix modelview;
   	modelview = getMatrix();
   	modelview.preApply(getViewMatrix());
   	return modelview;
 	}
 	
-	public Matrix3D getViewMatrix() {
-		Matrix3D view = pinhole().getViewMatrix();  	
+	public DLMatrix getViewMatrix() {
+		DLMatrix view = pinhole().getViewMatrix();  	
   	return view;
 	}
 	
-	public Matrix3D getModelMatrix() {		
-		Matrix3D model;
+	public DLMatrix getModelMatrix() {		
+		DLMatrix model;
   	model = getMatrix();  	
   	return model;
 	}
 	
-	public Matrix3D getProjectionMatrix() {		
-		Matrix3D projection;  	
+	public DLMatrix getProjectionMatrix() {		
+		DLMatrix projection;  	
   	projection = getProjection();
   	return projection;
 	}
@@ -797,8 +799,8 @@ public abstract class AbstractScene implements Constants {
 	/**
 	 * This method restores the matrix mode.
 	 */
-	public Matrix3D getModelViewProjectionMatrix() {		
-		Matrix3D PVM;  	
+	public DLMatrix getModelViewProjectionMatrix() {		
+		DLMatrix PVM;  	
   	PVM = getMatrix();//model  	
     //PVM.preApply(camera().projectionViewMat);
   	PVM.preApply(pinhole().getProjectionViewMatrix());  	
@@ -1294,14 +1296,14 @@ public abstract class AbstractScene implements Constants {
   		AbstractScene.showMissingImplementationWarning("resetProjection");
   }  
   
-  public void applyMatrix(Matrix3D source) {
+  public void applyMatrix(DLMatrix source) {
   	if( renderer instanceof StackRenderer )
   		renderer.applyMatrix(source);
   	else
   		AbstractScene.showMissingImplementationWarning("applyMatrix");
   }
   
-  public void applyProjection(Matrix3D source) {
+  public void applyProjection(DLMatrix source) {
   	if( renderer instanceof StackRenderer )
   		renderer.applyProjection(source);
   	else
@@ -1334,7 +1336,7 @@ public abstract class AbstractScene implements Constants {
   }
   */
 
-  public Matrix3D getMatrix() {
+  public DLMatrix getMatrix() {
   	if( renderer instanceof StackRenderer )
   		return renderer.getMatrix();
   	else {
@@ -1343,7 +1345,7 @@ public abstract class AbstractScene implements Constants {
   	}
   }
   
-  public Matrix3D getProjection() {
+  public DLMatrix getProjection() {
   	if( renderer instanceof StackRenderer )
   		return renderer.getProjection();
   	else {
@@ -1356,7 +1358,7 @@ public abstract class AbstractScene implements Constants {
    * Copy the current modelview matrix into the specified target.
    * Pass in null to create a new matrix.
    */
-  public Matrix3D getMatrix(Matrix3D target) {
+  public DLMatrix getMatrix(DLMatrix target) {
   	if( renderer instanceof StackRenderer )
   		return renderer.getMatrix(target);
   	else {
@@ -1369,7 +1371,7 @@ public abstract class AbstractScene implements Constants {
    * Copy the current projection matrix into the specified target.
    * Pass in null to create a new matrix.
    */
-  public Matrix3D getProjection(Matrix3D target) {
+  public DLMatrix getProjection(DLMatrix target) {
   	if( renderer instanceof StackRenderer )
   		return renderer.getProjection(target);
   	else {
@@ -1381,14 +1383,14 @@ public abstract class AbstractScene implements Constants {
   /**
    * Set the current modelview matrix to the contents of another.
    */
-  public void setMatrix(Matrix3D source) {
+  public void setMatrix(DLMatrix source) {
   	renderer.setMatrix(source);
   }
   
   /**
    * Set the current projection matrix to the contents of another.
    */
-  public void setProjection(Matrix3D source) {
+  public void setProjection(DLMatrix source) {
   	renderer.setProjection(source);
   }
 
@@ -1468,15 +1470,15 @@ public abstract class AbstractScene implements Constants {
   	renderer.drawCross(px, py, size);
   }
   
-  public void drawFilledCircle(int subdivisions, Vector3D center, float radius) {
+  public void drawFilledCircle(int subdivisions, DLVector center, float radius) {
   	renderer.drawFilledCircle(subdivisions, center, radius);
   }
   
-  public void drawFilledSquare(Vector3D center, float edge) {
+  public void drawFilledSquare(DLVector center, float edge) {
   	renderer.drawFilledSquare(center, edge);
   }
   
-  public void drawShooterTarget(Vector3D center, float length) {
+  public void drawShooterTarget(DLVector center, float length) {
 		renderer.drawShooterTarget(center, length);
 	}
 	
@@ -2116,9 +2118,9 @@ public abstract class AbstractScene implements Constants {
 	 * Convenience wrapper function that simply returns {@code
 	 * camera().sceneCenter()}
 	 * 
-	 * @see #setCenter(Vector3D) {@link #radius()}
+	 * @see #setCenter(DLVector) {@link #radius()}
 	 */
-	public Vector3D center() {
+	public DLVector center() {
 		return pinhole().sceneCenter();
 	}
 
@@ -2128,9 +2130,9 @@ public abstract class AbstractScene implements Constants {
 	 * Convenience wrapper function that simply returns {@code
 	 * camera().arcballReferencePoint()}
 	 * 
-	 * @see #setCenter(Vector3D) {@link #radius()}
+	 * @see #setCenter(DLVector) {@link #radius()}
 	 */
-	public Vector3D arcballReferencePoint() {
+	public DLVector arcballReferencePoint() {
 		return pinhole().arcballReferencePoint();
 	}
 
@@ -2140,7 +2142,7 @@ public abstract class AbstractScene implements Constants {
 	 * Convenience wrapper function that simply returns {@code
 	 * camera().setSceneRadius(radius)}
 	 * 
-	 * @see #setCenter(Vector3D)
+	 * @see #setCenter(DLVector)
 	 */
 	public void setRadius(float radius) {
 		pinhole().setSceneRadius(radius);
@@ -2153,7 +2155,7 @@ public abstract class AbstractScene implements Constants {
 	 * 
 	 * @see #setRadius(float)
 	 */
-	public void setCenter(Vector3D center) {
+	public void setCenter(DLVector center) {
 		pinhole().setSceneCenter(center);
 	}
 
@@ -2165,16 +2167,16 @@ public abstract class AbstractScene implements Constants {
 	 * camera().setSceneBoundingBox(min,max)}
 	 * 
 	 * @see #setRadius(float)
-	 * @see #setCenter(Vector3D)
+	 * @see #setCenter(DLVector)
 	 */
-	public void setBoundingBox(Vector3D min, Vector3D max) {
+	public void setBoundingBox(DLVector min, DLVector max) {
 		if( this.is2D() )
 			System.out.println("setBoundingBox is available only in 3D. Use setBoundingRect instead");
 		else
 			((Camera) pinhole()).setSceneBoundingBox(min, max);
 	}
 	
-	public void setBoundingRect(Vector3D min, Vector3D max) {
+	public void setBoundingRect(DLVector min, DLVector max) {
 		if( this.is3D() )
 			System.out.println("setBoundingRect is available only in 2D. Use setBoundingBox instead");
 		else
@@ -2435,7 +2437,7 @@ public abstract class AbstractScene implements Constants {
 	 * <p>
 	 * {@code length} and {@code radius} define its geometry.
 	 * <p>
-	 * Use {@link #drawArrow(Vector3D, Vector3D, float)} to place the arrow
+	 * Use {@link #drawArrow(DLVector, DLVector, float)} to place the arrow
 	 * in 3D.
 	 */
 	public void drawArrow(float length, float radius) {
@@ -2454,11 +2456,11 @@ public abstract class AbstractScene implements Constants {
 	 * 
 	 * @see #drawArrow(float, float)
 	 */
-	public void drawArrow(Vector3D from, Vector3D to,	float radius) {
+	public void drawArrow(DLVector from, DLVector to,	float radius) {
 		pushMatrix();
 		translate(from.x(), from.y(), from.z());
-		applyMatrix(new Quaternion(new Vector3D(0, 0, 1), Vector3D.sub(to,	from)).matrix());
-		drawArrow(Vector3D.sub(to, from).mag(), radius);
+		applyMatrix(new Quaternion(new DLVector(0, 0, 1), DLVector.sub(to,	from)).matrix());
+		drawArrow(DLVector.sub(to, from).mag(), radius);
 		popMatrix();
 	}
 	
@@ -2569,9 +2571,9 @@ public abstract class AbstractScene implements Constants {
 	 * Convenience function that simply calls
 	 * {@code drawFilledCircle(40, center, radius)}.
 	 * 
-	 * @see #drawFilledCircle(int, Vector3D, float)
+	 * @see #drawFilledCircle(int, DLVector, float)
 	 */
-	public void drawFilledCircle(Vector3D center, float radius) {
+	public void drawFilledCircle(DLVector center, float radius) {
 		drawFilledCircle(40, center, radius);
 	}
 	

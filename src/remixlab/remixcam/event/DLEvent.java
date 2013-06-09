@@ -79,7 +79,7 @@ public class DLEvent<A extends Constants.Actionable> implements Constants, Copya
 	}
   
   public Shortcut shortcut() {
-  	System.out.println("calling DLEvent shortcut");
+  	//System.out.println("calling DLEvent shortcut");
   	return new Shortcut(getModifiers());
   }
   

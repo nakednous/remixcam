@@ -31,8 +31,7 @@ public class AbstractKeyboard extends AbstractDevice {
 		profile.setShortcut(DLKeyEvent.UP, DOF_0Action.MOVE_CAMERA_UP);
 		profile.setShortcut(DLKeyEvent.DOWN, DOF_0Action.MOVE_CAMERA_DOWN);
 
-		profile.setShortcut((DLKeyEvent.ALT | DLKeyEvent.SHIFT), 'l',
-				DOF_0Action.MOVE_CAMERA_LEFT);
+		profile.setShortcut((DLKeyEvent.ALT | DLKeyEvent.SHIFT), 'l',	DOF_0Action.MOVE_CAMERA_LEFT);
 
 		/**
 		 * // K e y f r a m e s s h o r t c u t k e y s

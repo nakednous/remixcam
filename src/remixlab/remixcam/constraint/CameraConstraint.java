@@ -62,9 +62,9 @@ public class CameraConstraint extends AxisPlaneConstraint {
 	 * {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public Vector3D constrainTranslation(Vector3D translation, GeomFrame frame) {
-		Vector3D res = new Vector3D(translation.vec[0], translation.vec[1], translation.vec[2]);
-		Vector3D proj;
+	public DLVector constrainTranslation(DLVector translation, GeomFrame frame) {
+		DLVector res = new DLVector(translation.vec[0], translation.vec[1], translation.vec[2]);
+		DLVector proj;
 		switch (translationConstraintType()) {
 		case FREE:
 			break;
@@ -72,16 +72,16 @@ public class CameraConstraint extends AxisPlaneConstraint {
 			proj = camera().frame().inverseTransformOf(translationConstraintDirection());
 			if (frame.referenceFrame() != null)
 				proj = frame.referenceFrame().transformOf(proj);
-			res = Vector3D.projectVectorOnPlane(translation, proj);
+			res = DLVector.projectVectorOnPlane(translation, proj);
 			break;
 		case AXIS:
 			proj = camera().frame().inverseTransformOf(translationConstraintDirection());
 			if (frame.referenceFrame() != null)
 				proj = frame.referenceFrame().transformOf(proj);
-			res = Vector3D.projectVectorOnAxis(translation, proj);
+			res = DLVector.projectVectorOnAxis(translation, proj);
 			break;
 		case FORBIDDEN:
-			res = new Vector3D(0.0f, 0.0f, 0.0f);
+			res = new DLVector(0.0f, 0.0f, 0.0f);
 			break;
 		}
 		return res;
@@ -103,9 +103,9 @@ public class CameraConstraint extends AxisPlaneConstraint {
 			break;
 		case AXIS:
 			if(rotation instanceof Quaternion) {
-				Vector3D axis = frame.transformOf(camera().frame().inverseTransformOf(rotationConstraintDirection()));
-				Vector3D quat = new Vector3D(((Quaternion)rotation).quat[0], ((Quaternion)rotation).quat[1], ((Quaternion)rotation).quat[2]);
-				quat = Vector3D.projectVectorOnAxis(quat, axis);
+				DLVector axis = frame.transformOf(camera().frame().inverseTransformOf(rotationConstraintDirection()));
+				DLVector quat = new DLVector(((Quaternion)rotation).quat[0], ((Quaternion)rotation).quat[1], ((Quaternion)rotation).quat[2]);
+				quat = DLVector.projectVectorOnAxis(quat, axis);
 				res = new Quaternion(quat, 2.0f * (float) Math.acos(((Quaternion)rotation).quat[3]));
 			}
 			break;

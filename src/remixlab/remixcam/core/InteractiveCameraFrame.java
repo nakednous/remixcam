@@ -32,7 +32,7 @@ import remixlab.remixcam.geom.Point;
 import remixlab.remixcam.geom.Quaternion;
 import remixlab.remixcam.geom.Rectangle;
 import remixlab.remixcam.geom.Rotation;
-import remixlab.remixcam.geom.Vector3D;
+import remixlab.remixcam.geom.DLVector;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
@@ -80,8 +80,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	}
 	
 	protected Pinhole viewport;
-	protected Vector3D arcballRefPnt;	
-	protected Vector3D worldAxis;
+	protected DLVector arcballRefPnt;	
+	protected DLVector worldAxis;
 
 	/**
 	 * Default constructor.
@@ -95,8 +95,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		super(vp.scene);
 		viewport = vp;
 		removeFromDeviceGrabberPool();
-		arcballRefPnt = new Vector3D(0.0f, 0.0f, 0.0f);
-		worldAxis = new Vector3D(0, 0, 1);
+		arcballRefPnt = new DLVector(0.0f, 0.0f, 0.0f);
+		worldAxis = new DLVector(0, 0, 1);
 	}
 	
 	/**
@@ -107,9 +107,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	protected InteractiveCameraFrame(InteractiveCameraFrame otherFrame) {
 		super(otherFrame);
 		this.viewport = otherFrame.viewport;
-		this.arcballRefPnt = new Vector3D();
+		this.arcballRefPnt = new DLVector();
 		this.arcballRefPnt.set(otherFrame.arcballRefPnt );
-		this.worldAxis = new Vector3D();
+		this.worldAxis = new DLVector();
 		this.worldAxis.set(otherFrame.worldAxis );
 	}
 	
@@ -173,7 +173,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * {@link remixlab.remixcam.core.Camera#arcballReferencePoint()} also returns this
 	 * value.
 	 */
-	public Vector3D arcballReferencePoint() {
+	public DLVector arcballReferencePoint() {
 		return arcballRefPnt;
 	}
 
@@ -181,7 +181,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * Sets the {@link #arcballReferencePoint()}, defined in the world coordinate
 	 * system.
 	 */
-	public void setArcballReferencePoint(Vector3D refP) {
+	public void setArcballReferencePoint(DLVector refP) {
 		arcballRefPnt = refP;
 	}
 	
@@ -199,12 +199,12 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;
 			float coef = 0;
-			Vector3D trans = new Vector3D();
+			DLVector trans = new DLVector();
 		  //TODO 1-DOF -> wheel
 			if( e instanceof DOF1Event ) {
 			  coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * scene.camera().sceneRadius());
 				//trans = new Vector3D(0.0f, 0.0f, coef * ((DOFEvent)event).getX() * wheelSensitivity() * wheelSensitivityCoef);
-			  trans = new Vector3D(0.0f, 0.0f, coef * ((DOF1Event)e).getX() * -wheelSensitivity() * wheelSensitivityCoef);
+			  trans = new DLVector(0.0f, 0.0f, coef * ((DOF1Event)e).getX() * -wheelSensitivity() * wheelSensitivityCoef);
 			}			
 		  //TODO higher dofs
 			// /**
@@ -213,12 +213,12 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * scene.camera().sceneRadius());
 			  //float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
 			  // Warning: same for left and right CoordinateSystemConvention:
-			  trans = new Vector3D(0.0f, 0.0f,	-coef	* ((int) (event.getY() - event.getPrevY())) / scene.camera().screenHeight());
+			  trans = new DLVector(0.0f, 0.0f,	-coef	* ((int) (event.getY() - event.getPrevY())) / scene.camera().screenHeight());
 			}
 			// */
 			
 			//No Scl
-			Vector3D mag = magnitude();
+			DLVector mag = magnitude();
 			trans.div(mag);
 			
 			translate(inverseTransformOf(trans));
@@ -227,7 +227,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		
 		case ROTATE: {
 			event = (DOF2Event)e;
-			Vector3D trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
+			DLVector trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
 			Quaternion rot = deformedBallQuaternion(event, trans.vec[0], trans.vec[1], scene.camera());	
 			setSpinningQuaternion(rot);
 			startDampedSpinning(event);
@@ -254,7 +254,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					                     scene.isRightHanded() ? -event.getDY() : event.getDY());
 			//System.out.println("RC coord: dx: " + delta.x + " dy: " + delta.y);
 			
-			Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
+			DLVector trans = new DLVector((int) delta.x, (int) -delta.y, 0.0f);
 			//*/	
 			
 			/**
@@ -278,7 +278,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				break;
 			}			
 			
-			setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
+			setTossingDirection(inverseTransformOf(DLVector.mult(trans, translationSensitivity()), false));
 			translate(tossingDirection());
 			
 			break;
@@ -307,11 +307,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			switch (action) {
 			case TRANSLATE: {
 				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
-				Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);
+				DLVector trans = new DLVector((int) delta.x, (int) -delta.y, 0.0f);
 				// No need to scale to fit the screen mouse displacement
 				
 				computeDeviceSpeed(eventPoint);
-				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+				setTossingDirection(inverseTransformOf(DLVector.mult(trans, translationSensitivity())));
 				toss();
 				
 				prevPos = eventPoint;				
@@ -332,7 +332,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			}
 
 			case ROTATE: {
-				Vector3D trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());
+				DLVector trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());
 				Orientable rot;
 				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
 				rot = new Rotation(rot.angle() * rotationSensitivity());
@@ -348,7 +348,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			}
 
 			case SCREEN_ROTATE: {		
-				Vector3D trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());
+				DLVector trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());
 				float angle = (float) Math.atan2((int) eventPoint.y - trans.vec[1],
 						                             (int) eventPoint.x - trans.vec[0])
 						                  - (float) Math.atan2((int) prevPos.y - trans.vec[1], (int) prevPos.x
@@ -371,7 +371,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			}
 
 			case SCREEN_TRANSLATE: {
-				Vector3D trans = new Vector3D();
+				DLVector trans = new DLVector();
 				int dir = deviceOriginalDirection(eventPoint);
 				if (dir == 1)
 					trans.set(((int) prevPos.x - (int) eventPoint.x), 0.0f, 0.0f);
@@ -380,7 +380,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				float[] wh = viewWindow.getOrthoWidthHeight();
 				trans.vec[0] *= 2.0f * wh[0] / viewWindow.screenWidth();
 				trans.vec[1] *= 2.0f * wh[1] / viewWindow.screenHeight();				
-				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));
+				setTossingDirection(inverseTransformOf(DLVector.mult(trans, translationSensitivity())));
 				computeDeviceSpeed(eventPoint);
 				toss();
 				//startTossing(eventPoint);
@@ -414,7 +414,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			switch (action) {			
 			case TRANSLATE: {		
 				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
-				Vector3D trans = new Vector3D((int) delta.x, (int) -delta.y, 0.0f);						
+				DLVector trans = new DLVector((int) delta.x, (int) -delta.y, 0.0f);						
 				
 				// Scale to fit the screen mouse displacement
 				switch (camera.type()) {
@@ -435,7 +435,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				}
 				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));								
 				
-				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
+				setTossingDirection(inverseTransformOf(DLVector.mult(trans, translationSensitivity()), false));
 				computeDeviceSpeed(eventPoint);
 				toss();
 				//startTossing(eventPoint);
@@ -454,10 +454,10 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			  float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * camera.sceneRadius());
 				//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
 				// Warning: same for left and right CoordinateSystemConvention:
-				Vector3D trans = new Vector3D(0.0f, 0.0f,	-coef	* ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
+				DLVector trans = new DLVector(0.0f, 0.0f,	-coef	* ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
 				
 				//No Scl
-				Vector3D mag = magnitude();
+				DLVector mag = magnitude();
 				trans.div(mag);
 				
 				translate(inverseTransformOf(trans));
@@ -466,7 +466,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			}
 
 			case ROTATE: {
-				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
+				DLVector trans = camera.projectedCoordinatesOf(arcballReferencePoint());
 				Quaternion rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], camera);				
 				// #CONNECTION# These two methods should go together (spinning detection and activation)				
 				setSpinningQuaternion(rot);
@@ -478,7 +478,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			}
 			
 			case CAD_ROTATE: {
-				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());				
+				DLVector trans = camera.projectedCoordinatesOf(arcballReferencePoint());				
 				// the following line calls setSpinningQuaternion
 				Quaternion rot = computeCADQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.x(), trans.y(), camera);
 				// #CONNECTION# These two methods should go together (spinning detection and activation)				
@@ -491,7 +491,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			}
 
 			case SCREEN_ROTATE: {		
-				Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
+				DLVector trans = camera.projectedCoordinatesOf(arcballReferencePoint());
 				float angle = (float) Math.atan2((int) eventPoint.y - trans.vec[1],
 						                             (int) eventPoint.x - trans.vec[0])
 						                  - (float) Math.atan2((int) prevPos.y - trans.vec[1], (int) prevPos.x
@@ -502,7 +502,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				if( !isFlipped() )
 					angle = -angle;
 
-				Orientable rot = new Quaternion(new Vector3D(0.0f, 0.0f, 1.0f), angle);
+				Orientable rot = new Quaternion(new DLVector(0.0f, 0.0f, 1.0f), angle);
 				// #CONNECTION# These two methods should go together (spinning detection and activation)				
 				setSpinningQuaternion(rot);
 				//computeDeviceSpeed(eventPoint);
@@ -514,7 +514,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			}
 
 			case SCREEN_TRANSLATE: {
-				Vector3D trans = new Vector3D();
+				DLVector trans = new DLVector();
 				int dir = deviceOriginalDirection(eventPoint);
 				if (dir == 1)
 					trans.set(((int) prevPos.x - (int) eventPoint.x), 0.0f, 0.0f);
@@ -537,11 +537,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					break;
 				}
 				}
-				trans = Vector3D.mult(trans, translationSensitivity());				
+				trans = DLVector.mult(trans, translationSensitivity());				
 				trans.div(magnitude());
 				
 				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));				
-				setTossingDirection(inverseTransformOf(Vector3D.mult(trans, translationSensitivity()), false));
+				setTossingDirection(inverseTransformOf(DLVector.mult(trans, translationSensitivity()), false));
 				computeDeviceSpeed(eventPoint);
 				toss();
 				//startTossing(eventPoint);
@@ -668,11 +668,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();
 		
 		//1,0,0 is given in the camera frame
-		Vector3D axisX = new Vector3D(1, 0, 0);
+		DLVector axisX = new DLVector(1, 0, 0);
 		//0,0,1 is given in the world and then transform to the camera frame
 		
 		//TODO broken when cam frame has scaling
-		Vector3D world2camAxis = camera.frame().transformOf(worldAxis);
+		DLVector world2camAxis = camera.frame().transformOf(worldAxis);
 		//Vector3D world2camAxis = camera.frame().transformOfNoScl(worldAxis);
 
 		float angleWorldAxis = rotationSensitivity() * (scene.isLeftHanded() ? (dx - px) : (px - dx));
@@ -688,7 +688,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * Set axis (defined in the world coordinate system) as the main
 	 * rotation axis used in CAD rotation.
 	 */
-	public void setCADAxis(Vector3D axis) {
+	public void setCADAxis(DLVector axis) {
 		//non-zero
 		if( Geom.zero(axis.mag()) )
 			return;
@@ -700,7 +700,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	/**
 	 * Returns the main CAD rotation axis ((defined in the world coordinate system).
 	 */
-	public Vector3D getCADAxis() {
+	public DLVector getCADAxis() {
 		return worldAxis;
 	}
 }

@@ -37,7 +37,7 @@ import remixlab.remixcam.geom.*;
  * {@link remixlab.remixcam.geom.GeomFrame#constraint()}.
  */
 public abstract class Constraint {
-	private Vector3D sclConstraintValues = new Vector3D(1,1,1);
+	private DLVector sclConstraintValues = new DLVector(1,1,1);
 	
 	/**
 	 * Filters the translation applied to the Frame. This default implementation
@@ -50,11 +50,11 @@ public abstract class Constraint {
 	 * the translation accordingly instead.
 	 * <p>
 	 * {@code translation} is expressed in the local Frame coordinate system. Use
-	 * {@link remixlab.remixcam.geom.GeomFrame#inverseTransformOf(Vector3D)} to express it
+	 * {@link remixlab.remixcam.geom.GeomFrame#inverseTransformOf(DLVector)} to express it
 	 * in the world coordinate system if needed.
 	 */
-	public Vector3D constrainTranslation(Vector3D translation, GeomFrame frame) {
-		return new Vector3D(translation.vec[0], translation.vec[1], translation.vec[2]);
+	public DLVector constrainTranslation(DLVector translation, GeomFrame frame) {
+		return new DLVector(translation.vec[0], translation.vec[1], translation.vec[2]);
 	}
 
 	/**
@@ -62,9 +62,9 @@ public abstract class Constraint {
 	 * implementation is empty (no filtering).
 	 * <p>
 	 * Overload this method in your own Constraint class to define a new rotation
-	 * constraint. See {@link #constrainTranslation(Vector3D, GeomFrame)} for details.
+	 * constraint. See {@link #constrainTranslation(DLVector, GeomFrame)} for details.
 	 * <p>
-	 * Use {@link remixlab.remixcam.geom.GeomFrame#inverseTransformOf(Vector3D)} on the
+	 * Use {@link remixlab.remixcam.geom.GeomFrame#inverseTransformOf(DLVector)} on the
 	 * {@code rotation} {@link remixlab.remixcam.geom.Quaternion#axis()} to express
 	 * {@code rotation} in the world coordinate system if needed.
 	 */
@@ -72,19 +72,19 @@ public abstract class Constraint {
 		return rotation.get();
 	}
 	
-	public Vector3D scalingConstraintValues() {
+	public DLVector scalingConstraintValues() {
 		return sclConstraintValues;
 	}
 	
 	public void setScalingConstraintValues(float x, float y) {
-		setScalingConstraintValues(new Vector3D(x,y,1));
+		setScalingConstraintValues(new DLVector(x,y,1));
 	}
 	
 	public void setScalingConstraintValues(float x, float y, float z) {
-		setScalingConstraintValues(new Vector3D(x,y,z));
+		setScalingConstraintValues(new DLVector(x,y,z));
 	}
 	
-	public void setScalingConstraintValues(Vector3D values) {
+	public void setScalingConstraintValues(DLVector values) {
 		sclConstraintValues.set(Math.abs(values.x()), Math.abs(values.y()), Math.abs(values.z()));
 		float min = Math.min(Math.max(values.x(), values.y()), values.z());
 		if( min != 0 )
@@ -103,8 +103,8 @@ public abstract class Constraint {
 	 * <p>
 	 * {@code scaling} is expressed in the local Frame coordinate system.
 	 */	
-	public Vector3D constrainScaling(Vector3D scaling, GeomFrame frame) {
-		Vector3D res = new Vector3D(scaling.x(), scaling.y(), scaling.z());		
+	public DLVector constrainScaling(DLVector scaling, GeomFrame frame) {
+		DLVector res = new DLVector(scaling.x(), scaling.y(), scaling.z());		
 		// special case
 		if( Geom.zero(res.x()) ) res.x(1);
 		if( Geom.zero(res.y()) ) res.y(1);

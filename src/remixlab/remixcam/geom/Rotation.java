@@ -36,13 +36,13 @@ public class Rotation implements Constants, Orientable {
 		normalize();
 	}
 	
-	public Rotation(Vector3D from, Vector3D to) {
+	public Rotation(DLVector from, DLVector to) {
 		fromTo(from, to);
 	}
 	
 	public Rotation(Point center, Point prev, Point curr) {
-		Vector3D from = new Vector3D(prev.x - center.x, prev.y - center.y);
-		Vector3D to = new Vector3D(curr.x - center.x, curr.y - center.y);
+		DLVector from = new DLVector(prev.x - center.x, prev.y - center.y);
+		DLVector to = new DLVector(curr.x - center.x, curr.y - center.y);
 		fromTo(from, to);
 	}
 	
@@ -72,17 +72,17 @@ public class Rotation implements Constants, Orientable {
 	}
 
 	@Override
-	public Vector3D rotate(Vector3D v) {
+	public DLVector rotate(DLVector v) {
 		float cosB = (float)Math.cos((float)angle());
 		float sinB = (float)Math.sin((float)angle());
-		return new Vector3D( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
+		return new DLVector( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
 	}
 
 	@Override
-	public Vector3D inverseRotate(Vector3D v) {
+	public DLVector inverseRotate(DLVector v) {
 		float cosB = (float)Math.cos(-(float)angle());
 		float sinB = (float)Math.sin(-(float)angle());
-		return new Vector3D( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
+		return new DLVector( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
 	}
 
 	@Override
@@ -108,29 +108,29 @@ public class Rotation implements Constants, Orientable {
 	}
 
 	@Override
-	public Matrix3D matrix() {
+	public DLMatrix matrix() {
 		float cosB = (float)Math.cos((double)angle());
 		float sinB = (float)Math.sin((double)angle());
 		
-		return new Matrix3D(cosB, sinB, 0, 0,
+		return new DLMatrix(cosB, sinB, 0, 0,
                        -sinB, cosB, 0, 0,
                            0,    0, 1, 0,
                            0,    0, 0, 1);
 	}
 
 	@Override
-	public Matrix3D inverseMatrix() {
+	public DLMatrix inverseMatrix() {
 		float cosB = (float)Math.cos(-(float)angle());
 		float sinB = (float)Math.sin(-(float)angle());
 		
-		return new Matrix3D(cosB, sinB, 0, 0,
+		return new DLMatrix(cosB, sinB, 0, 0,
                        -sinB, cosB, 0, 0,
                            0,    0, 1, 0,
                            0,    0, 0, 1);
 	}
 
 	@Override
-	public void fromMatrix(Matrix3D glMatrix) {
+	public void fromMatrix(DLMatrix glMatrix) {
 		//"If both sine and cosine of the angle are already known, ATAN2(sin, cos) gives the angle"
 		//http://www.firebirdsql.org/refdocs/langrefupd21-intfunc-atan2.html
 		angle = (float)Math.atan2(glMatrix.m10(), glMatrix.m00());
@@ -180,7 +180,7 @@ public class Rotation implements Constants, Orientable {
 	}
 
 	@Override	
-	public void fromTo(Vector3D from, Vector3D to) {
+	public void fromTo(DLVector from, DLVector to) {
 		//perp dot product. See:
 		//1. http://stackoverflow.com/questions/2150050/finding-signed-angle-between-vectors
 		//2. http://mathworld.wolfram.com/PerpDotProduct.html

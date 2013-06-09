@@ -43,7 +43,7 @@ public abstract class ProjectionRenderer extends Renderer implements Constants {
 		popMatrix();
 	}
 	
-	protected Matrix3D get2DOrtho(float left, float right, float bottom, float top, float near, float far) {
+	protected DLMatrix get2DOrtho(float left, float right, float bottom, float top, float near, float far) {
 		float x = +2.0f / (right - left);
 		float y = +2.0f / (top - bottom);
 		float z = -2.0f / (far - near);
@@ -59,17 +59,17 @@ public abstract class ProjectionRenderer extends Renderer implements Constants {
                          0,  0, z, tz,
                          0,  0, 0,  1);
                          */
-		return new Matrix3D(x,  0,  0,  0,
+		return new DLMatrix(x,  0,  0,  0,
 				                0, -y,  0,  0,
 				                0,  0,  z,  0,
 				                tx, ty, tz, 1);
 	}
 	
-	protected Matrix3D get2DModelView() {
+	protected DLMatrix get2DModelView() {
 		 return get2DModelView(scene().width()/2f, scene.height()/2f, (scene().height()/2f) / (float)Math.tan(PI*60 / 360), scene().width()/2f, scene.height()/2f, 0, 0, 1, 0);
 	}
 	
-	protected Matrix3D get2DModelView(float eyeX, float eyeY, float eyeZ,
+	protected DLMatrix get2DModelView(float eyeX, float eyeY, float eyeZ,
      float centerX, float centerY, float centerZ,
      float upX, float upY, float upZ) {
 				
@@ -146,7 +146,7 @@ public abstract class ProjectionRenderer extends Renderer implements Constants {
                                 z0, z1, z2, 0,
                                  0,  0,  0, 1);
                                  */
-		Matrix3D mv = new Matrix3D(x0, y0, z0, 0,
+		DLMatrix mv = new DLMatrix(x0, y0, z0, 0,
 				                       x1, y1, z1, 0,
 				                       x2, y2, z2, 0,
 				                        0,  0,  0, 1);

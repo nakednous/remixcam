@@ -81,10 +81,9 @@ public final class ButtonShortcut extends Shortcut implements Constants, Copyabl
 		//super(m);
 		//this.button = b;
 		
-		this.button = b;
-	  //this.mask = m;
 		// /**
-		//HACK see issue: https://github.com/processing/processing/issues/1693
+	  //TODO HACK see issue: https://github.com/processing/processing/issues/1693
+		this.button = b;	  
 		//ALT
 		if(button == CENTER) {
 			mask = (ALT | m);
@@ -95,6 +94,7 @@ public final class ButtonShortcut extends Shortcut implements Constants, Copyabl
 		}
 		else
 			mask = m;
+		// */
 	}
 	
 	protected ButtonShortcut(ButtonShortcut other) {

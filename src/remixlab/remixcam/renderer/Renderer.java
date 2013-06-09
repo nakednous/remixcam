@@ -69,21 +69,21 @@ public abstract class Renderer implements Renderable, Constants {
 	}
 	
 	@Override
-	public Matrix3D getMatrix() {
+	public DLMatrix getMatrix() {
 		if( !(this instanceof StackRenderer) )
 			return scene.getMatrix();
 		return null;
   }
   
 	@Override
-  public Matrix3D getMatrix(Matrix3D target) {
+  public DLMatrix getMatrix(DLMatrix target) {
 		if( !(this instanceof StackRenderer) )
 			return scene.getMatrix(target);
   	return null;
   }
 	
 	@Override
-  public void setMatrix(Matrix3D source) {
+  public void setMatrix(DLMatrix source) {
 		if( !(this instanceof StackRenderer) )
 			scene.setMatrix(source);
   }
@@ -95,7 +95,7 @@ public abstract class Renderer implements Renderable, Constants {
   }
 	
 	@Override
-	public void applyMatrix(Matrix3D source) {
+	public void applyMatrix(DLMatrix source) {
 		if( !(this instanceof StackRenderer) )
 			scene.applyMatrix(source);
 	}
@@ -127,19 +127,19 @@ public abstract class Renderer implements Renderable, Constants {
 	}
 	
 	@Override
-  public Matrix3D getProjection() {
+  public DLMatrix getProjection() {
 		AbstractScene.showMissingImplementationWarning("getProjection");
 		return null;
 	}
   
 	@Override
-  public Matrix3D getProjection(Matrix3D target) {
+  public DLMatrix getProjection(DLMatrix target) {
 		AbstractScene.showMissingImplementationWarning("getProjection");
 		return null;
 	}
   
 	@Override
-  public void setProjection(Matrix3D source) {
+  public void setProjection(DLMatrix source) {
 		AbstractScene.showMissingImplementationWarning("setProjection");
 	}
   
@@ -149,7 +149,7 @@ public abstract class Renderer implements Renderable, Constants {
 	}
 	
 	@Override
-	public void applyProjection(Matrix3D source) {
+	public void applyProjection(DLMatrix source) {
 		AbstractScene.showMissingImplementationWarning("applyProjection");
 	}
   
@@ -233,7 +233,7 @@ public abstract class Renderer implements Renderable, Constants {
   }
   
   @Override
- 	public void hollowCylinder(int detail, float w, float h, Vector3D m, Vector3D n) {
+ 	public void hollowCylinder(int detail, float w, float h, DLVector m, DLVector n) {
   	d.hollowCylinder(detail, w, h, m, n);
  	}
   
@@ -298,17 +298,17 @@ public abstract class Renderer implements Renderable, Constants {
 	}
 
 	@Override
-	public void drawFilledCircle(int subdivisions, Vector3D center, float radius) {
+	public void drawFilledCircle(int subdivisions, DLVector center, float radius) {
 		d.drawFilledCircle(subdivisions, center, radius);
 	}
 
 	@Override
-	public void drawFilledSquare(Vector3D center, float edge) {
+	public void drawFilledSquare(DLVector center, float edge) {
 		d.drawFilledSquare(center, edge);
 	}
 
 	@Override
-	public void drawShooterTarget(Vector3D center, float length) {
+	public void drawShooterTarget(DLVector center, float length) {
 		d.drawShooterTarget(center, length);
 	}
 
@@ -325,7 +325,7 @@ public abstract class Renderer implements Renderable, Constants {
 		scene.pinhole().computeViewMatrix();
 		scene.pinhole().computeProjectionViewMatrix();
 
-		Vector3D pos = scene.pinhole().position();
+		DLVector pos = scene.pinhole().position();
 		Orientable quat = scene.pinhole().frame().orientation();
 
 		if( scene.is2D() ) {
@@ -339,7 +339,7 @@ public abstract class Renderer implements Renderable, Constants {
 		else {
 			//TODO how to handle 3d case without projection, seems impossible
 			//setProjection();
-			Vector3D axis = ((Quaternion)quat).axis();
+			DLVector axis = ((Quaternion)quat).axis();
 			// third value took from P5 docs, (see: http://processing.org/reference/camera_.html)
 			// Also changed default cam fov (i.e., Math.PI / 3.0f) to match that of P5 (see: http://processing.org/reference/perspective_.html)
 			// previously it was: 
@@ -352,7 +352,7 @@ public abstract class Renderer implements Renderable, Constants {
 	
 	@Override
 	public void beginScreenDrawing() {
-		Vector3D pos = scene.pinhole().position();
+		DLVector pos = scene.pinhole().position();
 		Orientable quat = scene.pinhole().frame().orientation();		
 		
 		pushMatrix();
@@ -366,7 +366,7 @@ public abstract class Renderer implements Renderable, Constants {
 		  translate(-scene.width()/2, -scene.height()/2);			
 		}
 		else {
-			Vector3D axis = ((Quaternion)quat).axis();
+			DLVector axis = ((Quaternion)quat).axis();
 			translate(pos.x(), pos.y(), pos.z());
 			rotate(quat.angle(), axis.x(), axis.y(), axis.z());
 			//projection

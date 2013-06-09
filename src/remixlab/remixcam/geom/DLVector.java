@@ -48,7 +48,7 @@ import remixlab.remixcam.core.Constants;
  * 
  * @author pierre
  */
-public class Vector3D implements Constants, Primitivable {
+public class DLVector implements Constants, Primitivable {
 	@Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -64,7 +64,7 @@ public class Vector3D implements Constants, Primitivable {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 				
-		Vector3D other = (Vector3D) obj;		
+		DLVector other = (DLVector) obj;		
 	   return new EqualsBuilder()    
     .append(this.vec[0], other.vec[0])
     .append(this.vec[1], other.vec[1])
@@ -81,7 +81,7 @@ public class Vector3D implements Constants, Primitivable {
   /**
    * Constructor for an empty vector: x, y, and z are set to 0.
    */
-  public Vector3D() {  	
+  public DLVector() {  	
   	reset();
   }
   
@@ -92,13 +92,13 @@ public class Vector3D implements Constants, Primitivable {
    * @param  y the y coordinate.
    * @param  z the y coordinate.
    */
-  public Vector3D(float x, float y, float z) {
+  public DLVector(float x, float y, float z) {
     this.vec[0] = x;
     this.vec[1] = y;
     this.vec[2] = z;
   }
   
-  public Vector3D(Vector3D other) {
+  public DLVector(DLVector other) {
   	set(other);
   }
 
@@ -108,7 +108,7 @@ public class Vector3D implements Constants, Primitivable {
    * @param  x the x coordinate.
    * @param  y the y coordinate.
    */
-  public Vector3D(float x, float y) {
+  public DLVector(float x, float y) {
     this.vec[0] = x;
     this.vec[1] = y;
     this.vec[2] = 0;
@@ -138,20 +138,20 @@ public class Vector3D implements Constants, Primitivable {
 		return this.vec[2] = z;
 	}  
   
-  public Vector3D projectVectorOnAxis(Vector3D direction) {
+  public DLVector projectVectorOnAxis(DLVector direction) {
   	return projectVectorOnAxis(this, direction);
   }
   
-  public static Vector3D projectVectorOnAxis(Vector3D src, Vector3D direction) {
+  public static DLVector projectVectorOnAxis(DLVector src, DLVector direction) {
 		float directionSquaredNorm = squaredNorm(direction);
 		if (Geom.zero(directionSquaredNorm))
 			throw new RuntimeException("Direction squared norm is nearly 0");
 
 		float modulation = src.dot(direction) / directionSquaredNorm;
-		return Vector3D.mult(direction, modulation);
+		return DLVector.mult(direction, modulation);
 	}
   
-  public Vector3D projectVectorOnPlane(Vector3D normal) {
+  public DLVector projectVectorOnPlane(DLVector normal) {
   	return projectVectorOnPlane(this, normal);
   }
 
@@ -161,13 +161,13 @@ public class Vector3D implements Constants, Primitivable {
 	 * <p>
 	 * {@code normal} does not need to be normalized (but must be non null).
 	 */
-	public static Vector3D projectVectorOnPlane(Vector3D src, Vector3D normal) {
+	public static DLVector projectVectorOnPlane(DLVector src, DLVector normal) {
 		float normalSquaredNorm = squaredNorm(normal);
 		if (Geom.zero(normalSquaredNorm))
 			throw new RuntimeException("Normal squared norm is nearly 0");
 
 		float modulation = src.dot(normal) / normalSquaredNorm;
-		return Vector3D.sub(src, Vector3D.mult(normal, modulation));
+		return DLVector.sub(src, DLVector.mult(normal, modulation));
 	}
 	
 	public static final float lerp(float start, float stop, float amt) {
@@ -181,11 +181,11 @@ public class Vector3D implements Constants, Primitivable {
 	/**
 	 * Utility function that returns the squared norm of the Vector3D.
 	 */
-	public static float squaredNorm(Vector3D v) {
+	public static float squaredNorm(DLVector v) {
 		return (v.vec[0] * v.vec[0]) + (v.vec[1] * v.vec[1]) + (v.vec[2] * v.vec[2]);
 	}
 	
-	public Vector3D orthogonalVector() {
+	public DLVector orthogonalVector() {
 		return orthogonalVector(this);
 	}
 
@@ -195,16 +195,16 @@ public class Vector3D implements Constants, Primitivable {
 	 * Vector3D. Note that the function that associates an {@code
 	 * orthogonalVector()} to a Vector3D is not continuous.
 	 */
-	public static Vector3D orthogonalVector(Vector3D v) {
+	public static DLVector orthogonalVector(DLVector v) {
 		// Find smallest component. Keep equal case for null values.
 		if ((Math.abs(v.vec[1]) >= 0.9f * Math.abs(v.vec[0]))
 				&& (Math.abs(v.vec[2]) >= 0.9f * Math.abs(v.vec[0])))
-			return new Vector3D(0.0f, -v.vec[2], v.vec[1]);
+			return new DLVector(0.0f, -v.vec[2], v.vec[1]);
 		else if ((Math.abs(v.vec[0]) >= 0.9f * Math.abs(v.vec[1]))
 				&& (Math.abs(v.vec[2]) >= 0.9f * Math.abs(v.vec[1])))
-			return new Vector3D(-v.vec[2], 0.0f, v.vec[0]);
+			return new DLVector(-v.vec[2], 0.0f, v.vec[0]);
 		else
-			return new Vector3D(-v.vec[1], v.vec[0], 0.0f);
+			return new DLVector(-v.vec[1], v.vec[0], 0.0f);
 	}
 	
 	@Override
@@ -245,12 +245,12 @@ public class Vector3D implements Constants, Primitivable {
    */
   @Override
   public void set(Primitivable v) {
-  	if(! (v instanceof Vector3D) )
+  	if(! (v instanceof DLVector) )
   		throw new RuntimeException("v should be an instance of Vector3D");
-  	set((Vector3D) v);
+  	set((DLVector) v);
   }
   
-  public void set(Vector3D v) {
+  public void set(DLVector v) {
   	this.vec[0] = v.vec[0];
   	this.vec[1] = v.vec[1];
   	this.vec[2] = v.vec[2];
@@ -275,8 +275,8 @@ public class Vector3D implements Constants, Primitivable {
    * Get a copy of this vector.
    */
   @Override
-  public Vector3D get() {
-  	return new Vector3D(this);
+  public DLVector get() {
+  	return new DLVector(this);
   }
 
   @Override
@@ -317,7 +317,7 @@ public class Vector3D implements Constants, Primitivable {
    * Add a vector to this vector
    * @param v the vector to be added
    */
-  public void add(Vector3D v) {
+  public void add(DLVector v) {
   	this.vec[0] += v.vec[0];
   	this.vec[1] += v.vec[1];
   	this.vec[2] += v.vec[2];
@@ -335,7 +335,7 @@ public class Vector3D implements Constants, Primitivable {
    * @param v2 another vector
    * @return a new vector that is the sum of v1 and v2
    */
-  static public Vector3D add(Vector3D v1, Vector3D v2) {
+  static public DLVector add(DLVector v1, DLVector v2) {
     return add(v1, v2, null);
   }
 
@@ -346,9 +346,9 @@ public class Vector3D implements Constants, Primitivable {
    * @param target the target vector (if null, a new vector will be created)
    * @return a new vector that is the sum of v1 and v2
    */
-  static public Vector3D add(Vector3D v1, Vector3D v2, Vector3D target) {
+  static public DLVector add(DLVector v1, DLVector v2, DLVector target) {
     if (target == null) {
-      target = new Vector3D(v1.vec[0] + v2.vec[0],v1.vec[1] + v2.vec[1], v1.vec[2] + v2.vec[2]);
+      target = new DLVector(v1.vec[0] + v2.vec[0],v1.vec[1] + v2.vec[1], v1.vec[2] + v2.vec[2]);
     } else {
       target.set(v1.vec[0] + v2.vec[0], v1.vec[1] + v2.vec[1], v1.vec[2] + v2.vec[2]);
     }
@@ -359,7 +359,7 @@ public class Vector3D implements Constants, Primitivable {
    * Subtract a vector from this vector
    * @param v the vector to be subtracted
    */
-  public void sub(Vector3D v) {
+  public void sub(DLVector v) {
   	this.vec[0] -= v.vec[0];
   	this.vec[1] -= v.vec[1];
   	this.vec[2] -= v.vec[2];
@@ -377,13 +377,13 @@ public class Vector3D implements Constants, Primitivable {
    * @param v2 another vector
    * @return a new vector that is v1 - v2
    */
-  static public Vector3D sub(Vector3D v1, Vector3D v2) {
+  static public DLVector sub(DLVector v1, DLVector v2) {
     return sub(v1, v2, null);
   }
 
-  static public Vector3D sub(Vector3D v1, Vector3D v2, Vector3D target) {
+  static public DLVector sub(DLVector v1, DLVector v2, DLVector target) {
     if (target == null) {
-      target = new Vector3D(v1.vec[0] - v2.vec[0], v1.vec[1] - v2.vec[1], v1.vec[2] - v2.vec[2]);
+      target = new DLVector(v1.vec[0] - v2.vec[0], v1.vec[1] - v2.vec[1], v1.vec[2] - v2.vec[2]);
     } else {
       target.set(v1.vec[0] - v2.vec[0], v1.vec[1] - v2.vec[1], v1.vec[2] - v2.vec[2]);
     }
@@ -406,7 +406,7 @@ public class Vector3D implements Constants, Primitivable {
    * @param n scalar
    * @return a new vector that is v1 * n
    */
-  static public Vector3D mult(Vector3D v, float n) {
+  static public DLVector mult(DLVector v, float n) {
     return mult(v, n, null);
   }
 
@@ -417,9 +417,9 @@ public class Vector3D implements Constants, Primitivable {
    * @param target Vector3D to store the result
    * @return the target vector, now set to v1 * n
    */
-  static public Vector3D mult(Vector3D v, float n, Vector3D target) {
+  static public DLVector mult(DLVector v, float n, DLVector target) {
     if (target == null) {
-      target = new Vector3D(v.vec[0]*n, v.vec[1]*n, v.vec[2]*n);
+      target = new DLVector(v.vec[0]*n, v.vec[1]*n, v.vec[2]*n);
     } else {
       target.set(v.vec[0]*n, v.vec[1]*n, v.vec[2]*n);
     }
@@ -430,7 +430,7 @@ public class Vector3D implements Constants, Primitivable {
    * Multiply each element of one vector by the elements of another vector.
    * @param v the vector to multiply by
    */
-  public void mult(Vector3D v) {
+  public void mult(DLVector v) {
   	this.vec[0] *= v.vec[0];
   	this.vec[1] *= v.vec[1];
   	this.vec[2] *= v.vec[2];
@@ -440,7 +440,7 @@ public class Vector3D implements Constants, Primitivable {
    * Multiply each element of one vector by the individual elements of another
    * vector, and return the result as a new Vector3D.
    */
-  static public Vector3D mult(Vector3D v1, Vector3D v2) {
+  static public DLVector mult(DLVector v1, DLVector v2) {
     return mult(v1, v2, null);
   }
 
@@ -451,9 +451,9 @@ public class Vector3D implements Constants, Primitivable {
    * @param v2 the second vector
    * @param target Vector3D to store the result
    */
-  static public Vector3D mult(Vector3D v1, Vector3D v2, Vector3D target) {
+  static public DLVector mult(DLVector v1, DLVector v2, DLVector target) {
     if (target == null) {
-      target = new Vector3D(v1.vec[0]*v2.vec[0], v1.vec[1]*v2.vec[1], v1.vec[2]*v2.vec[2]);
+      target = new DLVector(v1.vec[0]*v2.vec[0], v1.vec[1]*v2.vec[1], v1.vec[2]*v2.vec[2]);
     } else {
       target.set(v1.vec[0]*v2.vec[0], v1.vec[1]*v2.vec[1], v1.vec[2]*v2.vec[2]);
     }
@@ -476,13 +476,13 @@ public class Vector3D implements Constants, Primitivable {
    * @param n scalar
    * @return a new vector that is v1 / n
    */
-  static public Vector3D div(Vector3D v, float n) {
+  static public DLVector div(DLVector v, float n) {
     return div(v, n, null);
   }
 
-  static public Vector3D div(Vector3D v, float n, Vector3D target) {
+  static public DLVector div(DLVector v, float n, DLVector target) {
     if (target == null) {
-      target = new Vector3D(v.vec[0]/n, v.vec[1]/n, v.vec[2]/n);
+      target = new DLVector(v.vec[0]/n, v.vec[1]/n, v.vec[2]/n);
     } else {
       target.set(v.vec[0]/n, v.vec[1]/n, v.vec[2]/n);
     }
@@ -492,7 +492,7 @@ public class Vector3D implements Constants, Primitivable {
   /**
    * Divide each element of one vector by the elements of another vector.
    */
-  public void div(Vector3D v) {
+  public void div(DLVector v) {
   	this.vec[0] /= v.vec[0];
   	this.vec[1] /= v.vec[1];
   	this.vec[2] /= v.vec[2];
@@ -502,7 +502,7 @@ public class Vector3D implements Constants, Primitivable {
    * Divide each element of one vector by the individual elements of another
    * vector, and return the result as a new Vector3D.
    */
-  static public Vector3D div(Vector3D v1, Vector3D v2) {
+  static public DLVector div(DLVector v1, DLVector v2) {
     return div(v1, v2, null);
   }
 
@@ -513,9 +513,9 @@ public class Vector3D implements Constants, Primitivable {
    * @param v2 the second vector
    * @param target Vector3D to store the result
    */
-  static public Vector3D div(Vector3D v1, Vector3D v2, Vector3D target) {
+  static public DLVector div(DLVector v1, DLVector v2, DLVector target) {
     if (target == null) {
-      target = new Vector3D(v1.vec[0]/v2.vec[0], v1.vec[1]/v2.vec[1], v1.vec[2]/v2.vec[2]);
+      target = new DLVector(v1.vec[0]/v2.vec[0], v1.vec[1]/v2.vec[1], v1.vec[2]/v2.vec[2]);
     } else {
       target.set(v1.vec[0]/v2.vec[0], v1.vec[1]/v2.vec[1], v1.vec[2]/v2.vec[2]);
     }
@@ -527,7 +527,7 @@ public class Vector3D implements Constants, Primitivable {
    * @param v another vector
    * @return the Euclidean distance between
    */
-  public float dist(Vector3D v) {
+  public float dist(DLVector v) {
     float dx = this.vec[0] - v.vec[0];
     float dy = this.vec[1] - v.vec[1];
     float dz = this.vec[2] - v.vec[2];
@@ -540,7 +540,7 @@ public class Vector3D implements Constants, Primitivable {
    * @param v2 another vector
    * @return the Euclidean distance between v1 and v2
    */
-  static public float dist(Vector3D v1, Vector3D v2) {
+  static public float dist(DLVector v1, DLVector v2) {
     float dx = v1.vec[0] - v2.vec[0];
     float dy = v1.vec[1] - v2.vec[1];
     float dz = v1.vec[2] - v2.vec[2];
@@ -551,7 +551,7 @@ public class Vector3D implements Constants, Primitivable {
    * Calculate the dot product with another vector
    * @return the dot product
    */
-  public float dot(Vector3D v) {
+  public float dot(DLVector v) {
     return this.vec[0]*v.vec[0] + this.vec[1]*v.vec[1] + this.vec[2]*v.vec[2];
   }
 
@@ -559,14 +559,14 @@ public class Vector3D implements Constants, Primitivable {
     return this.vec[0]*x + this.vec[1]*y + this.vec[2]*z;
   }
 
-  static public float dot(Vector3D v1, Vector3D v2) {
+  static public float dot(DLVector v1, DLVector v2) {
     return v1.vec[0]*v2.vec[0] + v1.vec[1]*v2.vec[1] + v1.vec[2]*v2.vec[2];
   }
 
   /**
    * Return a vector composed of the cross product between this and another.
    */
-  public Vector3D cross(Vector3D v) {
+  public DLVector cross(DLVector v) {
     return cross(v, null);
   }
 
@@ -574,26 +574,26 @@ public class Vector3D implements Constants, Primitivable {
    * Perform cross product between this and another vector, and store the
    * result in 'target'. If target is null, a new vector is created.
    */
-  public Vector3D cross(Vector3D v, Vector3D target) {
+  public DLVector cross(DLVector v, DLVector target) {
     float crossX = this.vec[1] * v.vec[2] - v.vec[1] * this.vec[2];
     float crossY = this.vec[2] * v.vec[0] - v.vec[2] * this.vec[0];
     float crossZ = this.vec[0] * v.vec[1] - v.vec[0] * this.vec[1];
 
     if (target == null) {
-      target = new Vector3D(crossX, crossY, crossZ);
+      target = new DLVector(crossX, crossY, crossZ);
     } else {
       target.set(crossX, crossY, crossZ);
     }
     return target;
   }
 
-  static public Vector3D cross(Vector3D v1, Vector3D v2, Vector3D target) {
+  static public DLVector cross(DLVector v1, DLVector v2, DLVector target) {
     float crossX = v1.vec[1] * v2.vec[2] - v2.vec[1] * v1.vec[2];
     float crossY = v1.vec[2] * v2.vec[0] - v2.vec[2] * v1.vec[0];
     float crossZ = v1.vec[0] * v2.vec[1] - v2.vec[0] * v1.vec[1];
 
     if (target == null) {
-      target = new Vector3D(crossX, crossY, crossZ);
+      target = new DLVector(crossX, crossY, crossZ);
     } else {
       target.set(crossX, crossY, crossZ);
     }
@@ -615,9 +615,9 @@ public class Vector3D implements Constants, Primitivable {
    * @param target Set to null to create a new vector
    * @return a new vector (if target was null), or target
    */
-  public Vector3D normalize(Vector3D target) {
+  public DLVector normalize(DLVector target) {
     if (target == null) {
-      target = new Vector3D();
+      target = new DLVector();
     }
     float m = mag();
     if (m > 0) {
@@ -654,7 +654,7 @@ public class Vector3D implements Constants, Primitivable {
    * @param len the new length for the new vector
    * @return a new vector (if target was null), or target
    */
-  public Vector3D setMag(Vector3D target, float len) {
+  public DLVector setMag(DLVector target, float len) {
     target = normalize(target);
     target.mult(len);
     return target;
@@ -686,7 +686,7 @@ public class Vector3D implements Constants, Primitivable {
    * @param amt  The amt parameter is the amount to interpolate between the two vectors where 1.0 equal to the new vector
    * 0.1 is very near the new vector, 0.5 is half-way in between.
    */
-  public void lerp(Vector3D v, float amt) {
+  public void lerp(DLVector v, float amt) {
   	this.vec[0] = lerp(this.vec[0],v.vec[0],amt);
   	this.vec[1] = lerp(this.vec[1],v.vec[1],amt);
   }
@@ -702,7 +702,7 @@ public class Vector3D implements Constants, Primitivable {
    * @param v2 another vector
    * @return the angle between the vectors
    */
-  static public float angleBetween(Vector3D v1, Vector3D v2) {
+  static public float angleBetween(DLVector v1, DLVector v2) {
     double dot = v1.vec[0] * v2.vec[0] + v1.vec[1] * v2.vec[1] + v1.vec[2] * v2.vec[2];
     double v1mag = Math.sqrt(v1.vec[0] * v1.vec[0] + v1.vec[1] * v1.vec[1] + v1.vec[2] * v1.vec[2]);
     double v2mag = Math.sqrt(v2.vec[0] * v2.vec[0] + v2.vec[1] * v2.vec[1] + v2.vec[2] * v2.vec[2]);
@@ -732,7 +732,7 @@ public class Vector3D implements Constants, Primitivable {
    * @param angle the angle
    * @return the new unit PVector3D
    */
-  static public Vector3D fromAngle(float angle) {
+  static public DLVector fromAngle(float angle) {
     return fromAngle(angle,null);
   }
 
@@ -743,9 +743,9 @@ public class Vector3D implements Constants, Primitivable {
    * @param target the target vector (if null, a new vector will be created)
    * @return the Vector3D
    */
-  static public Vector3D fromAngle(float angle, Vector3D target) {
+  static public DLVector fromAngle(float angle, DLVector target) {
     if (target == null) {
-      target = new Vector3D((float)Math.cos(angle),(float)Math.sin(angle),0);
+      target = new DLVector((float)Math.cos(angle),(float)Math.sin(angle),0);
     } else {
       target.set((float)Math.cos(angle),(float)Math.sin(angle),0);
     }

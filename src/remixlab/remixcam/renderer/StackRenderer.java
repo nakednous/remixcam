@@ -18,11 +18,11 @@ public abstract class StackRenderer extends Renderer {
 	  float[][] pmatrixStack = new float[MATRIX_STACK_DEPTH][16];
 	  int pmatrixStackDepth;  
 	  
-	  Matrix3D projection, modelview;
+	  DLMatrix projection, modelview;
 	  
 	  public MatrixStack() {
-	  	modelview = new Matrix3D();
-	  	projection = new Matrix3D();
+	  	modelview = new DLMatrix();
+	  	projection = new DLMatrix();
 	  }
 	  
 	  //////////////////////////////////////////////////////////////
@@ -140,11 +140,11 @@ public abstract class StackRenderer extends Renderer {
 	  /**
 	   * Apply a 4x4 transformation matrix. Same as glMultMatrix().
 	   */
-	  public void applyMatrix(Matrix3D source) {
+	  public void applyMatrix(DLMatrix source) {
 	  	modelview.apply(source);
 	  }
 	  
-	  public void applyProjection(Matrix3D source) {
+	  public void applyProjection(DLMatrix source) {
 	  	projection.apply(source);
 	  }  
 	  
@@ -216,24 +216,24 @@ public abstract class StackRenderer extends Renderer {
 
 	  // MATRIX GET/SET/PRINT
 
-	  public Matrix3D getMatrix() {
+	  public DLMatrix getMatrix() {
 	  	return modelview.get();        
 	  }
 	  
-	  public Matrix3D getProjection() {
+	  public DLMatrix getProjection() {
 	  	return projection.get();        
 	  }
 
-	  public Matrix3D getMatrix(Matrix3D target) {
+	  public DLMatrix getMatrix(DLMatrix target) {
 	    if (target == null)
-	      target = new Matrix3D();
+	      target = new DLMatrix();
 	    target.set(modelview);
 	    return target;
 	  }
 	  
-	  public Matrix3D getProjection(Matrix3D target) {
+	  public DLMatrix getProjection(DLMatrix target) {
 	    if (target == null)
-	      target = new Matrix3D();
+	      target = new DLMatrix();
 	    target.set(projection);    
 	    return target;
 	  }
@@ -310,12 +310,12 @@ public abstract class StackRenderer extends Renderer {
 	}
 	
 	@Override
-	public Matrix3D getMatrix() {
+	public DLMatrix getMatrix() {
 		return mStack.getMatrix();
   }
   
 	@Override
-  public Matrix3D getMatrix(Matrix3D target) {
+  public DLMatrix getMatrix(DLMatrix target) {
 		return mStack.getMatrix(target);
   }
 	
@@ -333,7 +333,7 @@ public abstract class StackRenderer extends Renderer {
   }
 	
 	@Override
-	public void applyMatrix(Matrix3D source) {
+	public void applyMatrix(DLMatrix source) {
 		mStack.applyMatrix(source);
 	}
 	
@@ -364,12 +364,12 @@ public abstract class StackRenderer extends Renderer {
 	}
 	
 	@Override
-  public Matrix3D getProjection() {
+  public DLMatrix getProjection() {
 		return mStack.getProjection();
 	}
   
 	@Override
-  public Matrix3D getProjection(Matrix3D target) {
+  public DLMatrix getProjection(DLMatrix target) {
 		return mStack.getProjection(target);
 	}
   
@@ -387,7 +387,7 @@ public abstract class StackRenderer extends Renderer {
 	}
 	
 	@Override
-	public void applyProjection(Matrix3D source) {
+	public void applyProjection(DLMatrix source) {
 		mStack.applyProjection(source);
 	}
   
@@ -466,7 +466,7 @@ public abstract class StackRenderer extends Renderer {
 	@Override
 	protected void setProjectionMatrix() {
     resetProjection();	  
-	  Matrix3D projectionMat = scene.pinhole().getProjectionMatrix(true);	  
+	  DLMatrix projectionMat = scene.pinhole().getProjectionMatrix(true);	  
 	  applyProjection(projectionMat);
 	}
 	

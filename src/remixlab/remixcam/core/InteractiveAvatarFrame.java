@@ -68,7 +68,7 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	
 	private Quaternion q;
 	private float trackingDist;
-	private Vector3D camRelPos;
+	private DLVector camRelPos;
 
 	/**
 	 * Constructs an InteractiveAvatarFrame and sets its
@@ -82,7 +82,7 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 		super(scn);
 		q = new Quaternion();
 		q.fromTaitBryan(QUARTER_PI, 0, 0);
-		camRelPos = new Vector3D();
+		camRelPos = new DLVector();
 		setTrackingDistance(scene.radius() / 5);
 	}
 	
@@ -94,7 +94,7 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	protected InteractiveAvatarFrame(InteractiveAvatarFrame otherFrame) {
 		super(otherFrame);
 		this.q = otherFrame.q.get();
-		this.camRelPos = new Vector3D();
+		this.camRelPos = new DLVector();
 		this.camRelPos.set( otherFrame.camRelPos );
 		this.setTrackingDistance(otherFrame.trackingDistance());
 	}
@@ -167,7 +167,7 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	 * Returns the world coordinates of the camera position computed in
 	 * {@link #computeCameraPosition()}.
 	 */
-	public Vector3D cameraPosition() {
+	public DLVector cameraPosition() {
 		return inverseCoordinatesOf(camRelPos);
 	}
 
@@ -175,7 +175,7 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	 * Overloading of {@link remixlab.remixcam.core.Trackable#upVector()}. Simply
 	 * returns the frame {@link #yAxis()}.
 	 */
-	public Vector3D upVector() {
+	public DLVector upVector() {
 		return yAxis();
 	}
 
@@ -183,7 +183,7 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	 * Overloading of {@link remixlab.remixcam.core.Trackable#target()}. Simply returns
 	 * the frame {@link #position()}.
 	 */
-	public Vector3D target() {
+	public DLVector target() {
 		return position();
 	}
 
@@ -197,7 +197,7 @@ public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	
 	 * {@link #position()}.
 	 */
 	public void computeCameraPosition() {
-		camRelPos = q.rotate(new Vector3D(0, 0, 1));
+		camRelPos = q.rotate(new DLVector(0, 0, 1));
 		camRelPos.mult(trackingDistance());
 	}
 }

@@ -10,14 +10,14 @@ public interface Orientable extends Copyable {
 	public void negate();
 	public void compose(Orientable o);
 	public Orientable inverse();
-	public Vector3D rotate(Vector3D v);
-	public Vector3D inverseRotate(Vector3D v);	
+	public DLVector rotate(DLVector v);
+	public DLVector inverseRotate(DLVector v);	
 	public float[][] rotationMatrix();
 	public float[][] inverseRotationMatrix();
-	public Matrix3D matrix();
-	public Matrix3D inverseMatrix();
-	public void fromMatrix(Matrix3D glMatrix);
+	public DLMatrix matrix();
+	public DLMatrix inverseMatrix();
+	public void fromMatrix(DLMatrix glMatrix);
 	public void fromRotationMatrix(float[][] m);
 	public float normalize();
-	public void fromTo(Vector3D from, Vector3D to);
+	public void fromTo(DLVector from, DLVector to);
 }

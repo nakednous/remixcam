@@ -119,9 +119,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			}
 			else
 				if(e.getAction() == KeyEvent.RELEASE) {
-					System.out.println("trying to handle key release... ");
 					event = new DLKeyEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
-					System.out.println("passed event creation... ");
 					handle(event);
 				}
 		}
@@ -129,16 +127,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	//public class Mouse extends AbstractMouse {
 	public class Mouse extends AbstractWheeledMouse {
-		DOF2Event event, prevEvent;
-		
-		
+		DOF2Event event, prevEvent;	
 		public Mouse(AbstractScene scn, String n) {
-			super(scn, n);
-			
-			//((DOF2Profile)cameraProfile()).setBinding(PApplet.CENTER, DOF_2Action.ZOOM);
-			//cameraProfile().setBinding(PApplet.RIGHT, DOF_2Action.TRANSLATE);
-			
-			//((DOF2Profile)cameraProfile()).setBinding(DOF_2Action.ROTATE);
+			super(scn, n);			
+			//cameraProfile().setBinding(PApplet.RIGHT, DOF_2Action.TRANSLATE);			
 			//System.out.println(cameraProfile().bindingsDescription());
 		}
 		
@@ -148,16 +140,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			//}
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 			//if( e.getAction() == processing.event.MouseEvent.MOVE ) {
-				//TODO debug
-				//System.out.println("P5 coord: x: " + e.getX() + " y: " + e.getY());
-				//TODO pending fix modifiers!
-				/**
-				int mod = ((java.awt.event.MouseEvent) e.getNative()).getModifiersEx();				
-				event = new DOF2Event(prevEvent, e.getX(), e.getY(), mod, e.getButton());
-				// */
-			  event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+				event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 				handle(event);
-				//camera().frame().execAction3D((DOF1Event)event);
 			  prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
@@ -263,11 +247,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	protected class P5Drawing2D implements Drawerable, PConstants {
 		protected Scene scene;
-		Matrix3D proj;
+		DLMatrix proj;
 
 		public P5Drawing2D(Scene scn) {
 			scene = scn;
-			proj = new Matrix3D();
+			proj = new DLMatrix();
 		}
 		
 		public Scene scene() {
@@ -422,7 +406,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawArcballReferencePointHint() {
-			Vector3D p = scene.pinhole().projectedCoordinatesOf(scene.arcballReferencePoint());
+			DLVector p = scene.pinhole().projectedCoordinatesOf(scene.arcballReferencePoint());
 			pg().pushStyle();
 			pg().stroke(255);
 			pg().strokeWeight(3);
@@ -448,7 +432,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawFilledCircle(int subdivisions, Vector3D center, float radius) {
+		public void drawFilledCircle(int subdivisions, DLVector center, float radius) {
 			float precision = TWO_PI/subdivisions;
 			float x = center.x();
 			float y = center.y();
@@ -470,7 +454,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawFilledSquare(Vector3D center, float edge) {
+		public void drawFilledSquare(DLVector center, float edge) {
 			float x = center.x();
 			float y = center.y();
 			scene.beginScreenDrawing();		
@@ -488,7 +472,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawShooterTarget(Vector3D center, float length) {
+		public void drawShooterTarget(DLVector center, float length) {
 			float x = center.x();
 			float y = center.y();
 			scene.beginScreenDrawing();
@@ -542,7 +526,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		  scene().applyWorldTransformation(camera.frame());
 
 			//upper left coordinates of the near corner
-			Vector3D upperLeft = new Vector3D();
+			DLVector upperLeft = new DLVector();
 			
 			pg().pushStyle();
 			
@@ -609,7 +593,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		  }
 		  
 		  @Override
-		 	public void hollowCylinder(int detail, float w, float h, Vector3D m, Vector3D n) {
+		 	public void hollowCylinder(int detail, float w, float h, DLVector m, DLVector n) {
 		  	AbstractScene.showDepthWarning("cylinder");
 		 	}
 		  
@@ -689,22 +673,22 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		 * Convenience function that simply calls
 		 * {@code hollowCylinder(20, w, h, new Vector3D(0,0,-1), new Vector3D(0,0,1))}.
 		 * 
-		 * @see #hollowCylinder(int, float, float, Vector3D, Vector3D)
+		 * @see #hollowCylinder(int, float, float, DLVector, DLVector)
 		 * @see #cylinder(float, float)
 		 */
 		public void hollowCylinder(float w, float h) {
-			this.hollowCylinder(20, w, h, new Vector3D(0,0,-1), new Vector3D(0,0,1));
+			this.hollowCylinder(20, w, h, new DLVector(0,0,-1), new DLVector(0,0,1));
 		}
 		
 		/**
 		 * Convenience function that simply calls
 		 * {@code hollowCylinder(detail, w, h, new Vector3D(0,0,-1), new Vector3D(0,0,1))}.
 		 * 
-		 * @see #hollowCylinder(int, float, float, Vector3D, Vector3D)
+		 * @see #hollowCylinder(int, float, float, DLVector, DLVector)
 		 * @see #cylinder(float, float)
 		 */
 		public void hollowCylinder(int detail, float w, float h) {
-			this.hollowCylinder(detail, w, h, new Vector3D(0,0,-1), new Vector3D(0,0,1));
+			this.hollowCylinder(detail, w, h, new DLVector(0,0,-1), new DLVector(0,0,1));
 		}
 	 
 		/**
@@ -720,13 +704,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		 * @see #cylinder(float, float)
 		 */
 		@Override
-		public void hollowCylinder(int detail, float w, float h, Vector3D m, Vector3D n) {
+		public void hollowCylinder(int detail, float w, float h, DLVector m, DLVector n) {
 			//eqs taken from: http://en.wikipedia.org/wiki/Line-plane_intersection
-			Vector3D pm0 = new Vector3D(0,0,0);
-			Vector3D pn0 = new Vector3D(0,0,h);
-			Vector3D l0 = new Vector3D();		
-			Vector3D l = new Vector3D(0,0,1);
-			Vector3D p = new Vector3D();
+			DLVector pm0 = new DLVector(0,0,0);
+			DLVector pn0 = new DLVector(0,0,h);
+			DLVector l0 = new DLVector();		
+			DLVector l = new DLVector(0,0,1);
+			DLVector p = new DLVector();
 			float x,y,d;		
 			
 			pg3d().noStroke();
@@ -737,13 +721,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				y = w * PApplet.sin(t * TWO_PI/detail);
 				l0.set(x,y,0);
 				
-				d = ( m.dot(Vector3D.sub(pm0, l0)) )/( l.dot(m) );
-				p =  Vector3D.add( Vector3D.mult(l, d), l0 );
+				d = ( m.dot(DLVector.sub(pm0, l0)) )/( l.dot(m) );
+				p =  DLVector.add( DLVector.mult(l, d), l0 );
 				pg3d().vertex(p.x(), p.y(), p.z());
 				
 				l0.z(h);
-				d = ( n.dot(Vector3D.sub(pn0, l0)) )/( l.dot(n) );
-				p =  Vector3D.add( Vector3D.mult(l, d), l0 );
+				d = ( n.dot(DLVector.sub(pn0, l0)) )/( l.dot(n) );
+				p =  DLVector.add( DLVector.mult(l, d), l0 );
 				pg3d().vertex(p.x(), p.y(), p.z());
 			}
 			pg3d().endShape();
@@ -911,9 +895,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg3d().rotate( cam.frame().rotation().angle(), ((Quaternion)cam.frame().rotation()).axis().vec[0], ((Quaternion)cam.frame().rotation()).axis().vec[1], ((Quaternion)cam.frame().rotation()).axis().vec[2]);
 
 			// 0 is the upper left coordinates of the near corner, 1 for the far one
-			Vector3D[] points = new Vector3D[2];
-			points[0] = new Vector3D();
-			points[1] = new Vector3D();
+			DLVector[] points = new DLVector[2];
+			points[0] = new DLVector();
+			points[1] = new DLVector();
 
 			points[0].z(scale * cam.zNear());
 			points[1].z(scale * cam.zFar());
@@ -1150,7 +1134,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		  scene().applyWorldTransformation(camera.frame());
 
 			//upper left coordinates of the near corner
-			Vector3D upperLeft = new Vector3D();
+			DLVector upperLeft = new DLVector();
 			
 			pg().pushStyle();
 			
@@ -1231,7 +1215,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	protected class P5RendererJava2D extends Renderer {
 		PGraphics pg;
-		Matrix3D proj;
+		DLMatrix proj;
 		
 		public P5RendererJava2D(Scene scn, PGraphics renderer, Drawerable d) {
 			super(scn, d);
@@ -1259,12 +1243,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	protected abstract class P5Renderer extends ProjectionRenderer {
 		PGraphicsOpenGL pg;
-		Matrix3D proj;
+		DLMatrix proj;
 		
 		public P5Renderer(Scene scn, PGraphicsOpenGL renderer, Drawerable d) {
 			super(scn, d);
 			pg = renderer;
-			proj = new Matrix3D();
+			proj = new DLMatrix();
 		}
 		
 		public PGraphics pg() {
@@ -1291,20 +1275,20 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public Matrix3D getProjection() {
+		public DLMatrix getProjection() {
 			PMatrix3D pM = pggl().projection.get();
-	    return new Matrix3D(pM.get(new float[16]), true);// set it transposed
+	    return new DLMatrix(pM.get(new float[16]), true);// set it transposed
 		}
 
 		@Override
-		public Matrix3D getProjection(Matrix3D target) {
+		public DLMatrix getProjection(DLMatrix target) {
 			PMatrix3D pM = pggl().projection.get();
 	    target.setTransposed(pM.get(new float[16]));
 	    return target;
 		}
 
 		@Override
-		public void applyProjection(Matrix3D source) {
+		public void applyProjection(DLMatrix source) {
 			PMatrix3D pM = new PMatrix3D();
 	    pM.set(source.getTransposed(new float[16]));
 	    pggl().applyProjection(pM);		
@@ -1334,7 +1318,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}	
 
 		@Override
-		public void setProjection(Matrix3D source) {
+		public void setProjection(DLMatrix source) {
 			PMatrix3D pM = new PMatrix3D();
 			pM.set(source.getTransposed(new float[16]));		
 			pg2d().projection.set(pM);		
@@ -1347,7 +1331,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}	
 
 		@Override
-		public void setMatrix(Matrix3D source) {
+		public void setMatrix(DLMatrix source) {
 			PMatrix3D pM = new PMatrix3D();
 			pM.set(source.getTransposed(new float[16]));
 			//pg2d().setMatrix(pM);
@@ -1419,18 +1403,18 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg2d().modelview.set(scene.viewWindow().getViewMatrix(true).getTransposed(new float[16]));						
 			// Finally, caches projmodelview
 			//pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(true).getTransposed(new float[16]));		
-			Matrix3D.mult(proj, scene.viewWindow().view(), scene.viewWindow().projectionView());
+			DLMatrix.mult(proj, scene.viewWindow().view(), scene.viewWindow().projectionView());
 			pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(false).getTransposed(new float[16]));
 		  // */
 		}
 	}
 	
 	protected class P5Renderer3D extends P5Renderer {
-		Vector3D at;	
+		DLVector at;	
 		
 		public P5Renderer3D(Scene scn, PGraphicsOpenGL renderer) {
 			super(scn, renderer, new P5Drawing3D(scn));		
-			at = new Vector3D();		
+			at = new DLVector();		
 		}
 		
 		public PGraphics3D pg3d() {
@@ -1443,14 +1427,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}	
 
 		@Override
-		public void setProjection(Matrix3D source) {
+		public void setProjection(DLMatrix source) {
 			PMatrix3D pM = new PMatrix3D();
 	    pM.set(source.getTransposed(new float[16]));
 	    pg3d().setProjection(pM);
 		}
 		
 		@Override
-		public void setMatrix(Matrix3D source) {
+		public void setMatrix(DLMatrix source) {
 			PMatrix3D pM = new PMatrix3D();
 			pM.set(source.getTransposed(new float[16]));
 			pg3d().setMatrix(pM);//needs testing in screen drawing
@@ -1879,20 +1863,20 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	@Override
-	public Matrix3D getMatrix() {
+	public DLMatrix getMatrix() {
 		PMatrix3D pM = (PMatrix3D) pg().getMatrix();
-		return new Matrix3D(pM.get(new float[16]), true);// set it transposed
+		return new DLMatrix(pM.get(new float[16]), true);// set it transposed
 	}
 	
 	@Override
-	public Matrix3D getMatrix(Matrix3D target) {
+	public DLMatrix getMatrix(DLMatrix target) {
 		PMatrix3D pM = (PMatrix3D) pg().getMatrix();
 		target.setTransposed(pM.get(new float[16]));
 		return target;
 	}
 	
 	@Override
-	public void setMatrix(Matrix3D source) {
+	public void setMatrix(DLMatrix source) {
 		resetMatrix();
 		applyMatrix(source);
 	}
@@ -1903,7 +1887,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	@Override
-	public void applyMatrix(Matrix3D source) {
+	public void applyMatrix(DLMatrix source) {
 		PMatrix3D pM = new PMatrix3D();
 		pM.set(source.getTransposed(new float[16]));
 		pg().applyMatrix(pM);
@@ -2084,7 +2068,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		if (arpFlag) 
 			drawArcballReferencePointHint();
 		if (pupFlag) {
-			Vector3D v = pinhole().projectedCoordinatesOf(pupVec);
+			DLVector v = pinhole().projectedCoordinatesOf(pupVec);
 			pg().pushStyle();		
 			pg().stroke(255);
 			pg().strokeWeight(3);
@@ -2340,7 +2324,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
-					Vector3D center = pinhole().projectedCoordinatesOf(iF.position());
+					DLVector center = pinhole().projectedCoordinatesOf(iF.position());
 					if (mg.grabsCursor()) {						
 						pg().pushStyle();
 					  //pg3d.stroke(mouseGrabberOnSelectionHintColor());
@@ -2368,7 +2352,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
-					Vector3D center = pinhole().projectedCoordinatesOf(iF.position());
+					DLVector center = pinhole().projectedCoordinatesOf(iF.position());
 					if (mg.grabsCursor()) {
 						pg().pushStyle();						
 					  //pg3d.stroke(mouseGrabberCameraPathOnSelectionHintColor());
@@ -2710,7 +2694,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		PGL pgl = pggl().beginPGL();
 		pgl.readPixels((int) pixel.x, (camera().screenHeight() - (int) pixel.y), 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, FloatBuffer.wrap(depth));		
 		pggl().endPGL();		
-		Vector3D point = new Vector3D((int) pixel.x, (int) pixel.y, depth[0]);		
+		DLVector point = new DLVector((int) pixel.x, (int) pixel.y, depth[0]);		
 		point = camera().unprojectedCoordinatesOf(point);
 		return camera().new WorldPoint(point, (depth[0] < 1.0f));
 	}	
