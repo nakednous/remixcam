@@ -134,16 +134,16 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	*/
 
 	/**
-	 * Overloading of {@link remixlab.remixcam.core.InteractiveFrame#dampedSpin()}.
+	 * Overloading of {@link remixlab.remixcam.core.InteractiveFrame#spin()}.
 	 * <p>
 	 * Rotates the InteractiveCameraFrame around its #arcballReferencePoint()
 	 * instead of its origin.
 	 */
 	@Override
-	public void dampedSpin() {
+	public void spin() {
 		if(spinningFriction > 0) {
 			if (deviceSpeed == 0) {
-				stopDampedSpinning();
+				stopSpinning();
 				return;
 			}
 			rotateAroundPoint(spinningQuaternion(), arcballReferencePoint());
@@ -153,10 +153,12 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			rotateAroundPoint(spinningQuaternion(), arcballReferencePoint());
 	}
 	
+	/**
 	@Override
 	public void spin() {
 		rotateAroundPoint(spinningQuaternion(), arcballReferencePoint());
 	}
+	*/
 
 	/**
 	 * Returns the point the InteractiveCameraFrame revolves around when rotated.
@@ -179,14 +181,12 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		arcballRefPnt = refP;
 	}
 	
-  //TODO should be protected
 	@Override
-	public void execAction2D(MotionEvent<?> event) {
+	protected void execAction2D(MotionEvent<?> event) {
 	}
 	
-  //TODO should be protected
 	@Override
-	public void execAction3D(MotionEvent<?> e) {
+	protected void execAction3D(MotionEvent<?> e) {
 		DLAction a = e.getAction();
 		DOF2Event event;
 		
@@ -228,7 +228,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			DLVector trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
 			Quaternion rot = deformedBallQuaternion(event, trans.vec[0], trans.vec[1], scene.camera());	
 			setSpinningQuaternion(rot);
-			startDampedSpinning(event);
+			startSpinning(event);
 			//spin();
 			break;
 			
@@ -276,8 +276,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				break;
 			}			
 			
-			setTossingDirection(inverseTransformOf(DLVector.mult(trans, translationSensitivity()), false));
-			translate(tossingDirection());
+			translate(inverseTransformOf(DLVector.mult(trans, translationSensitivity()), false));
 			
 			break;
 		}
@@ -314,366 +313,6 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		}
 	}
 	
-	@Override
-	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {
-		if ((action == DOF_6Action.MOVE_FORWARD)
-				|| (action == DOF_6Action.MOVE_BACKWARD)
-				|| (action == DOF_6Action.DRIVE)
-				|| (action == DOF_6Action.LOOK_AROUND)
-				|| (action == DOF_6Action.ROLL)
-				|| (action == DOF_6Action.ZOOM_ON_REGION)
-				|| (action == DOF_6Action.NO_ACTION))
-			super.execAction2D(eventPoint, viewWindow);
-		else {
-			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
-			if( scene.isRightHanded() )
-				deltaY = -deltaY;
-			
-			switch (action) {
-			case TRANSLATE: {
-				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
-				DLVector trans = new DLVector((int) delta.x, (int) -delta.y, 0.0f);
-				// No need to scale to fit the screen mouse displacement
-				
-				computeDeviceSpeed(eventPoint);
-				setTossingDirection(inverseTransformOf(DLVector.mult(trans, translationSensitivity())));
-				toss();
-				
-				prevPos = eventPoint;				
-				break;
-			}
-
-			case ZOOM: {				
-		 	  //TODO 1-DOF -> wheel
-				//float delta = -rotation * wheelSensitivity();
-				float delta = ((float)eventPoint.y - (float)prevPos.y);
-				if(delta < 0)
-					scale(1 + Math.abs(delta) / (float) scene.height());
-				else
-					inverseScale(1 + Math.abs(delta) / (float) scene.height());
-				
-				prevPos = eventPoint;				
-				break;
-			}
-
-			case ROTATE: {
-				DLVector trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());
-				Orientable rot;
-				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
-				rot = new Rotation(rot.angle() * rotationSensitivity());
-				if( !isFlipped() )
-					rot.negate();				
-				// #CONNECTION# These two methods should go together (spinning detection and activation)				
-				setSpinningQuaternion(rot);
-				//computeDeviceSpeed(eventPoint);
-				//spin();
-				startDampedSpinning(eventPoint);
-				prevPos = eventPoint;
-				break;
-			}
-
-			case SCREEN_ROTATE: {		
-				DLVector trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());
-				float angle = (float) Math.atan2((int) eventPoint.y - trans.vec[1],
-						                             (int) eventPoint.x - trans.vec[0])
-						                  - (float) Math.atan2((int) prevPos.y - trans.vec[1], (int) prevPos.x
-								              - trans.vec[0]);
-
-				// lef-handed coordinate system correction
-				//if( scene.isLeftHanded() )
-				if( !isFlipped() )
-					angle = -angle;
-
-				Orientable rot = new Rotation(angle);
-				// #CONNECTION# These two methods should go together (spinning detection and activation)				
-				setSpinningQuaternion(rot);
-			  //computeDeviceSpeed(eventPoint);
-				//spin();
-				startDampedSpinning(eventPoint);
-				updateFlyUpVector();
-				prevPos = eventPoint;				
-				break;
-			}
-
-			case SCREEN_TRANSLATE: {
-				DLVector trans = new DLVector();
-				int dir = deviceOriginalDirection(eventPoint);
-				if (dir == 1)
-					trans.set(((int) prevPos.x - (int) eventPoint.x), 0.0f, 0.0f);
-				else if (dir == -1)
-					trans.set(0.0f, -deltaY, 0.0f);
-				float[] wh = viewWindow.getOrthoWidthHeight();
-				trans.vec[0] *= 2.0f * wh[0] / viewWindow.screenWidth();
-				trans.vec[1] *= 2.0f * wh[1] / viewWindow.screenHeight();				
-				setTossingDirection(inverseTransformOf(DLVector.mult(trans, translationSensitivity())));
-				computeDeviceSpeed(eventPoint);
-				toss();
-				//startTossing(eventPoint);
-				prevPos = eventPoint;
-				
-				break;
-			}
-
-			default:
-				prevPos = eventPoint;
-				break;
-			}
-		}
-	}
-	
-	@Override
-	protected void execAction3D(Point eventPoint, Camera camera) {
-		if ((action == DOF_6Action.MOVE_FORWARD)
-				|| (action == DOF_6Action.MOVE_BACKWARD)
-				|| (action == DOF_6Action.DRIVE)
-				|| (action == DOF_6Action.LOOK_AROUND)
-				|| (action == DOF_6Action.ROLL)
-				|| (action == DOF_6Action.ZOOM_ON_REGION)
-				|| (action == DOF_6Action.NO_ACTION))
-			super.execAction3D(eventPoint, camera);
-		else {
-			int deltaY = (int) (eventPoint.y - prevPos.y);//as it were LH
-			if( scene.isRightHanded() )
-				deltaY = -deltaY;
-			
-			switch (action) {			
-			case TRANSLATE: {		
-				Point delta = new Point(prevPos.x - eventPoint.x, deltaY);
-				DLVector trans = new DLVector((int) delta.x, (int) -delta.y, 0.0f);						
-				
-				// Scale to fit the screen mouse displacement
-				switch (camera.type()) {
-				case PERSPECTIVE:
-					trans.mult(2.0f
-							       * (float) Math.tan( camera.fieldOfView() / 2.0f)
-							       //* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2])
-							       * Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2] * magnitude().z())
-							       //* Math.abs((camera.frame().coordinatesOfNoScl(arcballReferencePoint())).vec[2])
-							       / camera.screenHeight());
-					break;
-				case ORTHOGRAPHIC: {
-					float[] wh = camera.getOrthoWidthHeight();
-					trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
-					trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
-					break;
-				}
-				}
-				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));								
-				
-				setTossingDirection(inverseTransformOf(DLVector.mult(trans, translationSensitivity()), false));
-				computeDeviceSpeed(eventPoint);
-				toss();
-				//startTossing(eventPoint);
-			
-				prevPos = eventPoint;
-				
-				break;
-			}
-
-			case ZOOM: {
-			  //TODO 1-DOF -> wheel
-				//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * vp.sceneRadius());
-				//Vector3D trans = new Vector3D(0.0f, 0.0f, coef * rotation * wheelSensitivity() * wheelSensitivityCoef);
-				
-				// #CONNECTION# wheelEvent() ZOOM case
-			  float coef = Math.max(Math.abs((camera.frame().coordinatesOf(camera.arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * camera.sceneRadius());
-				//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
-				// Warning: same for left and right CoordinateSystemConvention:
-				DLVector trans = new DLVector(0.0f, 0.0f,	-coef	* ((int) (eventPoint.y - prevPos.y)) / camera.screenHeight());
-				
-				//No Scl
-				DLVector mag = magnitude();
-				trans.div(mag);
-				
-				translate(inverseTransformOf(trans));
-				prevPos = eventPoint;				
-				break;
-			}
-
-			case ROTATE: {
-				DLVector trans = camera.projectedCoordinatesOf(arcballReferencePoint());
-				Quaternion rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], camera);				
-				// #CONNECTION# These two methods should go together (spinning detection and activation)				
-				setSpinningQuaternion(rot);
-				//computeDeviceSpeed(eventPoint);
-				//spin();				
-				startDampedSpinning(eventPoint);
-				prevPos = eventPoint;
-				break;
-			}
-			
-			case CAD_ROTATE: {
-				DLVector trans = camera.projectedCoordinatesOf(arcballReferencePoint());				
-				// the following line calls setSpinningQuaternion
-				Quaternion rot = computeCADQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.x(), trans.y(), camera);
-				// #CONNECTION# These two methods should go together (spinning detection and activation)				
-				setSpinningQuaternion(rot);
-				//computeDeviceSpeed(eventPoint);
-				//spin();
-				startDampedSpinning(eventPoint);
-				prevPos = eventPoint;
-				break;
-			}
-
-			case SCREEN_ROTATE: {		
-				DLVector trans = camera.projectedCoordinatesOf(arcballReferencePoint());
-				float angle = (float) Math.atan2((int) eventPoint.y - trans.vec[1],
-						                             (int) eventPoint.x - trans.vec[0])
-						                  - (float) Math.atan2((int) prevPos.y - trans.vec[1], (int) prevPos.x
-								              - trans.vec[0]);
-
-				// lef-handed coordinate system correction
-				//if( scene.isLeftHanded() )
-				if( !isFlipped() )
-					angle = -angle;
-
-				Orientable rot = new Quaternion(new DLVector(0.0f, 0.0f, 1.0f), angle);
-				// #CONNECTION# These two methods should go together (spinning detection and activation)				
-				setSpinningQuaternion(rot);
-				//computeDeviceSpeed(eventPoint);
-				//spin();
-				startDampedSpinning(eventPoint);
-				updateFlyUpVector();
-				prevPos = eventPoint;	
-				break;
-			}
-
-			case SCREEN_TRANSLATE: {
-				DLVector trans = new DLVector();
-				int dir = deviceOriginalDirection(eventPoint);
-				if (dir == 1)
-					trans.set(((int) prevPos.x - (int) eventPoint.x), 0.0f, 0.0f);
-				else if (dir == -1)
-					trans.set(0.0f, -deltaY, 0.0f);
-								
-				switch (camera.type()) {
-				case PERSPECTIVE:
-					trans.mult(2.0f
-							* (float) Math.tan( camera.fieldOfView() / 2.0f)
-							* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2] * magnitude().z())
-							//* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2])
-							//* Math.abs((camera.frame().coordinatesOfNoScl(arcballReferencePoint())).vec[2])
-							/ camera.screenHeight());
-					break;
-				case ORTHOGRAPHIC: {
-					float[] wh = camera.getOrthoWidthHeight();
-					trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
-					trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
-					break;
-				}
-				}
-				trans = DLVector.mult(trans, translationSensitivity());				
-				trans.div(magnitude());
-				
-				//translate(inverseTransformOf(Vector3D.mult(trans, translationSensitivity())));				
-				setTossingDirection(inverseTransformOf(DLVector.mult(trans, translationSensitivity()), false));
-				computeDeviceSpeed(eventPoint);
-				toss();
-				//startTossing(eventPoint);
-				
-				prevPos = eventPoint;			
-			  
-				break;
-			}
-
-			default:
-				prevPos = eventPoint;
-				break;
-			}
-		}
-	}	
-  
-	/**
-	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveFrame#endAction(Point, Camera)}.
-	 */
-	@Override
-	public void endInteraction(Point eventPoint) {
-		if( ( scene.is2D() ) && ( !action.is2D() ) )
-			return;
-		
-		// Added by pierre: #CONNECTION# seems that startAction should always be called before :)
-		if (action == DOF_6Action.ZOOM_ON_REGION) {
-			// the rectangle needs to be normalized!
-			int w = Math.abs((int) eventPoint.x - (int) pressPos.x);
-			int tlX = (int) pressPos.x < (int) eventPoint.x ? (int) pressPos.x : (int) eventPoint.x;
-			int h = Math.abs((int) eventPoint.y - (int) pressPos.y);
-			int tlY = (int) pressPos.y < (int) eventPoint.y ? (int) pressPos.y : (int) eventPoint.y;
-
-			// overkill:
-			// if (event.getButton() == MouseEvent.BUTTON3)//right button
-			// camera.fitScreenRegion( new Rectangle (tlX, tlY, w, h) );
-			// else
-			scene.pinhole().interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
-		}
-
-		super.endInteraction(eventPoint);
-	}
-
-	/**
-	 * Overloading of
-	 * {@link remixlab.remixcam.core.InteractiveDrivableFrame#wheelMoved(int, Pinhole)}
-	 * .
-	 * <p>
-	 * The wheel behavior depends on the wheel binded action. Current possible
-	 * actions are {@link remixlab.remixcam.core.DLDeviceAction#ZOOM},
-	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_FORWARD} and
-	 * {@link remixlab.remixcam.core.DLDeviceAction#MOVE_BACKWARD}.
-	 * {@link remixlab.remixcam.core.DLDeviceAction#ZOOM} speed depends on
-	 * #wheelSensitivity() the other two depend on #flySpeed().
-	 */
-	/**
-	@Override
-	public void wheelMoved(float rotation) {
-		Pinhole vp = scene.pinhole();
-		if( ( scene.is2D() ) && ( !action.is2D() ) )
-			return;
-		
-		switch (action) {
-		case ZOOM: {
-			float wheelSensitivityCoef = 8E-4f;			
-			
-			if( scene.is3D() ) {
-			  // #CONNECTION# mouseMoveEvent() ZOOM case
-				//float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
-				float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * vp.sceneRadius());
-				Vector3D trans = new Vector3D(0.0f, 0.0f, coef * rotation * wheelSensitivity() * wheelSensitivityCoef);
-				
-			  //No Scl
-				Vector3D mag = magnitude();
-				trans.div(mag);
-				
-				translate(inverseTransformOf(trans));
-			}
-			else {			
-				float delta = -rotation * wheelSensitivity();
-				if(delta < 0)
-					scale(1 + Math.abs(delta) / (float) scene.height());
-				else
-					inverseScale(1 + Math.abs(delta) / (float) scene.height());
-			}
-			
-			break;
-		}
-		case MOVE_FORWARD:
-		case MOVE_BACKWARD:
-			// #CONNECTION# mouseMoveEvent() MOVE_FORWARD case
-			translate(inverseTransformOf(new Vector3D(0.0f, 0.0f, 0.2f * flySpeed()	* (-rotation))));
-			break;
-		default:
-			break;
-		}
-
-		int finalDrawAfterWheelEventDelay = 400;
-
-		// Starts (or prolungates) the timer.
-		if( flyTimerJob.timer() != null )
-			flyTimerJob.runOnce(finalDrawAfterWheelEventDelay);
-
-		action = DLDeviceAction.NO_ACTION;
-	}
-	*/
-	
 	/**
 	 * Returns a Quaternion computed according to mouse motion. The Quaternion
 	 * is computed as composition of two rotations (quaternions): 1. Mouse motion along
@@ -681,14 +320,19 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * Mouse motion along the screen Y axis rotates the camera along its X axis.
 	 * 
 	 * @see #getCADAxis()
-	 */
-	protected Quaternion computeCADQuaternion(int x, int y, float cx,	float cy, Pinhole camera) {
+	 */	
+	protected Quaternion computeCADQuaternion(DOF2Event event, float cx,	float cy, Pinhole camera) {
 		if(! (camera instanceof Camera) )
 			throw new RuntimeException("CAD cam is oly available in 3D");
 		
+		float x = event.getX();
+		float y = event.getY();
+		float prevX = event.getPrevX();
+		float prevY = event.getPrevY();
+		
 		// Points on the deformed ball
-		float px = rotationSensitivity() * ((int) prevPos.x - cx)	/ camera.screenWidth();
-		float py = rotationSensitivity() * (scene.isLeftHanded() ? ((int) prevPos.y - cy) : ((cy - (int) prevPos.y))) / camera.screenHeight();
+		float px = rotationSensitivity() * ((int) prevX - cx)	/ camera.screenWidth();
+		float py = rotationSensitivity() * (scene.isLeftHanded() ? ((int) prevY - cy) : ((cy - (int) prevY))) / camera.screenHeight();
 		float dx = rotationSensitivity() * (x - cx) / camera.screenWidth();
 		float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();
 		

@@ -7,7 +7,6 @@ import remixlab.remixcam.profile.*;
 public abstract class AbstractMotionDevice extends AbstractDevice implements Constants {
 	protected AbstractMotionProfile<?> camProfile, frameProfile;
 	protected ClickProfile clickProfile;
-	//protected double[] HArrayList<Float> sens;
 	protected float[] sens;
 	
 	public AbstractMotionDevice(AbstractScene scn, String n) {
@@ -35,6 +34,10 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 		return camProfile;
 	}
 	
+	public float [] sensitivities() {
+		return sens;
+	}
+	
 	public void setCameraProfile(AbstractMotionProfile<?>	profile) {
 		camProfile = profile;
 	}
@@ -58,7 +61,7 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 		if( event instanceof DLClickEvent )
 			clickProfile.handle(event);
 		else {
-			if(scene.activeFrame() != null)
+			if(scene.grabberInteractiveFrame() != null)
 				frameProfile.handle(event);
 			else
 				camProfile.handle(event);

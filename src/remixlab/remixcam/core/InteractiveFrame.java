@@ -25,7 +25,7 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.constraint.Constraint;
+//import remixlab.remixcam.constraint.Constraint;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.util.AbstractTimerJob;
@@ -47,34 +47,21 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * the {@link remixlab.remixcam.core.AbstractScene#deviceGrabberPool()}.
  */
 
-public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copyable {
+public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
     appendSuper(super.hashCode()).
-		append(action).
-		append(delay).
-		append(dirIsFixed).
 		append(grabsDeviceThreshold).
 		append(grbsDevice).
-		append(horiz).
 		append(isInCamPath).
 		append(isSpng).
-		append(keepsGrabbingDevice).
-		append(deviceSpeed).
-		append(pressPos).
-		append(prevPos).
+		append(keepsGrabbingCursor).
 		append(rotSensitivity).
 		append(spngQuat).
 		append(spngSensitivity).
 		append(spinningFriction).
 		append(sFriction).
-		append(tossingSensitivity).
-		append(isTossed).
-		append(tossingDirection).
-		append(tossingFriction).
-		append(tFriction).
-		append(startedTime).
 		append(transSensitivity).
 		append(wheelSensitivity).
     toHashCode();
@@ -88,74 +75,47 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		
 		InteractiveFrame other = (InteractiveFrame) obj;
 		return new EqualsBuilder()
-    .appendSuper(super.equals(obj))		
-    .append(action, other.action)
-		.append(delay, other.delay)
-		.append(dirIsFixed, other.dirIsFixed)
+    .appendSuper(super.equals(obj))
 		.append(grabsDeviceThreshold, other.grabsDeviceThreshold)
 		.append(grbsDevice, other.grbsDevice)	
-		.append(horiz, other.horiz)
 		.append(isInCamPath, other.isInCamPath)
 		.append(isSpng, other.isSpng)
 		.append(spinningFriction, other.spinningFriction)
 		.append(sFriction, other.sFriction)
-		.append(tossingSensitivity, other.tossingSensitivity)
-		.append(isTossed, other.isTossed)
-		.append(tossingDirection, other.tossingDirection)
-		.append(tossingFriction, other.tossingFriction)
-		.append(tFriction, other.tFriction)
-		.append(keepsGrabbingDevice , other.keepsGrabbingDevice)
-		.append(deviceSpeed,other.deviceSpeed)
-		.append(pressPos,other.pressPos )
-		.append(prevPos,other.prevPos )
+		.append(keepsGrabbingCursor, other.keepsGrabbingCursor)
 		.append(rotSensitivity, other.rotSensitivity)
 		.append(spngQuat,other.spngQuat)
 		.append(spngSensitivity,other.spngSensitivity)
-		.append(startedTime, other.startedTime)
 		.append(transSensitivity, other.transSensitivity)
 		.append(wheelSensitivity, other.wheelSensitivity)
 		.isEquals();
 	}
 	
-	private boolean horiz;// Two simultaneous InteractiveFrame require two mice!
+	//private boolean horiz;// Two simultaneous InteractiveFrame require two mice!
 	private int grabsDeviceThreshold;
 	private float rotSensitivity;
 	private float transSensitivity;
 	private float wheelSensitivity;
-
-	// Mouse speed:
-	protected float deviceSpeed;
-	private int startedTime;
-	protected int delay;
 	
 	// spinning stuff:
+	protected float deviceSpeed;
 	private float spngSensitivity;
 	private boolean isSpng;
-	private AbstractTimerJob dampedSpinningTimerJob, spinningTimerJob;
+	private AbstractTimerJob spinningTimerJob;
 	private Orientable spngQuat;
 	protected float spinningFriction; //new	
 	private float sFriction; //new
-	
-  //tossing stuff:
-	protected static final float MIN_TOSSING_FRICTION = 0.01f;
-	private float tossingSensitivity;//new	
-	private boolean isTossed;//new	
-	private AbstractTimerJob tossingTimerJob;
-	private DLVector tossingDirection;//new	
-	protected float tossingFriction;//new	
-	private float tFriction;//new	
 
 	// Whether the SCREEN_TRANS direction (horizontal or vertical) is fixed or not.
-	private boolean dirIsFixed;
+	//TODO how to deal with SCREEN_TRANS
+	//private boolean dirIsFixed;
 
 	// MouseGrabber
-	protected boolean keepsGrabbingDevice;
-
-	protected DOF_6Action action;
+	public boolean keepsGrabbingCursor;
 	//TODO define if this shpuld go
 	//protected Constraint prevConstraint; // When manipulation is without Constraint.
 	// Previous mouse position (used for incremental updates) and mouse press position.
-	protected Point prevPos, pressPos;
+	//protected Point prevPos, pressPos;
 
 	protected boolean grbsDevice;
 
@@ -179,9 +139,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	public InteractiveFrame(AbstractScene scn) {
 		super(scn.is3D());		
 		scene = scn;		
-		
-		action = DOF_6Action.NO_ACTION;
-		horiz = true;
 
 		addInDeviceGrabberPool();
 		isInCamPath = false;
@@ -191,26 +148,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
 		setWheelSensitivity(20.0f);
-
-		keepsGrabbingDevice = false;
-		//prevConstraint = null;
-		startedTime = 0;		
 		
 		isSpng = false;
 		setSpinningSensitivity(0.3f);
 		setSpinningFriction(0.5f);
-		
-		isTossed = false;
-		setTossingSensitivity(0.3f);
-		//setTossingFriction(1.0f);
-		setTossingFriction(0.6f);
-		
-		dampedSpinningTimerJob = new AbstractTimerJob() {
-			public void execute() {
-				dampedSpin();
-			}
-		};	
-		scene.registerJob(dampedSpinningTimerJob);
 		
 		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -218,15 +159,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			}
 		};	
 		scene.registerJob(spinningTimerJob);
-		
-		tossingTimerJob = new AbstractTimerJob() {
-			public void execute() {
-				toss();
-			}
-		};	
-		scene.registerJob(tossingTimerJob);
-		
-		// delay = 10;
 	}
 	
 	/**
@@ -237,8 +169,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	protected InteractiveFrame(InteractiveFrame otherFrame) {
 		super(otherFrame);
 		this.scene = otherFrame.scene;
-		this.action = otherFrame.action;
-		this.horiz = otherFrame.horiz;
 		
 		this.addInDeviceGrabberPool();
 		this.isInCamPath = otherFrame.isInCamPath;
@@ -260,24 +190,12 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		this.setTranslationSensitivity( otherFrame.translationSensitivity() );
 		this.setWheelSensitivity( otherFrame.wheelSensitivity() );
 
-		this.keepsGrabbingDevice = otherFrame.keepsGrabbingDevice;		
+		this.keepsGrabbingCursor = otherFrame.keepsGrabbingCursor;		
 		//this.prevConstraint = otherFrame.prevConstraint; 
-		this.startedTime = otherFrame.startedTime;
 		
 		this.isSpng = otherFrame.isSpng;
 		this.setSpinningSensitivity( otherFrame.spinningSensitivity() );
 		this.setSpinningFriction( otherFrame.spinningFriction() );
-		
-		this.isTossed = otherFrame.isTossed;
-		this.setTossingSensitivity( otherFrame.tossingSensitivity() );
-		this.setTossingFriction( otherFrame.tossingFriction() );
-		
-		this.dampedSpinningTimerJob = new AbstractTimerJob() {
-			public void execute() {
-				dampedSpin();
-			}
-		};		
-		scene.registerJob(dampedSpinningTimerJob);
 		
 		this.spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -285,13 +203,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			}
 		};		
 		scene.registerJob(spinningTimerJob);
-		
-		tossingTimerJob = new AbstractTimerJob() {
-			public void execute() {
-				toss();
-			}
-		};	
-		scene.registerJob(tossingTimerJob);
 	}
   
 	/**
@@ -322,8 +233,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	public InteractiveFrame(AbstractScene scn, InteractiveCameraFrame iFrame) {
 		super(iFrame.rotation(), iFrame.translation(), iFrame.scaling());
 		scene = scn;
-		action = DOF_6Action.NO_ACTION;
-		horiz = true;
 
 		addInDeviceGrabberPool();
 		isInCamPath = true;
@@ -333,10 +242,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
 		setWheelSensitivity(20.0f);
-
-		keepsGrabbingDevice = false;
-		//prevConstraint = null;
-		startedTime = 0;
 
 		/**
 		setListeners(new ArrayList<KeyFrameInterpolator>());
@@ -349,31 +254,13 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		isSpng = false;
 		setSpinningSensitivity(0.3f);
 		setSpinningFriction(0.5f);
-		
-		isTossed = false;
-		setTossingSensitivity(0.3f);
-		setTossingFriction(0.6f);
 				
-		dampedSpinningTimerJob = new AbstractTimerJob() {
-			public void execute() {
-				dampedSpin();
-			}
-		};		
-		scene.registerJob(dampedSpinningTimerJob);
-		
 		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
 				spin();
 			}
 		};		
 		scene.registerJob(spinningTimerJob);
-		
-		tossingTimerJob = new AbstractTimerJob() {
-			public void execute() {
-				toss();
-			}
-		};	
-		scene.registerJob(tossingTimerJob);
 	}	
 
 	/**
@@ -440,7 +327,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	@Override
 	public void checkIfGrabsCursor(int x, int y) {
 		DLVector proj = scene.pinhole().projectedCoordinatesOf(position());
-		setGrabsCursor(keepsGrabbingDevice || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
+		setGrabsCursor(keepsGrabbingCursor || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
 	}
 
 	/**
@@ -466,7 +353,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	/**
 	 * Convenience wrapper function that simply returns {@code scene.isInMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.remixcam.core.AbstractScene#isInDeviceGrabberPool(DeviceGrabbable)
+	 * @see remixlab.remixcam.core.AbstractScene#isInDeviceGrabberPool(Grabbable)
 	 */
 	public boolean isInDeviceGrabberPool() {
 		return scene.isInDeviceGrabberPool(this);
@@ -475,7 +362,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	/**
 	 * Convenience wrapper function that simply calls {@code scene.addInMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.remixcam.core.AbstractScene#addInDeviceGrabberPool(DeviceGrabbable)
+	 * @see remixlab.remixcam.core.AbstractScene#addInDeviceGrabberPool(Grabbable)
 	 */
 	public void addInDeviceGrabberPool() {
 		scene.addInDeviceGrabberPool(this);
@@ -484,7 +371,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	/**
 	 * Convenience wrapper function that simply calls {@code scene.removeFromMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.remixcam.core.AbstractScene#removeFromDeviceGrabberPool(DeviceGrabbable)
+	 * @see remixlab.remixcam.core.AbstractScene#removeFromDeviceGrabberPool(Grabbable)
 	 */
 	public void removeFromDeviceGrabberPool() {
 		scene.removeFromDeviceGrabberPool(this);
@@ -509,13 +396,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 */
 	public final void setSpinningSensitivity(float sensitivity) {
 		spngSensitivity = sensitivity;
-	}
-	
-	/**
-	 * Defines the {@link #tossingSensitivity()}.
-	 */
-	public final void setTossingSensitivity(float sensitivity) {
-		tossingSensitivity = sensitivity;
 	}
 
 	/**
@@ -576,10 +456,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 
 	/**
 	 * Returns the minimum mouse speed required (at button release) to make the
-	 * InteractiveFrame {@link #dampedSpin()}.
+	 * InteractiveFrame {@link #spin()}.
 	 * <p>
-	 * See {@link #dampedSpin()}, {@link #spinningQuaternion()} and
-	 * {@link #startDampedSpinning(long)} for details.
+	 * See {@link #spin()}, {@link #spinningQuaternion()} and
+	 * {@link #startSpinning(long)} for details.
 	 * <p>
 	 * Mouse speed is expressed in pixels per milliseconds. Default value is 0.3
 	 * (300 pixels per second). Use {@link #setSpinningSensitivity(float)} to tune
@@ -595,29 +475,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 */
 	public final float spinningSensitivity() {
 		return spngSensitivity;
-	}
-	
-	/**
-	 * Returns the minimum mouse speed required (at button release) to make the
-	 * InteractiveFrame {@link #toss()}.
-	 * <p>
-	 * See {@link #toss()}, {@link #tossingDirection()} and
-	 * {@link #startTossing(long)} for details.
-	 * <p>
-	 * Mouse speed is expressed in pixels per milliseconds. Default value is 0.3
-	 * (300 pixels per second). Use {@link #setTossingSensitivity(float)} to tune
-	 * this value. A higher value will make tossing more difficult (a value of
-	 * 100.0 forbids tossing in practice).
-	 * 
-	 * @see #setTossingSensitivity(float)
-	 * @see #setSpinningSensitivity(float) 
-	 * @see #translationSensitivity()
-	 * @see #rotationSensitivity()
-	 * @see #wheelSensitivity()
-	 * @see #spinningSensitivity()
-	 */
-	public final float tossingSensitivity() {
-		return tossingSensitivity;
 	}
 
 	/**
@@ -640,11 +497,11 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	/**
 	 * Returns {@code true} when the InteractiveFrame is spinning.
 	 * <p>
-	 * During spinning, {@link #dampedSpin()} rotates the InteractiveFrame by its
+	 * During spinning, {@link #spin()} rotates the InteractiveFrame by its
 	 * {@link #spinningQuaternion()} at a frequency defined when the
-	 * InteractiveFrame {@link #startDampedSpinning(int)}.
+	 * InteractiveFrame {@link #startSpinning(int)}.
 	 * <p>
-	 * Use {@link #startDampedSpinning(int)} and {@link #stopDampedSpinning()} to change this
+	 * Use {@link #startSpinning(int)} and {@link #stopSpinning()} to change this
 	 * state. Default value is {@code false}.
 	 * 
 	 * @see #isTossing()
@@ -654,7 +511,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	}
 
 	/**
-	 * Returns the incremental rotation that is applied by {@link #dampedSpin()} to the
+	 * Returns the incremental rotation that is applied by {@link #spin()} to the
 	 * InteractiveFrame orientation when it {@link #isSpinning()}.
 	 * <p>
 	 * Default value is a {@code null} rotation (identity Quaternion). Use
@@ -683,51 +540,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	public final void setSpinningQuaternion(Orientable spinningQuaternion) {
 		spngQuat = spinningQuaternion;
 	}
-	
-	/**
-	 * Returns {@code true} when the InteractiveFrame is tossing.
-	 * <p>
-	 * During tossing, {@link #toss()} translates the InteractiveFrame by its
-	 * {@link #tossingDirection()} at a frequency defined when the
-	 * InteractiveFrame {@link #startTossing(long)}.
-	 * <p>
-	 * Use {@link #startTossing(long)} and {@link #stopTossing()} to change this
-	 * state. Default value is {@code false}.
-	 * 
-	 * @see #isSpinning()
-	 */
-	public final boolean isTossing() {
-		return isTossed;
-	}
-	
-	/**
-	 * Returns the incremental translation that is applied by {@link #toss()} to the
-	 * InteractiveFrame translation when it {@link #isTossing()}.
-	 * <p>
-	 * Default value is a {@code null} translation. Use {@link #setTossingDirection(PVector)}
-	 * to change this value.
-	 * <p>
-	 * The direction is defined in the InteractiveFrame coordinate system. You can use
-	 * {@link remixlab.proscene.Frame#transformOfFrom(PVector, Frame)} to convert
-	 * this direction from another Frame coordinate system.
-	 * <p>
-	 * <b>Attention: </b>Tossing may be decelerated according to {@link #tossingFriction()}
-	 * till it stops completely.
-	 * 
-	 * @see #spinningQuaternion()
-	 */
-	public final DLVector tossingDirection() {
-		return tossingDirection;
-	}
-	
-	/**
-	 * Defines the {@link #tossingDirection()} in the InteractiveFrame coordinate system.
-	 * 
-	 * @see #setSpinningQuaternion(Quaternion)
-	 */
-	public final void setTossingDirection(DLVector dir) {
-		tossingDirection = dir;
-	}
 
 	/**
 	 * Returns {@code true} when the InteractiveFrame is being manipulated with
@@ -735,60 +547,33 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * during manipulation.
 	 */
 	//TODO how does this fit new model? Maire is using it
+	/**
 	public boolean isInInteraction() {
 		return action != DOF_6Action.NO_ACTION;
 	}
-	
-	public final void stopSpinning() {
-		spinningTimerJob.stop();
-		isSpng = false;
-	}
-	
-  //TODO combine this two
-	public void startSpinning(Point eP) {
-		computeDeviceSpeed(eP);
-		startSpinning(delay);
-	}
-	
-	public void startSpinning(int updateInterval) {
-		isSpng = true;
-		if(updateInterval>0)
-			spinningTimerJob.run(updateInterval);
-	}
+	*/
 
 	/**
-	 * Stops the spinning motion started using {@link #startDampedSpinning(long)}.
+	 * Stops the spinning motion started using {@link #startSpinning(long)}.
 	 * {@link #isSpinning()} will return {@code false} after this call.
 	 * <p>
-	 * <b>Attention: </b>This method may be called by {@link #dampedSpin()}, since spinning may
+	 * <b>Attention: </b>This method may be called by {@link #spin()}, since spinning may
 	 * be decelerated according to {@link #spinningFriction()} till it stops completely.
 	 * 
 	 * @see #spinningFriction()
 	 * @see #toss()
 	 */
-	public final void stopDampedSpinning() {
-		dampedSpinningTimerJob.stop();
+	public final void stopSpinning() {
+		spinningTimerJob.stop();
 		isSpng = false;
-	}
-	
-	//TODO combine this two
-	public void startDampedSpinning(Point eP) {
-		computeDeviceSpeed(eP);
-		startDampedSpinning(delay);
-	}
-	
-	public void startDampedSpinning(DOF2Event e) {
-		deviceSpeed = e.speed();
-		delay = (int) e.delay();
-		startDampedSpinning(delay);
 	}
 
 	/**
 	 * Starts the spinning of the InteractiveFrame.
 	 * <p>
-	 * This method starts a timer that will call {@link #dampedSpin()} every {@code
+	 * This method starts a timer that will call {@link #spin()} every {@code
 	 * updateInterval} milliseconds. The InteractiveFrame {@link #isSpinning()}
-	 * until you call {@link #stopDampedSpinning()}.
+	 * until you call {@link #stopSpinning()}.
 	 * <p>
 	 * <b>Attention: </b>Spinning may be decelerated according to {@link #spinningFriction()}
 	 * till it stops completely.
@@ -796,10 +581,12 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #spinningFriction()
 	 * @see #toss()
 	 */
-	public void startDampedSpinning(int updateInterval) {
+	public void startSpinning(DOF2Event e) {
+		deviceSpeed = e.speed();
 		isSpng = true;
+		int updateInterval = (int) e.delay();
 		if(updateInterval>0)
-			dampedSpinningTimerJob.run(updateInterval);
+			spinningTimerJob.run(updateInterval);
 	}
 	
 	/**
@@ -812,10 +599,10 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * @see #spinningFriction()
 	 * @see #toss()
 	 */
-	public void dampedSpin() {		
+	public void spin() {		
 		if(spinningFriction() > 0) {
 			if (deviceSpeed == 0) {
-				stopDampedSpinning();
+				stopSpinning();
 				return;
 			}
 			rotate(spinningQuaternion());
@@ -823,10 +610,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 		}
 		else
 			rotate(spinningQuaternion());
-	}
-	
-	public void spin() {
-		rotate(spinningQuaternion());
 	}
 	
 	/**
@@ -894,134 +677,6 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	}
 	
 	/**
-	 * Stops the tossing motion started using {@link #startTossing(long)}.
-	 * {@link #isTossing()} will return {@code false} after this call.
-	 * <p>
-	 * <b>Attention: </b>This method may be called by {@link #toss()}, since tossing is
-	 * decelerated according to {@link #tossingFriction()} till it stops completely.
-	 * 
-	 * @see #tossingFriction()
-	 * @see #dampedSpin()
-	 */
-	public final void stopTossing() {
-		tossingTimerJob.stop();
-		isTossed = false;
-	}
-	
-	//TODO combine this two:
-	public void startTossing(Point eP) {
-		computeDeviceSpeed(eP);
-		startTossing(delay);
-	}
-	
-	/**
-	 * Starts the tossing of the InteractiveFrame.
-	 * <p>
-	 * This method starts a timer that will call {@link #toss()} every {@code
-	 * updateInterval} milliseconds. The InteractiveFrame {@link #isTossing()}
-	 * until you call {@link #stopTossing()}.
-	 * <p>
-	 * <b>Attention: </b>Tossing may be decelerated according to {@link #tossingFriction()}
-	 * till it stops completely.
-	 * 
-	 * @see #tossingFriction()
-	 * @see #dampedSpin()
-	 */
-	public void startTossing(long updateInterval) {
-		isTossed = true;
-		if(updateInterval>0)
-			tossingTimerJob.run(updateInterval);
-	}
-	
-	/**
-	 * Translates the InteractiveFrame along its {@link #tossingDirection()}. Called
-	 * by a timer when the InteractiveFrame {@link #isTossing()}. 
-	 * <p>
-	 * <b>Attention: </b>Tossing may be decelerated according to
-	 * {@link #tossingFriction()} till it stops completely.
-	 * 
-	 * @see #tossingFriction()
-	 * @see #dampedSpin()
-	 */
-	public void toss() {		
-		if(tossingFriction() > 0) {
-			if (deviceSpeed == 0) {
-				stopTossing();
-				return;
-			}
-			translate(tossingDirection());
-			recomputeTossingDirection();						
-		}		
-		else
-			translate(tossingDirection());
-	}
-		
-	/**
-	 * Defines the {@link #tossingFriction()}. Values must be
-	 * in the range [{@link #MIN_TOSSING_FRICTION}..1].
-	 * {@link #MIN_TOSSING_FRICTION} is currently set to 0.01f.
-	 */
-	public void setTossingFriction(float f) {
-		if(f < 0 || f > 1)
-			return;
-		if(f < MIN_TOSSING_FRICTION) {
-			tossingFriction = MIN_TOSSING_FRICTION;
-			System.out.println("Setting tossing friction to " + MIN_TOSSING_FRICTION + " which is its minimum value");
-		}
-		tossingFriction = f;
-		tFriction = f*f*f;
-	}
-	
-	/**
-	 * Defines the tossing deceleration.
-	 * <p>
-	 * Default value is 1.0, i.e., forbids tossing. Use
-	 * {@link #setTossingFriction(float)} to tune this value.
-	 * A lower value will make tossing easier.
-	 * 
-	 * @see #spinningFriction()
-	 */
-	public float tossingFriction() {
-		return tossingFriction;
-	}
-	
-	/**
-	 * Internal use.
-	 * <p>
-	 * Computes and caches the value of the tossing friction used in
-	 * {@link #recomputeTossingDirection()}.
-	 */
-	protected void setTossingFrictionFx(float tossingFriction) {
-		tFriction = tossingFriction*tossingFriction*tossingFriction;
-	}
-	
-	/**
-	 * Internal use.
-	 * <p>
-	 * Returns the cached value of the tossing friction used in
-	 * {@link #recomputeTossingDirection()}.
-	 */
-	protected float tossingFrictionFx() {
-		return tFriction;
-	} 
-	
-	/**
-	 * Internal method. Recomputes the {@link #tossingDirection()}
-	 * according to {@link #tossingFriction()}.
-	 * 
-	 * @see #recomputeSpinningQuaternion()
-	 */
-	protected void recomputeTossingDirection() {
-		float prevSpeed = deviceSpeed;
-		float damping = 1.0f - tossingFrictionFx();
-		deviceSpeed *= damping;
-		if (Math.abs(deviceSpeed) < .001f)
-			deviceSpeed = 0;
-		float currSpeed = deviceSpeed;
-		setTossingDirection(DLVector.mult(this.tossingDirection(), currSpeed / prevSpeed));
-	}
-	
-	/**
 	 * Overloading of
 	 * {@link remixlab.remixcam.core.DeviceGrabbable#buttonClicked(remixlab.remixcam.core.AbstractScene.Button, int, Camera)}.
 	 * <p>
@@ -1029,9 +684,9 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 	 * and {@link remixlab.remixcam.core.AbstractScene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
 	 * the camera view direction.
 	 */
+	/**
 	@Override
-	//TODO pending generalization
-	public void buttonClicked(/**Point eventPoint,*/ Integer button, int numberOfClicks) {
+	public void buttonClicked(DLClickEvent clickEvent) {
 		Pinhole camera = scene.pinhole();
 		if(numberOfClicks != 2)
 			return;
@@ -1044,108 +699,33 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
     default: break;
     }
 	}
+	*/
 	
-	/**
-	 * Protected internal method used to handle mouse actions.
-	 */
-	//TODO should receive action and device and should call beginInteraction
-	public void beginAction(DOF_6Action act) {
-		if( ( scene.is2D() ) && ( !act.is2D() ) )
-			return;
-		action = act;
-	}
-	
-	public void execAction(DOF_6Action act) {
-		
-	}
-	
-	public void endAction() {
-		
-	}
-
-	/**
-	 * Initiates the InteractiveFrame mouse manipulation. Overloading of
-	 * {@link remixlab.remixcam.core.DeviceGrabbable#initAction(Point, Camera)}.
-	 * 
-	 * The mouse behavior depends on which button is pressed.
-	 * 
-	 * @see #execAction(Point, Camera)
-	 * @see #endAction(Point, Camera)
-	 */
 	@Override
-	public void beginInteraction(Point eventPoint) {
-		/**
-		if (scene.drawIsConstrained())
-			prevConstraint = null;
-		else {
-			prevConstraint = constraint();
-			setConstraint(null);
-		}
-		// */
+	public void performInteraction(DLEvent<?> event) {
+		//begin:
+		if (grabsCursor()) keepsGrabbingCursor = true;
+		//end:
+		stopSpinning();
+		//keepsGrabbingDevice = false;
 		
-		switch (action) {		
-		case SCREEN_TRANSLATE:
-			dirIsFixed = false;
-		case ZOOM:		
-		case TRANSLATE:
-			deviceSpeed = 0.0f;
-			stopTossing();
-			break;
-		case ROTATE:
-		case CAD_ROTATE:
-		case SCREEN_ROTATE:
-			deviceSpeed = 0.0f;
-			stopDampedSpinning();
-			stopSpinning();
-			break;
-		default:
-			break;
-		}
-		
-		if (grabsCursor()) keepsGrabbingDevice = true;
-		prevPos = pressPos = eventPoint;
-	}
-
-	/**
-	 * Modifies the InteractiveFrame according to the mouse motion.
-	 * <p>
-	 * Actual behavior depends on mouse bindings. See the Scene documentation for
-	 * details.
-	 * <p>
-	 * The {@code camera} is used to fit the mouse motion with the display
-	 * parameters.
-	 * 
-	 * @see remixlab.remixcam.core.Camera#screenWidth()
-	 * @see remixlab.remixcam.core.Camera#screenHeight()
-	 * @see remixlab.remixcam.core.Camera#fieldOfView()
-	 */
-	@Override
-	public void performInteraction(Point eventPoint) {
-		if( ( scene.is2D() ) && ( !action.is2D() ) )
+		if( ( scene.is2D() ) && ( !event.getAction().is2D() ) )
 			return;
 		
-		if( scene.is2D() )
-			execAction2D(eventPoint, (ViewWindow) scene.pinhole());
-		else
-			execAction3D(eventPoint, (Camera) scene.pinhole());
+		if( event instanceof MotionEvent<?>) {
+			if( scene.is2D() )
+				execAction2D((MotionEvent<?>)event);
+			else
+				execAction3D((MotionEvent<?>)event);
+		}
 	}
 	
-	public void execAction(MotionEvent<?> event) {
-		if( ( scene.is2D() ) && ( !action.is2D() ) )
-			return;
-		
-		if( scene.is2D() )
-			execAction2D(event);
-		else
-			execAction3D(event);
+	//TODO implement me
+	protected void execAction2D(MotionEvent<?> event) {
 	}
 	
-	//TODO should be protected
-	public void execAction2D(MotionEvent<?> event) {
-	}
-	
-//TODO should be protected
-	public void execAction3D(MotionEvent<?> e) {		
+  //TODO implement me
+	protected void execAction3D(MotionEvent<?> e) {		
 		DLAction a = e.getAction();
 		DOF2Event event;
 		float delta = 0;
@@ -1173,7 +753,8 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			Quaternion rot = deformedBallQuaternion(event, trans.x(), trans.y(), scene.camera());
 			rot = iFrameQuaternion(rot, scene.camera());			
 			setSpinningQuaternion(rot);
-			rotate(spinningQuaternion());
+			//rotate(spinningQuaternion());
+			startSpinning(event);
 			break;			
 		}
 		
@@ -1204,9 +785,7 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			// And then down to frame						
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);			
-			
-			setTossingDirection(trans);
-			translate(tossingDirection());									
+			translate(trans);									
 			break;
 		}
 		
@@ -1237,418 +816,15 @@ public class InteractiveFrame extends GeomFrame implements DeviceGrabbable, Copy
 			break;
 		}
 	}
-	
-	protected void execAction2D(Point eventPoint, ViewWindow viewWindow) {
-		int deltaY = 0;
-		if(action != DOF_6Action.NO_ACTION) {
-			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
-			if( scene.isRightHanded() )
-				deltaY = -deltaY;
-		}
-		
-		switch (action) {
-		case TRANSLATE: {
-				Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
-				DLVector trans = new DLVector((int) delta.getX(), (int) -delta.getY(), 0.0f);
-				trans = viewWindow.frame().inverseTransformOf(DLVector.mult(trans, translationSensitivity()));				
-				// And then down to frame
-				if (referenceFrame() != null)
-					trans = referenceFrame().transformOf(trans);
-								
-				setTossingDirection(trans);
-				computeDeviceSpeed(eventPoint);
-				toss();
-				//startTossing(eventPoint);
-				
-				prevPos = eventPoint;
-			
-			break;
-		}
 
-		case ZOOM: {
-			float delta = ((float)eventPoint.y - (float)prevPos.y);
-			if(delta >= 0)
-				scale(1 + Math.abs(delta) / (float) scene.height());
-			else
-				inverseScale(1 + Math.abs(delta) / (float) scene.height());			
-			prevPos = eventPoint;					
-			break;
-		}
-
-		case SCREEN_ROTATE: {
-			DLVector trans = viewWindow.projectedCoordinatesOf(position());
-			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.vec[1], (int)prevPos.x - trans.vec[0]);
-			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);			
-			Orientable rot;
-			
-			if( isFlipped() )
-				rot = new Rotation(angle - prev_angle);
-			else
-				rot = new Rotation(prev_angle - angle);
-			
-			// #CONNECTION# These two methods should go together (spinning detection and activation)			
-			setSpinningQuaternion(rot);
-			//computeDeviceSpeed(eventPoint);
-			//spin();
-			startDampedSpinning(eventPoint);
-			prevPos = eventPoint;
-			break;			
-		}
-
-		case SCREEN_TRANSLATE: {
-				DLVector trans = new DLVector();
-				int dir = deviceOriginalDirection(eventPoint);
-				if (dir == 1)
-					trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
-				else if (dir == -1)
-					trans.set(0.0f, -deltaY, 0.0f);				
-				
-				trans = viewWindow.frame().inverseTransformOf(DLVector.mult(trans, translationSensitivity()));				
-				// And then down to frame
-				if (referenceFrame() != null)
-					trans = referenceFrame().transformOf(trans);
-				
-				setTossingDirection(trans);
-				computeDeviceSpeed(eventPoint);
-				toss();
-				//startTossing(eventPoint);
-				
-				prevPos = eventPoint;
-			
-			break;
-		}
-
-		case ROTATE: {
-			DLVector trans = viewWindow.projectedCoordinatesOf(position());
-			Orientable rot;
-			rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, eventPoint);
-			rot = new Rotation(rot.angle() * rotationSensitivity());
-			if ( isFlipped() )
-				rot.negate();	
-			
-			// #CONNECTION# These two methods should go together (spinning detection and activation)			
-			setSpinningQuaternion(rot);
-			//computeDeviceSpeed(eventPoint);
-			//spin();
-			startDampedSpinning(eventPoint);
-			prevPos = eventPoint;
-		}
-
-		case NO_ACTION:
-			// Possible when the InteractiveFrame is a MouseGrabber. This method is
-			// then called without startAction
-			// because of mouseTracking.
-			break;
-
-		default:
-			prevPos = eventPoint;
-			break;
-		}
-	}
-	
-  protected void execAction3D(Point eventPoint, Camera camera) {
-  	int deltaY = 0;
-		if(action != DOF_6Action.NO_ACTION) {
-			deltaY = (int) (prevPos.y - eventPoint.y);//as it were LH
-			if( scene.isRightHanded() )
-				deltaY = -deltaY;
-		}
-
-		switch (action) {
-		case TRANSLATE: {
-			Point delta = new Point((eventPoint.x - prevPos.x), deltaY);
-			DLVector trans = new DLVector((int) delta.getX(), (int) -delta.getY(), 0.0f);			
-			
-			// Scale to fit the screen mouse displacement
-			switch ( camera.type() ) {
-			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan(camera.fieldOfView() / 2.0f)
-						            * Math.abs((camera.frame().coordinatesOf(position())).vec[2] * camera.frame().magnitude().z())
-						            //* Math.abs((camera.frame().coordinatesOf(position())).vec[2])						            
-						            / camera.screenHeight());
-				break;
-			case ORTHOGRAPHIC: {
-				float[] wh = camera.getOrthoWidthHeight();
-				trans.vec[0] *= 2.0 * wh[0] / camera.screenWidth();
-				trans.vec[1] *= 2.0 * wh[1] / camera.screenHeight();
-				break;
-			}
-			}
-		  // same as:
-			trans = camera.frame().orientation().rotate(DLVector.mult(trans, translationSensitivity()));
-			// but takes into account scaling			
-			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));			
-			// And then down to frame						
-			if (referenceFrame() != null)
-				trans = referenceFrame().transformOf(trans);			
-			
-			setTossingDirection(trans);
-			computeDeviceSpeed(eventPoint);
-			toss();
-			//startTossing(eventPoint);
-			
-			prevPos = eventPoint;						
-			break;
-		}
-
-		case ZOOM: {			
-		  //TODO 1-DOF -> wheel
-			//float delta = -rotation * wheelSensitivity();
-			float delta = ((float)eventPoint.y - (float)prevPos.y);		
-			
-			if(delta >= 0)
-				scale(1 + Math.abs(delta) / (float) scene.height());
-			else
-				inverseScale(1 + Math.abs(delta) / (float) scene.height());			
-			prevPos = eventPoint;				
-			break;
-		}
-
-		case SCREEN_ROTATE: {
-			DLVector trans = camera.projectedCoordinatesOf(position());
-			float prev_angle = (float) Math.atan2((int)prevPos.y - trans.vec[1], (int)prevPos.x - trans.vec[0]);
-			float angle = (float) Math.atan2((int)eventPoint.y - trans.vec[1], (int)eventPoint.x - trans.vec[0]);			
-			Orientable rot;
-			
-			DLVector axis = transformOf(camera.frame().inverseTransformOf(new DLVector(0.0f, 0.0f, -1.0f)));			
-			//TODO testing handed
-			if( scene.isRightHanded() )
-				rot = new Quaternion(axis, angle - prev_angle);
-			else
-				rot = new Quaternion(axis, prev_angle - angle);					
-			
-			// #CONNECTION# These two methods should go together (spinning detection and activation)			
-			setSpinningQuaternion(rot);
-			//computeDeviceSpeed(eventPoint);
-			//spin();
-			startDampedSpinning(eventPoint);
-			prevPos = eventPoint;
-			break;			
-		}
-
-		case SCREEN_TRANSLATE: {
-			// TODO: needs testing to see if it works correctly when left-handed is set
-			DLVector trans = new DLVector();
-			int dir = deviceOriginalDirection(eventPoint);
-			if (dir == 1)
-				trans.set(((int)eventPoint.x - (int)prevPos.x), 0.0f, 0.0f);
-			else if (dir == -1)
-				trans.set(0.0f, -deltaY, 0.0f);			
-			
-			switch ( camera.type() ) {
-			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan(camera.fieldOfView() / 2.0f)
-						            * Math.abs((camera.frame().coordinatesOf(position())).vec[2] * camera.frame().magnitude().z())
-						            //* Math.abs((camera.frame().coordinatesOf(position())).vec[2])						            
-						            / camera.screenHeight());
-				break;
-			case ORTHOGRAPHIC: {
-				float[] wh = camera.getOrthoWidthHeight();
-				trans.vec[0] *= 2.0 * wh[0] / camera.screenWidth();
-				trans.vec[1] *= 2.0 * wh[1] / camera.screenHeight();
-				break;
-			}
-			}
-			
-			/**
-			switch (camera.type()) {
-			case PERSPECTIVE:
-				trans.mult((float) Math.tan(camera.fieldOfView() / 2.0f)
-						* Math.abs((camera.frame().coordinatesOf(position())).vec[2])						
-						/ camera.screenHeight());
-				break;
-			case ORTHOGRAPHIC: {
-				float[] wh = camera.getOrthoWidthHeight();
-				trans.vec[0] *= 2.0 * wh[0] / camera.screenWidth();
-				trans.vec[1] *= 2.0 * wh[1] / camera.screenHeight();
-				break;
-			}
-			}
-			*/
-			
-			// Transform to world coordinate system.			
-			// same as:
-			trans = camera.frame().orientation().rotate(DLVector.mult(trans, translationSensitivity()));// but takes into account scaling
-			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
-			// And then down to frame
-			if (referenceFrame() != null)
-				trans = referenceFrame().transformOf(trans);
-			
-			setTossingDirection(trans);
-			computeDeviceSpeed(eventPoint);
-			toss();
-			//startTossing(eventPoint);
-			
-			prevPos = eventPoint;			
-			break;
-		}
-
-		case ROTATE: {
-			DLVector trans = camera.projectedCoordinatesOf(position());
-			Quaternion rot = deformedBallQuaternion((int)eventPoint.x, (int)eventPoint.y, trans.x(), trans.y(), camera);
-			rot = iFrameQuaternion(rot, camera);			
-			setSpinningQuaternion(rot);
-		  //computeDeviceSpeed(eventPoint);
-			//spin();
-			startDampedSpinning(eventPoint);			
-			prevPos = eventPoint;
-			break;			
-		}
-
-		case NO_ACTION:
-			// Possible when the InteractiveFrame is a MouseGrabber. This method is
-			// then called without startAction
-			// because of mouseTracking.
-			break;
-
-		default:
-			prevPos = eventPoint;
-			break;
-		}  	
-  }  
-
-	/**
-	 * Stops the InteractiveFrame mouse manipulation.
-	 * <p>
-	 * Overloading of
-	 * {@link remixlab.remixcam.core.DeviceGrabbable#endAction(Point, Camera)}.
-	 * <p>
-	 * If the action was ROTATE MouseAction, a continuous spinning is possible if
-	 * the speed of the mouse cursor is larger than {@link #spinningSensitivity()}
-	 * when the button is released. Press the rotate button again to stop
-	 * spinning.
-	 * 
-	 * @see #startDampedSpinning(int)
-	 * @see #isSpinning()
-	 */
-  @Override
-	public void endInteraction(Point event) {
-		keepsGrabbingDevice = false;
-		
-		stopDampedSpinning();
-
-		/**
-		if (prevConstraint != null)
-			setConstraint(prevConstraint);
-		*/
-		
-		//TODO debug
-		//System.out.println("mouse speed: " + deviceSpeed + " delay: " + delay);
-		
-		// /**
-		if (((action == DOF_6Action.ROTATE) || (action == DOF_6Action.SCREEN_ROTATE) || (action == DOF_6Action.CAD_ROTATE) )	&& (deviceSpeed >= spinningSensitivity()))
-			startSpinning(delay);
-		//*/
-		
-		/**
-		if (((action == DLDeviceAction.TRANSLATE) || (action == DLDeviceAction.SCREEN_TRANSLATE) ) && (deviceSpeed >= tossingSensitivity()) )
-			startTossing(delay);
-		//*/
-
-		action = DOF_6Action.NO_ACTION;
-	}
-
-	/**
-	 * Overloading of
-	 * {@link remixlab.remixcam.core.DeviceGrabbable#wheelMoved(int, Camera)}.
-	 * <p>
-	 * Using the wheel is equivalent to a {@link remixlab.remixcam.core.DLDeviceAction#ZOOM}.
-	 * 
-	 * @see #setWheelSensitivity(float)
-	 */
-  /**
-	@Override
-	public void wheelMoved(float rotation) {
-		if( ( scene.is2D() ) && ( !action.is2D() ) )
-			return;
-		
-		if (action == DLDeviceAction.ZOOM) {
-			float delta = -rotation * wheelSensitivity();
-			if(delta >= 0)
-				scale(1 + Math.abs(delta) / (float) scene.height());
-			else
-				inverseScale(1 + Math.abs(delta) / (float) scene.height());
-		}
-
-		// #CONNECTION# startAction should always be called before
-		//if (prevConstraint != null)
-			//setConstraint(prevConstraint);
-
-		action = DLDeviceAction.NO_ACTION;
-	}
-	*/
-	
 	public boolean isFlipped() {
 		return ( scene.isRightHanded() && !isInverted() ) || ( scene.isLeftHanded() && isInverted() );
 	}
-
-	/**
-	 * Updates mouse speed, measured in pixels/milliseconds. Should be called by
-	 * any method which wants to use mouse speed. Currently used to trigger
-	 * spinning in {@link #endAction(Point, Camera)}.
-	 */
-	//TODO should go in HIDevice
-	protected void computeDeviceSpeed(Point eventPoint) {
-		float dist = (float) Point.distance(eventPoint.x, eventPoint.y, prevPos.getX(), prevPos.getY());
-
-		if (startedTime == 0) {
-			delay = 0;
-			startedTime = (int) System.currentTimeMillis();
-		} else {
-			delay = (int) System.currentTimeMillis() - startedTime;
-			startedTime = (int) System.currentTimeMillis();
-		}
-
-		if (delay == 0)
-			// Less than a millisecond: assume delay = 1ms
-			deviceSpeed = dist;
-		else
-			deviceSpeed = dist / delay;
-	}
-
-	/**
-	 * Return 1 if mouse motion was started horizontally and -1 if it was more
-	 * vertical. Returns 0 if this could not be determined yet (perfect diagonal
-	 * motion, rare).
-	 */
-  //TODO should go in HIDevice
-	protected int deviceOriginalDirection(Point eventPoint) {
-		if (!dirIsFixed) {
-			Point delta = new Point((eventPoint.x - pressPos.x), (eventPoint.y - pressPos.y));
-			dirIsFixed = Math.abs((int)delta.x) != Math.abs((int)delta.y);
-			horiz = Math.abs((int)delta.x) > Math.abs((int)delta.y);
-		}
-
-		if (dirIsFixed)
-			if (horiz)
-				return 1;
-			else
-				return -1;
-		else
-			return 0;
-	}
-
+	
 	/**
 	 * Returns a Quaternion computed according to the mouse motion. Mouse positions
 	 * are projected on a deformed ball, centered on ({@code cx}, {@code cy}).
 	 */
-	// /**
-	protected Quaternion deformedBallQuaternion(int x, int y, float cx, float cy, Camera camera) {			
-		// Points on the deformed ball		
-    float px = rotationSensitivity() *                         ((int)prevPos.x - cx)                           / camera.screenWidth();
-    float py = rotationSensitivity() * (scene.isLeftHanded() ? ((int)prevPos.y - cy) : ( cy - (int)prevPos.y)) / camera.screenHeight();
-    float dx = rotationSensitivity() *                         (x - cx)             / camera.screenWidth();
-    float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();    
-
-		DLVector p1 = new DLVector(px, py, projectOnBall(px, py));
-		DLVector p2 = new DLVector(dx, dy, projectOnBall(dx, dy));
-		// Approximation of rotation angle Should be divided by the projectOnBall size, but it is 1.0
-		DLVector axis = p2.cross(p1);
-		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));			
-		return new Quaternion(axis, angle);
-	}
-	// */
-	
 	protected Quaternion deformedBallQuaternion(DOF2Event event, float cx, float cy, Camera camera) {
 		float x = event.getX();
 		float y = event.getY();

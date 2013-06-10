@@ -1,7 +1,6 @@
 package remixlab.proscene;
 
 import remixlab.remixcam.core.*;
-import remixlab.remixcam.profile.*;
 import remixlab.remixcam.device.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
@@ -127,7 +126,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	//public class Mouse extends AbstractMouse {
 	public class ProsceneMouse extends DLWheeledMouse {
-		DOF2Event event, prevEvent;	
+		DOF2Event event, prevEvent;
+		int counter = 0;
 		public ProsceneMouse(AbstractScene scn, String n) {
 			super(scn, n);	
 			//cameraProfile().setBinding(DOF_2Action.ROTATE);//rotate without dragging any button
@@ -146,8 +146,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
 				handle(new DOF1Event(e.getCount(), e.getModifiers(), NOBUTTON));
-			}
-			
+			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
 				handle(new DLClickEvent(e.getModifiers(), e.getButton(), e.getCount()));
 			}			
@@ -1761,6 +1760,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		parent.registerMethod("keyEvent", prosceneKeyboard);
 		prosceneMouse = new ProsceneMouse(this, "proscene_mouse");
 		parent.registerMethod("mouseEvent", prosceneMouse);
+		
+		parent.registerMethod("mouseEvent", this);		
 		// */
 
 		parent.registerMethod("pre", this);
@@ -2177,7 +2178,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	@Override
-	protected void updateCursorPosition() {
+	protected void updateCursor() {
 		pcursorX = cursorX;
 		pcursorY = cursorY;
 		cursorX = parent.mouseX;
@@ -2319,7 +2320,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	@Override
 	protected void drawSelectionHints() {
-		for (DeviceGrabbable mg : msGrabberPool) {
+		for (Grabbable mg : msGrabberPool) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
@@ -2347,7 +2348,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 	@Override
 	protected void drawCameraPathSelectionHints() {
-		for (DeviceGrabbable mg : msGrabberPool) {
+		for (Grabbable mg : msGrabberPool) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
@@ -2697,4 +2698,17 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		point = camera().unprojectedCoordinatesOf(point);
 		return camera().new WorldPoint(point, (depth[0] < 1.0f));
 	}	
+	
+	//hack to make grabbers properly work
+	public void mouseEvent(processing.event.MouseEvent e) {
+		if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
+			for (Grabbable mg : deviceGrabberPool()) {
+				if(mg instanceof InteractiveFrame)
+					((InteractiveFrame)mg).keepsGrabbingCursor = false;
+				else
+					if(mg instanceof Grabber)
+					((Grabber)mg).keepsGrabbingCursor = false;
+			}			
+		}
+	}
 }

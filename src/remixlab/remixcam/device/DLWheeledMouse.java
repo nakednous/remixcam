@@ -36,7 +36,7 @@ public class DLWheeledMouse extends DLMouse {
 	@Override
 	public void handle(DLEvent<?> event) {
 		if( event instanceof DOF1Event ) {
-			if(scene.activeFrame() != null)
+			if(scene.grabberInteractiveFrame() != null)
 				wheelProfile.handle(event);
 			else
 				frameWheelProfile.handle(event);

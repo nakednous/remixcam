@@ -35,4 +35,10 @@ public class DOF3Device extends AbstractMotionDevice {
 	public void setZTranslationSensitivity(float s) {
 		sens[2] = s;
 	}
+	
+	public void setSensitivities(float x, float y, float z) {
+		sens[0] = x;
+		sens[1] = y;
+		sens[2] = z;
+	}
 }

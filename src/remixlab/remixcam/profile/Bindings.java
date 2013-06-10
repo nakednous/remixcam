@@ -79,7 +79,7 @@ public class Bindings<K extends Shortcut, A extends Constants.Actionable> implem
 		return map;
 	}
 	
-	public Actionable binding(Shortcut key) {
+	public A binding(Shortcut key) {
 		return map.get(key);
 	}
 

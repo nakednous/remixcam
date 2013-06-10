@@ -52,4 +52,13 @@ public class HIDevice extends AbstractMotionDevice {
 	public void setZRotationSensitivity(float s) {
 		sens[5] = s;
 	}
+	
+	public void setSensitivities(float x, float y, float z, float rx, float ry, float rz) {
+		sens[0] = x;
+		sens[1] = y;
+		sens[2] = z;
+		sens[3] = rx;
+		sens[4] = ry;
+		sens[5] = rz;
+	}
 }

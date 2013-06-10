@@ -25,9 +25,7 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.geom.Point;
-
-//TODO event point should be replaced by HIDeviceEvent. Really?
+import remixlab.remixcam.event.*;
 
 /**
  * Interface for objects that grab mouse focus in a Scene.
@@ -52,7 +50,7 @@ import remixlab.remixcam.geom.Point;
  * it from this pool using 
  * {@link remixlab.remixcam.core.AbstractScene#removeFromDeviceGrabberPool(DeviceGrabbable)}.
  */
-public interface DeviceGrabbable {
+public interface Grabbable {
 	/**
 	 * Called by the Scene before it tests if the MouseGrabber
 	 * {@link #grabsCursor()}. Should {@link #setGrabsCursor(boolean)} according to
@@ -103,23 +101,6 @@ public interface DeviceGrabbable {
 	void setGrabsCursor(boolean grabs);
 	
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsCursor()} and a mouse button is clicked.
-	 */
-	void buttonClicked(/**Point eventPoint,*/ Integer button, int numberOfClicks);
-
-	/**
-	 * Callback method called when the MouseGrabber {@link #grabsCursor()} and a
-	 * mouse button is pressed.
-	 * <p>
-	 * The MouseGrabber will typically start an action or change its state when a
-	 * mouse button is pressed. {@link #execAction(Point, Camera)} (called at
-	 * each mouse displacement) will then update the MouseGrabber accordingly and
-	 * {@link #endAction(Point, Camera)} (called when the mouse button is
-	 * released) will terminate this action.
-	 */
-	void beginInteraction(Point eventPoint);
-
-	/**
 	 * Callback method called when the MouseGrabber {@link #grabsCursor()} and the
 	 * mouse is moved while a button is pressed.
 	 * <p>
@@ -127,18 +108,5 @@ public interface DeviceGrabbable {
 	 * mouse displacement. See the {@link #initAction(Point, Camera)}
 	 * documentation for details.
 	 */
-	void performInteraction(Point eventPoint);
-
-	/**
-	 * Mouse release event callback method.
-	 * 
-	 * @see #initAction(Point, Camera)
-	 */
-	void endInteraction(Point eventPoint);
-
-	/**
-	 * Callback method called when the MouseGrabber {@link #grabsDevice()} and the
-	 * mouse wheel is used.
-	 */
-	//void wheelMoved(float rotation);
+	void performInteraction(DLEvent<?> motionEvent);
 }

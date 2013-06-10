@@ -38,5 +38,8 @@ public class DLMouse extends AbstractMotionDevice implements Constants {
 		sens[1] = s;
 	}
 	
-	
+	public void setSensitivities(float x, float y) {
+		sens[0] = x;
+		sens[1] = y;
+	}
 }
