@@ -108,6 +108,10 @@ public class DLEvent<A extends Constants.Actionable> implements Constants, Copya
   public long timestamp() {
   	return timestamp;
   }
+  
+  public boolean isNull() {
+  	return false;
+  }
 
   // /**
   public boolean isShiftDown() {

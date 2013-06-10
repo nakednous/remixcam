@@ -292,4 +292,13 @@ public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
 			rz = rz*sens[5];
 		}
 	}
+	
+	@Override
+	public boolean isNull() {
+  	if(relative() && Geom.zero(getDX()) && Geom.zero(getDY()) && Geom.zero(getDZ()) && Geom.zero(getDRX()) && Geom.zero(getDRY()) && Geom.zero(getDRZ()))
+  			return true;
+  	if(absolute() && Geom.zero(getX()) && Geom.zero(getY()) && Geom.zero(getZ()) && Geom.zero(getRX()) && Geom.zero(getRY()) && Geom.zero(getRZ()))
+  		return true;
+  	return false;
+  }
 }

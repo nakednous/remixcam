@@ -176,4 +176,13 @@ public class DOF3Event extends MotionEvent<Constants.DOF_3Action> {
 			z = z*sens[2];
 		}
 	}
+	
+	@Override
+	public boolean isNull() {
+  	if(relative() && Geom.zero(getDX()) && Geom.zero(getDY()) && Geom.zero(getDZ()))
+  			return true;
+  	if(absolute() && Geom.zero(getX()) && Geom.zero(getY()) && Geom.zero(getZ()))
+  		return true;
+  	return false;
+  }
 }

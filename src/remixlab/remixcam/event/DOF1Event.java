@@ -4,6 +4,7 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.geom.Geom;
 ///**
 public class DOF1Event extends MotionEvent<Constants.DOF_1Action> {
 	@Override
@@ -103,5 +104,14 @@ public class DOF1Event extends MotionEvent<Constants.DOF_1Action> {
 		if(sens.length>=1 && this.absolute())
 			x = x*sens[0];
 	}
+	
+	@Override
+	public boolean isNull() {
+  	if(relative() && Geom.zero(getDX()) )
+  			return true;
+  	if(absolute() && Geom.zero(getX()))
+  		return true;
+  	return false;
+  }
 }
 // */

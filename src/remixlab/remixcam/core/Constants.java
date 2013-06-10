@@ -296,6 +296,7 @@ public interface Constants {
   }
   
   public interface Actionable {
+  	//Enum<?> action();
   	DLAction action();
   	String description();
   	public boolean is2D();

@@ -224,6 +224,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		}
 		
 		case ROTATE: {
+		  //TODO debug
+			System.out.println("Should rotate camera with the mouse");
+			
 			event = (DOF2Event)e;
 			DLVector trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
 			Quaternion rot = deformedBallQuaternion(event, trans.vec[0], trans.vec[1], scene.camera());	
@@ -301,6 +304,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			break;
 			
 		case NATURAL:
+		  //TODO debug
+			System.out.println("NATURAL");
 			event6 = (DOF6Event)e;
 			translate(localInverseTransformOf(new DLVector(event6.getX(),event6.getY(),-event6.getZ()), false));
       // Rotate

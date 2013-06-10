@@ -737,7 +737,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			}
 			else {
 				event = (DOF2Event)e;
-				delta = ((float)event.getY() - (float)event.getPrevY());
+				delta = event.getDY(); /**((float)event.getY() - (float)event.getPrevY())*/;
 			}
 			
 			if(delta >= 0)
@@ -758,6 +758,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			break;			
 		}
 		
+		//TODO fix me again! broken when applying sclng
 		case TRANSLATE: {
 			event = (DOF2Event)e;
 			//Point delta = new Point(event.getX(), scene.isRightHanded() ? event.getY() : -event.getY());
@@ -784,7 +785,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));			
 			// And then down to frame						
 			if (referenceFrame() != null)
-				trans = referenceFrame().transformOf(trans);			
+				trans = referenceFrame().transformOf(trans, false);			
 			translate(trans);									
 			break;
 		}

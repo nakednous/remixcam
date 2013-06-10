@@ -187,4 +187,13 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
 			y = y*sens[1];
 		}
 	}
+	
+	@Override
+	public boolean isNull() {
+  	if(relative() && Geom.zero(getDX()) && Geom.zero(getDY()))
+  			return true;
+  	if(absolute() && Geom.zero(getX()) && Geom.zero(getY()))
+  		return true;
+  	return false;
+  }
 }

@@ -1098,7 +1098,8 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public void enqueueEvent(DLEvent<?> event) {
 		if(!isEventRegistered(event))
-			eventQueue.add(event);
+			if( !event.isNull() )
+				eventQueue.add(event);
 	}
 	
 	/**
