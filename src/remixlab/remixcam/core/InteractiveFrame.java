@@ -782,15 +782,15 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		  // same as:
 			trans = scene.camera().frame().orientation().rotate(DLVector.mult(trans, translationSensitivity()));
 			// but takes into account scaling			
-			//trans = camera.frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));			
+			//trans = scene.camera().frame().inverseTransformOf(DLVector.mult(trans, translationSensitivity()), false);			
 			// And then down to frame						
 			if (referenceFrame() != null)
-				trans = referenceFrame().transformOf(trans, false);			
+				trans = referenceFrame().transformOf(trans);			
 			translate(trans);									
 			break;
 		}
 		
-		case NATURAL:
+		case NATURAL: {
 			DOF6Event event6 = (DOF6Event)e;
 			DLVector t = new DLVector();
 	    Quaternion q = new Quaternion();
@@ -812,6 +812,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	    q.z(t.z());
 	    rotate(q);
 			break;
+		}
 		
 		default:
 			break;

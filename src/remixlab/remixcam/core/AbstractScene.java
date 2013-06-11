@@ -152,7 +152,7 @@ public abstract class AbstractScene implements Constants {
 		//setDefaultShortcuts();
 	}
 	
-	public InteractiveFrame grabberInteractiveFrame() {
+	public InteractiveFrame aliveInteractiveFrame() {
 		if (deviceGrabber() != null) {
 			if (deviceGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
 				return (InteractiveFrame) deviceGrabber();
@@ -686,8 +686,8 @@ public abstract class AbstractScene implements Constants {
     			this.handleEvent(event);
     		else
     			if( event instanceof MotionEvent )
-    				if( this.grabberInteractiveFrame() != null )
-    					grabberInteractiveFrame().performInteraction((MotionEvent<?>)event);
+    				if( this.aliveInteractiveFrame() != null )
+    					aliveInteractiveFrame().performInteraction((MotionEvent<?>)event);
     				else
     					camera().frame().performInteraction((MotionEvent<?>)event);
     }

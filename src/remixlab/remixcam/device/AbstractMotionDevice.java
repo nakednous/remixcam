@@ -61,7 +61,7 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 		if( event instanceof DLClickEvent )
 			clickProfile.handle(event);
 		else {
-			if(scene.grabberInteractiveFrame() != null)
+			if(scene.aliveInteractiveFrame() != null)
 				frameProfile.handle(event);
 			else
 				camProfile.handle(event);

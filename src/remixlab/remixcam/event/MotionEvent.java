@@ -110,7 +110,7 @@ public class MotionEvent<A extends Constants.Actionable> extends DLEvent<A> {
 	protected boolean sameSequence(MotionEvent<?> prevEvent) {
 		boolean result = false;
 		long tThreshold = 5000;
-		float dThreshold = 50;
+		float dThreshold =  50;
 		delay = this.timestamp() - prevEvent.timestamp();
 		
 		if(delay==0)
