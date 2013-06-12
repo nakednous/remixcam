@@ -758,35 +758,34 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			break;			
 		}
 		
-		//TODO fix me again! broken when applying sclng
 		case TRANSLATE: {
 			event = (DOF2Event)e;
 			//Point delta = new Point(event.getX(), scene.isRightHanded() ? event.getY() : -event.getY());
 			DLVector trans = new DLVector(event.getDX(), scene.isRightHanded() ? -event.getDY() : event.getDY(), 0.0f);			
 			
-			// Scale to fit the screen mouse displacement
+		  // Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
 				trans.mult(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
-						            * Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2] * magnitude().z())
-						            //* Math.abs((camera.frame().coordinatesOf(position())).vec[2])						            
-						            / scene.camera().screenHeight());
+						            * Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2] * scene.camera().frame().magnitude().z())
+								        //* Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2])						            
+								        / scene.camera().screenHeight());
 				break;
-			case ORTHOGRAPHIC: {
-				float[] wh = scene.camera().getOrthoWidthHeight();
-				trans.vec[0] *= 2.0 * wh[0] / scene.camera().screenWidth();
-				trans.vec[1] *= 2.0 * wh[1] / scene.camera().screenHeight();
-				break;
+				case ORTHOGRAPHIC: {
+					float[] wh = scene.camera().getOrthoWidthHeight();
+					trans.vec[0] *= 2.0 * wh[0] / scene.camera().screenWidth();
+					trans.vec[1] *= 2.0 * wh[1] / scene.camera().screenHeight();
+					break;
 				}
 			}
-		  // same as:
+			// same as:
 			trans = scene.camera().frame().orientation().rotate(DLVector.mult(trans, translationSensitivity()));
-			// but takes into account scaling			
-			//trans = scene.camera().frame().inverseTransformOf(DLVector.mult(trans, translationSensitivity()), false);			
-			// And then down to frame						
+			// but takes into account scaling
+			//trans = scene.camera().frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
+			// And then down to frame
 			if (referenceFrame() != null)
-				trans = referenceFrame().transformOf(trans);			
-			translate(trans);									
+				trans = referenceFrame().transformOf(trans);
+			translate(trans);
 			break;
 		}
 		
