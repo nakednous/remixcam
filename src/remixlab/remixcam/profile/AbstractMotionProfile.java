@@ -1,9 +1,9 @@
 package remixlab.remixcam.profile;
 
-import remixlab.remixcam.core.*;
+import remixlab.remixcam.action.VActionable;
 import remixlab.remixcam.shortcut.*;
 
-public abstract class AbstractMotionProfile<A extends Constants.Actionable> extends AbstractProfile<ButtonShortcut, A> {
+public abstract class AbstractMotionProfile<A extends VActionable> extends AbstractProfile<ButtonShortcut, A> {
 	/**
 	public AbstractMotionProfile(AbstractScene scn, String n) {
 		super(scn, n);
@@ -37,7 +37,7 @@ public abstract class AbstractMotionProfile<A extends Constants.Actionable> exte
 	 * Returns true if the given camera mouse-action is bound.
 	 */
 	public boolean isActionBound(A action) {
-		return bindings.isActionMapped(action.action());
+		return bindings.isActionMapped(action);
 	}
 	
 	/**

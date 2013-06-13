@@ -83,7 +83,7 @@ public class ClickProfile extends AbstractProfile<ClickShortcut, Constants.DOF_0
    * Returns true if the given click-action is bound.
    */
   public boolean isClickActionBound(DOF_0Action action) {
-  	return bindings.isActionMapped(action.action());
+  	return bindings.isActionMapped(action);
   }
   
   /**

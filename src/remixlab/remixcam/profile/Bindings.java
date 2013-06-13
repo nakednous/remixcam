@@ -31,6 +31,7 @@ import java.util.Map.Entry;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
+import remixlab.remixcam.action.VActionable;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.Shortcut;
 
@@ -45,7 +46,7 @@ import remixlab.remixcam.shortcut.Shortcut;
  * Internally, this class is simply a parameterized hash-map wrap
  * (HashMap<K, DLAction>). 
  */
-public class Bindings<K extends Shortcut, A extends Constants.Actionable> implements Constants {
+public class Bindings<K extends Shortcut, A extends VActionable> implements Constants {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -128,13 +129,21 @@ public class Bindings<K extends Shortcut, A extends Constants.Actionable> implem
 		return map.containsKey(key);
 	}
 
+	
+	//REALLY suspicius
+	/**
+	public boolean isActionMapped(DLAction action) {
+		return map.containsValue(action);
+	}
+	*/
+	
 	/**
 	 * Returns true if this object maps one or more shortcuts to the specified action.
 	 * 
 	 * @param action action whose presence in this object is to be tested
 	 * @return true if this object maps one or more shortcuts to the specified action.
 	 */
-	public boolean isActionMapped(DLAction action) {
+	public boolean isActionMapped(A action) {
 		return map.containsValue(action);
 	}
 	

@@ -1,13 +1,13 @@
 package remixlab.remixcam.event;
 
-import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.action.VActionable;
 import remixlab.remixcam.shortcut.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 // /**
-public class MotionEvent<A extends Constants.Actionable> extends DLEvent<A> {
+public class MotionEvent<A extends VActionable> extends DLEvent<A> {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).

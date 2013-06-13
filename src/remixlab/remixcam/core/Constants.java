@@ -25,6 +25,9 @@
 
 package remixlab.remixcam.core;
 
+//import remixlab.remixcam.action.DandelionActionable;
+import remixlab.remixcam.action.VActionable;
+
 public interface Constants {	
 	/**
    * PI is a mathematical constant with the value 3.14159265358979323846.
@@ -94,7 +97,7 @@ public interface Constants {
   static final int DOWN  = 40; 
   
   //Actions
-  public enum DLAction {
+  public enum DLAction /**implements DandelionActionable*/ {
   	NO_ACTION("No action", true, 0),
   	
   	//KEYfRAMES
@@ -295,6 +298,7 @@ public interface Constants {
     	*/   
   }
   
+  /**
   public interface Actionable {
   	//Enum<?> action();
   	DLAction action();
@@ -302,8 +306,9 @@ public interface Constants {
   	public boolean is2D();
   	public int dofs();
   }
+  */
   
-  public enum DOF_0Action implements Actionable {
+  public enum DOF_0Action implements VActionable {
     //DOF_0
   	NO_ACTION(DLAction.NO_ACTION),
   	
@@ -391,7 +396,7 @@ public interface Constants {
   	}
   }
   
-  public enum DOF_1Action implements Actionable {
+  public enum DOF_1Action implements VActionable {
     //DOF_0
   	NO_ACTION(DLAction.NO_ACTION),
   	
@@ -429,7 +434,7 @@ public interface Constants {
   	}
   }
   
-  public enum DOF_2Action implements Actionable {
+  public enum DOF_2Action implements VActionable {
   	NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1
@@ -480,7 +485,7 @@ public interface Constants {
   	}
   }
   
-  public enum DOF_3Action implements Actionable {
+  public enum DOF_3Action implements VActionable {
     NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1
@@ -535,7 +540,7 @@ public interface Constants {
   	}
   }
   
-  public enum DOF_6Action implements Actionable {
+  public enum DOF_6Action implements VActionable {
     NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1

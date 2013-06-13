@@ -262,7 +262,7 @@ public class KeyboardProfile extends AbstractProfile<KeyboardShortcut, Constants
 	 * Returns true if there is a camera keyboard shortcut for the given action.
 	 */
 	public boolean isKeyboardActionBound(DOF_0Action action) {
-		return bindings.isActionMapped(action.action());
+		return bindings.isActionMapped(action);
 	}
 	
 	// ---- pending

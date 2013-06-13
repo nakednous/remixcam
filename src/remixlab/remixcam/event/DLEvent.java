@@ -3,10 +3,11 @@ package remixlab.remixcam.event;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
+import remixlab.remixcam.action.VActionable;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.Shortcut;
 
-public class DLEvent<A extends Constants.Actionable> implements Constants, Copyable {
+public class DLEvent<A extends VActionable> implements Constants, Copyable {
 	//TODO fix modifiers!
 	@Override
 	public int hashCode() {
@@ -87,7 +88,7 @@ public class DLEvent<A extends Constants.Actionable> implements Constants, Copya
   	return action;
   }
   
-  public void setAction(Actionable actionable) {
+  public void setAction(VActionable actionable) {
   	if(actionable != null)
   		setAction(actionable.action());
   	else

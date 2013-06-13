@@ -1594,8 +1594,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public PApplet parent;
 	
 	// H A R D W A R E
-  ProsceneMouse prosceneMouse;
-  ProsceneKeyboard prosceneKeyboard;
+	//TODO find better getters
+  public ProsceneMouse prosceneMouse;
+  public ProsceneKeyboard prosceneKeyboard;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
