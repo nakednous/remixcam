@@ -25,8 +25,7 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.action.DandelionActionable;
-import remixlab.remixcam.action.VActionable;
+import remixlab.remixcam.action.Actionable;
 
 public interface Constants {	
 	/**
@@ -98,7 +97,7 @@ public interface Constants {
   
   //Actions
   //public enum DLAction implements DandelionActionable<DLAction> {
-  public enum DLAction implements DandelionActionable {
+  public enum DLAction /**implements DandelionActionable*/ {
   	NO_ACTION("No action", true, 0),
   	
   	//KEYfRAMES
@@ -226,17 +225,6 @@ public interface Constants {
     public int dofs() {
     	return dofs;
     }
-
-		@Override
-		public DLAction getAction() {
-			// TODO Auto-generated method stub
-			return this;
-		}
-		
-		@Override
-		public DLAction getDefaultAction() {
-			return DLAction.NO_ACTION;
-		}
     
     /**
     public DOF_6Action dof6Action() {
@@ -311,17 +299,7 @@ public interface Constants {
     	*/   
   }
   
-  /**
-  public interface Actionable {
-  	//Enum<?> action();
-  	DLAction action();
-  	String description();
-  	public boolean is2D();
-  	public int dofs();
-  }
-  */
-  
-  public enum DOF_0Action implements VActionable {
+  public enum DOF_0Action implements Actionable<DLAction> {
     //DOF_0
   	NO_ACTION(DLAction.NO_ACTION),
   	
@@ -414,7 +392,7 @@ public interface Constants {
   	}
   }
   
-  public enum DOF_1Action implements VActionable {
+  public enum DOF_1Action implements Actionable<DLAction> {
     //DOF_0
   	NO_ACTION(DLAction.NO_ACTION),
   	
@@ -457,7 +435,7 @@ public interface Constants {
   	}
   }
   
-  public enum DOF_2Action implements VActionable {
+  public enum DOF_2Action implements Actionable<DLAction> {
   	NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1
@@ -513,7 +491,7 @@ public interface Constants {
   	}
   }
   
-  public enum DOF_3Action implements VActionable {
+  public enum DOF_3Action implements Actionable<DLAction> {
     NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1
@@ -573,7 +551,7 @@ public interface Constants {
   	}
   }
   
-  public enum DOF_6Action implements VActionable {
+  public enum DOF_6Action implements Actionable<DLAction> {
     NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1

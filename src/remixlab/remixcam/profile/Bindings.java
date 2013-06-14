@@ -31,7 +31,7 @@ import java.util.Map.Entry;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.action.VActionable;
+import remixlab.remixcam.action.Actionable;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.Shortcut;
 
@@ -46,7 +46,7 @@ import remixlab.remixcam.shortcut.Shortcut;
  * Internally, this class is simply a parameterized hash-map wrap
  * (HashMap<K, A>). 
  */
-public class Bindings<K extends Shortcut, A extends VActionable> implements Constants {
+public class Bindings<K extends Shortcut, A extends Actionable> implements Constants {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		

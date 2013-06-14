@@ -25,7 +25,7 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.action.VActionable;
+import remixlab.remixcam.action.Actionable;
 import remixlab.remixcam.core.Constants.DLAction;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
@@ -190,7 +190,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	@Override
 	protected void execAction3D(MotionEvent<?> e) {
 	  //TODO fix me
-		VActionable a = e.getAction();
+		Actionable<DLAction> a = (Actionable<DLAction>) e.getAction();
 		if(a == null) return;
 		DLAction id = a.action();
 		//if(id == null) return;

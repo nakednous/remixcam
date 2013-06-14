@@ -32,7 +32,8 @@ import java.util.List;
 
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.action.VActionable;
+import remixlab.remixcam.action.Actionable;
+import remixlab.remixcam.core.Constants.DLAction;
 import remixlab.remixcam.device.*;
 import remixlab.remixcam.renderer.*;
 import remixlab.remixcam.util.*;
@@ -288,7 +289,7 @@ public abstract class AbstractScene implements Constants {
 		//if( !keyboardIsHandled() )
 			//return;		
 	  //TODO fix me
-		VActionable a = event.getAction();
+		Actionable<DLAction> a = (Actionable<DLAction>) event.getAction();
 		if(a == null) return;
 		DLAction id = a.action();
 		//if(id == null) return;
