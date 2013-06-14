@@ -3,7 +3,7 @@ package remixlab.remixcam.profile;
 import remixlab.remixcam.action.Actionable;
 import remixlab.remixcam.shortcut.*;
 
-public abstract class AbstractMotionProfile<A extends Actionable> extends AbstractProfile<ButtonShortcut, A> {
+public abstract class AbstractMotionProfile<A extends Actionable<?>> extends AbstractProfile<ButtonShortcut, A> {
 	/**
 	public AbstractMotionProfile(AbstractScene scn, String n) {
 		super(scn, n);
@@ -71,7 +71,7 @@ public abstract class AbstractMotionProfile<A extends Actionable> extends Abstra
 	 */
 	public void setBinding(Integer mask, Integer button, A action) {
 		if ( isBindingInUse(mask, button) ) {
-			Actionable a = binding(mask, button);
+			Actionable<?> a = binding(mask, button);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
 		bindings.setBinding(new ButtonShortcut(mask, button), action);
@@ -105,7 +105,7 @@ public abstract class AbstractMotionProfile<A extends Actionable> extends Abstra
 		bindings.removeBinding(new ButtonShortcut(mask, button));
 	}	
 	
-	public Actionable binding() {
+	public Actionable<?> binding() {
 		return binding(NOMODIFIER_MASK, NOBUTTON);
 	}
 	
@@ -114,7 +114,7 @@ public abstract class AbstractMotionProfile<A extends Actionable> extends Abstra
 	 * 
 	 * @param button
 	 */
-	public Actionable binding(Integer button) {
+	public Actionable<?> binding(Integer button) {
 		return binding(NOMODIFIER_MASK, button);
 	}
 	
@@ -124,7 +124,7 @@ public abstract class AbstractMotionProfile<A extends Actionable> extends Abstra
 	 * @param mask
 	 * @param button
 	 */
-	public Actionable binding(Integer mask, Integer button) {
+	public Actionable<?> binding(Integer mask, Integer button) {
 		return bindings.binding(new ButtonShortcut(mask, button));
 	}
 }

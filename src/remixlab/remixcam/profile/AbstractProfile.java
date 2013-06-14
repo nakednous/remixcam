@@ -5,7 +5,7 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.*;
 import remixlab.remixcam.event.*;
 
-public abstract class AbstractProfile<K extends Shortcut, A extends Actionable> implements Constants, Copyable {
+public abstract class AbstractProfile<K extends Shortcut, A extends Actionable<?>> implements Constants, Copyable {
 	/**
 	protected AbstractScene scene;
 	protected String nm;
@@ -42,7 +42,7 @@ public abstract class AbstractProfile<K extends Shortcut, A extends Actionable> 
 		bindings.removeAllBindings();
 	}
 	
-	public Actionable binding(Shortcut k) {
+	public Actionable<?> binding(Shortcut k) {
   	return bindings.binding(k);
   }
 }

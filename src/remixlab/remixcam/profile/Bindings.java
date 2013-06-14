@@ -46,7 +46,7 @@ import remixlab.remixcam.shortcut.Shortcut;
  * Internally, this class is simply a parameterized hash-map wrap
  * (HashMap<K, A>). 
  */
-public class Bindings<K extends Shortcut, A extends Actionable> implements Constants {
+public class Bindings<K extends Shortcut, A extends Actionable<?>> implements Constants {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		

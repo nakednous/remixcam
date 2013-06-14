@@ -5,7 +5,7 @@ import remixlab.remixcam.event.DLEvent;
 import remixlab.remixcam.event.DLKeyEvent;
 import remixlab.remixcam.shortcut.KeyboardShortcut;
 
-public abstract class AbstractKeyboardProfile<A extends Actionable>  extends AbstractProfile<KeyboardShortcut, A> {
+public abstract class AbstractKeyboardProfile<A extends Actionable<?>>  extends AbstractProfile<KeyboardShortcut, A> {
 	///**
 	public void handleKey(DLEvent<?> e) {
 	//public void handleKey(DLKeyEvent e) {
@@ -22,7 +22,7 @@ public abstract class AbstractKeyboardProfile<A extends Actionable>  extends Abs
 	 */
 	public void setShortcut(Character key, A action) {
 		if ( isKeyInUse(key) ) {
-			Actionable a = shortcut(key);
+			Actionable<?> a = shortcut(key);
 			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
 		bindings.setBinding(new KeyboardShortcut(key), action);
@@ -56,7 +56,7 @@ public abstract class AbstractKeyboardProfile<A extends Actionable>  extends Abs
 	 */
 	public void setShortcut(Integer mask, Integer vKey, A action) {
 		if ( isKeyInUse(mask, vKey) ) {
-			Actionable a = shortcut(mask, vKey);
+			Actionable<?> a = shortcut(mask, vKey);
 			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
 		bindings.setBinding(new KeyboardShortcut(mask, vKey), action);
@@ -70,7 +70,7 @@ public abstract class AbstractKeyboardProfile<A extends Actionable>  extends Abs
 	 */
 	public void setShortcut(Integer vKey, A action) {
 		if ( isKeyInUse(vKey) ) {
-			Actionable a = shortcut(vKey);
+			Actionable<?> a = shortcut(vKey);
 			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
 		bindings.setBinding(new KeyboardShortcut(vKey), action);
@@ -128,7 +128,7 @@ public abstract class AbstractKeyboardProfile<A extends Actionable>  extends Abs
 	 * @param key shortcut
 	 * @return action
 	 */
-	public Actionable shortcut(Character key) {
+	public Actionable<?> shortcut(Character key) {
 		return bindings.binding(new KeyboardShortcut(key));
 	}
 
@@ -143,7 +143,7 @@ public abstract class AbstractKeyboardProfile<A extends Actionable>  extends Abs
    * 
    * @see #shortcut(Integer, Character)
    */
-	public Actionable shortcut(Integer mask, Integer vKey) {
+	public Actionable<?> shortcut(Integer mask, Integer vKey) {
 		return bindings.binding(new KeyboardShortcut(mask, vKey));
 	}
 	
@@ -158,7 +158,7 @@ public abstract class AbstractKeyboardProfile<A extends Actionable>  extends Abs
    * 
    * @see #shortcut(Integer, Integer)
    */
-	public Actionable shortcut(Integer mask, Character key) {
+	public Actionable<?> shortcut(Integer mask, Character key) {
 		return shortcut(mask, DLKeyEvent.getKeyCode(key));
 	}
 
@@ -168,7 +168,7 @@ public abstract class AbstractKeyboardProfile<A extends Actionable>  extends Abs
 	 * @param vKey coded key (such PApplet.UP) that defines the shortcut
 	 * @return action
 	 */
-	public Actionable shortcut(Integer vKey) {
+	public Actionable<?> shortcut(Integer vKey) {
 		return bindings.binding(new KeyboardShortcut(vKey));
 	}
 
