@@ -61,7 +61,7 @@ public abstract class AbstractClickProfile<A extends VActionable> extends Abstra
    */
   public void setClickBinding(Integer button, A action) {
   	if ( isClickBindingInUse(button) ) {
-  		DLAction a = clickBinding(button);
+  		VActionable a = clickBinding(button);
   		System.out.println("Warning: overwritting binding which was previously associated to " + a);
   	}
   	bindings.setBinding(new ClickShortcut(button), action);
@@ -96,7 +96,7 @@ public abstract class AbstractClickProfile<A extends VActionable> extends Abstra
    */
   public void setClickBinding(Integer button, Integer nc, A action) {
   	if ( isClickBindingInUse(button, nc) ) {
-  		DLAction a = clickBinding(button, nc);
+  		VActionable a = clickBinding(button, nc);
   		System.out.println("Warning: overwritting binding which was previously associated to " + a);
   	}
   	bindings.setBinding(new ClickShortcut(button, nc), action);
@@ -115,7 +115,7 @@ public abstract class AbstractClickProfile<A extends VActionable> extends Abstra
    */
   public void setClickBinding(Integer mask, Integer button, Integer nc, A action) {
   	if ( isClickBindingInUse(mask, button, nc) ) {
-  		DLAction a = clickBinding(mask, button, nc);
+  		VActionable a = clickBinding(mask, button, nc);
   		System.out.println("Warning: overwritting binding which was previously associated to " + a);
   	}
   	bindings.setBinding(new ClickShortcut(mask, button, nc), action);
@@ -168,8 +168,8 @@ public abstract class AbstractClickProfile<A extends VActionable> extends Abstra
    * 
    * @param button binding
    */
-  public DLAction clickBinding(Integer button) {
-  	return bindings.binding(new ClickShortcut(button)).action();
+  public VActionable clickBinding(Integer button) {
+  	return bindings.binding(new ClickShortcut(button));
   }
 
   /**
@@ -190,8 +190,8 @@ public abstract class AbstractClickProfile<A extends VActionable> extends Abstra
    * @param button mouse button defining the binding
    * @param nc number of clicks defining the binding
    */
-  public DLAction clickBinding(Integer button, Integer nc) {
-  	return bindings.binding(new ClickShortcut(button, nc)).action();
+  public VActionable clickBinding(Integer button, Integer nc) {
+  	return bindings.binding(new ClickShortcut(button, nc));
   }
 
   /**
@@ -201,7 +201,7 @@ public abstract class AbstractClickProfile<A extends VActionable> extends Abstra
    * @param button mouse button defining the binding
    * @param nc number of clicks defining the binding
    */
-  public DLAction clickBinding(Integer mask, Integer button, Integer nc) {
-  	return bindings.binding(new ClickShortcut(mask, button, nc)).action();
+  public VActionable clickBinding(Integer mask, Integer button, Integer nc) {
+  	return bindings.binding(new ClickShortcut(mask, button, nc));
   }
 }

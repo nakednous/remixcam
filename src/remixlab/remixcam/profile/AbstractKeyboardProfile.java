@@ -13,20 +13,6 @@ public abstract class AbstractKeyboardProfile<A extends VActionable>  extends Ab
 			e.setAction( binding(((DLKeyEvent)e).keyShortcut()) );
 	}
 	// */
-	
-	/**
-	 * Overload this method to define the z-axis translation feed this method
-	 * if you plan to implement your own HIDevice. Otherwise use {@link #feedZTranslation(float)}
-	 * and {@link #addHandler(Object, String)} to the HIDevice.
-	 */
-	
-	/**
-	public abstract Character feedKey();
-	
-	public abstract Integer feedKeyCode();
-	*/
-	
-	// ---
 
 	/**
 	 * Defines a camera keyboard shortcut to bind the given action.
@@ -36,7 +22,7 @@ public abstract class AbstractKeyboardProfile<A extends VActionable>  extends Ab
 	 */
 	public void setShortcut(Character key, A action) {
 		if ( isKeyInUse(key) ) {
-			DLAction a = shortcut(key);
+			VActionable a = shortcut(key);
 			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
 		bindings.setBinding(new KeyboardShortcut(key), action);
@@ -70,7 +56,7 @@ public abstract class AbstractKeyboardProfile<A extends VActionable>  extends Ab
 	 */
 	public void setShortcut(Integer mask, Integer vKey, A action) {
 		if ( isKeyInUse(mask, vKey) ) {
-			DLAction a = shortcut(mask, vKey);
+			VActionable a = shortcut(mask, vKey);
 			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
 		bindings.setBinding(new KeyboardShortcut(mask, vKey), action);
@@ -84,7 +70,7 @@ public abstract class AbstractKeyboardProfile<A extends VActionable>  extends Ab
 	 */
 	public void setShortcut(Integer vKey, A action) {
 		if ( isKeyInUse(vKey) ) {
-			DLAction a = shortcut(vKey);
+			VActionable a = shortcut(vKey);
 			System.out.println("Warning: overwritting shortcut which was previously bound to " + a);
 		}
 		bindings.setBinding(new KeyboardShortcut(vKey), action);
@@ -142,8 +128,8 @@ public abstract class AbstractKeyboardProfile<A extends VActionable>  extends Ab
 	 * @param key shortcut
 	 * @return action
 	 */
-	public DLAction shortcut(Character key) {
-		return bindings.binding(new KeyboardShortcut(key)).action();
+	public VActionable shortcut(Character key) {
+		return bindings.binding(new KeyboardShortcut(key));
 	}
 
 	/**
@@ -157,8 +143,8 @@ public abstract class AbstractKeyboardProfile<A extends VActionable>  extends Ab
    * 
    * @see #shortcut(Integer, Character)
    */
-	public DLAction shortcut(Integer mask, Integer vKey) {
-		return bindings.binding(new KeyboardShortcut(mask, vKey)).action();
+	public VActionable shortcut(Integer mask, Integer vKey) {
+		return bindings.binding(new KeyboardShortcut(mask, vKey));
 	}
 	
 	/**
@@ -172,7 +158,7 @@ public abstract class AbstractKeyboardProfile<A extends VActionable>  extends Ab
    * 
    * @see #shortcut(Integer, Integer)
    */
-	public DLAction shortcut(Integer mask, Character key) {
+	public VActionable shortcut(Integer mask, Character key) {
 		return shortcut(mask, DLKeyEvent.getKeyCode(key));
 	}
 
@@ -182,8 +168,8 @@ public abstract class AbstractKeyboardProfile<A extends VActionable>  extends Ab
 	 * @param vKey coded key (such PApplet.UP) that defines the shortcut
 	 * @return action
 	 */
-	public DLAction shortcut(Integer vKey) {
-		return bindings.binding(new KeyboardShortcut(vKey)).action();
+	public VActionable shortcut(Integer vKey) {
+		return bindings.binding(new KeyboardShortcut(vKey));
 	}
 
 	/**

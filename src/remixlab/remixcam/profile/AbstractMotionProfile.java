@@ -71,7 +71,7 @@ public abstract class AbstractMotionProfile<A extends VActionable> extends Abstr
 	 */
 	public void setBinding(Integer mask, Integer button, A action) {
 		if ( isBindingInUse(mask, button) ) {
-			DLAction a = binding(mask, button);
+			VActionable a = binding(mask, button);
 			System.out.println("Warning: overwritting binding which was previously associated to " + a);
 		}
 		bindings.setBinding(new ButtonShortcut(mask, button), action);
@@ -105,7 +105,7 @@ public abstract class AbstractMotionProfile<A extends VActionable> extends Abstr
 		bindings.removeBinding(new ButtonShortcut(mask, button));
 	}	
 	
-	public DLAction binding() {
+	public VActionable binding() {
 		return binding(NOMODIFIER_MASK, NOBUTTON);
 	}
 	
@@ -114,7 +114,7 @@ public abstract class AbstractMotionProfile<A extends VActionable> extends Abstr
 	 * 
 	 * @param button
 	 */
-	public DLAction binding(Integer button) {
+	public VActionable binding(Integer button) {
 		return binding(NOMODIFIER_MASK, button);
 	}
 	
@@ -124,7 +124,7 @@ public abstract class AbstractMotionProfile<A extends VActionable> extends Abstr
 	 * @param mask
 	 * @param button
 	 */
-	public DLAction binding(Integer mask, Integer button) {
-		return bindings.binding(new ButtonShortcut(mask, button)).action();
+	public VActionable binding(Integer mask, Integer button) {
+		return bindings.binding(new ButtonShortcut(mask, button));
 	}
 }

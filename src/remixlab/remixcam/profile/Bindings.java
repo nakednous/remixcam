@@ -44,7 +44,7 @@ import remixlab.remixcam.shortcut.Shortcut;
  * and mouse (and mouse-click) actions.
  * <p>
  * Internally, this class is simply a parameterized hash-map wrap
- * (HashMap<K, DLAction>). 
+ * (HashMap<K, A>). 
  */
 public class Bindings<K extends Shortcut, A extends VActionable> implements Constants {
 	@Override
@@ -83,15 +83,6 @@ public class Bindings<K extends Shortcut, A extends VActionable> implements Cons
 	public A binding(Shortcut key) {
 		return map.get(key);
 	}
-
-	/**
-	 * Returns the action associated to a given Keyboard shortcut {@code key}.
-	 */
-	/**
-	public DLAction binding(K key) {
-		return map.get(key);
-	}
-	*/
 	
 	/**
 	 * Defines the shortcut that triggers a given action.
@@ -128,14 +119,6 @@ public class Bindings<K extends Shortcut, A extends VActionable> implements Cons
 	public boolean isShortcutInUse(K key) {
 		return map.containsKey(key);
 	}
-
-	
-	//REALLY suspicius
-	/**
-	public boolean isActionMapped(DLAction action) {
-		return map.containsValue(action);
-	}
-	*/
 	
 	/**
 	 * Returns true if this object maps one or more shortcuts to the specified action.

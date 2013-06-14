@@ -45,10 +45,4 @@ public abstract class AbstractProfile<K extends Shortcut, A extends VActionable>
 	public VActionable binding(Shortcut k) {
   	return bindings.binding(k);
   }
-	
-	/**
-	public DLAction binding(K k) {
-  	return bindings.binding(k);
-  }
-  // */
 }
