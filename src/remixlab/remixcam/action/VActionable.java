@@ -9,4 +9,5 @@ public interface VActionable {
 	String description();
 	public boolean is2D();
 	public int dofs();
+	DLAction defaultAction();
 }

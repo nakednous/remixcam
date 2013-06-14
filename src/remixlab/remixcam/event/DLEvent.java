@@ -32,39 +32,35 @@ public class DLEvent<A extends VActionable> implements Constants, Copyable {
 		.isEquals();
 	}
 	
-  protected DLAction action;
+  protected VActionable action;
   protected final Integer modifiers;
   protected final Long timestamp;
   
   public DLEvent() {
     this.modifiers = 0;
-    this.action = DLAction.NO_ACTION;
+    this.action = null;
     timestamp = System.currentTimeMillis();
   }
  
   public DLEvent(Integer modifiers) {
     this.modifiers = modifiers;
-    this.action = DLAction.NO_ACTION;
+    this.action = null;
     timestamp = System.currentTimeMillis();
   }  
   
   public DLEvent(A a) {    
     this.modifiers = 0;
-    this.action = a.action();
-    if(action == null)
-    	action = DLAction.NO_ACTION;
+    this.action = a;
     timestamp = System.currentTimeMillis();
   }
  
   public DLEvent(Integer modifiers, A a) {
     this.modifiers = modifiers;
-    this.action = a.action();
-    if(action == null)
-    	action = DLAction.NO_ACTION;
+    this.action = a;
     timestamp = System.currentTimeMillis();
   } 
   
-  protected DLEvent(DLEvent<?> other) {
+  protected DLEvent(DLEvent<A> other) {
 		this.modifiers = new Integer(other.modifiers);
 		this.action = other.action;
 		this.timestamp = new Long(System.currentTimeMillis());
@@ -75,7 +71,7 @@ public class DLEvent<A extends VActionable> implements Constants, Copyable {
   }
   
   @Override
-	public DLEvent<?> get() {
+	public DLEvent<A> get() {
 		return new DLEvent<A>(this);
 	}
   
@@ -84,22 +80,12 @@ public class DLEvent<A extends VActionable> implements Constants, Copyable {
   	return new Shortcut(getModifiers());
   }
   
-  public DLAction getAction() {
+  public VActionable getAction() {
   	return action;
   }
   
   public void setAction(VActionable actionable) {
-  	if(actionable != null)
-  		setAction(actionable.action());
-  	else
-  		setAction(DLAction.NO_ACTION);
-  }
-  
-  protected void setAction(DLAction a) {
-  	if(a == null)
-    	action = DLAction.NO_ACTION;
-  	else
-  		action = a;
+  	action = actionable;
   }
 
   public Integer getModifiers() {

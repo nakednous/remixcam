@@ -27,6 +27,8 @@ package remixlab.remixcam.core;
 
 //import remixlab.remixcam.constraint.Constraint;
 import remixlab.remixcam.geom.*;
+import remixlab.remixcam.action.VActionable;
+import remixlab.remixcam.core.Constants.DLAction;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.util.AbstractTimerJob;
 
@@ -725,12 +727,17 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	}
 	
   //TODO implement me
-	protected void execAction3D(MotionEvent<?> e) {		
-		DLAction a = e.getAction();
+	protected void execAction3D(MotionEvent<?> e) {
+	  //TODO fix me
+		VActionable a = e.getAction();
+		if(a == null) return;
+		DLAction id = a.action();
+		//if(id == null) return;	
+		
 		DOF2Event event;
 		float delta = 0;
 		
-		switch (a) {
+		switch (id) {
 		case ZOOM: {
 			if( e instanceof DOF1Event ) {
 				delta = ((DOF1Event)e).getX() * wheelSensitivity();	

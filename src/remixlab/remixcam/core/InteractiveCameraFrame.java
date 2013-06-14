@@ -25,6 +25,8 @@
 
 package remixlab.remixcam.core;
 
+import remixlab.remixcam.action.VActionable;
+import remixlab.remixcam.core.Constants.DLAction;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 
@@ -187,13 +189,18 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	
 	@Override
 	protected void execAction3D(MotionEvent<?> e) {
-		DLAction a = e.getAction();
+	  //TODO fix me
+		VActionable a = e.getAction();
+		if(a == null) return;
+		DLAction id = a.action();
+		//if(id == null) return;
+		
 		DOF2Event event;
 		
 		DOF6Event event6;
 		DLVector t = new DLVector();
     Quaternion q = new Quaternion();
-		switch (a) {
+		switch (id) {
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;
 			float coef = 0;

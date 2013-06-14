@@ -401,6 +401,11 @@ public interface Constants {
   	public int dofs() {
   		return act.dofs();
   	}
+  	
+  	@Override
+		public DLAction defaultAction() {
+			return DLAction.NO_ACTION;
+		}
 
   	DLAction act;
 
@@ -439,6 +444,11 @@ public interface Constants {
   	public int dofs() {
   		return act.dofs();
   	}
+  	
+  	@Override
+		public DLAction defaultAction() {
+			return DLAction.NO_ACTION;
+		}
 
   	DLAction act;
 
@@ -490,6 +500,11 @@ public interface Constants {
   	public int dofs() {
   		return act.dofs();
   	}
+  	
+  	@Override
+		public DLAction defaultAction() {
+			return DLAction.NO_ACTION;
+		}
 
   	DLAction act;
 
@@ -545,6 +560,11 @@ public interface Constants {
   	public int dofs() {
   		return act.dofs();
   	}
+  	
+  	@Override
+		public DLAction defaultAction() {
+			return DLAction.NO_ACTION;
+		}
 
   	DLAction act;
 
@@ -604,6 +624,11 @@ public interface Constants {
   	public int dofs() {
   		return act.dofs();
   	}
+  	
+  	@Override
+		public DLAction defaultAction() {
+			return DLAction.NO_ACTION;
+		}
 
   	DLAction act;
 

@@ -59,7 +59,7 @@ public class MotionEvent<A extends VActionable> extends DLEvent<A> {
   
 	// ---
 	
-  protected MotionEvent(MotionEvent<?> other) {
+  protected MotionEvent(MotionEvent<A> other) {
   	super(other);
 		this.button = new Integer(other.button);
 		this.delay = other.delay;
@@ -68,7 +68,7 @@ public class MotionEvent<A extends VActionable> extends DLEvent<A> {
 	}
   
   @Override
-	public MotionEvent<?> get() {
+	public MotionEvent<A> get() {
 		return new MotionEvent<A>(this);
 	}
   
