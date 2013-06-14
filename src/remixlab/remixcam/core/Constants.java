@@ -25,7 +25,7 @@
 
 package remixlab.remixcam.core;
 
-//import remixlab.remixcam.action.DandelionActionable;
+import remixlab.remixcam.action.DandelionActionable;
 import remixlab.remixcam.action.VActionable;
 
 public interface Constants {	
@@ -97,7 +97,8 @@ public interface Constants {
   static final int DOWN  = 40; 
   
   //Actions
-  public enum DLAction /**implements DandelionActionable*/ {
+  //public enum DLAction implements DandelionActionable<DLAction> {
+  public enum DLAction implements DandelionActionable {
   	NO_ACTION("No action", true, 0),
   	
   	//KEYfRAMES
@@ -213,6 +214,7 @@ public interface Constants {
       this.dofs = 0;
     }
     
+  	//TODO These methods should belong to the interface!
     public String description() {
       return description;
     }
@@ -224,6 +226,17 @@ public interface Constants {
     public int dofs() {
     	return dofs;
     }
+
+		@Override
+		public DLAction getAction() {
+			// TODO Auto-generated method stub
+			return this;
+		}
+		
+		@Override
+		public DLAction getDefaultAction() {
+			return DLAction.NO_ACTION;
+		}
     
     /**
     public DOF_6Action dof6Action() {

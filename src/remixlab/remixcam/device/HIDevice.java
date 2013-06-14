@@ -1,6 +1,7 @@
 package remixlab.remixcam.device;
 
 import remixlab.remixcam.core.*;
+import remixlab.remixcam.profile.ClickProfile;
 import remixlab.remixcam.profile.DOF6Profile;
 
 public class HIDevice extends AbstractMotionDevice {
@@ -8,6 +9,7 @@ public class HIDevice extends AbstractMotionDevice {
 		super(scn, n);
 		camProfile = new DOF6Profile();
 		frameProfile = new DOF6Profile();
+		clickProfile = new ClickProfile();
 		sens = new float[6];
 		sens[0] = 1f;
 		sens[1] = 1f;
@@ -27,6 +29,11 @@ public class HIDevice extends AbstractMotionDevice {
 	@Override
 	public DOF6Profile frameProfile() {
 		return (DOF6Profile)frameProfile;
+	}
+	
+	@Override
+	public ClickProfile clickProfile() {
+		return (ClickProfile)clickProfile;
 	}
 	
 	public void setXTranslationSensitivity(float s) {
