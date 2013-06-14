@@ -1,6 +1,6 @@
 package remixlab.remixcam.profile;
 
-import remixlab.remixcam.action.Actionable;
+import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.shortcut.*;
 
 public abstract class AbstractMotionProfile<A extends Actionable<?>> extends AbstractProfile<ButtonShortcut, A> {

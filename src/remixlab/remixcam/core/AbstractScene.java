@@ -32,7 +32,6 @@ import java.util.List;
 
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.action.Actionable;
 import remixlab.remixcam.core.Constants.DLAction;
 import remixlab.remixcam.device.*;
 import remixlab.remixcam.renderer.*;

@@ -1,4 +1,4 @@
-package remixlab.remixcam.action;
+package remixlab.remixcam.core;
 
 //import remixlab.remixcam.core.Constants.DLAction;
 

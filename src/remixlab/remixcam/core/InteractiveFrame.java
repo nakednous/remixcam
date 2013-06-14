@@ -27,7 +27,6 @@ package remixlab.remixcam.core;
 
 //import remixlab.remixcam.constraint.Constraint;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.action.Actionable;
 import remixlab.remixcam.core.Constants.DLAction;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.util.AbstractTimerJob;

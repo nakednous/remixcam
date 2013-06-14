@@ -25,7 +25,6 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.action.Actionable;
 import remixlab.remixcam.core.Constants.DLAction;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;

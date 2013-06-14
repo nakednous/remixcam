@@ -1,6 +1,5 @@
 package remixlab.remixcam.profile;
 
-import remixlab.remixcam.action.Actionable;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.*;
 import remixlab.remixcam.event.*;

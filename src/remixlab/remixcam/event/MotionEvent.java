@@ -1,6 +1,6 @@
 package remixlab.remixcam.event;
 
-import remixlab.remixcam.action.Actionable;
+import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.shortcut.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;

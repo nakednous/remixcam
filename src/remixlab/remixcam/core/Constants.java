@@ -25,7 +25,6 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.action.Actionable;
 
 public interface Constants {	
 	/**

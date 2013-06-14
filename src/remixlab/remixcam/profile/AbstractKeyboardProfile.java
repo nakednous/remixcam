@@ -1,6 +1,6 @@
 package remixlab.remixcam.profile;
 
-import remixlab.remixcam.action.Actionable;
+import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.event.DLEvent;
 import remixlab.remixcam.event.DLKeyEvent;
 import remixlab.remixcam.shortcut.KeyboardShortcut;
