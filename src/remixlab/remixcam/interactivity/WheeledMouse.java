@@ -1,15 +1,13 @@
-package remixlab.remixcam.device;
+package remixlab.remixcam.interactivity;
 
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.event.*;
-import remixlab.remixcam.ownevent.DLDOF1Event;
-import remixlab.remixcam.profile.DOF1Profile;
 
-public class DLWheeledMouse extends DLMouse {
+public class WheeledMouse extends Mouse {
 	protected DOF1Profile wheelProfile;
 	protected DOF1Profile frameWheelProfile;
 	
-	public DLWheeledMouse(AbstractScene scn, String n) {
+	public WheeledMouse(AbstractScene scn, String n) {
 		super(scn, n);
 		wheelProfile = new DOF1Profile();
 		frameWheelProfile = new DOF1Profile();
@@ -35,13 +33,13 @@ public class DLWheeledMouse extends DLMouse {
 	}
 	
 	@Override
-	public void handle(DLEvent<?> event) {
-		if( event instanceof DLDOF1Event ) {
+	public void handle(GenericEvent<?> event) {
+		if( event instanceof DOF1Event ) {
 			if(scene.aliveInteractiveFrame() != null)
 				wheelProfile.handle(event);
 			else
 				frameWheelProfile.handle(event);
-			((MotionEvent<?>)event).modulate(sens);
+			((GenericMotionEvent<?>)event).modulate(sens);
 			if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 		}
 		else

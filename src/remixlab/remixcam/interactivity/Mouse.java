@@ -1,12 +1,10 @@
-package remixlab.remixcam.device;
+package remixlab.remixcam.interactivity;
 
 import remixlab.remixcam.core.*;
-import remixlab.remixcam.ownevent.DLKeyEvent;
-import remixlab.remixcam.profile.ClickProfile;
-import remixlab.remixcam.profile.DOF2Profile;
+import remixlab.remixcam.device.AbstractMotionDevice;
 
-public class DLMouse extends AbstractMotionDevice implements Constants {
-	public DLMouse(AbstractScene scn, String n) {
+public class Mouse extends AbstractMotionDevice implements Constants {
+	public Mouse(AbstractScene scn, String n) {
 		super(scn, n);
 		camProfile = new DOF2Profile();
 		frameProfile = new DOF2Profile();
@@ -30,9 +28,9 @@ public class DLMouse extends AbstractMotionDevice implements Constants {
 		
 		//clickProfile().setClickBinding(RIGHT, 1, DOF_0Action.DRAW_FRAME_SELECTION_HINT);
 		
-		clickProfile().setClickBinding(DLKeyEvent.SHIFT, LEFT, 2, DOF_0Action.ALIGN_CAMERA);
-		clickProfile().setClickBinding(DLKeyEvent.SHIFT, CENTER, 2, DOF_0Action.SHOW_ALL);
-		clickProfile().setClickBinding((DLKeyEvent.SHIFT | DLKeyEvent.CTRL ), RIGHT, 2, DOF_0Action.ZOOM_TO_FIT);
+		clickProfile().setClickBinding(KeyboardEvent.SHIFT, LEFT, 2, DOF_0Action.ALIGN_CAMERA);
+		clickProfile().setClickBinding(KeyboardEvent.SHIFT, CENTER, 2, DOF_0Action.SHOW_ALL);
+		clickProfile().setClickBinding((KeyboardEvent.SHIFT | KeyboardEvent.CTRL ), RIGHT, 2, DOF_0Action.ZOOM_TO_FIT);
 	}
 	
 	@Override

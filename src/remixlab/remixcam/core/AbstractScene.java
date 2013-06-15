@@ -32,10 +32,9 @@ import java.util.List;
 
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.core.Constants.DLAction;
+import remixlab.remixcam.interactivity.ClickEvent;
+import remixlab.remixcam.interactivity.KeyboardEvent;
 import remixlab.remixcam.device.*;
-import remixlab.remixcam.ownevent.DLClickEvent;
-import remixlab.remixcam.ownevent.DLKeyEvent;
 import remixlab.remixcam.renderer.*;
 import remixlab.remixcam.util.*;
 
@@ -87,7 +86,7 @@ public abstract class AbstractScene implements Constants {
   //D E V I C E S	  &   E V E N T S
   protected HashMap<String, AbstractDevice> devices;
 	//protected ArrayList<HIDevice> devices;
-	protected LinkedList<DLEvent<?>> eventQueue;
+	protected LinkedList<GenericEvent<?>> eventQueue;
 	
 	// L O C A L   T I M E R
 	protected boolean arpFlag;
@@ -145,7 +144,7 @@ public abstract class AbstractScene implements Constants {
 		//TODO pending device instantiation here
 		devices = new HashMap<String, AbstractDevice>();
 		//events
-		eventQueue = new LinkedList<DLEvent<?>>();
+		eventQueue = new LinkedList<GenericEvent<?>>();
 		// <- 1
 		
 		setDottedGrid(true);
@@ -171,12 +170,11 @@ public abstract class AbstractScene implements Constants {
 	//Should be called after updating cursor position
 	protected void updateGrabber() {
 		updateCursor();
-		Point event = new Point((cursorX - upperLeftCorner.getX()), (cursorY - upperLeftCorner.getY()));
 		setDeviceGrabber(null);
 		if( isTrackingDevice() )
 			for (Grabbable mg : deviceGrabberPool()) {
-				mg.checkIfGrabsCursor(event.getX(), event.getY());
-				if (mg.grabsCursor())
+				mg.checkIfGrabsInput();
+				if (mg.grabsInput())
 					setDeviceGrabber(mg);
 			}
 	}
@@ -286,11 +284,15 @@ public abstract class AbstractScene implements Constants {
 	 * Internal method. Handles the different global keyboard actions.
 	 */
 	//public void handleKeyboardAction(DOF_0Action id) {
-	public void handleEvent(DLEvent<?> event) {
-		//if( !keyboardIsHandled() )
-			//return;		
-	  //TODO fix me
-		Actionable<DLAction> a = (Actionable<DLAction>) event.getAction();
+	public void handleEvent(GenericEvent<?> event) {
+		if( !(event instanceof ClickEvent) && ! (event instanceof KeyboardEvent))
+			return;
+		
+		Actionable<DLAction> a=null;
+		if(event instanceof ClickEvent)
+			a = ((ClickEvent) event).getAction();
+		if(event instanceof KeyboardEvent)
+			a = ((KeyboardEvent) event).getAction();		
 		if(a == null) return;
 		DLAction id = a.action();
 		//if(id == null) return;
@@ -683,20 +685,20 @@ public abstract class AbstractScene implements Constants {
 			device.handle(device.feed());
 			
 		// 4c. Events
-		DLEvent<?> event;
+		GenericEvent<?> event;
     while( !eventQueue.isEmpty() ) {
-    	event = eventQueue.remove();    	
+    	event = eventQueue.remove();
     	if (deviceGrabber() != null && !deviceGrabberIsAnIFrame )
     		deviceGrabber().performInteraction(event);
     	else
-    		if( event instanceof DLKeyEvent || event instanceof DLClickEvent )
+    		if( event instanceof KeyboardEvent || event instanceof ClickEvent )
     			this.handleEvent(event);
     		else
-    			if( event instanceof MotionEvent )
+    			if( event instanceof GenericMotionEvent )
     				if( this.aliveInteractiveFrame() != null )
-    					aliveInteractiveFrame().performInteraction((MotionEvent<?>)event);
+    					aliveInteractiveFrame().performInteraction((GenericMotionEvent<?>)event);
     				else
-    					camera().frame().performInteraction((MotionEvent<?>)event);
+    					camera().frame().performInteraction((GenericMotionEvent<?>)event);
     }
 		
 		// 5. Grid and axis drawing
@@ -1093,7 +1095,7 @@ public abstract class AbstractScene implements Constants {
 	
   // Event registration
 	
-	public boolean isEventRegistered(DLEvent<?> event) {
+	public boolean isEventRegistered(GenericEvent<?> event) {
 		return eventQueue.contains(event);
 	}
 	
@@ -1103,7 +1105,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #unregisterProfile(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void enqueueEvent(DLEvent<?> event) {
+	public void enqueueEvent(GenericEvent<?> event) {
 		if(!isEventRegistered(event))
 			if( !event.isNull() )
 				eventQueue.add(event);
@@ -1115,7 +1117,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #registerProfile(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void removeEvent(DLEvent<?> event) {
+	public void removeEvent(GenericEvent<?> event) {
 		eventQueue.remove(event);
 	}
 	
@@ -1894,7 +1896,7 @@ public abstract class AbstractScene implements Constants {
 	 * Returns a list containing references to all the active MouseGrabbers.
 	 * <p>
 	 * Used to parse all the MouseGrabbers and to check if any of them
-	 * {@link remixlab.remixcam.core.Grabbable#grabsCursor()} using
+	 * {@link remixlab.remixcam.core.Grabbable#grabsInput()} using
 	 * {@link remixlab.remixcam.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}.
 	 * <p>
 	 * You should not have to directly use this list. Use
@@ -1921,7 +1923,7 @@ public abstract class AbstractScene implements Constants {
 	public void setDeviceTracking(boolean enable) {		
 		if(!enable) {
 			if( deviceGrabber() != null )
-				deviceGrabber().setGrabsCursor(false);
+				deviceGrabber().setGrabsInput(false);
 			setDeviceGrabber(null);
 		}
 		deviceTrckn = enable;
@@ -2031,7 +2033,7 @@ public abstract class AbstractScene implements Constants {
 	 * Returns the current MouseGrabber, or {@code null} if none currently grabs
 	 * mouse events.
 	 * <p>
-	 * When {@link remixlab.remixcam.core.Grabbable#grabsCursor()}, the different
+	 * When {@link remixlab.remixcam.core.Grabbable#grabsInput()}, the different
 	 * mouse events are sent to it instead of their usual targets (
 	 * {@link #pinhole()} or {@link #interactiveFrame()}).
 	 */

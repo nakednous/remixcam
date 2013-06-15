@@ -9,7 +9,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.shortcut.KeyboardShortcut;
 
-public class VKeyEvent<A extends Actionable<?>> extends DLEvent<A> {
+public class GenericKeyboardEvent<A extends Actionable<?>> extends GenericEvent<A> {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -25,7 +25,7 @@ public class VKeyEvent<A extends Actionable<?>> extends DLEvent<A> {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		VKeyEvent<?> other = (VKeyEvent<?>) obj;
+		GenericKeyboardEvent<?> other = (GenericKeyboardEvent<?>) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
     .append(key, other.key)
@@ -105,74 +105,74 @@ public class VKeyEvent<A extends Actionable<?>> extends DLEvent<A> {
   protected Character key;
   protected Integer vKey;
   
-  public VKeyEvent() {
+  public GenericKeyboardEvent() {
   	this.key = null;
   	this.vKey = null;
   }
   
-  public VKeyEvent(A a) {
+  public GenericKeyboardEvent(A a) {
   	super(a);
   	this.key = null;
   	this.vKey = null;
   }
   
-  public VKeyEvent(Integer modifiers, Character c, Integer vk) {
+  public GenericKeyboardEvent(Integer modifiers, Character c, Integer vk) {
     super(modifiers);
     this.vKey = vk;
     this.key = c;
   }
   
-  public VKeyEvent(Integer modifiers, Character c) {
+  public GenericKeyboardEvent(Integer modifiers, Character c) {
     super(modifiers);
     this.key = c;
     this.vKey = null;
   }
   
-  public VKeyEvent(Integer modifiers, Integer vk) {
+  public GenericKeyboardEvent(Integer modifiers, Integer vk) {
     super(modifiers);
     this.key = null;
     this.vKey = vk;
   }
   
-  public VKeyEvent(Character c) {
+  public GenericKeyboardEvent(Character c) {
   	super();
     this.key = c;
     this.vKey = null;
   }
   
-  public VKeyEvent(Integer modifiers, Character c, Integer vk, A a) {
+  public GenericKeyboardEvent(Integer modifiers, Character c, Integer vk, A a) {
     super(modifiers, a);
     this.vKey = vk;
     this.key = c;
   }
   
-  public VKeyEvent(Integer modifiers, Character c, A a) {
+  public GenericKeyboardEvent(Integer modifiers, Character c, A a) {
     super(modifiers, a);
     this.key = c;
     this.vKey = null;
   }
   
-  public VKeyEvent(Integer modifiers, Integer vk, A a) {
+  public GenericKeyboardEvent(Integer modifiers, Integer vk, A a) {
     super(modifiers, a);
     this.key = null;
     this.vKey = vk;
   }
   
-  public VKeyEvent(Character c, A a) {
+  public GenericKeyboardEvent(Character c, A a) {
   	super(a);
     this.key = c;
     this.vKey = null;
   }
   
-  protected VKeyEvent(VKeyEvent<A> other) {
+  protected GenericKeyboardEvent(GenericKeyboardEvent<A> other) {
   	super(other);
 		this.key = new Character(other.key);
 		this.vKey = new Integer(other.vKey);
 	}
   
   @Override
-	public VKeyEvent<A> get() {
-		return new VKeyEvent<A>(this);
+	public GenericKeyboardEvent<A> get() {
+		return new GenericKeyboardEvent<A>(this);
 	}
   
   @Override

@@ -1,11 +1,11 @@
 package remixlab.remixcam.device;
 
 import remixlab.remixcam.core.AbstractScene;
-import remixlab.remixcam.event.DLEvent;
+import remixlab.remixcam.event.GenericEvent;
 import remixlab.remixcam.profile.AbstractKeyboardProfile;
 
 public class AbstractKeyboard extends AbstractDevice {
-	AbstractKeyboardProfile<?> profile;
+	protected AbstractKeyboardProfile<?> profile;
 	
 	public AbstractKeyboard(AbstractScene scn, String n) {
 		super(scn, n);
@@ -21,13 +21,13 @@ public class AbstractKeyboard extends AbstractDevice {
 	
 	// /**
 	@Override
-	public void handle(DLEvent<?> event) {
+	public void handle(GenericEvent<?> event) {
 		if(event == null)	return;
 		profile.handle(event);
 		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 	}
 
-	public void handleKey(DLEvent<?> event) {
+	public void handleKey(GenericEvent<?> event) {
 		if(event == null)	return;
 		profile.handleKey(event);
 		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);

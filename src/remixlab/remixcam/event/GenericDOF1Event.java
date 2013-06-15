@@ -6,7 +6,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.geom.Geom;
 
-public class DOF1Event<A extends Actionable<?>> extends MotionEvent<A> {
+public class GenericDOF1Event<A extends Actionable<?>> extends GenericMotionEvent<A> {
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(17, 37).
@@ -25,7 +25,7 @@ public class DOF1Event<A extends Actionable<?>> extends MotionEvent<A> {
 		if (obj.getClass() != getClass())
 			return false;
 
-		DOF1Event<?> other = (DOF1Event<?>) obj;
+		GenericDOF1Event<?> other = (GenericDOF1Event<?>) obj;
 		return new EqualsBuilder()
 		.appendSuper(super.equals(obj))
 		.append(x, other.x)
@@ -35,13 +35,13 @@ public class DOF1Event<A extends Actionable<?>> extends MotionEvent<A> {
 
 	protected Float x, dx;
 
-	public DOF1Event(float x, int modifiers, int button) {
+	public GenericDOF1Event(float x, int modifiers, int button) {
 		super(modifiers, button);
 		this.x = x;
 		this.dx = 0f;
 	}
 
-	public DOF1Event(DOF1Event<A> prevEvent, float x, int modifiers, int button) {
+	public GenericDOF1Event(GenericDOF1Event<A> prevEvent, float x, int modifiers, int button) {
 		this(x, modifiers, button);
 		if(prevEvent!=null) {
 			distance = this.getX() - prevEvent.getX();
@@ -53,7 +53,7 @@ public class DOF1Event<A extends Actionable<?>> extends MotionEvent<A> {
 	}
 
 	// ready to be enqueued
-	public DOF1Event(float x, A a) {
+	public GenericDOF1Event(float x, A a) {
 		super(a);
 		this.x = x;
 		this.dx = 0f;
@@ -61,7 +61,7 @@ public class DOF1Event<A extends Actionable<?>> extends MotionEvent<A> {
 	}
 
 	// idem
-	public DOF1Event(DOF1Event<A> prevEvent, float x, A a) {
+	public GenericDOF1Event(GenericDOF1Event<A> prevEvent, float x, A a) {
 		super(a);		
 		this.x = x;
 		this.dx = 0f;
@@ -75,15 +75,15 @@ public class DOF1Event<A extends Actionable<?>> extends MotionEvent<A> {
 
 	// ---
 
-	protected DOF1Event(DOF1Event<A> other) {
+	protected GenericDOF1Event(GenericDOF1Event<A> other) {
 		super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
 	}
 
 	@Override
-	public DOF1Event<A> get() {
-		return new DOF1Event<A>(this);
+	public GenericDOF1Event<A> get() {
+		return new GenericDOF1Event<A>(this);
 	}
 
 	public float getX() {

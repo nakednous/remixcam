@@ -1,8 +1,10 @@
-package remixlab.remixcam.profile;
+package remixlab.remixcam.interactivity;
 
 import java.util.Map;
 
 import remixlab.remixcam.core.*;
+import remixlab.remixcam.profile.AbstractMotionProfile;
+import remixlab.remixcam.profile.Bindings;
 import remixlab.remixcam.shortcut.ButtonShortcut;
 
 public class DOF2Profile extends AbstractMotionProfile<Constants.DOF_2Action> {
@@ -12,7 +14,7 @@ public class DOF2Profile extends AbstractMotionProfile<Constants.DOF_2Action> {
 	
 	protected DOF2Profile(DOF2Profile other) {
 		bindings = new Bindings<ButtonShortcut, DOF_2Action>();    
-    for (Map.Entry<ButtonShortcut, DOF_2Action> entry : other.bindings.map.entrySet()) {
+    for (Map.Entry<ButtonShortcut, DOF_2Action> entry : other.bindings.map().entrySet()) {
     	ButtonShortcut key = entry.getKey().get();
     	DOF_2Action value = entry.getValue();
     	bindings.setBinding(key, value);

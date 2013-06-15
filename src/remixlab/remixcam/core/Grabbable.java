@@ -37,13 +37,13 @@ import remixlab.remixcam.event.*;
  * All the created MouseGrabbers are grouped in a mouse grabber pool. The Scene
  * parses this pool, calling all the MouseGrabbers'
  * {@link #checkIfGrabsDevice(int, int, Camera)} methods that
- * {@link #setGrabsCursor(boolean)} if desired (method calls should actually be
+ * {@link #setGrabsInput(boolean)} if desired (method calls should actually be
  * performed on concrete class instances such as InteractiveFrame).
  * <p>
- * When a MouseGrabber {@link #grabsCursor()}, it becomes the 
+ * When a MouseGrabber {@link #grabsInput()}, it becomes the 
  * {@link remixlab.remixcam.core.AbstractScene#deviceGrabber()}. All the mouse events are then
  * transmitted to it instead of being normally processed. This continues while
- * {@link #grabsCursor()} (updated using
+ * {@link #grabsInput()} (updated using
  * {@link #checkIfGrabsDevice(int, int, Camera)}) returns {@code true}.
  * <p>
  * If you want to (temporarily) disable a specific MouseGrabbers, you can remove
@@ -53,14 +53,14 @@ import remixlab.remixcam.event.*;
 public interface Grabbable {
 	/**
 	 * Called by the Scene before it tests if the MouseGrabber
-	 * {@link #grabsCursor()}. Should {@link #setGrabsCursor(boolean)} according to
+	 * {@link #grabsInput()}. Should {@link #setGrabsInput(boolean)} according to
 	 * the mouse position.
 	 * <p>
 	 * This is the core method of the MouseGrabber. Its goal is to update the
-	 * {@link #grabsCursor()} flag according to the mouse and MouseGrabber current
-	 * positions, using {@link #setGrabsCursor(boolean)}.
+	 * {@link #grabsInput()} flag according to the mouse and MouseGrabber current
+	 * positions, using {@link #setGrabsInput(boolean)}.
 	 * <p>
-	 * {@link #grabsCursor()} is usually set to {@code true} when the mouse cursor
+	 * {@link #grabsInput()} is usually set to {@code true} when the mouse cursor
 	 * is close enough to the MouseGrabber position. It should also be set to
 	 * {@code false} when the mouse cursor leaves this region in order to release
 	 * the mouse focus.
@@ -85,28 +85,28 @@ public interface Grabbable {
 	 * {@code setGrabsMouse((PApplet.abs(x-proj.x) < 5) && (PApplet.(y-proj.y) <
 	 * 2)); // Rectangular region} <br>
 	 */
-	void checkIfGrabsCursor(int x, int y);
+	void checkIfGrabsInput();
 
 	/**
 	 * Should return true when the MouseGrabbable grabs the Scene mouse events.
 	 */
-	boolean grabsCursor();
+	boolean grabsInput();
 	
 	/**
-	 * Should sets the {@link #grabsCursor()} flag. Normally used by
+	 * Should sets the {@link #grabsInput()} flag. Normally used by
 	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
 	 *  
 	 * @param grabs flag
 	 */
-	void setGrabsCursor(boolean grabs);
+	void setGrabsInput(boolean grabs);
 	
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsCursor()} and the
+	 * Callback method called when the MouseGrabber {@link #grabsInput()} and the
 	 * mouse is moved while a button is pressed.
 	 * <p>
 	 * This method will typically update the state of the MouseGrabber from the
 	 * mouse displacement. See the {@link #initAction(Point, Camera)}
 	 * documentation for details.
 	 */
-	void performInteraction(DLEvent<?> motionEvent);
+	void performInteraction(GenericEvent<?> motionEvent);
 }

@@ -1,7 +1,7 @@
-package remixlab.remixcam.device;
+package remixlab.remixcam.interactivity;
 
 import remixlab.remixcam.core.AbstractScene;
-import remixlab.remixcam.profile.DOF3Profile;
+import remixlab.remixcam.device.AbstractMotionDevice;
 
 public class DOF3Device extends AbstractMotionDevice {
 	public DOF3Device(AbstractScene scn, String n) {

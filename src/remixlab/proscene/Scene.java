@@ -1,14 +1,14 @@
 package remixlab.proscene;
 
 import remixlab.remixcam.core.*;
-import remixlab.remixcam.device.*;
-import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
+import remixlab.remixcam.interactivity.ClickEvent;
+import remixlab.remixcam.interactivity.DOF1Event;
+import remixlab.remixcam.interactivity.DOF2Event;
+import remixlab.remixcam.interactivity.KeyboardEvent;
+import remixlab.remixcam.interactivity.Keyboard;
+import remixlab.remixcam.interactivity.WheeledMouse;
 import remixlab.remixcam.util.*;
-import remixlab.remixcam.ownevent.DLClickEvent;
-import remixlab.remixcam.ownevent.DLKeyEvent;
-import remixlab.remixcam.ownevent.DLDOF1Event;
-import remixlab.remixcam.ownevent.DLDOF2Event;
 import remixlab.remixcam.renderer.*;
 //import remixlab.remixcam.shortcut.*;
 
@@ -108,29 +108,29 @@ import java.util.TimerTask;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {
-	public class ProsceneKeyboard extends DLKeyboard {
+	public class ProsceneKeyboard extends Keyboard {
 		public ProsceneKeyboard(AbstractScene scn, String n) {
 			super(scn, n);
 		}
 		
 		public void keyEvent(KeyEvent e) {
-			DLKeyEvent event;
+			KeyboardEvent event;
 			if(e.getAction() == KeyEvent.TYPE && e.getModifiers() == 0) {
 				//event = new DLKeyEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
-				event = new DLKeyEvent(e.getKey());
+				event = new KeyboardEvent(e.getKey());
 				handleKey(event);
 			}
 			else
 				if(e.getAction() == KeyEvent.RELEASE) {
-					event = new DLKeyEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
+					event = new KeyboardEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
 					handle(event);
 				}
 		}
 	}
 	
 	//public class Mouse extends AbstractMouse {
-	public class ProsceneMouse extends DLWheeledMouse {
-		DLDOF2Event event, prevEvent;
+	public class ProsceneMouse extends WheeledMouse {
+		DOF2Event event, prevEvent;
 		int counter = 0;
 		public ProsceneMouse(AbstractScene scn, String n) {
 			super(scn, n);	
@@ -144,15 +144,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			//}
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 			//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//rotate without dragging any button
-				event = new DLDOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+				event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 				handle(event);
 			  prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
-				handle(new DLDOF1Event(e.getCount(), e.getModifiers(), NOBUTTON));
+				handle(new DOF1Event(e.getCount(), e.getModifiers(), NOBUTTON));
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
-				handle(new DLClickEvent(e.getModifiers(), e.getButton(), e.getCount()));
+				handle(new ClickEvent(e.getModifiers(), e.getButton(), e.getCount()));
 			}			
 		}
 	}
@@ -2330,7 +2330,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
 					DLVector center = pinhole().projectedCoordinatesOf(iF.position());
-					if (mg.grabsCursor()) {						
+					if (mg.grabsInput()) {						
 						pg().pushStyle();
 					  //pg3d.stroke(mouseGrabberOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 0));
@@ -2358,7 +2358,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
 					DLVector center = pinhole().projectedCoordinatesOf(iF.position());
-					if (mg.grabsCursor()) {
+					if (mg.grabsInput()) {
 						pg().pushStyle();						
 					  //pg3d.stroke(mouseGrabberCameraPathOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 255));

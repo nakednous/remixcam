@@ -26,8 +26,8 @@
 package remixlab.remixcam.shortcut;
 
 import remixlab.remixcam.core.Copyable;
-import remixlab.remixcam.event.DLEvent;
-import remixlab.remixcam.ownevent.DLKeyEvent;
+import remixlab.remixcam.event.GenericEvent;
+import remixlab.remixcam.interactivity.KeyboardEvent;
 
 import com.flipthebird.gwthashcodeequals.*;
 
@@ -115,9 +115,9 @@ public final class KeyboardShortcut extends Shortcut implements Copyable {
 			description = key.toString();
 		else {
 			if(mask == 0)
-				description = DLKeyEvent.getKeyText(vKey);
+				description = KeyboardEvent.getKeyText(vKey);
 			else
-				description = DLEvent.getModifiersText(mask) + "+" + DLKeyEvent.getKeyText(vKey);
+				description = GenericEvent.getModifiersText(mask) + "+" + KeyboardEvent.getKeyText(vKey);
 		}			
 		return description;
 	}

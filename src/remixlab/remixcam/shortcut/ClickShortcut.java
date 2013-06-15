@@ -28,7 +28,7 @@ package remixlab.remixcam.shortcut;
 import com.flipthebird.gwthashcodeequals.*;
 import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.core.Copyable;
-import remixlab.remixcam.event.DLEvent;
+import remixlab.remixcam.event.GenericEvent;
 
 /**
  * This class represents mouse click shortcuts.
@@ -153,7 +153,7 @@ public class ClickShortcut extends Shortcut implements Constants, Copyable {
 	public String description() {
 		String description = new String();
 		if(mask != 0)
-			description += DLEvent.getModifiersText(mask) + " + " + button.toString() + "_BUTTON";
+			description += GenericEvent.getModifiersText(mask) + " + " + button.toString() + "_BUTTON";
 		if(numberOfClicks==1)
 		  description += " + " + numberOfClicks.toString() + " click";
 		else

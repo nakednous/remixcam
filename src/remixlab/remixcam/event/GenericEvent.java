@@ -6,7 +6,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.Shortcut;
 
-public class DLEvent<A extends Actionable<?>> implements Constants, Copyable {
+public class GenericEvent<A extends Actionable<?>> implements Constants, Copyable {
 	//TODO fix modifiers!
 	@Override
 	public int hashCode() {
@@ -23,7 +23,7 @@ public class DLEvent<A extends Actionable<?>> implements Constants, Copyable {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;		
 		
-		DLEvent<?> other = (DLEvent<?>) obj;
+		GenericEvent<?> other = (GenericEvent<?>) obj;
 	  return new EqualsBuilder()		
 		.append(action, other.action)
 		.append(modifiers, other.modifiers)
@@ -35,31 +35,31 @@ public class DLEvent<A extends Actionable<?>> implements Constants, Copyable {
   protected final Integer modifiers;
   protected final Long timestamp;
   
-  public DLEvent() {
+  public GenericEvent() {
     this.modifiers = 0;
     this.action = null;
     timestamp = System.currentTimeMillis();
   }
  
-  public DLEvent(Integer modifiers) {
+  public GenericEvent(Integer modifiers) {
     this.modifiers = modifiers;
     this.action = null;
     timestamp = System.currentTimeMillis();
   }  
   
-  public DLEvent(A a) {    
+  public GenericEvent(A a) {    
     this.modifiers = 0;
     this.action = a;
     timestamp = System.currentTimeMillis();
   }
  
-  public DLEvent(Integer modifiers, A a) {
+  public GenericEvent(Integer modifiers, A a) {
     this.modifiers = modifiers;
     this.action = a;
     timestamp = System.currentTimeMillis();
   } 
   
-  protected DLEvent(DLEvent<A> other) {
+  protected GenericEvent(GenericEvent<A> other) {
 		this.modifiers = new Integer(other.modifiers);
 		this.action = other.action;
 		this.timestamp = new Long(System.currentTimeMillis());
@@ -70,8 +70,8 @@ public class DLEvent<A extends Actionable<?>> implements Constants, Copyable {
   }
   
   @Override
-	public DLEvent<A> get() {
-		return new DLEvent<A>(this);
+	public GenericEvent<A> get() {
+		return new GenericEvent<A>(this);
 	}
   
   public Shortcut shortcut() {

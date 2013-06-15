@@ -1,8 +1,7 @@
-package remixlab.remixcam.device;
+package remixlab.remixcam.interactivity;
 
 import remixlab.remixcam.core.*;
-import remixlab.remixcam.profile.ClickProfile;
-import remixlab.remixcam.profile.DOF6Profile;
+import remixlab.remixcam.device.AbstractMotionDevice;
 
 public class HIDevice extends AbstractMotionDevice {
 	public HIDevice(AbstractScene scn, String n) {

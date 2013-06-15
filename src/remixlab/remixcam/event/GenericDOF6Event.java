@@ -6,7 +6,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.geom.Geom;
 
-public class DOF6Event<A extends Actionable<?>> extends MotionEvent<A> {
+public class GenericDOF6Event<A extends Actionable<?>> extends GenericMotionEvent<A> {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -32,7 +32,7 @@ public class DOF6Event<A extends Actionable<?>> extends MotionEvent<A> {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		DOF6Event<?> other = (DOF6Event<?>) obj;
+		GenericDOF6Event<?> other = (GenericDOF6Event<?>) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))
     .append(x, other.x)
@@ -58,7 +58,7 @@ public class DOF6Event<A extends Actionable<?>> extends MotionEvent<A> {
   protected Float ry, dry;
   protected Float rz, drz;  
 
-	public DOF6Event(float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
+	public GenericDOF6Event(float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
     super(modifiers, button);
 		this.x = x;
 		this.dx = 0f;
@@ -74,7 +74,7 @@ public class DOF6Event<A extends Actionable<?>> extends MotionEvent<A> {
     this.drz = 0f;
   }
 	
-	public DOF6Event(DOF6Event<A> prevEvent, float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
+	public GenericDOF6Event(GenericDOF6Event<A> prevEvent, float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
     this(x, y, z, rx, ry, rz, modifiers, button);
     if(prevEvent!=null) {
     	distance = Geom.distance(x, y, z, rx, ry, rz,
@@ -92,7 +92,7 @@ public class DOF6Event<A extends Actionable<?>> extends MotionEvent<A> {
   }
 	
 	//ready to be enqueued
-	public DOF6Event(float x, float y, float z, float rx, float ry, float rz, A a) {
+	public GenericDOF6Event(float x, float y, float z, float rx, float ry, float rz, A a) {
     super(a);
     this.x = x;
 		this.dx = 0f;
@@ -110,7 +110,7 @@ public class DOF6Event<A extends Actionable<?>> extends MotionEvent<A> {
 	}
 
 	//idem
-	public DOF6Event(DOF6Event<A> prevEvent, float x, float y, float z, float rx, float ry, float rz, A a) {
+	public GenericDOF6Event(GenericDOF6Event<A> prevEvent, float x, float y, float z, float rx, float ry, float rz, A a) {
     super(a);
     this.x = x;
  		this.dx = 0f;
@@ -139,7 +139,7 @@ public class DOF6Event<A extends Actionable<?>> extends MotionEvent<A> {
     }
 	}
   
-  protected DOF6Event(DOF6Event<A> other) {
+  protected GenericDOF6Event(GenericDOF6Event<A> other) {
   	super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
@@ -156,8 +156,8 @@ public class DOF6Event<A extends Actionable<?>> extends MotionEvent<A> {
 	}
   
   @Override
-	public DOF6Event<A> get() {
-		return new DOF6Event<A>(this);
+	public GenericDOF6Event<A> get() {
+		return new GenericDOF6Event<A>(this);
 	}
   
 	public float getX() {

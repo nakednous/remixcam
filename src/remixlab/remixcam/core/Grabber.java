@@ -1,6 +1,6 @@
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.event.DLEvent;
+import remixlab.remixcam.event.GenericEvent;
 
 public class Grabber implements Grabbable {
 	protected AbstractScene scene;
@@ -21,15 +21,15 @@ public class Grabber implements Grabbable {
 	}
 
 	@Override
-	public void checkIfGrabsCursor(int x, int y) {}
+	public void checkIfGrabsInput() {}
 
 	@Override
-	public boolean grabsCursor() {
+	public boolean grabsInput() {
 		return grabsCursor;
 	}
 
 	@Override
-	public void setGrabsCursor(boolean grabs) {
+	public void setGrabsInput(boolean grabs) {
 		grabsCursor = grabs;		
 	}
 
@@ -59,8 +59,8 @@ public class Grabber implements Grabbable {
    * @see #mouseReleased(Point, Camera)
    */
 	@Override
-	public void performInteraction(DLEvent<?> motionEvent) {
-		if (grabsCursor()) keepsGrabbingCursor = true;		
+	public void performInteraction(GenericEvent<?> motionEvent) {
+		if (grabsInput()) keepsGrabbingCursor = true;		
 	}
 
 }

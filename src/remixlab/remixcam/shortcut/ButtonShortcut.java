@@ -28,7 +28,7 @@ package remixlab.remixcam.shortcut;
 import com.flipthebird.gwthashcodeequals.*;
 import remixlab.remixcam.core.Constants;
 import remixlab.remixcam.core.Copyable;
-import remixlab.remixcam.event.DLEvent;
+import remixlab.remixcam.event.GenericEvent;
 
 /**
  * This class represents mouse shortcuts.
@@ -121,7 +121,7 @@ public final class ButtonShortcut extends Shortcut implements Constants, Copyabl
 	 */
 	protected String description(Integer b) {
 		//TODO: NO_BUTTON should be defined -> e.g., mouse move
-		String r = DLEvent.getModifiersText(mask);
+		String r = GenericEvent.getModifiersText(mask);
 		switch (b) {
 		case LEFT:
 			r += (r.length() > 0) ? "+LEFT_BUTTON" : "LEFT_BUTTON";

@@ -1,13 +1,12 @@
-package remixlab.remixcam.device;
+package remixlab.remixcam.interactivity;
 
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.core.Constants.DOF_0Action;
+import remixlab.remixcam.device.AbstractKeyboard;
 import remixlab.remixcam.event.*;
-import remixlab.remixcam.ownevent.DLKeyEvent;
-import remixlab.remixcam.profile.*;
 
-public class DLKeyboard extends AbstractKeyboard {
-	public DLKeyboard(AbstractScene scn, String n) {
+public class Keyboard extends AbstractKeyboard {
+	public Keyboard(AbstractScene scn, String n) {
 		super(scn, n);
 		profile = new KeyboardProfile();
 
@@ -25,12 +24,12 @@ public class DLKeyboard extends AbstractKeyboard {
 		keyboardProfile().setShortcut('s', DOF_0Action.INTERPOLATE_TO_FIT_SCENE);
 		keyboardProfile().setShortcut('S', DOF_0Action.SHOW_ALL);
 
-		keyboardProfile().setShortcut(DLKeyEvent.RIGHT, DOF_0Action.MOVE_CAMERA_RIGHT);
-		keyboardProfile().setShortcut(DLKeyEvent.LEFT, DOF_0Action.MOVE_CAMERA_LEFT);
-		keyboardProfile().setShortcut(DLKeyEvent.UP, DOF_0Action.MOVE_CAMERA_UP);
-		keyboardProfile().setShortcut(DLKeyEvent.DOWN, DOF_0Action.MOVE_CAMERA_DOWN);
+		keyboardProfile().setShortcut(KeyboardEvent.RIGHT, DOF_0Action.MOVE_CAMERA_RIGHT);
+		keyboardProfile().setShortcut(KeyboardEvent.LEFT, DOF_0Action.MOVE_CAMERA_LEFT);
+		keyboardProfile().setShortcut(KeyboardEvent.UP, DOF_0Action.MOVE_CAMERA_UP);
+		keyboardProfile().setShortcut(KeyboardEvent.DOWN, DOF_0Action.MOVE_CAMERA_DOWN);
 
-		keyboardProfile().setShortcut((DLKeyEvent.ALT | DLKeyEvent.SHIFT), 'l',	DOF_0Action.MOVE_CAMERA_LEFT);
+		keyboardProfile().setShortcut((KeyboardEvent.ALT | KeyboardEvent.SHIFT), 'l',	DOF_0Action.MOVE_CAMERA_LEFT);
 
 		/**
 		 * // K e y f r a m e s s h o r t c u t k e y s
@@ -48,13 +47,13 @@ public class DLKeyboard extends AbstractKeyboard {
 
 	// /**
 	@Override
-	public void handle(DLEvent<?> event) {
+	public void handle(GenericEvent<?> event) {
 		if(event == null)	return;
 		profile.handle(event);
 		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 	}
 
-	public void handleKey(DLEvent<?> event) {
+	public void handleKey(GenericEvent<?> event) {
 		if(event == null)	return;
 		profile.handleKey(event);
 		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);

@@ -25,12 +25,12 @@
 
 package remixlab.remixcam.core;
 
-import remixlab.remixcam.core.Constants.DLAction;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.ownevent.DLDOF1Event;
-import remixlab.remixcam.ownevent.DLDOF2Event;
-import remixlab.remixcam.ownevent.DLDOF6Event;
+import remixlab.remixcam.interactivity.DOF1Event;
+import remixlab.remixcam.interactivity.DOF2Event;
+import remixlab.remixcam.interactivity.DOF3Event;
+import remixlab.remixcam.interactivity.DOF6Event;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
@@ -186,20 +186,27 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	}
 	
 	@Override
-	protected void execAction2D(MotionEvent<?> event) {
+	protected void execAction2D(GenericMotionEvent<?> event) {
 	}
 	
 	@Override
-	protected void execAction3D(MotionEvent<?> e) {
-	  //TODO fix me
-		Actionable<DLAction> a = (Actionable<DLAction>) e.getAction();
+	protected void execAction3D(GenericMotionEvent<?> e) {
+		Actionable<DLAction> a=null;
+		if(e instanceof DOF1Event)
+			a = ((DOF1Event) e).getAction();
+		if(e instanceof DOF2Event)
+			a = ((DOF2Event) e).getAction();
+		if(e instanceof DOF3Event)
+			a = ((DOF3Event) e).getAction();
+		if(e instanceof DOF6Event)
+			a = ((DOF6Event) e).getAction();
+		
 		if(a == null) return;
 		DLAction id = a.action();
-		//if(id == null) return;
 		
-		DLDOF2Event event;
+		DOF2Event event;
 		
-		DLDOF6Event event6;
+		DOF6Event event6;
 		DLVector t = new DLVector();
     Quaternion q = new Quaternion();
 		switch (id) {
@@ -208,15 +215,15 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			float coef = 0;
 			DLVector trans = new DLVector();
 		  //TODO 1-DOF -> wheel
-			if( e instanceof DLDOF1Event ) {
+			if( e instanceof DOF1Event ) {
 			  coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * scene.camera().sceneRadius());
 				//trans = new Vector3D(0.0f, 0.0f, coef * ((DOFEvent)event).getX() * wheelSensitivity() * wheelSensitivityCoef);
-			  trans = new DLVector(0.0f, 0.0f, coef * ((DLDOF1Event)e).getX() * -wheelSensitivity() * wheelSensitivityCoef);
+			  trans = new DLVector(0.0f, 0.0f, coef * ((DOF1Event)e).getX() * -wheelSensitivity() * wheelSensitivityCoef);
 			}			
 		  //TODO higher dofs
 			// /**
 			else {
-				event = (DLDOF2Event)e;
+				event = (DOF2Event)e;
 				coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * scene.camera().sceneRadius());
 			  //float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
 			  // Warning: same for left and right CoordinateSystemConvention:
@@ -233,7 +240,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		}
 		
 		case ROTATE: {			
-			event = (DLDOF2Event)e;
+			event = (DOF2Event)e;
 			DLVector trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
 			Quaternion rot = deformedBallQuaternion(event, trans.vec[0], trans.vec[1], scene.camera());	
 			setSpinningQuaternion(rot);
@@ -255,7 +262,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		}
 		
 		case TRANSLATE: {
-			event = (DLDOF2Event)e;
+			event = (DOF2Event)e;
 			///**
 			Point delta = new Point(-event.getDX(),
 					                     scene.isRightHanded() ? -event.getDY() : event.getDY());
@@ -291,7 +298,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		}
 		
 		case GOOGLE_EARTH:
-			event6 = (DLDOF6Event)e;
+			event6 = (DOF6Event)e;
 			float magic = 0.01f; // rotSens/transSens?
       
 			//t = DLVector.mult(position(), -event6.getZ() * ( rotSens.z/transSens.z ) );
@@ -310,7 +317,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			break;
 			
 		case NATURAL:
-			event6 = (DLDOF6Event)e;
+			event6 = (DOF6Event)e;
 			translate(localInverseTransformOf(new DLVector(event6.getX(),event6.getY(),-event6.getZ()), false));
       // Rotate
       q.fromEulerAngles(-event6.roll(), -event6.pitch(), event6.yaw());
@@ -330,7 +337,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * 
 	 * @see #getCADAxis()
 	 */	
-	protected Quaternion computeCADQuaternion(DLDOF2Event event, float cx,	float cy, Pinhole camera) {
+	protected Quaternion computeCADQuaternion(DOF2Event event, float cx,	float cy, Pinhole camera) {
 		if(! (camera instanceof Camera) )
 			throw new RuntimeException("CAD cam is oly available in 3D");
 		

@@ -95,8 +95,7 @@ public interface Constants {
   static final int DOWN  = 40; 
   
   //Actions
-  //public enum DLAction implements DandelionActionable<DLAction> {
-  public enum DLAction /**implements DandelionActionable*/ {
+  public enum DLAction {
   	NO_ACTION("No action", true, 0),
   	
   	//KEYfRAMES

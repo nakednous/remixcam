@@ -7,7 +7,7 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 // /**
-public class MotionEvent<A extends Actionable<?>> extends DLEvent<A> {
+public class GenericMotionEvent<A extends Actionable<?>> extends GenericEvent<A> {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -25,7 +25,7 @@ public class MotionEvent<A extends Actionable<?>> extends DLEvent<A> {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		MotionEvent<?> other = (MotionEvent<?>) obj;
+		GenericMotionEvent<?> other = (GenericMotionEvent<?>) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))
 		.append(button, other.button)
@@ -42,24 +42,24 @@ public class MotionEvent<A extends Actionable<?>> extends DLEvent<A> {
 	protected long delay;
 	protected float distance, speed;
 	
-	public MotionEvent(A a) {
+	public GenericMotionEvent(A a) {
     super(a);
     this.button = NOBUTTON;
   }
 	
-	public MotionEvent(int modifiers) {
+	public GenericMotionEvent(int modifiers) {
     super(modifiers);
     this.button = NOBUTTON;
   }
 	
-	public MotionEvent(int modifiers, int button) {
+	public GenericMotionEvent(int modifiers, int button) {
     super(modifiers);
     this.button = button;
   }
   
 	// ---
 	
-  protected MotionEvent(MotionEvent<A> other) {
+  protected GenericMotionEvent(GenericMotionEvent<A> other) {
   	super(other);
 		this.button = new Integer(other.button);
 		this.delay = other.delay;
@@ -68,8 +68,8 @@ public class MotionEvent<A extends Actionable<?>> extends DLEvent<A> {
 	}
   
   @Override
-	public MotionEvent<A> get() {
-		return new MotionEvent<A>(this);
+	public GenericMotionEvent<A> get() {
+		return new GenericMotionEvent<A>(this);
 	}
   
   public void modulate(float [] sens) {}
@@ -107,7 +107,7 @@ public class MotionEvent<A extends Actionable<?>> extends DLEvent<A> {
 	
 	//--
 	
-	protected boolean sameSequence(MotionEvent<?> prevEvent) {
+	protected boolean sameSequence(GenericMotionEvent<?> prevEvent) {
 		boolean result = false;
 		long tThreshold = 5000;
 		float dThreshold =  50;

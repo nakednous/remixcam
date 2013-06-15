@@ -51,9 +51,9 @@ public abstract class AbstractDevice {
 		return nm;
 	}
 	
-	public abstract void handle(DLEvent<?> event);
+	public abstract void handle(GenericEvent<?> event);
 	
-	public DLEvent<?> feed() {
+	public GenericEvent<?> feed() {
 		return null;
 	}
 }

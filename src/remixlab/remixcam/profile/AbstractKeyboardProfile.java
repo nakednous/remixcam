@@ -1,16 +1,16 @@
 package remixlab.remixcam.profile;
 
 import remixlab.remixcam.core.Actionable;
-import remixlab.remixcam.event.DLEvent;
-import remixlab.remixcam.ownevent.DLKeyEvent;
+import remixlab.remixcam.event.GenericEvent;
+import remixlab.remixcam.interactivity.KeyboardEvent;
 import remixlab.remixcam.shortcut.KeyboardShortcut;
 
 public abstract class AbstractKeyboardProfile<A extends Actionable<?>>  extends AbstractProfile<KeyboardShortcut, A> {
 	///**
-	public void handleKey(DLEvent<?> e) {
+	public void handleKey(GenericEvent<?> e) {
 	//public void handleKey(DLKeyEvent e) {
 		if(e != null)
-			e.setAction( binding(((DLKeyEvent)e).keyShortcut()) );
+			e.setAction( binding(((KeyboardEvent)e).keyShortcut()) );
 	}
 	// */
 
@@ -40,7 +40,7 @@ public abstract class AbstractKeyboardProfile<A extends Actionable<?>>  extends 
 	 * @see #setShortcut(Integer, Integer, Scene.A)
 	 */
 	public void setShortcut(Integer mask, Character key, A action) {
-		setShortcut(mask, DLKeyEvent.getKeyCode(key), action);
+		setShortcut(mask, KeyboardEvent.getKeyCode(key), action);
 	}
 	
 	/**
@@ -96,7 +96,7 @@ public abstract class AbstractKeyboardProfile<A extends Actionable<?>>  extends 
 	 * @see #removeShortcut(Integer, Integer)
 	 */
 	public void removeShortcut(Integer mask, Character key) {
-		removeShortcut(mask, DLKeyEvent.getKeyCode(key));
+		removeShortcut(mask, KeyboardEvent.getKeyCode(key));
 	}
 	
 	/**
@@ -159,7 +159,7 @@ public abstract class AbstractKeyboardProfile<A extends Actionable<?>>  extends 
    * @see #shortcut(Integer, Integer)
    */
 	public Actionable<?> shortcut(Integer mask, Character key) {
-		return shortcut(mask, DLKeyEvent.getKeyCode(key));
+		return shortcut(mask, KeyboardEvent.getKeyCode(key));
 	}
 
 	/**
@@ -192,7 +192,7 @@ public abstract class AbstractKeyboardProfile<A extends Actionable<?>>  extends 
 	 * @see #isKeyInUse(Integer, Integer)
 	 */
 	public boolean isKeyInUse(Integer mask, Character key) {
-		return isKeyInUse(mask, DLKeyEvent.getKeyCode(key));
+		return isKeyInUse(mask, KeyboardEvent.getKeyCode(key));
 	}
 	
 	/**

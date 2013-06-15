@@ -2,7 +2,7 @@ package remixlab.remixcam.device;
 
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
-import remixlab.remixcam.ownevent.DLClickEvent;
+import remixlab.remixcam.interactivity.ClickEvent;
 import remixlab.remixcam.profile.*;
 
 public abstract class AbstractMotionDevice extends AbstractDevice implements Constants {
@@ -44,16 +44,16 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 	
 	// /**
 	@Override
-	public void handle(DLEvent<?> event) {
+	public void handle(GenericEvent<?> event) {
 		if(event == null)	return;
-		if( event instanceof DLClickEvent )
+		if( event instanceof ClickEvent )
 			clickProfile.handle(event);
 		else {
 			if(scene.aliveInteractiveFrame() != null)
 				frameProfile.handle(event);
 			else
 				camProfile.handle(event);
-			((MotionEvent<?>)event).modulate(sens);
+			((GenericMotionEvent<?>)event).modulate(sens);
 		}
 		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 	}
