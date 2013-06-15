@@ -27,7 +27,7 @@ package remixlab.remixcam.shortcut;
 
 import remixlab.remixcam.core.Copyable;
 import remixlab.remixcam.event.DLEvent;
-import remixlab.remixcam.event.DLKeyEvent;
+import remixlab.remixcam.ownevent.DLKeyEvent;
 
 import com.flipthebird.gwthashcodeequals.*;
 

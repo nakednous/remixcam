@@ -27,6 +27,8 @@ package remixlab.remixcam.core;
 
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
+import remixlab.remixcam.ownevent.DLDOF1Event;
+import remixlab.remixcam.ownevent.DLDOF2Event;
 import remixlab.remixcam.util.AbstractTimerJob;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -217,7 +219,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * Returns a Quaternion that is a rotation around current camera Y,
 	 * proportional to the horizontal mouse position.
 	 */
-	protected final Quaternion turnQuaternion(DOF1Event event, Camera camera) {
+	protected final Quaternion turnQuaternion(DLDOF1Event event, Camera camera) {
 		float x = event.getX();
 		float prevX = event.getPrevX();
 		return new Quaternion(new DLVector(0.0f, 1.0f, 0.0f), rotationSensitivity()	* ((int)prevX - x) / camera.screenWidth());
@@ -227,7 +229,7 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * Returns a Quaternion that is the composition of two rotations, inferred
 	 * from the mouse pitch (X axis) and yaw ({@link #flyUpVector()} axis).
 	 */
-	protected final Quaternion pitchYawQuaternion(DOF2Event event, Camera camera) {
+	protected final Quaternion pitchYawQuaternion(DLDOF2Event event, Camera camera) {
 		float x = event.getX();
 		float y = event.getY();
 		float prevX = event.getPrevX();

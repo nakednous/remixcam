@@ -3,10 +3,10 @@ package remixlab.remixcam.event;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.geom.Geom;
-///**
-public class DOF1Event extends MotionEvent<Constants.DOF_1Action> {
+
+public class DOF1Event<A extends Actionable<?>> extends MotionEvent<A> {
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(17, 37).
@@ -25,7 +25,7 @@ public class DOF1Event extends MotionEvent<Constants.DOF_1Action> {
 		if (obj.getClass() != getClass())
 			return false;
 
-		DOF1Event other = (DOF1Event) obj;
+		DOF1Event<?> other = (DOF1Event<?>) obj;
 		return new EqualsBuilder()
 		.appendSuper(super.equals(obj))
 		.append(x, other.x)
@@ -41,7 +41,7 @@ public class DOF1Event extends MotionEvent<Constants.DOF_1Action> {
 		this.dx = 0f;
 	}
 
-	public DOF1Event(DOF1Event prevEvent, float x, int modifiers, int button) {
+	public DOF1Event(DOF1Event<A> prevEvent, float x, int modifiers, int button) {
 		this(x, modifiers, button);
 		if(prevEvent!=null) {
 			distance = this.getX() - prevEvent.getX();
@@ -53,7 +53,7 @@ public class DOF1Event extends MotionEvent<Constants.DOF_1Action> {
 	}
 
 	// ready to be enqueued
-	public DOF1Event(float x, DOF_1Action a) {
+	public DOF1Event(float x, A a) {
 		super(a);
 		this.x = x;
 		this.dx = 0f;
@@ -61,7 +61,7 @@ public class DOF1Event extends MotionEvent<Constants.DOF_1Action> {
 	}
 
 	// idem
-	public DOF1Event(DOF1Event prevEvent, float x, DOF_1Action a) {
+	public DOF1Event(DOF1Event<A> prevEvent, float x, A a) {
 		super(a);		
 		this.x = x;
 		this.dx = 0f;
@@ -75,15 +75,15 @@ public class DOF1Event extends MotionEvent<Constants.DOF_1Action> {
 
 	// ---
 
-	protected DOF1Event(DOF1Event other) {
+	protected DOF1Event(DOF1Event<A> other) {
 		super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
 	}
 
 	@Override
-	public DOF1Event get() {
-		return new DOF1Event(this);
+	public DOF1Event<A> get() {
+		return new DOF1Event<A>(this);
 	}
 
 	public float getX() {
@@ -114,4 +114,3 @@ public class DOF1Event extends MotionEvent<Constants.DOF_1Action> {
   	return false;
   }
 }
-// */

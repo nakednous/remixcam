@@ -29,6 +29,9 @@ package remixlab.remixcam.core;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.core.Constants.DLAction;
 import remixlab.remixcam.event.*;
+import remixlab.remixcam.ownevent.DLDOF1Event;
+import remixlab.remixcam.ownevent.DLDOF2Event;
+import remixlab.remixcam.ownevent.DLDOF6Event;
 import remixlab.remixcam.util.AbstractTimerJob;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -582,7 +585,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * @see #spinningFriction()
 	 * @see #toss()
 	 */
-	public void startSpinning(DOF2Event e) {
+	public void startSpinning(DLDOF2Event e) {
 		deviceSpeed = e.speed();
 		isSpng = true;
 		int updateInterval = (int) e.delay();
@@ -733,16 +736,16 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		DLAction id = a.action();
 		//if(id == null) return;	
 		
-		DOF2Event event;
+		DLDOF2Event event;
 		float delta = 0;
 		
 		switch (id) {
 		case ZOOM: {
-			if( e instanceof DOF1Event ) {
-				delta = ((DOF1Event)e).getX() * wheelSensitivity();	
+			if( e instanceof DLDOF1Event ) {
+				delta = ((DLDOF1Event)e).getX() * wheelSensitivity();	
 			}
 			else {
-				event = (DOF2Event)e;
+				event = (DLDOF2Event)e;
 				delta = event.getDY(); /**((float)event.getY() - (float)event.getPrevY())*/;
 			}
 			
@@ -754,7 +757,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		}
 		
 		case ROTATE: {
-			event = (DOF2Event)e;
+			event = (DLDOF2Event)e;
 			DLVector trans = scene.camera().projectedCoordinatesOf(position());
 			Quaternion rot = deformedBallQuaternion(event, trans.x(), trans.y(), scene.camera());
 			rot = iFrameQuaternion(rot, scene.camera());			
@@ -765,7 +768,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		}
 		
 		case TRANSLATE: {
-			event = (DOF2Event)e;
+			event = (DLDOF2Event)e;
 			//Point delta = new Point(event.getX(), scene.isRightHanded() ? event.getY() : -event.getY());
 			DLVector trans = new DLVector(event.getDX(), scene.isRightHanded() ? -event.getDY() : event.getDY(), 0.0f);			
 			
@@ -796,7 +799,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		}
 		
 		case NATURAL: {
-			DOF6Event event6 = (DOF6Event)e;
+			DLDOF6Event event6 = (DLDOF6Event)e;
 			DLVector t = new DLVector();
 	    Quaternion q = new Quaternion();
       // A. Translate the iFrame
@@ -832,7 +835,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * Returns a Quaternion computed according to the mouse motion. Mouse positions
 	 * are projected on a deformed ball, centered on ({@code cx}, {@code cy}).
 	 */
-	protected Quaternion deformedBallQuaternion(DOF2Event event, float cx, float cy, Camera camera) {
+	protected Quaternion deformedBallQuaternion(DLDOF2Event event, float cx, float cy, Camera camera) {
 		float x = event.getX();
 		float y = event.getY();
 		float prevX = event.getPrevX();

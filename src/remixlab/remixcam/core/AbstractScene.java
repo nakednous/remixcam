@@ -34,6 +34,8 @@ import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.core.Constants.DLAction;
 import remixlab.remixcam.device.*;
+import remixlab.remixcam.ownevent.DLClickEvent;
+import remixlab.remixcam.ownevent.DLKeyEvent;
 import remixlab.remixcam.renderer.*;
 import remixlab.remixcam.util.*;
 

@@ -2,7 +2,7 @@ package remixlab.remixcam.profile;
 
 import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.event.DLEvent;
-import remixlab.remixcam.event.DLKeyEvent;
+import remixlab.remixcam.ownevent.DLKeyEvent;
 import remixlab.remixcam.shortcut.KeyboardShortcut;
 
 public abstract class AbstractKeyboardProfile<A extends Actionable<?>>  extends AbstractProfile<KeyboardShortcut, A> {

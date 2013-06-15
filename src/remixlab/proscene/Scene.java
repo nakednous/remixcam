@@ -5,6 +5,10 @@ import remixlab.remixcam.device.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.util.*;
+import remixlab.remixcam.ownevent.DLClickEvent;
+import remixlab.remixcam.ownevent.DLKeyEvent;
+import remixlab.remixcam.ownevent.DLDOF1Event;
+import remixlab.remixcam.ownevent.DLDOF2Event;
 import remixlab.remixcam.renderer.*;
 //import remixlab.remixcam.shortcut.*;
 
@@ -126,7 +130,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	//public class Mouse extends AbstractMouse {
 	public class ProsceneMouse extends DLWheeledMouse {
-		DOF2Event event, prevEvent;
+		DLDOF2Event event, prevEvent;
 		int counter = 0;
 		public ProsceneMouse(AbstractScene scn, String n) {
 			super(scn, n);	
@@ -140,12 +144,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			//}
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 			//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//rotate without dragging any button
-				event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+				event = new DLDOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 				handle(event);
 			  prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
-				handle(new DOF1Event(e.getCount(), e.getModifiers(), NOBUTTON));
+				handle(new DLDOF1Event(e.getCount(), e.getModifiers(), NOBUTTON));
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
 				handle(new DLClickEvent(e.getModifiers(), e.getButton(), e.getCount()));

@@ -1,7 +1,7 @@
 package remixlab.remixcam.device;
 
 import remixlab.remixcam.core.*;
-import remixlab.remixcam.event.DLKeyEvent;
+import remixlab.remixcam.ownevent.DLKeyEvent;
 import remixlab.remixcam.profile.ClickProfile;
 import remixlab.remixcam.profile.DOF2Profile;
 

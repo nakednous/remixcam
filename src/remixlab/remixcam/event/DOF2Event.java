@@ -1,13 +1,12 @@
 package remixlab.remixcam.event;
 
-import remixlab.remixcam.geom.Geom;
-
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.core.Actionable;
+import remixlab.remixcam.geom.Geom;
 
-public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
+public class DOF2Event<A extends Actionable<?>> extends MotionEvent<A> {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -26,7 +25,7 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		DOF2Event other = (DOF2Event) obj;
+		DOF2Event<?> other = (DOF2Event<?>) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
     .append(x, other.x)
@@ -47,7 +46,7 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
     this.dy = 0f;
   }
 	
-	public DOF2Event(DOF2Event prevEvent, float x, float y, int modifiers, int button) {
+	public DOF2Event(DOF2Event<A> prevEvent, float x, float y, int modifiers, int button) {
 		this(x, y, modifiers, button);
 		if(prevEvent!=null) {
 			distance = Geom.distance(x, y, prevEvent.getX(), prevEvent.getY()); 
@@ -78,7 +77,7 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
   }
 	
 	//ready to be enqueued
-	public DOF2Event(float x, float y, DOF_2Action a) {
+	public DOF2Event(float x, float y, A a) {
     super(a);
     this.x = x;
 		this.dx = 0f;
@@ -88,7 +87,7 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
 	}
 
 	//idem
-	public DOF2Event(DOF2Event prevEvent, float x, float y, DOF_2Action a) {
+	public DOF2Event(DOF2Event<A> prevEvent, float x, float y, A a) {
     super(a);
 		this.x = x;
 		this.dx = 0f;
@@ -104,7 +103,7 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
     }
 	}
   
-  protected DOF2Event(DOF2Event other) {
+  protected DOF2Event(DOF2Event<A> other) {
   	super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
@@ -113,8 +112,8 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
 	}
   
   @Override
-	public DOF2Event get() {
-		return new DOF2Event(this);
+	public DOF2Event<A> get() {
+		return new DOF2Event<A>(this);
 	}
   
 	public float getX() {
@@ -141,44 +140,6 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
   	return getY() - getDY();
   }
   
-  public DOF1Event dof1Event(DOF_1Action a1) {
-  	return dof1Event(true, a1);
-  } 
-  
-  public DOF1Event dof1Event(boolean fromX, DOF_1Action a1) {
-  	DOF1Event e1 = dof1Event(fromX);
-  	e1.setAction(a1);
-  	return e1;
-  }  
-  
-  public DOF1Event dof1Event() {
-  	return dof1Event(true);
-  }
-  
-  public DOF1Event dof1Event(boolean fromX) {
-  	DOF1Event pe1;
-  	DOF1Event e1;
-  	if(fromX) {
-  		if(relative()) {
-  			pe1 = new DOF1Event(getPrevX(), getModifiers(), getButton());
-  			e1 = new DOF1Event(pe1, getX(), getModifiers(), getButton());
-  		}
-  		else {
-  			e1 = new DOF1Event(getX(), getModifiers(), getButton());
-  		}
-  	}
-  	else {
-  		if(relative()) {
-  			pe1 = new DOF1Event(getPrevY(), getModifiers(), getButton());
-  			e1 = new DOF1Event(pe1, getY(), getModifiers(), getButton());
-  		}
-  		else {
-  			e1 = new DOF1Event(getY(), getModifiers(), getButton());
-  		}
-  	}
-  	return e1;
-  }
-  
 	@Override
 	public void modulate(float [] sens) {
 		if(sens != null)
@@ -196,4 +157,5 @@ public class DOF2Event extends MotionEvent<Constants.DOF_2Action> {
   		return true;
   	return false;
   }
+
 }

@@ -2,6 +2,7 @@ package remixlab.remixcam.device;
 
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
+import remixlab.remixcam.ownevent.DLClickEvent;
 import remixlab.remixcam.profile.*;
 
 public abstract class AbstractMotionDevice extends AbstractDevice implements Constants {

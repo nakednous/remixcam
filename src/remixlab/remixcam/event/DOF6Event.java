@@ -1,12 +1,12 @@
 package remixlab.remixcam.event;
 
-import remixlab.remixcam.core.Constants;
-import remixlab.remixcam.geom.Geom;
-
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
+import remixlab.remixcam.core.Actionable;
+import remixlab.remixcam.geom.Geom;
+
+public class DOF6Event<A extends Actionable<?>> extends MotionEvent<A> {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -32,7 +32,7 @@ public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		DOF6Event other = (DOF6Event) obj;
+		DOF6Event<?> other = (DOF6Event<?>) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))
     .append(x, other.x)
@@ -74,7 +74,7 @@ public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
     this.drz = 0f;
   }
 	
-	public DOF6Event(DOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
+	public DOF6Event(DOF6Event<A> prevEvent, float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
     this(x, y, z, rx, ry, rz, modifiers, button);
     if(prevEvent!=null) {
     	distance = Geom.distance(x, y, z, rx, ry, rz,
@@ -92,7 +92,7 @@ public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
   }
 	
 	//ready to be enqueued
-	public DOF6Event(float x, float y, float z, float rx, float ry, float rz, DOF_6Action a) {
+	public DOF6Event(float x, float y, float z, float rx, float ry, float rz, A a) {
     super(a);
     this.x = x;
 		this.dx = 0f;
@@ -110,7 +110,7 @@ public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
 	}
 
 	//idem
-	public DOF6Event(DOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, DOF_6Action a) {
+	public DOF6Event(DOF6Event<A> prevEvent, float x, float y, float z, float rx, float ry, float rz, A a) {
     super(a);
     this.x = x;
  		this.dx = 0f;
@@ -139,7 +139,7 @@ public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
     }
 	}
   
-  protected DOF6Event(DOF6Event other) {
+  protected DOF6Event(DOF6Event<A> other) {
   	super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
@@ -156,8 +156,8 @@ public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
 	}
   
   @Override
-	public DOF6Event get() {
-		return new DOF6Event(this);
+	public DOF6Event<A> get() {
+		return new DOF6Event<A>(this);
 	}
   
 	public float getX() {
@@ -242,42 +242,6 @@ public class DOF6Event extends MotionEvent<Constants.DOF_6Action> {
   
   public float getPrevRZ() {
   	return getRZ() - getDRZ();
-  }
-  
-  public DOF3Event dof3Event(DOF_3Action a3) {
-  	return dof3Event(true, a3);
-  }
-  
-  public DOF3Event dof3Event(boolean fromTranslation, DOF_3Action a3) {
-  	DOF3Event e3 = dof3Event(fromTranslation);
-  	e3.setAction(a3);
-  	return e3;
-  }
-  
-  public DOF3Event dof3Event() {
-  	return dof3Event(true);
-  }
-  
-  public DOF3Event dof3Event(boolean fromTranslation) {
-  	DOF3Event pe3;
-  	DOF3Event e3;
-  	if(relative()) {
-  		if(fromTranslation) {
-  			pe3 = new DOF3Event(getPrevX(), getPrevY(), getPrevZ(), getModifiers(), getButton());
-  			e3 = new DOF3Event(pe3, getX(), getY(), getZ(), getModifiers(), getButton());
-  		}
-  		else {
-  			pe3 = new DOF3Event(getPrevRX(), getPrevRY(), getPrevRZ(), getModifiers(), getButton());
-  			e3 = new DOF3Event(pe3, getRX(), getRY(), getRZ(), getModifiers(), getButton());
-  		}
-  	}
-  	else {
-  		if(fromTranslation)
-    		e3 = new DOF3Event(getX(), getY(), getZ(), getModifiers(), getButton());
-  		else
-  			e3 = new DOF3Event(getRX(), getRY(), getRZ(), getModifiers(), getButton());  		
-  	}
-  	return e3;
   }
   
 	@Override

@@ -2,6 +2,7 @@ package remixlab.remixcam.device;
 
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.event.*;
+import remixlab.remixcam.ownevent.DLDOF1Event;
 import remixlab.remixcam.profile.DOF1Profile;
 
 public class DLWheeledMouse extends DLMouse {
@@ -35,7 +36,7 @@ public class DLWheeledMouse extends DLMouse {
 	
 	@Override
 	public void handle(DLEvent<?> event) {
-		if( event instanceof DOF1Event ) {
+		if( event instanceof DLDOF1Event ) {
 			if(scene.aliveInteractiveFrame() != null)
 				wheelProfile.handle(event);
 			else

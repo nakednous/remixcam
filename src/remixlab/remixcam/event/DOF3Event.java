@@ -1,12 +1,12 @@
 package remixlab.remixcam.event;
 
-import remixlab.remixcam.geom.Geom;
-
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-import remixlab.remixcam.core.Constants;
 
-public class DOF3Event extends MotionEvent<Constants.DOF_3Action> {
+import remixlab.remixcam.core.Actionable;
+import remixlab.remixcam.geom.Geom;
+
+public class DOF3Event<A extends Actionable<?>> extends MotionEvent<A> {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -26,7 +26,7 @@ public class DOF3Event extends MotionEvent<Constants.DOF_3Action> {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		DOF3Event other = (DOF3Event) obj;
+		DOF3Event<?> other = (DOF3Event<?>) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
     .append(x, other.x)
@@ -52,7 +52,7 @@ public class DOF3Event extends MotionEvent<Constants.DOF_3Action> {
     this.dz = 0f;
   }
 	
-	public DOF3Event(DOF3Event prevEvent, float x, float y, float z, int modifiers, int button) {
+	public DOF3Event(DOF3Event<A> prevEvent, float x, float y, float z, int modifiers, int button) {
     this(x, y, z, modifiers, button);
     if(prevEvent!=null) {
     	distance = Geom.distance(x, y, z, prevEvent.getX(), prevEvent.getY(), prevEvent.getZ());
@@ -66,7 +66,7 @@ public class DOF3Event extends MotionEvent<Constants.DOF_3Action> {
   }
 	
 	//ready to be enqueued
-	public DOF3Event(float x, float y, float z, DOF_3Action a) {
+	public DOF3Event(float x, float y, float z, A a) {
     super(a);
     this.x = x;
 		this.dx = 0f;
@@ -78,7 +78,7 @@ public class DOF3Event extends MotionEvent<Constants.DOF_3Action> {
 	}
 
 	//idem
-	public DOF3Event(DOF3Event prevEvent, float x, float y, float z, DOF_3Action a) {
+	public DOF3Event(DOF3Event<A> prevEvent, float x, float y, float z, A a) {
     super(a);
     this.x = x;
 		this.dx = 0f;
@@ -97,7 +97,7 @@ public class DOF3Event extends MotionEvent<Constants.DOF_3Action> {
     }
 	}
   
-  protected DOF3Event(DOF3Event other) {
+  protected DOF3Event(DOF3Event<A> other) {
   	super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
@@ -108,8 +108,8 @@ public class DOF3Event extends MotionEvent<Constants.DOF_3Action> {
 	}
   
   @Override
-	public DOF3Event get() {
-		return new DOF3Event(this);
+	public DOF3Event<A> get() {
+		return new DOF3Event<A>(this);
 	}
   
 	public float getX() {
@@ -146,25 +146,6 @@ public class DOF3Event extends MotionEvent<Constants.DOF_3Action> {
   
   public float getPrevZ() {
   	return getZ() - getDZ();
-  }
-  
-  public DOF2Event dof2Event(DOF_2Action a2) {
-  	DOF2Event e2 = dof2Event();
-  	e2.setAction(a2);
-  	return e2;
-  }
-  
-  public DOF2Event dof2Event() {
-  	DOF2Event pe2;
-  	DOF2Event e2;
-  	if(relative()) {  		
-  			pe2 = new DOF2Event(getPrevX(), getPrevY(), getModifiers(), getButton());
-  			e2 = new DOF2Event(pe2, getX(), getY(), getModifiers(), getButton());  		
-  	}
-  	else {
-  		e2 = new DOF2Event(getX(), getY(), getModifiers(), getButton()); 
-  	}
-  	return e2;
   }
   
 	@Override

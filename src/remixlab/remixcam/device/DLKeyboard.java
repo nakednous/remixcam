@@ -3,6 +3,7 @@ package remixlab.remixcam.device;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.core.Constants.DOF_0Action;
 import remixlab.remixcam.event.*;
+import remixlab.remixcam.ownevent.DLKeyEvent;
 import remixlab.remixcam.profile.*;
 
 public class DLKeyboard extends AbstractKeyboard {

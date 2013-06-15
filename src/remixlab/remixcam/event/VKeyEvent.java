@@ -3,13 +3,13 @@ package remixlab.remixcam.event;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import remixlab.remixcam.core.Constants;
-import remixlab.remixcam.shortcut.*;
-
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-public class DLKeyEvent extends DLEvent<Constants.DOF_0Action> {
+import remixlab.remixcam.core.Actionable;
+import remixlab.remixcam.shortcut.KeyboardShortcut;
+
+public class VKeyEvent<A extends Actionable<?>> extends DLEvent<A> {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -25,7 +25,7 @@ public class DLKeyEvent extends DLEvent<Constants.DOF_0Action> {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		DLKeyEvent other = (DLKeyEvent) obj;
+		VKeyEvent<?> other = (VKeyEvent<?>) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
     .append(key, other.key)
@@ -105,74 +105,74 @@ public class DLKeyEvent extends DLEvent<Constants.DOF_0Action> {
   protected Character key;
   protected Integer vKey;
   
-  public DLKeyEvent() {
+  public VKeyEvent() {
   	this.key = null;
   	this.vKey = null;
   }
   
-  public DLKeyEvent(DOF_0Action a) {
+  public VKeyEvent(A a) {
   	super(a);
   	this.key = null;
   	this.vKey = null;
   }
   
-  public DLKeyEvent(Integer modifiers, Character c, Integer vk) {
+  public VKeyEvent(Integer modifiers, Character c, Integer vk) {
     super(modifiers);
     this.vKey = vk;
     this.key = c;
   }
   
-  public DLKeyEvent(Integer modifiers, Character c) {
+  public VKeyEvent(Integer modifiers, Character c) {
     super(modifiers);
     this.key = c;
     this.vKey = null;
   }
   
-  public DLKeyEvent(Integer modifiers, Integer vk) {
+  public VKeyEvent(Integer modifiers, Integer vk) {
     super(modifiers);
     this.key = null;
     this.vKey = vk;
   }
   
-  public DLKeyEvent(Character c) {
+  public VKeyEvent(Character c) {
   	super();
     this.key = c;
     this.vKey = null;
   }
   
-  public DLKeyEvent(Integer modifiers, Character c, Integer vk, DOF_0Action a) {
+  public VKeyEvent(Integer modifiers, Character c, Integer vk, A a) {
     super(modifiers, a);
     this.vKey = vk;
     this.key = c;
   }
   
-  public DLKeyEvent(Integer modifiers, Character c, DOF_0Action a) {
+  public VKeyEvent(Integer modifiers, Character c, A a) {
     super(modifiers, a);
     this.key = c;
     this.vKey = null;
   }
   
-  public DLKeyEvent(Integer modifiers, Integer vk, DOF_0Action a) {
+  public VKeyEvent(Integer modifiers, Integer vk, A a) {
     super(modifiers, a);
     this.key = null;
     this.vKey = vk;
   }
   
-  public DLKeyEvent(Character c, DOF_0Action a) {
+  public VKeyEvent(Character c, A a) {
   	super(a);
     this.key = c;
     this.vKey = null;
   }
   
-  protected DLKeyEvent(DLKeyEvent other) {
+  protected VKeyEvent(VKeyEvent<A> other) {
   	super(other);
 		this.key = new Character(other.key);
 		this.vKey = new Integer(other.vKey);
 	}
   
   @Override
-	public DLKeyEvent get() {
-		return new DLKeyEvent(this);
+	public VKeyEvent<A> get() {
+		return new VKeyEvent<A>(this);
 	}
   
   @Override
