@@ -1,6 +1,6 @@
 /**
- *                     RemixCam (version 1.0.0)      
- *      Copyright (c) 2012 by National University of Colombia
+ *                     RemixCam (version 0.70.0)      
+ *      Copyright (c) 2013 by National University of Colombia
  *                 @author Jean Pierre Charalambos      
  *              https://github.com/nakednous/remixcam
  *                           
