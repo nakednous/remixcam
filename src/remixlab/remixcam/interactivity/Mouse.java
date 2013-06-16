@@ -53,9 +53,9 @@ public class Mouse extends AbstractMotionDevice implements Constants {
 		
 		//clickProfile().setClickBinding(RIGHT, 1, DOF_0Action.DRAW_FRAME_SELECTION_HINT);
 		
-		clickProfile().setClickBinding(KeyboardEvent.SHIFT, LEFT, 2, DOF_0Action.ALIGN_CAMERA);
-		clickProfile().setClickBinding(KeyboardEvent.SHIFT, CENTER, 2, DOF_0Action.SHOW_ALL);
-		clickProfile().setClickBinding((KeyboardEvent.SHIFT | KeyboardEvent.CTRL ), RIGHT, 2, DOF_0Action.ZOOM_TO_FIT);
+		clickProfile().setClickBinding(DOF2Event.SHIFT, LEFT, 2, DOF_0Action.ALIGN_CAMERA);
+		clickProfile().setClickBinding(DOF2Event.SHIFT, CENTER, 2, DOF_0Action.SHOW_ALL);
+		clickProfile().setClickBinding((DOF2Event.SHIFT | DOF2Event.CTRL ), RIGHT, 2, DOF_0Action.ZOOM_TO_FIT);
 	}
 	
 	@Override
