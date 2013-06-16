@@ -34,22 +34,21 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 */
 
 public class DOF6Event extends GenericDOF6Event<Constants.DOF_6Action> {
-	public DOF6Event(float x, float y, float z, float rx, float ry, float rz,
-			int modifiers, int button) {
+	public DOF6Event(float x, float y, float z, float rx, float ry, float rz,	int modifiers, int button) {
 		super(x, y, z, rx, ry, rz, modifiers, button);
 	}
 
-	public DOF6Event(float x, float y, float z, float rx, float ry, float rz,
-			DOF_6Action a) {
+	public DOF6Event(float x, float y, float z, float rx, float ry, float rz,	DOF_6Action a) {
 		super(x, y, z, rx, ry, rz, a);
 	}
 	
-	public DOF6Event(GenericDOF6Event<DOF_6Action> prevEvent, float x, float y,
-			float z, float rx, float ry, float rz, int modifiers, int button) {
+	public DOF6Event(GenericDOF6Event<DOF_6Action> prevEvent, float x, float y, float z,
+			                                                      float rx, float ry, float rz, int modifiers, int button) {
 		super(prevEvent, x, y, z, rx, ry, rz, modifiers, button);
 	}
 	
-	public DOF6Event(GenericDOF6Event<DOF_6Action> prevEvent, float x, float y, float z, float rx, float ry, float rz, DOF_6Action a) {
+	public DOF6Event(GenericDOF6Event<DOF_6Action> prevEvent, float x, float y, float z,
+			                                                      float rx, float ry, float rz, DOF_6Action a) {
 		super(prevEvent, x, y, z, rx, ry, rz, a);
 	}
 	

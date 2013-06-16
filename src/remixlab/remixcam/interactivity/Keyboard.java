@@ -64,6 +64,11 @@ public class Keyboard extends AbstractKeyboard {
 		 * setPathKey('5', 5);
 		 */
 	}
+	
+	@Override
+	public KeyboardEvent feed() {
+		return null;
+	}
 
 	@Override
 	public KeyboardProfile keyboardProfile() {

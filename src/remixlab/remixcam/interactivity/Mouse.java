@@ -59,6 +59,11 @@ public class Mouse extends AbstractMotionDevice implements Constants {
 	}
 	
 	@Override
+	public DOF2Event feed() {
+		return null;
+	}
+	
+	@Override
 	public DOF2Profile cameraProfile() {
 		return (DOF2Profile)camProfile;
 	}

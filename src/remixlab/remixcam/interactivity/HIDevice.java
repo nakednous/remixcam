@@ -46,6 +46,11 @@ public class HIDevice extends AbstractMotionDevice {
 	}
 	
 	@Override
+	public DOF6Event feed() {
+		return null;
+	}
+	
+	@Override
 	public DOF6Profile cameraProfile() {
 		return (DOF6Profile)camProfile;
 	}

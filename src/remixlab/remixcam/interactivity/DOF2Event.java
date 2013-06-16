@@ -34,10 +34,6 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.remixcam.core.Constants;
 
 public class DOF2Event extends GenericDOF2Event<Constants.DOF_2Action> {	
-	public DOF1Event dof1Event(DOF_1Action a1) {
-  	return dof1Event(true, a1);
-  }
-	
 	public DOF2Event(GenericDOF2Event<DOF_2Action> prevEvent, float x, float y, DOF_2Action a) {
 		super(prevEvent, x, y, a);
 	}
@@ -66,6 +62,10 @@ public class DOF2Event extends GenericDOF2Event<Constants.DOF_2Action> {
 	@Override
 	public DOF_2Action getAction() {
   	return (DOF_2Action)action;
+  }
+	
+	public DOF1Event dof1Event(DOF_1Action a1) {
+  	return dof1Event(true, a1);
   }
   
   public DOF1Event dof1Event(boolean fromX, DOF_1Action a1) {
