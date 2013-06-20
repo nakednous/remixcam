@@ -79,6 +79,8 @@ public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEven
 	
 	public GenericDOF3Event(GenericDOF3Event<A> prevEvent, float x, float y, float z, int modifiers, int button) {
     this(x, y, z, modifiers, button);
+    setPreviousEvent(prevEvent);
+    /**
     if(prevEvent!=null) {
     	distance = Geom.distance(x, y, z, prevEvent.getX(), prevEvent.getY(), prevEvent.getZ());
     	if( sameSequence(prevEvent) ) {
@@ -88,6 +90,7 @@ public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEven
     		this.action = prevEvent.getAction();
     	}
     }
+    */
   }
 	
 	//ready to be enqueued
@@ -112,6 +115,8 @@ public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEven
     this.z = z;
     this.dz = 0f;
     this.button = NOBUTTON;
+    setPreviousEvent(prevEvent);
+    /**
     if(prevEvent!=null) {
     	distance = Geom.distance(x, y, z, prevEvent.getX(), prevEvent.getY(), prevEvent.getZ());
     	if( sameSequence(prevEvent) ) {
@@ -120,6 +125,7 @@ public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEven
     		this.dz = this.getZ() - prevEvent.getZ();
     	}
     }
+    */
 	}
   
   protected GenericDOF3Event(GenericDOF3Event<A> other) {
@@ -135,6 +141,31 @@ public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEven
   @Override
 	public GenericDOF3Event<A> get() {
 		return new GenericDOF3Event<A>(this);
+	}
+  
+  @Override
+  public void setPreviousEvent(GenericMotionEvent<?> prevEvent) {
+  	super.setPreviousEvent(prevEvent);
+  	if(prevEvent!=null)
+  		if(prevEvent instanceof GenericDOF3Event<?>)	{
+  			this.dx = this.getX() - ((GenericDOF3Event<?>) prevEvent).getX();
+  			this.dy = this.getY() - ((GenericDOF3Event<?>) prevEvent).getY();
+  			this.dz = this.getZ() - ((GenericDOF3Event<?>) prevEvent).getZ();
+  			distance = Geom.distance(x, y, z, ((GenericDOF3Event<?>) prevEvent).getX(), ((GenericDOF3Event<?>) prevEvent).getY(), ((GenericDOF3Event<?>) prevEvent).getZ());
+  			delay = this.timestamp() - prevEvent.timestamp();
+  			if(delay==0)
+  				speed = distance;
+  			else
+  				speed = distance / (float)delay;
+  		}
+  	else {
+  		this.dx = 0f;
+  		this.dy = 0f;
+  		this.dz = 0f;
+  		delay = 0;
+			speed = 0;
+			distance = 0;
+  	}
 	}
   
 	public float getX() {

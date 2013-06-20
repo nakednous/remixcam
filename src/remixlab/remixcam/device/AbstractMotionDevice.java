@@ -71,6 +71,7 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 	@Override
 	public void handle(GenericEvent<?> event) {
 		if(event == null)	return;
+		event.setAgent(this);
 		if( event instanceof ClickEvent )
 			clickProfile.handle(event);
 		else {

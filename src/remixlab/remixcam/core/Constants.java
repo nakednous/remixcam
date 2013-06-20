@@ -96,7 +96,7 @@ public interface Constants {
   
   //Actions
   public enum DLAction {
-  	NO_ACTION("No action", true, 0),
+  	//NO_ACTION("No action", true, 0),
   	
   	//KEYfRAMES
   	ADD_KEYFRAME_TO_PATH("Add keyframe to path", true, 0),
@@ -299,7 +299,7 @@ public interface Constants {
   
   public enum DOF_0Action implements Actionable<DLAction> {
     //DOF_0
-  	NO_ACTION(DLAction.NO_ACTION),
+  	//NO_ACTION(DLAction.NO_ACTION),
   	
     //KEYfRAMES
   	ADD_KEYFRAME_TO_PATH(DLAction.ADD_KEYFRAME_TO_PATH),
@@ -378,10 +378,12 @@ public interface Constants {
   		return act.dofs();
   	}
   	
+  	/**
   	@Override
 		public DLAction defaultAction() {
 			return DLAction.NO_ACTION;
 		}
+		*/
 
   	DLAction act;
 
@@ -392,7 +394,7 @@ public interface Constants {
   
   public enum DOF_1Action implements Actionable<DLAction> {
     //DOF_0
-  	NO_ACTION(DLAction.NO_ACTION),
+  	//NO_ACTION(DLAction.NO_ACTION),
   	
   	ZOOM(DLAction.ZOOM),
   	
@@ -421,10 +423,12 @@ public interface Constants {
   		return act.dofs();
   	}
   	
+  	/**
   	@Override
 		public DLAction defaultAction() {
 			return DLAction.NO_ACTION;
 		}
+		*/
 
   	DLAction act;
 
@@ -434,7 +438,7 @@ public interface Constants {
   }
   
   public enum DOF_2Action implements Actionable<DLAction> {
-  	NO_ACTION(DLAction.NO_ACTION),
+  	//NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1
   	ZOOM(DLAction.ZOOM),
@@ -477,10 +481,12 @@ public interface Constants {
   		return act.dofs();
   	}
   	
+  	/**
   	@Override
 		public DLAction defaultAction() {
 			return DLAction.NO_ACTION;
 		}
+		*/
 
   	DLAction act;
 
@@ -490,7 +496,7 @@ public interface Constants {
   }
   
   public enum DOF_3Action implements Actionable<DLAction> {
-    NO_ACTION(DLAction.NO_ACTION),
+    //NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1
   	ZOOM(DLAction.ZOOM),
@@ -537,10 +543,12 @@ public interface Constants {
   		return act.dofs();
   	}
   	
+  	/**
   	@Override
 		public DLAction defaultAction() {
 			return DLAction.NO_ACTION;
 		}
+		*/
 
   	DLAction act;
 
@@ -550,7 +558,7 @@ public interface Constants {
   }
   
   public enum DOF_6Action implements Actionable<DLAction> {
-    NO_ACTION(DLAction.NO_ACTION),
+    //NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1
   	ZOOM(DLAction.ZOOM),
@@ -601,10 +609,12 @@ public interface Constants {
   		return act.dofs();
   	}
   	
+  	/**
   	@Override
 		public DLAction defaultAction() {
 			return DLAction.NO_ACTION;
 		}
+		*/
 
   	DLAction act;
 

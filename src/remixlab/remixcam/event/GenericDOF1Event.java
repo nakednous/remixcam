@@ -68,6 +68,8 @@ public class GenericDOF1Event<A extends Actionable<?>> extends GenericMotionEven
 
 	public GenericDOF1Event(GenericDOF1Event<A> prevEvent, float x, int modifiers, int button) {
 		this(x, modifiers, button);
+		setPreviousEvent(prevEvent);
+		/**
 		if(prevEvent!=null) {
 			distance = this.getX() - prevEvent.getX();
 			if (sameSequence(prevEvent)) {
@@ -75,6 +77,7 @@ public class GenericDOF1Event<A extends Actionable<?>> extends GenericMotionEven
 				this.dx = this.getX() - prevEvent.getX();
 			}
 		}
+		*/
 	}
 
 	// ready to be enqueued
@@ -91,11 +94,14 @@ public class GenericDOF1Event<A extends Actionable<?>> extends GenericMotionEven
 		this.x = x;
 		this.dx = 0f;
 		this.button = NOBUTTON;
+		setPreviousEvent(prevEvent);
+		/**
 		if(prevEvent!=null) {
 			distance = this.getX() - prevEvent.getX();
 			if (sameSequence(prevEvent))
 				this.dx = this.getX() - prevEvent.getX();
 		}
+		*/
 	}
 
 	// ---
@@ -109,6 +115,26 @@ public class GenericDOF1Event<A extends Actionable<?>> extends GenericMotionEven
 	@Override
 	public GenericDOF1Event<A> get() {
 		return new GenericDOF1Event<A>(this);
+	}
+	
+	@Override
+  public void setPreviousEvent(GenericMotionEvent<?> prevEvent) {
+  	if(prevEvent!=null)
+  		if(prevEvent instanceof GenericDOF1Event<?>)	{  			
+  			this.dx = this.getX() - ((GenericDOF1Event<?>) prevEvent).getX();
+  			distance = this.getX() - ((GenericDOF1Event<?>) prevEvent).getX();
+  			delay = this.timestamp() - prevEvent.timestamp();
+  			if(delay==0)
+  				speed = distance;
+  			else
+  				speed = distance / (float)delay;
+  		}
+  	else {
+  		this.dx = 0f;
+  		delay = 0;
+			speed = 0;
+			distance = 0;
+  	}
 	}
 
 	public float getX() {

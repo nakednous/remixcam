@@ -73,6 +73,9 @@ public class GenericDOF2Event<A extends Actionable<?>> extends GenericMotionEven
 	
 	public GenericDOF2Event(GenericDOF2Event<A> prevEvent, float x, float y, int modifiers, int button) {
 		this(x, y, modifiers, button);
+		setPreviousEvent(prevEvent);
+		
+		/**
 		if(prevEvent!=null) {
 			distance = Geom.distance(x, y, prevEvent.getX(), prevEvent.getY()); 
 			if( sameSequence(prevEvent) ) {
@@ -119,6 +122,8 @@ public class GenericDOF2Event<A extends Actionable<?>> extends GenericMotionEven
     this.y = y;
     this.dy = 0f;
     this.button = NOBUTTON;
+    setPreviousEvent(prevEvent);
+    /**
     if(prevEvent!=null) {
     	distance = Geom.distance(x, y, prevEvent.getX(), prevEvent.getY());
     	if( sameSequence(prevEvent) ) {
@@ -126,6 +131,7 @@ public class GenericDOF2Event<A extends Actionable<?>> extends GenericMotionEven
     		this.dy = this.getY() - prevEvent.getY();
     	}
     }
+    */
 	}
   
   protected GenericDOF2Event(GenericDOF2Event<A> other) {
@@ -139,6 +145,28 @@ public class GenericDOF2Event<A extends Actionable<?>> extends GenericMotionEven
   @Override
 	public GenericDOF2Event<A> get() {
 		return new GenericDOF2Event<A>(this);
+	}
+  
+  @Override
+  public void setPreviousEvent(GenericMotionEvent<?> prevEvent) {
+  	if(prevEvent!=null)
+  		if(prevEvent instanceof GenericDOF2Event<?>)	{
+  			this.dx = this.getX() - ((GenericDOF2Event<?>) prevEvent).getX();
+  			this.dy = this.getY() - ((GenericDOF2Event<?>) prevEvent).getY();
+  			distance = Geom.distance(x, y, ((GenericDOF2Event<?>) prevEvent).getX(), ((GenericDOF2Event<?>) prevEvent).getY());  			
+  			delay = this.timestamp() - prevEvent.timestamp();
+  			if(delay==0)
+  				speed = distance;
+  			else
+  				speed = distance / (float)delay;
+  		}
+  	else {
+  		this.dx = 0f;
+  		this.dy = 0f;
+  		delay = 0;
+			speed = 0;
+			distance = 0;
+  	}
 	}
   
 	public float getX() {

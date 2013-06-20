@@ -101,6 +101,8 @@ public class GenericDOF6Event<A extends Actionable<?>> extends GenericMotionEven
 	
 	public GenericDOF6Event(GenericDOF6Event<A> prevEvent, float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
     this(x, y, z, rx, ry, rz, modifiers, button);
+    setPreviousEvent(prevEvent);
+    /**
     if(prevEvent!=null) {
     	distance = Geom.distance(x, y, z, rx, ry, rz,
                  prevEvent.getX(), prevEvent.getY(), prevEvent.getZ(), prevEvent.getRX(), prevEvent.getRY(), prevEvent.getRZ());
@@ -114,6 +116,7 @@ public class GenericDOF6Event<A extends Actionable<?>> extends GenericMotionEven
     		this.action = prevEvent.getAction();
     	}
     }
+    */
   }
 	
 	//ready to be enqueued
@@ -150,6 +153,8 @@ public class GenericDOF6Event<A extends Actionable<?>> extends GenericMotionEven
     this.rz = rz;    
     this.drz = 0f;
     this.button = NOBUTTON;
+    setPreviousEvent(prevEvent);
+    /**
     if(prevEvent!=null) {
     	distance = Geom.distance(x, y, z, rx, ry, rz,
                  prevEvent.getX(), prevEvent.getY(), prevEvent.getZ(), prevEvent.getRX(), prevEvent.getRY(), prevEvent.getRZ());
@@ -162,6 +167,7 @@ public class GenericDOF6Event<A extends Actionable<?>> extends GenericMotionEven
     		this.drz = this.getRZ() - prevEvent.getRZ();
     	}
     }
+    */
 	}
   
   protected GenericDOF6Event(GenericDOF6Event<A> other) {
@@ -183,6 +189,38 @@ public class GenericDOF6Event<A extends Actionable<?>> extends GenericMotionEven
   @Override
 	public GenericDOF6Event<A> get() {
 		return new GenericDOF6Event<A>(this);
+	}
+  
+  @Override
+  public void setPreviousEvent(GenericMotionEvent<?> prevEvent) {
+  	super.setPreviousEvent(prevEvent);
+  	if(prevEvent!=null)
+  		if(prevEvent instanceof GenericDOF6Event<?>)	{  			
+  			this.dx = this.getX() - ((GenericDOF6Event<?>) prevEvent).getX();
+  			this.dy = this.getY() - ((GenericDOF6Event<?>) prevEvent).getY();
+  			this.dz = this.getZ() - ((GenericDOF6Event<?>) prevEvent).getZ();
+  			this.drx = this.getRX() - ((GenericDOF6Event<?>) prevEvent).getRX();
+  			this.dry = this.getRY() - ((GenericDOF6Event<?>) prevEvent).getRY();
+  			this.drz = this.getRZ() - ((GenericDOF6Event<?>) prevEvent).getRZ();
+  			distance = Geom.distance(x, y, z, rx, ry, rz,
+            ((GenericDOF6Event<?>) prevEvent).getX(), ((GenericDOF6Event<?>) prevEvent).getY(), ((GenericDOF6Event<?>) prevEvent).getZ(), ((GenericDOF6Event<?>) prevEvent).getRX(), ((GenericDOF6Event<?>) prevEvent).getRY(), ((GenericDOF6Event<?>) prevEvent).getRZ());
+  			delay = this.timestamp() - prevEvent.timestamp();
+  			if(delay==0)
+  				speed = distance;
+  			else
+  				speed = distance / (float)delay;
+  		}
+  	else {
+  		this.dx = 0f;
+  		this.dy = 0f;
+  		this.dz = 0f;
+  		this.drx = 0f;
+  		this.dry = 0f;
+  		this.drz = 0f;
+  		delay = 0;
+			speed = 0;
+			distance = 0;
+  	}
 	}
   
 	public float getX() {

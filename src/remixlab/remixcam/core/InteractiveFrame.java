@@ -60,7 +60,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		append(grbsDevice).
 		append(isInCamPath).
 		append(isSpng).
-		append(keepsGrabbingCursor).
+		//append(keepsGrabbingCursor).
 		append(rotSensitivity).
 		append(spngQuat).
 		append(spngSensitivity).
@@ -86,7 +86,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		.append(isSpng, other.isSpng)
 		.append(spinningFriction, other.spinningFriction)
 		.append(sFriction, other.sFriction)
-		.append(keepsGrabbingCursor, other.keepsGrabbingCursor)
+		//.append(keepsGrabbingCursor, other.keepsGrabbingCursor)
 		.append(rotSensitivity, other.rotSensitivity)
 		.append(spngQuat,other.spngQuat)
 		.append(spngSensitivity,other.spngSensitivity)
@@ -115,7 +115,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	//private boolean dirIsFixed;
 
 	// MouseGrabber
-	public boolean keepsGrabbingCursor;
+	//public boolean keepsGrabbingCursor;
 	//TODO define if this shpuld go
 	//protected Constraint prevConstraint; // When manipulation is without Constraint.
 	// Previous mouse position (used for incremental updates) and mouse press position.
@@ -194,7 +194,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		this.setTranslationSensitivity( otherFrame.translationSensitivity() );
 		this.setWheelSensitivity( otherFrame.wheelSensitivity() );
 
-		this.keepsGrabbingCursor = otherFrame.keepsGrabbingCursor;		
+		//this.keepsGrabbingCursor = otherFrame.keepsGrabbingCursor;		
 		//this.prevConstraint = otherFrame.prevConstraint; 
 		
 		this.isSpng = otherFrame.isSpng;
@@ -329,11 +329,17 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * {@link #position()}.
 	 */
 	@Override
-	public void checkIfGrabsInput() {
-		int x = scene.cursorX - scene.upperLeftCorner.getX();
-		int y = scene.cursorY - scene.upperLeftCorner.getY();
+	public void checkIfGrabsInput(GenericEvent<?> event) {
+		int x=0, y=0;
+		if(event instanceof DOF2Event) {
+			//x = scene.cursorX - scene.upperLeftCorner.getX();
+			//y = scene.cursorY - scene.upperLeftCorner.getY();
+			x = (int)((DOF2Event)event).getX();
+			y = (int)((DOF2Event)event).getY();
+		}
 		DLVector proj = scene.pinhole().projectedCoordinatesOf(position());
-		setGrabsInput(keepsGrabbingCursor || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
+		setGrabsInput((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold()));
+		//setGrabsInput(keepsGrabbingCursor || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
 	}
 
 	/**
@@ -710,7 +716,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	@Override
 	public void performInteraction(GenericEvent<?> event) {
 		//begin:
-		if (grabsInput()) keepsGrabbingCursor = true;
+		//if (grabsInput()) keepsGrabbingCursor = true;
 		//end:
 		stopSpinning();
 		//keepsGrabbingDevice = false;

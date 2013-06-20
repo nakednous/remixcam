@@ -48,6 +48,7 @@ public class AbstractKeyboard extends AbstractDevice {
 	@Override
 	public void handle(GenericEvent<?> event) {
 		if(event == null)	return;
+		event.setAgent(this);
 		profile.handle(event);
 		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 	}

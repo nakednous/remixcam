@@ -46,7 +46,7 @@ public class Grabber implements Grabbable {
 	}
 
 	@Override
-	public void checkIfGrabsInput() {}
+	public void checkIfGrabsInput(GenericEvent<?> event) {}
 
 	@Override
 	public boolean grabsInput() {

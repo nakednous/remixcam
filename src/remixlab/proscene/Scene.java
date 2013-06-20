@@ -167,11 +167,24 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			//if( ((MouseEvent)e).getAction() == MouseEvent.PRESS ) {
 			//	prevEvent = new DOF2Event(e.getX(), e.getY(), e.getModifiers(), e.getButton());
 			//}
+			//if( e.getAction() == processing.event.MouseEvent.DRAG ) {//rotate without dragging any button
+			// /**
+			if( e.getAction() == processing.event.MouseEvent.MOVE ) {
+				event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+				handle(event);
+				prevEvent = event.get();
+			}
+			// */
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 			//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//rotate without dragging any button
 				event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 				handle(event);
 			  prevEvent = event.get();
+			}
+			if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
+				event = new DOF2Event(prevEvent, e.getX(), e.getY(), null);
+				event.enqueue(scene);
+				prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
 				handle(new DOF1Event(e.getCount(), e.getModifiers(), NOBUTTON));
@@ -1791,7 +1804,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		prosceneMouse = new ProsceneMouse(this, "proscene_mouse");
 		parent.registerMethod("mouseEvent", prosceneMouse);
 		
-		parent.registerMethod("mouseEvent", this);		
+		//parent.registerMethod("mouseEvent", this);		
 		// */
 
 		parent.registerMethod("pre", this);
@@ -2729,6 +2742,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		return camera().new WorldPoint(point, (depth[0] < 1.0f));
 	}	
 	
+	/**
 	//hack to make grabbers properly work
 	public void mouseEvent(processing.event.MouseEvent e) {
 		if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
@@ -2741,4 +2755,5 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			}			
 		}
 	}
+	*/
 }

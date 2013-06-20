@@ -38,7 +38,31 @@ import remixlab.remixcam.device.*;
 import remixlab.remixcam.renderer.*;
 import remixlab.remixcam.util.*;
 
-public abstract class AbstractScene implements Constants {	
+public abstract class AbstractScene implements Constants {
+	/**
+	protected class GrabbableWrap {
+		protected Grabbable grabbable;
+		protected Actionable<?> lastAction;
+		public GrabbableWrap(Grabbable g) {
+			this(g, null);
+		}
+		public GrabbableWrap(Grabbable g, Actionable<?> a) {
+			this.grabbable = g;
+			lastAction = a;
+		}
+		public void updateAction(Actionable<?> action) {
+			lastAction = action;
+		}
+	}
+	*/
+	
+  //M o u s e G r a b b e r
+	protected List<Grabbable> msGrabberPool;
+	protected Grabbable deviceGrbbr;
+	protected Actionable<?> lastDeviceGrbbrAction;
+	public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
+	protected boolean deviceTrckn;
+	
 	protected boolean dottedGrid;	
 	
   //O B J E C T S
@@ -57,12 +81,6 @@ public abstract class AbstractScene implements Constants {
   //T I M E R S
   protected boolean singleThreadedTaskableTimers;
 	protected ArrayList<AbstractTimerJob> timerPool;
-
-	// M o u s e G r a b b e r
-	protected List<Grabbable> msGrabberPool;
-	protected Grabbable deviceGrbbr;
-	public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
-	protected boolean deviceTrckn;
 
 	// D I S P L A Y F L A G S
 	protected boolean axisIsDrwn; // world axis
@@ -165,18 +183,6 @@ public abstract class AbstractScene implements Constants {
 			return interactiveFrame();
 		}
 		return null;
-	}
-	
-	//Should be called after updating cursor position
-	protected void updateGrabber() {
-		updateCursor();
-		setDeviceGrabber(null);
-		if( isTrackingDevice() )
-			for (Grabbable mg : deviceGrabberPool()) {
-				mg.checkIfGrabsInput();
-				if (mg.grabsInput())
-					setDeviceGrabber(mg);
-			}
 	}
 	
 	/**
@@ -310,8 +316,7 @@ public abstract class AbstractScene implements Constants {
 			return;
 		DLVector trans;
 		switch (id) {
-		case NO_ACTION:
-			break;
+		//case NO_ACTION:	break;
 		case DRAW_AXIS:
 			toggleAxisIsDrawn();
 			break;
@@ -643,6 +648,20 @@ public abstract class AbstractScene implements Constants {
 			pinhole().updateFrustumEquations();
 	}
 	
+  //Should be called after updating cursor position
+	/**
+	protected void updateGrabber() {
+		updateCursor();
+		setDeviceGrabber(null);
+		if( isTrackingDevice() )
+			for (Grabbable mg : deviceGrabberPool()) {
+				mg.checkIfGrabsInput();
+				if (mg.grabsInput())
+					setDeviceGrabber(mg);
+			}
+	}
+	*/
+	
 	/**
 	 * Internal method. Called by {@link #draw()} and {@link #endDraw()}.
 	 * <p>
@@ -663,6 +682,24 @@ public abstract class AbstractScene implements Constants {
 	 * @see #addAnimationHandler(Object, String)
 	 */
 	public void postDraw() {
+		// 5. Grid and axis drawing
+		if (gridIsDrawn()) {
+			if(gridIsDotted())
+				drawDottedGrid(pinhole().sceneRadius());
+			else
+				drawGrid(pinhole().sceneRadius());
+		}
+		if (axisIsDrawn())
+			drawAxis(pinhole().sceneRadius());		
+		
+		// 6. Display visual hints
+		displayVisualHints(); // abstract
+		
+		//updateFrameRate();
+		
+		// -1 ?
+		updateCursor();
+		
 	  // 0. Alternative use only
 		proscenium();
 			
@@ -679,15 +716,65 @@ public abstract class AbstractScene implements Constants {
 		
 		//4 INTERACTIVITY
 	  // 4a. HIDevices
-		updateGrabber();
+		//updateGrabber();
+		
 		// 4b. Devices (external stuff -> Feedable)
 		for (AbstractDevice device : devices.values())
 			device.handle(device.feed());
+		
+		//TODO implement me
 			
 		// 4c. Events
-		GenericEvent<?> event;
+		//TODO testing: are there more than one event per frame?
+		//System.out.println("total number of events: " + eventQueue.size());
+		
+		GenericEvent<?> event;	
     while( !eventQueue.isEmpty() ) {
     	event = eventQueue.remove();
+    	
+    	// replaces updateGrabber() !!!
+    	if( event.getAction() == null ) {
+    		setDeviceGrabber(null);
+    		if( isTrackingDevice() )
+    			for (Grabbable mg : deviceGrabberPool()) {
+    				mg.checkIfGrabsInput(event);
+    				if (mg.grabsInput())
+    					setDeviceGrabber(mg);
+    			}
+    		return;
+    	}
+    	else {
+    		if( this.lastDeviceGrbbrAction!=null && this.lastDeviceGrbbrAction!=event.getAction() ) {
+    			if( this.deviceGrabber() != null ) {
+    				this.deviceGrabber().checkIfGrabsInput(event);
+    				if (!this.deviceGrabber().grabsInput())
+    					setDeviceGrabber(null);
+    				else
+    					if( event instanceof GenericMotionEvent ) //different motion sequence
+    						((GenericMotionEvent<?>)event).setPreviousEvent(null);
+    			} 			
+    		}
+    	  //same motion sequence
+    		/**
+    		if( this.lastDeviceGrbbrAction!=null && this.lastDeviceGrbbrAction==event.getAction() ) {
+    			
+    		} */
+    		this.lastDeviceGrbbrAction = event.getAction();
+    	}
+    	
+    	if (deviceGrabber() != null )
+    		deviceGrabber().performInteraction(event);
+    	else
+    		if( event instanceof KeyboardEvent || event instanceof ClickEvent )
+    			this.handleEvent(event);
+    		else
+    			if( event instanceof GenericMotionEvent )
+    				if( this.aliveInteractiveFrame() != null )
+    					aliveInteractiveFrame().performInteraction((GenericMotionEvent<?>)event);
+    				else
+    					camera().frame().performInteraction((GenericMotionEvent<?>)event);
+    	
+    	/**
     	if (deviceGrabber() != null && !deviceGrabberIsAnIFrame )
     		deviceGrabber().performInteraction(event);
     	else
@@ -699,22 +786,8 @@ public abstract class AbstractScene implements Constants {
     					aliveInteractiveFrame().performInteraction((GenericMotionEvent<?>)event);
     				else
     					camera().frame().performInteraction((GenericMotionEvent<?>)event);
+    	*/
     }
-		
-		// 5. Grid and axis drawing
-		if (gridIsDrawn()) {
-			if(gridIsDotted())
-				drawDottedGrid(pinhole().sceneRadius());
-			else
-				drawGrid(pinhole().sceneRadius());
-		}
-		if (axisIsDrawn())
-			drawAxis(pinhole().sceneRadius());		
-		
-		// 6. Display visual hints
-		displayVisualHints(); // abstract
-		
-		//updateFrameRate();
 	}	
 	
 	protected abstract void updateCursor();

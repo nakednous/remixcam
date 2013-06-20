@@ -85,7 +85,20 @@ public interface Grabbable {
 	 * {@code setGrabsMouse((PApplet.abs(x-proj.x) < 5) && (PApplet.(y-proj.y) <
 	 * 2)); // Rectangular region} <br>
 	 */
-	void checkIfGrabsInput();
+	// event should have the null action
+	void checkIfGrabsInput(GenericEvent<?> event);
+	
+	//void hangOut(GenericEvent<?> event);
+	
+	/**
+	 * Callback method called when the MouseGrabber {@link #grabsInput()} and the
+	 * mouse is moved while a button is pressed.
+	 * <p>
+	 * This method will typically update the state of the MouseGrabber from the
+	 * mouse displacement. See the {@link #initAction(Point, Camera)}
+	 * documentation for details.
+	 */
+	void performInteraction(GenericEvent<?> motionEvent);
 
 	/**
 	 * Should return true when the MouseGrabbable grabs the Scene mouse events.
@@ -99,14 +112,4 @@ public interface Grabbable {
 	 * @param grabs flag
 	 */
 	void setGrabsInput(boolean grabs);
-	
-	/**
-	 * Callback method called when the MouseGrabber {@link #grabsInput()} and the
-	 * mouse is moved while a button is pressed.
-	 * <p>
-	 * This method will typically update the state of the MouseGrabber from the
-	 * mouse displacement. See the {@link #initAction(Point, Camera)}
-	 * documentation for details.
-	 */
-	void performInteraction(GenericEvent<?> motionEvent);
 }

@@ -130,8 +130,24 @@ public class GenericMotionEvent<A extends Actionable<?>> extends GenericEvent<A>
 		return !relative();
 	}
 	
+	public void setPreviousEvent(GenericMotionEvent<?> prevEvent) {
+		if(prevEvent == null) {
+			delay = 0;
+			speed = 0;
+			distance = 0;
+		}
+		else {
+			delay = this.timestamp() - prevEvent.timestamp();
+			if(delay==0)
+				speed = distance;
+			else
+				speed = distance / (float)delay;
+		}
+	}
+	
 	//--
 	
+	/**
 	protected boolean sameSequence(GenericMotionEvent<?> prevEvent) {
 		boolean result = false;
 		long tThreshold = 5000;
@@ -154,4 +170,5 @@ public class GenericMotionEvent<A extends Actionable<?>> extends GenericEvent<A>
     		}
 		return result;
 	}
+	// */
 }
