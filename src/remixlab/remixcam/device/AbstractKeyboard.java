@@ -48,7 +48,6 @@ public class AbstractKeyboard extends AbstractDevice {
 	@Override
 	public void handle(GenericEvent<?> event) {
 		if(event == null)	return;
-		event.setAgent(this);
 		profile.handle(event);
 		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 	}
@@ -59,6 +58,7 @@ public class AbstractKeyboard extends AbstractDevice {
 		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 	}
 	// */
+	
 
 	/**
 	 * @Override public void handle(DLEvent event) { profile.handle(event);

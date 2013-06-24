@@ -49,9 +49,10 @@ public abstract class AbstractProfile<K extends Shortcut, A extends Actionable<?
 	
 	// /**
 	//TODO testing
-	public void handle(GenericEvent<?> event) {
+	public GenericEvent<?> handle(GenericEvent<?> event) {
 		if(event != null)
 			event.setAction(binding(event.shortcut()));
+		return event;
 	}	
 	// */
 

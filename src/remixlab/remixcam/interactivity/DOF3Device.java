@@ -26,6 +26,9 @@
 package remixlab.remixcam.interactivity;
 
 import remixlab.remixcam.core.AbstractScene;
+import remixlab.remixcam.core.Grabbable;
+import remixlab.remixcam.core.InteractiveCameraFrame;
+import remixlab.remixcam.core.InteractiveFrame;
 import remixlab.remixcam.device.AbstractMotionDevice;
 
 public class DOF3Device extends AbstractMotionDevice {
@@ -47,6 +50,18 @@ public class DOF3Device extends AbstractMotionDevice {
 	@Override
 	public DOF3Profile frameProfile() {
 		return (DOF3Profile)frameProfile;
+	}
+	
+	@Override
+	public boolean addInDeviceGrabberPool(Grabbable deviceGrabber) {
+		if(deviceGrabber == null)
+			return false;
+		if( (deviceGrabber instanceof InteractiveFrame) && !(deviceGrabber instanceof InteractiveCameraFrame) )
+			if (!isInDeviceGrabberPool(deviceGrabber)) {
+				deviceGrabberPool().add(deviceGrabber);
+				return true;
+			}
+		return false;
 	}
 	
 	public void setXTranslationSensitivity(float s) {

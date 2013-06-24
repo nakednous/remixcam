@@ -74,19 +74,21 @@ public class Keyboard extends AbstractKeyboard {
 	public KeyboardProfile keyboardProfile() {
 		return (KeyboardProfile)profile;
 	}
-
+	
 	// /**
 	@Override
 	public void handle(GenericEvent<?> event) {
 		if(event == null)	return;
-		profile.handle(event);
-		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
+		
+		if(event instanceof KeyboardEvent)
+	  	scene.handleEvent(keyboardProfile().handle(event));
 	}
 
 	public void handleKey(GenericEvent<?> event) {
 		if(event == null)	return;
-		profile.handleKey(event);
-		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
+		
+		if(event instanceof KeyboardEvent)
+	  	scene.handleEvent(keyboardProfile().handleKey(event));
 	}
 	// */
 

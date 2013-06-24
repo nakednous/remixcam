@@ -25,6 +25,9 @@
 
 package remixlab.remixcam.device;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 
@@ -63,13 +66,25 @@ public abstract class AbstractDevice {
 	}
 	*/	
 	
+	/**
+  //M o u s e G r a b b e r
+	protected List<Grabbable> msGrabberPool;
+	protected Grabbable deviceGrbbr;
+	protected Actionable<?> lastDeviceGrbbrAction;
+	public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
+	protected boolean deviceTrckn;
+	*/
+	
 	protected AbstractScene scene;
 	protected String nm;
+	protected List<Grabbable> grabbers;
+	protected Grabbable deviceGrbbr;
 	
 	public AbstractDevice(AbstractScene scn, String n) {
 		scene = scn;
 		nm = n;
-		scene.registerDevice(this);
+		grabbers = new ArrayList<Grabbable>();
+		scene.registerDevice(this);		
 	}
 	
 	public String name() {
@@ -80,5 +95,164 @@ public abstract class AbstractDevice {
 	
 	public GenericEvent<?> feed() {
 		return null;
+	}
+	
+	/**
+	 * Returns a list containing references to all the active MouseGrabbers.
+	 * <p>
+	 * Used to parse all the MouseGrabbers and to check if any of them
+	 * {@link remixlab.remixcam.core.Grabbable#grabsInput()} using
+	 * {@link remixlab.remixcam.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}.
+	 * <p>
+	 * You should not have to directly use this list. Use
+	 * {@link #removeFromDeviceGrabberPool(Grabbable)} and
+	 * {@link #addInDeviceGrabberPool(Grabbable)} to modify this list.
+	 */
+	public List<Grabbable> deviceGrabberPool() {
+		return grabbers;
+	}
+	
+	/**
+	 * Removes the mouseGrabber from the {@link #deviceGrabberPool()}.
+	 * <p>
+	 * See {@link #addInDeviceGrabberPool(Grabbable)} for details. Removing a mouseGrabber
+	 * that is not in {@link #deviceGrabberPool()} has no effect.
+	 */
+	public void removeFromDeviceGrabberPool(Grabbable deviceGrabber) {
+		deviceGrabberPool().remove(deviceGrabber);
+	}
+	
+	/**
+	 * Clears the {@link #deviceGrabberPool()}.
+	 * <p>
+	 * Use this method only if it is faster to clear the
+	 * {@link #deviceGrabberPool()} and then to add back a few MouseGrabbers
+	 * than to remove each one independently.
+	 */
+	public void clearDeviceGrabberPool() {
+		deviceGrabberPool().clear();
+	}
+	
+	/**
+	 * Returns true if the mouseGrabber is currently in the {@link #deviceGrabberPool()} list.
+	 * <p>
+	 * When set to false using {@link #removeFromDeviceGrabberPool(Grabbable)}, the Scene no longer
+	 * {@link remixlab.remixcam.core.Grabbable#checkIfGrabsDevice(int, int, Camera)} on this mouseGrabber.
+	 * Use {@link #addInDeviceGrabberPool(Grabbable)} to insert it back.
+	 */
+	public boolean isInDeviceGrabberPool(Grabbable deviceGrabber) {
+		return deviceGrabberPool().contains(deviceGrabber);
+	}
+	
+	/**
+	 * Returns the current MouseGrabber, or {@code null} if none currently grabs
+	 * mouse events.
+	 * <p>
+	 * When {@link remixlab.remixcam.core.Grabbable#grabsInput()}, the different
+	 * mouse events are sent to it instead of their usual targets (
+	 * {@link #pinhole()} or {@link #interactiveFrame()}).
+	 */
+	public Grabbable deviceGrabber() {
+		return deviceGrbbr;
+	}
+	
+	/**
+	 * Adds the mouseGrabber in the {@link #deviceGrabberPool()}.
+	 * <p>
+	 * All created InteractiveFrames (which are MouseGrabbers) are automatically added in the
+	 * {@link #deviceGrabberPool()} by their constructors. Trying to add a
+	 * mouseGrabber that already {@link #isInDeviceGrabberPool(Grabbable)} has no effect.
+	 * <p>
+	 * Use {@link #removeFromDeviceGrabberPool(Grabbable)} to remove the mouseGrabber from
+	 * the list, so that it is no longer tested with
+	 * {@link remixlab.remixcam.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}
+	 * by the Scene, and hence can no longer grab mouse focus. Use
+	 * {@link #isInDeviceGrabberPool(Grabbable)} to know the current state of the MouseGrabber.
+	 */
+	//TODO shoud be overriden in implementing classes
+	//public abstract boolean addInDeviceGrabberPool(Grabbable deviceGrabber);	
+	//Default implementation is nice in some cases
+	public boolean addInDeviceGrabberPool(Grabbable deviceGrabber) {
+		if(deviceGrabber == null)
+			return false;
+		if( !(deviceGrabber instanceof InteractiveCameraFrame) )
+			if (!isInDeviceGrabberPool(deviceGrabber)) {
+				deviceGrabberPool().add(deviceGrabber);
+				return true;
+			}
+		return false;
+	}
+	
+	/**
+	public void addInDeviceGrabberPool(Grabbable deviceGrabber) {
+		if (!isInDeviceGrabberPool(deviceGrabber))
+			deviceGrabberPool().add(deviceGrabber);
+	}
+	*/
+	
+	/**
+	 * Directly defines the {@link #deviceGrabber()}.
+	 * <p>
+	 * You should not call this method directly as it bypasses the
+	 * {@link remixlab.remixcam.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}
+	 * test performed by parsing the mouse moved event.
+	 */
+	public void setDeviceGrabber(Grabbable deviceGrabber) {
+		if( deviceGrabber == null )
+			deviceGrbbr = null;
+		else
+			if( isInDeviceGrabberPool(deviceGrabber) )
+				deviceGrbbr = deviceGrabber;
+
+		//deviceGrabberIsAnIFrame = deviceGrabber instanceof InteractiveFrame;
+	}
+	
+	//procedure
+	public boolean updateGrabber(GenericEvent<?> event) {
+		if( event == null )
+			return false;
+		
+	  // fortunately selection mode doesn't need parsing
+		if( event.getAction() != null ) {
+			if(event.getAction().action() == event.getAction().selectionAction() ||
+				 event.getAction().action() == event.getAction().deselectionAction()) {
+				setDeviceGrabber(null);
+				if(event.getAction().action() == event.getAction().selectionAction()) {
+					for (Grabbable mg : deviceGrabberPool()) {
+						// take whatever. Here the last one
+						mg.checkIfGrabsInput(event);
+						if (mg.grabsInput()) setDeviceGrabber(mg);
+					}
+				}				
+				return true;
+			}
+			return false;
+		}
+		return false;
+		
+		/**
+		if( event == null )
+			return false;
+		
+	  // fortunately selection mode doesn't need parsing
+		if( event.getAction() != null ) {
+			if(event.getAction().action() == event.getAction().deselectionAction()) {
+				setDeviceGrabber(null);
+				return true;
+			}				
+			if(event.getAction().action() == event.getAction().selectionAction()) {
+				setDeviceGrabber(null);
+				for (Grabbable mg : deviceGrabberPool()) {
+					// take whatever. Here the last one
+					mg.checkIfGrabsInput(event);
+					if (mg.grabsInput()) setDeviceGrabber(mg);
+				}
+				if(this.deviceGrabber() != null)
+					return true;
+				return false;
+			}
+	  }
+		return false;
+		// */
 	}
 }

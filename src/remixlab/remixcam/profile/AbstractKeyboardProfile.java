@@ -32,10 +32,11 @@ import remixlab.remixcam.shortcut.KeyboardShortcut;
 
 public abstract class AbstractKeyboardProfile<A extends Actionable<?>>  extends AbstractProfile<KeyboardShortcut, A> {
 	///**
-	public void handleKey(GenericEvent<?> e) {
+	public GenericEvent<?> handleKey(GenericEvent<?> event) {
 	//public void handleKey(DLKeyEvent e) {
-		if(e != null)
-			e.setAction( binding(((KeyboardEvent)e).keyShortcut()) );
+		if(event != null)
+			event.setAction( binding(((KeyboardEvent)event).keyShortcut()) );
+		return event;
 	}
 	// */
 

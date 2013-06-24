@@ -98,6 +98,20 @@ public interface Constants {
   public enum DLAction {
   	//NO_ACTION("No action", true, 0),
   	
+    //selection action to subscribe to
+  	SELECT_0("Select-0 action", true, 0),
+  	SELECT_1("Select-1 action", true, 1),
+  	SELECT_2("Select-2 action", true, 2),
+  	SELECT_3("Select-3 action", true, 3),
+  	SELECT_6("Select-6 action", true, 6),
+  	
+  	//deselection action to subscribe to
+  	DESELECT_0("Deselect-0 action", true, 0),
+  	DESELECT_1("Deselect-1 action", true, 1),
+  	DESELECT_2("Deselect-2 action", true, 2),
+  	DESELECT_3("Deselect-3 action", true, 3),
+  	DESELECT_6("Deselect-6 action", true, 6),
+  	
   	//KEYfRAMES
   	ADD_KEYFRAME_TO_PATH("Add keyframe to path", true, 0),
   	PLAY_PATH("Play keyframe path", true, 0),
@@ -301,6 +315,9 @@ public interface Constants {
     //DOF_0
   	//NO_ACTION(DLAction.NO_ACTION),
   	
+  	SELECT(DLAction.SELECT_0),  	
+  	DESELECT(DLAction.DESELECT_0),
+  	
     //KEYfRAMES
   	ADD_KEYFRAME_TO_PATH(DLAction.ADD_KEYFRAME_TO_PATH),
   	PLAY_PATH(DLAction.PLAY_PATH),
@@ -380,10 +397,31 @@ public interface Constants {
   	
   	/**
   	@Override
+		public boolean selectionMode() {
+  		if( this == ADD_KEYFRAME_TO_PATH )
+  			return true;
+			return false;
+		}
+		*/
+  	
+  	/**
+  	@Override
 		public DLAction defaultAction() {
 			return DLAction.NO_ACTION;
 		}
-		*/
+		// */
+  	
+    // /**
+   	@Override
+ 		public DLAction selectionAction() {
+ 			return DLAction.SELECT_0;
+ 		}
+ 		// */
+   	
+   	@Override
+ 		public DLAction deselectionAction() {
+ 			return DLAction.DESELECT_0;
+ 		}
 
   	DLAction act;
 
@@ -395,6 +433,9 @@ public interface Constants {
   public enum DOF_1Action implements Actionable<DLAction> {
     //DOF_0
   	//NO_ACTION(DLAction.NO_ACTION),
+  	
+  	SELECT(DLAction.SELECT_1),
+  	DESELECT(DLAction.DESELECT_1),
   	
   	ZOOM(DLAction.ZOOM),
   	
@@ -429,6 +470,16 @@ public interface Constants {
 			return DLAction.NO_ACTION;
 		}
 		*/
+  	
+  	@Override
+ 		public DLAction selectionAction() {
+ 			return DLAction.SELECT_1;
+ 		}
+  	
+  	@Override
+ 		public DLAction deselectionAction() {
+ 			return DLAction.DESELECT_1;
+ 		}
 
   	DLAction act;
 
@@ -439,6 +490,9 @@ public interface Constants {
   
   public enum DOF_2Action implements Actionable<DLAction> {
   	//NO_ACTION(DLAction.NO_ACTION),
+  	
+  	SELECT(DLAction.SELECT_2),
+  	DESELECT(DLAction.DESELECT_2),
   	
     //DOF_1
   	ZOOM(DLAction.ZOOM),
@@ -487,6 +541,16 @@ public interface Constants {
 			return DLAction.NO_ACTION;
 		}
 		*/
+  	
+  	@Override
+ 		public DLAction selectionAction() {
+ 			return DLAction.SELECT_2;
+ 		}
+  	
+  	@Override
+ 		public DLAction deselectionAction() {
+ 			return DLAction.DESELECT_2;
+ 		}
 
   	DLAction act;
 
@@ -497,6 +561,9 @@ public interface Constants {
   
   public enum DOF_3Action implements Actionable<DLAction> {
     //NO_ACTION(DLAction.NO_ACTION),
+  	
+  	SELECT(DLAction.SELECT_3),
+  	DESELECT(DLAction.DESELECT_3),
   	
     //DOF_1
   	ZOOM(DLAction.ZOOM),
@@ -549,6 +616,16 @@ public interface Constants {
 			return DLAction.NO_ACTION;
 		}
 		*/
+  	
+  	@Override
+ 		public DLAction selectionAction() {
+ 			return DLAction.SELECT_3;
+ 		}
+  	
+  	@Override
+ 		public DLAction deselectionAction() {
+ 			return DLAction.DESELECT_3;
+ 		}
 
   	DLAction act;
 
@@ -559,6 +636,9 @@ public interface Constants {
   
   public enum DOF_6Action implements Actionable<DLAction> {
     //NO_ACTION(DLAction.NO_ACTION),
+  	
+  	SELECT(DLAction.SELECT_6),
+  	DESELECT(DLAction.DESELECT_6),
   	
     //DOF_1
   	ZOOM(DLAction.ZOOM),
@@ -615,6 +695,16 @@ public interface Constants {
 			return DLAction.NO_ACTION;
 		}
 		*/
+  	
+  	@Override
+ 		public DLAction selectionAction() {
+ 			return DLAction.SELECT_6;
+ 		}
+  	
+  	@Override
+ 		public DLAction deselectionAction() {
+ 			return DLAction.DESELECT_6;
+ 		}
 
   	DLAction act;
 

@@ -341,6 +341,26 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		setGrabsInput((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold()));
 		//setGrabsInput(keepsGrabbingCursor || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
 	}
+	
+	/**
+	@Override
+	public void checkIfGrabsInput(GenericEvent<?> event) {
+		int x=0, y=0;
+		if(event instanceof DOF2Event) {
+			//x = scene.cursorX - scene.upperLeftCorner.getX();
+			//y = scene.cursorY - scene.upperLeftCorner.getY();
+			x = (int)((DOF2Event)event).getX();
+			y = (int)((DOF2Event)event).getY();
+		}
+		DLVector proj = scene.pinhole().projectedCoordinatesOf(position());
+		
+		if( scene.interactiveFrameIsDrawn() && scene.interactiveFrame() == this)
+			setGrabsInput(true);
+		else
+			setGrabsInput((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold()));
+		//setGrabsInput(keepsGrabbingCursor || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
+	}
+	*/
 
 	/**
 	 * Returns {@code true} when the MouseGrabber grabs the Scene's mouse events.
@@ -369,7 +389,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 */
 	public boolean isInDeviceGrabberPool() {
 		return scene.isInDeviceGrabberPool(this);
-	}	
+	}
 
 	/**
 	 * Convenience wrapper function that simply calls {@code scene.addInMouseGrabberPool(this)}.
@@ -720,6 +740,13 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		//end:
 		stopSpinning();
 		//keepsGrabbingDevice = false;
+		
+		if(event == null)
+			return;
+		
+		// same as no action
+		if( event.getAction() == null )
+			return;
 		
 		if( !(event instanceof DOF1Event) && ! (event instanceof DOF2Event) &&
 				!(event instanceof DOF3Event) && ! (event instanceof DOF6Event))

@@ -27,7 +27,6 @@ package remixlab.remixcam.device;
 
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
-import remixlab.remixcam.interactivity.ClickEvent;
 import remixlab.remixcam.profile.*;
 
 public abstract class AbstractMotionDevice extends AbstractDevice implements Constants {
@@ -70,32 +69,36 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 	// /**
 	@Override
 	public void handle(GenericEvent<?> event) {
+		//overkill but feels safer ;)
 		if(event == null)	return;
-		event.setAgent(this);
-		if( event instanceof ClickEvent )
-			clickProfile.handle(event);
-		else {
-			if(scene.aliveInteractiveFrame() != null)
-				frameProfile.handle(event);
-			else
-				camProfile.handle(event);
+		
+		if( updateGrabber(event) ) return;
+		
+	  //TODO we should simply go like this (but we need two click profiles):
+		/**
+		if(event instanceof GenericMotionEvent) {
 			((GenericMotionEvent<?>)event).modulate(sens);
-		}
-		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
-	}
-	// */
-	
-	 /**
-	@Override
-	public void handle(DLEvent event) {
-		if( event instanceof DLClickEvent )
-			clickProfile.handle(event);
-		else
-			if(scene.activeFrame() != null)
-				frameProfile.handle(event);
+			if (deviceGrabber() != null )
+				deviceGrabber().performInteraction(frameProfile().handle(event));
 			else
-				camProfile.handle(event);
-		event.enqueue(scene);
+				scene.pinhole().frame().performInteraction(cameraProfile().handle(event));			
+		}
+	  if(event instanceof GenericClickEvent) {
+	  	if (deviceGrabber() != null )
+				deviceGrabber().performInteraction(frameClickProfile().handle(event));
+			else
+				scene.pinhole().frame().performInteraction(pinholeClickProfile().handle(event));
+	  }
+	  // */		
+		
+		if(event instanceof GenericMotionEvent) {
+			((GenericMotionEvent<?>)event).modulate(sens);
+			if (deviceGrabber() != null )
+				deviceGrabber().performInteraction(frameProfile().handle(event));
+			else
+				scene.pinhole().frame().performInteraction(cameraProfile().handle(event));			
+		}
+	  if(event instanceof GenericClickEvent)
+	  	scene.handleEvent(clickProfile().handle(event));
 	}
-	// */
 }

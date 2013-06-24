@@ -170,7 +170,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			//if( e.getAction() == processing.event.MouseEvent.DRAG ) {//rotate without dragging any button
 			// /**
 			if( e.getAction() == processing.event.MouseEvent.MOVE ) {
-				event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+				event = new DOF2Event(prevEvent, e.getX(), e.getY(), Constants.DOF_2Action.SELECT);
 				handle(event);
 				prevEvent = event.get();
 			}
@@ -182,8 +182,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			  prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
-				event = new DOF2Event(prevEvent, e.getX(), e.getY(), null);
-				event.enqueue(scene);
+				event = new DOF2Event(prevEvent, e.getX(), e.getY(), Constants.DOF_2Action.DESELECT);
+				handle(event);
 				prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
@@ -1776,10 +1776,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		else
 			upperLeftCorner = new Point(0, 0);
 		beginOffScreenDrawingCalls = 0;		
-		setDeviceTracking(true);
-		setDeviceGrabber(null);
+		//setDeviceTracking(true);
+		//setDeviceGrabber(null);
 		
-		deviceGrabberIsAnIFrame = false;
+		//deviceGrabberIsAnIFrame = false;
 
 		//animation
 		animationTimer = new SingleThreadedTimer(this);
@@ -1799,8 +1799,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		disableFrustumEquationsUpdate();
 		
 		// /**
-		prosceneKeyboard = new ProsceneKeyboard(this, "proscene_keyboard");
-		parent.registerMethod("keyEvent", prosceneKeyboard);
+		//prosceneKeyboard = new ProsceneKeyboard(this, "proscene_keyboard");
+		//parent.registerMethod("keyEvent", prosceneKeyboard);
 		prosceneMouse = new ProsceneMouse(this, "proscene_mouse");
 		parent.registerMethod("mouseEvent", prosceneMouse);
 		
@@ -2363,7 +2363,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	@Override
 	protected void drawSelectionHints() {
-		for (Grabbable mg : msGrabberPool) {
+		for (Grabbable mg : deviceGrabberPool()) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
@@ -2391,7 +2391,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 	@Override
 	protected void drawCameraPathSelectionHints() {
-		for (Grabbable mg : msGrabberPool) {
+		for (Grabbable mg : deviceGrabberPool()) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {

@@ -38,30 +38,18 @@ import remixlab.remixcam.device.*;
 import remixlab.remixcam.renderer.*;
 import remixlab.remixcam.util.*;
 
-public abstract class AbstractScene implements Constants {
+public abstract class AbstractScene implements Constants {	
 	/**
-	protected class GrabbableWrap {
-		protected Grabbable grabbable;
-		protected Actionable<?> lastAction;
-		public GrabbableWrap(Grabbable g) {
-			this(g, null);
-		}
-		public GrabbableWrap(Grabbable g, Actionable<?> a) {
-			this.grabbable = g;
-			lastAction = a;
-		}
-		public void updateAction(Actionable<?> action) {
-			lastAction = action;
-		}
-	}
-	*/
-	
   //M o u s e G r a b b e r
 	protected List<Grabbable> msGrabberPool;
 	protected Grabbable deviceGrbbr;
 	protected Actionable<?> lastDeviceGrbbrAction;
 	public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
 	protected boolean deviceTrckn;
+	*/
+	
+  //M o u s e G r a b b e r
+	//protected List<Grabbable> msGrabberPool;
 	
 	protected boolean dottedGrid;	
 	
@@ -157,7 +145,7 @@ public abstract class AbstractScene implements Constants {
 		registerJob(timerFx);
 		
 		//mouse grabber pool
-		msGrabberPool = new ArrayList<Grabbable>();
+		//msGrabberPool = new ArrayList<Grabbable>();
 		//devices
 		//TODO pending device instantiation here
 		devices = new HashMap<String, AbstractDevice>();
@@ -172,6 +160,7 @@ public abstract class AbstractScene implements Constants {
 		//setDefaultShortcuts();
 	}
 	
+	/**
 	public InteractiveFrame aliveInteractiveFrame() {
 		if (deviceGrabber() != null) {
 			if (deviceGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
@@ -184,6 +173,7 @@ public abstract class AbstractScene implements Constants {
 		}
 		return null;
 	}
+	*/
 	
 	/**
 	 * Returns an array of the camera profile objects that are currently
@@ -681,17 +671,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #addDrawHandler(Object, String)
 	 * @see #addAnimationHandler(Object, String)
 	 */
-	public void postDraw() {
-		// 5. Grid and axis drawing
-		if (gridIsDrawn()) {
-			if(gridIsDotted())
-				drawDottedGrid(pinhole().sceneRadius());
-			else
-				drawGrid(pinhole().sceneRadius());
-		}
-		if (axisIsDrawn())
-			drawAxis(pinhole().sceneRadius());		
-		
+	public void postDraw() {		
 		// 6. Display visual hints
 		displayVisualHints(); // abstract
 		
@@ -718,77 +698,30 @@ public abstract class AbstractScene implements Constants {
 	  // 4a. HIDevices
 		//updateGrabber();
 		
-		// 4b. Devices (external stuff -> Feedable)
+		// 4a. Devices (external stuff -> Feedable)
+		
+		/**
 		for (AbstractDevice device : devices.values())
 			device.handle(device.feed());
 		
-		//TODO implement me
-			
-		// 4c. Events
-		//TODO testing: are there more than one event per frame?
-		//System.out.println("total number of events: " + eventQueue.size());
-		
+		// 4b. low level events 
 		GenericEvent<?> event;	
     while( !eventQueue.isEmpty() ) {
     	event = eventQueue.remove();
-    	
-    	// replaces updateGrabber() !!!
-    	if( event.getAction() == null ) {
-    		setDeviceGrabber(null);
-    		if( isTrackingDevice() )
-    			for (Grabbable mg : deviceGrabberPool()) {
-    				mg.checkIfGrabsInput(event);
-    				if (mg.grabsInput())
-    					setDeviceGrabber(mg);
-    			}
-    		return;
-    	}
-    	else {
-    		if( this.lastDeviceGrbbrAction!=null && this.lastDeviceGrbbrAction!=event.getAction() ) {
-    			if( this.deviceGrabber() != null ) {
-    				this.deviceGrabber().checkIfGrabsInput(event);
-    				if (!this.deviceGrabber().grabsInput())
-    					setDeviceGrabber(null);
-    				else
-    					if( event instanceof GenericMotionEvent ) //different motion sequence
-    						((GenericMotionEvent<?>)event).setPreviousEvent(null);
-    			} 			
-    		}
-    	  //same motion sequence
-    		/**
-    		if( this.lastDeviceGrbbrAction!=null && this.lastDeviceGrbbrAction==event.getAction() ) {
-    			
-    		} */
-    		this.lastDeviceGrbbrAction = event.getAction();
-    	}
-    	
-    	if (deviceGrabber() != null )
-    		deviceGrabber().performInteraction(event);
-    	else
-    		if( event instanceof KeyboardEvent || event instanceof ClickEvent )
-    			this.handleEvent(event);
-    		else
-    			if( event instanceof GenericMotionEvent )
-    				if( this.aliveInteractiveFrame() != null )
-    					aliveInteractiveFrame().performInteraction((GenericMotionEvent<?>)event);
-    				else
-    					camera().frame().performInteraction((GenericMotionEvent<?>)event);
-    	
-    	/**
-    	if (deviceGrabber() != null && !deviceGrabberIsAnIFrame )
-    		deviceGrabber().performInteraction(event);
-    	else
-    		if( event instanceof KeyboardEvent || event instanceof ClickEvent )
-    			this.handleEvent(event);
-    		else
-    			if( event instanceof GenericMotionEvent )
-    				if( this.aliveInteractiveFrame() != null )
-    					aliveInteractiveFrame().performInteraction((GenericMotionEvent<?>)event);
-    				else
-    					camera().frame().performInteraction((GenericMotionEvent<?>)event);
-    	*/
+      //TODO implement me
     }
-	}	
+    */
+    
+    // 5. Grid and axis drawing
+ 		if (gridIsDrawn()) {
+ 			if(gridIsDotted())
+ 				drawDottedGrid(pinhole().sceneRadius());
+ 			else
+ 				drawGrid(pinhole().sceneRadius());
+ 		}
+ 		if (axisIsDrawn())
+ 			drawAxis(pinhole().sceneRadius());		
+	}
 	
 	protected abstract void updateCursor();
 	
@@ -1966,33 +1899,21 @@ public abstract class AbstractScene implements Constants {
 	}
 	
 	/**
-	 * Returns a list containing references to all the active MouseGrabbers.
-	 * <p>
-	 * Used to parse all the MouseGrabbers and to check if any of them
-	 * {@link remixlab.remixcam.core.Grabbable#grabsInput()} using
-	 * {@link remixlab.remixcam.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}.
-	 * <p>
-	 * You should not have to directly use this list. Use
-	 * {@link #removeFromDeviceGrabberPool(Grabbable)} and
-	 * {@link #addInDeviceGrabberPool(Grabbable)} to modify this list.
-	 */
-	public List<Grabbable> deviceGrabberPool() {
-		return msGrabberPool;
-	}
-	
-	/**
 	 * Returns {@code true} if a mouse moved event  is called even when no mouse button is pressed.
 	 * <p>
 	 * You need to {@link #setDeviceTracking(boolean)} to {@code true} in order to use MouseGrabber
 	 * (see {@link #deviceGrabber()}).
 	 */
+	/**
 	public boolean isTrackingDevice() {
 		return deviceTrckn;
 	}
+	*/
 	
 	/**
 	 * Sets the {@link #isTrackingDevice()} value.
 	 */
+	/**
 	public void setDeviceTracking(boolean enable) {		
 		if(!enable) {
 			if( deviceGrabber() != null )
@@ -2001,13 +1922,16 @@ public abstract class AbstractScene implements Constants {
 		}
 		deviceTrckn = enable;
 	}
+	*/
 	
 	/**
 	 * Calls {@link #setDeviceTracking(boolean)} to toggle the {@link #isTrackingDevice()} value.
 	 */
+	/**
 	public void toggleDeviceTracking() {
 		setDeviceTracking(!isTrackingDevice());
 	}
+	*/
 	  
 	public void registerJob(AbstractTimerJob job) {
 		job.setTimer(new SingleThreadedTaskableTimer(this, job));
@@ -2110,9 +2034,11 @@ public abstract class AbstractScene implements Constants {
 	 * mouse events are sent to it instead of their usual targets (
 	 * {@link #pinhole()} or {@link #interactiveFrame()}).
 	 */
+	/**
 	public Grabbable deviceGrabber() {
 		return deviceGrbbr;
 	}
+	*/
 	
 	/**
 	 * Directly defines the {@link #deviceGrabber()}.
@@ -2121,13 +2047,36 @@ public abstract class AbstractScene implements Constants {
 	 * {@link remixlab.remixcam.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}
 	 * test performed by parsing the mouse moved event.
 	 */
+	/**
 	public void setDeviceGrabber(Grabbable deviceGrabber) {
 		deviceGrbbr = deviceGrabber;
 
 		deviceGrabberIsAnIFrame = deviceGrabber instanceof InteractiveFrame;
 	}
+	*/
 	
 	// 3. Device grabber handling
+	
+	/**
+	 * Returns a list containing references to all the active MouseGrabbers.
+	 * <p>
+	 * Used to parse all the MouseGrabbers and to check if any of them
+	 * {@link remixlab.remixcam.core.Grabbable#grabsInput()} using
+	 * {@link remixlab.remixcam.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}.
+	 * <p>
+	 * You should not have to directly use this list. Use
+	 * {@link #removeFromDeviceGrabberPool(Grabbable)} and
+	 * {@link #addInDeviceGrabberPool(Grabbable)} to modify this list.
+	 */
+	public List<Grabbable> deviceGrabberPool() {
+		List<Grabbable> msGrabberPool = new ArrayList<Grabbable>();
+		for (AbstractDevice device : devices.values())
+			for (Grabbable grabber : device.deviceGrabberPool())
+				if(!msGrabberPool.contains(grabber))
+					msGrabberPool.add(grabber);
+				
+		return msGrabberPool;
+	}
 	
 	/**
 	 * Returns true if the mouseGrabber is currently in the {@link #deviceGrabberPool()} list.
@@ -2154,8 +2103,9 @@ public abstract class AbstractScene implements Constants {
 	 * {@link #isInDeviceGrabberPool(Grabbable)} to know the current state of the MouseGrabber.
 	 */
 	public void addInDeviceGrabberPool(Grabbable deviceGrabber) {
-		if (!isInDeviceGrabberPool(deviceGrabber))
-			deviceGrabberPool().add(deviceGrabber);
+		for (AbstractDevice device : devices.values())
+			if( !device.isInDeviceGrabberPool(deviceGrabber) )
+				device.addInDeviceGrabberPool(deviceGrabber);
 	}
 
 	/**
@@ -2165,7 +2115,8 @@ public abstract class AbstractScene implements Constants {
 	 * that is not in {@link #deviceGrabberPool()} has no effect.
 	 */
 	public void removeFromDeviceGrabberPool(Grabbable deviceGrabber) {
-		deviceGrabberPool().remove(deviceGrabber);
+		for (AbstractDevice device : devices.values())
+			device.removeFromDeviceGrabberPool(deviceGrabber);
 	}
 
 	/**
@@ -2176,7 +2127,8 @@ public abstract class AbstractScene implements Constants {
 	 * than to remove each one independently.
 	 */
 	public void clearDeviceGrabberPool() {
-		deviceGrabberPool().clear();
+		for (AbstractDevice device : devices.values())
+			device.clearDeviceGrabberPool();
 	}
 	
 	// 2. Local timer

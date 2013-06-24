@@ -65,6 +65,18 @@ public class HIDevice extends AbstractMotionDevice {
 		return (ClickProfile)clickProfile;
 	}
 	
+	@Override
+	public boolean addInDeviceGrabberPool(Grabbable deviceGrabber) {
+		if(deviceGrabber == null)
+			return false;
+		if( (deviceGrabber instanceof InteractiveFrame) && !(deviceGrabber instanceof InteractiveCameraFrame) )
+			if (!isInDeviceGrabberPool(deviceGrabber)) {
+				deviceGrabberPool().add(deviceGrabber);
+				return true;
+			}
+		return false;
+	}
+	
 	public void setXTranslationSensitivity(float s) {
 		sens[0] = s;
 	}

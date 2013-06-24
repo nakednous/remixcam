@@ -59,15 +59,24 @@ public class WheeledMouse extends Mouse {
 	
 	@Override
 	public void handle(GenericEvent<?> event) {
-		if( event instanceof DOF1Event ) {
-			if(scene.aliveInteractiveFrame() != null)
-				wheelProfile.handle(event);
-			else
-				frameWheelProfile.handle(event);
+		//TODO warning: should be copy pasted from AbstractMotionDevice
+		if(event == null)	return;		
+		if( updateGrabber(event) ) return;		
+		if(event instanceof GenericMotionEvent) {
 			((GenericMotionEvent<?>)event).modulate(sens);
-			if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
+			if (deviceGrabber() != null )
+				if( event instanceof DOF1Event )
+					deviceGrabber().performInteraction(frameWheelProfile().handle(event));
+				else
+					deviceGrabber().performInteraction(frameProfile().handle(event));
+			else
+				if( event instanceof DOF1Event )
+					scene.pinhole().frame().performInteraction(wheelProfile().handle(event));
+				else
+					scene.pinhole().frame().performInteraction(cameraProfile().handle(event));
 		}
-		else
-			super.handle(event);
+		
+	  if(event instanceof GenericClickEvent)
+	  	scene.handleEvent(clickProfile().handle(event));
 	}
 }

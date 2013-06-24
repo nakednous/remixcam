@@ -29,7 +29,6 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.remixcam.core.*;
-import remixlab.remixcam.device.AbstractDevice;
 import remixlab.remixcam.shortcut.Shortcut;
 
 public class GenericEvent<A extends Actionable<?>> implements Constants, Copyable {
@@ -57,7 +56,7 @@ public class GenericEvent<A extends Actionable<?>> implements Constants, Copyabl
 		.isEquals();
 	}
 	
-	protected AbstractDevice senderAgent;
+	//protected AbstractDevice senderAgent;
   protected Actionable<?> action;
   protected final Integer modifiers;
   protected final Long timestamp;
@@ -101,6 +100,7 @@ public class GenericEvent<A extends Actionable<?>> implements Constants, Copyabl
 		return new GenericEvent<A>(this);
 	}
   
+  /**
   public void setAgent(AbstractDevice agent) {
   	senderAgent = agent;
   }
@@ -108,6 +108,7 @@ public class GenericEvent<A extends Actionable<?>> implements Constants, Copyabl
   public AbstractDevice agent() {
   	return this.senderAgent;
   }
+  */
   
   public Shortcut shortcut() {
   	//System.out.println("calling DLEvent shortcut");

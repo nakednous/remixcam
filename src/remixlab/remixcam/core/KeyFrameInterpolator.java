@@ -780,6 +780,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * if {@link #interpolationIsStarted()}. If {@code index < 0 || index >= keyFr.size()}
 	 * the call is silently ignored. 
 	 */
+	//TODO testing
 	public void removeKeyFrame(int index) {
 		if (index < 0 || index >= keyFr.size())
 			return;
@@ -790,9 +791,11 @@ public class KeyFrameInterpolator implements Copyable {
 			stopInterpolation();
 		AbstractKeyFrame kf = keyFr.remove(index);
 		if (kf.frm  instanceof InteractiveFrame)
-			if (((InteractiveFrame) kf.frm).isInDeviceGrabberPool())
-				((InteractiveFrame) kf.frm).removeFromDeviceGrabberPool();
-		setInterpolationTime(firstTime());		
+			scene.removeFromDeviceGrabberPool( (InteractiveFrame) kf.frm );
+		  //before:
+			//if (((InteractiveFrame) kf.frm).isInDeviceGrabberPool())
+				//((InteractiveFrame) kf.frm).removeFromDeviceGrabberPool();
+		setInterpolationTime(firstTime());
 	}
 
 	/**
@@ -817,12 +820,14 @@ public class KeyFrameInterpolator implements Copyable {
 	 * 
 	 * @see #addFramesToMouseGrabberPool()
 	 */
+	//TODO testing
 	protected void removeFramesFromMouseGrabberPool() {
 		for (int i = 0; i < keyFr.size(); ++i) {
 			if (keyFr.get(i).frame() != null)
-				if (((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
-					((InteractiveFrame) keyFr.get(i).frame())
-							.removeFromDeviceGrabberPool();
+				scene.removeFromDeviceGrabberPool((InteractiveFrame) keyFr.get(i).frame());
+				//before:
+				//if (((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
+					//((InteractiveFrame) keyFr.get(i).frame()).removeFromDeviceGrabberPool();
 		}
 	}
 
@@ -832,11 +837,14 @@ public class KeyFrameInterpolator implements Copyable {
 	 * 
 	 * @see #removeFramesFromMouseGrabberPool()
 	 */
+  //TODO testing
 	protected void addFramesToMouseGrabberPool() {
 		for (int i = 0; i < keyFr.size(); ++i) {
 			if (keyFr.get(i).frame() != null)
-				if (!((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
-					((InteractiveFrame) keyFr.get(i).frame()).addInDeviceGrabberPool();
+				scene.addInDeviceGrabberPool((InteractiveFrame) keyFr.get(i).frame());
+			  //before:
+				//if (!((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
+					//((InteractiveFrame) keyFr.get(i).frame()).addInDeviceGrabberPool();
 		}
 	}
 

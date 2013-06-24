@@ -43,5 +43,8 @@ public interface Actionable <E extends Enum<E>> {
 	String description();
 	public boolean is2D();
 	public int dofs();
+	//public boolean selectionMode();
 	//E defaultAction();
+	E selectionAction();
+	E deselectionAction();
 }
