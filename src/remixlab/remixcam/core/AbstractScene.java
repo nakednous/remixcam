@@ -34,11 +34,11 @@ import remixlab.remixcam.event.*;
 import remixlab.remixcam.geom.*;
 import remixlab.remixcam.interactivity.ClickEvent;
 import remixlab.remixcam.interactivity.KeyboardEvent;
-import remixlab.remixcam.device.*;
+import remixlab.remixcam.agent.*;
 import remixlab.remixcam.renderer.*;
 import remixlab.remixcam.util.*;
 
-public abstract class AbstractScene implements Constants {	
+public abstract class AbstractScene implements Constants, Grabbable {	
 	/**
   //M o u s e G r a b b e r
 	protected List<Grabbable> msGrabberPool;
@@ -50,6 +50,7 @@ public abstract class AbstractScene implements Constants {
 	
   //M o u s e G r a b b e r
 	//protected List<Grabbable> msGrabberPool;
+	protected boolean grbsDevice = true;
 	
 	protected boolean dottedGrid;	
 	
@@ -90,9 +91,9 @@ public abstract class AbstractScene implements Constants {
 	protected long animationPeriod;	
 	
   //D E V I C E S	  &   E V E N T S
-  protected HashMap<String, AbstractDevice> devices;
+  protected HashMap<String, AbstractAgent> devices;
 	//protected ArrayList<HIDevice> devices;
-	protected LinkedList<EventGrabberTuple> eventQueue;
+	protected LinkedList<EventGrabberTuple> eventTupleQueue;
 	
 	// L O C A L   T I M E R
 	protected boolean arpFlag;
@@ -148,9 +149,9 @@ public abstract class AbstractScene implements Constants {
 		//msGrabberPool = new ArrayList<Grabbable>();
 		//devices
 		//TODO pending device instantiation here
-		devices = new HashMap<String, AbstractDevice>();
+		devices = new HashMap<String, AbstractAgent>();
 		//events
-		eventQueue = new LinkedList<EventGrabberTuple>();
+		eventTupleQueue = new LinkedList<EventGrabberTuple>();
 		// <- 1
 		
 		setDottedGrid(true);
@@ -179,8 +180,8 @@ public abstract class AbstractScene implements Constants {
 	 * Returns an array of the camera profile objects that are currently
 	 * registered at the Scene.
 	 */
-	public AbstractDevice [] getDevices() {
-		return devices.values().toArray(new AbstractDevice[0]);
+	public AbstractAgent [] getDevices() {
+		return devices.values().toArray(new AbstractAgent[0]);
 	}
 	
 	/**
@@ -189,17 +190,17 @@ public abstract class AbstractScene implements Constants {
 	 * @see #unregisterProfile(HIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void registerDevice(AbstractDevice device) {
+	public void registerDevice(AbstractAgent device) {
 		if(!isDeviceRegistered(device))
 			devices.put(device.name(), device);
 		else {
 			System.out.println("Nothing done. A device with the same name is already registered. Current profile names are:");
-			for (AbstractDevice dev : devices.values())
+			for (AbstractAgent dev : devices.values())
 				System.out.println(dev.name());
 		}
 	}
 	
-	public boolean isDeviceRegistered(AbstractDevice device) {
+	public boolean isDeviceRegistered(AbstractAgent device) {
 		return devices.containsKey(device.name());
 	}
 	
@@ -207,7 +208,7 @@ public abstract class AbstractScene implements Constants {
 		return devices.containsKey(name);
 	}
 	
-	public AbstractDevice getDevice(String name) {
+	public AbstractAgent getDevice(String name) {
 		return devices.get(name);
 	}
 	
@@ -217,11 +218,11 @@ public abstract class AbstractScene implements Constants {
 	 * @see #registerProfile(HIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public AbstractDevice unregisterDevice(AbstractDevice device) {
+	public AbstractAgent unregisterDevice(AbstractAgent device) {
 		return devices.remove(device.name());
 	}
 
-	public AbstractDevice unregisterDevice(String name) {
+	public AbstractAgent unregisterDevice(String name) {
 		return devices.remove(name);
 	}
 	
@@ -276,31 +277,37 @@ public abstract class AbstractScene implements Constants {
 	
 	// E V E N T   HA N D L I N G
 	
+	@Override
+	public boolean grabsInput() {
+		return grbsDevice;
+	}
+	
+	@Override
+	public void setGrabsInput(boolean grabs) {
+		grbsDevice = grabs;
+	}
+	
+	@Override
+	public void checkIfGrabsInput(GenericEvent event) {		
+		setGrabsInput(true);
+	}
+	
 	/**
 	 * Internal method. Handles the different global keyboard actions.
 	 */
-	//public void handleKeyboardAction(DOF_0Action id) {
-	public void handleEvent(GenericEvent event) {
+	@Override
+	public void performInteraction(GenericEvent event) {
 		if( !(event instanceof ClickEvent) && ! (event instanceof KeyboardEvent))
 			return;
 		
 		Actionable<DLAction> a=null;
+		
 		if(event instanceof ClickEvent)
 			a = ((ClickEvent) event).getAction();
 		if(event instanceof KeyboardEvent)
 			a = ((KeyboardEvent) event).getAction();		
 		if(a == null) return;
 		DLAction id = a.action();
-		//if(id == null) return;
-		
-	  //TODO debug
-		/*+
-		if( event instanceof DLKeyEvent )
-			System.out.println("Key event " + id.description());
-		else
-			if( event instanceof DLClickEvent )
-				System.out.println("click event " + id.description());
-		*/
 		
 		if( !id.is2D() && this.is2D() )
 			return;
@@ -701,13 +708,13 @@ public abstract class AbstractScene implements Constants {
 		// 4a. Devices (external stuff -> Feedable)
 		
 		// /**
-		for (AbstractDevice device : devices.values())
+		for (AbstractAgent device : devices.values())
 			device.handle(device.feed());
 		
 		// 4b. low level events 
 		EventGrabberTuple eventTuple;	
-    while( !eventQueue.isEmpty() ) {
-    	eventTuple = eventQueue.remove();
+    while( !eventTupleQueue.isEmpty() ) {
+    	eventTuple = eventTupleQueue.remove();
     	if(!eventTuple.perform())
     		pinhole().frame().performInteraction(eventTuple.event);
     }
@@ -1113,15 +1120,15 @@ public abstract class AbstractScene implements Constants {
 	 * @see #unregisterProfile(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void enqueueEvent(EventGrabberTuple eventTuple) {
-		if(!eventQueue.contains(eventTuple))
+	public void enqueueEventTuple(EventGrabberTuple eventTuple) {
+		if(!eventTupleQueue.contains(eventTuple))
 			if( !eventTuple.event.isNull() )
 				if( eventTuple instanceof Duoble ) {
 					if (((Duoble<?>)eventTuple.event).getAction() != null)
-						eventQueue.add(eventTuple);
+						eventTupleQueue.add(eventTuple);
 				}
 				else
-					eventQueue.add(eventTuple);
+					eventTupleQueue.add(eventTuple);
 	}
 	
 	/**
@@ -1131,7 +1138,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #removeAllDevices()
 	 */
 	public void removeEventTuple(GenericEvent event) {
-		eventQueue.remove(event);
+		eventTupleQueue.remove(event);
 	}
 	
 	/**
@@ -1141,7 +1148,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #unregisterProfile(AbstractHIDevice)
 	 */
 	public void removeAllEventTuples() {
-		eventQueue.clear();
+		eventTupleQueue.clear();
 	}
 	
 	// WRAPPERS
@@ -2077,7 +2084,7 @@ public abstract class AbstractScene implements Constants {
 	 */
 	public List<Grabbable> deviceGrabberPool() {
 		List<Grabbable> msGrabberPool = new ArrayList<Grabbable>();
-		for (AbstractDevice device : devices.values())
+		for (AbstractAgent device : devices.values())
 			for (Grabbable grabber : device.deviceGrabberPool())
 				if(!msGrabberPool.contains(grabber))
 					msGrabberPool.add(grabber);
@@ -2110,7 +2117,7 @@ public abstract class AbstractScene implements Constants {
 	 * {@link #isInDeviceGrabberPool(Grabbable)} to know the current state of the MouseGrabber.
 	 */
 	public void addInDeviceGrabberPool(Grabbable deviceGrabber) {
-		for (AbstractDevice device : devices.values())
+		for (AbstractAgent device : devices.values())
 			if( !device.isInDeviceGrabberPool(deviceGrabber) )
 				device.addInDeviceGrabberPool(deviceGrabber);
 	}
@@ -2122,7 +2129,7 @@ public abstract class AbstractScene implements Constants {
 	 * that is not in {@link #deviceGrabberPool()} has no effect.
 	 */
 	public void removeFromDeviceGrabberPool(Grabbable deviceGrabber) {
-		for (AbstractDevice device : devices.values())
+		for (AbstractAgent device : devices.values())
 			device.removeFromDeviceGrabberPool(deviceGrabber);
 	}
 
@@ -2134,7 +2141,7 @@ public abstract class AbstractScene implements Constants {
 	 * than to remove each one independently.
 	 */
 	public void clearDeviceGrabberPool() {
-		for (AbstractDevice device : devices.values())
+		for (AbstractAgent device : devices.values())
 			device.clearDeviceGrabberPool();
 	}
 	

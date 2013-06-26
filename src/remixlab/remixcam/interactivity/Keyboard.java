@@ -25,13 +25,11 @@
 
 package remixlab.remixcam.interactivity;
 
+import remixlab.remixcam.agent.AbstractKeyboardAgent;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.core.Constants.DOF_0Action;
-import remixlab.remixcam.device.AbstractKeyboard;
-import remixlab.remixcam.event.*;
 
-//TODO pending concrete
-public abstract class Keyboard extends AbstractKeyboard {
+public class Keyboard extends AbstractKeyboardAgent {
 	public Keyboard(AbstractScene scn, String n) {
 		super(scn, n);
 		profile = new KeyboardProfile();
@@ -75,29 +73,4 @@ public abstract class Keyboard extends AbstractKeyboard {
 	public KeyboardProfile keyboardProfile() {
 		return (KeyboardProfile)profile;
 	}
-	
-	/**
-	@Override
-	public void handle(GenericEvent<?> event) {
-		if(event == null)	return;
-		
-		if(event instanceof KeyboardEvent)
-	  	scene.handleEvent(keyboardProfile().handle(event));
-	}
-
-	public void handleKey(GenericEvent<?> event) {
-		if(event == null)	return;
-		
-		if(event instanceof KeyboardEvent)
-	  	scene.handleEvent(keyboardProfile().handleKey(event));
-	}
-	// */
-
-	/**
-	 * @Override public void handle(DLEvent event) { profile.handle(event);
-	 *           event.enqueue(scene); }
-	 * 
-	 *           // /** public void handleKey(DLEvent event) {
-	 *           profile.handleKey(event); event.enqueue(scene); } //
-	 */
 }

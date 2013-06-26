@@ -25,13 +25,13 @@
 
 package remixlab.remixcam.interactivity;
 
+import remixlab.remixcam.agent.AbstractMotionAgent;
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Grabbable;
 import remixlab.remixcam.core.InteractiveCameraFrame;
 import remixlab.remixcam.core.InteractiveFrame;
-import remixlab.remixcam.device.AbstractMotionDevice;
 
-public class DOF3Device extends AbstractMotionDevice {
+public class DOF3Device extends AbstractMotionAgent {
 	public DOF3Device(AbstractScene scn, String n) {
 		super(scn, n);
 		camProfile = new DOF3Profile();

@@ -23,16 +23,19 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.device;
+package remixlab.remixcam.agent;
 
 import remixlab.remixcam.core.AbstractScene;
+import remixlab.remixcam.core.Duoble;
+import remixlab.remixcam.core.EventGrabberTuple;
+import remixlab.remixcam.core.KeyDuoble;
 import remixlab.remixcam.event.GenericEvent;
 import remixlab.remixcam.profile.AbstractKeyboardProfile;
 
-public class AbstractKeyboard extends AbstractDevice {
+public class AbstractKeyboardAgent extends AbstractAgent {
 	protected AbstractKeyboardProfile<?> profile;
 	
-	public AbstractKeyboard(AbstractScene scn, String n) {
+	public AbstractKeyboardAgent(AbstractScene scn, String n) {
 		super(scn, n);
 	}
 	
@@ -44,27 +47,16 @@ public class AbstractKeyboard extends AbstractDevice {
 		profile = kprofile;
 	}
 	
-	/**
 	@Override
 	public void handle(GenericEvent event) {
-		if(event == null)	return;
-		profile.handle(event);
-		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
+		if((event == null)) return;
+		if(event instanceof Duoble<?>)
+			scene.enqueueEventTuple(new EventGrabberTuple(event, keyboardProfile().handle((Duoble<?>)event), deviceGrabber()));
 	}
-
-	public void handleKey(GenericEvent event) {
-		if(event == null)	return;
-		profile.handleKey(event);
-		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
-	}
-	// */
 	
-
-	/**
-	 * @Override public void handle(DLEvent event) { profile.handle(event);
-	 *           event.enqueue(scene); }
-	 * 
-	 *           // /** public void handleKey(DLEvent event) {
-	 *           profile.handleKey(event); event.enqueue(scene); } //
-	 */
+	public void handleKey(GenericEvent event) {
+		if((event == null)) return;	
+		if(event instanceof KeyDuoble<?>)
+			scene.enqueueEventTuple(new EventGrabberTuple(event, keyboardProfile().handleKey((KeyDuoble<?>)event), deviceGrabber()));
+	}
 }

@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.device;
+package remixlab.remixcam.agent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ import java.util.List;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 
-public abstract class AbstractDevice {
+public abstract class AbstractAgent {
 	/**
 	protected Object handlerObject;	
 	protected String handlerMethodName;
@@ -80,7 +80,7 @@ public abstract class AbstractDevice {
 	protected List<Grabbable> grabbers;
 	protected Grabbable deviceGrbbr;
 	
-	public AbstractDevice(AbstractScene scn, String n) {
+	public AbstractAgent(AbstractScene scn, String n) {
 		scene = scn;
 		nm = n;
 		grabbers = new ArrayList<Grabbable>();
@@ -106,58 +106,12 @@ public abstract class AbstractDevice {
 			}
 		}
 		return false;
-	
-		
-	  // fortunately selection mode doesn't need parsing
-		/**
-		if( event.getAction() != null ) {
-			if(event.getAction().action() == event.getAction().selectionAction() ||
-				 event.getAction().action() == event.getAction().deselectionAction()) {
-				setDeviceGrabber(null);
-				if(event.getAction().action() == event.getAction().selectionAction()) {
-					for (Grabbable mg : deviceGrabberPool()) {
-						// take whatever. Here the last one
-						mg.checkIfGrabsInput(event);
-						if (mg.grabsInput()) setDeviceGrabber(mg);
-					}
-				}				
-				return true;
-			}
-			return false;
-		}
-		return false;
-		// */
-		
-		/**
-		if( event == null )
-			return false;
-		
-	  // fortunately selection mode doesn't need parsing
-		if( event.getAction() != null ) {
-			if(event.getAction().action() == event.getAction().deselectionAction()) {
-				setDeviceGrabber(null);
-				return true;
-			}				
-			if(event.getAction().action() == event.getAction().selectionAction()) {
-				setDeviceGrabber(null);
-				for (Grabbable mg : deviceGrabberPool()) {
-					// take whatever. Here the last one
-					mg.checkIfGrabsInput(event);
-					if (mg.grabsInput()) setDeviceGrabber(mg);
-				}
-				if(this.deviceGrabber() != null)
-					return true;
-				return false;
-			}
-	  }
-		return false;
-		// */
 	}
 	
 	//just enqueue grabber
 	public void handle(GenericEvent event) {
-		if((event == null) || (deviceGrabber() == null)) return;
-		scene.enqueueEvent(new EventGrabberTuple(event, deviceGrabber()));
+		if((event == null)) return;
+		scene.enqueueEventTuple(new EventGrabberTuple(event, deviceGrabber()));
 	}
 	
 	//TODO check if can be made abstract?

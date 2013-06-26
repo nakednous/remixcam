@@ -60,7 +60,6 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		append(grbsDevice).
 		append(isInCamPath).
 		append(isSpng).
-		//append(keepsGrabbingCursor).
 		append(rotSensitivity).
 		append(spngQuat).
 		append(spngSensitivity).
@@ -86,7 +85,6 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		.append(isSpng, other.isSpng)
 		.append(spinningFriction, other.spinningFriction)
 		.append(sFriction, other.sFriction)
-		//.append(keepsGrabbingCursor, other.keepsGrabbingCursor)
 		.append(rotSensitivity, other.rotSensitivity)
 		.append(spngQuat,other.spngQuat)
 		.append(spngSensitivity,other.spngSensitivity)
@@ -735,14 +733,17 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	
 	@Override
 	public void performInteraction(GenericEvent e) {
+		stopSpinning();
+		
+		if(e == null) return;
+		
+		if(e instanceof GenericKeyboardEvent || e instanceof GenericClickEvent)
+			scene.performInteraction(e);
+		
 		Duoble<?> event;
 		//begin:
 		//if (grabsInput()) keepsGrabbingCursor = true;
 		//end:
-		stopSpinning();
-		//keepsGrabbingDevice = false;
-		
-		//if(e == null)			return;
 		
 		if(e instanceof Duoble)
 			event = (Duoble<?>)e;

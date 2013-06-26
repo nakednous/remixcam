@@ -23,18 +23,18 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.remixcam.device;
+package remixlab.remixcam.agent;
 
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.profile.*;
 
-public abstract class AbstractMotionDevice extends AbstractDevice implements Constants {
+public abstract class AbstractMotionAgent extends AbstractAgent implements Constants {
 	protected AbstractMotionProfile<?> camProfile, frameProfile;
 	protected AbstractClickProfile<?> clickProfile;
 	protected float[] sens;
 	
-	public AbstractMotionDevice(AbstractScene scn, String n) {
+	public AbstractMotionAgent(AbstractScene scn, String n) {
 		super(scn, n);	
 	}
 	
@@ -66,6 +66,7 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 		return sens;
 	}
 	
+	@Override
 	public boolean updateGrabber(GenericEvent event) {
 		if( event == null )
 			return false;
@@ -87,31 +88,6 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 			return false;
 		}
 		return false;
-		
-		/**
-		if( event == null )
-			return false;
-		
-	  // fortunately selection mode doesn't need parsing
-		if( event.getAction() != null ) {
-			if(event.getAction().action() == event.getAction().deselectionAction()) {
-				setDeviceGrabber(null);
-				return true;
-			}				
-			if(event.getAction().action() == event.getAction().selectionAction()) {
-				setDeviceGrabber(null);
-				for (Grabbable mg : deviceGrabberPool()) {
-					// take whatever. Here the last one
-					mg.checkIfGrabsInput(event);
-					if (mg.grabsInput()) setDeviceGrabber(mg);
-				}
-				if(this.deviceGrabber() != null)
-					return true;
-				return false;
-			}
-	  }
-		return false;
-		// */
 	}
 	
 	// /**
@@ -120,21 +96,18 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 		//overkill but feels safer ;)
 		if(event == null)	return;		
 		if(updateGrabber(event)) return;		
-		if(event instanceof GenericMotionEvent && event instanceof Duoble<?>) {
-			((GenericMotionEvent)event).modulate(sens);
-			if (deviceGrabber() != null )
-				scene.enqueueEvent(new EventGrabberTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));
+		
+		if(event instanceof Duoble<?>) {
+			if(event instanceof GenericClickEvent)
+				scene.enqueueEventTuple(new EventGrabberTuple(event, clickProfile().handle((Duoble<?>)event), deviceGrabber()));
 			else
-				scene.enqueueEvent(new EventGrabberTuple(event, cameraProfile().handle((Duoble<?>)event), null));
+				if(event instanceof GenericMotionEvent) {
+					((GenericMotionEvent)event).modulate(sens);
+					if (deviceGrabber() != null )
+						scene.enqueueEventTuple(new EventGrabberTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));
+					else
+						scene.enqueueEventTuple(new EventGrabberTuple(event, cameraProfile().handle((Duoble<?>)event), null));
+			}
 		}
-	  //if(event instanceof GenericClickEvent) {
-	  	//scene.enqueueEvent(new EventGrabberTuple(event, clickProfile().handle((Duoble<?>)event), scene));
-	  	/**
-	  	if (deviceGrabber() != null )
-				deviceGrabber().performInteraction(frameClickProfile().handle(event));
-			else
-				scene.pinhole().frame().performInteraction(pinholeClickProfile().handle(event));
-				*/
-	  //}
-	}
+	}	
 }

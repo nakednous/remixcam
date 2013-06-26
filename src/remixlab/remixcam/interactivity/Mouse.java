@@ -25,10 +25,10 @@
 
 package remixlab.remixcam.interactivity;
 
+import remixlab.remixcam.agent.AbstractMotionAgent;
 import remixlab.remixcam.core.*;
-import remixlab.remixcam.device.AbstractMotionDevice;
 
-public class Mouse extends AbstractMotionDevice implements Constants {
+public class Mouse extends AbstractMotionAgent implements Constants {
 	public Mouse(AbstractScene scn, String n) {
 		super(scn, n);
 		camProfile = new DOF2Profile();

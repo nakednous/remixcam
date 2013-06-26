@@ -133,27 +133,21 @@ import java.util.TimerTask;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {
-	/**
 	public class ProsceneKeyboard extends Keyboard {
 		public ProsceneKeyboard(AbstractScene scn, String n) {
 			super(scn, n);
+			this.addInDeviceGrabberPool(scene);
 		}
 		
 		public void keyEvent(KeyEvent e) {
-			KeyboardEvent event;
-			if(e.getAction() == KeyEvent.TYPE && e.getModifiers() == 0) {
-				//event = new DLKeyEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
-				event = new KeyboardEvent(e.getKey());
+			KeyboardEvent event = new KeyboardEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
+			if(e.getAction() == KeyEvent.TYPE)
 				handleKey(event);
-			}
 			else
-				if(e.getAction() == KeyEvent.RELEASE) {
-					event = new KeyboardEvent( e.getModifiers(), e.getKey(), e.getKeyCode() );
+				if(e.getAction() == KeyEvent.RELEASE)
 					handle(event);
-				}
 		}
 	}
-	*/
 	
 	//public class Mouse extends AbstractMouse {
 	public class ProsceneMouse extends WheeledMouse {
@@ -1640,7 +1634,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	// H A R D W A R E
 	//TODO find better getters
   public ProsceneMouse prosceneMouse;
-  //public ProsceneKeyboard prosceneKeyboard;
+  public ProsceneKeyboard prosceneKeyboard;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1801,8 +1795,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		disableFrustumEquationsUpdate();
 		
 		// /**
-		//prosceneKeyboard = new ProsceneKeyboard(this, "proscene_keyboard");
-		//parent.registerMethod("keyEvent", prosceneKeyboard);
+		prosceneKeyboard = new ProsceneKeyboard(this, "proscene_keyboard");
+		parent.registerMethod("keyEvent", prosceneKeyboard);
 		prosceneMouse = new ProsceneMouse(this, "proscene_mouse");
 		parent.registerMethod("mouseEvent", prosceneMouse);
 		
