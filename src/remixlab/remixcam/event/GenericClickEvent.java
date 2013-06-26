@@ -25,13 +25,12 @@
 
 package remixlab.remixcam.event;
 
-import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.shortcut.ClickShortcut;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-public class GenericClickEvent<A extends Actionable<?>> extends GenericEvent<A> {
+public class GenericClickEvent extends GenericEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -47,7 +46,7 @@ public class GenericClickEvent<A extends Actionable<?>> extends GenericEvent<A> 
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		GenericClickEvent<?> other = (GenericClickEvent<?>) obj;
+		GenericClickEvent other = (GenericClickEvent) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))
     .append(button, other.button)
@@ -63,19 +62,7 @@ public class GenericClickEvent<A extends Actionable<?>> extends GenericEvent<A> 
   	this.numberOfClicks = 1;  	
   }
 	
-	public GenericClickEvent(int b, A a) {
-		super(a);
-		this.button = b;
-  	this.numberOfClicks = 1;
-  }
-	
 	public GenericClickEvent(int b, int clicks) {
-		this.button = b;
-  	this.numberOfClicks = clicks;
-  }
-	
-	public GenericClickEvent(int b, int clicks, A a) {
-		super(a);
 		this.button = b;
   	this.numberOfClicks = clicks;
   }
@@ -88,33 +75,21 @@ public class GenericClickEvent<A extends Actionable<?>> extends GenericEvent<A> 
   	this.numberOfClicks = 1;  	
   }
 	
-	public GenericClickEvent(Integer modifiers, int b, A a) {
-		super(modifiers, a);
-		this.button = b;
-  	this.numberOfClicks = 1;
-  }
-	
 	public GenericClickEvent(Integer modifiers, int b, int clicks) {
 		super(modifiers);
 		this.button = b;
   	this.numberOfClicks = clicks;
   }
 	
-	public GenericClickEvent(Integer modifiers, int b, int clicks, A a) {
-		super(modifiers, a);
-		this.button = b;
-  	this.numberOfClicks = clicks;
-  }
-	
-	protected GenericClickEvent(GenericClickEvent<A> other) {
+	protected GenericClickEvent(GenericClickEvent other) {
 		super(other);
 		this.button = new Integer(other.button);
 		this.numberOfClicks = new Integer(other.numberOfClicks);		
 	}
 	
 	@Override
-	public GenericClickEvent<A> get() {
-		return new GenericClickEvent<A>(this);
+	public GenericClickEvent get() {
+		return new GenericClickEvent(this);
 	}
 	
 	@Override

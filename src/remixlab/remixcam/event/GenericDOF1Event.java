@@ -28,10 +28,9 @@ package remixlab.remixcam.event;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.geom.Geom;
 
-public class GenericDOF1Event<A extends Actionable<?>> extends GenericMotionEvent<A> {
+public class GenericDOF1Event extends GenericMotionEvent {
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(17, 37).
@@ -50,7 +49,7 @@ public class GenericDOF1Event<A extends Actionable<?>> extends GenericMotionEven
 		if (obj.getClass() != getClass())
 			return false;
 
-		GenericDOF1Event<?> other = (GenericDOF1Event<?>) obj;
+		GenericDOF1Event other = (GenericDOF1Event) obj;
 		return new EqualsBuilder()
 		.appendSuper(super.equals(obj))
 		.append(x, other.x)
@@ -66,7 +65,7 @@ public class GenericDOF1Event<A extends Actionable<?>> extends GenericMotionEven
 		this.dx = 0f;
 	}
 
-	public GenericDOF1Event(GenericDOF1Event<A> prevEvent, float x, int modifiers, int button) {
+	public GenericDOF1Event(GenericDOF1Event prevEvent, float x, int modifiers, int button) {
 		this(x, modifiers, button);
 		setPreviousEvent(prevEvent);
 		/**
@@ -79,50 +78,43 @@ public class GenericDOF1Event<A extends Actionable<?>> extends GenericMotionEven
 		}
 		*/
 	}
-
-	// ready to be enqueued
-	public GenericDOF1Event(float x, A a) {
-		super(a);
+	
+  //ready to be enqueued
+	public GenericDOF1Event(float x) {
+		super();
 		this.x = x;
 		this.dx = 0f;
 		this.button = NOBUTTON;
 	}
 
 	// idem
-	public GenericDOF1Event(GenericDOF1Event<A> prevEvent, float x, A a) {
-		super(a);		
+	public GenericDOF1Event(GenericDOF1Event prevEvent, float x) {
+		super();		
 		this.x = x;
 		this.dx = 0f;
 		this.button = NOBUTTON;
 		setPreviousEvent(prevEvent);
-		/**
-		if(prevEvent!=null) {
-			distance = this.getX() - prevEvent.getX();
-			if (sameSequence(prevEvent))
-				this.dx = this.getX() - prevEvent.getX();
-		}
-		*/
 	}
 
 	// ---
 
-	protected GenericDOF1Event(GenericDOF1Event<A> other) {
+	protected GenericDOF1Event(GenericDOF1Event other) {
 		super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
 	}
 
 	@Override
-	public GenericDOF1Event<A> get() {
-		return new GenericDOF1Event<A>(this);
+	public GenericDOF1Event get() {
+		return new GenericDOF1Event(this);
 	}
 	
 	@Override
-  public void setPreviousEvent(GenericMotionEvent<?> prevEvent) {
+  public void setPreviousEvent(GenericMotionEvent prevEvent) {
   	if(prevEvent!=null)
-  		if(prevEvent instanceof GenericDOF1Event<?>)	{  			
-  			this.dx = this.getX() - ((GenericDOF1Event<?>) prevEvent).getX();
-  			distance = this.getX() - ((GenericDOF1Event<?>) prevEvent).getX();
+  		if(prevEvent instanceof GenericDOF1Event)	{  			
+  			this.dx = this.getX() - ((GenericDOF1Event) prevEvent).getX();
+  			distance = this.getX() - ((GenericDOF1Event) prevEvent).getX();
   			delay = this.timestamp() - prevEvent.timestamp();
   			if(delay==0)
   				speed = distance;

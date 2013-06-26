@@ -26,6 +26,8 @@
 package remixlab.remixcam.interactivity;
 
 import remixlab.remixcam.core.AbstractScene;
+import remixlab.remixcam.core.Duoble;
+import remixlab.remixcam.core.EventGrabberTuple;
 import remixlab.remixcam.event.*;
 
 public class WheeledMouse extends Mouse {
@@ -57,26 +59,40 @@ public class WheeledMouse extends Mouse {
 		frameWheelProfile = profile;
 	}
 	
+	/**
+	public void handle(GenericEvent event) {
+		if(event == null)	return;		
+		if(updateGrabber(event)) return;		
+		if(event instanceof GenericMotionEvent && event instanceof Duoble<?>) {
+			((GenericMotionEvent)event).modulate(sens);
+			if (deviceGrabber() != null )
+				scene.enqueueEvent(new EventGrabberTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));
+			else
+				scene.enqueueEvent(new EventGrabberTuple(event, cameraProfile().handle((Duoble<?>)event), null));
+		}
+	}
+	*/
+	
 	@Override
-	public void handle(GenericEvent<?> event) {
+	public void handle(GenericEvent event) {
 		//TODO warning: should be copy pasted from AbstractMotionDevice
 		if(event == null)	return;		
 		if( updateGrabber(event) ) return;		
 		if(event instanceof GenericMotionEvent) {
-			((GenericMotionEvent<?>)event).modulate(sens);
+			((GenericMotionEvent)event).modulate(sens);
 			if (deviceGrabber() != null )
 				if( event instanceof DOF1Event )
-					deviceGrabber().performInteraction(frameWheelProfile().handle(event));
+					scene.enqueueEvent(new EventGrabberTuple(event, frameWheelProfile().handle((Duoble<?>)event), deviceGrabber()));
 				else
-					deviceGrabber().performInteraction(frameProfile().handle(event));
+					scene.enqueueEvent(new EventGrabberTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));
 			else
 				if( event instanceof DOF1Event )
-					scene.pinhole().frame().performInteraction(wheelProfile().handle(event));
+					scene.enqueueEvent(new EventGrabberTuple(event, wheelProfile().handle((Duoble<?>)event), null));
 				else
-					scene.pinhole().frame().performInteraction(cameraProfile().handle(event));
+					scene.enqueueEvent(new EventGrabberTuple(event, cameraProfile().handle((Duoble<?>)event), null));
 		}
 		
-	  if(event instanceof GenericClickEvent)
-	  	scene.handleEvent(clickProfile().handle(event));
+	  //if(event instanceof GenericClickEvent)
+	  	//scene.handleEvent(clickProfile().handle(event));
 	}
 }

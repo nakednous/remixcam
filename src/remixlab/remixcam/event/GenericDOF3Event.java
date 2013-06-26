@@ -28,10 +28,9 @@ package remixlab.remixcam.event;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.geom.Geom;
 
-public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEvent<A> {
+public class GenericDOF3Event extends GenericMotionEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -51,7 +50,7 @@ public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEven
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		GenericDOF3Event<?> other = (GenericDOF3Event<?>) obj;
+		GenericDOF3Event other = (GenericDOF3Event) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
     .append(x, other.x)
@@ -77,7 +76,7 @@ public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEven
     this.dz = 0f;
   }
 	
-	public GenericDOF3Event(GenericDOF3Event<A> prevEvent, float x, float y, float z, int modifiers, int button) {
+	public GenericDOF3Event(GenericDOF3Event prevEvent, float x, float y, float z, int modifiers, int button) {
     this(x, y, z, modifiers, button);
     setPreviousEvent(prevEvent);
     /**
@@ -94,8 +93,8 @@ public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEven
   }
 	
 	//ready to be enqueued
-	public GenericDOF3Event(float x, float y, float z, A a) {
-    super(a);
+	public GenericDOF3Event(float x, float y, float z) {
+    super();
     this.x = x;
 		this.dx = 0f;
     this.y = y;
@@ -106,8 +105,8 @@ public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEven
 	}
 
 	//idem
-	public GenericDOF3Event(GenericDOF3Event<A> prevEvent, float x, float y, float z, A a) {
-    super(a);
+	public GenericDOF3Event(GenericDOF3Event prevEvent, float x, float y, float z) {
+    super();
     this.x = x;
 		this.dx = 0f;
     this.y = y;
@@ -116,19 +115,9 @@ public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEven
     this.dz = 0f;
     this.button = NOBUTTON;
     setPreviousEvent(prevEvent);
-    /**
-    if(prevEvent!=null) {
-    	distance = Geom.distance(x, y, z, prevEvent.getX(), prevEvent.getY(), prevEvent.getZ());
-    	if( sameSequence(prevEvent) ) {
-    		this.dx = this.getX() - prevEvent.getX();
-    		this.dy = this.getY() - prevEvent.getY();
-    		this.dz = this.getZ() - prevEvent.getZ();
-    	}
-    }
-    */
 	}
-  
-  protected GenericDOF3Event(GenericDOF3Event<A> other) {
+	 
+  protected GenericDOF3Event(GenericDOF3Event other) {
   	super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
@@ -139,19 +128,19 @@ public class GenericDOF3Event<A extends Actionable<?>> extends GenericMotionEven
 	}
   
   @Override
-	public GenericDOF3Event<A> get() {
-		return new GenericDOF3Event<A>(this);
+	public GenericDOF3Event get() {
+		return new GenericDOF3Event(this);
 	}
   
   @Override
-  public void setPreviousEvent(GenericMotionEvent<?> prevEvent) {
+  public void setPreviousEvent(GenericMotionEvent prevEvent) {
   	super.setPreviousEvent(prevEvent);
   	if(prevEvent!=null)
-  		if(prevEvent instanceof GenericDOF3Event<?>)	{
-  			this.dx = this.getX() - ((GenericDOF3Event<?>) prevEvent).getX();
-  			this.dy = this.getY() - ((GenericDOF3Event<?>) prevEvent).getY();
-  			this.dz = this.getZ() - ((GenericDOF3Event<?>) prevEvent).getZ();
-  			distance = Geom.distance(x, y, z, ((GenericDOF3Event<?>) prevEvent).getX(), ((GenericDOF3Event<?>) prevEvent).getY(), ((GenericDOF3Event<?>) prevEvent).getZ());
+  		if(prevEvent instanceof GenericDOF3Event)	{
+  			this.dx = this.getX() - ((GenericDOF3Event) prevEvent).getX();
+  			this.dy = this.getY() - ((GenericDOF3Event) prevEvent).getY();
+  			this.dz = this.getZ() - ((GenericDOF3Event) prevEvent).getZ();
+  			distance = Geom.distance(x, y, z, ((GenericDOF3Event) prevEvent).getX(), ((GenericDOF3Event) prevEvent).getY(), ((GenericDOF3Event) prevEvent).getZ());
   			delay = this.timestamp() - prevEvent.timestamp();
   			if(delay==0)
   				speed = distance;

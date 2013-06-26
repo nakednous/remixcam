@@ -133,6 +133,7 @@ import java.util.TimerTask;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {
+	/**
 	public class ProsceneKeyboard extends Keyboard {
 		public ProsceneKeyboard(AbstractScene scn, String n) {
 			super(scn, n);
@@ -152,6 +153,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				}
 		}
 	}
+	*/
 	
 	//public class Mouse extends AbstractMouse {
 	public class ProsceneMouse extends WheeledMouse {
@@ -1638,7 +1640,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	// H A R D W A R E
 	//TODO find better getters
   public ProsceneMouse prosceneMouse;
-  public ProsceneKeyboard prosceneKeyboard;
+  //public ProsceneKeyboard prosceneKeyboard;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  

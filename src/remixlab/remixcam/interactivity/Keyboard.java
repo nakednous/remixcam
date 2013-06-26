@@ -30,7 +30,8 @@ import remixlab.remixcam.core.Constants.DOF_0Action;
 import remixlab.remixcam.device.AbstractKeyboard;
 import remixlab.remixcam.event.*;
 
-public class Keyboard extends AbstractKeyboard {
+//TODO pending concrete
+public abstract class Keyboard extends AbstractKeyboard {
 	public Keyboard(AbstractScene scn, String n) {
 		super(scn, n);
 		profile = new KeyboardProfile();
@@ -75,7 +76,7 @@ public class Keyboard extends AbstractKeyboard {
 		return (KeyboardProfile)profile;
 	}
 	
-	// /**
+	/**
 	@Override
 	public void handle(GenericEvent<?> event) {
 		if(event == null)	return;

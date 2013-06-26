@@ -25,7 +25,9 @@
 
 package remixlab.remixcam.interactivity;
 
+import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.core.Duoble;
 import remixlab.remixcam.event.GenericClickEvent;
 
 /**
@@ -33,9 +35,21 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 */
 
-public class ClickEvent extends GenericClickEvent<Constants.DOF_0Action> {
+public class ClickEvent extends GenericClickEvent implements Duoble<Constants.DOF_0Action> {
+	Constants.DOF_0Action action;
+	
+	public ClickEvent(GenericClickEvent gEvent) {
+		super(gEvent);
+	}
+	
+	public ClickEvent(GenericClickEvent gEvent, DOF_0Action a) {
+		super(gEvent);
+		action = a;
+	}
+	
 	public ClickEvent(Integer modifiers, int b, int clicks, DOF_0Action a) {
-		super(modifiers, b, clicks, a);
+		super(modifiers, b, clicks);
+		action = a;
 	}
 
 	public ClickEvent(Integer modifiers, int b, int clicks) {
@@ -43,7 +57,8 @@ public class ClickEvent extends GenericClickEvent<Constants.DOF_0Action> {
 	}
 	
 	public ClickEvent(Integer modifiers, int b, DOF_0Action a) {
-		super(modifiers, b, a);
+		super(modifiers, b);
+		action = a;
 	}
 	
 	public ClickEvent(Integer modifiers, int b) {
@@ -51,7 +66,8 @@ public class ClickEvent extends GenericClickEvent<Constants.DOF_0Action> {
 	}
 	
 	public ClickEvent(int b, int clicks, DOF_0Action a) {
-		super(b, clicks, a);
+		super(b, clicks);
+		action = a;
 	}
 	
 	public ClickEvent(int b, int clicks) {
@@ -59,15 +75,17 @@ public class ClickEvent extends GenericClickEvent<Constants.DOF_0Action> {
 	}
 	
 	public ClickEvent(int b, DOF_0Action a) {
-		super(b, a);
+		super(b);
+		action = a;
 	}
 	
 	public ClickEvent(int b) {
 		super(b);
 	}
 	
-	protected ClickEvent(GenericClickEvent<DOF_0Action> other) {
+	protected ClickEvent(ClickEvent other) {
 		super(other);
+		this.action = other.action;
 	}
 	
 	@Override
@@ -79,4 +97,9 @@ public class ClickEvent extends GenericClickEvent<Constants.DOF_0Action> {
 	public DOF_0Action getAction() {
   	return (DOF_0Action)action;
   }
+
+	@Override
+	public void setAction(Actionable<?> a) {
+		if( a instanceof DOF_0Action ) action = (DOF_0Action)a;		
+	}
 }

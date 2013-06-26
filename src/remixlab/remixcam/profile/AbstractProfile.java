@@ -27,7 +27,6 @@ package remixlab.remixcam.profile;
 
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.*;
-import remixlab.remixcam.event.*;
 
 public abstract class AbstractProfile<K extends Shortcut, A extends Actionable<?>> implements Constants, Copyable {
 	/**
@@ -47,14 +46,20 @@ public abstract class AbstractProfile<K extends Shortcut, A extends Actionable<?
 	}
 	// */
 	
-	// /**
+	/**
 	//TODO testing
-	public GenericEvent<?> handle(GenericEvent<?> event) {
+	public Duoble<A> handle(Duoble<A> event) {
 		if(event != null)
 			event.setAction(binding(event.shortcut()));
 		return event;
 	}	
 	// */
+	
+	public Actionable<?> handle(Duoble<?> event) {
+		if(event != null)
+			return binding(event.shortcut());
+		return null;
+	}	
 
 	public String bindingsDescription() {
 		return bindings.description();

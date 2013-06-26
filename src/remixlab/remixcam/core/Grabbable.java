@@ -86,7 +86,7 @@ public interface Grabbable {
 	 * 2)); // Rectangular region} <br>
 	 */
 	// event should have the null action
-	void checkIfGrabsInput(GenericEvent<?> event);
+	void checkIfGrabsInput(GenericEvent event);
 	
 	//void hangOut(GenericEvent<?> event);
 	
@@ -98,7 +98,7 @@ public interface Grabbable {
 	 * mouse displacement. See the {@link #initAction(Point, Camera)}
 	 * documentation for details.
 	 */
-	void performInteraction(GenericEvent<?> motionEvent);
+	void performInteraction(GenericEvent motionEvent);
 
 	/**
 	 * Should return true when the MouseGrabbable grabs the Scene mouse events.

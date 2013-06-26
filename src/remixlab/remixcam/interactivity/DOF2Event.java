@@ -31,23 +31,39 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 */
 
+import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.core.Duoble;
 
-public class DOF2Event extends GenericDOF2Event<Constants.DOF_2Action> {	
-	public DOF2Event(GenericDOF2Event<DOF_2Action> prevEvent, float x, float y, DOF_2Action a) {
-		super(prevEvent, x, y, a);
+public class DOF2Event extends GenericDOF2Event implements Duoble<Constants.DOF_2Action> {	
+	DOF_2Action action;
+	
+	public DOF2Event(GenericDOF2Event prevEvent, float x, float y, DOF_2Action a) {
+		super(prevEvent, x, y);
+		action = a;
 	}
 	
 	public DOF2Event(float x, float y, int modifiers, int button) {
 		super(x, y, modifiers, button);
 	}
 	
-	public DOF2Event(GenericDOF2Event<DOF_2Action> prevEvent, float x, float y,	int modifiers, int button) {
+	public DOF2Event(float x, float y, int modifiers, int button, DOF_2Action a) {
+		super(x, y, modifiers, button);
+		action = a;
+	}
+	
+	public DOF2Event(GenericDOF2Event prevEvent, float x, float y,	int modifiers, int button) {
 		super(prevEvent, x, y, modifiers, button);
+	}
+	
+	public DOF2Event(GenericDOF2Event prevEvent, float x, float y,	int modifiers, int button, DOF_2Action a) {
+		super(prevEvent, x, y, modifiers, button);
+		action = a;
 	}
 
 	public DOF2Event(float x, float y, DOF_2Action a) {
-		super(x, y, a);
+		super(x, y);
+		action = a;
 	}
 	
 	protected DOF2Event(DOF2Event other) {
@@ -64,30 +80,33 @@ public class DOF2Event extends GenericDOF2Event<Constants.DOF_2Action> {
   	return (DOF_2Action)action;
   }
 	
+	@Override
+	public void setAction(Actionable<?> a) {
+		if( a instanceof DOF_2Action ) action = (DOF_2Action)a;		
+	}
+	
 	public DOF1Event dof1Event(DOF_1Action a1) {
   	return dof1Event(true, a1);
   }
-  
-  public DOF1Event dof1Event(boolean fromX, DOF_1Action a1) {
-  	DOF1Event e1 = dof1Event(fromX);
-  	e1.setAction(a1);
-  	return e1;
-  }  
+	
+	public DOF1Event dof1Event(boolean fromX) {
+		return dof1Event(fromX, null);
+	}
   
   public DOF1Event dof1Event() {
   	return dof1Event(true);
   }
   
-  public DOF1Event dof1Event(boolean fromX) {
+  public DOF1Event dof1Event(boolean fromX, DOF_1Action a1) {
   	DOF1Event pe1;
   	DOF1Event e1;
   	if(fromX) {
   		if(relative()) {
-  			pe1 = new DOF1Event(getPrevX(), getModifiers(), getButton());
-  			e1 = new DOF1Event(pe1, getX(), getModifiers(), getButton());
+  			pe1 = new DOF1Event(getPrevX(), getModifiers(), getButton(), a1);
+  			e1 = new DOF1Event(pe1, getX(), getModifiers(), getButton(), a1);
   		}
   		else {
-  			e1 = new DOF1Event(getX(), getModifiers(), getButton());
+  			e1 = new DOF1Event(getX(), getModifiers(), getButton(), a1);
   		}
   	}
   	else {

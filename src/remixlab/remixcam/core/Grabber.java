@@ -46,7 +46,7 @@ public class Grabber implements Grabbable {
 	}
 
 	@Override
-	public void checkIfGrabsInput(GenericEvent<?> event) {}
+	public void checkIfGrabsInput(GenericEvent event) {}
 
 	@Override
 	public boolean grabsInput() {
@@ -84,7 +84,7 @@ public class Grabber implements Grabbable {
    * @see #mouseReleased(Point, Camera)
    */
 	@Override
-	public void performInteraction(GenericEvent<?> motionEvent) {
+	public void performInteraction(GenericEvent motionEvent) {
 		if (grabsInput()) keepsGrabbingCursor = true;		
 	}
 

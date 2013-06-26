@@ -26,17 +26,17 @@
 package remixlab.remixcam.profile;
 
 import remixlab.remixcam.core.Actionable;
-import remixlab.remixcam.event.GenericEvent;
+import remixlab.remixcam.core.KeyDuoble;
 import remixlab.remixcam.interactivity.KeyboardEvent;
 import remixlab.remixcam.shortcut.KeyboardShortcut;
 
 public abstract class AbstractKeyboardProfile<A extends Actionable<?>>  extends AbstractProfile<KeyboardShortcut, A> {
 	///**
-	public GenericEvent<?> handleKey(GenericEvent<?> event) {
+	public Actionable<?> handleKey(KeyDuoble<?> event) {
 	//public void handleKey(DLKeyEvent e) {
 		if(event != null)
-			event.setAction( binding(((KeyboardEvent)event).keyShortcut()) );
-		return event;
+			return binding(event.keyShortcut());
+		return null;
 	}
 	// */
 

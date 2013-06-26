@@ -92,7 +92,7 @@ public abstract class AbstractScene implements Constants {
   //D E V I C E S	  &   E V E N T S
   protected HashMap<String, AbstractDevice> devices;
 	//protected ArrayList<HIDevice> devices;
-	protected LinkedList<GenericEvent<?>> eventQueue;
+	protected LinkedList<EventGrabberTuple> eventQueue;
 	
 	// L O C A L   T I M E R
 	protected boolean arpFlag;
@@ -150,7 +150,7 @@ public abstract class AbstractScene implements Constants {
 		//TODO pending device instantiation here
 		devices = new HashMap<String, AbstractDevice>();
 		//events
-		eventQueue = new LinkedList<GenericEvent<?>>();
+		eventQueue = new LinkedList<EventGrabberTuple>();
 		// <- 1
 		
 		setDottedGrid(true);
@@ -280,7 +280,7 @@ public abstract class AbstractScene implements Constants {
 	 * Internal method. Handles the different global keyboard actions.
 	 */
 	//public void handleKeyboardAction(DOF_0Action id) {
-	public void handleEvent(GenericEvent<?> event) {
+	public void handleEvent(GenericEvent event) {
 		if( !(event instanceof ClickEvent) && ! (event instanceof KeyboardEvent))
 			return;
 		
@@ -700,17 +700,17 @@ public abstract class AbstractScene implements Constants {
 		
 		// 4a. Devices (external stuff -> Feedable)
 		
-		/**
+		// /**
 		for (AbstractDevice device : devices.values())
 			device.handle(device.feed());
 		
 		// 4b. low level events 
-		GenericEvent<?> event;	
+		EventGrabberTuple eventTuple;	
     while( !eventQueue.isEmpty() ) {
-    	event = eventQueue.remove();
-      //TODO implement me
+    	eventTuple = eventQueue.remove();
+    	if(!eventTuple.perform())
+    		pinhole().frame().performInteraction(eventTuple.event);
     }
-    */
     
     // 5. Grid and axis drawing
  		if (gridIsDrawn()) {
@@ -1101,9 +1101,11 @@ public abstract class AbstractScene implements Constants {
 	
   // Event registration
 	
-	public boolean isEventRegistered(GenericEvent<?> event) {
+	/**
+	public boolean isEventRegistered(GenericEvent event) {
 		return eventQueue.contains(event);
 	}
+	*/
 	
 	/**
 	 * Adds an HIDevice to the scene.
@@ -1111,10 +1113,15 @@ public abstract class AbstractScene implements Constants {
 	 * @see #unregisterProfile(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void enqueueEvent(GenericEvent<?> event) {
-		if(!isEventRegistered(event))
-			if( !event.isNull() )
-				eventQueue.add(event);
+	public void enqueueEvent(EventGrabberTuple eventTuple) {
+		if(!eventQueue.contains(eventTuple))
+			if( !eventTuple.event.isNull() )
+				if( eventTuple instanceof Duoble ) {
+					if (((Duoble<?>)eventTuple.event).getAction() != null)
+						eventQueue.add(eventTuple);
+				}
+				else
+					eventQueue.add(eventTuple);
 	}
 	
 	/**
@@ -1123,7 +1130,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #registerProfile(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void removeEvent(GenericEvent<?> event) {
+	public void removeEventTuple(GenericEvent event) {
 		eventQueue.remove(event);
 	}
 	
@@ -1133,7 +1140,7 @@ public abstract class AbstractScene implements Constants {
 	 * @see #registerProfile(AbstractHIDevice)
 	 * @see #unregisterProfile(AbstractHIDevice)
 	 */
-	public void removeAllEvents() {
+	public void removeAllEventTuples() {
 		eventQueue.clear();
 	}
 	

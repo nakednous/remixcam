@@ -28,10 +28,9 @@ package remixlab.remixcam.event;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.geom.Geom;
 
-public class GenericDOF2Event<A extends Actionable<?>> extends GenericMotionEvent<A> {
+public class GenericDOF2Event extends GenericMotionEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -50,7 +49,7 @@ public class GenericDOF2Event<A extends Actionable<?>> extends GenericMotionEven
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		GenericDOF2Event<?> other = (GenericDOF2Event<?>) obj;
+		GenericDOF2Event other = (GenericDOF2Event) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
     .append(x, other.x)
@@ -71,7 +70,7 @@ public class GenericDOF2Event<A extends Actionable<?>> extends GenericMotionEven
     this.dy = 0f;
   }
 	
-	public GenericDOF2Event(GenericDOF2Event<A> prevEvent, float x, float y, int modifiers, int button) {
+	public GenericDOF2Event(GenericDOF2Event prevEvent, float x, float y, int modifiers, int button) {
 		this(x, y, modifiers, button);
 		setPreviousEvent(prevEvent);
 		
@@ -104,9 +103,9 @@ public class GenericDOF2Event<A extends Actionable<?>> extends GenericMotionEven
     // */
   }
 	
-	//ready to be enqueued
-	public GenericDOF2Event(float x, float y, A a) {
-    super(a);
+  //ready to be enqueued
+	public GenericDOF2Event(float x, float y) {
+    super();
     this.x = x;
 		this.dx = 0f;
     this.y = y;
@@ -115,26 +114,17 @@ public class GenericDOF2Event<A extends Actionable<?>> extends GenericMotionEven
 	}
 
 	//idem
-	public GenericDOF2Event(GenericDOF2Event<A> prevEvent, float x, float y, A a) {
-    super(a);
+	public GenericDOF2Event(GenericDOF2Event prevEvent, float x, float y) {
+    super();
 		this.x = x;
 		this.dx = 0f;
     this.y = y;
     this.dy = 0f;
     this.button = NOBUTTON;
     setPreviousEvent(prevEvent);
-    /**
-    if(prevEvent!=null) {
-    	distance = Geom.distance(x, y, prevEvent.getX(), prevEvent.getY());
-    	if( sameSequence(prevEvent) ) {
-    		this.dx = this.getX() - prevEvent.getX();
-    		this.dy = this.getY() - prevEvent.getY();
-    	}
-    }
-    */
-	}
+  }
   
-  protected GenericDOF2Event(GenericDOF2Event<A> other) {
+  protected GenericDOF2Event(GenericDOF2Event other) {
   	super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
@@ -143,17 +133,17 @@ public class GenericDOF2Event<A extends Actionable<?>> extends GenericMotionEven
 	}
   
   @Override
-	public GenericDOF2Event<A> get() {
-		return new GenericDOF2Event<A>(this);
+	public GenericDOF2Event get() {
+		return new GenericDOF2Event(this);
 	}
   
   @Override
-  public void setPreviousEvent(GenericMotionEvent<?> prevEvent) {
+  public void setPreviousEvent(GenericMotionEvent prevEvent) {
   	if(prevEvent!=null)
-  		if(prevEvent instanceof GenericDOF2Event<?>)	{
-  			this.dx = this.getX() - ((GenericDOF2Event<?>) prevEvent).getX();
-  			this.dy = this.getY() - ((GenericDOF2Event<?>) prevEvent).getY();
-  			distance = Geom.distance(x, y, ((GenericDOF2Event<?>) prevEvent).getX(), ((GenericDOF2Event<?>) prevEvent).getY());  			
+  		if(prevEvent instanceof GenericDOF2Event)	{
+  			this.dx = this.getX() - ((GenericDOF2Event) prevEvent).getX();
+  			this.dy = this.getY() - ((GenericDOF2Event) prevEvent).getY();
+  			distance = Geom.distance(x, y, ((GenericDOF2Event) prevEvent).getX(), ((GenericDOF2Event) prevEvent).getY());  			
   			delay = this.timestamp() - prevEvent.timestamp();
   			if(delay==0)
   				speed = distance;

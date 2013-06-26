@@ -25,14 +25,13 @@
 
 package remixlab.remixcam.event;
 
-import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.shortcut.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 // /**
-public class GenericMotionEvent<A extends Actionable<?>> extends GenericEvent<A> {
+public class GenericMotionEvent extends GenericEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -50,7 +49,7 @@ public class GenericMotionEvent<A extends Actionable<?>> extends GenericEvent<A>
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		GenericMotionEvent<?> other = (GenericMotionEvent<?>) obj;
+		GenericMotionEvent other = (GenericMotionEvent) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))
 		.append(button, other.button)
@@ -67,8 +66,8 @@ public class GenericMotionEvent<A extends Actionable<?>> extends GenericEvent<A>
 	protected long delay;
 	protected float distance, speed;
 	
-	public GenericMotionEvent(A a) {
-    super(a);
+	public GenericMotionEvent() {
+    super();
     this.button = NOBUTTON;
   }
 	
@@ -84,7 +83,7 @@ public class GenericMotionEvent<A extends Actionable<?>> extends GenericEvent<A>
   
 	// ---
 	
-  protected GenericMotionEvent(GenericMotionEvent<A> other) {
+  protected GenericMotionEvent(GenericMotionEvent other) {
   	super(other);
 		this.button = new Integer(other.button);
 		this.delay = other.delay;
@@ -93,8 +92,8 @@ public class GenericMotionEvent<A extends Actionable<?>> extends GenericEvent<A>
 	}
   
   @Override
-	public GenericMotionEvent<A> get() {
-		return new GenericMotionEvent<A>(this);
+	public GenericMotionEvent get() {
+		return new GenericMotionEvent(this);
 	}
   
   public void modulate(float [] sens) {}
@@ -130,7 +129,7 @@ public class GenericMotionEvent<A extends Actionable<?>> extends GenericEvent<A>
 		return !relative();
 	}
 	
-	public void setPreviousEvent(GenericMotionEvent<?> prevEvent) {
+	public void setPreviousEvent(GenericMotionEvent prevEvent) {
 		if(prevEvent == null) {
 			delay = 0;
 			speed = 0;

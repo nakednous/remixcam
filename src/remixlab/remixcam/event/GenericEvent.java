@@ -31,7 +31,8 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.shortcut.Shortcut;
 
-public class GenericEvent<A extends Actionable<?>> implements Constants, Copyable {
+//public class GenericEvent<A extends Actionable<?>> implements Constants, Copyable {
+public class GenericEvent implements Constants, Copyable {
 	//TODO fix modifiers!
 	@Override
 	public int hashCode() {
@@ -48,7 +49,7 @@ public class GenericEvent<A extends Actionable<?>> implements Constants, Copyabl
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;		
 		
-		GenericEvent<?> other = (GenericEvent<?>) obj;
+		GenericEvent other = (GenericEvent) obj;
 	  return new EqualsBuilder()		
 		.append(action, other.action)
 		.append(modifiers, other.modifiers)
@@ -73,31 +74,15 @@ public class GenericEvent<A extends Actionable<?>> implements Constants, Copyabl
     timestamp = System.currentTimeMillis();
   }  
   
-  public GenericEvent(A a) {    
-    this.modifiers = 0;
-    this.action = a;
-    timestamp = System.currentTimeMillis();
-  }
- 
-  public GenericEvent(Integer modifiers, A a) {
-    this.modifiers = modifiers;
-    this.action = a;
-    timestamp = System.currentTimeMillis();
-  } 
-  
-  protected GenericEvent(GenericEvent<A> other) {
+  protected GenericEvent(GenericEvent other) {
 		this.modifiers = new Integer(other.modifiers);
 		this.action = other.action;
 		this.timestamp = new Long(System.currentTimeMillis());
 	}  
   
-  public void enqueue(AbstractScene scn) {
-  	scn.enqueueEvent(this);
-  }
-  
   @Override
-	public GenericEvent<A> get() {
-		return new GenericEvent<A>(this);
+	public GenericEvent get() {
+		return new GenericEvent(this);
 	}
   
   /**
@@ -115,14 +100,6 @@ public class GenericEvent<A extends Actionable<?>> implements Constants, Copyabl
   	return new Shortcut(getModifiers());
   }
   
-  public Actionable<?> getAction() {
-  	return action;
-  }
-  
-  public void setAction(Actionable<?> actionable) {
-  	action = actionable;
-  }
-
   public Integer getModifiers() {
     return modifiers;
   }

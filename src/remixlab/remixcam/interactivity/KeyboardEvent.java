@@ -25,7 +25,9 @@
 
 package remixlab.remixcam.interactivity;
 
+import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.core.KeyDuoble;
 import remixlab.remixcam.event.GenericKeyboardEvent;
 
 /**
@@ -33,13 +35,24 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 */
 
-public class KeyboardEvent extends GenericKeyboardEvent<Constants.DOF_0Action> {
+public class KeyboardEvent extends GenericKeyboardEvent implements KeyDuoble<Constants.DOF_0Action> {
+	Constants.DOF_0Action action;
+	
+	public KeyboardEvent(GenericKeyboardEvent gEvent) {
+		super(gEvent);
+	}
+	
+	public KeyboardEvent(GenericKeyboardEvent gEvent, DOF_0Action a) {
+		super(gEvent);
+		action = a;
+	}
+	
 	public KeyboardEvent() {
 		super();
 	}
 	
 	public KeyboardEvent(DOF_0Action a) {
-		super(a);
+		action = a;
 	}
 	
 	public KeyboardEvent(Integer modifiers, Character c, Integer vk) {
@@ -59,23 +72,28 @@ public class KeyboardEvent extends GenericKeyboardEvent<Constants.DOF_0Action> {
 	}
 	
 	public KeyboardEvent(Integer modifiers, Character c, Integer vk, DOF_0Action a) {
-		super(modifiers, c, vk, a);
+		super(modifiers, c, vk);
+		action = a;
 	}
 	
 	public KeyboardEvent(Integer modifiers, Character c, DOF_0Action a) {
-		super(modifiers, c, a);
+		super(modifiers, c);
+		action = a;
 	}
 	
 	public KeyboardEvent(Integer modifiers, Integer vk, DOF_0Action a) {
-		super(modifiers, vk, a);
+		super(modifiers, vk);
+		action = a;
 	}
 	
 	public KeyboardEvent(Character c, DOF_0Action a) {
-		super(c,a);
+		super(c);
+		action = a;
 	}
 	
 	protected KeyboardEvent(KeyboardEvent other) {
 		super(other);
+		this.action = other.action;
 	}
 	
 	@Override
@@ -87,4 +105,9 @@ public class KeyboardEvent extends GenericKeyboardEvent<Constants.DOF_0Action> {
 	public DOF_0Action getAction() {
   	return (DOF_0Action)action;
   }
+	
+	@Override
+	public void setAction(Actionable<?> a) {
+		if( a instanceof DOF_0Action ) action = (DOF_0Action)a;		
+	}
 }

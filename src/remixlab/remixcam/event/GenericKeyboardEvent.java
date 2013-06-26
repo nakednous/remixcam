@@ -31,10 +31,9 @@ import java.util.Map.Entry;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.shortcut.KeyboardShortcut;
 
-public class GenericKeyboardEvent<A extends Actionable<?>> extends GenericEvent<A> {
+public class GenericKeyboardEvent extends GenericEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -50,7 +49,7 @@ public class GenericKeyboardEvent<A extends Actionable<?>> extends GenericEvent<
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		GenericKeyboardEvent<?> other = (GenericKeyboardEvent<?>) obj;
+		GenericKeyboardEvent other = (GenericKeyboardEvent) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
     .append(key, other.key)
@@ -135,12 +134,6 @@ public class GenericKeyboardEvent<A extends Actionable<?>> extends GenericEvent<
   	this.vKey = null;
   }
   
-  public GenericKeyboardEvent(A a) {
-  	super(a);
-  	this.key = null;
-  	this.vKey = null;
-  }
-  
   public GenericKeyboardEvent(Integer modifiers, Character c, Integer vk) {
     super(modifiers);
     this.vKey = vk;
@@ -165,39 +158,15 @@ public class GenericKeyboardEvent<A extends Actionable<?>> extends GenericEvent<
     this.vKey = null;
   }
   
-  public GenericKeyboardEvent(Integer modifiers, Character c, Integer vk, A a) {
-    super(modifiers, a);
-    this.vKey = vk;
-    this.key = c;
-  }
-  
-  public GenericKeyboardEvent(Integer modifiers, Character c, A a) {
-    super(modifiers, a);
-    this.key = c;
-    this.vKey = null;
-  }
-  
-  public GenericKeyboardEvent(Integer modifiers, Integer vk, A a) {
-    super(modifiers, a);
-    this.key = null;
-    this.vKey = vk;
-  }
-  
-  public GenericKeyboardEvent(Character c, A a) {
-  	super(a);
-    this.key = c;
-    this.vKey = null;
-  }
-  
-  protected GenericKeyboardEvent(GenericKeyboardEvent<A> other) {
+  protected GenericKeyboardEvent(GenericKeyboardEvent other) {
   	super(other);
 		this.key = new Character(other.key);
 		this.vKey = new Integer(other.vKey);
 	}
   
   @Override
-	public GenericKeyboardEvent<A> get() {
-		return new GenericKeyboardEvent<A>(this);
+	public GenericKeyboardEvent get() {
+		return new GenericKeyboardEvent(this);
 	}
   
   @Override

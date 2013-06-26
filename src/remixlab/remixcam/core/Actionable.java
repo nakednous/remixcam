@@ -37,7 +37,7 @@ public interface Actionable {
 */
 
 //public interface Actionable <A extends DandelionActionable> {
-public interface Actionable <E extends Enum<E>> {
+public interface Actionable<E extends Enum<E>> {
 	//A action();
 	E action();
 	String description();

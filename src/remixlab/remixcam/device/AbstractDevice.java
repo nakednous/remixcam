@@ -91,9 +91,77 @@ public abstract class AbstractDevice {
 		return nm;
 	}
 	
-	public abstract void handle(GenericEvent<?> event);
+  //procedure, to be called by handle when actionable is on
+	public boolean updateGrabber(GenericEvent event) {
+		if( event == null )
+			return false;
+		
+		setDeviceGrabber(null);
+		for (Grabbable mg : deviceGrabberPool()) {
+			// take whatever. Here the last one
+			mg.checkIfGrabsInput(event);
+			if (mg.grabsInput()) {
+				setDeviceGrabber(mg);
+				return true;
+			}
+		}
+		return false;
 	
-	public GenericEvent<?> feed() {
+		
+	  // fortunately selection mode doesn't need parsing
+		/**
+		if( event.getAction() != null ) {
+			if(event.getAction().action() == event.getAction().selectionAction() ||
+				 event.getAction().action() == event.getAction().deselectionAction()) {
+				setDeviceGrabber(null);
+				if(event.getAction().action() == event.getAction().selectionAction()) {
+					for (Grabbable mg : deviceGrabberPool()) {
+						// take whatever. Here the last one
+						mg.checkIfGrabsInput(event);
+						if (mg.grabsInput()) setDeviceGrabber(mg);
+					}
+				}				
+				return true;
+			}
+			return false;
+		}
+		return false;
+		// */
+		
+		/**
+		if( event == null )
+			return false;
+		
+	  // fortunately selection mode doesn't need parsing
+		if( event.getAction() != null ) {
+			if(event.getAction().action() == event.getAction().deselectionAction()) {
+				setDeviceGrabber(null);
+				return true;
+			}				
+			if(event.getAction().action() == event.getAction().selectionAction()) {
+				setDeviceGrabber(null);
+				for (Grabbable mg : deviceGrabberPool()) {
+					// take whatever. Here the last one
+					mg.checkIfGrabsInput(event);
+					if (mg.grabsInput()) setDeviceGrabber(mg);
+				}
+				if(this.deviceGrabber() != null)
+					return true;
+				return false;
+			}
+	  }
+		return false;
+		// */
+	}
+	
+	//just enqueue grabber
+	public void handle(GenericEvent event) {
+		if((event == null) || (deviceGrabber() == null)) return;
+		scene.enqueueEvent(new EventGrabberTuple(event, deviceGrabber()));
+	}
+	
+	//TODO check if can be made abstract?
+	public GenericEvent feed() {
 		return null;
 	}
 	
@@ -205,54 +273,5 @@ public abstract class AbstractDevice {
 				deviceGrbbr = deviceGrabber;
 
 		//deviceGrabberIsAnIFrame = deviceGrabber instanceof InteractiveFrame;
-	}
-	
-	//procedure
-	public boolean updateGrabber(GenericEvent<?> event) {
-		if( event == null )
-			return false;
-		
-	  // fortunately selection mode doesn't need parsing
-		if( event.getAction() != null ) {
-			if(event.getAction().action() == event.getAction().selectionAction() ||
-				 event.getAction().action() == event.getAction().deselectionAction()) {
-				setDeviceGrabber(null);
-				if(event.getAction().action() == event.getAction().selectionAction()) {
-					for (Grabbable mg : deviceGrabberPool()) {
-						// take whatever. Here the last one
-						mg.checkIfGrabsInput(event);
-						if (mg.grabsInput()) setDeviceGrabber(mg);
-					}
-				}				
-				return true;
-			}
-			return false;
-		}
-		return false;
-		
-		/**
-		if( event == null )
-			return false;
-		
-	  // fortunately selection mode doesn't need parsing
-		if( event.getAction() != null ) {
-			if(event.getAction().action() == event.getAction().deselectionAction()) {
-				setDeviceGrabber(null);
-				return true;
-			}				
-			if(event.getAction().action() == event.getAction().selectionAction()) {
-				setDeviceGrabber(null);
-				for (Grabbable mg : deviceGrabberPool()) {
-					// take whatever. Here the last one
-					mg.checkIfGrabsInput(event);
-					if (mg.grabsInput()) setDeviceGrabber(mg);
-				}
-				if(this.deviceGrabber() != null)
-					return true;
-				return false;
-			}
-	  }
-		return false;
-		// */
 	}
 }

@@ -329,7 +329,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * {@link #position()}.
 	 */
 	@Override
-	public void checkIfGrabsInput(GenericEvent<?> event) {
+	public void checkIfGrabsInput(GenericEvent event) {
 		int x=0, y=0;
 		if(event instanceof DOF2Event) {
 			//x = scene.cursorX - scene.upperLeftCorner.getX();
@@ -734,15 +734,21 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	*/
 	
 	@Override
-	public void performInteraction(GenericEvent<?> event) {
+	public void performInteraction(GenericEvent e) {
+		Duoble<?> event;
 		//begin:
 		//if (grabsInput()) keepsGrabbingCursor = true;
 		//end:
 		stopSpinning();
 		//keepsGrabbingDevice = false;
 		
-		if(event == null)
-			return;
+		//if(e == null)			return;
+		
+		if(e instanceof Duoble)
+			event = (Duoble<?>)e;
+		else 
+			return;	
+		
 		
 		// same as no action
 		if( event.getAction() == null )
@@ -755,20 +761,20 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		if( ( scene.is2D() ) && ( !event.getAction().is2D() ) )
 			return;
 		
-		if( event instanceof GenericMotionEvent<?>) {
+		if( event instanceof GenericMotionEvent) {
 			if( scene.is2D() )
-				execAction2D((GenericMotionEvent<?>)event);
+				execAction2D((GenericMotionEvent)event);
 			else
-				execAction3D((GenericMotionEvent<?>)event);
+				execAction3D((GenericMotionEvent)event);
 		}
 	}
 	
 	//TODO implement me
-	protected void execAction2D(GenericMotionEvent<?> event) {
+	protected void execAction2D(GenericMotionEvent event) {
 	}
 	
   //TODO implement me
-	protected void execAction3D(GenericMotionEvent<?> e) {
+	protected void execAction3D(GenericMotionEvent e) {
 		Actionable<DLAction> a=null;
 		if(e instanceof DOF1Event)
 			a = ((DOF1Event) e).getAction();

@@ -44,15 +44,15 @@ public class AbstractKeyboard extends AbstractDevice {
 		profile = kprofile;
 	}
 	
-	// /**
+	/**
 	@Override
-	public void handle(GenericEvent<?> event) {
+	public void handle(GenericEvent event) {
 		if(event == null)	return;
 		profile.handle(event);
 		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);
 	}
 
-	public void handleKey(GenericEvent<?> event) {
+	public void handleKey(GenericEvent event) {
 		if(event == null)	return;
 		profile.handleKey(event);
 		if( scene.isDeviceRegistered(this) ) event.enqueue(scene);

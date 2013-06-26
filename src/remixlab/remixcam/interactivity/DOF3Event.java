@@ -32,26 +32,42 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 */
 
+import remixlab.remixcam.core.Actionable;
 import remixlab.remixcam.core.Constants;
+import remixlab.remixcam.core.Duoble;
 
-public class DOF3Event extends GenericDOF3Event<Constants.DOF_3Action> {
+public class DOF3Event extends GenericDOF3Event implements Duoble<Constants.DOF_3Action> {
+	DOF_3Action action;
+	
 	public DOF3Event(float x, float y, float z, int modifiers, int button) {
 		super(x, y, z, modifiers, button);
 	}
+	
+	public DOF3Event(float x, float y, float z, int modifiers, int button, DOF_3Action a) {
+		super(x, y, z, modifiers, button);
+		action = a;
+	}
 
   public DOF3Event(float x, float y, float z, DOF_3Action a) {
-		super(x, y, z, a);
+		super(x, y, z);
+		action = a;
 	}
 
-  public DOF3Event(GenericDOF3Event<DOF_3Action> prevEvent, float x, float y, float z, int modifiers, int button) {
+  public DOF3Event(GenericDOF3Event prevEvent, float x, float y, float z, int modifiers, int button) {
 		super(prevEvent, x, y, z, modifiers, button);
 	}
-	
-  public DOF3Event(GenericDOF3Event<DOF_3Action> prevEvent, float x, float y, float z, DOF_3Action a) {
-		super(prevEvent, x, y, z, a);
+  
+  public DOF3Event(GenericDOF3Event prevEvent, float x, float y, float z, int modifiers, int button, DOF_3Action a) {
+		super(prevEvent, x, y, z, modifiers, button);
+		action = a;
 	}
 	
-  protected DOF3Event(GenericDOF3Event<DOF_3Action> other) {
+  public DOF3Event(GenericDOF3Event prevEvent, float x, float y, float z, DOF_3Action a) {
+		super(prevEvent, x, y, z);
+		action = a;
+	}
+	
+  protected DOF3Event(GenericDOF3Event other) {
 		super(other);
 	}
 
@@ -65,21 +81,24 @@ public class DOF3Event extends GenericDOF3Event<Constants.DOF_3Action> {
   	return (DOF_3Action)action;
   }
   
-  public DOF2Event dof2Event(DOF_2Action a2) {
-  	DOF2Event e2 = dof2Event();
-  	e2.setAction(a2);
-  	return e2;
-  }
+  @Override
+	public void setAction(Actionable<?> a) {
+		if( a instanceof DOF_3Action ) action = (DOF_3Action)a;		
+	}
   
   public DOF2Event dof2Event() {
+  	return dof2Event(null);
+  }
+  
+  public DOF2Event dof2Event(DOF_2Action a2) {
   	DOF2Event pe2;
   	DOF2Event e2;
   	if(relative()) {  		
-  			pe2 = new DOF2Event(getPrevX(), getPrevY(), getModifiers(), getButton());
-  			e2 = new DOF2Event(pe2, getX(), getY(), getModifiers(), getButton());  		
+  			pe2 = new DOF2Event(getPrevX(), getPrevY(), getModifiers(), getButton(), a2);
+  			e2 = new DOF2Event(pe2, getX(), getY(), getModifiers(), getButton(), a2);  		
   	}
   	else {
-  		e2 = new DOF2Event(getX(), getY(), getModifiers(), getButton()); 
+  		e2 = new DOF2Event(getX(), getY(), getModifiers(), getButton(), a2); 
   	}
   	return e2;
   }

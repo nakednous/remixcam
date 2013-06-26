@@ -66,39 +66,75 @@ public abstract class AbstractMotionDevice extends AbstractDevice implements Con
 		return sens;
 	}
 	
+	public boolean updateGrabber(GenericEvent event) {
+		if( event == null )
+			return false;
+		
+	  // fortunately selection mode doesn't need parsing
+		if( ((Duoble<?>)event).getAction() != null ) {
+			if(((Duoble<?>)event).getAction().action() == ((Duoble<?>)event).getAction().selectionAction() ||
+				 ((Duoble<?>)event).getAction().action() == ((Duoble<?>)event).getAction().deselectionAction()) {
+				setDeviceGrabber(null);
+				if(((Duoble<?>)event).getAction().action() == ((Duoble<?>)event).getAction().selectionAction()) {
+					for (Grabbable mg : deviceGrabberPool()) {
+						// take whatever. Here the last one
+						mg.checkIfGrabsInput(event);
+						if (mg.grabsInput()) setDeviceGrabber(mg);
+					}
+				}				
+				return true;
+			}
+			return false;
+		}
+		return false;
+		
+		/**
+		if( event == null )
+			return false;
+		
+	  // fortunately selection mode doesn't need parsing
+		if( event.getAction() != null ) {
+			if(event.getAction().action() == event.getAction().deselectionAction()) {
+				setDeviceGrabber(null);
+				return true;
+			}				
+			if(event.getAction().action() == event.getAction().selectionAction()) {
+				setDeviceGrabber(null);
+				for (Grabbable mg : deviceGrabberPool()) {
+					// take whatever. Here the last one
+					mg.checkIfGrabsInput(event);
+					if (mg.grabsInput()) setDeviceGrabber(mg);
+				}
+				if(this.deviceGrabber() != null)
+					return true;
+				return false;
+			}
+	  }
+		return false;
+		// */
+	}
+	
 	// /**
 	@Override
-	public void handle(GenericEvent<?> event) {
+	public void handle(GenericEvent event) {		
 		//overkill but feels safer ;)
-		if(event == null)	return;
-		
-		if( updateGrabber(event) ) return;
-		
-	  //TODO we should simply go like this (but we need two click profiles):
-		/**
-		if(event instanceof GenericMotionEvent) {
-			((GenericMotionEvent<?>)event).modulate(sens);
+		if(event == null)	return;		
+		if(updateGrabber(event)) return;		
+		if(event instanceof GenericMotionEvent && event instanceof Duoble<?>) {
+			((GenericMotionEvent)event).modulate(sens);
 			if (deviceGrabber() != null )
-				deviceGrabber().performInteraction(frameProfile().handle(event));
+				scene.enqueueEvent(new EventGrabberTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));
 			else
-				scene.pinhole().frame().performInteraction(cameraProfile().handle(event));			
+				scene.enqueueEvent(new EventGrabberTuple(event, cameraProfile().handle((Duoble<?>)event), null));
 		}
-	  if(event instanceof GenericClickEvent) {
+	  //if(event instanceof GenericClickEvent) {
+	  	//scene.enqueueEvent(new EventGrabberTuple(event, clickProfile().handle((Duoble<?>)event), scene));
+	  	/**
 	  	if (deviceGrabber() != null )
 				deviceGrabber().performInteraction(frameClickProfile().handle(event));
 			else
 				scene.pinhole().frame().performInteraction(pinholeClickProfile().handle(event));
-	  }
-	  // */		
-		
-		if(event instanceof GenericMotionEvent) {
-			((GenericMotionEvent<?>)event).modulate(sens);
-			if (deviceGrabber() != null )
-				deviceGrabber().performInteraction(frameProfile().handle(event));
-			else
-				scene.pinhole().frame().performInteraction(cameraProfile().handle(event));			
-		}
-	  if(event instanceof GenericClickEvent)
-	  	scene.handleEvent(clickProfile().handle(event));
+				*/
+	  //}
 	}
 }
