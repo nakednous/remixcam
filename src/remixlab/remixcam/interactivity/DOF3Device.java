@@ -35,7 +35,7 @@ public class DOF3Device extends AbstractMotionAgent {
 	public DOF3Device(AbstractScene scn, String n) {
 		super(scn, n);
 		camProfile = new DOF3Profile();
-		frameProfile = new DOF3Profile();
+		profile = new DOF3Profile();
 		sens = new float[3];
 		sens[0] = 1f;
 		sens[1] = 1f;
@@ -49,7 +49,7 @@ public class DOF3Device extends AbstractMotionAgent {
 	
 	@Override
 	public DOF3Profile frameProfile() {
-		return (DOF3Profile)frameProfile;
+		return (DOF3Profile)profile;
 	}
 	
 	@Override

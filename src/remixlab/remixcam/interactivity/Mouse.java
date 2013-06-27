@@ -32,7 +32,7 @@ public class Mouse extends AbstractMotionAgent implements Constants {
 	public Mouse(AbstractScene scn, String n) {
 		super(scn, n);
 		camProfile = new DOF2Profile();
-		frameProfile = new DOF2Profile();
+		profile = new DOF2Profile();
 		clickProfile = new ClickProfile();
 		sens = new float[2];
 		sens[0] = 1f;
@@ -70,7 +70,7 @@ public class Mouse extends AbstractMotionAgent implements Constants {
 	
 	@Override
 	public DOF2Profile frameProfile() {
-		return (DOF2Profile)frameProfile;
+		return (DOF2Profile)profile;
 	}
 	
 	@Override

@@ -29,8 +29,8 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 import remixlab.remixcam.profile.*;
 
-public abstract class AbstractMotionAgent extends AbstractAgent implements Constants {
-	protected AbstractMotionProfile<?> camProfile, frameProfile;
+public abstract class AbstractMotionAgent extends AbstractActionableAgent implements Constants {
+	protected AbstractMotionProfile<?> camProfile;
 	protected AbstractClickProfile<?> clickProfile;
 	protected float[] sens;
 	
@@ -43,7 +43,7 @@ public abstract class AbstractMotionAgent extends AbstractAgent implements Const
 	}
 	
 	public AbstractMotionProfile<?> frameProfile() {
-		return camProfile;
+		return (AbstractMotionProfile<?>) profile();
 	}
 	
 	public AbstractClickProfile<?> clickProfile() {
@@ -55,7 +55,7 @@ public abstract class AbstractMotionAgent extends AbstractAgent implements Const
 	}
 	
 	public void setFrameProfile(AbstractMotionProfile<?> profile) {
-		frameProfile = profile;
+		setProfile(profile);
 	}
 	
 	public void setClickProfile(AbstractClickProfile<?> profile) {

@@ -32,22 +32,6 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 
 public abstract class AbstractAgent {
-	protected class EventGrabberDuobleTuple extends EventGrabberTuple {
-		/**
-		public EventGrabberDuobleTuple(GenericEvent e, Grabbable g) {
-			super(e, g);
-		}
-		*/
-		
-		public EventGrabberDuobleTuple(GenericEvent e, Actionable<?> a, Grabbable g) {
-	  	super(e,g);
-	  	if(event instanceof Duoble)
-	  		((Duoble<?>)event).setAction(a);
-	  	else
-	  		System.out.println("Action will not be handled by grabber using this event type. Supply a Duoble event");
-	  	}
-	}
-
 	protected boolean enforcedGrabber;
 	
 	/**

@@ -32,7 +32,7 @@ public class HIDevice extends AbstractMotionAgent {
 	public HIDevice(AbstractScene scn, String n) {
 		super(scn, n);
 		camProfile = new DOF6Profile();
-		frameProfile = new DOF6Profile();
+		profile = new DOF6Profile();
 		clickProfile = new ClickProfile();
 		sens = new float[6];
 		sens[0] = 1f;
@@ -57,7 +57,7 @@ public class HIDevice extends AbstractMotionAgent {
 	
 	@Override
 	public DOF6Profile frameProfile() {
-		return (DOF6Profile)frameProfile;
+		return (DOF6Profile)profile;
 	}
 	
 	@Override

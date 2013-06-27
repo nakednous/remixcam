@@ -32,19 +32,19 @@ import remixlab.remixcam.core.KeyDuoble;
 import remixlab.remixcam.event.GenericEvent;
 import remixlab.remixcam.profile.AbstractKeyboardProfile;
 
-public class AbstractKeyboardAgent extends AbstractAgent {
-	protected AbstractKeyboardProfile<?> profile;
+public class AbstractKeyboardAgent extends AbstractActionableAgent {
+	//protected AbstractKeyboardProfile<?> profile;
 	
 	public AbstractKeyboardAgent(AbstractScene scn, String n) {
 		super(scn, n);
 	}
 	
 	public AbstractKeyboardProfile<?> keyboardProfile() {
-		return profile;
+		return (AbstractKeyboardProfile<?>) profile();
 	}
 
 	public void setKeyboardProfile(AbstractKeyboardProfile<?> kprofile) {
-		profile = kprofile;
+		setProfile(profile);
 	}
 	
 	@Override
