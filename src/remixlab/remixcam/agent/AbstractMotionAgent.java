@@ -66,9 +66,8 @@ public abstract class AbstractMotionAgent extends AbstractActionableAgent implem
 		return sens;
 	}
 	
-	// /**
 	@Override
-	public void handle(GenericEvent event) {		
+	public void handle(GenericEvent event) {
 		//overkill but feels safer ;)
 		if(event == null || !scene.isAgentRegistered(this))	return;		
 		if(event instanceof Duoble<?>) {
