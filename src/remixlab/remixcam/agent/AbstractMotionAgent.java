@@ -66,39 +66,11 @@ public abstract class AbstractMotionAgent extends AbstractActionableAgent implem
 		return sens;
 	}
 	
-	@Override
-	public boolean updateGrabber(GenericEvent event) {
-		if( event == null || !scene.isAgentRegistered(this) )
-			return false;
-		
-		if(isGrabberEnforced())	return false;
-		
-	  // fortunately selection mode doesn't need parsing
-		if( ((Duoble<?>)event).getAction() != null ) {
-			if(((Duoble<?>)event).getAction().action() == ((Duoble<?>)event).getAction().selectionAction() ||
-				 ((Duoble<?>)event).getAction().action() == ((Duoble<?>)event).getAction().deselectionAction()) {
-				setDeviceGrabber(null);
-				if(((Duoble<?>)event).getAction().action() == ((Duoble<?>)event).getAction().selectionAction()) {
-					for (Grabbable mg : deviceGrabberPool()) {
-						// take whatever. Here the last one
-						mg.checkIfGrabsInput(event);
-						if (mg.grabsInput()) setDeviceGrabber(mg);
-					}
-				}				
-				return true;
-			}
-			return false;
-		}
-		return false;
-	}
-	
 	// /**
 	@Override
 	public void handle(GenericEvent event) {		
 		//overkill but feels safer ;)
 		if(event == null || !scene.isAgentRegistered(this))	return;		
-		if(updateGrabber(event)) return;		
-		
 		if(event instanceof Duoble<?>) {
 			if(event instanceof GenericClickEvent)
 				scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), deviceGrabber()));

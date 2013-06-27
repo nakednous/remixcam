@@ -75,8 +75,7 @@ public class WheeledMouse extends Mouse {
 	@Override
 	public void handle(GenericEvent event) {
 		//TODO warning: should be copy pasted from AbstractMotionDevice
-		if(event == null || !scene.isAgentRegistered(this))	return;		
-		if( updateGrabber(event) ) return;		
+		if(event == null || !scene.isAgentRegistered(this))	return;
 		if(event instanceof Duoble<?>) {
 			if(event instanceof GenericClickEvent)
 				scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), deviceGrabber()));

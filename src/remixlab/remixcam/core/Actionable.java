@@ -45,6 +45,6 @@ public interface Actionable<E extends Enum<E>> {
 	public int dofs();
 	//public boolean selectionMode();
 	//E defaultAction();
-	E selectionAction();
-	E deselectionAction();
+	//E selectionAction();
+	//E deselectionAction();
 }

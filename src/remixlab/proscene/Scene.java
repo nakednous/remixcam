@@ -149,7 +149,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public class ProsceneMouse extends WheeledMouse {
 	//public class ProsceneMouse extends Mouse {
 		DOF2Event event, prevEvent;
-		int counter = 0;
 		public ProsceneMouse(AbstractScene scn, String n) {
 			super(scn, n);	
 			//cameraProfile().setBinding(DOF_2Action.ROTATE);//rotate without dragging any button
@@ -163,8 +162,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			//if( e.getAction() == processing.event.MouseEvent.DRAG ) {//rotate without dragging any button
 			// /**
 			if( e.getAction() == processing.event.MouseEvent.MOVE ) {
-				event = new DOF2Event(prevEvent, e.getX(), e.getY(), Constants.DOF_2Action.SELECT);
-				handle(event);
+				event = new DOF2Event(prevEvent, e.getX(), e.getY());
+				updateGrabber(event);
 				prevEvent = event.get();
 			}
 			// */
@@ -175,8 +174,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			  prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
-				event = new DOF2Event(prevEvent, e.getX(), e.getY(), Constants.DOF_2Action.DESELECT);
-				handle(event);
+				event = new DOF2Event(prevEvent, e.getX(), e.getY());
+				updateGrabber(event);
 				prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
@@ -184,7 +183,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
 				handle(new ClickEvent(e.getModifiers(), e.getButton(), e.getCount()));
-			}			
+			}	
 		}
 	}
 	

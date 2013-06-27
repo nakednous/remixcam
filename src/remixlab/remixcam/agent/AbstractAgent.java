@@ -107,7 +107,7 @@ public abstract class AbstractAgent {
 			mg.checkIfGrabsInput(event);
 			if (mg.grabsInput()) {
 				setDeviceGrabber(mg);
-				System.out.println("oooops");
+				//System.out.println("oooops");
 				return true;
 			}
 		}
@@ -129,7 +129,6 @@ public abstract class AbstractAgent {
 		scene.enqueueEventTuple(new EventGrabberTuple(event, deviceGrabber()));
 	}
 	
-	//TODO check if can be made abstract?
 	public GenericEvent feed() {
 		return null;
 	}

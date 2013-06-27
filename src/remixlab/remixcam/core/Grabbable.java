@@ -98,7 +98,7 @@ public interface Grabbable {
 	 * mouse displacement. See the {@link #initAction(Point, Camera)}
 	 * documentation for details.
 	 */
-	void performInteraction(GenericEvent motionEvent);
+	void performInteraction(GenericEvent event);
 
 	/**
 	 * Should return true when the MouseGrabbable grabs the Scene mouse events.
