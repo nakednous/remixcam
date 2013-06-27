@@ -32,6 +32,24 @@ import remixlab.remixcam.core.*;
 import remixlab.remixcam.event.*;
 
 public abstract class AbstractAgent {
+	protected class EventGrabberDuobleTuple extends EventGrabberTuple {
+		/**
+		public EventGrabberDuobleTuple(GenericEvent e, Grabbable g) {
+			super(e, g);
+		}
+		*/
+		
+		public EventGrabberDuobleTuple(GenericEvent e, Actionable<?> a, Grabbable g) {
+	  	super(e,g);
+	  	if(event instanceof Duoble)
+	  		((Duoble<?>)event).setAction(a);
+	  	else
+	  		System.out.println("Action will not be handled by grabber using this event type. Supply a Duoble event");
+	  	}
+	}
+
+	protected boolean enforcedGrabber;
+	
 	/**
 	protected Object handlerObject;	
 	protected String handlerMethodName;
@@ -84,7 +102,8 @@ public abstract class AbstractAgent {
 		scene = scn;
 		nm = n;
 		grabbers = new ArrayList<Grabbable>();
-		scene.registerDevice(this);		
+		enforcedGrabber = false;
+		scene.registerAgent(this);		
 	}
 	
 	public String name() {
@@ -93,8 +112,10 @@ public abstract class AbstractAgent {
 	
   //procedure, to be called by handle when actionable is on
 	public boolean updateGrabber(GenericEvent event) {
-		if( event == null )
+		if( event == null || !scene.isAgentRegistered(this))
 			return false;
+		
+		if(isGrabberEnforced())	return false;
 		
 		setDeviceGrabber(null);
 		for (Grabbable mg : deviceGrabberPool()) {
@@ -102,15 +123,25 @@ public abstract class AbstractAgent {
 			mg.checkIfGrabsInput(event);
 			if (mg.grabsInput()) {
 				setDeviceGrabber(mg);
+				System.out.println("oooops");
 				return true;
 			}
 		}
 		return false;
 	}
 	
+	public void unsetGrabber() {
+		setDeviceGrabber(null);
+		enforcedGrabber = false;
+	}
+	
+	public boolean isGrabberEnforced() {
+		return this.enforcedGrabber;
+	}
+	
 	//just enqueue grabber
 	public void handle(GenericEvent event) {
-		if((event == null)) return;
+		if(event == null || !scene.isAgentRegistered(this)) return;
 		scene.enqueueEventTuple(new EventGrabberTuple(event, deviceGrabber()));
 	}
 	
@@ -219,7 +250,26 @@ public abstract class AbstractAgent {
 	 * {@link remixlab.remixcam.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}
 	 * test performed by parsing the mouse moved event.
 	 */
-	public void setDeviceGrabber(Grabbable deviceGrabber) {
+  public boolean enforceGrabber(Grabbable g) {
+  	if( this.isGrabberEnforced() ) //already enforced, do nothing
+  		return false;
+  	if( g == null ) {
+			deviceGrbbr = null;
+			enforcedGrabber = true;
+			return true;
+  	}
+  	//TODO check if would be good idea to add it here
+  	// for instance using addInDeviceGrabberPool which could be overriden in a derived class ;)
+  	if( isInDeviceGrabberPool(g) ) {
+  		deviceGrbbr = g;
+  		enforcedGrabber = true;
+  		return true;
+		}
+  	return false;
+	}
+	
+	
+	protected void setDeviceGrabber(Grabbable deviceGrabber) {
 		if( deviceGrabber == null )
 			deviceGrbbr = null;
 		else

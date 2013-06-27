@@ -10,19 +10,20 @@ public class EventGrabberTuple {
 		event = e;
 		grabber = g;
 	}
-	
-  public EventGrabberTuple(GenericEvent e, Actionable<?> a, Grabbable g) {
-  	event = e;
-  	if(event instanceof Duoble)
-  		((Duoble<?>)event).setAction(a);
-		grabber = g;
-	}
   
-  public boolean perform() {
+  protected boolean perform() {
   	if(grabber != null) {
   		grabber.performInteraction(event);
   		return true;
   	}
   	return false;
+  }
+  
+  public GenericEvent event() {
+  	return event;
+  }
+  
+  public Grabbable grabber() {
+  	return grabber;
   }
 }

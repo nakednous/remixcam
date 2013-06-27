@@ -38,6 +38,10 @@ import remixlab.remixcam.core.Duoble;
 public class DOF2Event extends GenericDOF2Event implements Duoble<Constants.DOF_2Action> {	
 	DOF_2Action action;
 	
+	public DOF2Event(GenericDOF2Event prevEvent, float x, float y) {
+		super(prevEvent, x, y);
+	}
+	
 	public DOF2Event(GenericDOF2Event prevEvent, float x, float y, DOF_2Action a) {
 		super(prevEvent, x, y);
 		action = a;
@@ -52,11 +56,11 @@ public class DOF2Event extends GenericDOF2Event implements Duoble<Constants.DOF_
 		action = a;
 	}
 	
-	public DOF2Event(GenericDOF2Event prevEvent, float x, float y,	int modifiers, int button) {
+	public DOF2Event(GenericDOF2Event prevEvent, float x, float y, int modifiers, int button) {
 		super(prevEvent, x, y, modifiers, button);
 	}
 	
-	public DOF2Event(GenericDOF2Event prevEvent, float x, float y,	int modifiers, int button, DOF_2Action a) {
+	public DOF2Event(GenericDOF2Event prevEvent, float x, float y, int modifiers, int button, DOF_2Action a) {
 		super(prevEvent, x, y, modifiers, button);
 		action = a;
 	}

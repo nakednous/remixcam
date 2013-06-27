@@ -47,15 +47,17 @@ public class DOF6Event extends GenericDOF6Event implements Duoble<Constants.DOF_
 		action = a;
 	}
 	
-	public DOF6Event(GenericDOF6Event prevEvent, float x, float y, float z,
-			                                                      float rx, float ry, float rz, int modifiers, int button) {
+	public DOF6Event(GenericDOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
 		super(prevEvent, x, y, z, rx, ry, rz, modifiers, button);
 	}
 	
-	public DOF6Event(GenericDOF6Event prevEvent, float x, float y, float z,
-			                                                      float rx, float ry, float rz, DOF_6Action a) {
+	public DOF6Event(GenericDOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, DOF_6Action a) {
 		super(prevEvent, x, y, z, rx, ry, rz);
 		action = a;
+	}
+	
+	public DOF6Event(GenericDOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz) {
+		super(prevEvent, x, y, z, rx, ry, rz);
 	}
 	
 	protected DOF6Event(GenericDOF6Event other) {

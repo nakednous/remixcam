@@ -27,7 +27,7 @@ package remixlab.remixcam.agent;
 
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Duoble;
-import remixlab.remixcam.core.EventGrabberTuple;
+import remixlab.remixcam.core.Grabbable;
 import remixlab.remixcam.core.KeyDuoble;
 import remixlab.remixcam.event.GenericEvent;
 import remixlab.remixcam.profile.AbstractKeyboardProfile;
@@ -48,15 +48,43 @@ public class AbstractKeyboardAgent extends AbstractAgent {
 	}
 	
 	@Override
+	public boolean updateGrabber(GenericEvent event) {
+		if( event == null || !scene.isAgentRegistered(this) )
+			return false;
+		
+		if(isGrabberEnforced())	return false;
+		
+	  // fortunately selection mode doesn't need parsing
+		if( ((Duoble<?>)event).getAction() != null ) {
+			if(((Duoble<?>)event).getAction().action() == ((Duoble<?>)event).getAction().selectionAction() ||
+				 ((Duoble<?>)event).getAction().action() == ((Duoble<?>)event).getAction().deselectionAction()) {
+				setDeviceGrabber(null);
+				if(((Duoble<?>)event).getAction().action() == ((Duoble<?>)event).getAction().selectionAction()) {
+					for (Grabbable mg : deviceGrabberPool()) {
+						// take whatever. Here the last one
+						mg.checkIfGrabsInput(event);
+						if (mg.grabsInput()) setDeviceGrabber(mg);
+					}
+				}				
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+	
+	@Override
 	public void handle(GenericEvent event) {
-		if((event == null)) return;
+		if(event == null || !scene.isAgentRegistered(this)) return;
+		if(updateGrabber(event)) return;
 		if(event instanceof Duoble<?>)
-			scene.enqueueEventTuple(new EventGrabberTuple(event, keyboardProfile().handle((Duoble<?>)event), deviceGrabber()));
+			scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handle((Duoble<?>)event), deviceGrabber()));
 	}
 	
 	public void handleKey(GenericEvent event) {
-		if((event == null)) return;	
+		if(event == null || !scene.isAgentRegistered(this)) return;
+		if(updateGrabber(event)) return;		
 		if(event instanceof KeyDuoble<?>)
-			scene.enqueueEventTuple(new EventGrabberTuple(event, keyboardProfile().handleKey((KeyDuoble<?>)event), deviceGrabber()));
+			scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handleKey((KeyDuoble<?>)event), deviceGrabber()));
 	}
 }

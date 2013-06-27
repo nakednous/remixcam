@@ -68,8 +68,10 @@ public abstract class AbstractMotionAgent extends AbstractAgent implements Const
 	
 	@Override
 	public boolean updateGrabber(GenericEvent event) {
-		if( event == null )
+		if( event == null || !scene.isAgentRegistered(this) )
 			return false;
+		
+		if(isGrabberEnforced())	return false;
 		
 	  // fortunately selection mode doesn't need parsing
 		if( ((Duoble<?>)event).getAction() != null ) {
@@ -94,19 +96,19 @@ public abstract class AbstractMotionAgent extends AbstractAgent implements Const
 	@Override
 	public void handle(GenericEvent event) {		
 		//overkill but feels safer ;)
-		if(event == null)	return;		
+		if(event == null || !scene.isAgentRegistered(this))	return;		
 		if(updateGrabber(event)) return;		
 		
 		if(event instanceof Duoble<?>) {
 			if(event instanceof GenericClickEvent)
-				scene.enqueueEventTuple(new EventGrabberTuple(event, clickProfile().handle((Duoble<?>)event), deviceGrabber()));
+				scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), deviceGrabber()));
 			else
 				if(event instanceof GenericMotionEvent) {
 					((GenericMotionEvent)event).modulate(sens);
 					if (deviceGrabber() != null )
-						scene.enqueueEventTuple(new EventGrabberTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));
-					else
-						scene.enqueueEventTuple(new EventGrabberTuple(event, cameraProfile().handle((Duoble<?>)event), null));
+						scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));						
+					else 
+						scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoble<?>)event), null));			
 			}
 		}
 	}	

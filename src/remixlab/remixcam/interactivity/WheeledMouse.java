@@ -27,7 +27,6 @@ package remixlab.remixcam.interactivity;
 
 import remixlab.remixcam.core.AbstractScene;
 import remixlab.remixcam.core.Duoble;
-import remixlab.remixcam.core.EventGrabberTuple;
 import remixlab.remixcam.event.*;
 
 public class WheeledMouse extends Mouse {
@@ -76,24 +75,24 @@ public class WheeledMouse extends Mouse {
 	@Override
 	public void handle(GenericEvent event) {
 		//TODO warning: should be copy pasted from AbstractMotionDevice
-		if(event == null)	return;		
+		if(event == null || !scene.isAgentRegistered(this))	return;		
 		if( updateGrabber(event) ) return;		
 		if(event instanceof Duoble<?>) {
 			if(event instanceof GenericClickEvent)
-				scene.enqueueEventTuple(new EventGrabberTuple(event, clickProfile().handle((Duoble<?>)event), deviceGrabber()));
+				scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), deviceGrabber()));
 			else
 				if(event instanceof GenericMotionEvent) {
 					((GenericMotionEvent)event).modulate(sens);
 					if (deviceGrabber() != null )
 						if( event instanceof DOF1Event )
-							scene.enqueueEventTuple(new EventGrabberTuple(event, frameWheelProfile().handle((Duoble<?>)event), deviceGrabber()));
+							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameWheelProfile().handle((Duoble<?>)event), deviceGrabber()));
 						else
-							scene.enqueueEventTuple(new EventGrabberTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));
+							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));
 					else
 						if( event instanceof DOF1Event )
-							scene.enqueueEventTuple(new EventGrabberTuple(event, wheelProfile().handle((Duoble<?>)event), null));
+							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, wheelProfile().handle((Duoble<?>)event), null));
 						else
-							scene.enqueueEventTuple(new EventGrabberTuple(event, cameraProfile().handle((Duoble<?>)event), null));
+							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoble<?>)event), null));
 			}
 		}
 	}

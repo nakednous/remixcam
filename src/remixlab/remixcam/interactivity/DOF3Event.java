@@ -66,6 +66,10 @@ public class DOF3Event extends GenericDOF3Event implements Duoble<Constants.DOF_
 		super(prevEvent, x, y, z);
 		action = a;
 	}
+  
+  public DOF3Event(GenericDOF3Event prevEvent, float x, float y, float z) {
+		super(prevEvent, x, y, z);
+	}
 	
   protected DOF3Event(GenericDOF3Event other) {
 		super(other);

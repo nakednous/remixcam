@@ -63,6 +63,10 @@ public class DOF1Event extends GenericDOF1Event implements Duoble<Constants.DOF_
 		super(prevEvent, x);
 		action = a;
 	}
+	
+	public DOF1Event(DOF1Event prevEvent, float x) {
+		super(prevEvent, x);
+	}
 
 	public DOF1Event(DOF1Event prevEvent, float x, int modifiers, int button) {
 		super(prevEvent, x, modifiers, button);

@@ -57,7 +57,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
   //O B J E C T S
 	protected Renderable renderer;
 	protected Pinhole ph;
-	protected InteractiveFrame glIFrame;
+	//protected InteractiveFrame glIFrame;
 	protected boolean iFrameIsDrwn;
 	protected Trackable trck;
 	public boolean avatarIsInteractiveDrivableFrame;
@@ -91,7 +91,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	protected long animationPeriod;	
 	
   //D E V I C E S	  &   E V E N T S
-  protected HashMap<String, AbstractAgent> devices;
+  protected HashMap<String, AbstractAgent> agents;
 	//protected ArrayList<HIDevice> devices;
 	protected LinkedList<EventGrabberTuple> eventTupleQueue;
 	
@@ -149,7 +149,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		//msGrabberPool = new ArrayList<Grabbable>();
 		//devices
 		//TODO pending device instantiation here
-		devices = new HashMap<String, AbstractAgent>();
+		agents = new HashMap<String, AbstractAgent>();
 		//events
 		eventTupleQueue = new LinkedList<EventGrabberTuple>();
 		// <- 1
@@ -162,26 +162,11 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}
 	
 	/**
-	public InteractiveFrame aliveInteractiveFrame() {
-		if (deviceGrabber() != null) {
-			if (deviceGrabberIsAnIFrame) { //covers also the case when mouseGrabberIsADrivableFrame
-				return (InteractiveFrame) deviceGrabber();
-			} else
-			return null;
-		}
-		if (interactiveFrameIsDrawn()) {
-			return interactiveFrame();
-		}
-		return null;
-	}
-	*/
-	
-	/**
 	 * Returns an array of the camera profile objects that are currently
 	 * registered at the Scene.
 	 */
-	public AbstractAgent [] getDevices() {
-		return devices.values().toArray(new AbstractAgent[0]);
+	public AbstractAgent [] getAgents() {
+		return agents.values().toArray(new AbstractAgent[0]);
 	}
 	
 	/**
@@ -190,26 +175,26 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see #unregisterProfile(HIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void registerDevice(AbstractAgent device) {
-		if(!isDeviceRegistered(device))
-			devices.put(device.name(), device);
+	public void registerAgent(AbstractAgent agent) {
+		if(!isAgentRegistered(agent))
+			agents.put(agent.name(), agent);
 		else {
 			System.out.println("Nothing done. A device with the same name is already registered. Current profile names are:");
-			for (AbstractAgent dev : devices.values())
+			for (AbstractAgent dev : agents.values())
 				System.out.println(dev.name());
 		}
 	}
 	
-	public boolean isDeviceRegistered(AbstractAgent device) {
-		return devices.containsKey(device.name());
+	public boolean isAgentRegistered(AbstractAgent agent) {
+		return agents.containsKey(agent.name());
 	}
 	
-	public boolean isDeviceRegistered(String name) {
-		return devices.containsKey(name);
+	public boolean isAgentRegistered(String name) {
+		return agents.containsKey(name);
 	}
 	
-	public AbstractAgent getDevice(String name) {
-		return devices.get(name);
+	public AbstractAgent getAgent(String name) {
+		return agents.get(name);
 	}
 	
 	/**
@@ -218,12 +203,12 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see #registerProfile(HIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public AbstractAgent unregisterDevice(AbstractAgent device) {
-		return devices.remove(device.name());
+	public AbstractAgent unregisterAgent(AbstractAgent device) {
+		return agents.remove(device.name());
 	}
 
-	public AbstractAgent unregisterDevice(String name) {
-		return devices.remove(name);
+	public AbstractAgent unregisterAgent(String name) {
+		return agents.remove(name);
 	}
 	
 	/**
@@ -232,8 +217,8 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see #registerProfile(HIDevice)
 	 * @see #unregisterProfile(HIDevice)
 	 */
-	public void unregisterAllDevices() {
-		devices.clear();
+	public void unregisterAllAgent() {
+		agents.clear();
 	}
 	
 	protected void setRenderer(Renderable r) {
@@ -261,19 +246,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	public boolean isOffscreen() {
 		return offscreen;
 	}	
-	
-	/**
-	 * Sets the interactivity to the Scene {@link #interactiveFrame()} instance
-	 * according to {@code draw}
-	 */
-	public void setDrawInteractiveFrame(boolean draw) {
-		if (draw && (glIFrame == null))
-			return;
-		//TODO pending
-		//if (!draw && currentCameraProfile() instanceof ThirdPersonCameraProfile	&& interactiveFrame().equals(avatar()))// more natural than to bypass it
-			//return;
-		iFrameIsDrwn = draw;
-	}
 	
 	// E V E N T   HA N D L I N G
 	
@@ -343,7 +315,8 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			toggleCameraPathsAreDrawn();
 			break;
 		case FOCUS_INTERACTIVE_FRAME:
-			toggleDrawInteractiveFrame();
+			//TODO
+			//toggleDrawInteractiveFrame();
 			break;
 		case DRAW_FRAME_SELECTION_HINT:
 			toggleFrameSelectionHintIsDrawn();
@@ -481,17 +454,17 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			arpFlag = true;
 			timerFx.runOnce(1000);				
 			break;
+			//TODO
 		case CENTER_FRAME:
 			// TODO test 2d case
-			if (interactiveFrame() != null)
-				interactiveFrame().projectOnLine(pinhole().position(), pinhole().viewDirection());
+			//if (interactiveFrame() != null)	interactiveFrame().projectOnLine(pinhole().position(), pinhole().viewDirection());
 			break;
 		case CENTER_SCENE:
 			pinhole().centerScene();
 			break;
 		case ALIGN_FRAME:
-			if (interactiveFrame() != null)
-				interactiveFrame().alignWithFrame(pinhole().frame());
+		//TODO
+			//if (interactiveFrame() != null)	interactiveFrame().alignWithFrame(pinhole().frame());
 			break;
 		case ALIGN_CAMERA:
 			pinhole().frame().alignWithFrame(null, true);
@@ -599,25 +572,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	*/
 	
 	/**
-	 * Toggles the {@link #interactiveFrame()} interactivity on and off.
-	 */
-	public void toggleDrawInteractiveFrame() {
-		if (interactiveFrameIsDrawn())
-			setDrawInteractiveFrame(false);
-		else
-			setDrawInteractiveFrame(true);
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code setDrawInteractiveFrame(true)}.
-	 * 
-	 * @see #setDrawInteractiveFrame(boolean)
-	 */
-	public void setDrawInteractiveFrame() {
-		setDrawInteractiveFrame(true);
-	}
-	
-	/**
 	 * Returns the {@link PApplet#width} to {@link PApplet#height} aspect ratio of
 	 * the processing display window.
 	 */
@@ -708,7 +662,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		// 4a. Devices (external stuff -> Feedable)
 		
 		// /**
-		for (AbstractAgent device : devices.values())
+		for (AbstractAgent device : agents.values())
 			device.handle(device.feed());
 		
 		// 4b. low level events 
@@ -716,7 +670,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
     while( !eventTupleQueue.isEmpty() ) {
     	eventTuple = eventTupleQueue.remove();
     	if(!eventTuple.perform())
-    		pinhole().frame().performInteraction(eventTuple.event);
+    		pinhole().frame().performInteraction(eventTuple.event());
     }
     
     // 5. Grid and axis drawing
@@ -1122,9 +1076,9 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 */
 	public void enqueueEventTuple(EventGrabberTuple eventTuple) {
 		if(!eventTupleQueue.contains(eventTuple))
-			if( !eventTuple.event.isNull() )
+			if( !eventTuple.event().isNull() )
 				if( eventTuple instanceof Duoble ) {
-					if (((Duoble<?>)eventTuple.event).getAction() != null)
+					if (((Duoble<?>)eventTuple.event()).getAction() != null)
 						eventTupleQueue.add(eventTuple);
 				}
 				else
@@ -1969,15 +1923,76 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	
   //2. Associated objects
 	
+	//TODO study iFrame
+	
 	/**
 	 * Returns the InteractiveFrame associated to this Scene. It could be null if
 	 * there's no InteractiveFrame associated to this Scene.
 	 * 
 	 * @see #setInteractiveFrame(InteractiveFrame)
 	 */
+	/**
 	public InteractiveFrame interactiveFrame() {
 		return glIFrame;
 	}
+	*/
+	
+	/**
+	 * Sets the interactivity to the Scene {@link #interactiveFrame()} instance
+	 * according to {@code draw}
+	 */
+	/**
+	public void setDrawInteractiveFrame(boolean draw) {
+		if (draw && (glIFrame == null))
+			return;
+		//TODO pending
+		//if (!draw && currentCameraProfile() instanceof ThirdPersonCameraProfile	&& interactiveFrame().equals(avatar()))// more natural than to bypass it
+			//return;
+		iFrameIsDrwn = draw;
+	}
+	*/
+	
+	/**
+	 * Toggles the {@link #interactiveFrame()} interactivity on and off.
+	 */
+	/**
+	public void toggleDrawInteractiveFrame() {
+		if (interactiveFrameIsDrawn())
+			setDrawInteractiveFrame(false);
+		else
+			setDrawInteractiveFrame(true);
+	}
+	*/
+	
+	/**
+	 * Convenience function that simply calls {@code setDrawInteractiveFrame(true)}.
+	 * 
+	 * @see #setDrawInteractiveFrame(boolean)
+	 */
+	/**
+	public void setDrawInteractiveFrame() {
+		setDrawInteractiveFrame(true);
+	}
+	*/
+	
+	/**
+	 * Sets {@code frame} as the InteractiveFrame associated to this Scene. If
+	 * {@code frame} is instance of Trackable it is also automatically set as the
+	 * Scene {@link #avatar()} (by automatically calling {@code
+	 * setAvatar((Trackable) frame)}).
+	 * 
+	 * @see #interactiveFrame()
+	 * @see #setAvatar(Trackable)
+	 */
+	/**
+	public void setInteractiveFrame(InteractiveFrame frame) {
+		glIFrame = frame;		
+		if (glIFrame == null)
+			iFrameIsDrwn = false;
+		else if (glIFrame instanceof Trackable)
+			setAvatar((Trackable) glIFrame);
+	}
+	*/
 	
 	/**
 	 * Returns the avatar object to be tracked by the Camera when it
@@ -1995,6 +2010,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * 
 	 * @see #unsetAvatar()
 	 */
+	//TODO pending
 	public void setAvatar(Trackable t) {
 		trck = t;
 		avatarIsInteractiveAvatarFrame = false;
@@ -2002,13 +2018,11 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		if (avatar() instanceof InteractiveAvatarFrame) {
 			avatarIsInteractiveAvatarFrame = true;
 			avatarIsInteractiveDrivableFrame = true;
-			if (interactiveFrame() != null)
-				((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
+			//if (interactiveFrame() != null)	((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
 		} else if (avatar() instanceof InteractiveDrivableFrame) {
 			avatarIsInteractiveAvatarFrame = false;
 			avatarIsInteractiveDrivableFrame = true;
-			if (interactiveFrame() != null)
-				((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
+			//if (interactiveFrame() != null)	((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
 		}
 	}
 
@@ -2021,23 +2035,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		trck = null;
 		avatarIsInteractiveAvatarFrame = false;
 		avatarIsInteractiveDrivableFrame = false;
-	}
-
-	/**
-	 * Sets {@code frame} as the InteractiveFrame associated to this Scene. If
-	 * {@code frame} is instance of Trackable it is also automatically set as the
-	 * Scene {@link #avatar()} (by automatically calling {@code
-	 * setAvatar((Trackable) frame)}).
-	 * 
-	 * @see #interactiveFrame()
-	 * @see #setAvatar(Trackable)
-	 */
-	public void setInteractiveFrame(InteractiveFrame frame) {
-		glIFrame = frame;		
-		if (glIFrame == null)
-			iFrameIsDrwn = false;
-		else if (glIFrame instanceof Trackable)
-			setAvatar((Trackable) glIFrame);
 	}
 
 	/**
@@ -2084,7 +2081,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 */
 	public List<Grabbable> deviceGrabberPool() {
 		List<Grabbable> msGrabberPool = new ArrayList<Grabbable>();
-		for (AbstractAgent device : devices.values())
+		for (AbstractAgent device : agents.values())
 			for (Grabbable grabber : device.deviceGrabberPool())
 				if(!msGrabberPool.contains(grabber))
 					msGrabberPool.add(grabber);
@@ -2117,9 +2114,19 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * {@link #isInDeviceGrabberPool(Grabbable)} to know the current state of the MouseGrabber.
 	 */
 	public void addInDeviceGrabberPool(Grabbable deviceGrabber) {
-		for (AbstractAgent device : devices.values())
+		for (AbstractAgent device : agents.values())
 			if( !device.isInDeviceGrabberPool(deviceGrabber) )
 				device.addInDeviceGrabberPool(deviceGrabber);
+	}
+	
+	public void enforceGrabber(Grabbable deviceGrabber) {
+		for (AbstractAgent device : agents.values())
+			device.enforceGrabber(deviceGrabber);
+	}
+	
+	public void releaseGrabber() {
+		for (AbstractAgent device : agents.values())
+			device.unsetGrabber();
 	}
 
 	/**
@@ -2129,7 +2136,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * that is not in {@link #deviceGrabberPool()} has no effect.
 	 */
 	public void removeFromDeviceGrabberPool(Grabbable deviceGrabber) {
-		for (AbstractAgent device : devices.values())
+		for (AbstractAgent device : agents.values())
 			device.removeFromDeviceGrabberPool(deviceGrabber);
 	}
 
@@ -2141,7 +2148,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * than to remove each one independently.
 	 */
 	public void clearDeviceGrabberPool() {
-		for (AbstractAgent device : devices.values())
+		for (AbstractAgent device : agents.values())
 			device.clearDeviceGrabberPool();
 	}
 	

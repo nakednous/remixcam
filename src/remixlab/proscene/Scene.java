@@ -27,12 +27,7 @@ package remixlab.proscene;
 
 import remixlab.remixcam.core.*;
 import remixlab.remixcam.geom.*;
-import remixlab.remixcam.interactivity.ClickEvent;
-import remixlab.remixcam.interactivity.DOF1Event;
-import remixlab.remixcam.interactivity.DOF2Event;
-import remixlab.remixcam.interactivity.KeyboardEvent;
-import remixlab.remixcam.interactivity.Keyboard;
-import remixlab.remixcam.interactivity.WheeledMouse;
+import remixlab.remixcam.interactivity.*;
 import remixlab.remixcam.util.*;
 import remixlab.remixcam.renderer.*;
 //import remixlab.remixcam.shortcut.*;
@@ -137,6 +132,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		public ProsceneKeyboard(AbstractScene scn, String n) {
 			super(scn, n);
 			this.addInDeviceGrabberPool(scene);
+			this.enforceGrabber(scene);
 		}
 		
 		public void keyEvent(KeyEvent e) {
@@ -151,6 +147,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	//public class Mouse extends AbstractMouse {
 	public class ProsceneMouse extends WheeledMouse {
+	//public class ProsceneMouse extends Mouse {
 		DOF2Event event, prevEvent;
 		int counter = 0;
 		public ProsceneMouse(AbstractScene scn, String n) {
@@ -1760,8 +1757,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		else
 			ph = new ViewWindow(this);
 		setViewPort(pinhole());//calls showAll();
-				
-		setInteractiveFrame(null);
+		
+		//TODO
+		//setInteractiveFrame(null);
 		setAvatar(null);
 		
   	// This scene is offscreen if the provided renderer is
