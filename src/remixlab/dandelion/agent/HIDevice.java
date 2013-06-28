@@ -35,6 +35,7 @@ import remixlab.tersehandling.core.Grabbable;
 public class HIDevice extends AbstractMotionAgent implements Constants {
 	public HIDevice(AbstractScene scn, String n) {
 		super(scn, n);
+		setDefaultGrabber(scn.pinhole().frame());
 		camProfile = new DOF6Profile();
 		profile = new DOF6Profile();
 		clickProfile = new ClickProfile();

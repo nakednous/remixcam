@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.tersehandling.util;
+package remixlab.dandelion.util;
 
 public abstract class AbstractTimerJob implements Taskable {
 	protected Timable tmr;

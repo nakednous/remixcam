@@ -31,8 +31,8 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.dandelion.geom.*;
+import remixlab.dandelion.util.AbstractTimerJob;
 import remixlab.tersehandling.core.Copyable;
-import remixlab.tersehandling.util.AbstractTimerJob;
 
 /**
  * A keyFrame Catmull-Rom Frame interpolator.

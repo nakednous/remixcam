@@ -35,6 +35,7 @@ import remixlab.tersehandling.core.Grabbable;
 public class Mouse extends AbstractMotionAgent implements Constants {
 	public Mouse(AbstractScene scn, String n) {
 		super(scn, n);
+		setDefaultGrabber(scn.pinhole().frame());
 		camProfile = new DOF2Profile();
 		profile = new DOF2Profile();
 		clickProfile = new ClickProfile();

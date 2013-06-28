@@ -28,12 +28,14 @@ package remixlab.dandelion.agent;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.core.Constants.DOF_0Action;
 import remixlab.dandelion.event.KeyboardEvent;
+import remixlab.dandelion.profile.KeyboardProfile;
 import remixlab.duoable.agent.AbstractKeyboardAgent;
 
 public class Keyboard extends AbstractKeyboardAgent {
 	public Keyboard(AbstractScene scn, String n) {
 		super(scn, n);
 		profile = new KeyboardProfile();
+		setDefaultGrabber(scn);
 
 		// D e f a u l t s h o r t c u t s
 		keyboardProfile().setShortcut('a', DOF_0Action.DRAW_AXIS);

@@ -22,22 +22,18 @@ public abstract class TAbstractScene {
 	}
 	
 	// to be called at the end of the main drawing loop
-	public void mainLoop() {
+	public void terseHandling() {
 		// 1. Agents
 		for (AbstractAgent device : agents.values())
 			device.handle(device.feed());
 		
 		// 2. Low level events 
-		EventGrabberTuple eventTuple;	
-    while( !eventTupleQueue.isEmpty() ) {
-    	eventTuple = eventTupleQueue.remove();
-    	if(!eventTuple.perform())
-    		defaultPerformer(eventTuple.event());
-    }
+		while( !eventTupleQueue.isEmpty() )
+    	eventTupleQueue.remove().perform();
 	}
 	
 	// call when grabber is null
-	public abstract void defaultPerformer(GenericEvent e);
+	//public abstract void defaultPerformer(GenericEvent e);
 	
 	/**
 	 * Returns an array of the camera profile objects that are currently

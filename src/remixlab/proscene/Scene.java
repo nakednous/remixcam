@@ -34,8 +34,8 @@ import remixlab.dandelion.event.DOF2Event;
 import remixlab.dandelion.event.KeyboardEvent;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
+import remixlab.dandelion.util.*;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.util.*;
 //import remixlab.remixcam.shortcut.*;
 
 /**
@@ -137,8 +137,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public class ProsceneKeyboard extends Keyboard {
 		public ProsceneKeyboard(AbstractScene scn, String n) {
 			super(scn, n);
-			this.addInDeviceGrabberPool(scn);
-			this.enforceGrabber(scn);
+			//this.addInDeviceGrabberPool(scn);
+			//this.enforceGrabber(scn);
 		}
 		
 		public void keyEvent(KeyEvent e) {

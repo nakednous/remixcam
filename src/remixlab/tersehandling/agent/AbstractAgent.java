@@ -69,7 +69,9 @@ public abstract class AbstractAgent {
 	protected TAbstractScene scene;
 	protected String nm;
 	protected List<Grabbable> grabbers;
-	protected Grabbable deviceGrbbr;
+	protected Grabbable grabber;
+	protected Grabbable defaultGrabber;
+	
 	protected boolean enforcedGrabber;
 	//public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
 	//protected boolean deviceTrckn;
@@ -106,6 +108,14 @@ public abstract class AbstractAgent {
 		return false;
 	}
 	
+	public void setDefaultGrabber(Grabbable g) {
+		defaultGrabber = g;
+	}
+	
+	public Grabbable defaultGrabber() {
+		return defaultGrabber;
+	}
+	
 	public void unsetGrabber() {
 		setDeviceGrabber(null);
 		enforcedGrabber = false;
@@ -118,7 +128,7 @@ public abstract class AbstractAgent {
 	//just enqueue grabber
 	public void handle(GenericEvent event) {
 		if(event == null || !scene.isAgentRegistered(this)) return;
-		scene.enqueueEventTuple(new EventGrabberTuple(event, deviceGrabber()));
+		scene.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
 	}
 	
 	public GenericEvent feed() {
@@ -181,7 +191,14 @@ public abstract class AbstractAgent {
 	 * {@link #pinhole()} or {@link #interactiveFrame()}).
 	 */
 	public Grabbable deviceGrabber() {
-		return deviceGrbbr;
+		return grabber;
+	}
+	
+	public Grabbable grabber() {
+		if (deviceGrabber() != null)
+			return deviceGrabber();
+		else
+			return defaultGrabber();
 	}
 	
 	/**
@@ -229,14 +246,14 @@ public abstract class AbstractAgent {
   	if( this.isGrabberEnforced() ) //already enforced, do nothing
   		return false;
   	if( g == null ) {
-			deviceGrbbr = null;
+			grabber = null;
 			enforcedGrabber = true;
 			return true;
   	}
   	//TODO check if would be good idea to add it here
   	// for instance using addInDeviceGrabberPool which could be overriden in a derived class ;)
   	if( isInDeviceGrabberPool(g) ) {
-  		deviceGrbbr = g;
+  		grabber = g;
   		enforcedGrabber = true;
   		return true;
 		}
@@ -246,10 +263,10 @@ public abstract class AbstractAgent {
 	
 	protected void setDeviceGrabber(Grabbable deviceGrabber) {
 		if( deviceGrabber == null )
-			deviceGrbbr = null;
+			grabber = null;
 		else
 			if( isInDeviceGrabberPool(deviceGrabber) )
-				deviceGrbbr = deviceGrabber;
+				grabber = deviceGrabber;
 
 		//deviceGrabberIsAnIFrame = deviceGrabber instanceof InteractiveFrame;
 	}

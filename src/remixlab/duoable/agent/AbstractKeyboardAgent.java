@@ -50,12 +50,12 @@ public class AbstractKeyboardAgent extends AbstractActionableAgent {
 	public void handle(GenericEvent event) {
 		if(event == null || !scene.isAgentRegistered(this)) return;
 		if(event instanceof Duoble<?>)
-			scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handle((Duoble<?>)event), deviceGrabber()));
+			scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handle((Duoble<?>)event), grabber()));
 	}
 	
 	public void handleKey(GenericEvent event) {
 		if(event == null || !scene.isAgentRegistered(this)) return;	
 		if(event instanceof KeyDuoble<?>)
-			scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handleKey((KeyDuoble<?>)event), deviceGrabber()));
+			scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handleKey((KeyDuoble<?>)event), grabber()));
 	}
 }

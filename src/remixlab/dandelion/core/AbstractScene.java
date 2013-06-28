@@ -33,11 +33,11 @@ import remixlab.dandelion.event.ClickEvent;
 import remixlab.dandelion.event.KeyboardEvent;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
+import remixlab.dandelion.util.*;
 import remixlab.duoable.profile.Actionable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.TAbstractScene;
 import remixlab.tersehandling.event.*;
-import remixlab.tersehandling.util.*;
 
 public abstract class AbstractScene extends TAbstractScene implements Constants, Grabbable {	
 	/**
@@ -559,37 +559,34 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	 * @see #addDrawHandler(Object, String)
 	 * @see #addAnimationHandler(Object, String)
 	 */
-	public void postDraw() {		
-		// 6. Display visual hints
-		displayVisualHints(); // abstract
-		
+	public void postDraw() {	
 		//updateFrameRate();
 		
-		// -1 ?
+		// 1 ?
 		updateCursor();
-		
-	  // 0. Alternative use only
-		proscenium();
 			
-		// 1. timers
+		// 2. timers
 		if (timersAreSingleThreaded())
 			handleTimers();
-		
-		// 2. Animation
-		if( animationIsStarted() )
-			performAnimation(); //abstract	
-		
-		// 3. Draw external registered method (only in java sub-classes)
-		invokeRegisteredMethod(); // abstract
 		
 		//4 INTERACTIVITY
 	  // 4a. HIDevices
 		//updateGrabber();
 		
-		// 4a. Devices (external stuff -> Feedable)
-		mainLoop();
+		// 3. Agents
+		terseHandling();
+		
+	  // 4. Alternative use only
+		proscenium();
+		
+		// 5. Animation
+		if( animationIsStarted() )
+			performAnimation(); //abstract	
+		
+		// 6. Draw external registered method (only in java sub-classes)
+		invokeRegisteredMethod(); // abstract
     
-    // 5. Grid and axis drawing
+    // 7. Grid and axis drawing
  		if (gridIsDrawn()) {
  			if(gridIsDotted())
  				drawDottedGrid(pinhole().sceneRadius());
@@ -598,12 +595,17 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
  		}
  		if (axisIsDrawn())
  			drawAxis(pinhole().sceneRadius());		
+ 		
+    // 8. Display visual hints
+ 		displayVisualHints(); // abstract
 	}
 	
+	/**
 	@Override
 	public void defaultPerformer(GenericEvent event) {
 		pinhole().frame().performInteraction(event);
 	}
+	// */
 	
 	protected abstract void updateCursor();
 	

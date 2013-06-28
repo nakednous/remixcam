@@ -74,14 +74,14 @@ public abstract class AbstractMotionAgent extends AbstractActionableAgent {
 		if(event == null || !scene.isAgentRegistered(this))	return;		
 		if(event instanceof Duoble<?>) {
 			if(event instanceof GenericClickEvent)
-				scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), deviceGrabber()));
+				scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), grabber()));
 			else
 				if(event instanceof GenericMotionEvent) {
 					((GenericMotionEvent)event).modulate(sens);
 					if (deviceGrabber() != null )
 						scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));						
 					else 
-						scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoble<?>)event), null));			
+						scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoble<?>)event), defaultGrabber()));			
 			}
 		}
 	}	

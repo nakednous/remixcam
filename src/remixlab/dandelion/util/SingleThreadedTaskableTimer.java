@@ -23,31 +23,37 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.dandelion.agent;
+package remixlab.dandelion.util;
 
-import java.util.Map;
+import remixlab.dandelion.core.AbstractScene;
 
-import remixlab.dandelion.core.*;
-import remixlab.duoable.profile.AbstractKeyboardProfile;
-import remixlab.duoable.profile.Bindings;
-import remixlab.tersehandling.shortcut.*;
-
-public class KeyboardProfile extends AbstractKeyboardProfile<Constants.DOF_0Action> implements Constants {
-	public KeyboardProfile() {
-		super();
+public class SingleThreadedTaskableTimer extends SingleThreadedTimer {
+	Taskable caller;
+	
+	public SingleThreadedTaskableTimer(AbstractScene scn, Taskable t) {
+		super(scn);
+		caller = t;
 	}
 	
-	protected KeyboardProfile(KeyboardProfile other) {
-		bindings = new Bindings<KeyboardShortcut, DOF_0Action>();    
-    for (Map.Entry<KeyboardShortcut, DOF_0Action> entry : other.bindings.map().entrySet()) {
-    	KeyboardShortcut key = entry.getKey().get();
-    	DOF_0Action value = entry.getValue();
-    	bindings.setBinding(key, value);
-    }
+	public Taskable timerJob() {
+		return caller;
 	}
 	
-  @Override
-	public KeyboardProfile get() {
-		return new KeyboardProfile(this);
+	@Override
+	public void cancel() {
+		super.cancel();
+		scene.unregisterJob(this);
 	}
+	
+	public boolean execute() {
+		boolean result = isTrigggered();
+		
+		if(result) {
+			caller.execute();
+			if(runOnlyOnce)
+				inactivate();		
+		}
+		
+		return result;
+	}	
 }

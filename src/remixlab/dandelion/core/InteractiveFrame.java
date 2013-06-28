@@ -31,12 +31,12 @@ import remixlab.dandelion.event.DOF2Event;
 import remixlab.dandelion.event.DOF3Event;
 import remixlab.dandelion.event.DOF6Event;
 import remixlab.dandelion.geom.*;
+import remixlab.dandelion.util.AbstractTimerJob;
 import remixlab.duoable.profile.Actionable;
 import remixlab.duoable.profile.Duoble;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.event.*;
-import remixlab.tersehandling.util.AbstractTimerJob;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;

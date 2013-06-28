@@ -63,6 +63,6 @@ public abstract class AbstractActionableAgent extends AbstractAgent {
 		//overkill but feels safer ;)
 		if(event == null || !scene.isAgentRegistered(this))	return;		
 		if(event instanceof Duoble<?>)
-			scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, profile().handle((Duoble<?>)event), deviceGrabber()));
+			scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, profile().handle((Duoble<?>)event), grabber()));
 	}
 }
