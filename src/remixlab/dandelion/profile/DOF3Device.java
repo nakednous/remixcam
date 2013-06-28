@@ -28,7 +28,7 @@ package remixlab.dandelion.profile;
 import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.core.InteractiveCameraFrame;
 import remixlab.dandelion.core.InteractiveFrame;
-import remixlab.duoableprofiles.agent.AbstractMotionAgent;
+import remixlab.duoable.agent.AbstractMotionAgent;
 import remixlab.tersehandling.core.Grabbable;
 
 public class DOF3Device extends AbstractMotionAgent {

@@ -28,11 +28,11 @@ package remixlab.dandelion.profile;
 import java.util.Map;
 
 import remixlab.dandelion.core.*;
-import remixlab.duoableprofiles.core.AbstractClickProfile;
-import remixlab.duoableprofiles.core.Bindings;
+import remixlab.duoable.profile.AbstractClickProfile;
+import remixlab.duoable.profile.Bindings;
 import remixlab.tersehandling.shortcut.*;
 
-public class ClickProfile extends AbstractClickProfile<Constants.DOF_0Action> {
+public class ClickProfile extends AbstractClickProfile<Constants.DOF_0Action> implements Constants {
 	public ClickProfile() {
 		super();
 	}

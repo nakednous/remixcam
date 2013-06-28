@@ -26,8 +26,8 @@
 package remixlab.dandelion.event;
 
 import remixlab.dandelion.core.Constants;
-import remixlab.duoableprofiles.core.Actionable;
-import remixlab.duoableprofiles.core.KeyDuoble;
+import remixlab.duoable.profile.Actionable;
+import remixlab.duoable.profile.KeyDuoble;
 import remixlab.tersehandling.event.GenericKeyboardEvent;
 
 /**
@@ -37,7 +37,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 //TODO implement equals and hash including the action
 //see commented lines in GenericEvent
-public class KeyboardEvent extends GenericKeyboardEvent implements KeyDuoble<Constants.DOF_0Action> {
+public class KeyboardEvent extends GenericKeyboardEvent implements Constants, KeyDuoble<Constants.DOF_0Action> {
 	Constants.DOF_0Action action;
 	
 	public KeyboardEvent(GenericKeyboardEvent gEvent) {

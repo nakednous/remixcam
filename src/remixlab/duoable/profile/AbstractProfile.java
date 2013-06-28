@@ -23,45 +23,59 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.dandelion.profile;
+package remixlab.duoable.profile;
 
-import java.util.Map;
+//import remixlab.dandelion.core.Constants;
+import remixlab.tersehandling.core.Copyable;
+import remixlab.tersehandling.core.TConstants;
+import remixlab.tersehandling.shortcut.*;
 
-import remixlab.dandelion.core.*;
-import remixlab.duoable.profile.AbstractMotionProfile;
-import remixlab.duoable.profile.Bindings;
-import remixlab.tersehandling.shortcut.ButtonShortcut;
-
-public class DOF2Profile extends AbstractMotionProfile<Constants.DOF_2Action> implements Constants {
-	public DOF2Profile() {
-		super();
-	}
-	
-	protected DOF2Profile(DOF2Profile other) {
-		bindings = new Bindings<ButtonShortcut, DOF_2Action>();    
-    for (Map.Entry<ButtonShortcut, DOF_2Action> entry : other.bindings.map().entrySet()) {
-    	ButtonShortcut key = entry.getKey().get();
-    	DOF_2Action value = entry.getValue();
-    	bindings.setBinding(key, value);
-    }
-	}
-	
-  @Override
-	public DOF2Profile get() {
-		return new DOF2Profile(this);
-	}
-  
-  /**
-	@Override
-	public void handle(DLEvent<DOF_2Action> e) {
-		//super.handle((DLKeyEvent)e);
-		super.handle(e);
-	}
-	*/
-  
+//TODO many constants belong to terse handling
+public abstract class AbstractProfile<K extends Shortcut, A extends Actionable<?>> implements TConstants, Copyable {
 	/**
-	public DOF2Profile(AbstractScene scn, String n) {
-		super(scn, n);
-	}
+	protected AbstractScene scene;
+	protected String nm;
 	*/
+	protected Bindings<K, A> bindings;
+	
+	public AbstractProfile() {
+		bindings = new Bindings<K, A>();
+	}
+	
+	/**
+	public void handle(DLEvent<A> e) {
+		if(e != null)
+			e.setAction(binding(e.shortcut()));
+	}
+	// */
+	
+	/**
+	//TODO testing
+	public Duoble<A> handle(Duoble<A> event) {
+		if(event != null)
+			event.setAction(binding(event.shortcut()));
+		return event;
+	}	
+	// */
+	
+	public Actionable<?> handle(Duoble<?> event) {
+		if(event != null)
+			return binding(event.shortcut());
+		return null;
+	}	
+
+	public String bindingsDescription() {
+		return bindings.description();
+	}
+	
+	/**
+	 * Removes all camera keyboard shortcuts.
+	 */
+	public void removeAllBindings() {
+		bindings.removeAllBindings();
+	}
+	
+	public Actionable<?> binding(Shortcut k) {
+  	return bindings.binding(k);
+  }
 }

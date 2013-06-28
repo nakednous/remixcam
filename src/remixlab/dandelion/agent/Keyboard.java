@@ -28,7 +28,7 @@ package remixlab.dandelion.agent;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.core.Constants.DOF_0Action;
 import remixlab.dandelion.event.KeyboardEvent;
-import remixlab.duoableprofiles.agent.AbstractKeyboardAgent;
+import remixlab.duoable.agent.AbstractKeyboardAgent;
 
 public class Keyboard extends AbstractKeyboardAgent {
 	public Keyboard(AbstractScene scn, String n) {

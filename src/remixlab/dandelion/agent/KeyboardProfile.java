@@ -28,8 +28,8 @@ package remixlab.dandelion.agent;
 import java.util.Map;
 
 import remixlab.dandelion.core.*;
-import remixlab.duoableprofiles.core.AbstractKeyboardProfile;
-import remixlab.duoableprofiles.core.Bindings;
+import remixlab.duoable.profile.AbstractKeyboardProfile;
+import remixlab.duoable.profile.Bindings;
 import remixlab.tersehandling.shortcut.*;
 
 public class KeyboardProfile extends AbstractKeyboardProfile<Constants.DOF_0Action> implements Constants {

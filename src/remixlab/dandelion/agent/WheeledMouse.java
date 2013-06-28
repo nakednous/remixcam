@@ -28,7 +28,7 @@ package remixlab.dandelion.agent;
 import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.event.DOF1Event;
 import remixlab.dandelion.profile.DOF1Profile;
-import remixlab.duoableprofiles.core.Duoble;
+import remixlab.duoable.profile.Duoble;
 import remixlab.tersehandling.event.*;
 
 public class WheeledMouse extends Mouse {

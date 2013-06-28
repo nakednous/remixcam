@@ -23,18 +23,18 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.duoableprofiles.agent;
+package remixlab.duoable.agent;
 
-import remixlab.dandelion.core.AbstractScene;
-import remixlab.duoableprofiles.core.AbstractKeyboardProfile;
-import remixlab.duoableprofiles.core.Duoble;
-import remixlab.duoableprofiles.core.KeyDuoble;
+import remixlab.duoable.profile.AbstractKeyboardProfile;
+import remixlab.duoable.profile.Duoble;
+import remixlab.duoable.profile.KeyDuoble;
+import remixlab.tersehandling.core.TAbstractScene;
 import remixlab.tersehandling.event.GenericEvent;
 
 public class AbstractKeyboardAgent extends AbstractActionableAgent {
 	//protected AbstractKeyboardProfile<?> profile;
 	
-	public AbstractKeyboardAgent(AbstractScene scn, String n) {
+	public AbstractKeyboardAgent(TAbstractScene scn, String n) {
 		super(scn, n);
 	}
 	

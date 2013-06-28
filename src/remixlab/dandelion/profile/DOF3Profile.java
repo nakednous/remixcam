@@ -28,11 +28,11 @@ package remixlab.dandelion.profile;
 import java.util.Map;
 
 import remixlab.dandelion.core.*;
-import remixlab.duoableprofiles.core.AbstractMotionProfile;
-import remixlab.duoableprofiles.core.Bindings;
+import remixlab.duoable.profile.AbstractMotionProfile;
+import remixlab.duoable.profile.Bindings;
 import remixlab.tersehandling.shortcut.ButtonShortcut;
 
-public class DOF3Profile extends AbstractMotionProfile<Constants.DOF_3Action> {
+public class DOF3Profile extends AbstractMotionProfile<Constants.DOF_3Action> implements Constants {
 	public DOF3Profile() {
 		super();
 	}

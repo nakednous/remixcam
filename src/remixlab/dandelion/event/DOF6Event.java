@@ -26,8 +26,8 @@
 package remixlab.dandelion.event;
 
 import remixlab.dandelion.core.Constants;
-import remixlab.duoableprofiles.core.Actionable;
-import remixlab.duoableprofiles.core.Duoble;
+import remixlab.duoable.profile.Actionable;
+import remixlab.duoable.profile.Duoble;
 import remixlab.tersehandling.event.GenericDOF6Event;
 
 /**
@@ -37,7 +37,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 //TODO implement equals and hash including the action
 //see commented lines in GenericEvent
-public class DOF6Event extends GenericDOF6Event implements Duoble<Constants.DOF_6Action> {
+public class DOF6Event extends GenericDOF6Event implements Constants, Duoble<Constants.DOF_6Action> {
 	DOF_6Action action;
 	
 	public DOF6Event(float x, float y, float z, float rx, float ry, float rz,	int modifiers, int button) {

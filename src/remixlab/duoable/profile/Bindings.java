@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.duoableprofiles.core;
+package remixlab.duoable.profile;
 
 import java.util.HashMap;
 import java.util.Map.Entry;

@@ -28,14 +28,11 @@ package remixlab.tersehandling.event;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.dandelion.core.Constants;
-//import remixlab.dandelion.core.*;
 import remixlab.tersehandling.core.Copyable;
-//import remixlab.duoableprofiles.core.Actionable;
+import remixlab.tersehandling.core.TConstants;
 import remixlab.tersehandling.shortcut.Shortcut;
 
-//public class GenericEvent<A extends Actionable<?>> implements Constants, Copyable {
-public class GenericEvent implements Constants, Copyable {
+public class GenericEvent implements TConstants, Copyable {
 	//TODO fix modifiers!
 	@Override
 	public int hashCode() {

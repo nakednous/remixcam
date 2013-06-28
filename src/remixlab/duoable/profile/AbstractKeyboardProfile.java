@@ -23,10 +23,9 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.duoableprofiles.core;
+package remixlab.duoable.profile;
 
 import remixlab.tersehandling.event.GenericKeyboardEvent;
-//import remixlab.dandelion.event.KeyboardEvent;
 import remixlab.tersehandling.shortcut.KeyboardShortcut;
 
 public abstract class AbstractKeyboardProfile<A extends Actionable<?>>  extends AbstractProfile<KeyboardShortcut, A> {

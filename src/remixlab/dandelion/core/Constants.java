@@ -25,10 +25,11 @@
 
 package remixlab.dandelion.core;
 
-import remixlab.duoableprofiles.core.Actionable;
+import remixlab.duoable.profile.Actionable;
+import remixlab.tersehandling.core.TConstants;
 
 
-public interface Constants {	
+public interface Constants extends TConstants {	
 	/**
    * PI is a mathematical constant with the value 3.14159265358979323846.
    * It is the ratio of the circumference of a circle to its diameter.
@@ -71,30 +72,6 @@ public interface Constants {
    * @see #QUARTER_PI
    */
   static final float TWO_PI     = PI * 2.0f;  
-  
-  //modifier keys
-  static public final int NOMODIFIER_MASK    = 0;
-  static public final int SHIFT              = 1 << 0;
-  static public final int CTRL               = 1 << 1;
-  static public final int META               = 1 << 2;
-  static public final int ALT                = 1 << 3;
-  static public final int ALT_GRAPH          = 1 << 4;
-  
-  static public final int SHIFT_DOWN         = 64;
-  static public final int CTRL_DOWN          = 128;
-  static public final int META_DOWN          = 256;
-  static public final int ALT_DOWN           = 512;
-  static public final int ALT_GRAPH_DOWN     = 8192;
-  
-  static final int CENTER = 3;
-  
-  //Arrows and Buttons
-  static final int NOBUTTON	= 0;
-  
-  static final int LEFT  = 37;
-  static final int UP    = 38;
-  static final int RIGHT = 39;
-  static final int DOWN  = 40; 
   
   //Actions
   public enum DLAction {

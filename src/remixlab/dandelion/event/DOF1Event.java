@@ -31,11 +31,11 @@ package remixlab.dandelion.event;
 //TODO implement equals and hash including the action
 //see commented lines in GenericEvent
 import remixlab.dandelion.core.Constants;
-import remixlab.duoableprofiles.core.Actionable;
-import remixlab.duoableprofiles.core.Duoble;
+import remixlab.duoable.profile.Actionable;
+import remixlab.duoable.profile.Duoble;
 import remixlab.tersehandling.event.GenericDOF1Event;
 ///**
-public class DOF1Event extends GenericDOF1Event implements Duoble<Constants.DOF_1Action> {
+public class DOF1Event extends GenericDOF1Event implements Constants, Duoble<Constants.DOF_1Action> {
 	DOF_1Action action;
 	
 	public DOF1Event(GenericDOF1Event gEvent) {

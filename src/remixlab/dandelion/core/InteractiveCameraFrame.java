@@ -30,7 +30,7 @@ import remixlab.dandelion.event.DOF2Event;
 import remixlab.dandelion.event.DOF3Event;
 import remixlab.dandelion.event.DOF6Event;
 import remixlab.dandelion.geom.*;
-import remixlab.duoableprofiles.core.Actionable;
+import remixlab.duoable.profile.Actionable;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.event.*;
 

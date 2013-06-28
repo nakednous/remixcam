@@ -1,12 +1,12 @@
-package remixlab.duoableprofiles.agent;
+package remixlab.duoable.agent;
 
-import remixlab.dandelion.core.AbstractScene;
-import remixlab.duoableprofiles.core.AbstractProfile;
-import remixlab.duoableprofiles.core.Actionable;
-import remixlab.duoableprofiles.core.Duoble;
+import remixlab.duoable.profile.AbstractProfile;
+import remixlab.duoable.profile.Actionable;
+import remixlab.duoable.profile.Duoble;
 import remixlab.tersehandling.agent.AbstractAgent;
 import remixlab.tersehandling.core.EventGrabberTuple;
 import remixlab.tersehandling.core.Grabbable;
+import remixlab.tersehandling.core.TAbstractScene;
 import remixlab.tersehandling.event.GenericEvent;
 
 public abstract class AbstractActionableAgent extends AbstractAgent {
@@ -28,7 +28,7 @@ public abstract class AbstractActionableAgent extends AbstractAgent {
 	
 	protected AbstractProfile<?,?> profile;
 	
-	public AbstractActionableAgent(AbstractScene scn, String n) {
+	public AbstractActionableAgent(TAbstractScene scn, String n) {
 		super(scn, n);
 	}
 

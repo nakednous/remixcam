@@ -28,13 +28,10 @@ package remixlab.tersehandling.agent;
 import java.util.ArrayList;
 import java.util.List;
 
-import remixlab.dandelion.core.AbstractScene;
 import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.event.*;
 
-public abstract class AbstractAgent {
-	protected boolean enforcedGrabber;
-	
+public abstract class AbstractAgent {	
 	/**
 	protected Object handlerObject;	
 	protected String handlerMethodName;
@@ -67,23 +64,17 @@ public abstract class AbstractAgent {
 	public void removeHandler() {
 		AbstractScene.showMissingImplementationWarning("removeHandler");
 	}
-	*/	
+	*/		
 	
-	/**
-  //M o u s e G r a b b e r
-	protected List<Grabbable> msGrabberPool;
-	protected Grabbable deviceGrbbr;
-	protected Actionable<?> lastDeviceGrbbrAction;
-	public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
-	protected boolean deviceTrckn;
-	*/
-	
-	protected AbstractScene scene;
+	protected TAbstractScene scene;
 	protected String nm;
 	protected List<Grabbable> grabbers;
 	protected Grabbable deviceGrbbr;
+	protected boolean enforcedGrabber;
+	//public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
+	//protected boolean deviceTrckn;
 	
-	public AbstractAgent(AbstractScene scn, String n) {
+	public AbstractAgent(TAbstractScene scn, String n) {
 		scene = scn;
 		nm = n;
 		grabbers = new ArrayList<Grabbable>();

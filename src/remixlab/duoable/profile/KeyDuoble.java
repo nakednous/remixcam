@@ -23,28 +23,10 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.duoableprofiles.core;
+package remixlab.duoable.profile;
 
-//import remixlab.remixcam.core.Constants.DLAction;
+import remixlab.tersehandling.shortcut.KeyboardShortcut;
 
-/**
-public interface Actionable {
-	DLAction action();
-	String description();
-	public boolean is2D();
-	public int dofs();
-}
-*/
-
-//public interface Actionable <A extends DandelionActionable> {
-public interface Actionable<E extends Enum<E>> {
-	//A action();
-	E action();
-	String description();
-	public boolean is2D();
-	public int dofs();
-	//public boolean selectionMode();
-	//E defaultAction();
-	//E selectionAction();
-	//E deselectionAction();
+public interface KeyDuoble<A extends Actionable<?>> extends Duoble<A> {
+	public KeyboardShortcut keyShortcut();
 }

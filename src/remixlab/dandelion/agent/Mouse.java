@@ -29,7 +29,7 @@ import remixlab.dandelion.core.*;
 import remixlab.dandelion.event.DOF2Event;
 import remixlab.dandelion.profile.ClickProfile;
 import remixlab.dandelion.profile.DOF2Profile;
-import remixlab.duoableprofiles.agent.AbstractMotionAgent;
+import remixlab.duoable.agent.AbstractMotionAgent;
 import remixlab.tersehandling.core.Grabbable;
 
 public class Mouse extends AbstractMotionAgent implements Constants {

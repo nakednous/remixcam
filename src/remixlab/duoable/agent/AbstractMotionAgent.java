@@ -23,12 +23,12 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.duoableprofiles.agent;
+package remixlab.duoable.agent;
 
-import remixlab.dandelion.core.AbstractScene;
-import remixlab.duoableprofiles.core.AbstractClickProfile;
-import remixlab.duoableprofiles.core.AbstractMotionProfile;
-import remixlab.duoableprofiles.core.Duoble;
+import remixlab.duoable.profile.AbstractClickProfile;
+import remixlab.duoable.profile.AbstractMotionProfile;
+import remixlab.duoable.profile.Duoble;
+import remixlab.tersehandling.core.TAbstractScene;
 import remixlab.tersehandling.event.*;
 
 public abstract class AbstractMotionAgent extends AbstractActionableAgent {
@@ -36,7 +36,7 @@ public abstract class AbstractMotionAgent extends AbstractActionableAgent {
 	protected AbstractClickProfile<?> clickProfile;
 	protected float[] sens;
 	
-	public AbstractMotionAgent(AbstractScene scn, String n) {
+	public AbstractMotionAgent(TAbstractScene scn, String n) {
 		super(scn, n);	
 	}
 	

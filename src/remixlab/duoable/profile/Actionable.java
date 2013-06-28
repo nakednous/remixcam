@@ -23,58 +23,16 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.duoableprofiles.core;
+package remixlab.duoable.profile;
 
-import remixlab.dandelion.core.Constants;
-import remixlab.tersehandling.core.Copyable;
-import remixlab.tersehandling.shortcut.*;
-
-//TODO many constants belong to terse handling
-public abstract class AbstractProfile<K extends Shortcut, A extends Actionable<?>> implements Constants, Copyable {
-	/**
-	protected AbstractScene scene;
-	protected String nm;
-	*/
-	protected Bindings<K, A> bindings;
-	
-	public AbstractProfile() {
-		bindings = new Bindings<K, A>();
-	}
-	
-	/**
-	public void handle(DLEvent<A> e) {
-		if(e != null)
-			e.setAction(binding(e.shortcut()));
-	}
-	// */
-	
-	/**
-	//TODO testing
-	public Duoble<A> handle(Duoble<A> event) {
-		if(event != null)
-			event.setAction(binding(event.shortcut()));
-		return event;
-	}	
-	// */
-	
-	public Actionable<?> handle(Duoble<?> event) {
-		if(event != null)
-			return binding(event.shortcut());
-		return null;
-	}	
-
-	public String bindingsDescription() {
-		return bindings.description();
-	}
-	
-	/**
-	 * Removes all camera keyboard shortcuts.
-	 */
-	public void removeAllBindings() {
-		bindings.removeAllBindings();
-	}
-	
-	public Actionable<?> binding(Shortcut k) {
-  	return bindings.binding(k);
-  }
+public interface Actionable<E extends Enum<E>> {
+	//A action();
+	E action();
+	String description();
+	public boolean is2D();
+	public int dofs();
+	//public boolean selectionMode();
+	//E defaultAction();
+	//E selectionAction();
+	//E deselectionAction();
 }
