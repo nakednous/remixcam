@@ -79,7 +79,7 @@ public class ViewWindow extends Pinhole implements Copyable {
 		viewMat.mat[10] = 1.0f;
 		viewMat.mat[11] = 0.0f;
 
-		DLVector t = q.inverseRotate(frame().position());
+		Vec t = q.inverseRotate(frame().position());
 
 		viewMat.mat[12] = -t.vec[0];
 		viewMat.mat[13] = -t.vec[1];
@@ -105,7 +105,7 @@ public class ViewWindow extends Pinhole implements Copyable {
 			target = new float[2];
 		}
 		
-		DLVector vec = frame().magnitude();
+		Vec vec = frame().magnitude();
 		target[0] = ( vec.x() * this.screenWidth() )  / 2;
 		target[1] = ( vec.y() * this.screenHeight() ) / 2;		
 
@@ -120,7 +120,7 @@ public class ViewWindow extends Pinhole implements Copyable {
 		frame().setScaling(sx, sy);
 	}
 	
-	public void setScaling(DLVector s) {
+	public void setScaling(Vec s) {
 		frame().setScaling(s);
 	}
 	
@@ -150,21 +150,21 @@ public class ViewWindow extends Pinhole implements Copyable {
 	*/
 	
 	@Override
-	public DLVector rightVector() {
+	public Vec rightVector() {
 		return frame().xAxis();
 	}
 	
 	@Override
-	public DLVector upVector() {
+	public Vec upVector() {
 		return frame().yAxis();
 	}
 	
 	@Override
-	public void setUpVector(DLVector up, boolean noMove) {
-		Quaternion q = new Quaternion(new DLVector(0.0f, 1.0f, 0.0f), frame().transformOf(up));
+	public void setUpVector(Vec up, boolean noMove) {
+		Quat q = new Quat(new Vec(0.0f, 1.0f, 0.0f), frame().transformOf(up));
 
 		if (!noMove) 		
-			frame().setPosition(DLVector.sub(arcballReferencePoint(), (Rotation.compose((Rotation) frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));		
+			frame().setPosition(Vec.sub(arcballReferencePoint(), (Rotation.compose((Rotation) frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));		
 
 		frame().rotate(q);
 	}
@@ -182,23 +182,23 @@ public class ViewWindow extends Pinhole implements Copyable {
 	
 	@Override
 	public boolean setSceneCenterFromPixel(Point pixel) {
-		setSceneCenter(new DLVector(pixel.x, pixel.y, 0));
+		setSceneCenter(new Vec(pixel.x, pixel.y, 0));
 		return true;		
 	}
 	
-	public Visibility rectIsVisible(DLVector p1, DLVector p2) {
+	public Visibility rectIsVisible(Vec p1, Vec p2) {
 		//TODO implement me	
 		return Visibility.SEMIVISIBLE;
 	}
 	
-	public void fitBoundingRect(DLVector min, DLVector max) {
+	public void fitBoundingRect(Vec min, Vec max) {
 		float diameter = Math.max(Math.abs(max.vec[1] - min.vec[1]), Math.abs(max.vec[0] - min.vec[0]));
 		diameter = Math.max(Math.abs(max.vec[2] - min.vec[2]), diameter);
-		fitCircle(DLVector.mult(DLVector.add(min, max), 0.5f), 0.5f * diameter);
+		fitCircle(Vec.mult(Vec.add(min, max), 0.5f), 0.5f * diameter);
 	}
 	
-	public void fitCircle(DLVector center, float radius) {
-	  DLVector scl = frame().scaling();
+	public void fitCircle(Vec center, float radius) {
+	  Vec scl = frame().scaling();
 		setScaling(scl.x() > 0 ? radius / sceneRadius() : -radius / sceneRadius(),
 				       scl.y() > 0 ? radius / sceneRadius() : -radius / sceneRadius());				
 		lookAt(center);
@@ -211,14 +211,14 @@ public class ViewWindow extends Pinhole implements Copyable {
 	
 	/**
 	 * Similar to {@link #setSceneRadius(float)} and
-	 * {@link #setSceneCenter(DLVector)}, but the scene limits are defined by a
+	 * {@link #setSceneCenter(Vec)}, but the scene limits are defined by a
 	 * (world axis aligned) bounding box.
 	 */
-	public void setSceneBoundingRect(DLVector min, DLVector max) {
-		DLVector mn = new DLVector(min.x(), min.y(), 0);
-		DLVector mx = new DLVector(max.x(), max.y(), 0);
-		setSceneCenter(DLVector.mult(DLVector.add(mn, mx), 1 / 2.0f));
-		setSceneRadius(0.5f * (DLVector.sub(mx, mn)).mag());
+	public void setSceneBoundingRect(Vec min, Vec max) {
+		Vec mn = new Vec(min.x(), min.y(), 0);
+		Vec mx = new Vec(max.x(), max.y(), 0);
+		setSceneCenter(Vec.mult(Vec.add(mn, mx), 1 / 2.0f));
+		setSceneRadius(0.5f * (Vec.sub(mx, mn)).mag());
 	}
 	
 	@Override
@@ -269,51 +269,51 @@ public class ViewWindow extends Pinhole implements Copyable {
 		}
 		// */
 		
-		lookAt(unprojectedCoordinatesOf(new DLVector(rectangle.getCenterX(), rectangle.getCenterY(), 0)));
+		lookAt(unprojectedCoordinatesOf(new Vec(rectangle.getCenterX(), rectangle.getCenterY(), 0)));
 	}	
 	
 	@Override
-	public DLVector viewDirection() {
-		return new DLVector( 0, 0, ( frame().zAxis().z() > 0 ) ? -1 : 1 );
+	public Vec viewDirection() {
+		return new Vec( 0, 0, ( frame().zAxis().z() > 0 ) ? -1 : 1 );
 	}
 
 	@Override
-	public void setOrientation(Quaternion q) {
+	public void setOrientation(Quat q) {
 		setOrientation(q.angle());
 	}
 	
 	public void setOrientation(float angle) {
-		Quaternion quat = new Quaternion(viewDirection(), angle);
+		Quat quat = new Quat(viewDirection(), angle);
 		frame().setOrientation(quat);
 		frame().updateFlyUpVector();
 	}
 	
 	@Override
-	public float pixelP5Ratio(DLVector position) {
+	public float pixelP5Ratio(Vec position) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public boolean pointIsVisible(DLVector point) {
+	public boolean pointIsVisible(Vec point) {
 		// TODO Auto-generated method stub
 		return false;
 	}	
 
 	@Override
-	public void lookAt(DLVector target) {
+	public void lookAt(Vec target) {
 		frame().setPosition(target.x(), target.y(), 0);
 	}
 	
 	@Override
-	public void setArcballReferencePoint(DLVector rap) {
-		DLVector vec = new DLVector(rap.x(), rap.y(), 0);
+	public void setArcballReferencePoint(Vec rap) {
+		Vec vec = new Vec(rap.x(), rap.y(), 0);
 		frame().setArcballReferencePoint(vec);
 	}
 
 	@Override
 	public boolean setArcballReferencePointFromPixel(Point pixel) {		
-		setArcballReferencePoint(unprojectedCoordinatesOf(new DLVector((float) pixel.x, (float) pixel.y, 0.5f)));
+		setArcballReferencePoint(unprojectedCoordinatesOf(new Vec((float) pixel.x, (float) pixel.y, 0.5f)));
 		return true;
 	}	
 	

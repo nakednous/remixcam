@@ -328,7 +328,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * <p>
 	 * The InteractiveFrame {@link #grabsAgent()} when the mouse is within a {@link #grabsDeviceThreshold()}
 	 * pixels region around its
-	 * {@link remixlab.dandelion.core.Camera#projectedCoordinatesOf(DLVector)}
+	 * {@link remixlab.dandelion.core.Camera#projectedCoordinatesOf(Vec)}
 	 * {@link #position()}.
 	 */
 	@Override
@@ -340,7 +340,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			x = (int)((GenericDOF2Event)event).getX();
 			y = (int)((GenericDOF2Event)event).getY();
 		}
-		DLVector proj = scene.pinhole().projectedCoordinatesOf(position());
+		Vec proj = scene.pinhole().projectedCoordinatesOf(position());
 		return ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold()));
 		//setGrabsInput(keepsGrabbingCursor || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
 	}
@@ -541,7 +541,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * InteractiveFrame orientation when it {@link #isSpinning()}.
 	 * <p>
 	 * Default value is a {@code null} rotation (identity Quaternion). Use
-	 * {@link #setSpinningQuaternion(Quaternion)} to change this value.
+	 * {@link #setSpinningQuaternion(Quat)} to change this value.
 	 * <p>
 	 * The {@link #spinningQuaternion()} axis is defined in the InteractiveFrame
 	 * coordinate system. You can use
@@ -697,7 +697,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			deviceSpeed = 0;
 		float currSpeed = deviceSpeed;
 		if( scene.is3D() )
-			((Quaternion)spinningQuaternion()).fromAxisAngle(((Quaternion)spinningQuaternion()).axis(), spinningQuaternion().angle() * (currSpeed / prevSpeed) );
+			((Quat)spinningQuaternion()).fromAxisAngle(((Quat)spinningQuaternion()).axis(), spinningQuaternion().angle() * (currSpeed / prevSpeed) );
 		else
 			this.setSpinningQuaternion(new Rotation(spinningQuaternion().angle() * (currSpeed / prevSpeed)));
 	}
@@ -807,8 +807,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		
 		case ROTATE: {
 			event = (DOF2Event)e;
-			DLVector trans = scene.camera().projectedCoordinatesOf(position());
-			Quaternion rot = deformedBallQuaternion(event, trans.x(), trans.y(), scene.camera());
+			Vec trans = scene.camera().projectedCoordinatesOf(position());
+			Quat rot = deformedBallQuaternion(event, trans.x(), trans.y(), scene.camera());
 			rot = iFrameQuaternion(rot, scene.camera());			
 			setSpinningQuaternion(rot);
 			//rotate(spinningQuaternion());
@@ -819,7 +819,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		case TRANSLATE: {
 			event = (DOF2Event)e;
 			//Point delta = new Point(event.getX(), scene.isRightHanded() ? event.getY() : -event.getY());
-			DLVector trans = new DLVector(event.getDX(), scene.isRightHanded() ? -event.getDY() : event.getDY(), 0.0f);			
+			Vec trans = new Vec(event.getDX(), scene.isRightHanded() ? -event.getDY() : event.getDY(), 0.0f);			
 			
 		  // Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
@@ -837,7 +837,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 				}
 			}
 			// same as:
-			trans = scene.camera().frame().orientation().rotate(DLVector.mult(trans, translationSensitivity()));
+			trans = scene.camera().frame().orientation().rotate(Vec.mult(trans, translationSensitivity()));
 			// but takes into account scaling
 			//trans = scene.camera().frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
 			// And then down to frame
@@ -849,11 +849,11 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		
 		case NATURAL: {
 			DOF6Event event6 = (DOF6Event)e;
-			DLVector t = new DLVector();
-	    Quaternion q = new Quaternion();
+			Vec t = new Vec();
+	    Quat q = new Quat();
       // A. Translate the iFrame
 	    // Transform to world coordinate system
-	    t = scene.camera().frame().inverseTransformOf(new DLVector(event6.getX(),event6.getY(),-event6.getZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
+	    t = scene.camera().frame().inverseTransformOf(new Vec(event6.getX(),event6.getY(),-event6.getZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
 	    // And then down to frame
 	    if (referenceFrame() != null)
 	    	t = referenceFrame().transformOf(t, false);
@@ -884,7 +884,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * Returns a Quaternion computed according to the mouse motion. Mouse positions
 	 * are projected on a deformed ball, centered on ({@code cx}, {@code cy}).
 	 */
-	protected Quaternion deformedBallQuaternion(DOF2Event event, float cx, float cy, Camera camera) {
+	protected Quat deformedBallQuaternion(DOF2Event event, float cx, float cy, Camera camera) {
 		float x = event.getX();
 		float y = event.getY();
 		float prevX = event.getPrevX();
@@ -895,28 +895,28 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
     float dx = rotationSensitivity() *                         (x - cx)             / camera.screenWidth();
     float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();    
 
-		DLVector p1 = new DLVector(px, py, projectOnBall(px, py));
-		DLVector p2 = new DLVector(dx, dy, projectOnBall(dx, dy));
+		Vec p1 = new Vec(px, py, projectOnBall(px, py));
+		Vec p2 = new Vec(dx, dy, projectOnBall(dx, dy));
 		// Approximation of rotation angle Should be divided by the projectOnBall size, but it is 1.0
-		DLVector axis = p2.cross(p1);
+		Vec axis = p2.cross(p1);
 		float angle = 2.0f * (float) Math.asin((float) Math.sqrt(axis.squaredNorm() / p1.squaredNorm() / p2.squaredNorm()));			
-		return new Quaternion(axis, angle);
+		return new Quat(axis, angle);
 	}
 	
-	protected final Quaternion iFrameQuaternion(Quaternion rot, Camera camera) {
-		DLVector trans = new DLVector();		
+	protected final Quat iFrameQuaternion(Quat rot, Camera camera) {
+		Vec trans = new Vec();		
 		trans = rot.axis();
 		trans = camera.frame().orientation().rotate(trans);
 		trans = transformOf(trans);
 		//trans = transformOfFrom(trans, camera.frame());
 		
-		DLVector res = new DLVector(trans);			
+		Vec res = new Vec(trans);			
 		// perform conversion			
 		if (scaling().x() < 0 )	res.x(-trans.x());
 		if (scaling().y() < 0 )	res.y(-trans.y());
 		if (scaling().z() < 0 )	res.z(-trans.z());
 		
-		return new Quaternion(res, isInverted() ? rot.angle() : -rot.angle());						
+		return new Quat(res, isInverted() ? rot.angle() : -rot.angle());						
 	}	
 
 	/**

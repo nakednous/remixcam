@@ -8,12 +8,12 @@ import java.util.List;
 //import remixlab.duoable.profile.Duoble;
 import remixlab.tersehandling.event.GenericEvent;
 
-public abstract class TAbstractScene {
+public abstract class AbstractBasicScene {
   //D E V I C E S	  &   E V E N T S
   protected HashMap<String, AbstractAgent> agents;
 	protected LinkedList<EventGrabberTuple> eventTupleQueue;
 	
-	public TAbstractScene() {
+	public AbstractBasicScene() {
 		//agents
 		agents = new HashMap<String, AbstractAgent>();
 		//events

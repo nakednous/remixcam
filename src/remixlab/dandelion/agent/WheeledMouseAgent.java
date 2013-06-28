@@ -31,11 +31,11 @@ import remixlab.dandelion.profile.DOF1Profile;
 import remixlab.duoable.profile.Duoble;
 import remixlab.tersehandling.event.*;
 
-public class WheeledMouse extends Mouse {
+public class WheeledMouseAgent extends MouseAgent {
 	protected DOF1Profile wheelProfile;
 	protected DOF1Profile frameWheelProfile;
 	
-	public WheeledMouse(AbstractScene scn, String n) {
+	public WheeledMouseAgent(AbstractScene scn, String n) {
 		super(scn, n);
 		wheelProfile = new DOF1Profile();
 		frameWheelProfile = new DOF1Profile();

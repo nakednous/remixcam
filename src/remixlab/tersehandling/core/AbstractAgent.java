@@ -65,7 +65,7 @@ public abstract class AbstractAgent {
 	}
 	*/		
 	
-	protected TAbstractScene scene;
+	protected AbstractBasicScene scene;
 	protected String nm;
 	protected List<Grabbable> grabbers;
 	protected Grabbable grabber;
@@ -75,7 +75,7 @@ public abstract class AbstractAgent {
 	//public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
 	protected boolean deviceTrckn;
 	
-	public AbstractAgent(TAbstractScene scn, String n) {
+	public AbstractAgent(AbstractBasicScene scn, String n) {
 		scene = scn;
 		nm = n;
 		grabbers = new ArrayList<Grabbable>();

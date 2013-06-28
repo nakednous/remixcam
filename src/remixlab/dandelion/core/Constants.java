@@ -26,10 +26,10 @@
 package remixlab.dandelion.core;
 
 import remixlab.duoable.profile.Actionable;
-import remixlab.tersehandling.core.TConstants;
+import remixlab.tersehandling.core.EventConstants;
 
 
-public interface Constants extends TConstants {	
+public interface Constants extends EventConstants {	
 	/**
    * PI is a mathematical constant with the value 3.14159265358979323846.
    * It is the ratio of the circumference of a circle to its diameter.

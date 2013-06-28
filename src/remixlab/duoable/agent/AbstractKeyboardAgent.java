@@ -28,13 +28,13 @@ package remixlab.duoable.agent;
 import remixlab.duoable.profile.AbstractKeyboardProfile;
 import remixlab.duoable.profile.Duoble;
 import remixlab.duoable.profile.KeyDuoble;
-import remixlab.tersehandling.core.TAbstractScene;
+import remixlab.tersehandling.core.AbstractBasicScene;
 import remixlab.tersehandling.event.GenericEvent;
 
 public class AbstractKeyboardAgent extends AbstractActionableAgent {
 	//protected AbstractKeyboardProfile<?> profile;
 	
-	public AbstractKeyboardAgent(TAbstractScene scn, String n) {
+	public AbstractKeyboardAgent(AbstractBasicScene scn, String n) {
 		super(scn, n);
 	}
 	

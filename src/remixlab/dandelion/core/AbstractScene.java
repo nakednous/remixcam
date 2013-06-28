@@ -37,10 +37,10 @@ import remixlab.dandelion.util.*;
 import remixlab.duoable.profile.Actionable;
 import remixlab.tersehandling.core.AbstractAgent;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.core.TAbstractScene;
+import remixlab.tersehandling.core.AbstractBasicScene;
 import remixlab.tersehandling.event.*;
 
-public abstract class AbstractScene extends TAbstractScene implements Constants, Grabbable {	
+public abstract class AbstractScene extends AbstractBasicScene implements Constants, Grabbable {	
 	/**
   //M o u s e G r a b b e r
 	protected List<Grabbable> msGrabberPool;
@@ -87,7 +87,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	protected boolean rightHanded;
 	
   //A N I M A T I O N
-	protected SingleThreadedTimer animationTimer;
+	protected SeqTimer animationTimer;
 	protected boolean animationStarted;
 	public boolean animatedFrameWasTriggered;
 	protected long animationPeriod;	
@@ -95,7 +95,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	// L O C A L   T I M E R
 	protected boolean arpFlag;
 	protected boolean pupFlag;
-	protected DLVector pupVec;
+	protected Vec pupVec;
 	protected AbstractTimerJob timerFx;
 	
 	// S I Z E
@@ -206,7 +206,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 		
 		if( !id.is2D() && this.is2D() )
 			return;
-		DLVector trans;
+		Vec trans;
 		switch (id) {
 		//case NO_ACTION:	break;
 		case DRAW_AXIS:
@@ -259,7 +259,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 			}
 			else {
 				viewWindow().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
-				pupVec = viewWindow().unprojectedCoordinatesOf(new DLVector((float)cursorX, (float)cursorY, 0.5f));
+				pupVec = viewWindow().unprojectedCoordinatesOf(new Vec((float)cursorX, (float)cursorY, 0.5f));
 				pupFlag = true;
 				timerFx.runOnce(1000);
 			}
@@ -271,25 +271,25 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 			showAll();
 			break;
 		case MOVE_CAMERA_LEFT:
-			trans = new DLVector(-10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
+			trans = new Vec(-10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
 			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
 			break;
 		case MOVE_CAMERA_RIGHT:
-			trans = new DLVector(10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
+			trans = new Vec(10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
 			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
 			break;
 		case MOVE_CAMERA_UP:
-			trans = pinhole().frame().inverseTransformOf(new DLVector(0.0f, isRightHanded() ? 10.0f : -10.0f * pinhole().flySpeed(), 0.0f));
+			trans = pinhole().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? 10.0f : -10.0f * pinhole().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
 			pinhole().frame().translate(trans);					  
 			break;
 		case MOVE_CAMERA_DOWN:
-			trans = pinhole().frame().inverseTransformOf(new DLVector(0.0f, isRightHanded() ? -10.0f : 10.0f * pinhole().flySpeed(), 0.0f));
+			trans = pinhole().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? -10.0f : 10.0f * pinhole().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
 			pinhole().frame().translate(trans);			
@@ -350,7 +350,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 		case ZOOM_ON_PIXEL:
 			if (this.is2D()) {
 				viewWindow().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
-				pupVec = viewWindow().unprojectedCoordinatesOf(new DLVector((float)cursorX, (float)cursorY, 0.5f));
+				pupVec = viewWindow().unprojectedCoordinatesOf(new Vec((float)cursorX, (float)cursorY, 0.5f));
 				pupFlag = true;
 				timerFx.runOnce(1000);
 			}				
@@ -373,7 +373,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 			}
 			break;			
 		case RESET_ARP:		  
-			pinhole().setArcballReferencePoint(new DLVector(0, 0, 0));
+			pinhole().setArcballReferencePoint(new Vec(0, 0, 0));
 			arpFlag = true;
 			timerFx.runOnce(1000);				
 			break;
@@ -676,26 +676,26 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	// TODO try to optimize assignments in all three matrix getters?
 	// Requires allowing returning references as well as copies of the matrices,
 	// but it seems overkill. 
-	public DLMatrix getModelViewMatrix() {		
-		DLMatrix modelview;
+	public Mat getModelViewMatrix() {		
+		Mat modelview;
   	modelview = getMatrix();
   	modelview.preApply(getViewMatrix());
   	return modelview;
 	}
 	
-	public DLMatrix getViewMatrix() {
-		DLMatrix view = pinhole().getViewMatrix();  	
+	public Mat getViewMatrix() {
+		Mat view = pinhole().getViewMatrix();  	
   	return view;
 	}
 	
-	public DLMatrix getModelMatrix() {		
-		DLMatrix model;
+	public Mat getModelMatrix() {		
+		Mat model;
   	model = getMatrix();  	
   	return model;
 	}
 	
-	public DLMatrix getProjectionMatrix() {		
-		DLMatrix projection;  	
+	public Mat getProjectionMatrix() {		
+		Mat projection;  	
   	projection = getProjection();
   	return projection;
 	}
@@ -703,8 +703,8 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	/**
 	 * This method restores the matrix mode.
 	 */
-	public DLMatrix getModelViewProjectionMatrix() {		
-		DLMatrix PVM;  	
+	public Mat getModelViewProjectionMatrix() {		
+		Mat PVM;  	
   	PVM = getMatrix();//model  	
     //PVM.preApply(camera().projectionViewMat);
   	PVM.preApply(pinhole().getProjectionViewMatrix());  	
@@ -716,8 +716,8 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	protected void handleTimers() {
 		for ( AbstractTimerJob tJob : timerPool )
 			if (tJob.timer() != null)
-				if (tJob.timer() instanceof SingleThreadedTaskableTimer)
-					((SingleThreadedTaskableTimer)tJob.timer()).execute();
+				if (tJob.timer() instanceof SeqTaskableTimer)
+					((SeqTaskableTimer)tJob.timer()).execute();
 	}	
 	
   //1. Scene overloaded
@@ -1171,14 +1171,14 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
   		AbstractScene.showMissingImplementationWarning("resetProjection");
   }  
   
-  public void applyMatrix(DLMatrix source) {
+  public void applyMatrix(Mat source) {
   	if( renderer instanceof StackRenderer )
   		renderer.applyMatrix(source);
   	else
   		AbstractScene.showMissingImplementationWarning("applyMatrix");
   }
   
-  public void applyProjection(DLMatrix source) {
+  public void applyProjection(Mat source) {
   	if( renderer instanceof StackRenderer )
   		renderer.applyProjection(source);
   	else
@@ -1211,7 +1211,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
   }
   */
 
-  public DLMatrix getMatrix() {
+  public Mat getMatrix() {
   	if( renderer instanceof StackRenderer )
   		return renderer.getMatrix();
   	else {
@@ -1220,7 +1220,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
   	}
   }
   
-  public DLMatrix getProjection() {
+  public Mat getProjection() {
   	if( renderer instanceof StackRenderer )
   		return renderer.getProjection();
   	else {
@@ -1233,7 +1233,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
    * Copy the current modelview matrix into the specified target.
    * Pass in null to create a new matrix.
    */
-  public DLMatrix getMatrix(DLMatrix target) {
+  public Mat getMatrix(Mat target) {
   	if( renderer instanceof StackRenderer )
   		return renderer.getMatrix(target);
   	else {
@@ -1246,7 +1246,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
    * Copy the current projection matrix into the specified target.
    * Pass in null to create a new matrix.
    */
-  public DLMatrix getProjection(DLMatrix target) {
+  public Mat getProjection(Mat target) {
   	if( renderer instanceof StackRenderer )
   		return renderer.getProjection(target);
   	else {
@@ -1258,14 +1258,14 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
   /**
    * Set the current modelview matrix to the contents of another.
    */
-  public void setMatrix(DLMatrix source) {
+  public void setMatrix(Mat source) {
   	renderer.setMatrix(source);
   }
   
   /**
    * Set the current projection matrix to the contents of another.
    */
-  public void setProjection(DLMatrix source) {
+  public void setProjection(Mat source) {
   	renderer.setProjection(source);
   }
 
@@ -1345,15 +1345,15 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
   	renderer.drawCross(px, py, size);
   }
   
-  public void drawFilledCircle(int subdivisions, DLVector center, float radius) {
+  public void drawFilledCircle(int subdivisions, Vec center, float radius) {
   	renderer.drawFilledCircle(subdivisions, center, radius);
   }
   
-  public void drawFilledSquare(DLVector center, float edge) {
+  public void drawFilledSquare(Vec center, float edge) {
   	renderer.drawFilledSquare(center, edge);
   }
   
-  public void drawShooterTarget(DLVector center, float length) {
+  public void drawShooterTarget(Vec center, float length) {
 		renderer.drawShooterTarget(center, length);
 	}
 	
@@ -1490,7 +1490,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 		}
 		else {
 			translate( frame.translation().vec[0], frame.translation().vec[1], frame.translation().vec[2] );
-			rotate( frame.rotation().angle(), ((Quaternion)frame.rotation()).axis().vec[0], ((Quaternion)frame.rotation()).axis().vec[1], ((Quaternion)frame.rotation()).axis().vec[2]);
+			rotate( frame.rotation().angle(), ((Quat)frame.rotation()).axis().vec[0], ((Quat)frame.rotation()).axis().vec[1], ((Quat)frame.rotation()).axis().vec[2]);
 			scale(frame.scaling().x(), frame.scaling().y(), frame.scaling().z());
 		}
 	}
@@ -1784,14 +1784,14 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	*/
 	  
 	public void registerJob(AbstractTimerJob job) {
-		job.setTimer(new SingleThreadedTaskableTimer(this, job));
+		job.setTimer(new SeqTaskableTimer(this, job));
 		timerPool.add(job);
 	}
 	
 	// TODO need this methods here?
   // need it here (or it should just go into proscene.js)? need to be overloaded?
 	// it was previously set in proscene.Scene
-	public void unregisterJob(SingleThreadedTaskableTimer t) {		
+	public void unregisterJob(SeqTaskableTimer t) {		
 			timerPool.remove( t.timerJob() );
 	}
 	
@@ -1979,9 +1979,9 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	 * Convenience wrapper function that simply returns {@code
 	 * camera().sceneCenter()}
 	 * 
-	 * @see #setCenter(DLVector) {@link #radius()}
+	 * @see #setCenter(Vec) {@link #radius()}
 	 */
-	public DLVector center() {
+	public Vec center() {
 		return pinhole().sceneCenter();
 	}
 
@@ -1991,9 +1991,9 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	 * Convenience wrapper function that simply returns {@code
 	 * camera().arcballReferencePoint()}
 	 * 
-	 * @see #setCenter(DLVector) {@link #radius()}
+	 * @see #setCenter(Vec) {@link #radius()}
 	 */
-	public DLVector arcballReferencePoint() {
+	public Vec arcballReferencePoint() {
 		return pinhole().arcballReferencePoint();
 	}
 
@@ -2003,7 +2003,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	 * Convenience wrapper function that simply returns {@code
 	 * camera().setSceneRadius(radius)}
 	 * 
-	 * @see #setCenter(DLVector)
+	 * @see #setCenter(Vec)
 	 */
 	public void setRadius(float radius) {
 		pinhole().setSceneRadius(radius);
@@ -2016,7 +2016,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	 * 
 	 * @see #setRadius(float)
 	 */
-	public void setCenter(DLVector center) {
+	public void setCenter(Vec center) {
 		pinhole().setSceneCenter(center);
 	}
 
@@ -2028,16 +2028,16 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	 * camera().setSceneBoundingBox(min,max)}
 	 * 
 	 * @see #setRadius(float)
-	 * @see #setCenter(DLVector)
+	 * @see #setCenter(Vec)
 	 */
-	public void setBoundingBox(DLVector min, DLVector max) {
+	public void setBoundingBox(Vec min, Vec max) {
 		if( this.is2D() )
 			System.out.println("setBoundingBox is available only in 3D. Use setBoundingRect instead");
 		else
 			((Camera) pinhole()).setSceneBoundingBox(min, max);
 	}
 	
-	public void setBoundingRect(DLVector min, DLVector max) {
+	public void setBoundingRect(Vec min, Vec max) {
 		if( this.is3D() )
 			System.out.println("setBoundingRect is available only in 2D. Use setBoundingBox instead");
 		else
@@ -2298,7 +2298,7 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	 * <p>
 	 * {@code length} and {@code radius} define its geometry.
 	 * <p>
-	 * Use {@link #drawArrow(DLVector, DLVector, float)} to place the arrow
+	 * Use {@link #drawArrow(Vec, Vec, float)} to place the arrow
 	 * in 3D.
 	 */
 	public void drawArrow(float length, float radius) {
@@ -2317,11 +2317,11 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	 * 
 	 * @see #drawArrow(float, float)
 	 */
-	public void drawArrow(DLVector from, DLVector to,	float radius) {
+	public void drawArrow(Vec from, Vec to,	float radius) {
 		pushMatrix();
 		translate(from.x(), from.y(), from.z());
-		applyMatrix(new Quaternion(new DLVector(0, 0, 1), DLVector.sub(to,	from)).matrix());
-		drawArrow(DLVector.sub(to, from).mag(), radius);
+		applyMatrix(new Quat(new Vec(0, 0, 1), Vec.sub(to,	from)).matrix());
+		drawArrow(Vec.sub(to, from).mag(), radius);
 		popMatrix();
 	}
 	
@@ -2432,9 +2432,9 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	 * Convenience function that simply calls
 	 * {@code drawFilledCircle(40, center, radius)}.
 	 * 
-	 * @see #drawFilledCircle(int, DLVector, float)
+	 * @see #drawFilledCircle(int, Vec, float)
 	 */
-	public void drawFilledCircle(DLVector center, float radius) {
+	public void drawFilledCircle(Vec center, float radius) {
 		drawFilledCircle(40, center, radius);
 	}
 	

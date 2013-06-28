@@ -28,7 +28,7 @@ package remixlab.duoable.agent;
 import remixlab.duoable.profile.AbstractClickProfile;
 import remixlab.duoable.profile.AbstractMotionProfile;
 import remixlab.duoable.profile.Duoble;
-import remixlab.tersehandling.core.TAbstractScene;
+import remixlab.tersehandling.core.AbstractBasicScene;
 import remixlab.tersehandling.event.*;
 
 public abstract class AbstractMotionAgent extends AbstractActionableAgent {
@@ -36,7 +36,7 @@ public abstract class AbstractMotionAgent extends AbstractActionableAgent {
 	protected AbstractClickProfile<?> clickProfile;
 	protected float[] sens;
 	
-	public AbstractMotionAgent(TAbstractScene scn, String n) {
+	public AbstractMotionAgent(AbstractBasicScene scn, String n) {
 		super(scn, n);	
 	}
 	

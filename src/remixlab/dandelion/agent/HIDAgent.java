@@ -26,56 +26,43 @@
 package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
-import remixlab.dandelion.event.DOF2Event;
+import remixlab.dandelion.event.DOF6Event;
 import remixlab.dandelion.profile.ClickProfile;
-import remixlab.dandelion.profile.DOF2Profile;
+import remixlab.dandelion.profile.DOF6Profile;
 import remixlab.duoable.agent.AbstractMotionAgent;
 import remixlab.tersehandling.core.Grabbable;
 
-public class Mouse extends AbstractMotionAgent implements Constants {
-	public Mouse(AbstractScene scn, String n) {
+public class HIDAgent extends AbstractMotionAgent implements Constants {
+	public HIDAgent(AbstractScene scn, String n) {
 		super(scn, n);
 		setDefaultGrabber(scn.pinhole().frame());
-		camProfile = new DOF2Profile();
-		profile = new DOF2Profile();
+		camProfile = new DOF6Profile();
+		profile = new DOF6Profile();
 		clickProfile = new ClickProfile();
-		sens = new float[2];
+		sens = new float[6];
 		sens[0] = 1f;
 		sens[1] = 1f;
-		cameraProfile().setBinding(CENTER, DOF_2Action.ZOOM);
-		cameraProfile().setBinding(LEFT, DOF_2Action.ROTATE);
-		cameraProfile().setBinding(RIGHT, DOF_2Action.TRANSLATE);
-		//testing things out :P
-		frameProfile().setBinding(CENTER, DOF_2Action.ZOOM);
-		frameProfile().setBinding(RIGHT, DOF_2Action.ROTATE);
-		frameProfile().setBinding(LEFT, DOF_2Action.TRANSLATE);
-		
-		clickProfile().setClickBinding(LEFT, 1, DOF_0Action.DRAW_FRAME_SELECTION_HINT);
-		clickProfile().setClickBinding(RIGHT, 1, DOF_0Action.DRAW_AXIS);
-		
-		//clickProfile().setClickBinding(LEFT, 1, DOF_0Action.DRAW_AXIS);		
-		//setClickBinding(RIGHT, 2, DOF_0Action.DRAW_GRID);
-		
-		//clickProfile().setClickBinding(RIGHT, 1, DOF_0Action.DRAW_FRAME_SELECTION_HINT);
-		
-		clickProfile().setClickBinding(DOF2Event.SHIFT, LEFT, 2, DOF_0Action.ALIGN_CAMERA);
-		clickProfile().setClickBinding(DOF2Event.SHIFT, CENTER, 2, DOF_0Action.SHOW_ALL);
-		clickProfile().setClickBinding((DOF2Event.SHIFT | DOF2Event.CTRL ), RIGHT, 2, DOF_0Action.ZOOM_TO_FIT);
+		sens[2] = 1f;
+		sens[3] = 1f;
+		sens[4] = 1f;
+		sens[5] = 1f;
+		cameraProfile().setBinding(DOF_6Action.NATURAL);
+		frameProfile().setBinding(DOF_6Action.NATURAL);
 	}
 	
 	@Override
-	public DOF2Event feed() {
+	public DOF6Event feed() {
 		return null;
 	}
 	
 	@Override
-	public DOF2Profile cameraProfile() {
-		return (DOF2Profile)camProfile;
+	public DOF6Profile cameraProfile() {
+		return (DOF6Profile)camProfile;
 	}
 	
 	@Override
-	public DOF2Profile frameProfile() {
-		return (DOF2Profile)profile;
+	public DOF6Profile frameProfile() {
+		return (DOF6Profile)profile;
 	}
 	
 	@Override
@@ -103,8 +90,28 @@ public class Mouse extends AbstractMotionAgent implements Constants {
 		sens[1] = s;
 	}
 	
-	public void setSensitivities(float x, float y) {
+	public void setZTranslationSensitivity(float s) {
+		sens[2] = s;
+	}
+	
+	public void setXRotationSensitivity(float s) {
+		sens[3] = s;
+	}
+	
+	public void setYRotationSensitivity(float s) {
+		sens[4] = s;
+	}
+	
+	public void setZRotationSensitivity(float s) {
+		sens[5] = s;
+	}
+	
+	public void setSensitivities(float x, float y, float z, float rx, float ry, float rz) {
 		sens[0] = x;
 		sens[1] = y;
+		sens[2] = z;
+		sens[3] = rx;
+		sens[4] = ry;
+		sens[5] = rz;
 	}
 }

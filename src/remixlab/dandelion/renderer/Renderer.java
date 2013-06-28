@@ -94,21 +94,21 @@ public abstract class Renderer implements Renderable, Constants {
 	}
 	
 	@Override
-	public DLMatrix getMatrix() {
+	public Mat getMatrix() {
 		if( !(this instanceof StackRenderer) )
 			return scene.getMatrix();
 		return null;
   }
   
 	@Override
-  public DLMatrix getMatrix(DLMatrix target) {
+  public Mat getMatrix(Mat target) {
 		if( !(this instanceof StackRenderer) )
 			return scene.getMatrix(target);
   	return null;
   }
 	
 	@Override
-  public void setMatrix(DLMatrix source) {
+  public void setMatrix(Mat source) {
 		if( !(this instanceof StackRenderer) )
 			scene.setMatrix(source);
   }
@@ -120,7 +120,7 @@ public abstract class Renderer implements Renderable, Constants {
   }
 	
 	@Override
-	public void applyMatrix(DLMatrix source) {
+	public void applyMatrix(Mat source) {
 		if( !(this instanceof StackRenderer) )
 			scene.applyMatrix(source);
 	}
@@ -152,19 +152,19 @@ public abstract class Renderer implements Renderable, Constants {
 	}
 	
 	@Override
-  public DLMatrix getProjection() {
+  public Mat getProjection() {
 		AbstractScene.showMissingImplementationWarning("getProjection");
 		return null;
 	}
   
 	@Override
-  public DLMatrix getProjection(DLMatrix target) {
+  public Mat getProjection(Mat target) {
 		AbstractScene.showMissingImplementationWarning("getProjection");
 		return null;
 	}
   
 	@Override
-  public void setProjection(DLMatrix source) {
+  public void setProjection(Mat source) {
 		AbstractScene.showMissingImplementationWarning("setProjection");
 	}
   
@@ -174,7 +174,7 @@ public abstract class Renderer implements Renderable, Constants {
 	}
 	
 	@Override
-	public void applyProjection(DLMatrix source) {
+	public void applyProjection(Mat source) {
 		AbstractScene.showMissingImplementationWarning("applyProjection");
 	}
   
@@ -258,7 +258,7 @@ public abstract class Renderer implements Renderable, Constants {
   }
   
   @Override
- 	public void hollowCylinder(int detail, float w, float h, DLVector m, DLVector n) {
+ 	public void hollowCylinder(int detail, float w, float h, Vec m, Vec n) {
   	d.hollowCylinder(detail, w, h, m, n);
  	}
   
@@ -323,17 +323,17 @@ public abstract class Renderer implements Renderable, Constants {
 	}
 
 	@Override
-	public void drawFilledCircle(int subdivisions, DLVector center, float radius) {
+	public void drawFilledCircle(int subdivisions, Vec center, float radius) {
 		d.drawFilledCircle(subdivisions, center, radius);
 	}
 
 	@Override
-	public void drawFilledSquare(DLVector center, float edge) {
+	public void drawFilledSquare(Vec center, float edge) {
 		d.drawFilledSquare(center, edge);
 	}
 
 	@Override
-	public void drawShooterTarget(DLVector center, float length) {
+	public void drawShooterTarget(Vec center, float length) {
 		d.drawShooterTarget(center, length);
 	}
 
@@ -350,7 +350,7 @@ public abstract class Renderer implements Renderable, Constants {
 		scene.pinhole().computeViewMatrix();
 		scene.pinhole().computeProjectionViewMatrix();
 
-		DLVector pos = scene.pinhole().position();
+		Vec pos = scene.pinhole().position();
 		Orientable quat = scene.pinhole().frame().orientation();
 
 		if( scene.is2D() ) {
@@ -364,7 +364,7 @@ public abstract class Renderer implements Renderable, Constants {
 		else {
 			//TODO how to handle 3d case without projection, seems impossible
 			//setProjection();
-			DLVector axis = ((Quaternion)quat).axis();
+			Vec axis = ((Quat)quat).axis();
 			// third value took from P5 docs, (see: http://processing.org/reference/camera_.html)
 			// Also changed default cam fov (i.e., Math.PI / 3.0f) to match that of P5 (see: http://processing.org/reference/perspective_.html)
 			// previously it was: 
@@ -377,7 +377,7 @@ public abstract class Renderer implements Renderable, Constants {
 	
 	@Override
 	public void beginScreenDrawing() {
-		DLVector pos = scene.pinhole().position();
+		Vec pos = scene.pinhole().position();
 		Orientable quat = scene.pinhole().frame().orientation();		
 		
 		pushMatrix();
@@ -391,7 +391,7 @@ public abstract class Renderer implements Renderable, Constants {
 		  translate(-scene.width()/2, -scene.height()/2);			
 		}
 		else {
-			DLVector axis = ((Quaternion)quat).axis();
+			Vec axis = ((Quat)quat).axis();
 			translate(pos.x(), pos.y(), pos.z());
 			rotate(quat.angle(), axis.x(), axis.y(), axis.z());
 			//projection

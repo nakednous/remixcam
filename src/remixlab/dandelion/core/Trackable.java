@@ -47,7 +47,7 @@ public interface Trackable {
 	 * @return Vector3D holding the camera position defined in the world coordinate
 	 *         system.
 	 */
-	public DLVector cameraPosition();
+	public Vec cameraPosition();
 
 	/**
 	 * Returns the vector to be set as the
@@ -56,16 +56,16 @@ public interface Trackable {
 	 * @return Vector3D holding the camera up-vector defined in the world
 	 *         coordinate system.
 	 */
-	public DLVector upVector();
+	public Vec upVector();
 
 	/**
 	 * Returns the target point to be set as the
-	 * {@link remixlab.dandelion.core.Camera#lookAt(DLVector)}.
+	 * {@link remixlab.dandelion.core.Camera#lookAt(Vec)}.
 	 * 
 	 * @return Vector3D holding the camera look-at vector defined in the world
 	 *         coordinate system.
 	 */
-	public DLVector target();
+	public Vec target();
 
 	/**
 	 * Computes the camera position according to some specific InteractiveFrame

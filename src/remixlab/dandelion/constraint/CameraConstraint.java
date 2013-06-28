@@ -62,9 +62,9 @@ public class CameraConstraint extends AxisPlaneConstraint {
 	 * {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public DLVector constrainTranslation(DLVector translation, GeomFrame frame) {
-		DLVector res = new DLVector(translation.vec[0], translation.vec[1], translation.vec[2]);
-		DLVector proj;
+	public Vec constrainTranslation(Vec translation, GeomFrame frame) {
+		Vec res = new Vec(translation.vec[0], translation.vec[1], translation.vec[2]);
+		Vec proj;
 		switch (translationConstraintType()) {
 		case FREE:
 			break;
@@ -72,16 +72,16 @@ public class CameraConstraint extends AxisPlaneConstraint {
 			proj = camera().frame().inverseTransformOf(translationConstraintDirection());
 			if (frame.referenceFrame() != null)
 				proj = frame.referenceFrame().transformOf(proj);
-			res = DLVector.projectVectorOnPlane(translation, proj);
+			res = Vec.projectVectorOnPlane(translation, proj);
 			break;
 		case AXIS:
 			proj = camera().frame().inverseTransformOf(translationConstraintDirection());
 			if (frame.referenceFrame() != null)
 				proj = frame.referenceFrame().transformOf(proj);
-			res = DLVector.projectVectorOnAxis(translation, proj);
+			res = Vec.projectVectorOnAxis(translation, proj);
 			break;
 		case FORBIDDEN:
-			res = new DLVector(0.0f, 0.0f, 0.0f);
+			res = new Vec(0.0f, 0.0f, 0.0f);
 			break;
 		}
 		return res;
@@ -102,16 +102,16 @@ public class CameraConstraint extends AxisPlaneConstraint {
 		case PLANE:
 			break;
 		case AXIS:
-			if(rotation instanceof Quaternion) {
-				DLVector axis = frame.transformOf(camera().frame().inverseTransformOf(rotationConstraintDirection()));
-				DLVector quat = new DLVector(((Quaternion)rotation).quat[0], ((Quaternion)rotation).quat[1], ((Quaternion)rotation).quat[2]);
-				quat = DLVector.projectVectorOnAxis(quat, axis);
-				res = new Quaternion(quat, 2.0f * (float) Math.acos(((Quaternion)rotation).quat[3]));
+			if(rotation instanceof Quat) {
+				Vec axis = frame.transformOf(camera().frame().inverseTransformOf(rotationConstraintDirection()));
+				Vec quat = new Vec(((Quat)rotation).quat[0], ((Quat)rotation).quat[1], ((Quat)rotation).quat[2]);
+				quat = Vec.projectVectorOnAxis(quat, axis);
+				res = new Quat(quat, 2.0f * (float) Math.acos(((Quat)rotation).quat[3]));
 			}
 			break;
 		case FORBIDDEN:
-			if(rotation instanceof Quaternion)
-				res = new Quaternion(); // identity
+			if(rotation instanceof Quat)
+				res = new Quat(); // identity
 			else
 				res = new Rotation(); // identity
 			break;

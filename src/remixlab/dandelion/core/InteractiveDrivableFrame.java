@@ -75,8 +75,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	protected float flySpd;
 	protected float drvSpd;
 	protected AbstractTimerJob flyTimerJob;
-	protected DLVector flyUpVec;
-	protected DLVector flyDisp;
+	protected Vec flyUpVec;
+	protected Vec flyDisp;
 	protected static final long FLY_UPDATE_PERDIOD = 10;
 
 	/**
@@ -87,9 +87,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	public InteractiveDrivableFrame(AbstractScene scn) {
 		super(scn);
 		drvSpd = 0.0f;
-		flyUpVec = new DLVector(0.0f, 1.0f, 0.0f);
+		flyUpVec = new Vec(0.0f, 1.0f, 0.0f);
 
-		flyDisp = new DLVector(0.0f, 0.0f, 0.0f);
+		flyDisp = new Vec(0.0f, 0.0f, 0.0f);
 
 		setFlySpeed(0.0f);
 
@@ -109,9 +109,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	protected InteractiveDrivableFrame(InteractiveDrivableFrame otherFrame) {		
 		super(otherFrame);
 		this.drvSpd = otherFrame.drvSpd;
-		this.flyUpVec = new DLVector();
+		this.flyUpVec = new Vec();
 		this.flyUpVec.set(otherFrame.flyUpVector());
-		this.flyDisp = new DLVector();
+		this.flyDisp = new Vec();
 		this.flyDisp.set(otherFrame.flyDisp);
 		this.setFlySpeed( otherFrame.flySpeed() );
 		
@@ -186,11 +186,11 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * <p>
 	 * Default value is (0,1,0), but it is updated by the Camera when set as its
 	 * {@link remixlab.dandelion.core.Camera#frame()}.
-	 * {@link remixlab.dandelion.core.Camera#setOrientation(Quaternion)} and
-	 * {@link remixlab.dandelion.core.Camera#setUpVector(DLVector)} modify this value and
+	 * {@link remixlab.dandelion.core.Camera#setOrientation(Quat)} and
+	 * {@link remixlab.dandelion.core.Camera#setUpVector(Vec)} modify this value and
 	 * should be used instead.
 	 */
-	public DLVector flyUpVector() {
+	public Vec flyUpVector() {
 		return flyUpVec;
 	}
 
@@ -199,9 +199,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * <p>
 	 * Default value is (0,1,0), but it is updated by the Camera when set as its
 	 * {@link remixlab.dandelion.core.Camera#frame()}. Use
-	 * {@link remixlab.dandelion.core.Camera#setUpVector(DLVector)} instead in that case.
+	 * {@link remixlab.dandelion.core.Camera#setUpVector(Vec)} instead in that case.
 	 */
-	public void setFlyUpVector(DLVector up) {
+	public void setFlyUpVector(Vec up) {
 		flyUpVec = up;
 	}
 
@@ -212,24 +212,24 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 */
 	public final void updateFlyUpVector() {
 		//flyUpVec = inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f));
-		flyUpVec = inverseTransformOf(new DLVector(0.0f, 1.0f, 0.0f), false);
+		flyUpVec = inverseTransformOf(new Vec(0.0f, 1.0f, 0.0f), false);
 	}
 
 	/**
 	 * Returns a Quaternion that is a rotation around current camera Y,
 	 * proportional to the horizontal mouse position.
 	 */
-	protected final Quaternion turnQuaternion(DOF1Event event, Camera camera) {
+	protected final Quat turnQuaternion(DOF1Event event, Camera camera) {
 		float x = event.getX();
 		float prevX = event.getPrevX();
-		return new Quaternion(new DLVector(0.0f, 1.0f, 0.0f), rotationSensitivity()	* ((int)prevX - x) / camera.screenWidth());
+		return new Quat(new Vec(0.0f, 1.0f, 0.0f), rotationSensitivity()	* ((int)prevX - x) / camera.screenWidth());
 	}
 
 	/**
 	 * Returns a Quaternion that is the composition of two rotations, inferred
 	 * from the mouse pitch (X axis) and yaw ({@link #flyUpVector()} axis).
 	 */
-	protected final Quaternion pitchYawQuaternion(DOF2Event event, Camera camera) {
+	protected final Quat pitchYawQuaternion(DOF2Event event, Camera camera) {
 		float x = event.getX();
 		float y = event.getY();
 		float prevX = event.getPrevX();
@@ -241,9 +241,9 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 		else
 			deltaY = (int) (y - prevY);
 		
-		Quaternion rotX = new Quaternion(new DLVector(1.0f, 0.0f, 0.0f), rotationSensitivity() * deltaY / camera.screenHeight());
+		Quat rotX = new Quat(new Vec(1.0f, 0.0f, 0.0f), rotationSensitivity() * deltaY / camera.screenHeight());
 		//Quaternion rotY = new Quaternion(transformOf(flyUpVector()), rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());	
-		Quaternion rotY = new Quaternion(transformOf(flyUpVector(), false), rotationSensitivity() * ((int)prevX - x) / camera.screenWidth());
-		return Quaternion.multiply(rotY, rotX);
+		Quat rotY = new Quat(transformOf(flyUpVector(), false), rotationSensitivity() * ((int)prevX - x) / camera.screenWidth());
+		return Quat.multiply(rotY, rotX);
 	}
 }

@@ -27,10 +27,10 @@ package remixlab.dandelion.util;
 
 import remixlab.dandelion.core.AbstractScene;
 
-public class SingleThreadedTaskableTimer extends SingleThreadedTimer {
+public class SeqTaskableTimer extends SeqTimer {
 	Taskable caller;
 	
-	public SingleThreadedTaskableTimer(AbstractScene scn, Taskable t) {
+	public SeqTaskableTimer(AbstractScene scn, Taskable t) {
 		super(scn);
 		caller = t;
 	}

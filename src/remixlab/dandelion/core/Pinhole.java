@@ -133,15 +133,15 @@ public abstract class Pinhole {
   //C a m e r a p a r a m e t e r s
 	protected int scrnWidth, scrnHeight; // size of the window, in pixels
 	//protected float orthoSize;
-	protected DLVector scnCenter;
+	protected Vec scnCenter;
 	protected float scnRadius; // processing scene units	
 	protected int viewport[] = new int[4];
 	
-	protected DLMatrix viewMat;
-	protected DLMatrix projectionMat;
-	protected DLMatrix projectionViewMat;
+	protected Mat viewMat;
+	protected Mat projectionMat;
+	protected Mat projectionViewMat;
 	
-	protected DLMatrix projectionViewInverseMat;	
+	protected Mat projectionViewInverseMat;	
 	protected boolean unprojectCacheOptimized;
 	protected boolean projectionViewMatHasInverse;
 	
@@ -184,7 +184,7 @@ public abstract class Pinhole {
 		// /**
 	  //TODO subido
 		// Also defines the arcballReferencePoint(), which changes orthoCoef.
-		setSceneCenter(new DLVector(0.0f, 0.0f, 0.0f));
+		setSceneCenter(new Vec(0.0f, 0.0f, 0.0f));
 		// */
 		
 		// /**
@@ -195,11 +195,11 @@ public abstract class Pinhole {
 		
 		// /**
 		//TODO subido
-		viewMat = new DLMatrix();
-		projectionMat = new DLMatrix();
+		viewMat = new Mat();
+		projectionMat = new Mat();
 		projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		//computeProjectionMatrix();
-		projectionViewMat = new DLMatrix();
+		projectionViewMat = new Mat();
 		// */
 	}
 	
@@ -241,9 +241,9 @@ public abstract class Pinhole {
 		this.setSceneRadius(oVP.sceneRadius());		
 		this.setSceneCenter(oVP.sceneCenter());		
 		this.setScreenWidthAndHeight(oVP.screenWidth(), oVP.screenHeight());		
-		this.viewMat = new DLMatrix(oVP.viewMat);
-		this.projectionMat = new DLMatrix(oVP.projectionMat);
-		this.projectionViewMat = new DLMatrix(oVP.projectionViewMat);
+		this.viewMat = new Mat(oVP.viewMat);
+		this.projectionMat = new Mat(oVP.projectionMat);
+		this.projectionViewMat = new Mat(oVP.projectionViewMat);
 	}
 
 	/**
@@ -269,9 +269,9 @@ public abstract class Pinhole {
 	/**
 	 * Sets the Camera {@link #frame()}.
 	 * <p>
-	 * If you want to move the Camera, use {@link #setPosition(DLVector)} and
-	 * {@link #setOrientation(Quaternion)} or one of the Camera positioning
-	 * methods ({@link #lookAt(DLVector)}, {@link #fitSphere(DLVector, float)},
+	 * If you want to move the Camera, use {@link #setPosition(Vec)} and
+	 * {@link #setOrientation(Quat)} or one of the Camera positioning
+	 * methods ({@link #lookAt(Vec)}, {@link #fitSphere(Vec, float)},
 	 * {@link #showEntireScene()}...) instead.
 	 * <p>
 	 * This method is actually mainly useful if you derive the
@@ -288,7 +288,7 @@ public abstract class Pinhole {
 		interpolationKfi.setFrame(frame());			
 	}
 	
-	public abstract void lookAt(DLVector target);
+	public abstract void lookAt(Vec target);
 	
 	// 6. ASSOCIATED FRAME AND FRAME WRAPPER FUNCTIONS
 
@@ -356,7 +356,7 @@ public abstract class Pinhole {
 	 * Returns the Camera position (the eye), defined in the world coordinate
 	 * system.
 	 * <p>
-	 * Use {@link #setPosition(DLVector)} to set the Camera position. Other
+	 * Use {@link #setPosition(Vec)} to set the Camera position. Other
 	 * convenient methods are showEntireScene() or fitSphere(). Actually returns
 	 * {@link remixlab.dandelion.geom.GeomFrame#position()}.
 	 * <p>
@@ -364,7 +364,7 @@ public abstract class Pinhole {
 	 * camera. It is not located in the image plane, which is at a zNear()
 	 * distance ahead.
 	 */
-	public final DLVector position() {
+	public final Vec position() {
 		return frame().position();
 	}
 
@@ -372,7 +372,7 @@ public abstract class Pinhole {
 	 * Sets the Camera {@link #position()} (the eye), defined in the world
 	 * coordinate system.
 	 */
-	public void setPosition(DLVector pos) {
+	public void setPosition(Vec pos) {
 		frame().setPosition(pos);
 	}
 	
@@ -380,21 +380,21 @@ public abstract class Pinhole {
 	 * Returns the normalized up vector of the Camera, defined in the world
 	 * coordinate system.
 	 * <p>
-	 * Set using {@link #setUpVector(DLVector)} or
-	 * {@link #setOrientation(Quaternion)}. It is orthogonal to
+	 * Set using {@link #setUpVector(Vec)} or
+	 * {@link #setOrientation(Quat)}. It is orthogonal to
 	 * {@link #viewDirection()} and to {@link #rightVector()}.
 	 * <p>
 	 * It corresponds to the Y axis of the associated {@link #frame()} (actually
 	 * returns {@code frame().yAxis()}
 	 */
-	public abstract DLVector upVector();
+	public abstract Vec upVector();
 	
 	/**
 	 * Convenience function that simply calls {@code setUpVector(up, true)}.
 	 * 
-	 * @see #setUpVector(DLVector, boolean)
+	 * @see #setUpVector(Vec, boolean)
 	 */
-	public void setUpVector(DLVector up) {
+	public void setUpVector(Vec up) {
 		setUpVector(up, true);
 	}
 	
@@ -417,11 +417,11 @@ public abstract class Pinhole {
 	 * unchanged, which is an intuitive behavior when the Camera is in a
 	 * walkthrough fly mode.
 	 * 
-	 * @see #setViewDirection(DLVector)
-	 * @see #lookAt(DLVector)
-	 * @see #setOrientation(Quaternion)
+	 * @see #setViewDirection(Vec)
+	 * @see #lookAt(Vec)
+	 * @see #setOrientation(Quat)
 	 */
-	public abstract void setUpVector(DLVector up, boolean noMove);
+	public abstract void setUpVector(Vec up, boolean noMove);
 	
 	/**
 	 * Returns the normalized right vector of the Camera, defined in the world
@@ -429,14 +429,14 @@ public abstract class Pinhole {
 	 * <p>
 	 * This vector lies in the Camera horizontal plane, directed along the X axis
 	 * (orthogonal to {@link #upVector()} and to {@link #viewDirection()}. Set
-	 * using {@link #setUpVector(DLVector)}, {@link #lookAt(DLVector)} or
-	 * {@link #setOrientation(Quaternion)}.
+	 * using {@link #setUpVector(Vec)}, {@link #lookAt(Vec)} or
+	 * {@link #setOrientation(Quat)}.
 	 * <p>
 	 * Simply returns {@code frame().xAxis()}.
 	 */
-	public abstract DLVector rightVector();
+	public abstract Vec rightVector();
 	
-	public abstract void setOrientation(Quaternion q);
+	public abstract void setOrientation(Quat q);
 	
 	/**
 	 * Returns the radius of the scene observed by the Camera.
@@ -448,7 +448,7 @@ public abstract class Pinhole {
 	 * Note that Scene.sceneRadius() (resp. Scene.setSceneRadius()) simply call
 	 * this method on its associated Camera.
 	 * 
-	 * @see #setSceneBoundingBox(DLVector, DLVector)
+	 * @see #setSceneBoundingBox(Vec, Vec)
 	 */
 	public float sceneRadius() {
 		return scnRadius;
@@ -498,7 +498,7 @@ public abstract class Pinhole {
 	}
 
 	/**
-	 * The {@link #setSceneCenter(DLVector)} is set to the point located under
+	 * The {@link #setSceneCenter(Vec)} is set to the point located under
 	 * {@code pixel} on screen. Returns {@code true} if a point was found under
 	 * {@code pixel} and {@code false} if none was found (in this case no
 	 * {@link #sceneCenter()} is set).
@@ -522,14 +522,14 @@ public abstract class Pinhole {
 	 * as {@link #showEntireScene()}.
 	 * <p>
 	 * Note that {@link remixlab.dandelion.core.AbstractScene#center()} (resp.
-	 * remixlab.remixcam.core.AbstractScene{@link #setSceneCenter(DLVector)}) simply call this
-	 * method (resp. {@link #setSceneCenter(DLVector)}) on its associated
+	 * remixlab.remixcam.core.AbstractScene{@link #setSceneCenter(Vec)}) simply call this
+	 * method (resp. {@link #setSceneCenter(Vec)}) on its associated
 	 * {@link remixlab.dandelion.core.AbstractScene#pinhole()}. Default value is (0,0,0) (world
-	 * origin). Use {@link #setSceneCenter(DLVector)} to change it.
+	 * origin). Use {@link #setSceneCenter(Vec)} to change it.
 	 * 
-	 * @see #setSceneBoundingBox(DLVector, DLVector)
+	 * @see #setSceneBoundingBox(Vec, Vec)
 	 */
-	public DLVector sceneCenter() {
+	public Vec sceneCenter() {
 		return scnCenter;
 	}
 	
@@ -539,7 +539,7 @@ public abstract class Pinhole {
 	 * <b>Attention:</b> This method also sets the
 	 * {@link #arcballReferencePoint()} to {@link #sceneCenter()}.
 	 */
-	public void setSceneCenter(DLVector center) {
+	public void setSceneCenter(Vec center) {
 		scnCenter = center;
 		setArcballReferencePoint(sceneCenter());
 	}
@@ -550,9 +550,9 @@ public abstract class Pinhole {
 	 * <p>
 	 * Default value is the {@link #sceneCenter()}.
 	 * <p>
-	 * <b>Attention:</b> {@link #setSceneCenter(DLVector)} changes this value.
+	 * <b>Attention:</b> {@link #setSceneCenter(Vec)} changes this value.
 	 */
-	public final DLVector arcballReferencePoint() {
+	public final Vec arcballReferencePoint() {
 		return frame().arcballReferencePoint();
 	}	
 	
@@ -560,7 +560,7 @@ public abstract class Pinhole {
 	 * Changes the {@link #arcballReferencePoint()} to {@code rap} (defined in the
 	 * world coordinate system).
 	 */	
-	public abstract void setArcballReferencePoint(DLVector rap);
+	public abstract void setArcballReferencePoint(Vec rap);
 	
 	public abstract boolean setArcballReferencePointFromPixel(Point pixel);
 	
@@ -640,15 +640,15 @@ public abstract class Pinhole {
 	 * 
 	 * 
 	 */
-	public DLMatrix getProjectionMatrix() {
+	public Mat getProjectionMatrix() {
 		return getProjectionMatrix(false);
 	}
 	
-	public DLMatrix getProjectionMatrix(boolean recompute) {
-		return getProjectionMatrix(new DLMatrix(), recompute);
+	public Mat getProjectionMatrix(boolean recompute) {
+		return getProjectionMatrix(new Mat(), recompute);
 	}
 	
-	public DLMatrix getProjectionMatrix(DLMatrix m) {
+	public Mat getProjectionMatrix(Mat m) {
 		return getProjectionMatrix(m, false);
 	}
 
@@ -660,11 +660,11 @@ public abstract class Pinhole {
 	 * to define the Camera projection matrix. Otherwise it returns the projection matrix
 	 * previously computed, e.g., as with {@link #loadProjectionMatrix()}.
 	 * 
-	 * @see #getViewMatrix(DLMatrix, boolean)
+	 * @see #getViewMatrix(Mat, boolean)
 	 */
-	public DLMatrix getProjectionMatrix(DLMatrix m, boolean recompute) {
+	public Mat getProjectionMatrix(Mat m, boolean recompute) {
 		if (m == null)
-			m = new DLMatrix();
+			m = new Mat();
 
 		if(recompute)
 			// May not be needed, but easier and more robust like this.
@@ -679,20 +679,20 @@ public abstract class Pinhole {
 	 * 
 	 * @see #setProjectionMatrix(float[])
 	 * @see #setProjectionMatrix(float[], boolean)
-	 * @see #setViewMatrix(DLMatrix)
+	 * @see #setViewMatrix(Mat)
 	 * @see #setViewMatrix(float[])
 	 * @see #setViewMatrix(float[], boolean)
 	 */
-	public void setProjectionMatrix(DLMatrix proj) {
+	public void setProjectionMatrix(Mat proj) {
 		projectionMat.set(proj);
 	}
 	
 	/**
 	 * Convenience function that simply calls {@code setProjectionMatrix(source, false)}.
 	 * 
-	 * @see #setProjectionMatrix(DLMatrix)
+	 * @see #setProjectionMatrix(Mat)
 	 * @see #setProjectionMatrix(float[], boolean) 
-	 * @see #setViewMatrix(DLMatrix)
+	 * @see #setViewMatrix(Mat)
 	 * @see #setViewMatrix(float[])
 	 * @see #setViewMatrix(float[], boolean)
 	 */
@@ -704,9 +704,9 @@ public abstract class Pinhole {
 	 * Fills the projection matrix with the {@code source} matrix values
 	 * (defined in row-major order).
 	 * 
-	 * @see #setProjectionMatrix(DLMatrix)
+	 * @see #setProjectionMatrix(Mat)
 	 * @see #setProjectionMatrix(float[]) 
-	 * @see #setViewMatrix(DLMatrix)
+	 * @see #setViewMatrix(Mat)
 	 * @see #setViewMatrix(float[])
 	 * @see #setViewMatrix(float[], boolean)
 	 */
@@ -756,13 +756,13 @@ public abstract class Pinhole {
 	 * Returns the Camera frame coordinates of a point {@code src} defined in
 	 * world coordinates.
 	 * <p>
-	 * {@link #worldCoordinatesOf(DLVector)} performs the inverse transformation.
+	 * {@link #worldCoordinatesOf(Vec)} performs the inverse transformation.
 	 * <p>
 	 * Note that the point coordinates are simply converted in a different
 	 * coordinate system. They are not projected on screen. Use
-	 * {@link #projectedCoordinatesOf(DLVector, GeomFrame)} for that.
+	 * {@link #projectedCoordinatesOf(Vec, GeomFrame)} for that.
 	 */
-	public DLVector cameraCoordinatesOf(DLVector src) {
+	public Vec cameraCoordinatesOf(Vec src) {
 		return frame().coordinatesOf(src);
 	}
 
@@ -770,9 +770,9 @@ public abstract class Pinhole {
 	 * Returns the world coordinates of the point whose position {@code src} is
 	 * defined in the Camera coordinate system.
 	 * <p>
-	 * {@link #cameraCoordinatesOf(DLVector)} performs the inverse transformation.
+	 * {@link #cameraCoordinatesOf(Vec)} performs the inverse transformation.
 	 */
-	public DLVector worldCoordinatesOf(final DLVector src) {
+	public Vec worldCoordinatesOf(final Vec src) {
 		return frame().inverseCoordinatesOf(src);
 	}	
 	
@@ -796,14 +796,14 @@ public abstract class Pinhole {
 	 * Convenience function that simply returns {@code getViewMatrix(false)}
 	 * 
 	 * @see #getViewMatrix(boolean)
-	 * @see #getViewMatrix(DLMatrix)
-	 * @see #getViewMatrix(DLMatrix, boolean)
+	 * @see #getViewMatrix(Mat)
+	 * @see #getViewMatrix(Mat, boolean)
 	 * @see #getProjectionMatrix()
 	 * @see #getProjectionMatrix(boolean)
-	 * @see #getProjectionMatrix(DLMatrix)
-	 * @see #getProjectionMatrix(DLMatrix, boolean) 
+	 * @see #getProjectionMatrix(Mat)
+	 * @see #getProjectionMatrix(Mat, boolean) 
 	 */
-	public DLMatrix getViewMatrix() {
+	public Mat getViewMatrix() {
 		return getViewMatrix(false);
 	}
 	
@@ -811,15 +811,15 @@ public abstract class Pinhole {
 	 * Convenience function that simply returns {@code getViewMatrix(new Matrix3D(), recompute)}
 	 * 
 	 * @see #getViewMatrix()
-	 * @see #getViewMatrix(DLMatrix)
-	 * @see #getViewMatrix(DLMatrix, boolean)
+	 * @see #getViewMatrix(Mat)
+	 * @see #getViewMatrix(Mat, boolean)
 	 * @see #getProjectionMatrix()
 	 * @see #getProjectionMatrix(boolean)
-	 * @see #getProjectionMatrix(DLMatrix)
-	 * @see #getProjectionMatrix(DLMatrix, boolean)
+	 * @see #getProjectionMatrix(Mat)
+	 * @see #getProjectionMatrix(Mat, boolean)
 	 */
-	public DLMatrix getViewMatrix(boolean recompute) {
-		return getViewMatrix(new DLMatrix(), recompute);
+	public Mat getViewMatrix(boolean recompute) {
+		return getViewMatrix(new Mat(), recompute);
 	}
 	
 	/**
@@ -827,13 +827,13 @@ public abstract class Pinhole {
 	 * 
 	 * @see #getViewMatrix()
 	 * @see #getViewMatrix(boolean)
-	 * @see #getViewMatrix(DLMatrix, boolean)
+	 * @see #getViewMatrix(Mat, boolean)
 	 * @see #getProjectionMatrix()
 	 * @see #getProjectionMatrix(boolean)
-	 * @see #getProjectionMatrix(DLMatrix)
-	 * @see #getProjectionMatrix(DLMatrix, boolean)
+	 * @see #getProjectionMatrix(Mat)
+	 * @see #getProjectionMatrix(Mat, boolean)
 	 */
-	public DLMatrix getViewMatrix(DLMatrix m) {
+	public Mat getViewMatrix(Mat m) {
 		return getViewMatrix(m, false);
 	}
 
@@ -847,14 +847,14 @@ public abstract class Pinhole {
 	 * 
 	 * @see #getViewMatrix()
 	 * @see #getViewMatrix(boolean)
-	 * @see #getViewMatrix(DLMatrix)
+	 * @see #getViewMatrix(Mat)
 	 * @see #getProjectionMatrix()
 	 * @see #getProjectionMatrix(boolean)
-	 * @see #getProjectionMatrix(DLMatrix, boolean) 
+	 * @see #getProjectionMatrix(Mat, boolean) 
 	 */
-	public DLMatrix getViewMatrix(DLMatrix m, boolean recompute) {
+	public Mat getViewMatrix(Mat m, boolean recompute) {
 		if (m == null)
-			m = new DLMatrix();
+			m = new Mat();
 		if(recompute)
 			// May not be needed, but easier like this.
 			// Prevents from retrieving matrix in stereo mode -> overwrites shifted value.
@@ -866,24 +866,24 @@ public abstract class Pinhole {
 	/**
 	 * Fills the view matrix with the {@code view} matrix values.
 	 * 
-	 * @see #setProjectionMatrix(DLMatrix)
+	 * @see #setProjectionMatrix(Mat)
 	 * @see #setProjectionMatrix(float[]) 
 	 * @see #setViewMatrix(float[])
 	 * @see #setViewMatrix(float[], boolean)
-	 * @see #setViewMatrix(DLMatrix, boolean)
+	 * @see #setViewMatrix(Mat, boolean)
 	 */
-	public void setViewMatrix(DLMatrix view) {
+	public void setViewMatrix(Mat view) {
 			viewMat.set(view);
 	}
 	
 	/**
 	 * Convenience function that simply calls {@code setViewMatrix(source, false)}.
 	 * 
-	 * @see #setProjectionMatrix(DLMatrix)
+	 * @see #setProjectionMatrix(Mat)
 	 * @see #setProjectionMatrix(float[]) 
 	 * @see #setViewMatrix(float[], boolean)
-	 * @see #setViewMatrix(DLMatrix, boolean)
-	 * @see #setViewMatrix(DLMatrix)
+	 * @see #setViewMatrix(Mat, boolean)
+	 * @see #setViewMatrix(Mat)
 	 */
 	public void setViewMatrix(float [] source) {
 		setViewMatrix(source, false);
@@ -893,11 +893,11 @@ public abstract class Pinhole {
 	 * Fills the view matrix with the {@code source} matrix values
 	 * (defined in row-major order).
 	 * 
-	 * @see #setProjectionMatrix(DLMatrix)
+	 * @see #setProjectionMatrix(Mat)
 	 * @see #setProjectionMatrix(float[]) 
 	 * @see #setViewMatrix(float[])
-	 * @see #setViewMatrix(DLMatrix, boolean)
-	 * @see #setViewMatrix(DLMatrix)
+	 * @see #setViewMatrix(Mat, boolean)
+	 * @see #setViewMatrix(Mat)
 	 */
 	public void setViewMatrix(float [] source, boolean transpose) {
 		if(transpose)
@@ -906,7 +906,7 @@ public abstract class Pinhole {
 			viewMat.set(source);
 	}	
 	
-	public void setProjectionViewMatrix(DLMatrix projviewMat) {
+	public void setProjectionViewMatrix(Mat projviewMat) {
 		projectionViewMat.set(projviewMat);
 }
 	
@@ -921,21 +921,21 @@ public abstract class Pinhole {
 			projectionViewMat.set(source);
 	}
 	
-	public DLMatrix getProjectionViewMatrix() {
+	public Mat getProjectionViewMatrix() {
 		return getProjectionViewMatrix(false);
 	}
 	
-	public DLMatrix getProjectionViewMatrix(boolean recompute) {
-		return getProjectionViewMatrix(new DLMatrix(), recompute);
+	public Mat getProjectionViewMatrix(boolean recompute) {
+		return getProjectionViewMatrix(new Mat(), recompute);
 	}
 	
-	public DLMatrix getProjectionViewMatrix(DLMatrix m) {
+	public Mat getProjectionViewMatrix(Mat m) {
 		return getProjectionViewMatrix(m, false);
 	}
 	
-	public DLMatrix getProjectionViewMatrix(DLMatrix m, boolean recompute) {
+	public Mat getProjectionViewMatrix(Mat m, boolean recompute) {
 		if (m == null)
-			m = new DLMatrix();
+			m = new Mat();
 		if(recompute) {
 			computeProjectionViewMatrix();
 		}
@@ -944,7 +944,7 @@ public abstract class Pinhole {
 	}
 	
 	public void computeProjectionViewMatrix() {
-		DLMatrix.mult(projectionMat, viewMat, projectionViewMat);		 
+		Mat.mult(projectionMat, viewMat, projectionViewMat);		 
 	}
 	
 	/**
@@ -965,7 +965,7 @@ public abstract class Pinhole {
 	public void cacheProjViewInvMat() {		
 		if(unprojectCacheIsOptimized()) {
 			if(projectionViewInverseMat == null)
-				projectionViewInverseMat = new DLMatrix();
+				projectionViewInverseMat = new Mat();
 			projectionViewMatHasInverse = projectionViewMat.invert(projectionViewInverseMat);
 		}
 	}
@@ -974,9 +974,9 @@ public abstract class Pinhole {
 	 * Convenience function that simply returns {@code projectedCoordinatesOf(src,
 	 * null)}
 	 * 
-	 * @see #projectedCoordinatesOf(DLVector, GeomFrame)
+	 * @see #projectedCoordinatesOf(Vec, GeomFrame)
 	 */
-	public final DLVector projectedCoordinatesOf(DLVector src) {
+	public final Vec projectedCoordinatesOf(Vec src) {
 		return projectedCoordinatesOf(src, null);
 	}
 
@@ -985,7 +985,7 @@ public abstract class Pinhole {
 	 * the {@code frame} coordinate system.
 	 * <p>
 	 * When {@code frame} is {@code null}, {@code src} is expressed in the world
-	 * coordinate system. See {@link #projectedCoordinatesOf(DLVector)}.
+	 * coordinate system. See {@link #projectedCoordinatesOf(Vec)}.
 	 * <p>
 	 * The x and y coordinates of the returned Vector3D are expressed in pixel,
 	 * (0,0) being the upper left corner of the window. The z coordinate ranges
@@ -998,29 +998,29 @@ public abstract class Pinhole {
 	 * matrices. You can hence define a virtual Camera and use this method to
 	 * compute projections out of a classical rendering context.
 	 * 
-	 * @see #unprojectedCoordinatesOf(DLVector, GeomFrame)
+	 * @see #unprojectedCoordinatesOf(Vec, GeomFrame)
 	 */
-	public final DLVector projectedCoordinatesOf(DLVector src, GeomFrame frame) {
+	public final Vec projectedCoordinatesOf(Vec src, GeomFrame frame) {
 		float xyz[] = new float[3];		
 
 		if (frame != null) {
-			DLVector tmp = frame.inverseCoordinatesOf(src);
+			Vec tmp = frame.inverseCoordinatesOf(src);
 			//project(tmp.vec[0], tmp.vec[1], tmp.vec[2], viewMat, projectionMat, getViewport(), xyz);
 			project(tmp.vec[0], tmp.vec[1], tmp.vec[2], xyz);
 		} else
 			project(src.vec[0], src.vec[1], src.vec[2], xyz);	
 			//project(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, getViewport(), xyz);
 
-		return new DLVector((float) xyz[0], (float) xyz[1], (float) xyz[2]);
+		return new Vec((float) xyz[0], (float) xyz[1], (float) xyz[2]);
 	}
 	
 	/**
 	 * Convenience function that simply returns {@code return
 	 * unprojectedCoordinatesOf(src, null)}
 	 * 
-	 * #see {@link #unprojectedCoordinatesOf(DLVector, GeomFrame)}
+	 * #see {@link #unprojectedCoordinatesOf(Vec, GeomFrame)}
 	 */
-	public final DLVector unprojectedCoordinatesOf(DLVector src) {
+	public final Vec unprojectedCoordinatesOf(Vec src) {
 		return this.unprojectedCoordinatesOf(src, null);
 	}
 
@@ -1038,7 +1038,7 @@ public abstract class Pinhole {
 	 * coordinates system. The possible {@code frame}
 	 * {@link remixlab.dandelion.geom.GeomFrame#referenceFrame()} are taken into account.
 	 * <p>
-	 * {@link #projectedCoordinatesOf(DLVector, GeomFrame)} performs the inverse
+	 * {@link #projectedCoordinatesOf(Vec, GeomFrame)} performs the inverse
 	 * transformation.
 	 * <p>
 	 * This method only uses the intrinsic Camera parameters (see
@@ -1057,17 +1057,17 @@ public abstract class Pinhole {
 	 * projection matrix (view, projection and then viewport) to speed-up the
 	 * queries. See the gluUnProject man page for details.
 	 * 
-	 * @see #projectedCoordinatesOf(DLVector, GeomFrame)
+	 * @see #projectedCoordinatesOf(Vec, GeomFrame)
 	 * @see #setScreenWidthAndHeight(int, int)
 	 */
-	public final DLVector unprojectedCoordinatesOf(DLVector src, GeomFrame frame) {
+	public final Vec unprojectedCoordinatesOf(Vec src, GeomFrame frame) {
 		float xyz[] = new float[3];				
 		//unproject(src.vec[0], src.vec[1], src.vec[2], this.getViewMatrix(true), this.getProjectionMatrix(true), getViewport(), xyz);		
 		unproject(src.vec[0], src.vec[1], src.vec[2], xyz);		
 		if (frame != null)
-			return frame.coordinatesOf(new DLVector((float) xyz[0], (float) xyz[1],	(float) xyz[2]));
+			return frame.coordinatesOf(new Vec((float) xyz[0], (float) xyz[1],	(float) xyz[2]));
 		else
-			return new DLVector((float) xyz[0], (float) xyz[1], (float) xyz[2]);
+			return new Vec((float) xyz[0], (float) xyz[1], (float) xyz[2]);
 	}
 	
 	protected void updateViewPort() {
@@ -1124,8 +1124,8 @@ public abstract class Pinhole {
 	 */
 	
 	// /**
-	public boolean project(float objx, float objy, float objz, DLMatrix view,
-			                   DLMatrix projection, int[] vp, float[] windowCoordinate) {		
+	public boolean project(float objx, float objy, float objz, Mat view,
+			                   Mat projection, int[] vp, float[] windowCoordinate) {		
   	//TODO currently broken, perhaps it shoudl be just removed
 		
 		float in[] = new float[4];
@@ -1245,14 +1245,14 @@ public abstract class Pinhole {
 	 *          Return the computed object coordinates.
 	 */
 	// /**
-	public boolean unproject(float winx, float winy, float winz, DLMatrix view,
-			                     DLMatrix projection, int vp[], float[] objCoordinate) {
+	public boolean unproject(float winx, float winy, float winz, Mat view,
+			                     Mat projection, int vp[], float[] objCoordinate) {
 		
 		//TODO currently broken, perhaps it shoudl be just removed
 		
-		DLMatrix projectionTimesView = new DLMatrix();		
-		DLMatrix.mult(projection, view, projectionTimesView);
-		DLMatrix projectionTimesViewInverse = new DLMatrix();
+		Mat projectionTimesView = new Mat();		
+		Mat.mult(projection, view, projectionTimesView);
+		Mat projectionTimesViewInverse = new Mat();
 		boolean hasInverse = projectionTimesView.invert(projectionTimesViewInverse);
 
 		if (!hasInverse)
@@ -1295,7 +1295,7 @@ public abstract class Pinhole {
 	public boolean unproject(float winx, float winy, float winz, float[] objCoordinate) {		
 		if(!unprojectCacheOptimized) {
 			if(projectionViewInverseMat == null)
-				projectionViewInverseMat = new DLMatrix();
+				projectionViewInverseMat = new Mat();
 			projectionViewMatHasInverse = projectionViewMat.invert(projectionViewInverseMat);
 		}
 		
@@ -1584,10 +1584,10 @@ public abstract class Pinhole {
 	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()} which
 	 * automatically update the frustum equations every frame instead.
 	 * 
-	 * @see #distanceToFrustumPlane(int, DLVector)
-	 * @see #pointIsVisible(DLVector)
-	 * @see #sphereIsVisible(DLVector, float)
-	 * @see #aaBoxIsVisible(DLVector, DLVector)
+	 * @see #distanceToFrustumPlane(int, Vec)
+	 * @see #pointIsVisible(Vec)
+	 * @see #sphereIsVisible(Vec, float)
+	 * @see #aaBoxIsVisible(Vec, Vec)
 	 * @see #computeFrustumEquations()
 	 * @see #getFrustumEquations()
 	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
@@ -1617,10 +1617,10 @@ public abstract class Pinhole {
 	 * in your Scene setup (with
 	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, DLVector)
-	 * @see #pointIsVisible(DLVector)
-	 * @see #sphereIsVisible(DLVector, float)
-	 * @see #aaBoxIsVisible(DLVector, DLVector)
+	 * @see #distanceToFrustumPlane(int, Vec)
+	 * @see #pointIsVisible(Vec)
+	 * @see #sphereIsVisible(Vec, float)
+	 * @see #aaBoxIsVisible(Vec, Vec)
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
@@ -1648,26 +1648,26 @@ public abstract class Pinhole {
 	 * in your Scene setup (with
 	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()}).
 	 * 
-	 * @see #pointIsVisible(DLVector)
-	 * @see #sphereIsVisible(DLVector, float)
-	 * @see #aaBoxIsVisible(DLVector, DLVector)
+	 * @see #pointIsVisible(Vec)
+	 * @see #sphereIsVisible(Vec, float)
+	 * @see #aaBoxIsVisible(Vec, Vec)
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
 	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
 	 */
-	public float distanceToFrustumPlane(int index, DLVector pos) {
+	public float distanceToFrustumPlane(int index, Vec pos) {
 		if (!scene.frustumEquationsUpdateIsEnable())
 			System.out.println("The camera frustum plane equations (needed by distanceToFrustumPlane) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableFrustumEquationsUpdate()");
-		DLVector myVec = new DLVector(fpCoefficients[index][0],	fpCoefficients[index][1], fpCoefficients[index][2]);
-		return DLVector.dot(pos, myVec) - fpCoefficients[index][3];
+		Vec myVec = new Vec(fpCoefficients[index][0],	fpCoefficients[index][1], fpCoefficients[index][2]);
+		return Vec.dot(pos, myVec) - fpCoefficients[index][3];
 	}
 	
-	public abstract float pixelP5Ratio(DLVector position);
+	public abstract float pixelP5Ratio(Vec position);
 	
-	public abstract boolean pointIsVisible(DLVector point);	
+	public abstract boolean pointIsVisible(Vec point);	
 	
 	/**
 	 * Smoothly moves the Camera so that the rectangular screen region defined by
@@ -1694,7 +1694,7 @@ public abstract class Pinhole {
 		// without modifying frame
 		tempFrame = new InteractiveCameraFrame(this);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new DLVector(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
+		tempFrame.setPosition(new Vec(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
 		tempFrame.setOrientation( frame().orientation().get() );
 		tempFrame.setMagnitude( frame().magnitude().get() );
 		setFrame(tempFrame);
@@ -1727,7 +1727,7 @@ public abstract class Pinhole {
 		// without modifying frame
 		tempFrame = new InteractiveCameraFrame(this);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(new DLVector(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
+		tempFrame.setPosition(new Vec(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
 		tempFrame.setOrientation( frame().orientation().get() );
 		tempFrame.setMagnitude( frame().magnitude().get() );
 		setFrame(tempFrame);
@@ -1776,7 +1776,7 @@ public abstract class Pinhole {
 	/**
 	 * Moves the Camera so that the entire scene is visible.
 	 * <p>
-	 * Simply calls {@link #fitSphere(DLVector, float)} on a sphere defined by
+	 * Simply calls {@link #fitSphere(Vec, float)} on a sphere defined by
 	 * {@link #sceneCenter()} and {@link #sceneRadius()}.
 	 * <p>
 	 * You will typically use this method at init time after you defined a new
@@ -1798,19 +1798,19 @@ public abstract class Pinhole {
 		frame().projectOnLine(sceneCenter(), viewDirection());
 	}
 	
-	public abstract DLVector viewDirection();
+	public abstract Vec viewDirection();
 	
   //TODO experimental	
 	
-	public DLMatrix projection() {
+	public Mat projection() {
 		return projectionMat;
 	}
 	
-	public DLMatrix view() {
+	public Mat view() {
 		return viewMat;
 	}
 	
-	public DLMatrix projectionView() {
+	public Mat projectionView() {
 		return projectionViewMat;
 	}
 }

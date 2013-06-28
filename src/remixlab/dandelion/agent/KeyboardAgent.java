@@ -31,8 +31,8 @@ import remixlab.dandelion.event.KeyboardEvent;
 import remixlab.dandelion.profile.KeyboardProfile;
 import remixlab.duoable.agent.AbstractKeyboardAgent;
 
-public class Keyboard extends AbstractKeyboardAgent {
-	public Keyboard(AbstractScene scn, String n) {
+public class KeyboardAgent extends AbstractKeyboardAgent {
+	public KeyboardAgent(AbstractScene scn, String n) {
 		super(scn, n);
 		profile = new KeyboardProfile();
 		setDefaultGrabber(scn);

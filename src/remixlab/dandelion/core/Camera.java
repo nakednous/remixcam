@@ -39,7 +39,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * A Camera defines some intrinsic parameters ({@link #fieldOfView()},
  * {@link #position()}, {@link #viewDirection()}, {@link #upVector()}...) and
  * useful positioning tools that ease its placement ({@link #showEntireScene()},
- * {@link #fitSphere(DLVector, float)}, {@link #lookAt(DLVector)}...). It exports
+ * {@link #fitSphere(Vec, float)}, {@link #lookAt(Vec)}...). It exports
  * its associated processing projection and view matrices and it can
  * interactively be modified using the mouse.
  * <p>
@@ -148,26 +148,26 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * Typically needed to perform bfc.
 	 */
 	public class Cone {
-		DLVector axis;
+		Vec axis;
 		float angle;
 		
 		public Cone() {
 			reset();
 		}
 		
-		public Cone(DLVector vec, float a) {
+		public Cone(Vec vec, float a) {
 			set(vec, a);
 		}
 		
-		public Cone(ArrayList<DLVector> normals) {
+		public Cone(ArrayList<Vec> normals) {
 			set(normals);
 		}
 		
-		public Cone(DLVector [] normals) {
+		public Cone(Vec [] normals) {
 			set(normals);
 		}
 		
-		public DLVector axis() {
+		public Vec axis() {
 			return axis;
 		}
 		
@@ -176,32 +176,32 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		}
 		
 		public void reset() {
-			axis = new DLVector(0,0,1);
+			axis = new Vec(0,0,1);
 			angle = 0;
 		}
 		
-		public void set(DLVector vec, float a) {
+		public void set(Vec vec, float a) {
 			axis = vec;
 			angle = a;
 		}
 		
-		public void set(ArrayList<DLVector> normals) {
-			set( normals.toArray( new DLVector [normals.size()] ) );		
+		public void set(ArrayList<Vec> normals) {
+			set( normals.toArray( new Vec [normals.size()] ) );		
 		}
 		
-		public void set(DLVector [] normals) {
-			axis = new DLVector(0,0,0);
+		public void set(Vec [] normals) {
+			axis = new Vec(0,0,0);
 			if(normals.length == 0) {
 				reset();
 				return;
 			}
 			
-			DLVector [] n = new DLVector [normals.length];
+			Vec [] n = new Vec [normals.length];
 			for(int i=0; i<normals.length; i++ ) {
-				n[i] = new DLVector();
+				n[i] = new Vec();
 				n[i].set(normals[i]);
 				n[i].normalize();
-				axis = DLVector.add(axis, n[i]);
+				axis = Vec.add(axis, n[i]);
 			}
 			
 			if ( Geom.nonZero(axis.mag()) ) {
@@ -213,7 +213,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			
 			angle = 0;        
 			for(int i=0; i<normals.length; i++ )		
-				angle = Math.max( angle, (float) Math.acos( DLVector.dot(n[i], axis)));		
+				angle = Math.max( angle, (float) Math.acos( Vec.dot(n[i], axis)));		
 		}	
 	}
 	
@@ -223,17 +223,17 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * implemented by an openGL based derived class Camera).
 	 */
 	public class WorldPoint {
-		public WorldPoint(DLVector p, boolean f) {
+		public WorldPoint(Vec p, boolean f) {
 			point = p;
 			found = f;
 		}
 
-		public DLVector point;
+		public Vec point;
 		public boolean found;
 	}
 	
 	// next variables are needed for frustum plane coefficients
-	DLVector normal[] = new DLVector[6];
+	Vec normal[] = new Vec[6];
 	float dist[] = new float[6];
 
 	/**
@@ -291,7 +291,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			throw new RuntimeException("Use Camera only for a 3D Scene");			
 
 		for (int i = 0; i < normal.length; i++)
-			normal[i] = new DLVector();
+			normal[i] = new Vec();
 
 		fldOfView = (float) Math.PI / 3.0f; //in Proscene 1.x it was Pi/4
 
@@ -362,7 +362,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		super(oCam);	
 		
 		for (int i = 0; i < normal.length; i++)
-			this.normal[i] = new DLVector(oCam.normal[i].vec[0], oCam.normal[i].vec[1], oCam.normal[i].vec[2] );
+			this.normal[i] = new Vec(oCam.normal[i].vec[0], oCam.normal[i].vec[1], oCam.normal[i].vec[2] );
 		
 		this.fldOfView = oCam.fldOfView;
 		this.orthoCoef = oCam.orthoCoef;
@@ -392,18 +392,18 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	// 2. POSITION AND ORIENTATION
 	
 	@Override
-	public DLVector rightVector() {
+	public Vec rightVector() {
 		return frame().magnitude().x() > 0 ? frame().xAxis() : frame().xAxis(false);
 	}
 	
 	@Override
-	public DLVector upVector() {
+	public Vec upVector() {
 		return frame().magnitude().y() > 0 ? frame().yAxis() : frame().yAxis(false);
 	}
 	
 	@Override
-	public void setUpVector(DLVector up, boolean noMove) {
-		Quaternion q = new Quaternion(new DLVector(0.0f, frame().magnitude().y() > 0 ? 1.0f : -1.0f, 0.0f), frame().transformOf(up));
+	public void setUpVector(Vec up, boolean noMove) {
+		Quat q = new Quat(new Vec(0.0f, frame().magnitude().y() > 0 ? 1.0f : -1.0f, 0.0f), frame().transformOf(up));
 
 		if (!noMove)
 			frame().rotate(q);
@@ -416,15 +416,15 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * Returns the normalized view direction of the Camera, defined in the world
 	 * coordinate system.
 	 * <p>
-	 * Change this value using {@link #setViewDirection(DLVector)},
-	 * {@link #lookAt(DLVector)} or {@link #setOrientation(Quaternion)}. It is
+	 * Change this value using {@link #setViewDirection(Vec)},
+	 * {@link #lookAt(Vec)} or {@link #setOrientation(Quat)}. It is
 	 * orthogonal to {@link #upVector()} and to {@link #rightVector()}.
 	 * <p>
 	 * This corresponds to the negative Z axis of the {@link #frame()} ( {@code
 	 * frame().inverseTransformOf(new Vector3D(0.0f, 0.0f, -1.0f))} ).
 	 */
 	@Override
-	public DLVector viewDirection() {
+	public Vec viewDirection() {
 		return frame().magnitude().z() > 0 ? frame().zAxis(false) : frame().zAxis();
 	}	
 
@@ -435,22 +435,22 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * The Camera {@link #position()} is not modified. The Camera is rotated so
 	 * that the horizon (defined by its {@link #upVector()}) is preserved.
 	 * 
-	 * @see #lookAt(DLVector)
-	 * @see #setUpVector(DLVector)
+	 * @see #lookAt(Vec)
+	 * @see #setUpVector(Vec)
 	 */
-	public void setViewDirection(DLVector direction) {
+	public void setViewDirection(Vec direction) {
 		if (Geom.zero(direction.squaredNorm()))
 			return;
 
-		DLVector xAxis = direction.cross(upVector());
+		Vec xAxis = direction.cross(upVector());
 		if (Geom.zero(xAxis.squaredNorm())) {
 			// target is aligned with upVector, this means a rotation around X axis
 			// X axis is then unchanged, let's keep it !
-			xAxis = frame().inverseTransformOf(new DLVector(1.0f, 0.0f, 0.0f));
+			xAxis = frame().inverseTransformOf(new Vec(1.0f, 0.0f, 0.0f));
 		}
 
-		Quaternion q = new Quaternion();
-		q.fromRotatedBasis(xAxis, xAxis.cross(direction), DLVector.mult(direction,	-1));
+		Quat q = new Quat();
+		q.fromRotatedBasis(xAxis, xAxis.cross(direction), Vec.mult(direction,	-1));
 		frame().setOrientationWithConstraint(q);
 	}
 
@@ -458,8 +458,8 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * Returns the Camera orientation, defined in the world coordinate system.
 	 * <p>
 	 * Actually returns {@code frame().orientation()}. Use
-	 * {@link #setOrientation(Quaternion)}, {@link #setUpVector(DLVector)} or
-	 * {@link #lookAt(DLVector)} to set the Camera orientation.
+	 * {@link #setOrientation(Quat)}, {@link #setUpVector(Vec)} or
+	 * {@link #lookAt(Vec)} to set the Camera orientation.
 	 */
 	public Orientable orientation() {
 		return frame().orientation();
@@ -478,15 +478,15 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * The {@link #position()} of the Camera is unchanged, you may want to call
 	 * {@link #showEntireScene()} after this method to move the Camera.
 	 * 
-	 * @see #setUpVector(DLVector)
+	 * @see #setUpVector(Vec)
 	 */
 	public void setOrientation(float theta, float phi) {
 		// TODO: need check.
-		DLVector axis = new DLVector(0.0f, 1.0f, 0.0f);
-		Quaternion rot1 = new Quaternion(axis, theta);
+		Vec axis = new Vec(0.0f, 1.0f, 0.0f);
+		Quat rot1 = new Quat(axis, theta);
 		axis.set(-(float) Math.cos(theta), 0.0f, (float) Math.sin(theta));
-		Quaternion rot2 = new Quaternion(axis, phi);
-		setOrientation(Quaternion.multiply(rot1, rot2));
+		Quat rot2 = new Quat(axis, phi);
+		setOrientation(Quat.multiply(rot1, rot2));
 	}
 
 	/**
@@ -494,7 +494,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * system.
 	 */
 	@Override
-	public void setOrientation(Quaternion q) {
+	public void setOrientation(Quat q) {
 		frame().setOrientation(q);
 		frame().updateFlyUpVector();
 	}
@@ -673,12 +673,12 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * <p>
 	 * The {@link #position()} and {@link #orientation()} of the Camera are not
 	 * modified and you first have to orientate the Camera in order to actually
-	 * see the scene (see {@link #lookAt(DLVector)}, {@link #showEntireScene()} or
-	 * {@link #fitSphere(DLVector, float)}).
+	 * see the scene (see {@link #lookAt(Vec)}, {@link #showEntireScene()} or
+	 * {@link #fitSphere(Vec, float)}).
 	 * <p>
 	 * This method is especially useful for <i>shadow maps</i> computation. Use
-	 * the Camera positioning tools ({@link #setPosition(DLVector)},
-	 * {@link #lookAt(DLVector)}) to position a Camera at the light position. Then
+	 * the Camera positioning tools ({@link #setPosition(Vec)},
+	 * {@link #lookAt(Vec)}) to position a Camera at the light position. Then
 	 * use this method to define the {@link #fieldOfView()} so that the shadow map
 	 * resolution is optimally used:
 	 * <p>
@@ -929,7 +929,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * {@code endShape();}<br>
 	 */
 	@Override
-	public float pixelP5Ratio(DLVector position) {
+	public float pixelP5Ratio(Vec position) {
 		switch (type()) {
 		case PERSPECTIVE:
 			return 2.0f * Math.abs((frame().coordinatesOf(position, false)).vec[2]) * (float) Math.tan(fieldOfView() / 2.0f) / screenHeight();
@@ -951,16 +951,16 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * in your Scene setup (with
 	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, DLVector)
-	 * @see #sphereIsVisible(DLVector, float)
-	 * @see #aaBoxIsVisible(DLVector, DLVector)
+	 * @see #distanceToFrustumPlane(int, Vec)
+	 * @see #sphereIsVisible(Vec, float)
+	 * @see #aaBoxIsVisible(Vec, Vec)
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
 	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
 	 */
 	@Override
-	public boolean pointIsVisible(DLVector point) {
+	public boolean pointIsVisible(Vec point) {
 		if (!scene.frustumEquationsUpdateIsEnable())
 			System.out.println("The camera frustum plane equations (needed by pointIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
@@ -984,15 +984,15 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * in your Scene setup (with
 	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, DLVector)
-	 * @see #pointIsVisible(DLVector)
-	 * @see #aaBoxIsVisible(DLVector, DLVector)
+	 * @see #distanceToFrustumPlane(int, Vec)
+	 * @see #pointIsVisible(Vec)
+	 * @see #aaBoxIsVisible(Vec, Vec)
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
 	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
 	 */
-	public Visibility sphereIsVisible(DLVector center, float radius) {
+	public Visibility sphereIsVisible(Vec center, float radius) {
 		if (!scene.frustumEquationsUpdateIsEnable())
 			System.out.println("The camera frustum plane equations (needed by sphereIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
@@ -1023,15 +1023,15 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * in your Scene setup (with
 	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, DLVector)
-	 * @see #pointIsVisible(DLVector)
-	 * @see #sphereIsVisible(DLVector, float)
+	 * @see #distanceToFrustumPlane(int, Vec)
+	 * @see #pointIsVisible(Vec)
+	 * @see #sphereIsVisible(Vec, float)
 	 * @see #computeFrustumEquations()
 	 * @see #updateFrustumEquations()
 	 * @see #getFrustumEquations()
 	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
 	 */
-	public Visibility aaBoxIsVisible(DLVector p1, DLVector p2) {
+	public Visibility aaBoxIsVisible(Vec p1, Vec p2) {
 		if (!scene.frustumEquationsUpdateIsEnable())
 			System.out.println("The camera frustum plane equations (needed by aaBoxIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
@@ -1040,7 +1040,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		for (int i = 0; i < 6; ++i) {
 			boolean allOut = true;
 			for (int c = 0; c < 8; ++c) {
-				DLVector pos = new DLVector(((c & 4) != 0) ? p1.vec[0] : p2.vec[0],
+				Vec pos = new Vec(((c & 4) != 0) ? p1.vec[0] : p2.vec[0],
 						((c & 2) != 0) ? p1.vec[1] : p2.vec[1], ((c & 1) != 0) ? p1.vec[2] : p2.vec[2]);
 				if (distanceToFrustumPlane(i, pos) > 0.0)
 					allInForAllPlanes = false;
@@ -1117,35 +1117,35 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			coef = new float[6][4];
 
 		// Computed once and for all
-		DLVector pos = position();
-		DLVector viewDir = viewDirection();
-		DLVector up = upVector();
-		DLVector right = rightVector();
+		Vec pos = position();
+		Vec viewDir = viewDirection();
+		Vec up = upVector();
+		Vec right = rightVector();
 		
-		float posViewDir = DLVector.dot(pos, viewDir);
+		float posViewDir = Vec.dot(pos, viewDir);
 
 		switch (type()) {
 		case PERSPECTIVE: {
 			float hhfov = horizontalFieldOfView() / 2.0f;
 			float chhfov = (float) Math.cos(hhfov);
 			float shhfov = (float) Math.sin(hhfov);
-			normal[0] = DLVector.mult(viewDir, -shhfov);
-			normal[1] = DLVector.add(normal[0], DLVector.mult(right, chhfov));
-			normal[0] = DLVector.add(normal[0], DLVector.mult(right, -chhfov));
-			normal[2] = DLVector.mult(viewDir, -1);
+			normal[0] = Vec.mult(viewDir, -shhfov);
+			normal[1] = Vec.add(normal[0], Vec.mult(right, chhfov));
+			normal[0] = Vec.add(normal[0], Vec.mult(right, -chhfov));
+			normal[2] = Vec.mult(viewDir, -1);
 			normal[3] = viewDir;
 
 			float hfov = fieldOfView() / 2.0f;
 			float chfov = (float) Math.cos(hfov);
 			float shfov = (float) Math.sin(hfov);
-			normal[4] = DLVector.mult(viewDir, -shfov);
-			normal[5] = DLVector.add(normal[4], DLVector.mult(up, -chfov));
-			normal[4] = DLVector.add(normal[4], DLVector.mult(up, chfov));
+			normal[4] = Vec.mult(viewDir, -shfov);
+			normal[5] = Vec.add(normal[4], Vec.mult(up, -chfov));
+			normal[4] = Vec.add(normal[4], Vec.mult(up, chfov));
 
 			for (int i = 0; i < 2; ++i)
-				dist[i] = DLVector.dot(pos, normal[i]);
+				dist[i] = Vec.dot(pos, normal[i]);
 			for (int j = 4; j < 6; ++j)
-				dist[j] = DLVector.dot(pos, normal[j]);
+				dist[j] = Vec.dot(pos, normal[j]);
 
 			// Natural equations are:
 			// dist[0,1,4,5] = pos * normal[0,1,4,5];
@@ -1154,36 +1154,36 @@ public class Camera extends Pinhole implements Constants, Copyable {
 
 			// 2 times less computations using expanded/merged equations. Dir vectors
 			// are normalized.
-			float posRightCosHH = chhfov * DLVector.dot(pos, right);
+			float posRightCosHH = chhfov * Vec.dot(pos, right);
 			dist[0] = -shhfov * posViewDir;
 			dist[1] = dist[0] + posRightCosHH;
 			dist[0] = dist[0] - posRightCosHH;
-			float posUpCosH = chfov * DLVector.dot(pos, up);
+			float posUpCosH = chfov * Vec.dot(pos, up);
 			dist[4] = -shfov * posViewDir;
 			dist[5] = dist[4] - posUpCosH;
 			dist[4] = dist[4] + posUpCosH;
 			break;
 		}
 		case ORTHOGRAPHIC:
-			normal[0] = DLVector.mult(right, -1);
+			normal[0] = Vec.mult(right, -1);
 			normal[1] = right;
 			normal[4] = up;
-			normal[5] = DLVector.mult(up, -1);
+			normal[5] = Vec.mult(up, -1);
 
 			float[] wh = getOrthoWidthHeight();
-			dist[0] = DLVector.dot(DLVector.sub(pos, DLVector.mult(right, wh[0])),
+			dist[0] = Vec.dot(Vec.sub(pos, Vec.mult(right, wh[0])),
 					normal[0]);
-			dist[1] = DLVector.dot(DLVector.add(pos, DLVector.mult(right, wh[0])),
+			dist[1] = Vec.dot(Vec.add(pos, Vec.mult(right, wh[0])),
 					normal[1]);
-			dist[4] = DLVector.dot(DLVector.add(pos, DLVector.mult(up, wh[1])),
+			dist[4] = Vec.dot(Vec.add(pos, Vec.mult(up, wh[1])),
 					normal[4]);
-			dist[5] = DLVector.dot(DLVector.sub(pos, DLVector.mult(up, wh[1])),
+			dist[5] = Vec.dot(Vec.sub(pos, Vec.mult(up, wh[1])),
 					normal[5]);
 			break;
 		}
 
 		// Front and far planes are identical for both camera types.
-		normal[2] = DLVector.mult(viewDir, -1);
+		normal[2] = Vec.mult(viewDir, -1);
 		normal[3] = viewDir;
 		dist[2] = -posViewDir - zNear();
 		dist[3] = posViewDir + zFar();
@@ -1202,9 +1202,9 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * Convenience function that simply calls {@code coneIsBackFacing(new Cone(normals))}.
 	 * 
 	 * @see #coneIsBackFacing(Cone)
-	 * @see #coneIsBackFacing(DLVector[])
+	 * @see #coneIsBackFacing(Vec[])
 	 */
-	public boolean coneIsBackFacing(ArrayList<DLVector> normals) {
+	public boolean coneIsBackFacing(ArrayList<Vec> normals) {
 		return coneIsBackFacing(new Cone(normals));
 	}
 	
@@ -1215,7 +1215,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * @param viewDirection Cached camera view direction.
 	 * @param normals cone of normals.
 	 */
-	public boolean coneIsBackFacing(DLVector viewDirection, ArrayList<DLVector> normals) {
+	public boolean coneIsBackFacing(Vec viewDirection, ArrayList<Vec> normals) {
 		return coneIsBackFacing(viewDirection, new Cone(normals));
 	}
 	
@@ -1225,7 +1225,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * @see #coneIsBackFacing(Cone)
 	 * @see #coneIsBackFacing(ArrayList)
 	 */
-	public boolean coneIsBackFacing(DLVector [] normals) {
+	public boolean coneIsBackFacing(Vec [] normals) {
 		return coneIsBackFacing(new Cone(normals));
 	}
 	
@@ -1236,15 +1236,15 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * @param viewDirection Cached camera view direction.
 	 * @param normals cone of normals.
 	 */
-	public boolean coneIsBackFacing(DLVector viewDirection, DLVector [] normals) {
+	public boolean coneIsBackFacing(Vec viewDirection, Vec [] normals) {
 		return coneIsBackFacing(viewDirection, new Cone(normals));
 	}
 	
 	/**
 	 * Convenience function that simply returns {@code coneIsBackFacing(cone.axis(), cone.angle())}.
 	 * 
-	 * @see #coneIsBackFacing(DLVector, float)
-	 * @see #faceIsBackFacing(DLVector, DLVector, DLVector)
+	 * @see #coneIsBackFacing(Vec, float)
+	 * @see #faceIsBackFacing(Vec, Vec, Vec)
 	 */
 	public boolean coneIsBackFacing(Cone cone) {
 		return coneIsBackFacing(cone.axis(), cone.angle());
@@ -1257,7 +1257,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * @param viewDirection cached camera view direction.
 	 * @param cone cone of normals
 	 */
-	public boolean coneIsBackFacing(DLVector viewDirection, Cone cone) {
+	public boolean coneIsBackFacing(Vec viewDirection, Cone cone) {
 		return coneIsBackFacing(viewDirection, cone.axis(), cone.angle());
 	}
 	
@@ -1265,9 +1265,9 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * Convinience funtion that simply returns
 	 * {@code coneIsBackFacing(viewDirection(), axis, angle)}.
 	 * <p>
-	 * Non-cached version of {@link #coneIsBackFacing(DLVector, DLVector, float)}
+	 * Non-cached version of {@link #coneIsBackFacing(Vec, Vec, float)}
 	 */
-	public boolean coneIsBackFacing(DLVector axis, float angle) {
+	public boolean coneIsBackFacing(Vec axis, float angle) {
 		return coneIsBackFacing(viewDirection(), axis, angle);
 	}
 	
@@ -1280,11 +1280,11 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * @param angle cone angle
 	 * 
 	 * @see #coneIsBackFacing(Cone)
-	 * @see #faceIsBackFacing(DLVector, DLVector, DLVector)
+	 * @see #faceIsBackFacing(Vec, Vec, Vec)
 	 */
-	public boolean coneIsBackFacing(DLVector viewDirection, DLVector axis, float angle) {		
+	public boolean coneIsBackFacing(Vec viewDirection, Vec axis, float angle) {		
 		if( angle < HALF_PI ) {			
-			float phi = (float) Math.acos ( DLVector.dot(axis, viewDirection ) );
+			float phi = (float) Math.acos ( Vec.dot(axis, viewDirection ) );
 			if(phi >= HALF_PI)
 				return false;
 			if( (phi+angle) >= HALF_PI)
@@ -1307,9 +1307,9 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * @param b second face vertex
 	 * @param c third face vertex
 	 */
-  public boolean faceIsBackFacing(DLVector a, DLVector b, DLVector c) {
-  	DLVector v1 = DLVector.sub(projectedCoordinatesOf(a), projectedCoordinatesOf(b));
-    DLVector v2 = DLVector.sub(projectedCoordinatesOf(b), projectedCoordinatesOf(c));
+  public boolean faceIsBackFacing(Vec a, Vec b, Vec c) {
+  	Vec v1 = Vec.sub(projectedCoordinatesOf(a), projectedCoordinatesOf(b));
+    Vec v2 = Vec.sub(projectedCoordinatesOf(b), projectedCoordinatesOf(c));
     return v1.cross(v2).vec[2] <= 0;
   }
     
@@ -1371,10 +1371,10 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	public float distanceToSceneCenter() {
 		//return Math.abs((frame().coordinatesOf(sceneCenter())).vec[2]);//before scln
 		//Vector3D zCam = frame().zAxis();
-		DLVector zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
+		Vec zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
 		zCam.normalize();
-		DLVector cam2SceneCenter = DLVector.sub(position(), sceneCenter());
-		return Math.abs(DLVector.dot(cam2SceneCenter, zCam));		
+		Vec cam2SceneCenter = Vec.sub(position(), sceneCenter());
+		return Math.abs(Vec.dot(cam2SceneCenter, zCam));		
 	}
 
 	/**
@@ -1388,20 +1388,20 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	public float distanceToARP() {
 		//return Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);//before scln
 		//Vector3D zCam = frame().zAxis();
-		DLVector zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
+		Vec zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
 		zCam.normalize();
-		DLVector cam2arp = DLVector.sub(position(), arcballReferencePoint());
-		return Math.abs(DLVector.dot(cam2arp, zCam));
+		Vec cam2arp = Vec.sub(position(), arcballReferencePoint());
+		return Math.abs(Vec.dot(cam2arp, zCam));
 	}
 		
 	/**
 	 * Similar to {@link #setSceneRadius(float)} and
-	 * {@link #setSceneCenter(DLVector)}, but the scene limits are defined by a
+	 * {@link #setSceneCenter(Vec)}, but the scene limits are defined by a
 	 * (world axis aligned) bounding box.
 	 */
-	public void setSceneBoundingBox(DLVector min, DLVector max) {
-		setSceneCenter(DLVector.mult(DLVector.add(min, max), 1 / 2.0f));
-		setSceneRadius(0.5f * (DLVector.sub(max, min)).mag());
+	public void setSceneBoundingBox(Vec min, Vec max) {
+		setSceneCenter(Vec.mult(Vec.add(min, max), 1 / 2.0f));
+		setSceneRadius(0.5f * (Vec.sub(max, min)).mag());
 	}
 
 	// 5. ARCBALL REFERENCE POINT
@@ -1439,7 +1439,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * world coordinate system).
 	 */
 	@Override
-	public void setArcballReferencePoint(DLVector rap) {
+	public void setArcballReferencePoint(Vec rap) {
 		float prevDist = Math.abs(frame().coordinatesOf(arcballReferencePoint(), false).vec[2]);
 
 		frame().setArcballReferencePoint(rap);
@@ -1474,7 +1474,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	}
 
 	/**
-	 * The {@link #setSceneCenter(DLVector)} is set to the point located under
+	 * The {@link #setSceneCenter(Vec)} is set to the point located under
 	 * {@code pixel} on screen. Returns {@code true} if a point was found under
 	 * {@code pixel} and {@code false} if none was found (in this case no
 	 * {@link #sceneCenter()} is set).
@@ -1509,7 +1509,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	
 	@Override
 	public void computeViewMatrix() {
-		Quaternion q = (Quaternion) frame().orientation();
+		Quat q = (Quat) frame().orientation();
 
 		float q00 = 2.0f * q.quat[0] * q.quat[0];
 		float q11 = 2.0f * q.quat[1] * q.quat[1];
@@ -1538,7 +1538,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		viewMat.mat[10] = 1.0f - q11 - q00;
 		viewMat.mat[11] = 0.0f;
 
-		DLVector t = q.inverseRotate(frame().position());
+		Vec t = q.inverseRotate(frame().position());
 
 		viewMat.mat[12] = -t.vec[0];
 		viewMat.mat[13] = -t.vec[1];
@@ -1738,7 +1738,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * <p>
 	 * This method is useful for analytical intersection in a selection method.
 	 */
-	public void convertClickToLine(final Point pixelInput, DLVector orig, DLVector dir) {
+	public void convertClickToLine(final Point pixelInput, Vec orig, Vec dir) {
 		Point pixel = new Point(pixelInput.getX(), pixelInput.getY());
 		
 		//lef-handed coordinate system correction
@@ -1748,16 +1748,16 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		switch (type()) {
 		case PERSPECTIVE:
 			orig.set(position());
-			dir.set(new DLVector(((2.0f * (int)pixel.x / screenWidth()) - 1.0f)	* (float) Math.tan(fieldOfView() / 2.0f) * aspectRatio(),
+			dir.set(new Vec(((2.0f * (int)pixel.x / screenWidth()) - 1.0f)	* (float) Math.tan(fieldOfView() / 2.0f) * aspectRatio(),
 					                 ((2.0f * (screenHeight() - (int)pixel.y) / screenHeight()) - 1.0f) * (float) Math.tan(fieldOfView() / 2.0f),
 					                   -1.0f));
-			dir.set(DLVector.sub(frame().inverseCoordinatesOf(dir, false), orig));
+			dir.set(Vec.sub(frame().inverseCoordinatesOf(dir, false), orig));
 			dir.normalize();
 			break;
 
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
-			orig.set(new DLVector((2.0f * (int)pixel.x / screenWidth() - 1.0f) * wh[0],
+			orig.set(new Vec((2.0f * (int)pixel.x / screenWidth() - 1.0f) * wh[0],
 					-(2.0f * (int)pixel.y / screenHeight() - 1.0f) * wh[1], 0.0f));
 			orig.set(frame().inverseCoordinatesOf(orig, false));
 			dir.set(viewDirection());
@@ -1773,18 +1773,18 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * target} (defined in the world coordinate system).
 	 * <p>
 	 * The Camera {@link #position()} is not modified. Simply
-	 * {@link #setViewDirection(DLVector)}.
+	 * {@link #setViewDirection(Vec)}.
 	 * 
 	 * @see #at()
-	 * @see #setUpVector(DLVector)
-	 * @see #setOrientation(Quaternion)
+	 * @see #setUpVector(Vec)
+	 * @see #setOrientation(Quat)
 	 * @see #showEntireScene()
-	 * @see #fitSphere(DLVector, float)
-	 * @see #fitBoundingBox(DLVector, DLVector)
+	 * @see #fitSphere(Vec, float)
+	 * @see #fitBoundingBox(Vec, Vec)
 	 */
 	@Override
-	public void lookAt(DLVector target) {
-		setViewDirection(DLVector.sub(target, position()));
+	public void lookAt(Vec target) {
+		setViewDirection(Vec.sub(target, position()));
 	}
 
 	/**
@@ -1793,10 +1793,10 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * the Processing camera() which uses a similar approach of that found in
 	 * gluLookAt.
 	 * 
-	 * @see #lookAt(DLVector)
+	 * @see #lookAt(Vec)
 	 */
-	public DLVector at() {
-		return DLVector.add(position(), viewDirection());
+	public Vec at() {
+		return Vec.add(position(), viewDirection());
 	}
 
 	/**
@@ -1813,11 +1813,11 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * the {@link #standardOrthoFrustumSize()} to 1 and then calls {@code
 	 * lookAt(sceneCenter())}.
 	 * 
-	 * @see #lookAt(DLVector)
-	 * @see #setOrientation(Quaternion)
-	 * @see #setUpVector(DLVector, boolean)
+	 * @see #lookAt(Vec)
+	 * @see #setOrientation(Quat)
+	 * @see #setUpVector(Vec, boolean)
 	 */
-	public void fitSphere(DLVector center, float radius) {
+	public void fitSphere(Vec center, float radius) {
 		if ((kind() == Kind.STANDARD) && (type() == Type.ORTHOGRAPHIC)) {
 			orthoSize = 1;
 			lookAt(sceneCenter());
@@ -1833,24 +1833,24 @@ public class Camera extends Pinhole implements Constants, Copyable {
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			distance = DLVector.dot(DLVector.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoef);
+			distance = Vec.dot(Vec.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoef);
 			break;
 		}
 		}
 
-		DLVector newPos = DLVector.sub(center, DLVector.mult(viewDirection(), distance));
+		Vec newPos = Vec.sub(center, Vec.mult(viewDirection(), distance));
 		frame().setPositionWithConstraint(newPos);
 	}
 
 	/**
 	 * Moves the Camera so that the (world axis aligned) bounding box ({@code min}
 	 * , {@code max}) is entirely visible, using
-	 * {@link #fitSphere(DLVector, float)}.
+	 * {@link #fitSphere(Vec, float)}.
 	 */
-	public void fitBoundingBox(DLVector min, DLVector max) {
+	public void fitBoundingBox(Vec min, Vec max) {
 		float diameter = Math.max(Math.abs(max.vec[1] - min.vec[1]), Math.abs(max.vec[0] - min.vec[0]));
 		diameter = Math.max(Math.abs(max.vec[2] - min.vec[2]), diameter);
-		fitSphere(DLVector.mult(DLVector.add(min, max), 0.5f), 0.5f * diameter);
+		fitSphere(Vec.mult(Vec.add(min, max), 0.5f), 0.5f * diameter);
 	}
 
 	/**
@@ -1869,39 +1869,39 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	public void fitScreenRegion(Rectangle rectangle) {
 		//TODO fix me
 		System.out.println("calling fit SR");
-		DLVector vd = viewDirection();
+		Vec vd = viewDirection();
 		float distToPlane = distanceToSceneCenter();
 
 		Point center = new Point((int) rectangle.getCenterX(), (int) rectangle.getCenterY());
 
-		DLVector orig = new DLVector();
-		DLVector dir = new DLVector();
+		Vec orig = new Vec();
+		Vec dir = new Vec();
 		convertClickToLine(center, orig, dir);
-		DLVector newCenter = DLVector.add(orig, DLVector.mult(dir, (distToPlane / DLVector.dot(dir, vd))));
+		Vec newCenter = Vec.add(orig, Vec.mult(dir, (distToPlane / Vec.dot(dir, vd))));
 
 		convertClickToLine(new Point(rectangle.x, center.y), orig, dir);
-		final DLVector pointX = DLVector.add(orig, DLVector.mult(dir,	(distToPlane / DLVector.dot(dir, vd))));
+		final Vec pointX = Vec.add(orig, Vec.mult(dir,	(distToPlane / Vec.dot(dir, vd))));
 
 		convertClickToLine(new Point(center.x, rectangle.y), orig, dir);
-		final DLVector pointY = DLVector.add(orig, DLVector.mult(dir,	(distToPlane / DLVector.dot(dir, vd))));
+		final Vec pointY = Vec.add(orig, Vec.mult(dir,	(distToPlane / Vec.dot(dir, vd))));
 
 		float distance = 0.0f;
 		switch (type()) {
 		case PERSPECTIVE: {
-			final float distX = DLVector.dist(pointX, newCenter)
+			final float distX = Vec.dist(pointX, newCenter)
 					/ (float) Math.sin(horizontalFieldOfView() / 2.0f);
-			final float distY = DLVector.dist(pointY, newCenter)
+			final float distY = Vec.dist(pointY, newCenter)
 					/ (float) Math.sin(fieldOfView() / 2.0f);
 
 			distance = Math.max(distX, distY);
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			final float dist = DLVector.dot(DLVector.sub(newCenter,
+			final float dist = Vec.dot(Vec.sub(newCenter,
 					arcballReferencePoint()), vd);
-			final float distX = DLVector.dist(pointX, newCenter) / orthoCoef
+			final float distX = Vec.dist(pointX, newCenter) / orthoCoef
 					/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
-			final float distY = DLVector.dist(pointY, newCenter) / orthoCoef
+			final float distY = Vec.dist(pointY, newCenter) / orthoCoef
 					/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
 
 			distance = dist + Math.max(distX, distY);
@@ -1910,7 +1910,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		}
 		}
 
-		frame().setPositionWithConstraint(DLVector.sub(newCenter, DLVector.mult(vd, distance)));
+		frame().setPositionWithConstraint(Vec.sub(newCenter, Vec.mult(vd, distance)));
 	}
 	
 	@Override
@@ -1946,14 +1946,14 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		interpolationKfi.addKeyFrame(frame(), false);
 
 		interpolationKfi.addKeyFrame(new GeomFrame(frame().orientation(),
-				                                    DLVector.add(DLVector.mult(frame().position(),
-				                         0.3f), DLVector.mult(target.point, 0.7f))), 0.4f, false);
+				                                    Vec.add(Vec.mult(frame().position(),
+				                         0.3f), Vec.mult(target.point, 0.7f))), 0.4f, false);
 
 		// Small hack: attach a temporary frame to take advantage of lookAt without
 		// modifying frame
 		tempFrame = new InteractiveCameraFrame(this);
 		InteractiveCameraFrame originalFrame = frame();
-		tempFrame.setPosition(DLVector.add(DLVector.mult(frame().position(), coef),	DLVector.mult(target.point, (1.0f - coef))));
+		tempFrame.setPosition(Vec.add(Vec.mult(frame().position(), coef),	Vec.mult(target.point, (1.0f - coef))));
 		tempFrame.setOrientation( frame().orientation().get() );
 		setFrame(tempFrame);
 		lookAt(target.point);

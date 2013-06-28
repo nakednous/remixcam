@@ -36,7 +36,7 @@ import remixlab.dandelion.core.Constants;
  * 
  */
 
-public class Quaternion implements Constants, Primitivable, Orientable {
+public class Quat implements Constants, Primitivable, Orientable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).    
@@ -53,7 +53,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 				
-		Quaternion other = (Quaternion) obj;
+		Quat other = (Quat) obj;
 		return new EqualsBuilder()		
 		.append(this.quat[0],  other.quat[0])
 		.append(this.quat[1],  other.quat[1])
@@ -72,7 +72,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * Constructs and initializes a Quaternion to (0.0,0.0,0.0,1.0), i.e., an
 	 * identity rotation.
 	 */
-	public Quaternion() {
+	public Quat() {
 		reset();
 	}
 
@@ -81,7 +81,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * boolean normalize), with {@code normalize=true}.
 	 * 
 	 */
-	public Quaternion(float x, float y, float z, float w) {
+	public Quat(float x, float y, float z, float w) {
 		this(x, y, z, w, true);
 	}
 
@@ -101,7 +101,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 *          tells whether or not the constructed Quaternion should be
 	 *          normalized.
 	 */
-	public Quaternion(float x, float y, float z, float w, boolean normalize) {
+	public Quat(float x, float y, float z, float w, boolean normalize) {
 		if (normalize) {
 			float mag = (float) Math.sqrt(x * x + y * y + z * z + w * w);
 			if (mag > 0.0f) {
@@ -128,7 +128,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * {@code normalize=true}.
 	 * 
 	 */
-	public Quaternion(float[] q) {
+	public Quat(float[] q) {
 		this(q, true);
 	}
 
@@ -138,7 +138,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param q
 	 *          the array of length 4 containing xyzw in order
 	 */
-	public Quaternion(float[] q, boolean normalize) {
+	public Quat(float[] q, boolean normalize) {
 		if (normalize) {
 			float mag = (float) Math.sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3]
 					* q[3]);
@@ -167,7 +167,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param q1
 	 *          the Quaternion containing the initialization x y z w data
 	 */
-	protected Quaternion(Quaternion q1) {
+	protected Quat(Quat q1) {
 		set(q1);
 	}
 	
@@ -180,14 +180,14 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	}
 	
 	/**
-	 * Calls {@link #Quaternion(Quaternion)} (which is protected) and returns a copy of
+	 * Calls {@link #Quaternion(Quat)} (which is protected) and returns a copy of
 	 * {@code this} object.
 	 * 
-	 * @see #Quaternion(Quaternion)
+	 * @see #Quaternion(Quat)
 	 */	
 	@Override
-	public Quaternion get() {
-		return new Quaternion(this);
+	public Quat get() {
+		return new Quat(this);
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param q1
 	 *          the Quaternion containing the initialization x y z w data
 	 */
-	public Quaternion(Quaternion q1, boolean normalize) {
+	public Quat(Quat q1, boolean normalize) {
 		set(q1, normalize);
 	}
 	
@@ -270,17 +270,17 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	
 	@Override
   public void set(Primitivable q) {
-  	if(! (q instanceof Quaternion) )
+  	if(! (q instanceof Quat) )
   		throw new RuntimeException("q should be an instance of Vector3D");
-  	set((Quaternion) q);
+  	set((Quat) q);
   }
 
 	/**
 	 * Convenience function that simply calls {@code set(q1, true);}
 	 * 
-	 * @see #set(Quaternion, boolean)
+	 * @see #set(Quat, boolean)
 	 */
-	public void set(Quaternion q1) {
+	public void set(Quat q1) {
 		set(q1, true);
 	}
 
@@ -288,7 +288,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * Set this Quaternion from quaternion {@code q1}. If {@code normalize} is
 	 * {@code true} this Quaternion is {@link #normalize()}.
 	 */
-	public void set(Quaternion q1, boolean normalize) {
+	public void set(Quat q1, boolean normalize) {
 		this.quat[0] = q1.quat[0];
 		this.quat[1] = q1.quat[1];
 		this.quat[2] = q1.quat[2];
@@ -306,9 +306,9 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param angle
 	 *          the angle in radians
 	 * 
-	 * @see #fromAxisAngle(DLVector, float)
+	 * @see #fromAxisAngle(Vec, float)
 	 */
-	public Quaternion(DLVector axis, float angle) {
+	public Quat(Vec axis, float angle) {
 		fromAxisAngle(axis, angle);
 	}
 
@@ -321,9 +321,9 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param to
 	 *          the second Vector3D
 	 * 
-	 * @see #fromTo(DLVector, DLVector)
+	 * @see #fromTo(Vec, Vec)
 	 */
-	public Quaternion(DLVector from, DLVector to) {
+	public Quat(Vec from, Vec to) {
 		fromTo(from, to);
 	}
 
@@ -342,7 +342,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param q1
 	 *          the source vector
 	 */
-	public final void conjugate(Quaternion q1) {
+	public final void conjugate(Quat q1) {
 		this.quat[0] = -q1.quat[0];
 		this.quat[1] = -q1.quat[1];
 		this.quat[2] = -q1.quat[2];
@@ -368,7 +368,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param b
 	 *          the Quaternion
 	 */
-	public final float dotProduct(Quaternion b) {
+	public final float dotProduct(Quat b) {
 		return this.quat[0] * b.quat[0] + this.quat[1] * b.quat[1] + this.quat[2] * b.quat[2] + this.quat[3] * b.quat[3];
 	}
 
@@ -382,16 +382,16 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param b
 	 *          the second Quaternion
 	 */
-	public final static float dotProduct(Quaternion a, Quaternion b) {
+	public final static float dotProduct(Quat a, Quat b) {
 		return a.quat[0] * b.quat[0] + a.quat[1] * b.quat[1] + a.quat[2] * b.quat[2] + a.quat[3] * b.quat[3];
 	}
 	
 	@Override
 	public final void compose(Orientable q) {
-		if(q instanceof Quaternion)
-			multiply((Quaternion)q);
+		if(q instanceof Quat)
+			multiply((Quat)q);
 		else {
-			Quaternion quat = new Quaternion(new DLVector(0,0,1), q.angle());
+			Quat quat = new Quat(new Vec(0,0,1), q.angle());
 			multiply(quat);
 		}
 	}
@@ -403,7 +403,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param q1
 	 *          the other Quaternion
 	 */
-	public final void multiply(Quaternion q1) {
+	public final void multiply(Quat q1) {
 		float x, y, w;
 
 		w = this.quat[3] * q1.quat[3] - this.quat[0] * q1.quat[0] - this.quat[1] * q1.quat[1] - this.quat[2] * q1.quat[2];
@@ -416,11 +416,11 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	}
 	
 	public final static Orientable compose(Orientable q1, Orientable q2) {
-		if( q1 instanceof Quaternion && q2 instanceof Quaternion )
-			return multiply((Quaternion)q1, (Quaternion)q2);
+		if( q1 instanceof Quat && q2 instanceof Quat )
+			return multiply((Quat)q1, (Quat)q2);
 		else
-			return multiply(new Quaternion(new DLVector(0,0,1), q1.angle()), 
-					            new Quaternion(new DLVector(0,0,1), q2.angle()));
+			return multiply(new Quat(new Vec(0,0,1), q1.angle()), 
+					            new Quat(new Vec(0,0,1), q2.angle()));
 	}
 
 	/**
@@ -432,13 +432,13 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param q2
 	 *          the second Quaternion
 	 */
-	public final static Quaternion multiply(Quaternion q1, Quaternion q2) {
+	public final static Quat multiply(Quat q1, Quat q2) {
 		float x, y, z, w;
 		w = q1.quat[3] * q2.quat[3] - q1.quat[0] * q2.quat[0] - q1.quat[1] * q2.quat[1] - q1.quat[2] * q2.quat[2];
 		x = q1.quat[3] * q2.quat[0] + q2.quat[3] * q1.quat[0] + q1.quat[1] * q2.quat[2] - q1.quat[2] * q2.quat[1];
 		y = q1.quat[3] * q2.quat[1] + q2.quat[3] * q1.quat[1] - q1.quat[0] * q2.quat[2] + q1.quat[2] * q2.quat[0];
 		z = q1.quat[3] * q2.quat[2] + q2.quat[3] * q1.quat[2] + q1.quat[0] * q2.quat[1] - q1.quat[1] * q2.quat[0];
-		return new Quaternion(x, y, z, w);
+		return new Quat(x, y, z, w);
 	}
 
 	/**
@@ -448,10 +448,10 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param v
 	 *          the Vector3D
 	 * 
-	 * @see #rotate(DLVector)
-	 * @see #inverseRotate(DLVector)
+	 * @see #rotate(Vec)
+	 * @see #inverseRotate(Vec)
 	 */
-	public final DLVector multiply(DLVector v) {
+	public final Vec multiply(Vec v) {
 		return this.rotate(v);
 	}
 
@@ -465,10 +465,10 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param v
 	 *          the Vector3D
 	 * 
-	 * @see #rotate(DLVector)
-	 * @see #inverseRotate(DLVector)
+	 * @see #rotate(Vec)
+	 * @see #inverseRotate(Vec)
 	 */
-	public static final DLVector multiply(Quaternion q1, DLVector v) {
+	public static final Vec multiply(Quat q1, Vec v) {
 		return q1.rotate(v);
 	}
 
@@ -480,8 +480,8 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param q1
 	 *          the other Quaternion
 	 */
-	public final void multiplyInverse(Quaternion q1) {
-		Quaternion tempQuat = new Quaternion(q1);
+	public final void multiplyInverse(Quat q1) {
+		Quat tempQuat = new Quat(q1);
 		tempQuat.invert();
 		this.multiply(tempQuat);
 	}
@@ -496,10 +496,10 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param q2
 	 *          the second Quaternion
 	 */
-	public static final Quaternion multiplyInverse(Quaternion q1, Quaternion q2) {
-		Quaternion tempQuat = new Quaternion(q2);
+	public static final Quat multiplyInverse(Quat q1, Quat q2) {
+		Quat tempQuat = new Quat(q2);
 		tempQuat.invert();
-		return Quaternion.multiply(q1, tempQuat);
+		return Quat.multiply(q1, tempQuat);
 	}
 
 	/**
@@ -514,8 +514,8 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @see #invert()
 	 */
 	@Override
-	public final Quaternion inverse() {
-		Quaternion tempQuat = new Quaternion(this);
+	public final Quat inverse() {
+		Quat tempQuat = new Quat(this);
 		tempQuat.invert();
 		return tempQuat;
 	}
@@ -539,7 +539,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param q1
 	 *          the Quaternion to be inverted
 	 */
-	public final void invert(Quaternion q1) {
+	public final void invert(Quat q1) {
 		float sqNorm = squaredNorm(q1);
 		this.quat[3] = q1.quat[3] / sqNorm;
 		this.quat[0] = -q1.quat[0] / sqNorm;
@@ -576,7 +576,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 *          the Vector3D
 	 */
 	@Override
-	public final DLVector rotate(DLVector v) {
+	public final Vec rotate(Vec v) {
 		float q00 = 2.0f * this.quat[0] * this.quat[0];
 		float q11 = 2.0f * this.quat[1] * this.quat[1];
 		float q22 = 2.0f * this.quat[2] * this.quat[2];
@@ -590,7 +590,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 
 		float q23 = 2.0f * this.quat[2] * this.quat[3];
 
-		return new DLVector((1.0f - q11 - q22) * v.vec[0] + (q01 - q23) * v.vec[1]
+		return new Vec((1.0f - q11 - q22) * v.vec[0] + (q01 - q23) * v.vec[1]
 				+ (q02 + q13) * v.vec[2], (q01 + q23) * v.vec[0] + (1.0f - q22 - q00) * v.vec[1]
 				+ (q12 - q03) * v.vec[2], (q02 - q13) * v.vec[0] + (q12 + q03) * v.vec[1]
 				+ (1.0f - q11 - q00) * v.vec[2]);
@@ -600,14 +600,14 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * Returns the image of {@code v} by the Quaternion {@link #inverse()}
 	 * rotation.
 	 * <p>
-	 * {@link #rotate(DLVector)} performs an inverse transformation.
+	 * {@link #rotate(Vec)} performs an inverse transformation.
 	 * 
 	 * @param v
 	 *          the Vector3D
 	 */
 	@Override
-	public final DLVector inverseRotate(DLVector v) {
-		Quaternion tempQuat = new Quaternion(this.quat[0], this.quat[1], this.quat[2], this.quat[3]);
+	public final Vec inverseRotate(Vec v) {
+		Quat tempQuat = new Quat(this.quat[0], this.quat[1], this.quat[2], this.quat[3]);
 		tempQuat.invert();
 		return tempQuat.rotate(v);
 	}
@@ -624,7 +624,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param angle
 	 *          the angle in radians
 	 */
-	public void fromAxisAngle(DLVector axis, float angle) {
+	public void fromAxisAngle(Vec axis, float angle) {
 		float norm = axis.mag();
 		if (Geom.zero(norm)) {
 			// Null rotation
@@ -642,9 +642,9 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	}
 
 	/**
-	 * Same as {@link #fromEulerAngles(DLVector)}.
+	 * Same as {@link #fromEulerAngles(Vec)}.
 	 */
-	public void fromTaitBryan(DLVector angles) {
+	public void fromTaitBryan(Vec angles) {
 		fromEulerAngles(angles);
 	}
 
@@ -662,7 +662,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @see #fromEulerAngles(float, float, float)
 	 * @see #eulerAngles()
 	 */
-	public void fromEulerAngles(DLVector angles) {
+	public void fromEulerAngles(Vec angles) {
 		fromEulerAngles(angles.vec[0], angles.vec[1], angles.vec[2]);
 	}
 
@@ -685,9 +685,9 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @see #eulerAngles()
 	 */
 	public void fromEulerAngles(float roll, float pitch, float yaw) {
-		Quaternion qx = new Quaternion(new DLVector(1, 0, 0), roll);
-		Quaternion qy = new Quaternion(new DLVector(0, 1, 0), pitch);
-		Quaternion qz = new Quaternion(new DLVector(0, 0, 1), yaw);
+		Quat qx = new Quat(new Vec(1, 0, 0), roll);
+		Quat qy = new Quat(new Vec(0, 1, 0), pitch);
+		Quat qz = new Quat(new Vec(0, 0, 1), yaw);
 		set(qy);
 		multiply(qz);
 		multiply(qx);
@@ -696,7 +696,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	/**
 	 * Same as {@link #eulerAngles()}.
 	 */
-	public DLVector taitBryanAngles() {
+	public Vec taitBryanAngles() {
 		return eulerAngles();
 	}
 
@@ -718,20 +718,20 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * 
 	 * @see #fromEulerAngles(float, float, float)
 	 */
-	public DLVector eulerAngles() {
+	public Vec eulerAngles() {
 		float roll, pitch, yaw;
 		float test = this.quat[0] * this.quat[1] + this.quat[2] * this.quat[3];
 		if (test > 0.499) { // singularity at north pole
 			pitch = 2 * (float) Math.atan2(this.quat[0], this.quat[3]);
 			yaw = PI / 2;
 			roll = 0;
-			return new DLVector(roll, pitch, yaw);
+			return new Vec(roll, pitch, yaw);
 		}
 		if (test < -0.499) { // singularity at south pole
 			pitch = -2 * (float) Math.atan2(this.quat[0], this.quat[3]);
 			yaw = - PI / 2;
 			roll = 0;
-			return new DLVector(roll, pitch, yaw);
+			return new Vec(roll, pitch, yaw);
 		}
 		float sqx = this.quat[0] * this.quat[0];
 		float sqy = this.quat[1] * this.quat[1];
@@ -739,7 +739,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 		pitch = (float) Math.atan2(2 * this.quat[1] * this.quat[3] - 2 * this.quat[0] * this.quat[2], 1 - 2 * sqy - 2 * sqz);
 		yaw = (float) Math.asin(2 * test);
 		roll = (float) Math.atan2(2 * this.quat[0] * this.quat[3] - 2 * this.quat[1] * this.quat[2], 1 - 2 * sqx - 2 * sqz);
-		return new DLVector(roll, pitch, yaw);
+		return new Vec(roll, pitch, yaw);
 	}
 
 	/**
@@ -768,10 +768,10 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * rotation angle. This method is robust and can handle small or almost
 	 * identical vectors.
 	 * 
-	 * @see #fromAxisAngle(DLVector, float)
+	 * @see #fromAxisAngle(Vec, float)
 	 */
 	@Override
-	public void fromTo(DLVector from, DLVector to) {
+	public void fromTo(Vec from, Vec to) {
 		float fromSqNorm = from.squaredNorm();
 		float toSqNorm = to.squaredNorm();
 		// Identity Quaternion when one vector is null
@@ -780,7 +780,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 			this.quat[3] = 1.0f;
 		} else {
 
-			DLVector axis = from.cross(to);
+			Vec axis = from.cross(to);
 
 			float axisSqNorm = axis.squaredNorm();
 
@@ -804,7 +804,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * The matrix is expressed in European format: its three columns are the
 	 * images by the rotation of the three vectors of an orthogonal basis.
 	 * <p>
-	 * {@link #fromRotatedBasis(DLVector, DLVector, DLVector)} sets a Quaternion from
+	 * {@link #fromRotatedBasis(Vec, Vec, Vec)} sets a Quaternion from
 	 * the three axis of a rotated frame. It actually fills the three columns of a
 	 * matrix with these rotated basis vectors and calls this method.
 	 * 
@@ -855,7 +855,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @see #fromRotationMatrix(float[][])
 	 */
 	@Override
-	public final void fromMatrix(DLMatrix glMatrix) {
+	public final void fromMatrix(Mat glMatrix) {
 		float [][] mat = new float [4][4];
 		float [][] threeXthree = new float [3][3];
 		glMatrix.getTransposed(mat);						
@@ -880,10 +880,10 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 *          the third Vector3D
 	 * 
 	 * @see #fromRotationMatrix(float[][])
-	 * @see #Quaternion(DLVector, DLVector)
+	 * @see #Quaternion(Vec, Vec)
 	 * 
 	 */
-	public final void fromRotatedBasis(DLVector X, DLVector Y, DLVector Z) {
+	public final void fromRotatedBasis(Vec X, Vec Y, Vec Z) {
 		float m[][] = new float[3][3];
 		float normX = X.mag();
 		float normY = Y.mag();
@@ -905,8 +905,8 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * 
 	 * @see #angle()
 	 */
-	public final DLVector axis() {
-		DLVector res = new DLVector(x(), y(), z());
+	public final Vec axis() {
+		Vec res = new Vec(x(), y(), z());
 		float sinus = res.mag();
 		if ( Geom.nonZero(sinus) )
 			res.div(sinus);
@@ -933,7 +933,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param axis
 	 * @param angle
 	 */
-	public void axisAngle(DLVector axis, float angle) {
+	public void axisAngle(Vec axis, float angle) {
 		angle = 2 * (float) Math.acos(w());
 	  axis.x(x());
 	  axis.y(y());
@@ -970,7 +970,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @see #rotationMatrix()
 	 */
   @Override
-	public final DLMatrix matrix() {		
+	public final Mat matrix() {		
 		float q00 = 2.0f * this.quat[0] * this.quat[0];
 		float q11 = 2.0f * this.quat[1] * this.quat[1];
 		float q22 = 2.0f * this.quat[2] * this.quat[2];
@@ -1004,7 +1004,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 		float m32 = 0.0f;
 		float m33 = 1.0f;	
 
-		return new DLMatrix(m00, m01, m02, m03,
+		return new Mat(m00, m01, m02, m03,
 				                m10, m11, m12, m13,
 				                m20, m21, m22, m23,
 				                m30, m31, m32, m33);
@@ -1019,8 +1019,8 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * applyMatrix(q.inverseMatrix())}).
 	 */
 	@Override
-	public final DLMatrix inverseMatrix() {
-		Quaternion tempQuat = new Quaternion(this.quat[0], this.quat[1], this.quat[2], this.quat[3]);
+	public final Mat inverseMatrix() {
+		Quat tempQuat = new Quat(this.quat[0], this.quat[1], this.quat[2], this.quat[3]);
 		tempQuat.invert();
 		return tempQuat.matrix();
 	}
@@ -1047,16 +1047,16 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * 
 	 * @see #exp()
 	 */
-	public final Quaternion log() {
+	public final Quat log() {
 		// Warning: this method should not normalize the Quaternion
 		float len = (float) Math.sqrt(this.quat[0] * this.quat[0] + this.quat[1] * this.quat[1] + this.quat[2]
 				* this.quat[2]);
 
 		if (Geom.zero(len))
-			return new Quaternion(this.quat[0], this.quat[1], this.quat[2], 0.0f, false);
+			return new Quat(this.quat[0], this.quat[1], this.quat[2], 0.0f, false);
 		else {
 			float coef = (float) Math.acos(this.quat[3]) / len;
-			return new Quaternion(this.quat[0] * coef, this.quat[1] * coef, this.quat[2] * coef, 0.0f,
+			return new Quat(this.quat[0] * coef, this.quat[1] * coef, this.quat[2] * coef, 0.0f,
 					false);
 		}
 	}
@@ -1066,14 +1066,14 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * 
 	 * @see #log()
 	 */
-	public final Quaternion exp() {
+	public final Quat exp() {
 		float theta = (float) Math.sqrt(this.quat[0] * this.quat[0] + this.quat[1] * this.quat[1] + this.quat[2] * this.quat[2]);
 
 		if (Geom.zero(theta))
-			return new Quaternion(this.quat[0], this.quat[1], this.quat[2], (float) Math.cos(theta));
+			return new Quat(this.quat[0], this.quat[1], this.quat[2], (float) Math.cos(theta));
 		else {
 			float coef = (float) Math.sin(theta) / theta;
-			return new Quaternion(this.quat[0] * coef, this.quat[1] * coef, this.quat[2] * coef, (float) Math.cos(theta));
+			return new Quat(this.quat[0] * coef, this.quat[1] * coef, this.quat[2] * coef, (float) Math.cos(theta));
 		}
 	}
 
@@ -1086,23 +1086,23 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * {@code randomDir = Quaternion.multiply(Quaternion.randomQuaternion(),
 	 * randomDir);}
 	 */
-	public final static Quaternion randomQuaternion() {
+	public final static Quat randomQuaternion() {
 		float seed = (float) Math.random();
 		float r1 = (float) Math.sqrt(1.0f - seed);
 		float r2 = (float) Math.sqrt(seed);
 		float t1 = 2.0f * PI * (float) Math.random();
 		float t2 = 2.0f * PI * (float) Math.random();
 
-		return new Quaternion((float) Math.sin(t1) * r1, (float) Math.cos(t1) * r1, (float) Math.sin(t2) * r2, (float) Math.cos(t2) * r2);
+		return new Quat((float) Math.sin(t1) * r1, (float) Math.cos(t1) * r1, (float) Math.sin(t2) * r2, (float) Math.cos(t2) * r2);
 	}
 
 	/**
 	 * Wrapper function that simply calls {@code slerp(a, b, t, true)}.
 	 * <p>
-	 * See {@link #slerp(Quaternion, Quaternion, float, boolean)} for details.
+	 * See {@link #slerp(Quat, Quat, float, boolean)} for details.
 	 */
-	public static final Quaternion slerp(Quaternion a, Quaternion b, float t) {
-		return Quaternion.slerp(a, b, t, true);
+	public static final Quat slerp(Quat a, Quat b, float t) {
+		return Quat.slerp(a, b, t, true);
 	}
 
 	/**
@@ -1125,10 +1125,10 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param allowFlip
 	 *          tells whether or not the interpolation allows axis flip
 	 */
-	public static final Quaternion slerp(Quaternion a, Quaternion b, float t,
+	public static final Quat slerp(Quat a, Quat b, float t,
 			boolean allowFlip) {
 		// Warning: this method should not normalize the Quaternion
-		float cosAngle = Quaternion.dotProduct(a, b);
+		float cosAngle = Quat.dotProduct(a, b);
 
 		float c1, c2;
 		// Linear interpolation for close orientations
@@ -1147,7 +1147,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 		if (allowFlip && (cosAngle < 0.0))
 			c1 = -c1;
 
-		return new Quaternion(c1 * a.quat[0] + c2 * b.quat[0], c1 * a.quat[1] + c2 * b.quat[1], c1 * a.quat[2] + c2 * b.quat[2], c1 * a.quat[3] + c2 * b.quat[3], false);
+		return new Quat(c1 * a.quat[0] + c2 * b.quat[0], c1 * a.quat[1] + c2 * b.quat[1], c1 * a.quat[2] + c2 * b.quat[2], c1 * a.quat[3] + c2 * b.quat[3], false);
 	}
 
 	/**
@@ -1157,7 +1157,7 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * The resulting Quaternion is "between" {@code a} and {@code b} (result is
 	 * {@code a} when {@code t=0} and {@code b} for {@code t=1}).
 	 * <p>
-	 * Use {@link #squadTangent(Quaternion, Quaternion, Quaternion)} to define the
+	 * Use {@link #squadTangent(Quat, Quat, Quat)} to define the
 	 * Quaternion tangents {@code tgA} and {@code tgB}.
 	 * 
 	 * @param a
@@ -1171,24 +1171,24 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param t
 	 *          the t interpolation parameter
 	 */
-	public static final Quaternion squad(Quaternion a, Quaternion tgA, Quaternion tgB, Quaternion b, float t) {
-		Quaternion ab = Quaternion.slerp(a, b, t);
-		Quaternion tg = Quaternion.slerp(tgA, tgB, t, false);
-		return Quaternion.slerp(ab, tg, 2.0f * t * (1.0f - t), false);
+	public static final Quat squad(Quat a, Quat tgA, Quat tgB, Quat b, float t) {
+		Quat ab = Quat.slerp(a, b, t);
+		Quat tg = Quat.slerp(tgA, tgB, t, false);
+		return Quat.slerp(ab, tg, 2.0f * t * (1.0f - t), false);
 	}
 
 	/**
 	 * Simply returns {@code log(a. inverse() * b)}.
 	 * <p>
-	 * Useful for {@link #squadTangent(Quaternion, Quaternion, Quaternion)}.
+	 * Useful for {@link #squadTangent(Quat, Quat, Quat)}.
 	 * 
 	 * @param a
 	 *          the first Quaternion
 	 * @param b
 	 *          the second Quaternion
 	 */
-	public static final Quaternion lnDif(Quaternion a, Quaternion b) {
-		Quaternion dif = a.inverse();
+	public static final Quat lnDif(Quat a, Quat b) {
+		Quat dif = a.inverse();
 		dif.multiply(b);
 
 		dif.normalize();
@@ -1206,24 +1206,24 @@ public class Quaternion implements Constants, Primitivable, Orientable {
 	 * @param after
 	 *          the third Quaternion
 	 */
-	public static final Quaternion squadTangent(Quaternion before,
-			Quaternion center, Quaternion after) {
-		Quaternion l1 = Quaternion.lnDif(center, before);
-		Quaternion l2 = Quaternion.lnDif(center, after);
-		Quaternion e = new Quaternion();
+	public static final Quat squadTangent(Quat before,
+			Quat center, Quat after) {
+		Quat l1 = Quat.lnDif(center, before);
+		Quat l2 = Quat.lnDif(center, after);
+		Quat e = new Quat();
 
 		e.quat[0] = -0.25f * (l1.quat[0] + l2.quat[0]);
 		e.quat[1] = -0.25f * (l1.quat[1] + l2.quat[1]);
 		e.quat[2] = -0.25f * (l1.quat[2] + l2.quat[2]);
 		e.quat[3] = -0.25f * (l1.quat[3] + l2.quat[3]);
 
-		return Quaternion.multiply(center, e.exp());
+		return Quat.multiply(center, e.exp());
 	}
 
 	/**
 	 * Utility function that returns the squared norm of the Quaternion.
 	 */
-	public static float squaredNorm(Quaternion q) {
+	public static float squaredNorm(Quat q) {
 		return (q.quat[0] * q.quat[0]) + (q.quat[1] * q.quat[1]) + (q.quat[2] * q.quat[2]) + (q.quat[3] * q.quat[3]);
 	}
 }

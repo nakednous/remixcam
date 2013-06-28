@@ -80,8 +80,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	}
 	
 	protected Pinhole viewport;
-	protected DLVector arcballRefPnt;	
-	protected DLVector worldAxis;
+	protected Vec arcballRefPnt;	
+	protected Vec worldAxis;
 
 	/**
 	 * Default constructor.
@@ -95,8 +95,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		super(vp.scene);
 		viewport = vp;
 		scene.removeFromDeviceGrabberPool(this);
-		arcballRefPnt = new DLVector(0.0f, 0.0f, 0.0f);
-		worldAxis = new DLVector(0, 0, 1);
+		arcballRefPnt = new Vec(0.0f, 0.0f, 0.0f);
+		worldAxis = new Vec(0, 0, 1);
 	}
 	
 	/**
@@ -107,9 +107,9 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	protected InteractiveCameraFrame(InteractiveCameraFrame otherFrame) {
 		super(otherFrame);
 		this.viewport = otherFrame.viewport;
-		this.arcballRefPnt = new DLVector();
+		this.arcballRefPnt = new Vec();
 		this.arcballRefPnt.set(otherFrame.arcballRefPnt );
-		this.worldAxis = new DLVector();
+		this.worldAxis = new Vec();
 		this.worldAxis.set(otherFrame.worldAxis );
 	}
 	
@@ -175,7 +175,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * {@link remixlab.dandelion.core.Camera#arcballReferencePoint()} also returns this
 	 * value.
 	 */
-	public DLVector arcballReferencePoint() {
+	public Vec arcballReferencePoint() {
 		return arcballRefPnt;
 	}
 
@@ -183,7 +183,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * Sets the {@link #arcballReferencePoint()}, defined in the world coordinate
 	 * system.
 	 */
-	public void setArcballReferencePoint(DLVector refP) {
+	public void setArcballReferencePoint(Vec refP) {
 		arcballRefPnt = refP;
 	}
 	
@@ -209,18 +209,18 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		DOF2Event event;
 		
 		DOF6Event event6;
-		DLVector t = new DLVector();
-    Quaternion q = new Quaternion();
+		Vec t = new Vec();
+    Quat q = new Quat();
 		switch (id) {
 		case ZOOM: {
 			float wheelSensitivityCoef = 8E-4f;
 			float coef = 0;
-			DLVector trans = new DLVector();
+			Vec trans = new Vec();
 		  //TODO 1-DOF -> wheel
 			if( e instanceof DOF1Event ) {
 			  coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * scene.camera().sceneRadius());
 				//trans = new Vector3D(0.0f, 0.0f, coef * ((DOFEvent)event).getX() * wheelSensitivity() * wheelSensitivityCoef);
-			  trans = new DLVector(0.0f, 0.0f, coef * ((DOF1Event)e).getX() * -wheelSensitivity() * wheelSensitivityCoef);
+			  trans = new Vec(0.0f, 0.0f, coef * ((DOF1Event)e).getX() * -wheelSensitivity() * wheelSensitivityCoef);
 			}			
 		  //TODO higher dofs
 			// /**
@@ -229,12 +229,12 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * scene.camera().sceneRadius());
 			  //float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
 			  // Warning: same for left and right CoordinateSystemConvention:
-			  trans = new DLVector(0.0f, 0.0f,	-coef	* ((int) (event.getY() - event.getPrevY())) / scene.camera().screenHeight());
+			  trans = new Vec(0.0f, 0.0f,	-coef	* ((int) (event.getY() - event.getPrevY())) / scene.camera().screenHeight());
 			}
 			// */
 			
 			//No Scl
-			DLVector mag = magnitude();
+			Vec mag = magnitude();
 			trans.div(mag);
 			
 			translate(inverseTransformOf(trans));
@@ -243,8 +243,8 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		
 		case ROTATE: {			
 			event = (DOF2Event)e;
-			DLVector trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
-			Quaternion rot = deformedBallQuaternion(event, trans.vec[0], trans.vec[1], scene.camera());	
+			Vec trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
+			Quat rot = deformedBallQuaternion(event, trans.vec[0], trans.vec[1], scene.camera());	
 			setSpinningQuaternion(rot);
 			startSpinning(event);
 			//spin();
@@ -270,7 +270,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 					                     scene.isRightHanded() ? -event.getDY() : event.getDY());
 			//System.out.println("RC coord: dx: " + delta.x + " dy: " + delta.y);
 			
-			DLVector trans = new DLVector((int) delta.x, (int) -delta.y, 0.0f);
+			Vec trans = new Vec((int) delta.x, (int) -delta.y, 0.0f);
 			//*/	
 			
 			/**
@@ -294,7 +294,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 				break;
 			}			
 			
-			translate(inverseTransformOf(DLVector.mult(trans, translationSensitivity()), false));
+			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
 			
 			break;
 		}
@@ -304,7 +304,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			float magic = 0.01f; // rotSens/transSens?
       
 			//t = DLVector.mult(position(), -event6.getZ() * ( rotSens.z/transSens.z ) );
-      t = DLVector.mult(position(), -event6.getZ() * (magic) );
+      t = Vec.mult(position(), -event6.getZ() * (magic) );
       translate(t);
 
       //q.fromEulerAngles(-event6.getY() * ( rotSens.y/transSens.y ), event6.getX() * ( rotSens.x/transSens.x ), 0);
@@ -320,7 +320,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 			
 		case NATURAL:
 			event6 = (DOF6Event)e;
-			translate(localInverseTransformOf(new DLVector(event6.getX(),event6.getY(),-event6.getZ()), false));
+			translate(localInverseTransformOf(new Vec(event6.getX(),event6.getY(),-event6.getZ()), false));
       // Rotate
       q.fromEulerAngles(-event6.roll(), -event6.pitch(), event6.yaw());
       rotate(q);
@@ -339,7 +339,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 * 
 	 * @see #getCADAxis()
 	 */	
-	protected Quaternion computeCADQuaternion(DOF2Event event, float cx,	float cy, Pinhole camera) {
+	protected Quat computeCADQuaternion(DOF2Event event, float cx,	float cy, Pinhole camera) {
 		if(! (camera instanceof Camera) )
 			throw new RuntimeException("CAD cam is oly available in 3D");
 		
@@ -355,27 +355,27 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 		float dy = rotationSensitivity() * (scene.isLeftHanded() ? (y - cy) : (cy - y)) / camera.screenHeight();
 		
 		//1,0,0 is given in the camera frame
-		DLVector axisX = new DLVector(1, 0, 0);
+		Vec axisX = new Vec(1, 0, 0);
 		//0,0,1 is given in the world and then transform to the camera frame
 		
 		//TODO broken when cam frame has scaling
-		DLVector world2camAxis = camera.frame().transformOf(worldAxis);
+		Vec world2camAxis = camera.frame().transformOf(worldAxis);
 		//Vector3D world2camAxis = camera.frame().transformOfNoScl(worldAxis);
 
 		float angleWorldAxis = rotationSensitivity() * (scene.isLeftHanded() ? (dx - px) : (px - dx));
 		float angleX = rotationSensitivity() * (dy - py);	
 
-		Quaternion quatWorld = new Quaternion(world2camAxis, angleWorldAxis);		
-		Quaternion quatX = new Quaternion(axisX, angleX);
+		Quat quatWorld = new Quat(world2camAxis, angleWorldAxis);		
+		Quat quatX = new Quat(axisX, angleX);
 		
-		return Quaternion.multiply(quatWorld, quatX);
+		return Quat.multiply(quatWorld, quatX);
 	}
 	
 	/**
 	 * Set axis (defined in the world coordinate system) as the main
 	 * rotation axis used in CAD rotation.
 	 */
-	public void setCADAxis(DLVector axis) {
+	public void setCADAxis(Vec axis) {
 		//non-zero
 		if( Geom.zero(axis.mag()) )
 			return;
@@ -387,7 +387,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	/**
 	 * Returns the main CAD rotation axis ((defined in the world coordinate system).
 	 */
-	public DLVector getCADAxis() {
+	public Vec getCADAxis() {
 		return worldAxis;
 	}
 }

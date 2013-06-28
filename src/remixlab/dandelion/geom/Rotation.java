@@ -61,13 +61,13 @@ public class Rotation implements Constants, Orientable {
 		normalize();
 	}
 	
-	public Rotation(DLVector from, DLVector to) {
+	public Rotation(Vec from, Vec to) {
 		fromTo(from, to);
 	}
 	
 	public Rotation(Point center, Point prev, Point curr) {
-		DLVector from = new DLVector(prev.x - center.x, prev.y - center.y);
-		DLVector to = new DLVector(curr.x - center.x, curr.y - center.y);
+		Vec from = new Vec(prev.x - center.x, prev.y - center.y);
+		Vec to = new Vec(curr.x - center.x, curr.y - center.y);
 		fromTo(from, to);
 	}
 	
@@ -97,17 +97,17 @@ public class Rotation implements Constants, Orientable {
 	}
 
 	@Override
-	public DLVector rotate(DLVector v) {
+	public Vec rotate(Vec v) {
 		float cosB = (float)Math.cos((float)angle());
 		float sinB = (float)Math.sin((float)angle());
-		return new DLVector( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
+		return new Vec( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
 	}
 
 	@Override
-	public DLVector inverseRotate(DLVector v) {
+	public Vec inverseRotate(Vec v) {
 		float cosB = (float)Math.cos(-(float)angle());
 		float sinB = (float)Math.sin(-(float)angle());
-		return new DLVector( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
+		return new Vec( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
 	}
 
 	@Override
@@ -133,29 +133,29 @@ public class Rotation implements Constants, Orientable {
 	}
 
 	@Override
-	public DLMatrix matrix() {
+	public Mat matrix() {
 		float cosB = (float)Math.cos((double)angle());
 		float sinB = (float)Math.sin((double)angle());
 		
-		return new DLMatrix(cosB, sinB, 0, 0,
+		return new Mat(cosB, sinB, 0, 0,
                        -sinB, cosB, 0, 0,
                            0,    0, 1, 0,
                            0,    0, 0, 1);
 	}
 
 	@Override
-	public DLMatrix inverseMatrix() {
+	public Mat inverseMatrix() {
 		float cosB = (float)Math.cos(-(float)angle());
 		float sinB = (float)Math.sin(-(float)angle());
 		
-		return new DLMatrix(cosB, sinB, 0, 0,
+		return new Mat(cosB, sinB, 0, 0,
                        -sinB, cosB, 0, 0,
                            0,    0, 1, 0,
                            0,    0, 0, 1);
 	}
 
 	@Override
-	public void fromMatrix(DLMatrix glMatrix) {
+	public void fromMatrix(Mat glMatrix) {
 		//"If both sine and cosine of the angle are already known, ATAN2(sin, cos) gives the angle"
 		//http://www.firebirdsql.org/refdocs/langrefupd21-intfunc-atan2.html
 		angle = (float)Math.atan2(glMatrix.m10(), glMatrix.m00());
@@ -205,7 +205,7 @@ public class Rotation implements Constants, Orientable {
 	}
 
 	@Override	
-	public void fromTo(DLVector from, DLVector to) {
+	public void fromTo(Vec from, Vec to) {
 		//perp dot product. See:
 		//1. http://stackoverflow.com/questions/2150050/finding-signed-angle-between-vectors
 		//2. http://mathworld.wolfram.com/PerpDotProduct.html

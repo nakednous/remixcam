@@ -29,10 +29,10 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.tersehandling.core.Copyable;
-import remixlab.tersehandling.core.TConstants;
+import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.shortcut.Shortcut;
 
-public class GenericEvent implements TConstants, Copyable {
+public class GenericEvent implements EventConstants, Copyable {
 	//TODO fix modifiers!
 	@Override
 	public int hashCode() {

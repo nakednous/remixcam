@@ -169,10 +169,10 @@ public class KeyFrameInterpolator implements Copyable {
 			.isEquals();
 		}
 		
-		protected DLVector p, tgPVec;
-		protected DLVector s;		
+		protected Vec p, tgPVec;
+		protected Vec s;		
 		//Option 2 (interpolate scaling using a spline)
-		protected DLVector tgSVec;
+		protected Vec tgSVec;
 		protected Orientable q;
 		protected float tm;
 		protected GeomFrame frm;
@@ -184,9 +184,9 @@ public class KeyFrameInterpolator implements Copyable {
 				updateValues();
 			} else {
 				frm = null;
-				p = new DLVector(fr.position().vec[0], fr.position().vec[1], fr.position().vec[2]);				
+				p = new Vec(fr.position().vec[0], fr.position().vec[1], fr.position().vec[2]);				
 				q = fr.orientation().get();
-				s = new DLVector(fr.magnitude().vec[0], fr.magnitude().vec[1], fr.magnitude().vec[2]);
+				s = new Vec(fr.magnitude().vec[0], fr.magnitude().vec[1], fr.magnitude().vec[2]);
 			}
 		}
 		
@@ -199,9 +199,9 @@ public class KeyFrameInterpolator implements Copyable {
 				this.s = this.frame().magnitude();
 			} else {
 				//p = new Vector3D( otherKF.p.x, otherKF.p.y, otherKF.p.z );
-				this.p = new DLVector(otherKF.position().vec[0], otherKF.position().vec[1], otherKF.position().vec[2]);				
+				this.p = new Vec(otherKF.position().vec[0], otherKF.position().vec[1], otherKF.position().vec[2]);				
 				this.q = otherKF.orientation().get();
-				this.s = new DLVector(otherKF.magnitude().vec[0], otherKF.magnitude().vec[1], otherKF.magnitude().vec[2]);
+				this.s = new Vec(otherKF.magnitude().vec[0], otherKF.magnitude().vec[1], otherKF.magnitude().vec[2]);
 			}
 		}		
 
@@ -213,7 +213,7 @@ public class KeyFrameInterpolator implements Copyable {
 			}
 		}
 
-		DLVector position() {
+		Vec position() {
 			return p;
 		}
 
@@ -221,7 +221,7 @@ public class KeyFrameInterpolator implements Copyable {
 			return q;
 		}
 		
-		DLVector magnitude() {
+		Vec magnitude() {
 			return s;
 		}
 
@@ -233,13 +233,13 @@ public class KeyFrameInterpolator implements Copyable {
 			return frm;
 		}
 		
-		DLVector tgP() {
+		Vec tgP() {
 			return tgPVec;
 		}
 		
 		// /**
 	  //Option 2 (interpolate scaling using a spline)
-		DLVector tgS() {
+		Vec tgS() {
 			return tgSVec;
 		}
 		// */
@@ -248,7 +248,7 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 	
 	private class KeyFrame3D extends AbstractKeyFrame {
-		protected Quaternion tgQuat;
+		protected Quat tgQuat;
 		
 		KeyFrame3D(GeomFrame fr, float t, boolean setRef) {
 			super(fr, t, setRef);
@@ -262,21 +262,21 @@ public class KeyFrameInterpolator implements Copyable {
 			return new KeyFrame3D(this);
 		}	
 
-		Quaternion tgQ() {
+		Quat tgQ() {
 			return tgQuat;
 		}
 		
-		void flipOrientationIfNeeded(Quaternion prev) {
-			if (Quaternion.dotProduct(prev, (Quaternion)q) < 0.0f)
+		void flipOrientationIfNeeded(Quat prev) {
+			if (Quat.dotProduct(prev, (Quat)q) < 0.0f)
 				q.negate();
 		}
 		
 		@Override
 		void computeTangent(AbstractKeyFrame prev, AbstractKeyFrame next) {
-			tgPVec = DLVector.mult(DLVector.sub(next.position(), prev.position()), 0.5f);
-			tgQuat = Quaternion.squadTangent((Quaternion)prev.orientation(), (Quaternion)q, (Quaternion)next.orientation());
+			tgPVec = Vec.mult(Vec.sub(next.position(), prev.position()), 0.5f);
+			tgQuat = Quat.squadTangent((Quat)prev.orientation(), (Quat)q, (Quat)next.orientation());
 			////Option 2 (interpolate scaling using a spline)
-			tgSVec = DLVector.mult(DLVector.sub(next.magnitude(), prev.magnitude()), 0.5f);			
+			tgSVec = Vec.mult(Vec.sub(next.magnitude(), prev.magnitude()), 0.5f);			
 		}
 	}
 	
@@ -295,9 +295,9 @@ public class KeyFrameInterpolator implements Copyable {
 		
 		@Override
 		void computeTangent(AbstractKeyFrame prev, AbstractKeyFrame next) {
-			tgPVec = DLVector.mult(DLVector.sub(next.position(), prev.position()), 0.5f);			
+			tgPVec = Vec.mult(Vec.sub(next.position(), prev.position()), 0.5f);			
 		  //Option 2 (interpolate scaling using a spline)
-			tgSVec = DLVector.mult(DLVector.sub(next.magnitude(), prev.magnitude()), 0.5f);			
+			tgSVec = Vec.mult(Vec.sub(next.magnitude(), prev.magnitude()), 0.5f);			
 		}
 	}
 
@@ -326,9 +326,9 @@ public class KeyFrameInterpolator implements Copyable {
 	private boolean valuesAreValid;
 	private boolean currentFrmValid;
 	private boolean splineCacheIsValid;
-	private DLVector pv1, pv2;
+	private Vec pv1, pv2;
   //Option 2 (interpolate scaling using a spline)
-	private DLVector sv1, sv2;
+	private Vec sv1, sv2;
 
   //S C E N E
   public AbstractScene scene;
@@ -853,12 +853,12 @@ public class KeyFrameInterpolator implements Copyable {
 		AbstractKeyFrame kf;
 		
 		if(scene.is3D()) {
-			Quaternion prevQ = (Quaternion)keyFr.get(0).orientation();
+			Quat prevQ = (Quat)keyFr.get(0).orientation();
 			for (int i = 0; i < keyFr.size(); ++i) {
 				kf = keyFr.get(i);
 				kf.updateValues();
 				((KeyFrame3D)kf).flipOrientationIfNeeded(prevQ);
-				prevQ = (Quaternion)kf.orientation();
+				prevQ = (Quat)kf.orientation();
 			}
 		}
 		else {
@@ -953,26 +953,26 @@ public class KeyFrameInterpolator implements Copyable {
 				kf[3] = (index < keyFr.size()) ? keyFr.get(index) : null;
 
 				while (kf[2] != null) {
-					DLVector pdiff = DLVector.sub(kf[2].position(), kf[1].position());
-					DLVector pvec1 = DLVector.add(DLVector.mult(pdiff, 3.0f), DLVector.mult(kf[1].tgP(), (-2.0f)));
-					pvec1 = DLVector.sub(pvec1, kf[2].tgP());
-					DLVector pvec2 = DLVector.add(DLVector.mult(pdiff, (-2.0f)), kf[1].tgP());
-					pvec2 = DLVector.add(pvec2, kf[2].tgP());
+					Vec pdiff = Vec.sub(kf[2].position(), kf[1].position());
+					Vec pvec1 = Vec.add(Vec.mult(pdiff, 3.0f), Vec.mult(kf[1].tgP(), (-2.0f)));
+					pvec1 = Vec.sub(pvec1, kf[2].tgP());
+					Vec pvec2 = Vec.add(Vec.mult(pdiff, (-2.0f)), kf[1].tgP());
+					pvec2 = Vec.add(pvec2, kf[2].tgP());
 					
 					// /**
 					//Option 2 (interpolate scaling using a spline)
-					DLVector sdiff = DLVector.sub(kf[2].magnitude(), kf[1].magnitude());
-					DLVector svec1 = DLVector.add(DLVector.mult(sdiff, 3.0f), DLVector.mult(kf[1].tgS(), (-2.0f)));
-					svec1 = DLVector.sub(svec1, kf[2].tgS());
-					DLVector svec2 = DLVector.add(DLVector.mult(sdiff, (-2.0f)), kf[1].tgS());
-					svec2 = DLVector.add(svec2, kf[2].tgS());
+					Vec sdiff = Vec.sub(kf[2].magnitude(), kf[1].magnitude());
+					Vec svec1 = Vec.add(Vec.mult(sdiff, 3.0f), Vec.mult(kf[1].tgS(), (-2.0f)));
+					svec1 = Vec.sub(svec1, kf[2].tgS());
+					Vec svec2 = Vec.add(Vec.mult(sdiff, (-2.0f)), kf[1].tgS());
+					svec2 = Vec.add(svec2, kf[2].tgS());
 					// */
 					
 					for (int step = 0; step < nbSteps; ++step) {
 						float alpha = step / (float) nbSteps;
-						myFrame.setPosition(DLVector.add(kf[1].position(), DLVector.mult(DLVector.add(kf[1].tgP(), DLVector.mult(DLVector.add(pvec1, DLVector.mult(pvec2, alpha)), alpha)), alpha)));
+						myFrame.setPosition(Vec.add(kf[1].position(), Vec.mult(Vec.add(kf[1].tgP(), Vec.mult(Vec.add(pvec1, Vec.mult(pvec2, alpha)), alpha)), alpha)));
 					  if( scene.is3D()) {
-						  myFrame.setOrientation(Quaternion.squad((Quaternion)kf[1].orientation(), ((KeyFrame3D)kf[1]).tgQ(), ((KeyFrame3D)kf[2]).tgQ(), (Quaternion)kf[2].orientation(), alpha));
+						  myFrame.setOrientation(Quat.squad((Quat)kf[1].orientation(), ((KeyFrame3D)kf[1]).tgQ(), ((KeyFrame3D)kf[2]).tgQ(), (Quat)kf[2].orientation(), alpha));
 					  }
 					  else {
 					    //linear interpolation
@@ -982,7 +982,7 @@ public class KeyFrameInterpolator implements Copyable {
 					  }
 					  //myFrame.setMagnitude(magnitudeLerp(kf[1], kf[2], alpha));
 					  //Option 2 (interpolate scaling using a spline)
-					  myFrame.setMagnitude(DLVector.add(kf[1].magnitude(), DLVector.mult(DLVector.add(kf[1].tgS(), DLVector.mult(DLVector.add(svec1, DLVector.mult(svec2, alpha)), alpha)), alpha)));					  
+					  myFrame.setMagnitude(Vec.add(kf[1].magnitude(), Vec.mult(Vec.add(kf[1].tgS(), Vec.mult(Vec.add(svec1, Vec.mult(svec2, alpha)), alpha)), alpha)));					  
 						path.add(myFrame.get());
 					}
 
@@ -1126,19 +1126,19 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 
 	public void updateSplineCache() {
-		DLVector deltaP = DLVector.sub(keyFr.get(currentFrame2.nextIndex()).position(), keyFr.get(currentFrame1.nextIndex()).position());
-		pv1 = DLVector.add(DLVector.mult(deltaP, 3.0f), DLVector.mult(keyFr.get(currentFrame1.nextIndex()).tgP(), (-2.0f)));
-		pv1 = DLVector.sub(pv1, keyFr.get(currentFrame2.nextIndex()).tgP());
-		pv2 = DLVector.add(DLVector.mult(deltaP, (-2.0f)), keyFr.get(currentFrame1.nextIndex()).tgP());
-		pv2 = DLVector.add(pv2, keyFr.get(currentFrame2.nextIndex()).tgP());
+		Vec deltaP = Vec.sub(keyFr.get(currentFrame2.nextIndex()).position(), keyFr.get(currentFrame1.nextIndex()).position());
+		pv1 = Vec.add(Vec.mult(deltaP, 3.0f), Vec.mult(keyFr.get(currentFrame1.nextIndex()).tgP(), (-2.0f)));
+		pv1 = Vec.sub(pv1, keyFr.get(currentFrame2.nextIndex()).tgP());
+		pv2 = Vec.add(Vec.mult(deltaP, (-2.0f)), keyFr.get(currentFrame1.nextIndex()).tgP());
+		pv2 = Vec.add(pv2, keyFr.get(currentFrame2.nextIndex()).tgP());
 		
 		// /**
 		//Option 2 (interpolate scaling using a spline)
-		DLVector deltaS = DLVector.sub(keyFr.get(currentFrame2.nextIndex()).magnitude(), keyFr.get(currentFrame1.nextIndex()).magnitude());
-		sv1 = DLVector.add(DLVector.mult(deltaS, 3.0f), DLVector.mult(keyFr.get(currentFrame1.nextIndex()).tgS(), (-2.0f)));
-		sv1 = DLVector.sub(sv1, keyFr.get(currentFrame2.nextIndex()).tgS());
-		sv2 = DLVector.add(DLVector.mult(deltaS, (-2.0f)), keyFr.get(currentFrame1.nextIndex()).tgS());
-		sv2 = DLVector.add(sv2, keyFr.get(currentFrame2.nextIndex()).tgS());
+		Vec deltaS = Vec.sub(keyFr.get(currentFrame2.nextIndex()).magnitude(), keyFr.get(currentFrame1.nextIndex()).magnitude());
+		sv1 = Vec.add(Vec.mult(deltaS, 3.0f), Vec.mult(keyFr.get(currentFrame1.nextIndex()).tgS(), (-2.0f)));
+		sv1 = Vec.sub(sv1, keyFr.get(currentFrame2.nextIndex()).tgS());
+		sv2 = Vec.add(Vec.mult(deltaS, (-2.0f)), keyFr.get(currentFrame1.nextIndex()).tgS());
+		sv2 = Vec.add(sv2, keyFr.get(currentFrame2.nextIndex()).tgS());
 		// */
 		
 		splineCacheIsValid = true;
@@ -1179,9 +1179,9 @@ public class KeyFrameInterpolator implements Copyable {
 		// (1.0-alpha)*(currentFrame1->peekNext()->position());
 		// Vec pos = currentFrame_[1]->peekNext()->position() + alpha *
 		// (currentFrame_[1]->peekNext()->tgP() + alpha * (v1+alpha*v2));
-		DLVector pos = DLVector.add(keyFr.get(currentFrame1.nextIndex()).position(),
-				                        DLVector.mult(DLVector.add(keyFr.get(currentFrame1.nextIndex()).tgP(),
-						                    DLVector.mult(DLVector.add(pv1, DLVector.mult(pv2, alpha)), alpha)), alpha));
+		Vec pos = Vec.add(keyFr.get(currentFrame1.nextIndex()).position(),
+				                        Vec.mult(Vec.add(keyFr.get(currentFrame1.nextIndex()).tgP(),
+						                    Vec.mult(Vec.add(pv1, Vec.mult(pv2, alpha)), alpha)), alpha));
 		
 		/**
 		//Option 1
@@ -1192,19 +1192,19 @@ public class KeyFrameInterpolator implements Copyable {
 		
 		// /**
 		//Option 2 (interpolate scaling using a spline)
-		DLVector mag = DLVector.add(keyFr.get(currentFrame1.nextIndex()).magnitude(),
-                                DLVector.mult(DLVector.add(keyFr.get(currentFrame1.nextIndex()).tgS(),
-                                DLVector.mult(DLVector.add(sv1, DLVector.mult(sv2, alpha)), alpha)), alpha));
+		Vec mag = Vec.add(keyFr.get(currentFrame1.nextIndex()).magnitude(),
+                                Vec.mult(Vec.add(keyFr.get(currentFrame1.nextIndex()).tgS(),
+                                Vec.mult(Vec.add(sv1, Vec.mult(sv2, alpha)), alpha)), alpha));
     // */		
 
 		
 	  //TODO 2d Case pending
 		Orientable q;
 		if(scene.is3D()) {
-		  q = Quaternion.squad((Quaternion)keyFr.get(currentFrame1.nextIndex()).orientation(), 
+		  q = Quat.squad((Quat)keyFr.get(currentFrame1.nextIndex()).orientation(), 
 			                    ((KeyFrame3D)keyFr.get(currentFrame1.nextIndex())).tgQ(),
 			                    ((KeyFrame3D)keyFr.get(currentFrame2.nextIndex())).tgQ(),
-			                     (Quaternion)keyFr.get(currentFrame2.nextIndex()).orientation(), alpha);
+			                     (Quat)keyFr.get(currentFrame2.nextIndex()).orientation(), alpha);
 		} else {
 			q =  new Rotation( rotationLerp(keyFr.get(currentFrame1.nextIndex()),
 					                            keyFr.get(currentFrame2.nextIndex()),
@@ -1222,12 +1222,12 @@ public class KeyFrameInterpolator implements Copyable {
 		return lerp(start, stop, alpha);
 	}
 	
-	protected DLVector magnitudeLerp(AbstractKeyFrame kf1, AbstractKeyFrame kf2, float alpha) {
+	protected Vec magnitudeLerp(AbstractKeyFrame kf1, AbstractKeyFrame kf2, float alpha) {
 		return vectorLerp(kf1.magnitude(), kf2.magnitude(), alpha);
 	}
 	
-	protected DLVector vectorLerp(DLVector start, DLVector stop, float alpha) {
-		return new DLVector( lerp(start.x(), stop.x(), alpha), lerp(start.y(), stop.y(), alpha), lerp(start.z(), stop.z(), alpha) );
+	protected Vec vectorLerp(Vec start, Vec stop, float alpha) {
+		return new Vec( lerp(start.x(), stop.x(), alpha), lerp(start.y(), stop.y(), alpha), lerp(start.z(), stop.z(), alpha) );
 	}
 	
 	protected float lerp(float start, float stop, float alpha) {

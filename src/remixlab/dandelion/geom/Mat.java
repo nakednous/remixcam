@@ -35,7 +35,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * 
  * @author pierre
  */
-public class DLMatrix implements Primitivable {	
+public class Mat implements Primitivable {	
 	/**
 	 * Array col major representation:
 	 * |	m0	m4	m8	m12	|
@@ -71,7 +71,7 @@ public class DLMatrix implements Primitivable {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		DLMatrix other = (DLMatrix) obj;		
+		Mat other = (Mat) obj;		
 	   return new EqualsBuilder()    
     .append(this.mat[0], other.mat[0])
     .append(this.mat[1], other.mat[1])
@@ -97,14 +97,14 @@ public class DLMatrix implements Primitivable {
   // locally allocated version to avoid creating new memory
   //protected Matrix3D inverseCopy;
 
-  public DLMatrix() {
+  public Mat() {
     reset();
   }
 
   /**
    * 16 consecutive values that are used as the elements of a 4 x 4 column-major matrix.
    */
-  public DLMatrix(float _m0, float _m1, float _m2, float _m3,
+  public Mat(float _m0, float _m1, float _m2, float _m3,
                   float _m4, float _m5, float _m6, float _m7,
                   float _m8, float _m9, float _m10, float _m11,
                   float _m12, float _m13, float _m14, float _m15) {
@@ -114,26 +114,26 @@ public class DLMatrix implements Primitivable {
         _m12, _m13, _m14, _m15);
   }
 
-  public DLMatrix(DLMatrix matrix) {
+  public Mat(Mat matrix) {
     set(matrix);
   }
   
-  public DLMatrix(float [] data) {
+  public Mat(float [] data) {
   	this(data, false);
   }
   
-  public DLMatrix(float [] data, boolean transposed) {
+  public Mat(float [] data, boolean transposed) {
   	if(transposed)
   		setTransposed(data);  		
   	else
   		set(data);  		
   }  
   
-  public DLMatrix(float [][] data) {
+  public Mat(float [][] data) {
   	this(data, false);
   }
   
-  public DLMatrix(float [][] data, boolean transposed) {
+  public Mat(float [][] data, boolean transposed) {
   	if(transposed)
   		setTransposed(data);
   	else
@@ -242,8 +242,8 @@ public class DLMatrix implements Primitivable {
    * Returns a copy of this Matrix.
    */ 
   @Override
-  public DLMatrix get() {
-  	return new DLMatrix(this);
+  public Mat get() {
+  	return new Mat(this);
   }
     
   /**
@@ -337,12 +337,12 @@ public class DLMatrix implements Primitivable {
     
   @Override
   public void set(Primitivable src) {
-  	if(! (src instanceof DLMatrix) )
+  	if(! (src instanceof Mat) )
   		throw new RuntimeException("src should be an instance of Matrix3D");
-  	set((DLMatrix) src);
+  	set((Mat) src);
   }
   
-  public void set(DLMatrix src) {
+  public void set(Mat src) {
     set(src.mat[0], src.mat[1], src.mat[2], src.mat[3],
         src.mat[4], src.mat[5], src.mat[6], src.mat[7],
         src.mat[8], src.mat[9], src.mat[10], src.mat[11],
@@ -597,7 +597,7 @@ public class DLMatrix implements Primitivable {
   	}
   }
 
-  public void apply(DLMatrix source) {
+  public void apply(Mat source) {
   	/**
     applyTranspose(source.mat[0], source.mat[4], source.mat[8], source.mat[12],
           				 source.mat[1], source.mat[5], source.mat[9], source.mat[13],
@@ -611,13 +611,13 @@ public class DLMatrix implements Primitivable {
 				  source.mat[12], source.mat[13], source.mat[14], source.mat[15]);
   }
   
-  public static DLMatrix mult(DLMatrix a, DLMatrix b) {
-  	DLMatrix c = new DLMatrix();
+  public static Mat mult(Mat a, Mat b) {
+  	Mat c = new Mat();
   	mult(a,b,c);
   	return c;
   }
   
-  public static void mult(DLMatrix a, DLMatrix b, DLMatrix c) { 
+  public static void mult(Mat a, Mat b, Mat c) { 
   	c.mat[0] = a.mat[0]*b.mat[0] + a.mat[4]*b.mat[1] + a.mat[8]*b.mat[2] + a.mat[12]*b.mat[3];
     c.mat[4] = a.mat[0]*b.mat[4] + a.mat[4]*b.mat[5] + a.mat[8]*b.mat[6] + a.mat[12]*b.mat[7];
     c.mat[8] = a.mat[0]*b.mat[8] + a.mat[4]*b.mat[9] + a.mat[8]*b.mat[10] + a.mat[12]*b.mat[11];
@@ -733,7 +733,7 @@ public class DLMatrix implements Primitivable {
   /**
    * Apply another matrix to the left of this one.
    */
-  public void preApply(DLMatrix left) {  	
+  public void preApply(Mat left) {  	
   	preApply(left.mat[0], left.mat[1], left.mat[2], left.mat[3],
              left.mat[4], left.mat[5], left.mat[6], left.mat[7],
              left.mat[8], left.mat[9], left.mat[10], left.mat[11],
@@ -810,13 +810,13 @@ public class DLMatrix implements Primitivable {
 
   //////////////////////////////////////////////////////////////
   
-  public DLVector mult(DLVector source) {
+  public Vec mult(Vec source) {
   	return mult(source, null);
   }
 
-  public DLVector mult(DLVector source, DLVector target) {
+  public Vec mult(Vec source, Vec target) {
     if (target == null) {
-      target = new DLVector();
+      target = new Vec();
     }
     target.set(mat[0]*source.x() + mat[4]*source.y() + mat[8]*source.z() + mat[12],
     		       mat[1]*source.x() + mat[5]*source.y() + mat[9]*source.z() + mat[13],
@@ -933,7 +933,7 @@ public class DLMatrix implements Primitivable {
    * <p>
    * {@code m} should be non-null.
    */
-  public boolean invert(DLMatrix m) {
+  public boolean invert(Mat m) {
   	float determinant = determinant();
     if (determinant == 0) {
       return false;

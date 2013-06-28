@@ -157,8 +157,8 @@ public interface Renderable extends Drawerable {
   //public void loadProjection(Matrix3D source);
   //public void multiplyMatrix(Matrix3D source);
   //public void multiplyProjection(Matrix3D source);
-  public void applyMatrix(DLMatrix source);
-  public void applyProjection(DLMatrix source);
+  public void applyMatrix(Mat source);
+  public void applyProjection(Mat source);
   
   /**
    * Apply a 4x4 modelview matrix.
@@ -178,26 +178,26 @@ public interface Renderable extends Drawerable {
   
   //public void frustum(float left, float right, float bottom, float top, float znear, float zfar);
   
-  public DLMatrix getMatrix();
+  public Mat getMatrix();
   
   /**
    * Copy the current modelview matrix into the specified target.
    * Pass in null to create a new matrix.
    */
-  public DLMatrix getMatrix(DLMatrix target);
+  public Mat getMatrix(Mat target);
   
-  public DLMatrix getProjection();
+  public Mat getProjection();
   
   /**
    * Copy the current projection matrix into the specified target.
    * Pass in null to create a new matrix.
    */
-  public DLMatrix getProjection(DLMatrix target);
+  public Mat getProjection(Mat target);
   
   /**
    * Set the current modelview matrix to the contents of another.
    */
-  public void setMatrix(DLMatrix source);
+  public void setMatrix(Mat source);
   
   /**
    * Print the current modelview matrix.
@@ -207,7 +207,7 @@ public interface Renderable extends Drawerable {
   /**
    * Set the current projection matrix to the contents of another.
    */
-  public void setProjection(DLMatrix source);
+  public void setProjection(Mat source);
   
   /**
    * Print the current projection matrix.

@@ -27,11 +27,11 @@ package remixlab.duoable.profile;
 
 //import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.core.Copyable;
-import remixlab.tersehandling.core.TConstants;
+import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.shortcut.*;
 
 //TODO many constants belong to terse handling
-public abstract class AbstractProfile<K extends Shortcut, A extends Actionable<?>> implements TConstants, Copyable {
+public abstract class AbstractProfile<K extends Shortcut, A extends Actionable<?>> implements EventConstants, Copyable {
 	/**
 	protected AbstractScene scene;
 	protected String nm;

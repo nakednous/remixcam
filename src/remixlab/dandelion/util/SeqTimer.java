@@ -34,7 +34,7 @@ import remixlab.dandelion.core.*;
  * @author pierre
  *
  */
-public class SingleThreadedTimer implements Timable {
+public class SeqTimer implements Timable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -55,7 +55,7 @@ public class SingleThreadedTimer implements Timable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SingleThreadedTimer other = (SingleThreadedTimer) obj;
+		SeqTimer other = (SeqTimer) obj;
 		if (active != other.active)
 			return false;
 		if (counter != other.counter)
@@ -76,11 +76,11 @@ public class SingleThreadedTimer implements Timable {
 	private long prd;
 	private long startTime;	
 	
-	public SingleThreadedTimer(AbstractScene scn) {
+	public SeqTimer(AbstractScene scn) {
 		this(scn, false);
 	}
 	
-	public SingleThreadedTimer(AbstractScene scn, boolean singleShot) {
+	public SeqTimer(AbstractScene scn, boolean singleShot) {
 		scene = scn;
 		runOnlyOnce = singleShot;
 		create();

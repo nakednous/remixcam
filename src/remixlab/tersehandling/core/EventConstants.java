@@ -1,6 +1,6 @@
 package remixlab.tersehandling.core;
 
-public interface TConstants {
+public interface EventConstants {
   //modifier keys
   static public final int NOMODIFIER_MASK    = 0;
   static public final int SHIFT              = 1 << 0;
