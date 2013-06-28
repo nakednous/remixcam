@@ -34,6 +34,7 @@ import remixlab.dandelion.geom.*;
 import remixlab.dandelion.util.AbstractTimerJob;
 import remixlab.duoable.profile.Actionable;
 import remixlab.duoable.profile.Duoble;
+import remixlab.tersehandling.core.AbstractAgent;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.event.*;
@@ -61,7 +62,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
     return new HashCodeBuilder(17, 37).
     appendSuper(super.hashCode()).
 		append(grabsDeviceThreshold).
-		append(grbsDevice).
+		//append(grbsDevice).
 		append(isInCamPath).
 		append(isSpng).
 		append(rotSensitivity).
@@ -84,7 +85,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))
 		.append(grabsDeviceThreshold, other.grabsDeviceThreshold)
-		.append(grbsDevice, other.grbsDevice)	
+		//.append(grbsDevice, other.grbsDevice)	
 		.append(isInCamPath, other.isInCamPath)
 		.append(isSpng, other.isSpng)
 		.append(spinningFriction, other.spinningFriction)
@@ -123,7 +124,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	// Previous mouse position (used for incremental updates) and mouse press position.
 	//protected Point prevPos, pressPos;
 
-	protected boolean grbsDevice;
+	//protected boolean grbsDevice;
 
 	protected boolean isInCamPath;
 
@@ -146,9 +147,9 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		super(scn.is3D());		
 		scene = scn;		
 
-		addInDeviceGrabberPool();
+		scene.addInDeviceGrabberPool(this);
 		isInCamPath = false;
-		grbsDevice = false;
+		//grbsDevice = false;
 
 		setGrabsDeviceThreshold(10);
 		setRotationSensitivity(1.0f);
@@ -176,9 +177,9 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		super(otherFrame);
 		this.scene = otherFrame.scene;
 		
-		this.addInDeviceGrabberPool();
+		this.scene.addInDeviceGrabberPool(this);
 		this.isInCamPath = otherFrame.isInCamPath;
-		this.grbsDevice = otherFrame.grbsDevice;
+		//this.grbsDevice = otherFrame.grbsDevice;
 		
 		/**
 		// TODO need check?
@@ -240,9 +241,9 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		super(iFrame.rotation(), iFrame.translation(), iFrame.scaling());
 		scene = scn;
 
-		addInDeviceGrabberPool();
+		scene.addInDeviceGrabberPool(this);
 		isInCamPath = true;
-		grbsDevice = false;
+		//grbsDevice = false;
 
 		setGrabsDeviceThreshold(10);
 		setRotationSensitivity(1.0f);
@@ -325,13 +326,13 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	/**
 	 * Implementation of the MouseGrabber main method.
 	 * <p>
-	 * The InteractiveFrame {@link #grabsInput()} when the mouse is within a {@link #grabsDeviceThreshold()}
+	 * The InteractiveFrame {@link #grabsAgent()} when the mouse is within a {@link #grabsDeviceThreshold()}
 	 * pixels region around its
 	 * {@link remixlab.dandelion.core.Camera#projectedCoordinatesOf(DLVector)}
 	 * {@link #position()}.
 	 */
 	@Override
-	public void checkIfGrabsInput(GenericEvent event) {
+	public boolean checkIfGrabsInput(GenericEvent event) {
 		int x=0, y=0;
 		if(event instanceof GenericDOF2Event) {
 			//x = scene.cursorX - scene.upperLeftCorner.getX();
@@ -340,7 +341,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			y = (int)((GenericDOF2Event)event).getY();
 		}
 		DLVector proj = scene.pinhole().projectedCoordinatesOf(position());
-		setGrabsInput((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold()));
+		return ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold()));
 		//setGrabsInput(keepsGrabbingCursor || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
 	}
 	
@@ -371,17 +372,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * {@link #checkIfGrabsDevice(int, int, Camera)} method.
 	 */
 	@Override
-	public boolean grabsInput() {
-		return grbsDevice;
-	}
-
-	/**
-	 * Sets the {@link #grabsInput()} flag. Normally used by
-	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
-	 */
-	@Override
-	public void setGrabsInput(boolean grabs) {
-		grbsDevice = grabs;
+	public boolean grabsAgent(AbstractAgent agent) {
+		return agent.trackedGrabber() == this;
 	}
 
 	/**
@@ -389,8 +381,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * 
 	 * @see remixlab.dandelion.core.AbstractScene#isInDeviceGrabberPool(Grabbable)
 	 */
-	public boolean isInDeviceGrabberPool() {
-		return scene.isInDeviceGrabberPool(this);
+	public boolean isInAgentPool(AbstractAgent agent) {
+		return agent.isInPool(this);
 	}
 
 	/**
@@ -398,8 +390,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * 
 	 * @see remixlab.dandelion.core.AbstractScene#addInDeviceGrabberPool(Grabbable)
 	 */
-	public void addInDeviceGrabberPool() {
-		scene.addInDeviceGrabberPool(this);
+	public void addInPool(AbstractAgent agent) {
+		agent.addInPool(this);
 	}
 
 	/**
@@ -407,8 +399,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * 
 	 * @see remixlab.dandelion.core.AbstractScene#removeFromDeviceGrabberPool(Grabbable)
 	 */
-	public void removeFromDeviceGrabberPool() {
-		scene.removeFromDeviceGrabberPool(this);
+	public void removeFromDeviceGrabberPool(AbstractAgent agent) {
+		agent.removeFromPool(this);
 	}
 
 	/**

@@ -80,7 +80,7 @@ import java.util.TimerTask;
  * A Scene has a full reach Camera, it can be used for on-screen or off-screen
  * rendering purposes (see the different constructors), and it has two means to
  * manipulate objects: an {@link #interactiveFrame()} single instance (which by
- * default is null) and a {@link #deviceGrabber()} pool.
+ * default is null) and a {@link #trackedGrabber()} pool.
  * <h3>Usage</h3>
  * To use a Scene you have three choices:
  * <ol>
@@ -2367,7 +2367,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
 					DLVector center = pinhole().projectedCoordinatesOf(iF.position());
-					if (mg.grabsInput()) {						
+					if (mg.grabsAgent(prosceneMouse)) {
 						pg().pushStyle();
 					  //pg3d.stroke(mouseGrabberOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 0));
@@ -2395,7 +2395,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
 					DLVector center = pinhole().projectedCoordinatesOf(iF.position());
-					if (mg.grabsInput()) {
+					if (mg.grabsAgent(prosceneMouse)) {
 						pg().pushStyle();						
 					  //pg3d.stroke(mouseGrabberCameraPathOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 255));

@@ -40,27 +40,27 @@ import remixlab.tersehandling.event.*;
  * {@link #setGrabsInput(boolean)} if desired (method calls should actually be
  * performed on concrete class instances such as InteractiveFrame).
  * <p>
- * When a MouseGrabber {@link #grabsInput()}, it becomes the 
- * {@link remixlab.dandelion.core.AbstractScene#deviceGrabber()}. All the mouse events are then
+ * When a MouseGrabber {@link #grabsAgent()}, it becomes the 
+ * {@link remixlab.dandelion.core.AbstractScene#trackedGrabber()}. All the mouse events are then
  * transmitted to it instead of being normally processed. This continues while
- * {@link #grabsInput()} (updated using
+ * {@link #grabsAgent()} (updated using
  * {@link #checkIfGrabsDevice(int, int, Camera)}) returns {@code true}.
  * <p>
  * If you want to (temporarily) disable a specific MouseGrabbers, you can remove
  * it from this pool using 
- * {@link remixlab.dandelion.core.AbstractScene#removeFromDeviceGrabberPool(DeviceGrabbable)}.
+ * {@link remixlab.dandelion.core.AbstractScene#removeFromPool(DeviceGrabbable)}.
  */
 public interface Grabbable {
 	/**
 	 * Called by the Scene before it tests if the MouseGrabber
-	 * {@link #grabsInput()}. Should {@link #setGrabsInput(boolean)} according to
+	 * {@link #grabsAgent()}. Should {@link #setGrabsInput(boolean)} according to
 	 * the mouse position.
 	 * <p>
 	 * This is the core method of the MouseGrabber. Its goal is to update the
-	 * {@link #grabsInput()} flag according to the mouse and MouseGrabber current
+	 * {@link #grabsAgent()} flag according to the mouse and MouseGrabber current
 	 * positions, using {@link #setGrabsInput(boolean)}.
 	 * <p>
-	 * {@link #grabsInput()} is usually set to {@code true} when the mouse cursor
+	 * {@link #grabsAgent()} is usually set to {@code true} when the mouse cursor
 	 * is close enough to the MouseGrabber position. It should also be set to
 	 * {@code false} when the mouse cursor leaves this region in order to release
 	 * the mouse focus.
@@ -86,12 +86,10 @@ public interface Grabbable {
 	 * 2)); // Rectangular region} <br>
 	 */
 	// event should have the null action
-	void checkIfGrabsInput(GenericEvent event);
-	
-	//void hangOut(GenericEvent<?> event);
+	boolean checkIfGrabsInput(GenericEvent event);
 	
 	/**
-	 * Callback method called when the MouseGrabber {@link #grabsInput()} and the
+	 * Callback method called when the MouseGrabber {@link #grabsAgent()} and the
 	 * mouse is moved while a button is pressed.
 	 * <p>
 	 * This method will typically update the state of the MouseGrabber from the
@@ -103,13 +101,13 @@ public interface Grabbable {
 	/**
 	 * Should return true when the MouseGrabbable grabs the Scene mouse events.
 	 */
-	boolean grabsInput();
+	boolean grabsAgent(AbstractAgent agent);
 	
 	/**
-	 * Should sets the {@link #grabsInput()} flag. Normally used by
+	 * Sets the {@link #grabsAgent()} flag. Normally used by
 	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
 	 *  
 	 * @param grabs flag
 	 */
-	void setGrabsInput(boolean grabs);
+	//void setGrabsInput(boolean grabs);
 }

@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 //import remixlab.duoable.profile.Duoble;
-import remixlab.tersehandling.agent.AbstractAgent;
 import remixlab.tersehandling.event.GenericEvent;
 
 public abstract class TAbstractScene {
@@ -149,7 +148,7 @@ public abstract class TAbstractScene {
 	 * Returns a list containing references to all the active MouseGrabbers.
 	 * <p>
 	 * Used to parse all the MouseGrabbers and to check if any of them
-	 * {@link remixlab.tersehandling.core.Grabbable#grabsInput()} using
+	 * {@link remixlab.tersehandling.core.Grabbable#grabsAgent()} using
 	 * {@link remixlab.tersehandling.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}.
 	 * <p>
 	 * You should not have to directly use this list. Use
@@ -192,10 +191,11 @@ public abstract class TAbstractScene {
 	 */
 	public void addInDeviceGrabberPool(Grabbable deviceGrabber) {
 		for (AbstractAgent device : agents.values())
-			if( !device.isInDeviceGrabberPool(deviceGrabber) )
-				device.addInDeviceGrabberPool(deviceGrabber);
+			if( !device.isInPool(deviceGrabber) )
+				device.addInPool(deviceGrabber);
 	}
 	
+	/**
 	public void enforceGrabber(Grabbable deviceGrabber) {
 		for (AbstractAgent device : agents.values())
 			device.enforceGrabber(deviceGrabber);
@@ -205,6 +205,7 @@ public abstract class TAbstractScene {
 		for (AbstractAgent device : agents.values())
 			device.unsetGrabber();
 	}
+	*/
 
 	/**
 	 * Removes the mouseGrabber from the {@link #deviceGrabberPool()}.
@@ -214,7 +215,7 @@ public abstract class TAbstractScene {
 	 */
 	public void removeFromDeviceGrabberPool(Grabbable deviceGrabber) {
 		for (AbstractAgent device : agents.values())
-			device.removeFromDeviceGrabberPool(deviceGrabber);
+			device.removeFromPool(deviceGrabber);
 	}
 
 	/**
@@ -226,6 +227,6 @@ public abstract class TAbstractScene {
 	 */
 	public void clearDeviceGrabberPool() {
 		for (AbstractAgent device : agents.values())
-			device.clearDeviceGrabberPool();
+			device.clearPool();
 	}
 }

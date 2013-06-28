@@ -94,7 +94,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	public InteractiveCameraFrame(Pinhole vp) {
 		super(vp.scene);
 		viewport = vp;
-		removeFromDeviceGrabberPool();
+		scene.removeFromDeviceGrabberPool(this);
 		arcballRefPnt = new DLVector(0.0f, 0.0f, 0.0f);
 		worldAxis = new DLVector(0, 0, 1);
 	}

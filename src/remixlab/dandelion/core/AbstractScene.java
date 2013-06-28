@@ -35,6 +35,7 @@ import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
 import remixlab.dandelion.util.*;
 import remixlab.duoable.profile.Actionable;
+import remixlab.tersehandling.core.AbstractAgent;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.TAbstractScene;
 import remixlab.tersehandling.event.*;
@@ -177,18 +178,13 @@ public abstract class AbstractScene extends TAbstractScene implements Constants,
 	// E V E N T   HA N D L I N G
 	
 	@Override
-	public boolean grabsInput() {
-		return grbsDevice;
+	public boolean grabsAgent(AbstractAgent agent) {
+		return agent.trackedGrabber() == this;
 	}
 	
 	@Override
-	public void setGrabsInput(boolean grabs) {
-		grbsDevice = grabs;
-	}
-	
-	@Override
-	public void checkIfGrabsInput(GenericEvent event) {		
-		setGrabsInput(true);
+	public boolean checkIfGrabsInput(GenericEvent event) {		
+		return (event instanceof KeyboardEvent || event instanceof ClickEvent);
 	}
 	
 	/**

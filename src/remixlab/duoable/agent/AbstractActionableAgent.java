@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import remixlab.duoable.profile.AbstractProfile;
 import remixlab.duoable.profile.Actionable;
 import remixlab.duoable.profile.Duoble;
-import remixlab.tersehandling.agent.AbstractAgent;
+import remixlab.tersehandling.core.AbstractAgent;
 import remixlab.tersehandling.core.EventGrabberTuple;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.TAbstractScene;

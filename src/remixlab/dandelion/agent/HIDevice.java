@@ -71,11 +71,11 @@ public class HIDevice extends AbstractMotionAgent implements Constants {
 	}
 	
 	@Override
-	public boolean addInDeviceGrabberPool(Grabbable deviceGrabber) {
+	public boolean addInPool(Grabbable deviceGrabber) {
 		if(deviceGrabber == null)
 			return false;
 		if( (deviceGrabber instanceof InteractiveFrame) && !(deviceGrabber instanceof InteractiveCameraFrame) )
-			if (!isInDeviceGrabberPool(deviceGrabber)) {
+			if (!isInPool(deviceGrabber)) {
 				deviceGrabberPool().add(deviceGrabber);
 				return true;
 			}

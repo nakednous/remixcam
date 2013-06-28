@@ -84,11 +84,11 @@ public class WheeledMouse extends Mouse {
 			else
 				if(event instanceof GenericMotionEvent) {
 					((GenericMotionEvent)event).modulate(sens);
-					if(deviceGrabber() != null )
+					if(trackedGrabber() != null )
 						if( event instanceof DOF1Event )
-							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameWheelProfile().handle((Duoble<?>)event), deviceGrabber()));
+							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameWheelProfile().handle((Duoble<?>)event), trackedGrabber()));
 						else
-							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));
+							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), trackedGrabber()));
 					else
 						if( event instanceof DOF1Event )
 							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, wheelProfile().handle((Duoble<?>)event), defaultGrabber()));

@@ -23,12 +23,11 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.tersehandling.agent;
+package remixlab.tersehandling.core;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.event.*;
 
 public abstract class AbstractAgent {	
@@ -72,57 +71,76 @@ public abstract class AbstractAgent {
 	protected Grabbable grabber;
 	protected Grabbable defaultGrabber;
 	
-	protected boolean enforcedGrabber;
+	//protected boolean enforcedGrabber;
 	//public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
-	//protected boolean deviceTrckn;
+	protected boolean deviceTrckn;
 	
 	public AbstractAgent(TAbstractScene scn, String n) {
 		scene = scn;
 		nm = n;
 		grabbers = new ArrayList<Grabbable>();
-		enforcedGrabber = false;
-		scene.registerAgent(this);		
+		//enforcedGrabber = false;
+		setTracking(true);
+		scene.registerAgent(this);
 	}
 	
 	public String name() {
 		return nm;
 	}
 	
-  //procedure, to be called by handle when actionable is on
-	public boolean updateGrabber(GenericEvent event) {
-		if( event == null || !scene.isAgentRegistered(this))
-			return false;
+	/**
+	* Returns {@code true}
+	* if {@link remixlab.proscene.DesktopEvents#mouseMoved(processing.event.MouseEvent)}
+	* is called even when no mouse button is pressed.
+	* <p>
+	* You need to setMouseTracking() to \c true in order to use MouseGrabber (see mouseGrabber()).
+	*/
+	public boolean isTracking() {
+		return deviceTrckn;
+	}
+	
+	public void enableTracking() {
+		setTracking(true);
+	}
+	
+	public void disableTracking() {
+		setTracking(false);
+	}
+
+	/**
+	* Sets the {@link #isTracking()} value.
+	*/
+	public void setTracking(boolean enable) {
+		/**
+		if(!enable) {
+			if( agentGrabber() != null )
+				setAgentGrabber(null);
+			}
+			*/
+		deviceTrckn = enable;
+	}
+
+	/**
+	* Calls {@link #setTracking(boolean)} to toggle the {@link #isTracking()} value.
+	*/
+	public void toggleTracking() {
+		setTracking(!isTracking());
+	}
+	
+	public void updateGrabber(GenericEvent event) {
+		if( event == null || !scene.isAgentRegistered(this) || !isTracking() )
+			return;
 		
-		if(isGrabberEnforced())	return false;
-		
-		setDeviceGrabber(null);
+		setTrackedGrabber(null);
 		for (Grabbable mg : deviceGrabberPool()) {
-			// take whatever. Here the last one
-			mg.checkIfGrabsInput(event);
-			if (mg.grabsInput()) {
-				setDeviceGrabber(mg);
+			// take whatever. Here the first one
+			if(mg.checkIfGrabsInput(event)) {
+				setTrackedGrabber(mg);
 				//System.out.println("oooops");
-				return true;
+				return;
 			}
 		}
-		return false;
-	}
-	
-	public void setDefaultGrabber(Grabbable g) {
-		defaultGrabber = g;
-	}
-	
-	public Grabbable defaultGrabber() {
-		return defaultGrabber;
-	}
-	
-	public void unsetGrabber() {
-		setDeviceGrabber(null);
-		enforcedGrabber = false;
-	}
-	
-	public boolean isGrabberEnforced() {
-		return this.enforcedGrabber;
+		return;
 	}
 	
 	//just enqueue grabber
@@ -139,12 +157,12 @@ public abstract class AbstractAgent {
 	 * Returns a list containing references to all the active MouseGrabbers.
 	 * <p>
 	 * Used to parse all the MouseGrabbers and to check if any of them
-	 * {@link remixlab.tersehandling.core.Grabbable#grabsInput()} using
+	 * {@link remixlab.tersehandling.core.Grabbable#grabsAgent()} using
 	 * {@link remixlab.tersehandling.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}.
 	 * <p>
 	 * You should not have to directly use this list. Use
-	 * {@link #removeFromDeviceGrabberPool(Grabbable)} and
-	 * {@link #addInDeviceGrabberPool(Grabbable)} to modify this list.
+	 * {@link #removeFromPool(Grabbable)} and
+	 * {@link #addInPool(Grabbable)} to modify this list.
 	 */
 	public List<Grabbable> deviceGrabberPool() {
 		return grabbers;
@@ -153,10 +171,10 @@ public abstract class AbstractAgent {
 	/**
 	 * Removes the mouseGrabber from the {@link #deviceGrabberPool()}.
 	 * <p>
-	 * See {@link #addInDeviceGrabberPool(Grabbable)} for details. Removing a mouseGrabber
+	 * See {@link #addInPool(Grabbable)} for details. Removing a mouseGrabber
 	 * that is not in {@link #deviceGrabberPool()} has no effect.
 	 */
-	public void removeFromDeviceGrabberPool(Grabbable deviceGrabber) {
+	public void removeFromPool(Grabbable deviceGrabber) {
 		deviceGrabberPool().remove(deviceGrabber);
 	}
 	
@@ -167,18 +185,18 @@ public abstract class AbstractAgent {
 	 * {@link #deviceGrabberPool()} and then to add back a few MouseGrabbers
 	 * than to remove each one independently.
 	 */
-	public void clearDeviceGrabberPool() {
+	public void clearPool() {
 		deviceGrabberPool().clear();
 	}
 	
 	/**
 	 * Returns true if the mouseGrabber is currently in the {@link #deviceGrabberPool()} list.
 	 * <p>
-	 * When set to false using {@link #removeFromDeviceGrabberPool(Grabbable)}, the Scene no longer
+	 * When set to false using {@link #removeFromPool(Grabbable)}, the Scene no longer
 	 * {@link remixlab.tersehandling.core.Grabbable#checkIfGrabsDevice(int, int, Camera)} on this mouseGrabber.
-	 * Use {@link #addInDeviceGrabberPool(Grabbable)} to insert it back.
+	 * Use {@link #addInPool(Grabbable)} to insert it back.
 	 */
-	public boolean isInDeviceGrabberPool(Grabbable deviceGrabber) {
+	public boolean isInPool(Grabbable deviceGrabber) {
 		return deviceGrabberPool().contains(deviceGrabber);
 	}
 	
@@ -186,19 +204,27 @@ public abstract class AbstractAgent {
 	 * Returns the current MouseGrabber, or {@code null} if none currently grabs
 	 * mouse events.
 	 * <p>
-	 * When {@link remixlab.tersehandling.core.Grabbable#grabsInput()}, the different
+	 * When {@link remixlab.tersehandling.core.Grabbable#grabsAgent()}, the different
 	 * mouse events are sent to it instead of their usual targets (
 	 * {@link #pinhole()} or {@link #interactiveFrame()}).
 	 */
-	public Grabbable deviceGrabber() {
+	public Grabbable trackedGrabber() {
 		return grabber;
 	}
 	
 	public Grabbable grabber() {
-		if (deviceGrabber() != null)
-			return deviceGrabber();
+		if (trackedGrabber() != null)
+			return trackedGrabber();
 		else
 			return defaultGrabber();
+	}
+	
+	public Grabbable defaultGrabber() {
+		return defaultGrabber;
+	}
+	
+	public void setDefaultGrabber(Grabbable g) {
+		defaultGrabber = g;
 	}
 	
 	/**
@@ -206,22 +232,22 @@ public abstract class AbstractAgent {
 	 * <p>
 	 * All created InteractiveFrames (which are MouseGrabbers) are automatically added in the
 	 * {@link #deviceGrabberPool()} by their constructors. Trying to add a
-	 * mouseGrabber that already {@link #isInDeviceGrabberPool(Grabbable)} has no effect.
+	 * mouseGrabber that already {@link #isInPool(Grabbable)} has no effect.
 	 * <p>
-	 * Use {@link #removeFromDeviceGrabberPool(Grabbable)} to remove the mouseGrabber from
+	 * Use {@link #removeFromPool(Grabbable)} to remove the mouseGrabber from
 	 * the list, so that it is no longer tested with
 	 * {@link remixlab.tersehandling.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}
 	 * by the Scene, and hence can no longer grab mouse focus. Use
-	 * {@link #isInDeviceGrabberPool(Grabbable)} to know the current state of the MouseGrabber.
+	 * {@link #isInPool(Grabbable)} to know the current state of the MouseGrabber.
 	 */
 	//TODO shoud be overriden in implementing classes
 	//public abstract boolean addInDeviceGrabberPool(Grabbable deviceGrabber);	
 	//Default implementation is nice in some cases
-	public boolean addInDeviceGrabberPool(Grabbable deviceGrabber) {
+	public boolean addInPool(Grabbable deviceGrabber) {
 		if(deviceGrabber == null)
 			return false;
 		//if( !(deviceGrabber instanceof InteractiveCameraFrame) )
-			if (!isInDeviceGrabberPool(deviceGrabber)) {
+			if (!isInPool(deviceGrabber)) {
 				deviceGrabberPool().add(deviceGrabber);
 				return true;
 			}
@@ -242,6 +268,7 @@ public abstract class AbstractAgent {
 	 * {@link remixlab.tersehandling.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}
 	 * test performed by parsing the mouse moved event.
 	 */
+	/**
   public boolean enforceGrabber(Grabbable g) {
   	if( this.isGrabberEnforced() ) //already enforced, do nothing
   		return false;
@@ -259,15 +286,26 @@ public abstract class AbstractAgent {
 		}
   	return false;
 	}
+	*/
 	
-	
-	protected void setDeviceGrabber(Grabbable deviceGrabber) {
-		if( deviceGrabber == null )
+  /**
+	 * Directly defines the {@link #trackedGrabber()}.
+	 * <p>
+	 * You should not call this method directly as it bypasses the
+	 * {@link remixlab.tersehandling.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}
+	 * test performed by parsing the mouse moved event.
+	 */
+	public boolean setTrackedGrabber(Grabbable deviceGrabber) {
+		if( deviceGrabber == null ) {
 			grabber = null;
+			return true;
+		}
 		else
-			if( isInDeviceGrabberPool(deviceGrabber) )
+			if( isInPool(deviceGrabber) ) {
 				grabber = deviceGrabber;
-
+				return true;
+			}
+		return false;
 		//deviceGrabberIsAnIFrame = deviceGrabber instanceof InteractiveFrame;
 	}
 }

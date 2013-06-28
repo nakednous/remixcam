@@ -78,8 +78,8 @@ public abstract class AbstractMotionAgent extends AbstractActionableAgent {
 			else
 				if(event instanceof GenericMotionEvent) {
 					((GenericMotionEvent)event).modulate(sens);
-					if (deviceGrabber() != null )
-						scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));						
+					if (trackedGrabber() != null )
+						scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), trackedGrabber()));						
 					else 
 						scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoble<?>)event), defaultGrabber()));			
 			}
