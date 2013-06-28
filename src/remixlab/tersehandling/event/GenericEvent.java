@@ -57,7 +57,6 @@ public class GenericEvent implements TConstants, Copyable {
 		.isEquals();
 	}
 	
-	//protected AbstractDevice senderAgent;
   //protected Actionable<?> action;
   protected final Integer modifiers;
   protected final Long timestamp;
@@ -85,16 +84,6 @@ public class GenericEvent implements TConstants, Copyable {
 		return new GenericEvent(this);
 	}
   
-  /**
-  public void setAgent(AbstractDevice agent) {
-  	senderAgent = agent;
-  }
-  
-  public AbstractDevice agent() {
-  	return this.senderAgent;
-  }
-  */
-  
   public Shortcut shortcut() {
   	//System.out.println("calling DLEvent shortcut");
   	return new Shortcut(getModifiers());
@@ -112,7 +101,6 @@ public class GenericEvent implements TConstants, Copyable {
   	return false;
   }
 
-  // /**
   public boolean isShiftDown() {
     return (modifiers & SHIFT) != 0;
   }
@@ -142,37 +130,4 @@ public class GenericEvent implements TConstants, Copyable {
 		if((ALT_GRAPH & mask) == ALT_GRAPH) r += (r.length() > 0) ? "+ALT_GRAPH" : "ALT_GRAPH";
 		return r;
 	}
-	// */
-  
-  /**
-  public boolean isShiftDown() {
-    return (modifiers & SHIFT_DOWN) != 0;
-  }
-
-  public boolean isControlDown() {
-    return (modifiers & CTRL_DOWN) != 0;
-  }
-
-  public boolean isMetaDown() {
-    return (modifiers & META_DOWN) != 0;
-  }
-
-  public boolean isAltDown() {
-    return (modifiers & ALT_DOWN) != 0;
-  }
-  
-  public boolean isAltGraph() {
-    return (modifiers & ALT_GRAPH_DOWN) != 0;
-  }
-  
-	public static String getModifiersText(int mask) {
-		String r = new String();
-		if((ALT_DOWN & mask)       == ALT_DOWN) r += "ALT";						
-		if((SHIFT_DOWN & mask)     == SHIFT_DOWN) r += (r.length() > 0) ? "+SHIFT" : "SHIFT";
-		if((CTRL_DOWN & mask)      == CTRL_DOWN) r += (r.length() > 0) ? "+CTRL" : "CTRL";
-		if((META_DOWN & mask)      == META_DOWN) r += (r.length() > 0) ? "+META" : "META";
-		if((ALT_GRAPH_DOWN & mask) == ALT_GRAPH_DOWN) r += (r.length() > 0) ? "+ALT_GRAPH" : "ALT_GRAPH";
-		return r;
-	}
-	// */
 }

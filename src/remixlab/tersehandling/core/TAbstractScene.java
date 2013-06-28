@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import remixlab.duoable.profile.Duoble;
+//import remixlab.duoable.profile.Duoble;
 import remixlab.tersehandling.agent.AbstractAgent;
 import remixlab.tersehandling.event.GenericEvent;
 
@@ -21,6 +21,7 @@ public abstract class TAbstractScene {
 		eventTupleQueue = new LinkedList<EventGrabberTuple>();
 	}
 	
+	// to be called at the end of the main drawing loop
 	public void mainLoop() {
 		// 1. Agents
 		for (AbstractAgent device : agents.values())
@@ -35,6 +36,7 @@ public abstract class TAbstractScene {
     }
 	}
 	
+	// call when grabber is null
 	public abstract void defaultPerformer(GenericEvent e);
 	
 	/**
@@ -103,6 +105,7 @@ public abstract class TAbstractScene {
 	 * @see #unregisterProfile(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
+	/**
 	public void enqueueEventTuple(EventGrabberTuple eventTuple) {
 		if(!eventTupleQueue.contains(eventTuple))
 			if( !eventTuple.event().isNull() )
@@ -112,6 +115,16 @@ public abstract class TAbstractScene {
 				}
 				else
 					eventTupleQueue.add(eventTuple);
+	}
+	*/
+	
+	public LinkedList<EventGrabberTuple> eventTupleQueue() {
+		return eventTupleQueue;
+	}
+	
+	public void enqueueEventTuple(EventGrabberTuple eventTuple) {		
+		if(!eventTupleQueue.contains(eventTuple))
+			eventTuple.enqueue(eventTupleQueue);
 	}
 	
 	/**

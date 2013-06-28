@@ -25,6 +25,8 @@
 
 package remixlab.tersehandling.core;
 
+import java.util.LinkedList;
+
 import remixlab.tersehandling.event.GenericEvent;
 
 public class EventGrabberTuple {
@@ -50,5 +52,13 @@ public class EventGrabberTuple {
   
   public Grabbable grabber() {
   	return grabber;
+  }
+  
+  public boolean enqueue(LinkedList<EventGrabberTuple> queue) {
+  	if (!event().isNull()) {
+  		queue.add(this);
+  		return true;
+  	}
+  	return false;
   }
 }

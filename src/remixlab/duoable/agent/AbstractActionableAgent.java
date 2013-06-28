@@ -1,5 +1,7 @@
 package remixlab.duoable.agent;
 
+import java.util.LinkedList;
+
 import remixlab.duoable.profile.AbstractProfile;
 import remixlab.duoable.profile.Actionable;
 import remixlab.duoable.profile.Duoble;
@@ -23,7 +25,23 @@ public abstract class AbstractActionableAgent extends AbstractAgent {
 	  		((Duoble<?>)event).setAction(a);
 	  	else
 	  		System.out.println("Action will not be handled by grabber using this event type. Supply a Duoble event");
-	  	}
+	  }
+		
+		@Override
+		public boolean enqueue(LinkedList<EventGrabberTuple> queue) {
+			if( event().isNull() )
+				return false;
+			if(event instanceof Duoble) {
+				if( ((Duoble<?>)event).getAction() != null ) {
+					queue.add(this);
+					return true;
+		    }
+				else
+					return false;
+			}		
+			else
+				return super.enqueue(queue);	  	
+	  }
 	}
 	
 	protected AbstractProfile<?,?> profile;
@@ -46,5 +64,5 @@ public abstract class AbstractActionableAgent extends AbstractAgent {
 		if(event == null || !scene.isAgentRegistered(this))	return;		
 		if(event instanceof Duoble<?>)
 			scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, profile().handle((Duoble<?>)event), deviceGrabber()));
-	}	
+	}
 }
