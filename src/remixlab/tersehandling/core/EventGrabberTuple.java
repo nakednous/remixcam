@@ -37,18 +37,10 @@ public class EventGrabberTuple {
 		event = e;
 		grabber = g;
 	}
-  
-  public boolean perform() {
-  	return perform(null);
-  }
-  
-  public boolean perform(Grabbable defaultPerformer) {
+	
+	public boolean perform() {
   	if(grabber != null) {
   		grabber.performInteraction(event);
-  		return true;
-  	}
-  	if(defaultPerformer != null) {
-  		defaultPerformer.performInteraction(event);
   		return true;
   	}
   	return false;
