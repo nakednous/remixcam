@@ -25,11 +25,17 @@
 
 package remixlab.proscene;
 
-import remixlab.remixcam.core.*;
-import remixlab.remixcam.geom.*;
-import remixlab.remixcam.interactivity.*;
-import remixlab.remixcam.util.*;
-import remixlab.remixcam.renderer.*;
+import remixlab.dandelion.agent.Keyboard;
+import remixlab.dandelion.agent.WheeledMouse;
+import remixlab.dandelion.core.*;
+import remixlab.dandelion.event.ClickEvent;
+import remixlab.dandelion.event.DOF1Event;
+import remixlab.dandelion.event.DOF2Event;
+import remixlab.dandelion.event.KeyboardEvent;
+import remixlab.dandelion.geom.*;
+import remixlab.dandelion.renderer.*;
+import remixlab.tersehandling.core.Grabbable;
+import remixlab.tersehandling.util.*;
 //import remixlab.remixcam.shortcut.*;
 
 /**
@@ -766,7 +772,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		/**
-		 * Overriding of {@link remixlab.remixcam.core.Renderable#cone(int, float, float, float, float)}.
+		 * Overriding of {@link remixlab.dandelion.core.Renderable#cone(int, float, float, float, float)}.
 		 * <p>
 		 * The code of this function was adapted from
 		 * http://processinghacks.com/hacks:cone Thanks to Tom Carden.
@@ -796,7 +802,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		/**
-		 * Overriding of {@link remixlab.remixcam.core.Renderable#cone(int, float, float, float, float, float)}.
+		 * Overriding of {@link remixlab.dandelion.core.Renderable#cone(int, float, float, float, float, float)}.
 		 */
 		@Override
 		public void cone(int detail, float x, float y, float r1, float r2, float h) {
@@ -1373,7 +1379,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		/**
 		 * Sets the processing camera projection matrix from {@link #camera()}. Calls
 		 * {@code PApplet.perspective()} or {@code PApplet.orhto()} depending on the
-		 * {@link remixlab.remixcam.core.Camera#type()}.
+		 * {@link remixlab.dandelion.core.Camera#type()}.
 		 */
 		@Override
 		protected void setProjectionMatrix() {
@@ -1477,7 +1483,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		/**
 	   * Sets the processing camera projection matrix from {@link #camera()}. Calls
 	   * {@code PApplet.perspective()} or {@code PApplet.orhto()} depending on the
-	   * {@link remixlab.remixcam.core.Camera#type()}.
+	   * {@link remixlab.dandelion.core.Camera#type()}.
 	   */
 		@Override
 		protected void setProjectionMatrix() {
