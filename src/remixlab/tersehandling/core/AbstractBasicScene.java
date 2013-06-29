@@ -8,6 +8,7 @@ import java.util.List;
 //import remixlab.duoable.profile.Duoble;
 import remixlab.tersehandling.event.GenericEvent;
 
+//TODO check what to do; abstract or not?
 public abstract class AbstractBasicScene {
   //D E V I C E S	  &   E V E N T S
   protected HashMap<String, AbstractAgent> agents;

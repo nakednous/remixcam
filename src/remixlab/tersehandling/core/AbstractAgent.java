@@ -30,6 +30,7 @@ import java.util.List;
 
 import remixlab.tersehandling.event.*;
 
+//TODO seems that this should not be made abstract
 public abstract class AbstractAgent {	
 	/**
 	protected Object handlerObject;	
