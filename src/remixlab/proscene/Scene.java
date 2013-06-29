@@ -1,11 +1,12 @@
 /**
- *                     ProScene (version 1.9.70)      
- *    Copyright (c) 2010-2013 by National University of Colombia
+ *                     ProScene-2 (version 1.9.70)      
+ *    Copyright (c) 2010-2012 by National University of Colombia
+ *           Copyright (c) 2013 by Jean Pierre Charalambos
  *                 @author Jean Pierre Charalambos      
  *           http://www.disi.unal.edu.co/grupos/remixlab/
  *                           
- * This java package provides classes to ease the creation of interactive 3D
- * scenes in Processing.
+ * This library provides classes to ease the creation of interactive
+ * frame-based, 2d and 3d scenes in the Processing language.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free

@@ -1,11 +1,10 @@
 /**
- *                     RemixCam (version 0.70.0)      
- *      Copyright (c) 2013 by National University of Colombia
+ *                  TerseHandling (version 0.70.0)      
+ *           Copyright (c) 2013 by Jean Pierre Charalambos
  *                 @author Jean Pierre Charalambos      
  *              https://github.com/nakednous/remixcam
  *                           
- * This java library provides classes to ease the creation of interactive 3D
- * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
+ * This library provides classes to ease the creation of interactive scenes.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,12 +22,12 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.duoable.agent;
+package remixlab.tersehandling.duoable.agent;
 
-import remixlab.duoable.profile.AbstractClickProfile;
-import remixlab.duoable.profile.AbstractMotionProfile;
-import remixlab.duoable.profile.Duoble;
-import remixlab.tersehandling.core.AbstractBasicScene;
+import remixlab.tersehandling.core.BasicScene;
+import remixlab.tersehandling.duoable.profile.AbstractClickProfile;
+import remixlab.tersehandling.duoable.profile.AbstractMotionProfile;
+import remixlab.tersehandling.duoable.profile.Duoble;
 import remixlab.tersehandling.event.*;
 
 public abstract class AbstractMotionAgent extends AbstractActionableAgent {
@@ -36,7 +35,7 @@ public abstract class AbstractMotionAgent extends AbstractActionableAgent {
 	protected AbstractClickProfile<?> clickProfile;
 	protected float[] sens;
 	
-	public AbstractMotionAgent(AbstractBasicScene scn, String n) {
+	public AbstractMotionAgent(BasicScene scn, String n) {
 		super(scn, n);	
 	}
 	

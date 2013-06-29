@@ -1,11 +1,11 @@
 /**
- *                     RemixCam (version 0.70.0)      
- *      Copyright (c) 2013 by National University of Colombia
+ *                     Dandelion (version 0.70.0)      
+ *          Copyright (c) 2013 by Jean Pierre Charalambos
  *                 @author Jean Pierre Charalambos      
  *              https://github.com/nakednous/remixcam
  *                           
- * This java library provides classes to ease the creation of interactive 3D
- * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
+ * This library provides classes to ease the creation of interactive
+ * frame-based, 2d and 3d scenes.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -29,7 +29,7 @@ import remixlab.dandelion.core.*;
 import remixlab.dandelion.core.Constants.DOF_0Action;
 import remixlab.dandelion.event.KeyboardEvent;
 import remixlab.dandelion.profile.KeyboardProfile;
-import remixlab.duoable.agent.AbstractKeyboardAgent;
+import remixlab.tersehandling.duoable.agent.AbstractKeyboardAgent;
 
 public class KeyboardAgent extends AbstractKeyboardAgent {
 	public KeyboardAgent(AbstractScene scn, String n) {

@@ -1,11 +1,10 @@
 /**
- *                     RemixCam (version 0.70.0)      
- *      Copyright (c) 2013 by National University of Colombia
+ *                  TerseHandling (version 0.70.0)      
+ *           Copyright (c) 2013 by Jean Pierre Charalambos
  *                 @author Jean Pierre Charalambos      
  *              https://github.com/nakednous/remixcam
  *                           
- * This java library provides classes to ease the creation of interactive 3D
- * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
+ * This library provides classes to ease the creation of interactive scenes.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -66,7 +65,7 @@ public abstract class AbstractAgent {
 	}
 	*/		
 	
-	protected AbstractBasicScene scene;
+	protected BasicScene scene;
 	protected String nm;
 	protected List<Grabbable> grabbers;
 	protected Grabbable grabber;
@@ -76,7 +75,7 @@ public abstract class AbstractAgent {
 	//public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
 	protected boolean deviceTrckn;
 	
-	public AbstractAgent(AbstractBasicScene scn, String n) {
+	public AbstractAgent(BasicScene scn, String n) {
 		scene = scn;
 		nm = n;
 		grabbers = new ArrayList<Grabbable>();
@@ -112,12 +111,6 @@ public abstract class AbstractAgent {
 	* Sets the {@link #isTracking()} value.
 	*/
 	public void setTracking(boolean enable) {
-		/**
-		if(!enable) {
-			if( agentGrabber() != null )
-				setAgentGrabber(null);
-			}
-			*/
 		deviceTrckn = enable;
 	}
 
@@ -254,40 +247,6 @@ public abstract class AbstractAgent {
 			}
 		return false;
 	}
-	
-	/**
-	public void addInDeviceGrabberPool(Grabbable deviceGrabber) {
-		if (!isInDeviceGrabberPool(deviceGrabber))
-			deviceGrabberPool().add(deviceGrabber);
-	}
-	*/
-	
-	/**
-	 * Directly defines the {@link #deviceGrabber()}.
-	 * <p>
-	 * You should not call this method directly as it bypasses the
-	 * {@link remixlab.tersehandling.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}
-	 * test performed by parsing the mouse moved event.
-	 */
-	/**
-  public boolean enforceGrabber(Grabbable g) {
-  	if( this.isGrabberEnforced() ) //already enforced, do nothing
-  		return false;
-  	if( g == null ) {
-			grabber = null;
-			enforcedGrabber = true;
-			return true;
-  	}
-  	//TODO check if would be good idea to add it here
-  	// for instance using addInDeviceGrabberPool which could be overriden in a derived class ;)
-  	if( isInDeviceGrabberPool(g) ) {
-  		grabber = g;
-  		enforcedGrabber = true;
-  		return true;
-		}
-  	return false;
-	}
-	*/
 	
   /**
 	 * Directly defines the {@link #trackedGrabber()}.

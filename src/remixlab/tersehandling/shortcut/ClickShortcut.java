@@ -1,11 +1,10 @@
 /**
- *                     RemixCam (version 0.70.0)      
- *      Copyright (c) 2013 by National University of Colombia
+ *                  TerseHandling (version 0.70.0)      
+ *           Copyright (c) 2013 by Jean Pierre Charalambos
  *                 @author Jean Pierre Charalambos      
  *              https://github.com/nakednous/remixcam
  *                           
- * This java library provides classes to ease the creation of interactive 3D
- * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
+ * This library provides classes to ease the creation of interactive scenes.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -32,7 +31,7 @@ import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.event.GenericEvent;
 
 /**
- * This class represents mouse click shortcuts.
+ * This class represents agent click shortcuts.
  * <p>
  * Mouse click shortcuts are defined with a specific number of clicks
  * and can be of one out of two forms: 1. A mouse button; and, 2. A mouse

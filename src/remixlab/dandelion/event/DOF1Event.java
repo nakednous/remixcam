@@ -1,11 +1,11 @@
 /**
- *                     RemixCam (version 0.70.0)      
- *      Copyright (c) 2013 by National University of Colombia
+ *                     Dandelion (version 0.70.0)      
+ *          Copyright (c) 2013 by Jean Pierre Charalambos
  *                 @author Jean Pierre Charalambos      
  *              https://github.com/nakednous/remixcam
  *                           
- * This java library provides classes to ease the creation of interactive 3D
- * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
+ * This library provides classes to ease the creation of interactive
+ * frame-based, 2d and 3d scenes.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,8 +31,8 @@ package remixlab.dandelion.event;
 //TODO implement equals and hash including the action
 //see commented lines in GenericEvent
 import remixlab.dandelion.core.Constants;
-import remixlab.duoable.profile.Actionable;
-import remixlab.duoable.profile.Duoble;
+import remixlab.tersehandling.duoable.profile.Actionable;
+import remixlab.tersehandling.duoable.profile.Duoble;
 import remixlab.tersehandling.event.GenericDOF1Event;
 ///**
 public class DOF1Event extends GenericDOF1Event implements Constants, Duoble<Constants.DOF_1Action> {

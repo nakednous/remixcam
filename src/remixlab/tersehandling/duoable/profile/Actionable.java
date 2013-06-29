@@ -1,11 +1,10 @@
 /**
- *                     RemixCam (version 0.70.0)      
- *      Copyright (c) 2013 by National University of Colombia
+ *                  TerseHandling (version 0.70.0)      
+ *           Copyright (c) 2013 by Jean Pierre Charalambos
  *                 @author Jean Pierre Charalambos      
  *              https://github.com/nakednous/remixcam
  *                           
- * This java library provides classes to ease the creation of interactive 3D
- * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
+ * This library provides classes to ease the creation of interactive scenes.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,16 +22,11 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.duoable.profile;
+package remixlab.tersehandling.duoable.profile;
 
 public interface Actionable<E extends Enum<E>> {
-	//A action();
 	E action();
 	String description();
 	public boolean is2D();
 	public int dofs();
-	//public boolean selectionMode();
-	//E defaultAction();
-	//E selectionAction();
-	//E deselectionAction();
 }

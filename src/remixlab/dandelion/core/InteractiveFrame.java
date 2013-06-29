@@ -1,11 +1,11 @@
 /**
- *                     RemixCam (version 0.70.0)      
- *      Copyright (c) 2013 by National University of Colombia
+ *                     Dandelion (version 0.70.0)      
+ *          Copyright (c) 2013 by Jean Pierre Charalambos
  *                 @author Jean Pierre Charalambos      
  *              https://github.com/nakednous/remixcam
  *                           
- * This java library provides classes to ease the creation of interactive 3D
- * scenes in various languages and frameworks such as JOGL, WebGL and Processing.
+ * This library provides classes to ease the creation of interactive
+ * frame-based, 2d and 3d scenes.
  * 
  * This source file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -32,11 +32,11 @@ import remixlab.dandelion.event.DOF3Event;
 import remixlab.dandelion.event.DOF6Event;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.util.AbstractTimerJob;
-import remixlab.duoable.profile.Actionable;
-import remixlab.duoable.profile.Duoble;
 import remixlab.tersehandling.core.AbstractAgent;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
+import remixlab.tersehandling.duoable.profile.Actionable;
+import remixlab.tersehandling.duoable.profile.Duoble;
 import remixlab.tersehandling.event.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
