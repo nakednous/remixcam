@@ -67,12 +67,12 @@ public class GenericMotionEvent extends GenericEvent {
 	
 	public GenericMotionEvent() {
     super();
-    this.button = NOBUTTON;
+    this.button = TH_NOBUTTON;
   }
 	
 	public GenericMotionEvent(int modifiers) {
     super(modifiers);
-    this.button = NOBUTTON;
+    this.button = TH_NOBUTTON;
   }
 	
 	public GenericMotionEvent(int modifiers, int button) {

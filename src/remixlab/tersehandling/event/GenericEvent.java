@@ -101,32 +101,32 @@ public class GenericEvent implements EventConstants, Copyable {
   }
 
   public boolean isShiftDown() {
-    return (modifiers & SHIFT) != 0;
+    return (modifiers & TH_SHIFT) != 0;
   }
 
   public boolean isControlDown() {
-    return (modifiers & CTRL) != 0;
+    return (modifiers & TH_CTRL) != 0;
   }
 
   public boolean isMetaDown() {
-    return (modifiers & META) != 0;
+    return (modifiers & TH_META) != 0;
   }
 
   public boolean isAltDown() {
-    return (modifiers & ALT) != 0;
+    return (modifiers & TH_ALT) != 0;
   }
   
   public boolean isAltGraph() {
-    return (modifiers & ALT_GRAPH) != 0;
+    return (modifiers & TH_ALT_GRAPH) != 0;
   }
   
 	public static String getModifiersText(int mask) {
 		String r = new String();
-		if((ALT & mask)       == ALT) r += "ALT";						
-		if((SHIFT & mask)     == SHIFT) r += (r.length() > 0) ? "+SHIFT" : "SHIFT";
-		if((CTRL & mask)      == CTRL) r += (r.length() > 0) ? "+CTRL" : "CTRL";
-		if((META & mask)      == META) r += (r.length() > 0) ? "+META" : "META";
-		if((ALT_GRAPH & mask) == ALT_GRAPH) r += (r.length() > 0) ? "+ALT_GRAPH" : "ALT_GRAPH";
+		if((TH_ALT & mask)       == TH_ALT) r += "ALT";						
+		if((TH_SHIFT & mask)     == TH_SHIFT) r += (r.length() > 0) ? "+SHIFT" : "SHIFT";
+		if((TH_CTRL & mask)      == TH_CTRL) r += (r.length() > 0) ? "+CTRL" : "CTRL";
+		if((TH_META & mask)      == TH_META) r += (r.length() > 0) ? "+META" : "META";
+		if((TH_ALT_GRAPH & mask) == TH_ALT_GRAPH) r += (r.length() > 0) ? "+ALT_GRAPH" : "ALT_GRAPH";
 		return r;
 	}
 }

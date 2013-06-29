@@ -51,12 +51,12 @@ public class KeyboardAgent extends AbstractKeyboardAgent {
 		keyboardProfile().setShortcut('s', DOF_0Action.INTERPOLATE_TO_FIT_SCENE);
 		keyboardProfile().setShortcut('S', DOF_0Action.SHOW_ALL);
 
-		keyboardProfile().setShortcut(KeyboardEvent.RIGHT, DOF_0Action.MOVE_CAMERA_RIGHT);
-		keyboardProfile().setShortcut(KeyboardEvent.LEFT, DOF_0Action.MOVE_CAMERA_LEFT);
-		keyboardProfile().setShortcut(KeyboardEvent.UP, DOF_0Action.MOVE_CAMERA_UP);
-		keyboardProfile().setShortcut(KeyboardEvent.DOWN, DOF_0Action.MOVE_CAMERA_DOWN);
+		keyboardProfile().setShortcut(KeyboardEvent.TH_RIGHT, DOF_0Action.MOVE_CAMERA_RIGHT);
+		keyboardProfile().setShortcut(KeyboardEvent.TH_LEFT, DOF_0Action.MOVE_CAMERA_LEFT);
+		keyboardProfile().setShortcut(KeyboardEvent.TH_UP, DOF_0Action.MOVE_CAMERA_UP);
+		keyboardProfile().setShortcut(KeyboardEvent.TH_DOWN, DOF_0Action.MOVE_CAMERA_DOWN);
 
-		keyboardProfile().setShortcut((KeyboardEvent.ALT | KeyboardEvent.SHIFT), 'l',	DOF_0Action.MOVE_CAMERA_LEFT);
+		keyboardProfile().setShortcut((KeyboardEvent.TH_ALT | KeyboardEvent.TH_SHIFT), 'l',	DOF_0Action.MOVE_CAMERA_LEFT);
 
 		/**
 		 * // K e y f r a m e s s h o r t c u t k e y s

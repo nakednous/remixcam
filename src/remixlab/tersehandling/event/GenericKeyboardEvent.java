@@ -238,10 +238,10 @@ public class GenericKeyboardEvent extends GenericEvent {
     
     else {
     	switch (key) {        
-        case LEFT : result = "LEFT"; break;
-        case UP : result = "UP"; break;
-        case RIGHT : result = "RIGHT"; break;        
-        case DOWN : result = "DOWN"; break;
+        case TH_LEFT : result = "LEFT"; break;
+        case TH_UP : result = "UP"; break;
+        case TH_RIGHT : result = "RIGHT"; break;        
+        case TH_DOWN : result = "DOWN"; break;
         
         //default: result = "Unrecognized key";
           //       break;

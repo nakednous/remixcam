@@ -132,7 +132,7 @@ public class GenericDOF6Event extends GenericMotionEvent {
     this.dry = 0f;
     this.rz = rz;    
     this.drz = 0f;
-    this.button = NOBUTTON;
+    this.button = TH_NOBUTTON;
 	}
 
 	//idem
@@ -150,7 +150,7 @@ public class GenericDOF6Event extends GenericMotionEvent {
     this.dry = 0f;
     this.rz = rz;    
     this.drz = 0f;
-    this.button = NOBUTTON;
+    this.button = TH_NOBUTTON;
     setPreviousEvent(prevEvent);
     /**
     if(prevEvent!=null) {

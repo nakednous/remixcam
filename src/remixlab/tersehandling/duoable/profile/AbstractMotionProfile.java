@@ -34,7 +34,7 @@ public abstract class AbstractMotionProfile<A extends Actionable<?>> extends Abs
 	*/
 	
 	public boolean isBindingInUse() {
-		return isBindingInUse(NOMODIFIER_MASK, NOBUTTON);
+		return isBindingInUse(TH_NOMODIFIER_MASK, TH_NOBUTTON);
 	}
 	
 	/**
@@ -43,7 +43,7 @@ public abstract class AbstractMotionProfile<A extends Actionable<?>> extends Abs
 	 * @param button
 	 */	
 	public boolean isBindingInUse(Integer button) {
-		return isBindingInUse(NOMODIFIER_MASK, button);
+		return isBindingInUse(TH_NOMODIFIER_MASK, button);
 	}
 	
 	/**
@@ -69,7 +69,7 @@ public abstract class AbstractMotionProfile<A extends Actionable<?>> extends Abs
 	 * @see #setWheelBinding(Integer, A)
 	 */
 	public void setBinding(A action) {
-		setBinding(NOBUTTON, action);
+		setBinding(TH_NOBUTTON, action);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public abstract class AbstractMotionProfile<A extends Actionable<?>> extends Abs
 	 * @param action 
 	 */
 	public void setBinding(Integer button, A action) {
-		setBinding(NOMODIFIER_MASK, button, action);
+		setBinding(TH_NOMODIFIER_MASK, button, action);
 	}
 	
 	/**
@@ -106,7 +106,7 @@ public abstract class AbstractMotionProfile<A extends Actionable<?>> extends Abs
 	 * @see #removeWheelBinding(Integer)
 	 */
 	public void removeBinding() {
-		removeBinding(NOMODIFIER_MASK, NOBUTTON);
+		removeBinding(TH_NOMODIFIER_MASK, TH_NOBUTTON);
 	}
 
 	/**
@@ -115,7 +115,7 @@ public abstract class AbstractMotionProfile<A extends Actionable<?>> extends Abs
 	 * @param button
 	 */
 	public void removeBinding(Integer button) {
-		removeBinding(NOMODIFIER_MASK, button);
+		removeBinding(TH_NOMODIFIER_MASK, button);
 	}
 	
 	/**
@@ -129,7 +129,7 @@ public abstract class AbstractMotionProfile<A extends Actionable<?>> extends Abs
 	}	
 	
 	public Actionable<?> binding() {
-		return binding(NOMODIFIER_MASK, NOBUTTON);
+		return binding(TH_NOMODIFIER_MASK, TH_NOBUTTON);
 	}
 	
 	/**
@@ -138,7 +138,7 @@ public abstract class AbstractMotionProfile<A extends Actionable<?>> extends Abs
 	 * @param button
 	 */
 	public Actionable<?> binding(Integer button) {
-		return binding(NOMODIFIER_MASK, button);
+		return binding(TH_NOMODIFIER_MASK, button);
 	}
 	
 	/**

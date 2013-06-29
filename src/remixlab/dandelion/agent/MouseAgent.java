@@ -41,25 +41,25 @@ public class MouseAgent extends AbstractBiMotionAgent implements Constants {
 		sens = new float[2];
 		sens[0] = 1f;
 		sens[1] = 1f;
-		cameraProfile().setBinding(CENTER, DOF_2Action.ZOOM);
-		cameraProfile().setBinding(LEFT, DOF_2Action.ROTATE);
-		cameraProfile().setBinding(RIGHT, DOF_2Action.TRANSLATE);
+		cameraProfile().setBinding(TH_CENTER, DOF_2Action.ZOOM);
+		cameraProfile().setBinding(TH_LEFT, DOF_2Action.ROTATE);
+		cameraProfile().setBinding(TH_RIGHT, DOF_2Action.TRANSLATE);
 		//testing things out :P
-		frameProfile().setBinding(CENTER, DOF_2Action.ZOOM);
-		frameProfile().setBinding(RIGHT, DOF_2Action.ROTATE);
-		frameProfile().setBinding(LEFT, DOF_2Action.TRANSLATE);
+		frameProfile().setBinding(TH_CENTER, DOF_2Action.ZOOM);
+		frameProfile().setBinding(TH_RIGHT, DOF_2Action.ROTATE);
+		frameProfile().setBinding(TH_LEFT, DOF_2Action.TRANSLATE);
 		
-		clickProfile().setClickBinding(LEFT, 1, DOF_0Action.DRAW_FRAME_SELECTION_HINT);
-		clickProfile().setClickBinding(RIGHT, 1, DOF_0Action.DRAW_AXIS);
+		clickProfile().setClickBinding(TH_LEFT, 1, DOF_0Action.DRAW_FRAME_SELECTION_HINT);
+		clickProfile().setClickBinding(TH_RIGHT, 1, DOF_0Action.DRAW_AXIS);
 		
 		//clickProfile().setClickBinding(LEFT, 1, DOF_0Action.DRAW_AXIS);		
 		//setClickBinding(RIGHT, 2, DOF_0Action.DRAW_GRID);
 		
 		//clickProfile().setClickBinding(RIGHT, 1, DOF_0Action.DRAW_FRAME_SELECTION_HINT);
 		
-		clickProfile().setClickBinding(DOF2Event.SHIFT, LEFT, 2, DOF_0Action.ALIGN_CAMERA);
-		clickProfile().setClickBinding(DOF2Event.SHIFT, CENTER, 2, DOF_0Action.SHOW_ALL);
-		clickProfile().setClickBinding((DOF2Event.SHIFT | DOF2Event.CTRL ), RIGHT, 2, DOF_0Action.ZOOM_TO_FIT);
+		clickProfile().setClickBinding(TH_SHIFT, TH_LEFT, 2, DOF_0Action.ALIGN_CAMERA);
+		clickProfile().setClickBinding(TH_SHIFT, TH_CENTER, 2, DOF_0Action.SHOW_ALL);
+		clickProfile().setClickBinding((TH_SHIFT | TH_CTRL ), TH_RIGHT, 2, DOF_0Action.ZOOM_TO_FIT);
 	}
 	
 	@Override

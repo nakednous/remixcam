@@ -100,7 +100,7 @@ public class GenericDOF3Event extends GenericMotionEvent {
     this.dy = 0f;
     this.z = z;
     this.dz = 0f;
-    this.button = NOBUTTON;
+    this.button = TH_NOBUTTON;
 	}
 
 	//idem
@@ -112,7 +112,7 @@ public class GenericDOF3Event extends GenericMotionEvent {
     this.dy = 0f;
     this.z = z;
     this.dz = 0f;
-    this.button = NOBUTTON;
+    this.button = TH_NOBUTTON;
     setPreviousEvent(prevEvent);
 	}
 	 

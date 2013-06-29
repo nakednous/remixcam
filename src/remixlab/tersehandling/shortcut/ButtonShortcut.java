@@ -58,7 +58,7 @@ public final class ButtonShortcut extends Shortcut implements Copyable {
 	}
 	
 	public ButtonShortcut() {
-		this(NOMODIFIER_MASK, NOBUTTON);
+		this(TH_NOMODIFIER_MASK, TH_NOBUTTON);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public final class ButtonShortcut extends Shortcut implements Copyable {
 	 * @param b mouse button
 	 */
 	public ButtonShortcut(Integer b) {
-		this(NOMODIFIER_MASK, b);
+		this(TH_NOMODIFIER_MASK, b);
 	}
 
 	/**
@@ -84,12 +84,12 @@ public final class ButtonShortcut extends Shortcut implements Copyable {
 	  //TODO HACK see issue: https://github.com/processing/processing/issues/1693
 		this.button = b;	  
 		//ALT
-		if(button == CENTER) {
-			mask = (ALT | m);
+		if(button == TH_CENTER) {
+			mask = (TH_ALT | m);
 		}
 		//META
-		else if(button == RIGHT) {
-    	mask = (META | m);
+		else if(button == TH_RIGHT) {
+    	mask = (TH_META | m);
 		}
 		else
 			mask = m;
@@ -122,13 +122,13 @@ public final class ButtonShortcut extends Shortcut implements Copyable {
 		//TODO: NO_BUTTON should be defined -> e.g., mouse move
 		String r = GenericEvent.getModifiersText(mask);
 		switch (b) {
-		case LEFT:
+		case TH_LEFT:
 			r += (r.length() > 0) ? "+LEFT_BUTTON" : "LEFT_BUTTON";
 			break;
-		case CENTER:
+		case TH_CENTER:
 			r += (r.length() > 0) ? "+MIDDLE_BUTTON" : "MIDDLE_BUTTON";
 			break;
-		case RIGHT:
+		case TH_RIGHT:
 			r += (r.length() > 0) ? "+RIGHT_BUTTON" : "RIGHT_BUTTON";
 			break;			
 		default:

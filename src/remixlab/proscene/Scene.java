@@ -186,7 +186,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
-				handle(new DOF1Event(e.getCount(), e.getModifiers(), NOBUTTON));
+				handle(new DOF1Event(e.getCount(), e.getModifiers(), TH_NOBUTTON));
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
 				handle(new ClickEvent(e.getModifiers(), e.getButton(), e.getCount()));

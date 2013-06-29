@@ -60,7 +60,7 @@ public class Shortcut implements Constants, Copyable {
 	}
 	
 	public Shortcut() {
-		mask = NOMODIFIER_MASK;
+		mask = TH_NOMODIFIER_MASK;
 	}
 	
 	protected Shortcut(Shortcut other) {

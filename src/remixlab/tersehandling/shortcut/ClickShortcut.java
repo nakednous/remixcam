@@ -67,7 +67,7 @@ public class ClickShortcut extends Shortcut implements Copyable {
    * @param b mouse button
    */
   public ClickShortcut(Integer b) {
-  	this(NOMODIFIER_MASK, b, 1);
+  	this(TH_NOMODIFIER_MASK, b, 1);
   }
   
   /**
@@ -91,7 +91,7 @@ public class ClickShortcut extends Shortcut implements Copyable {
    * @param c number of clicks
    */
   public ClickShortcut(Integer b, Integer c) {
-  	this(NOMODIFIER_MASK, b, c);
+  	this(TH_NOMODIFIER_MASK, b, c);
   }
 	
 		
@@ -117,12 +117,12 @@ public class ClickShortcut extends Shortcut implements Copyable {
 	  //TODO HACK see issue: https://github.com/processing/processing/issues/1693
 		this.button = b;	  
 		//ALT
-		if(button == CENTER) {
-			mask = (ALT | m);
+		if(button == TH_CENTER) {
+			mask = (TH_ALT | m);
 		}
 		//META
-		else if(button == RIGHT) {
-    	mask = (META | m);
+		else if(button == TH_RIGHT) {
+    	mask = (TH_META | m);
 		}
 		else
 			mask = m;
