@@ -30,9 +30,8 @@ import remixlab.dandelion.event.DOF2Event;
 import remixlab.dandelion.profile.ClickProfile;
 import remixlab.dandelion.profile.DOF2Profile;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.duoable.agent.AbstractMotionAgent;
 
-public class MouseAgent extends AbstractMotionAgent implements Constants {
+public class MouseAgent extends AbstractBiMotionAgent implements Constants {
 	public MouseAgent(AbstractScene scn, String n) {
 		super(scn, n);
 		setDefaultGrabber(scn.pinhole().frame());

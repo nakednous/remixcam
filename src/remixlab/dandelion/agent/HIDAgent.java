@@ -30,9 +30,8 @@ import remixlab.dandelion.event.DOF6Event;
 import remixlab.dandelion.profile.ClickProfile;
 import remixlab.dandelion.profile.DOF6Profile;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.duoable.agent.AbstractMotionAgent;
 
-public class HIDAgent extends AbstractMotionAgent implements Constants {
+public class HIDAgent extends AbstractBiMotionAgent implements Constants {
 	public HIDAgent(AbstractScene scn, String n) {
 		super(scn, n);
 		setDefaultGrabber(scn.pinhole().frame());
