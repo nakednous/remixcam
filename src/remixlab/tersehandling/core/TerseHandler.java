@@ -32,7 +32,6 @@ import java.util.List;
 //import remixlab.duoable.profile.Duoble;
 import remixlab.tersehandling.event.GenericEvent;
 
-//TODO check what to do; abstract or not?
 public class TerseHandler {
   //D E V I C E S	  &   E V E N T S
   protected HashMap<String, Agent> agents;
