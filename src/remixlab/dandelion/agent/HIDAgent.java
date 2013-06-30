@@ -26,8 +26,8 @@
 package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
-import remixlab.dandelion.event.DOF6Event;
 import remixlab.tersehandling.core.Grabbable;
+import remixlab.tersehandling.duoable.event.GenericDOF6Event;
 import remixlab.tersehandling.duoable.profile.GenericClickProfile;
 import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 
@@ -54,7 +54,7 @@ public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constant
 	}
 	
 	@Override
-	public DOF6Event feed() {
+	public GenericDOF6Event<Constants.DOF_6Action> feed() {
 		return null;
 	}
 	

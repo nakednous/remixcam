@@ -27,8 +27,7 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.core.Constants;
-import remixlab.dandelion.event.DOF1Event;
-//import remixlab.dandelion.profile.DOF1Profile;
+import remixlab.tersehandling.duoable.event.GenericDOF1Event;
 import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 import remixlab.tersehandling.duoable.profile.Duoble;
 import remixlab.tersehandling.event.*;
@@ -86,12 +85,12 @@ public class GenericWheeledMouseAgent<W extends GenericMotionProfile<Constants.D
 				if(event instanceof THMotionEvent) {
 					((THMotionEvent)event).modulate(sens);
 					if(trackedGrabber() != null )
-						if( event instanceof DOF1Event )
+						if( event instanceof GenericDOF1Event )
 							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameWheelProfile().handle((Duoble<?>)event), trackedGrabber()));
 						else
 							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), trackedGrabber()));
 					else
-						if( event instanceof DOF1Event )
+						if( event instanceof GenericDOF1Event )
 							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, wheelProfile().handle((Duoble<?>)event), defaultGrabber()));
 						else
 							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoble<?>)event), defaultGrabber()));

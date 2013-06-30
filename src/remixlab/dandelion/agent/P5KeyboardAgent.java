@@ -27,8 +27,8 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.core.Constants.DOF_0Action;
-import remixlab.dandelion.event.KeyboardEvent;
 import remixlab.tersehandling.duoable.agent.GenericKeyboardAgent;
+import remixlab.tersehandling.duoable.event.GenericKeyboardEvent;
 import remixlab.tersehandling.duoable.profile.GenericKeyboardProfile;
 
 //TODO find a better name for this
@@ -52,12 +52,12 @@ public class P5KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile
 		keyboardProfile().setShortcut('s', DOF_0Action.INTERPOLATE_TO_FIT_SCENE);
 		keyboardProfile().setShortcut('S', DOF_0Action.SHOW_ALL);
 
-		keyboardProfile().setShortcut(KeyboardEvent.TH_RIGHT, DOF_0Action.MOVE_CAMERA_RIGHT);
-		keyboardProfile().setShortcut(KeyboardEvent.TH_LEFT, DOF_0Action.MOVE_CAMERA_LEFT);
-		keyboardProfile().setShortcut(KeyboardEvent.TH_UP, DOF_0Action.MOVE_CAMERA_UP);
-		keyboardProfile().setShortcut(KeyboardEvent.TH_DOWN, DOF_0Action.MOVE_CAMERA_DOWN);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_RIGHT, DOF_0Action.MOVE_CAMERA_RIGHT);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_LEFT, DOF_0Action.MOVE_CAMERA_LEFT);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_UP, DOF_0Action.MOVE_CAMERA_UP);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_DOWN, DOF_0Action.MOVE_CAMERA_DOWN);
 
-		keyboardProfile().setShortcut((KeyboardEvent.TH_ALT | KeyboardEvent.TH_SHIFT), 'l',	DOF_0Action.MOVE_CAMERA_LEFT);
+		keyboardProfile().setShortcut((GenericKeyboardEvent.TH_ALT | GenericKeyboardEvent.TH_SHIFT), 'l',	DOF_0Action.MOVE_CAMERA_LEFT);
 
 		/**
 		 * // K e y f r a m e s s h o r t c u t k e y s
@@ -69,7 +69,7 @@ public class P5KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile
 	}
 	
 	@Override
-	public KeyboardEvent feed() {
+	public GenericKeyboardEvent<Constants.DOF_0Action> feed() {
 		return null;
 	}
 

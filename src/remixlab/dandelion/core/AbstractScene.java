@@ -29,14 +29,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import remixlab.dandelion.event.ClickEvent;
-import remixlab.dandelion.event.KeyboardEvent;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
 import remixlab.dandelion.util.*;
 import remixlab.tersehandling.core.Agent;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.TerseHandler;
+import remixlab.tersehandling.duoable.event.GenericClickEvent;
+import remixlab.tersehandling.duoable.event.GenericKeyboardEvent;
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.event.*;
 
@@ -189,7 +189,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	
 	@Override
 	public boolean checkIfGrabsInput(THEvent event) {		
-		return (event instanceof KeyboardEvent || event instanceof ClickEvent);
+		return (event instanceof GenericKeyboardEvent || event instanceof GenericClickEvent);
 	}
 	
 	/**
@@ -197,15 +197,15 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 */
 	@Override
 	public void performInteraction(THEvent event) {
-		if( !(event instanceof ClickEvent) && ! (event instanceof KeyboardEvent))
+		if( !(event instanceof GenericClickEvent) && ! (event instanceof GenericKeyboardEvent))
 			return;
 		
 		Actionable<DLAction> a=null;
 		
-		if(event instanceof ClickEvent)
-			a = ((ClickEvent) event).getAction();
-		if(event instanceof KeyboardEvent)
-			a = ((KeyboardEvent) event).getAction();		
+		if(event instanceof GenericClickEvent<?>)
+		  a = (DOF_0Action) ((GenericClickEvent<?>) event).getAction();
+		if(event instanceof GenericKeyboardEvent<?>)
+			a =  (DOF_0Action) ((GenericKeyboardEvent<?>) event).getAction();		
 		if(a == null) return;
 		DLAction id = a.action();
 		

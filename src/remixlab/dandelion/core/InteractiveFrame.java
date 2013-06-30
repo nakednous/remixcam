@@ -26,15 +26,12 @@
 package remixlab.dandelion.core;
 
 //import remixlab.remixcam.constraint.Constraint;
-import remixlab.dandelion.event.DOF1Event;
-import remixlab.dandelion.event.DOF2Event;
-import remixlab.dandelion.event.DOF3Event;
-import remixlab.dandelion.event.DOF6Event;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.util.AbstractTimerJob;
 import remixlab.tersehandling.core.Agent;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
+import remixlab.tersehandling.duoable.event.*;
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.duoable.profile.Duoble;
 import remixlab.tersehandling.event.*;
@@ -607,7 +604,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * @see #spinningFriction()
 	 * @see #toss()
 	 */
-	public void startSpinning(DOF2Event e) {
+	public void startSpinning(GenericDOF2Event<?> e) {
 		deviceSpeed = e.speed();
 		isSpng = true;
 		int updateInterval = (int) e.delay();
@@ -733,7 +730,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		
 		if(e == null) return;
 		
-		if(e instanceof THKeyboardEvent || e instanceof THClickEvent)
+		if(e instanceof GenericKeyboardEvent || e instanceof GenericClickEvent)
 			scene.performInteraction(e);
 		
 		Duoble<?> event;
@@ -751,8 +748,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		if( event.getAction() == null )
 			return;
 		
-		if( !(event instanceof DOF1Event) && ! (event instanceof DOF2Event) &&
-				!(event instanceof DOF3Event) && ! (event instanceof DOF6Event))
+		if( !(event instanceof GenericDOF1Event) && ! (event instanceof GenericDOF2Event) &&
+				!(event instanceof GenericDOF3Event) && ! (event instanceof GenericDOF6Event))
 			return;
 		
 		if( ( scene.is2D() ) && ( !event.getAction().is2D() ) )
@@ -773,28 +770,28 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
   //TODO implement me
 	protected void execAction3D(THMotionEvent e) {
 		Actionable<DLAction> a=null;
-		if(e instanceof DOF1Event)
-			a = ((DOF1Event) e).getAction();
-		if(e instanceof DOF2Event)
-			a = ((DOF2Event) e).getAction();
-		if(e instanceof DOF3Event)
-			a = ((DOF3Event) e).getAction();
-		if(e instanceof DOF6Event)
-			a = ((DOF6Event) e).getAction();
+		if(e instanceof GenericDOF1Event)
+			a = (DOF_1Action) ((GenericDOF1Event<?>) e).getAction();
+		if(e instanceof GenericDOF2Event)
+			a = (DOF_2Action) ((GenericDOF2Event<?>) e).getAction();
+		if(e instanceof GenericDOF3Event)
+			a = (DOF_3Action) ((GenericDOF3Event<?>) e).getAction();
+		if(e instanceof GenericDOF6Event)
+			a = (DOF_6Action) ((GenericDOF6Event<?>) e).getAction();
 		
 		if(a == null) return;
 		DLAction id = a.action();		
 		
-		DOF2Event event;
+		GenericDOF2Event<?> event;
 		float delta = 0;
 		
 		switch (id) {
 		case ZOOM: {
-			if( e instanceof DOF1Event ) {
-				delta = ((DOF1Event)e).getX() * wheelSensitivity();	
+			if( e instanceof GenericDOF1Event ) {
+				delta = ((GenericDOF1Event<?>)e).getX() * wheelSensitivity();	
 			}
 			else {
-				event = (DOF2Event)e;
+				event = (GenericDOF2Event<?>)e;
 				delta = event.getDY(); /**((float)event.getY() - (float)event.getPrevY())*/;
 			}
 			
@@ -806,7 +803,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		}
 		
 		case ROTATE: {
-			event = (DOF2Event)e;
+			event = (GenericDOF2Event<?>)e;
 			Vec trans = scene.camera().projectedCoordinatesOf(position());
 			Quat rot = deformedBallQuaternion(event, trans.x(), trans.y(), scene.camera());
 			rot = iFrameQuaternion(rot, scene.camera());			
@@ -817,7 +814,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		}
 		
 		case TRANSLATE: {
-			event = (DOF2Event)e;
+			event = (GenericDOF2Event<?>)e;
 			//Point delta = new Point(event.getX(), scene.isRightHanded() ? event.getY() : -event.getY());
 			Vec trans = new Vec(event.getDX(), scene.isRightHanded() ? -event.getDY() : event.getDY(), 0.0f);			
 			
@@ -848,7 +845,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		}
 		
 		case NATURAL: {
-			DOF6Event event6 = (DOF6Event)e;
+			GenericDOF6Event<?> event6 = (GenericDOF6Event<?>)e;
 			Vec t = new Vec();
 	    Quat q = new Quat();
       // A. Translate the iFrame
@@ -884,7 +881,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * Returns a Quaternion computed according to the mouse motion. Mouse positions
 	 * are projected on a deformed ball, centered on ({@code cx}, {@code cy}).
 	 */
-	protected Quat deformedBallQuaternion(DOF2Event event, float cx, float cy, Camera camera) {
+	protected Quat deformedBallQuaternion(GenericDOF2Event<?> event, float cx, float cy, Camera camera) {
 		float x = event.getX();
 		float y = event.getY();
 		float prevX = event.getPrevX();

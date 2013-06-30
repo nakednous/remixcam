@@ -26,8 +26,8 @@
 package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
-import remixlab.dandelion.event.DOF2Event;
 import remixlab.tersehandling.core.Grabbable;
+import remixlab.tersehandling.duoable.event.GenericDOF2Event;
 import remixlab.tersehandling.duoable.profile.GenericClickProfile;
 import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 
@@ -65,7 +65,7 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 	}
 	
 	@Override
-	public DOF2Event feed() {
+	public GenericDOF2Event<Constants.DOF_2Action> feed() {
 		return null;
 	}
 	
