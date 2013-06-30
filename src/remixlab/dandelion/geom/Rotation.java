@@ -29,6 +29,7 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.dandelion.core.Constants;
+import remixlab.tersehandling.core.Util;
 
 public class Rotation implements Constants, Orientable {
 	@Override
@@ -211,7 +212,7 @@ public class Rotation implements Constants, Orientable {
 		//2. http://mathworld.wolfram.com/PerpDotProduct.html
 		float fromNorm = from.mag();
 		float toNorm = to.mag();				
-		if ((Geom.zero(fromNorm)) || (Geom.zero(toNorm)))
+		if ((Util.zero(fromNorm)) || (Util.zero(toNorm)))
 			angle = 0;
 		else
 			//angle =(float) Math.acos( (double)Vector3D.dot(from, to) / ( fromNorm * toNorm ));

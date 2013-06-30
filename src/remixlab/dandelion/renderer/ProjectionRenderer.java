@@ -27,6 +27,7 @@ package remixlab.dandelion.renderer;
 
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
+import remixlab.tersehandling.core.Util;
 
 public abstract class ProjectionRenderer extends Renderer implements Constants {
 	public ProjectionRenderer(AbstractScene scn, Drawerable dw) {
@@ -103,7 +104,7 @@ public abstract class ProjectionRenderer extends Renderer implements Constants {
 		float z1 = eyeY - centerY;
 		float z2 = eyeZ - centerZ;
 		float mag = (float) Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
-		if (Geom.nonZero(mag)) {
+		if (Util.nonZero(mag)) {
 			z0 /= mag;
 			z1 /= mag;
 			z2 /= mag;
@@ -132,14 +133,14 @@ public abstract class ProjectionRenderer extends Renderer implements Constants {
 		// Cross product gives area of parallelogram, which is < 1.0 for
 		// non-perpendicular unit-length vectors; so normalize x, y here:
 		mag = (float) Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
-		if (Geom.nonZero(mag)) {
+		if (Util.nonZero(mag)) {
 			x0 /= mag;
 			x1 /= mag;
 			x2 /= mag;
 		}
 		
 		mag = (float) Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
-		if (Geom.nonZero(mag)) {
+		if (Util.nonZero(mag)) {
 			y0 /= mag;
 			y1 /= mag;
 			y2 /= mag;

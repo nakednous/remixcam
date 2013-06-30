@@ -33,6 +33,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.util.AbstractTimerJob;
 import remixlab.tersehandling.core.Copyable;
+import remixlab.tersehandling.core.Util;
 
 /**
  * A keyFrame Catmull-Rom Frame interpolator.
@@ -792,7 +793,7 @@ public class KeyFrameInterpolator implements Copyable {
 			stopInterpolation();
 		AbstractKeyFrame kf = keyFr.remove(index);
 		if (kf.frm  instanceof InteractiveFrame)
-			scene.removeFromDeviceGrabberPool( (InteractiveFrame) kf.frm );
+			scene.terseHandler().removeFromDeviceGrabberPool( (InteractiveFrame) kf.frm );
 		  //before:
 			//if (((InteractiveFrame) kf.frm).isInDeviceGrabberPool())
 				//((InteractiveFrame) kf.frm).removeFromDeviceGrabberPool();
@@ -825,7 +826,7 @@ public class KeyFrameInterpolator implements Copyable {
 	protected void removeFramesFromMouseGrabberPool() {
 		for (int i = 0; i < keyFr.size(); ++i) {
 			if (keyFr.get(i).frame() != null)
-				scene.removeFromDeviceGrabberPool((InteractiveFrame) keyFr.get(i).frame());
+				scene.terseHandler().removeFromDeviceGrabberPool((InteractiveFrame) keyFr.get(i).frame());
 				//before:
 				//if (((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
 					//((InteractiveFrame) keyFr.get(i).frame()).removeFromDeviceGrabberPool();
@@ -842,7 +843,7 @@ public class KeyFrameInterpolator implements Copyable {
 	protected void addFramesToMouseGrabberPool() {
 		for (int i = 0; i < keyFr.size(); ++i) {
 			if (keyFr.get(i).frame() != null)
-				scene.addInDeviceGrabberPool((InteractiveFrame) keyFr.get(i).frame());
+				scene.terseHandler().addInDeviceGrabberPool((InteractiveFrame) keyFr.get(i).frame());
 			  //before:
 				//if (!((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
 					//((InteractiveFrame) keyFr.get(i).frame()).addInDeviceGrabberPool();
@@ -1169,7 +1170,7 @@ public class KeyFrameInterpolator implements Copyable {
 		float alpha;
 		float dt = keyFr.get(currentFrame2.nextIndex()).time()
 				- keyFr.get(currentFrame1.nextIndex()).time();
-		if (Geom.zero(dt))
+		if (Util.zero(dt))
 			alpha = 0.0f;
 		else
 			alpha = (time - keyFr.get(currentFrame1.nextIndex()).time()) / dt;		

@@ -25,18 +25,18 @@
 
 package remixlab.dandelion.agent;
 
-import remixlab.tersehandling.core.BasicScene;
-import remixlab.tersehandling.duoable.agent.AbstractMotionAgent;
+import remixlab.tersehandling.core.TerseHandler;
+import remixlab.tersehandling.duoable.agent.MotionAgent;
 import remixlab.tersehandling.duoable.profile.AbstractClickProfile;
 import remixlab.tersehandling.duoable.profile.AbstractMotionProfile;
 import remixlab.tersehandling.duoable.profile.Duoble;
 import remixlab.tersehandling.event.*;
 
-public abstract class AbstractBiMotionAgent extends AbstractMotionAgent {
+public class BiMotionAgent extends MotionAgent {
 	protected AbstractMotionProfile<?> camProfile;
 	protected float[] sens;
 	
-	public AbstractBiMotionAgent(BasicScene scn, String n) {
+	public BiMotionAgent(TerseHandler scn, String n) {
 		super(scn, n);	
 	}
 	
@@ -71,17 +71,17 @@ public abstract class AbstractBiMotionAgent extends AbstractMotionAgent {
 	@Override
 	public void handle(GenericEvent event) {
 		//overkill but feels safer ;)
-		if(event == null || !scene.isAgentRegistered(this))	return;		
+		if(event == null || !handler.isAgentRegistered(this))	return;		
 		if(event instanceof Duoble<?>) {
 			if(event instanceof GenericClickEvent)
-				scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), grabber()));
+				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), grabber()));
 			else
 				if(event instanceof GenericMotionEvent) {
 					((GenericMotionEvent)event).modulate(sens);
 					if (trackedGrabber() != null )
-						scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), trackedGrabber()));						
+						handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), trackedGrabber()));						
 					else 
-						scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoble<?>)event), defaultGrabber()));			
+						handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoble<?>)event), defaultGrabber()));			
 			}
 		}
 	}	

@@ -29,8 +29,7 @@ import java.util.List;
 
 import remixlab.tersehandling.event.*;
 
-//TODO seems that this should not be made abstract
-public abstract class AbstractAgent {	
+public class Agent {	
 	/**
 	protected Object handlerObject;	
 	protected String handlerMethodName;
@@ -65,7 +64,7 @@ public abstract class AbstractAgent {
 	}
 	*/		
 	
-	protected BasicScene scene;
+	protected TerseHandler handler;
 	protected String nm;
 	protected List<Grabbable> grabbers;
 	protected Grabbable grabber;
@@ -75,13 +74,13 @@ public abstract class AbstractAgent {
 	//public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
 	protected boolean deviceTrckn;
 	
-	public AbstractAgent(BasicScene scn, String n) {
-		scene = scn;
+	public Agent(TerseHandler hndlr, String n) {
+		handler = hndlr;
 		nm = n;
 		grabbers = new ArrayList<Grabbable>();
 		//enforcedGrabber = false;
 		setTracking(true);
-		scene.registerAgent(this);
+		handler.registerAgent(this);
 	}
 	
 	public String name() {
@@ -122,7 +121,7 @@ public abstract class AbstractAgent {
 	}
 	
 	public void updateGrabber(GenericEvent event) {
-		if( event == null || !scene.isAgentRegistered(this) || !isTracking() )
+		if( event == null || !handler.isAgentRegistered(this) || !isTracking() )
 			return;
 		
 		setTrackedGrabber(null);
@@ -139,8 +138,8 @@ public abstract class AbstractAgent {
 	
 	//just enqueue grabber
 	public void handle(GenericEvent event) {
-		if(event == null || !scene.isAgentRegistered(this)) return;
-		scene.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
+		if(event == null || !handler.isAgentRegistered(this)) return;
+		handler.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
 	}
 	
 	public GenericEvent feed() {

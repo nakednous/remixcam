@@ -115,7 +115,7 @@ public class MouseAgent extends AbstractMotionAgent implements EventConstants {
 
   public void mouseEvent(processing.event.MouseEvent e) {      
     if ( e.getAction() == processing.event.MouseEvent.MOVE ) {
-      event = new DOF2Event(e.getX(), e.getY(), e.getModifiers(), e.getButton());
+      event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
       updateGrabber(event);
       prevEvent = event.get();
     }

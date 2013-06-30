@@ -32,6 +32,7 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.dandelion.geom.*;
+import remixlab.tersehandling.core.Util;
 
 public abstract class Pinhole {
 	@Override
@@ -1322,7 +1323,7 @@ public abstract class Pinhole {
 		in[2] = in[2] * 2 - 1;
 		
 		projectionViewInverseMat.mult(in, out);
-		if (Geom.zero(out[3]))
+		if (Util.zero(out[3]))
 			return false;
 		
 		out[0] /= out[3];

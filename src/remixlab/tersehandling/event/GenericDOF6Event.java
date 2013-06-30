@@ -24,10 +24,10 @@
 
 package remixlab.tersehandling.event;
 
+import remixlab.tersehandling.core.Util;
+
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
-import remixlab.dandelion.geom.Geom;
 
 public class GenericDOF6Event extends GenericMotionEvent {
 	@Override
@@ -102,7 +102,7 @@ public class GenericDOF6Event extends GenericMotionEvent {
     setPreviousEvent(prevEvent);
     /**
     if(prevEvent!=null) {
-    	distance = Geom.distance(x, y, z, rx, ry, rz,
+    	distance = Util.distance(x, y, z, rx, ry, rz,
                  prevEvent.getX(), prevEvent.getY(), prevEvent.getZ(), prevEvent.getRX(), prevEvent.getRY(), prevEvent.getRZ());
     	if( sameSequence(prevEvent) ) {
     		this.dx = this.getX() - prevEvent.getX();
@@ -154,7 +154,7 @@ public class GenericDOF6Event extends GenericMotionEvent {
     setPreviousEvent(prevEvent);
     /**
     if(prevEvent!=null) {
-    	distance = Geom.distance(x, y, z, rx, ry, rz,
+    	distance = Util.distance(x, y, z, rx, ry, rz,
                  prevEvent.getX(), prevEvent.getY(), prevEvent.getZ(), prevEvent.getRX(), prevEvent.getRY(), prevEvent.getRZ());
     	if( sameSequence(prevEvent) ) {
     		this.dx = this.getX() - prevEvent.getX();
@@ -200,7 +200,7 @@ public class GenericDOF6Event extends GenericMotionEvent {
   			this.drx = this.getRX() - ((GenericDOF6Event) prevEvent).getRX();
   			this.dry = this.getRY() - ((GenericDOF6Event) prevEvent).getRY();
   			this.drz = this.getRZ() - ((GenericDOF6Event) prevEvent).getRZ();
-  			distance = Geom.distance(x, y, z, rx, ry, rz,
+  			distance = Util.distance(x, y, z, rx, ry, rz,
             ((GenericDOF6Event) prevEvent).getX(), ((GenericDOF6Event) prevEvent).getY(), ((GenericDOF6Event) prevEvent).getZ(), ((GenericDOF6Event) prevEvent).getRX(), ((GenericDOF6Event) prevEvent).getRY(), ((GenericDOF6Event) prevEvent).getRZ());
   			delay = this.timestamp() - prevEvent.timestamp();
   			if(delay==0)
@@ -320,10 +320,32 @@ public class GenericDOF6Event extends GenericMotionEvent {
 	
 	@Override
 	public boolean isNull() {
-  	if(relative() && Geom.zero(getDX()) && Geom.zero(getDY()) && Geom.zero(getDZ()) && Geom.zero(getDRX()) && Geom.zero(getDRY()) && Geom.zero(getDRZ()))
+  	if(relative() && Util.zero(getDX()) && Util.zero(getDY()) && Util.zero(getDZ()) && Util.zero(getDRX()) && Util.zero(getDRY()) && Util.zero(getDRZ()))
   			return true;
-  	if(absolute() && Geom.zero(getX()) && Geom.zero(getY()) && Geom.zero(getZ()) && Geom.zero(getRX()) && Geom.zero(getRY()) && Geom.zero(getRZ()))
+  	if(absolute() && Util.zero(getX()) && Util.zero(getY()) && Util.zero(getZ()) && Util.zero(getRX()) && Util.zero(getRY()) && Util.zero(getRZ()))
   		return true;
   	return false;
+  }
+	
+	public GenericDOF3Event genericDOF3Event(boolean fromTranslation) {
+		GenericDOF3Event pe3;
+		GenericDOF3Event e3;
+  	if(relative()) {
+  		if(fromTranslation) {
+  			pe3 = new GenericDOF3Event(getPrevX(), getPrevY(), getPrevZ(), getModifiers(), getButton());
+  			e3 = new GenericDOF3Event(pe3, getX(), getY(), getZ(), getModifiers(), getButton());
+  		}
+  		else {
+  			pe3 = new GenericDOF3Event(getPrevRX(), getPrevRY(), getPrevRZ(), getModifiers(), getButton());
+  			e3 = new GenericDOF3Event(pe3, getRX(), getRY(), getRZ(), getModifiers(), getButton());
+  		}
+  	}
+  	else {
+  		if(fromTranslation)
+    		e3 = new GenericDOF3Event(getX(), getY(), getZ(), getModifiers(), getButton());
+  		else
+  			e3 = new GenericDOF3Event(getRX(), getRY(), getRZ(), getModifiers(), getButton());  		
+  	}
+  	return e3;
   }
 }

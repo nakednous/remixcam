@@ -26,16 +26,16 @@ package remixlab.tersehandling.duoable.agent;
 
 import java.util.LinkedList;
 
-import remixlab.tersehandling.core.AbstractAgent;
+import remixlab.tersehandling.core.Agent;
 import remixlab.tersehandling.core.EventGrabberTuple;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.core.BasicScene;
+import remixlab.tersehandling.core.TerseHandler;
 import remixlab.tersehandling.duoable.profile.AbstractProfile;
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.duoable.profile.Duoble;
 import remixlab.tersehandling.event.GenericEvent;
 
-public abstract class AbstractActionableAgent extends AbstractAgent {
+public class ActionableAgent extends Agent {
 	public class EventGrabberDuobleTuple extends EventGrabberTuple {
 		public EventGrabberDuobleTuple(GenericEvent e, Actionable<?> a, Grabbable g) {
 	  	super(e,g);
@@ -64,7 +64,7 @@ public abstract class AbstractActionableAgent extends AbstractAgent {
 	
 	protected AbstractProfile<?,?> profile;
 	
-	public AbstractActionableAgent(BasicScene scn, String n) {
+	public ActionableAgent(TerseHandler scn, String n) {
 		super(scn, n);
 	}
 
@@ -79,8 +79,8 @@ public abstract class AbstractActionableAgent extends AbstractAgent {
 	@Override
 	public void handle(GenericEvent event) {		
 		//overkill but feels safer ;)
-		if(event == null || !scene.isAgentRegistered(this))	return;		
+		if(event == null || !handler.isAgentRegistered(this))	return;		
 		if(event instanceof Duoble<?>)
-			scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, profile().handle((Duoble<?>)event), grabber()));
+			handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, profile().handle((Duoble<?>)event), grabber()));
 	}
 }

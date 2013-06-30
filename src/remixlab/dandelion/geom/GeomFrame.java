@@ -38,6 +38,7 @@ import remixlab.dandelion.core.Constants;
 import remixlab.dandelion.core.InteractiveCameraFrame;
 import remixlab.dandelion.core.KeyFrameInterpolator;
 import remixlab.tersehandling.core.Copyable;
+import remixlab.tersehandling.core.Util;
 
 /**
  * A Frame is a 3D coordinate system, represented by a {@link #position()} and
@@ -50,7 +51,7 @@ import remixlab.tersehandling.core.Copyable;
  * {@link #referenceFrame()}, and {@link #constraint()} with the other frame,
  * which can useful for some off-screen scenes.
  */
-public class GeomFrame extends Geom implements Copyable, Constants {
+public class GeomFrame implements Copyable, Constants {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -175,15 +176,15 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 		}
 		
 		public final void setScaling(Vec s) {
-			if( zero(s.x()) ) {
+			if( Util.zero(s.x()) ) {
 				System.out.println("Setting x scale value to zero is not allowed");
 				s.x(scl.x());
 			}
-			if( zero(s.y()) ) {
+			if( Util.zero(s.y()) ) {
 				System.out.println("Setting y scale value to zero is not allowed");
 				s.y(scl.y());
 			}
-			if( zero(s.z()) ) {
+			if( Util.zero(s.z()) ) {
 				System.out.println("Setting z scale value to zero is not allowed");
 				s.z(scl.z());
 			}
@@ -1861,12 +1862,12 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 		Vec res;		
 		if(is3D()) {
 			res = inverseTransformOf(new Vec(positive ? 1.0f : -1.0f, 0.0f, 0.0f));
-			if( Geom.diff(magnitude().x(), 1) || Geom.diff(magnitude().y(), 1) || Geom.diff(magnitude().z(), 1))
+			if( Util.diff(magnitude().x(), 1) || Util.diff(magnitude().y(), 1) || Util.diff(magnitude().z(), 1))
 				res.normalize();
 		}
 		else {
 			res = inverseTransformOf(new Vec(positive ? 1.0f : -1.0f, 0.0f));
-			if( Geom.diff(magnitude().x(), 1) || Geom.diff(magnitude().y(), 1))
+			if( Util.diff(magnitude().x(), 1) || Util.diff(magnitude().y(), 1))
 				res.normalize();
 		}		
 		return res;
@@ -1888,12 +1889,12 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 		Vec res;		
 		if(is3D()) {
 			res = inverseTransformOf(new Vec(0.0f, positive ? 1.0f : -1.0f, 0.0f));
-			if( Geom.diff(magnitude().x(), 1) || Geom.diff(magnitude().y(), 1) || Geom.diff(magnitude().z(), 1))
+			if( Util.diff(magnitude().x(), 1) || Util.diff(magnitude().y(), 1) || Util.diff(magnitude().z(), 1))
 				res.normalize();
 		}
 		else {
 			res = inverseTransformOf(new Vec(0.0f, positive ? 1.0f : -1.0f));
-			if( Geom.diff(magnitude().x(), 1) || Geom.diff(magnitude().y(), 1))
+			if( Util.diff(magnitude().x(), 1) || Util.diff(magnitude().y(), 1))
 				res.normalize();
 		}		
 		return res;
@@ -1915,7 +1916,7 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 		Vec res = new Vec();
 		if(is3D()) {
 			res = inverseTransformOf(new Vec(0.0f, 0.0f, positive ? 1.0f : -1.0f));
-			if( Geom.diff(magnitude().x(), 1) || Geom.diff(magnitude().y(), 1) || Geom.diff(magnitude().z(), 1))
+			if( Util.diff(magnitude().x(), 1) || Util.diff(magnitude().y(), 1) || Util.diff(magnitude().z(), 1))
 				res.normalize();			
 		}
 		else
@@ -2175,7 +2176,7 @@ public class GeomFrame extends Geom implements Copyable, Constants {
 	public final void fromMatrix(Mat pM, Vec scl) {
 	  //TODO key! take into account scaling
 		// m should be of size [4][4]
-		if (zero(pM.mat[15])) {
+		if (Util.zero(pM.mat[15])) {
 			System.out.println("Doing nothing: pM.mat[15] should be non-zero!");
 			return;
 		}

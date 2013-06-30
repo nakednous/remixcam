@@ -40,6 +40,11 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 public class DOF6Event extends GenericDOF6Event implements Constants, Duoble<Constants.DOF_6Action> {
 	DOF_6Action action;
 	
+	public DOF6Event(GenericDOF6Event genEvent, DOF_6Action a) {
+		super(genEvent);
+		action = a;
+	}
+	
 	public DOF6Event(float x, float y, float z, float rx, float ry, float rz,	int modifiers, int button) {
 		super(x, y, z, rx, ry, rz, modifiers, button);
 	}
@@ -94,24 +99,6 @@ public class DOF6Event extends GenericDOF6Event implements Constants, Duoble<Con
   }
   
   public DOF3Event dof3Event(boolean fromTranslation, DOF_3Action a3) {
-  	DOF3Event pe3;
-  	DOF3Event e3;
-  	if(relative()) {
-  		if(fromTranslation) {
-  			pe3 = new DOF3Event(getPrevX(), getPrevY(), getPrevZ(), getModifiers(), getButton(), a3);
-  			e3 = new DOF3Event(pe3, getX(), getY(), getZ(), getModifiers(), getButton(), a3);
-  		}
-  		else {
-  			pe3 = new DOF3Event(getPrevRX(), getPrevRY(), getPrevRZ(), getModifiers(), getButton(), a3);
-  			e3 = new DOF3Event(pe3, getRX(), getRY(), getRZ(), getModifiers(), getButton(), a3);
-  		}
-  	}
-  	else {
-  		if(fromTranslation)
-    		e3 = new DOF3Event(getX(), getY(), getZ(), getModifiers(), getButton(), a3);
-  		else
-  			e3 = new DOF3Event(getRX(), getRY(), getRZ(), getModifiers(), getButton(), a3);  		
-  	}
-  	return e3;
+  	return new DOF3Event(genericDOF3Event(fromTranslation), a3);
   }
 }

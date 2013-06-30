@@ -32,7 +32,7 @@ import remixlab.dandelion.event.DOF3Event;
 import remixlab.dandelion.event.DOF6Event;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.util.AbstractTimerJob;
-import remixlab.tersehandling.core.AbstractAgent;
+import remixlab.tersehandling.core.Agent;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.duoable.profile.Actionable;
@@ -147,7 +147,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		super(scn.is3D());		
 		scene = scn;		
 
-		scene.addInDeviceGrabberPool(this);
+		scene.terseHandler().addInDeviceGrabberPool(this);
 		isInCamPath = false;
 		//grbsDevice = false;
 
@@ -177,7 +177,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		super(otherFrame);
 		this.scene = otherFrame.scene;
 		
-		this.scene.addInDeviceGrabberPool(this);
+		this.scene.terseHandler().addInDeviceGrabberPool(this);
 		this.isInCamPath = otherFrame.isInCamPath;
 		//this.grbsDevice = otherFrame.grbsDevice;
 		
@@ -241,7 +241,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		super(iFrame.rotation(), iFrame.translation(), iFrame.scaling());
 		scene = scn;
 
-		scene.addInDeviceGrabberPool(this);
+		scene.terseHandler().addInDeviceGrabberPool(this);
 		isInCamPath = true;
 		//grbsDevice = false;
 
@@ -372,7 +372,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * {@link #checkIfGrabsDevice(int, int, Camera)} method.
 	 */
 	@Override
-	public boolean grabsAgent(AbstractAgent agent) {
+	public boolean grabsAgent(Agent agent) {
 		return agent.trackedGrabber() == this;
 	}
 
@@ -381,7 +381,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * 
 	 * @see remixlab.dandelion.core.AbstractScene#isInDeviceGrabberPool(Grabbable)
 	 */
-	public boolean isInAgentPool(AbstractAgent agent) {
+	public boolean isInAgentPool(Agent agent) {
 		return agent.isInPool(this);
 	}
 
@@ -390,7 +390,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * 
 	 * @see remixlab.dandelion.core.AbstractScene#addInDeviceGrabberPool(Grabbable)
 	 */
-	public void addInPool(AbstractAgent agent) {
+	public void addInPool(Agent agent) {
 		agent.addInPool(this);
 	}
 
@@ -399,7 +399,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * 
 	 * @see remixlab.dandelion.core.AbstractScene#removeFromDeviceGrabberPool(Grabbable)
 	 */
-	public void removeFromDeviceGrabberPool(AbstractAgent agent) {
+	public void removeFromDeviceGrabberPool(Agent agent) {
 		agent.removeFromPool(this);
 	}
 

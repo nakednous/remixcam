@@ -29,11 +29,12 @@ import remixlab.dandelion.core.*;
 import remixlab.dandelion.core.Constants.DOF_0Action;
 import remixlab.dandelion.event.KeyboardEvent;
 import remixlab.dandelion.profile.KeyboardProfile;
-import remixlab.tersehandling.duoable.agent.AbstractKeyboardAgent;
+import remixlab.tersehandling.duoable.agent.KeyboardAgent;
 
-public class KeyboardAgent extends AbstractKeyboardAgent {
-	public KeyboardAgent(AbstractScene scn, String n) {
-		super(scn, n);
+//TODO find a better name for this
+public class P5KeyboardAgent extends KeyboardAgent {
+	public P5KeyboardAgent(AbstractScene scn, String n) {
+		super(scn.terseHandler(), n);
 		profile = new KeyboardProfile();
 		setDefaultGrabber(scn);
 

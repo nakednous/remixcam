@@ -25,15 +25,15 @@
 
 package remixlab.dandelion.profile;
 
-import remixlab.dandelion.agent.AbstractBiMotionAgent;
+import remixlab.dandelion.agent.BiMotionAgent;
 import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.core.InteractiveCameraFrame;
 import remixlab.dandelion.core.InteractiveFrame;
 import remixlab.tersehandling.core.Grabbable;
 
-public class DOF3Device extends AbstractBiMotionAgent {
+public class DOF3Device extends BiMotionAgent {
 	public DOF3Device(AbstractScene scn, String n) {
-		super(scn, n);
+		super(scn.terseHandler(), n);
 		camProfile = new DOF3Profile();
 		profile = new DOF3Profile();
 		sens = new float[3];

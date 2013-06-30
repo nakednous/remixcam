@@ -27,7 +27,7 @@ package remixlab.tersehandling.event;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.dandelion.geom.Geom;
+import remixlab.tersehandling.core.Util;
 
 public class GenericDOF1Event extends GenericMotionEvent {
 	@Override
@@ -149,9 +149,9 @@ public class GenericDOF1Event extends GenericMotionEvent {
 	
 	@Override
 	public boolean isNull() {
-  	if(relative() && Geom.zero(getDX()) )
+  	if(relative() && Util.zero(getDX()) )
   			return true;
-  	if(absolute() && Geom.zero(getX()))
+  	if(absolute() && Util.zero(getX()))
   		return true;
   	return false;
   }

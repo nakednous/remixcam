@@ -31,9 +31,9 @@ import remixlab.dandelion.profile.ClickProfile;
 import remixlab.dandelion.profile.DOF2Profile;
 import remixlab.tersehandling.core.Grabbable;
 
-public class MouseAgent extends AbstractBiMotionAgent implements Constants {
+public class MouseAgent extends BiMotionAgent implements Constants {
 	public MouseAgent(AbstractScene scn, String n) {
-		super(scn, n);
+		super(scn.terseHandler(), n);
 		setDefaultGrabber(scn.pinhole().frame());
 		camProfile = new DOF2Profile();
 		profile = new DOF2Profile();

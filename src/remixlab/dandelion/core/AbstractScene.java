@@ -34,13 +34,13 @@ import remixlab.dandelion.event.KeyboardEvent;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
 import remixlab.dandelion.util.*;
-import remixlab.tersehandling.core.AbstractAgent;
+import remixlab.tersehandling.core.Agent;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.core.BasicScene;
+import remixlab.tersehandling.core.TerseHandler;
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.event.*;
 
-public abstract class AbstractScene extends BasicScene implements Constants, Grabbable {	
+public abstract class AbstractScene implements Constants, Grabbable {	
 	/**
   //M o u s e G r a b b e r
 	protected List<Grabbable> msGrabberPool;
@@ -72,6 +72,9 @@ public abstract class AbstractScene extends BasicScene implements Constants, Gra
   //T I M E R S
   protected boolean singleThreadedTaskableTimers;
 	protected ArrayList<AbstractTimerJob> timerPool;
+	
+	//TerseHandler
+	protected TerseHandler terseHandler;
 
 	// D I S P L A Y F L A G S
 	protected boolean axisIsDrwn; // world axis
@@ -142,6 +145,8 @@ public abstract class AbstractScene extends BasicScene implements Constants, Gra
 	  // but luckyly seems to be only for P3D
 		registerJob(timerFx);
 		
+		terseHandler = new TerseHandler();
+		
 		setDottedGrid(true);
 		setRightHanded();
 		
@@ -178,7 +183,7 @@ public abstract class AbstractScene extends BasicScene implements Constants, Gra
 	// E V E N T   HA N D L I N G
 	
 	@Override
-	public boolean grabsAgent(AbstractAgent agent) {
+	public boolean grabsAgent(Agent agent) {
 		return agent.trackedGrabber() == this;
 	}
 	
@@ -570,7 +575,7 @@ public abstract class AbstractScene extends BasicScene implements Constants, Gra
 		//updateGrabber();
 		
 		// 3. Agents
-		terseHandling();
+		terseHandler().handle();
 		
 	  // 4. Alternative use only
 		proscenium();
@@ -596,6 +601,10 @@ public abstract class AbstractScene extends BasicScene implements Constants, Gra
  		displayVisualHints(); // abstract
 	}
 	
+	public TerseHandler terseHandler() {
+		return terseHandler;
+	}
+
 	/**
 	@Override
 	public void defaultPerformer(GenericEvent event) {

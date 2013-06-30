@@ -31,6 +31,7 @@ import remixlab.dandelion.event.DOF3Event;
 import remixlab.dandelion.event.DOF6Event;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
+import remixlab.tersehandling.core.Util;
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.event.*;
 
@@ -94,7 +95,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	public InteractiveCameraFrame(Pinhole vp) {
 		super(vp.scene);
 		viewport = vp;
-		scene.removeFromDeviceGrabberPool(this);
+		scene.terseHandler().removeFromDeviceGrabberPool(this);
 		arcballRefPnt = new Vec(0.0f, 0.0f, 0.0f);
 		worldAxis = new Vec(0, 0, 1);
 	}
@@ -377,7 +378,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	 */
 	public void setCADAxis(Vec axis) {
 		//non-zero
-		if( Geom.zero(axis.mag()) )
+		if( Util.zero(axis.mag()) )
 			return;
 		else
 			worldAxis = axis.get();

@@ -31,9 +31,9 @@ import remixlab.dandelion.profile.ClickProfile;
 import remixlab.dandelion.profile.DOF6Profile;
 import remixlab.tersehandling.core.Grabbable;
 
-public class HIDAgent extends AbstractBiMotionAgent implements Constants {
+public class HIDAgent extends BiMotionAgent implements Constants {
 	public HIDAgent(AbstractScene scn, String n) {
-		super(scn, n);
+		super(scn.terseHandler(), n);
 		setDefaultGrabber(scn.pinhole().frame());
 		camProfile = new DOF6Profile();
 		profile = new DOF6Profile();

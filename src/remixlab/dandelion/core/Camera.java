@@ -27,6 +27,7 @@ package remixlab.dandelion.core;
 
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
+import remixlab.tersehandling.core.Util;
 
 import java.util.ArrayList;
 
@@ -204,7 +205,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 				axis = Vec.add(axis, n[i]);
 			}
 			
-			if ( Geom.nonZero(axis.mag()) ) {
+			if ( Util.nonZero(axis.mag()) ) {
 	      axis.normalize();
 	    }
 	    else {
@@ -439,11 +440,11 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 * @see #setUpVector(Vec)
 	 */
 	public void setViewDirection(Vec direction) {
-		if (Geom.zero(direction.squaredNorm()))
+		if (Util.zero(direction.squaredNorm()))
 			return;
 
 		Vec xAxis = direction.cross(upVector());
-		if (Geom.zero(xAxis.squaredNorm())) {
+		if (Util.zero(xAxis.squaredNorm())) {
 			// target is aligned with upVector, this means a rotation around X axis
 			// X axis is then unchanged, let's keep it !
 			xAxis = frame().inverseTransformOf(new Vec(1.0f, 0.0f, 0.0f));
@@ -1415,7 +1416,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
   //TODO fix API
 	public Vector3D worldCoordinatesOf(final Vector3D src, boolean flag) {
 		if(flag)
-			if( Geom.diff(frame().magnitude().x(), 1) || Geom.diff(frame().magnitude().y(), 1) || Geom.diff(frame().magnitude().z(), 1))
+			if( Util.diff(frame().magnitude().x(), 1) || Util.diff(frame().magnitude().y(), 1) || Util.diff(frame().magnitude().z(), 1))
 				return frame().inverseCoordinatesOf(Vector3D.div(src, frame().magnitude()));
 		return frame().inverseCoordinatesOf(src);
 	}
@@ -1428,7 +1429,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	//TODO fix API
 	public final Vector3D cameraCoordinatesOf(Vector3D src, boolean flag) {
 		if(flag)
-			if( Geom.diff(frame().magnitude().x(), 1) || Geom.diff(frame().magnitude().y(), 1) || Geom.diff(frame().magnitude().z(), 1))
+			if( Util.diff(frame().magnitude().x(), 1) || Util.diff(frame().magnitude().y(), 1) || Util.diff(frame().magnitude().z(), 1))
 				return frame().coordinatesOf(Vector3D.div(src, frame().magnitude()));
 		return frame().coordinatesOf(src);
 	}
@@ -1450,7 +1451,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		// mode.
 		float newDist = Math.abs(frame().coordinatesOf(arcballReferencePoint(), false).vec[2]);
 		// Prevents division by zero when rap is set to camera position
-		if ((Geom.nonZero(prevDist)) && (Geom.nonZero(newDist)))
+		if ((Util.nonZero(prevDist)) && (Util.nonZero(newDist)))
 			orthoCoef *= prevDist / newDist;
 	}
 

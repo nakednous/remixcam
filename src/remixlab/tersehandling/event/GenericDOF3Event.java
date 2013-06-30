@@ -27,7 +27,7 @@ package remixlab.tersehandling.event;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.dandelion.geom.Geom;
+import remixlab.tersehandling.core.Util;
 
 public class GenericDOF3Event extends GenericMotionEvent {
 	@Override
@@ -80,7 +80,7 @@ public class GenericDOF3Event extends GenericMotionEvent {
     setPreviousEvent(prevEvent);
     /**
     if(prevEvent!=null) {
-    	distance = Geom.distance(x, y, z, prevEvent.getX(), prevEvent.getY(), prevEvent.getZ());
+    	distance = Util.distance(x, y, z, prevEvent.getX(), prevEvent.getY(), prevEvent.getZ());
     	if( sameSequence(prevEvent) ) {
     		this.dx = this.getX() - prevEvent.getX();
     		this.dy = this.getY() - prevEvent.getY();
@@ -139,7 +139,7 @@ public class GenericDOF3Event extends GenericMotionEvent {
   			this.dx = this.getX() - ((GenericDOF3Event) prevEvent).getX();
   			this.dy = this.getY() - ((GenericDOF3Event) prevEvent).getY();
   			this.dz = this.getZ() - ((GenericDOF3Event) prevEvent).getZ();
-  			distance = Geom.distance(x, y, z, ((GenericDOF3Event) prevEvent).getX(), ((GenericDOF3Event) prevEvent).getY(), ((GenericDOF3Event) prevEvent).getZ());
+  			distance = Util.distance(x, y, z, ((GenericDOF3Event) prevEvent).getX(), ((GenericDOF3Event) prevEvent).getY(), ((GenericDOF3Event) prevEvent).getZ());
   			delay = this.timestamp() - prevEvent.timestamp();
   			if(delay==0)
   				speed = distance;
@@ -204,10 +204,23 @@ public class GenericDOF3Event extends GenericMotionEvent {
 	
 	@Override
 	public boolean isNull() {
-  	if(relative() && Geom.zero(getDX()) && Geom.zero(getDY()) && Geom.zero(getDZ()))
+  	if(relative() && Util.zero(getDX()) && Util.zero(getDY()) && Util.zero(getDZ()))
   			return true;
-  	if(absolute() && Geom.zero(getX()) && Geom.zero(getY()) && Geom.zero(getZ()))
+  	if(absolute() && Util.zero(getX()) && Util.zero(getY()) && Util.zero(getZ()))
   		return true;
   	return false;
+  }
+	
+	public GenericDOF2Event genericDOF2Event() {
+		GenericDOF2Event pe2;
+		GenericDOF2Event e2;
+  	if(relative()) {  		
+  			pe2 = new GenericDOF2Event(getPrevX(), getPrevY(), getModifiers(), getButton());
+  			e2 = new GenericDOF2Event(pe2, getX(), getY(), getModifiers(), getButton());  		
+  	}
+  	else {
+  		e2 = new GenericDOF2Event(getX(), getY(), getModifiers(), getButton()); 
+  	}
+  	return e2;
   }
 }

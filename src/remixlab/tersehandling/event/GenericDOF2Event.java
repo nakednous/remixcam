@@ -27,7 +27,7 @@ package remixlab.tersehandling.event;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.dandelion.geom.Geom;
+import remixlab.tersehandling.core.Util;
 
 public class GenericDOF2Event extends GenericMotionEvent {
 	@Override
@@ -75,7 +75,7 @@ public class GenericDOF2Event extends GenericMotionEvent {
 		
 		/**
 		if(prevEvent!=null) {
-			distance = Geom.distance(x, y, prevEvent.getX(), prevEvent.getY()); 
+			distance = Util.distance(x, y, prevEvent.getX(), prevEvent.getY()); 
 			if( sameSequence(prevEvent) ) {
 				this.dx = this.getX() - prevEvent.getX();
 				this.dy = this.getY() - prevEvent.getY();
@@ -142,7 +142,7 @@ public class GenericDOF2Event extends GenericMotionEvent {
   		if(prevEvent instanceof GenericDOF2Event)	{
   			this.dx = this.getX() - ((GenericDOF2Event) prevEvent).getX();
   			this.dy = this.getY() - ((GenericDOF2Event) prevEvent).getY();
-  			distance = Geom.distance(x, y, ((GenericDOF2Event) prevEvent).getX(), ((GenericDOF2Event) prevEvent).getY());  			
+  			distance = Util.distance(x, y, ((GenericDOF2Event) prevEvent).getX(), ((GenericDOF2Event) prevEvent).getY());  			
   			delay = this.timestamp() - prevEvent.timestamp();
   			if(delay==0)
   				speed = distance;
@@ -193,11 +193,31 @@ public class GenericDOF2Event extends GenericMotionEvent {
 	
 	@Override
 	public boolean isNull() {
-  	if(relative() && Geom.zero(getDX()) && Geom.zero(getDY()))
+  	if(relative() && Util.zero(getDX()) && Util.zero(getDY()))
   			return true;
-  	if(absolute() && Geom.zero(getX()) && Geom.zero(getY()))
+  	if(absolute() && Util.zero(getX()) && Util.zero(getY()))
   		return true;
   	return false;
   }
-
+	
+	public GenericDOF1Event genericDOF1Event(boolean fromX) {
+		GenericDOF1Event pe1;
+		GenericDOF1Event e1;
+		if (fromX) {
+			if (relative()) {
+				pe1 = new GenericDOF1Event(getPrevX(), getModifiers(), getButton());
+				e1 = new GenericDOF1Event(pe1, getX(), getModifiers(), getButton());
+			} else {
+				e1 = new GenericDOF1Event(getX(), getModifiers(), getButton());
+			}
+		} else {
+			if (relative()) {
+				pe1 = new GenericDOF1Event(getPrevY(), getModifiers(), getButton());
+				e1 = new GenericDOF1Event(pe1, getY(), getModifiers(), getButton());
+			} else {
+				e1 = new GenericDOF1Event(getY(), getModifiers(), getButton());
+			}
+		}
+		return e1;
+	}
 }

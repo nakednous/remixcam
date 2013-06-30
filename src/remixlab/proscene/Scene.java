@@ -26,7 +26,7 @@
 
 package remixlab.proscene;
 
-import remixlab.dandelion.agent.KeyboardAgent;
+import remixlab.dandelion.agent.P5KeyboardAgent;
 import remixlab.dandelion.agent.WheeledMouseAgent;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.event.ClickEvent;
@@ -135,7 +135,7 @@ import java.util.TimerTask;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {
-	public class ProsceneKeyboard extends KeyboardAgent {
+	public class ProsceneKeyboard extends P5KeyboardAgent {
 		public ProsceneKeyboard(AbstractScene scn, String n) {
 			super(scn, n);
 			//this.addInDeviceGrabberPool(scn);
@@ -2363,7 +2363,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	@Override
 	protected void drawSelectionHints() {
-		for (Grabbable mg : deviceGrabberPool()) {
+		for (Grabbable mg : terseHandler().deviceGrabberPool()) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
@@ -2391,7 +2391,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 	@Override
 	protected void drawCameraPathSelectionHints() {
-		for (Grabbable mg : deviceGrabberPool()) {
+		for (Grabbable mg : terseHandler().deviceGrabberPool()) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {

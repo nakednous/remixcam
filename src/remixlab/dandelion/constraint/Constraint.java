@@ -26,6 +26,7 @@
 package remixlab.dandelion.constraint;
 
 import remixlab.dandelion.geom.*;
+import remixlab.tersehandling.core.Util;
 
 /**
  * An interface class for Frame constraints.
@@ -106,9 +107,9 @@ public abstract class Constraint {
 	public Vec constrainScaling(Vec scaling, GeomFrame frame) {
 		Vec res = new Vec(scaling.x(), scaling.y(), scaling.z());		
 		// special case
-		if( Geom.zero(res.x()) ) res.x(1);
-		if( Geom.zero(res.y()) ) res.y(1);
-		if( Geom.zero(res.z()) ) res.z(1);
+		if( Util.zero(res.x()) ) res.x(1);
+		if( Util.zero(res.y()) ) res.y(1);
+		if( Util.zero(res.z()) ) res.z(1);
 		
 		//sclConstraintValues is of the shape (0:1:-1, 0:1:-1, 0:1:-1)
 		//forbids scaling		

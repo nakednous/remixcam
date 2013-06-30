@@ -29,6 +29,7 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.dandelion.core.Constants;
+import remixlab.tersehandling.core.Util;
 
 /**
  * A 4 element unit quaternion represented by single precision floating point
@@ -626,7 +627,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 */
 	public void fromAxisAngle(Vec axis, float angle) {
 		float norm = axis.mag();
-		if (Geom.zero(norm)) {
+		if (Util.zero(norm)) {
 			// Null rotation
 			this.quat[0] = 0.0f;
 			this.quat[1] = 0.0f;
@@ -775,7 +776,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 		float fromSqNorm = from.squaredNorm();
 		float toSqNorm = to.squaredNorm();
 		// Identity Quaternion when one vector is null
-		if ((Geom.zero(fromSqNorm)) || (Geom.zero(toSqNorm))) {
+		if ((Util.zero(fromSqNorm)) || (Util.zero(toSqNorm))) {
 			this.quat[0] = this.quat[1] = this.quat[2] = 0.0f;
 			this.quat[3] = 1.0f;
 		} else {
@@ -785,7 +786,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 			float axisSqNorm = axis.squaredNorm();
 
 			// Aligned vectors, pick any axis, not aligned with from or to
-			if (Geom.zero(axisSqNorm))
+			if (Util.zero(axisSqNorm))
 				axis = from.orthogonalVector();
 
 			float angle = (float) Math.asin((float) Math.sqrt(axisSqNorm
@@ -816,7 +817,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 		// Compute one plus the trace of the matrix
 		float onePlusTrace = 1.0f + m[0][0] + m[1][1] + m[2][2];
 
-		if (Geom.nonZero(onePlusTrace) && onePlusTrace>0) {
+		if (Util.nonZero(onePlusTrace) && onePlusTrace>0) {
 			// Direct computation
 			float s = (float) Math.sqrt(onePlusTrace) * 2.0f;
 			this.quat[0] = (m[2][1] - m[1][2]) / s;
@@ -908,7 +909,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 	public final Vec axis() {
 		Vec res = new Vec(x(), y(), z());
 		float sinus = res.mag();
-		if ( Geom.nonZero(sinus) )
+		if ( Util.nonZero(sinus) )
 			res.div(sinus);
 		return res;
 	}	
@@ -939,7 +940,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 	  axis.y(y());
 	  axis.z(z());
 	  float sinus = axis.mag();
-	  if ( Geom.nonZero(sinus) )
+	  if ( Util.nonZero(sinus) )
 	  	axis.div(sinus);
 	}
 
@@ -1052,7 +1053,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 		float len = (float) Math.sqrt(this.quat[0] * this.quat[0] + this.quat[1] * this.quat[1] + this.quat[2]
 				* this.quat[2]);
 
-		if (Geom.zero(len))
+		if (Util.zero(len))
 			return new Quat(this.quat[0], this.quat[1], this.quat[2], 0.0f, false);
 		else {
 			float coef = (float) Math.acos(this.quat[3]) / len;
@@ -1069,7 +1070,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 	public final Quat exp() {
 		float theta = (float) Math.sqrt(this.quat[0] * this.quat[0] + this.quat[1] * this.quat[1] + this.quat[2] * this.quat[2]);
 
-		if (Geom.zero(theta))
+		if (Util.zero(theta))
 			return new Quat(this.quat[0], this.quat[1], this.quat[2], (float) Math.cos(theta));
 		else {
 			float coef = (float) Math.sin(theta) / theta;

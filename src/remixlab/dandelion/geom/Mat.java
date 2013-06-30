@@ -25,6 +25,8 @@
 
 package remixlab.dandelion.geom;
 
+import remixlab.tersehandling.core.Util;
+
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
@@ -993,7 +995,7 @@ public class Mat implements Primitivable {
    */
   public boolean invert() {
     float determinant = determinant();
-    if (Geom.zero(determinant)) {
+    if (Util.zero(determinant)) {
       return false;
     }
 

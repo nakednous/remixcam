@@ -40,6 +40,11 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 public class DOF3Event extends GenericDOF3Event implements Constants, Duoble<Constants.DOF_3Action> {
 	DOF_3Action action;
 	
+	public DOF3Event(GenericDOF3Event genEvent, DOF_3Action a) {
+		super(genEvent);
+		action = a;
+	}
+	
 	public DOF3Event(float x, float y, float z, int modifiers, int button) {
 		super(x, y, z, modifiers, button);
 	}
@@ -96,15 +101,6 @@ public class DOF3Event extends GenericDOF3Event implements Constants, Duoble<Con
   }
   
   public DOF2Event dof2Event(DOF_2Action a2) {
-  	DOF2Event pe2;
-  	DOF2Event e2;
-  	if(relative()) {  		
-  			pe2 = new DOF2Event(getPrevX(), getPrevY(), getModifiers(), getButton(), a2);
-  			e2 = new DOF2Event(pe2, getX(), getY(), getModifiers(), getButton(), a2);  		
-  	}
-  	else {
-  		e2 = new DOF2Event(getX(), getY(), getModifiers(), getButton(), a2); 
-  	}
-  	return e2;
+  	return new DOF2Event(genericDOF2Event(), a2);
   }
 }

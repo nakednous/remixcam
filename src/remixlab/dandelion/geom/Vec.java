@@ -29,6 +29,7 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.dandelion.core.Constants;
+import remixlab.tersehandling.core.Util;
 
 /**
  * A class to describe a two or three dimensional vector.
@@ -144,7 +145,7 @@ public class Vec implements Constants, Primitivable {
   
   public static Vec projectVectorOnAxis(Vec src, Vec direction) {
 		float directionSquaredNorm = squaredNorm(direction);
-		if (Geom.zero(directionSquaredNorm))
+		if (Util.zero(directionSquaredNorm))
 			throw new RuntimeException("Direction squared norm is nearly 0");
 
 		float modulation = src.dot(direction) / directionSquaredNorm;
@@ -163,7 +164,7 @@ public class Vec implements Constants, Primitivable {
 	 */
 	public static Vec projectVectorOnPlane(Vec src, Vec normal) {
 		float normalSquaredNorm = squaredNorm(normal);
-		if (Geom.zero(normalSquaredNorm))
+		if (Util.zero(normalSquaredNorm))
 			throw new RuntimeException("Normal squared norm is nearly 0");
 
 		float modulation = src.dot(normal) / normalSquaredNorm;

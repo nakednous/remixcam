@@ -77,23 +77,23 @@ public class WheeledMouseAgent extends MouseAgent {
 	@Override
 	public void handle(GenericEvent event) {
 		//TODO warning: should be copy pasted from AbstractMotionDevice
-		if(event == null || !scene.isAgentRegistered(this))	return;
+		if(event == null || !handler.isAgentRegistered(this))	return;
 		if(event instanceof Duoble<?>) {
 			if(event instanceof GenericClickEvent)
-				scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), grabber()));
+				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), grabber()));
 			else
 				if(event instanceof GenericMotionEvent) {
 					((GenericMotionEvent)event).modulate(sens);
 					if(trackedGrabber() != null )
 						if( event instanceof DOF1Event )
-							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameWheelProfile().handle((Duoble<?>)event), trackedGrabber()));
+							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameWheelProfile().handle((Duoble<?>)event), trackedGrabber()));
 						else
-							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), trackedGrabber()));
+							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), trackedGrabber()));
 					else
 						if( event instanceof DOF1Event )
-							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, wheelProfile().handle((Duoble<?>)event), defaultGrabber()));
+							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, wheelProfile().handle((Duoble<?>)event), defaultGrabber()));
 						else
-							scene.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoble<?>)event), defaultGrabber()));
+							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoble<?>)event), defaultGrabber()));
 			}
 		}
 	}

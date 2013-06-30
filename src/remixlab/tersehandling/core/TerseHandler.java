@@ -33,22 +33,22 @@ import java.util.List;
 import remixlab.tersehandling.event.GenericEvent;
 
 //TODO check what to do; abstract or not?
-public class BasicScene {
+public class TerseHandler {
   //D E V I C E S	  &   E V E N T S
-  protected HashMap<String, AbstractAgent> agents;
+  protected HashMap<String, Agent> agents;
 	protected LinkedList<EventGrabberTuple> eventTupleQueue;
 	
-	public BasicScene() {
+	public TerseHandler() {
 		//agents
-		agents = new HashMap<String, AbstractAgent>();
+		agents = new HashMap<String, Agent>();
 		//events
 		eventTupleQueue = new LinkedList<EventGrabberTuple>();
 	}
 	
 	// to be called at the end of the main drawing loop
-	public void terseHandling() {
+	public void handle() {
 		// 1. Agents
-		for (AbstractAgent device : agents.values())
+		for (Agent device : agents.values())
 			device.handle(device.feed());
 		
 		// 2. Low level events 
@@ -63,8 +63,8 @@ public class BasicScene {
 	 * Returns an array of the camera profile objects that are currently
 	 * registered at the Scene.
 	 */
-	public AbstractAgent [] getAgents() {
-		return agents.values().toArray(new AbstractAgent[0]);
+	public Agent [] getAgents() {
+		return agents.values().toArray(new Agent[0]);
 	}
 	
 	/**
@@ -73,17 +73,17 @@ public class BasicScene {
 	 * @see #unregisterProfile(HIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void registerAgent(AbstractAgent agent) {
+	public void registerAgent(Agent agent) {
 		if(!isAgentRegistered(agent))
 			agents.put(agent.name(), agent);
 		else {
 			System.out.println("Nothing done. A device with the same name is already registered. Current profile names are:");
-			for (AbstractAgent dev : agents.values())
+			for (Agent dev : agents.values())
 				System.out.println(dev.name());
 		}
 	}
 	
-	public boolean isAgentRegistered(AbstractAgent agent) {
+	public boolean isAgentRegistered(Agent agent) {
 		return agents.containsKey(agent.name());
 	}
 	
@@ -91,7 +91,7 @@ public class BasicScene {
 		return agents.containsKey(name);
 	}
 	
-	public AbstractAgent getAgent(String name) {
+	public Agent getAgent(String name) {
 		return agents.get(name);
 	}
 	
@@ -101,11 +101,11 @@ public class BasicScene {
 	 * @see #registerProfile(HIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public AbstractAgent unregisterAgent(AbstractAgent device) {
+	public Agent unregisterAgent(Agent device) {
 		return agents.remove(device.name());
 	}
 
-	public AbstractAgent unregisterAgent(String name) {
+	public Agent unregisterAgent(String name) {
 		return agents.remove(name);
 	}
 	
@@ -182,7 +182,7 @@ public class BasicScene {
 	 */
 	public List<Grabbable> deviceGrabberPool() {
 		List<Grabbable> msGrabberPool = new ArrayList<Grabbable>();
-		for (AbstractAgent device : agents.values())
+		for (Agent device : agents.values())
 			for (Grabbable grabber : device.deviceGrabberPool())
 				if(!msGrabberPool.contains(grabber))
 					msGrabberPool.add(grabber);
@@ -215,7 +215,7 @@ public class BasicScene {
 	 * {@link #isInDeviceGrabberPool(Grabbable)} to know the current state of the MouseGrabber.
 	 */
 	public void addInDeviceGrabberPool(Grabbable deviceGrabber) {
-		for (AbstractAgent device : agents.values())
+		for (Agent device : agents.values())
 			if( !device.isInPool(deviceGrabber) )
 				device.addInPool(deviceGrabber);
 	}
@@ -239,7 +239,7 @@ public class BasicScene {
 	 * that is not in {@link #deviceGrabberPool()} has no effect.
 	 */
 	public void removeFromDeviceGrabberPool(Grabbable deviceGrabber) {
-		for (AbstractAgent device : agents.values())
+		for (Agent device : agents.values())
 			device.removeFromPool(deviceGrabber);
 	}
 
@@ -251,7 +251,7 @@ public class BasicScene {
 	 * than to remove each one independently.
 	 */
 	public void clearDeviceGrabberPool() {
-		for (AbstractAgent device : agents.values())
+		for (Agent device : agents.values())
 			device.clearPool();
 	}
 }
