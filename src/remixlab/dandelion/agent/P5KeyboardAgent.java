@@ -34,8 +34,8 @@ import remixlab.tersehandling.duoable.profile.GenericKeyboardProfile;
 //TODO find a better name for this
 public class P5KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<Constants.DOF_0Action>> {
 	public P5KeyboardAgent(AbstractScene scn, String n) {
-		super(scn.terseHandler(), n);
-		profile = new GenericKeyboardProfile<Constants.DOF_0Action>();
+		super(new GenericKeyboardProfile<Constants.DOF_0Action>(), scn.terseHandler(), n);
+		//profile = new GenericKeyboardProfile<Constants.DOF_0Action>();
 		setDefaultGrabber(scn);
 
 		// D e f a u l t s h o r t c u t s

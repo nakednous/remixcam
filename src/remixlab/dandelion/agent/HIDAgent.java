@@ -33,11 +33,15 @@ import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 
 public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF_6Action>> implements Constants {
 	public HIDAgent(AbstractScene scn, String n) {
-		super(scn.terseHandler(), n);
+		super(new GenericMotionProfile<Constants.DOF_6Action>(),
+			    new GenericMotionProfile<Constants.DOF_6Action>(),
+			    new GenericClickProfile<Constants.DOF_0Action>(), scn.terseHandler(), n);
+	  setDefaultGrabber(scn.pinhole().frame());
+		//super(scn.terseHandler(), n);
 		setDefaultGrabber(scn.pinhole().frame());
-		camProfile = new GenericMotionProfile<Constants.DOF_6Action>();
-		profile = new GenericMotionProfile<Constants.DOF_6Action>();
-		clickProfile = new GenericClickProfile<Constants.DOF_0Action>();
+		//camProfile = new GenericMotionProfile<Constants.DOF_6Action>();
+		//profile = new GenericMotionProfile<Constants.DOF_6Action>();
+		//clickProfile = new GenericClickProfile<Constants.DOF_0Action>();
 		sens = new float[6];
 		sens[0] = 1f;
 		sens[1] = 1f;
@@ -64,10 +68,12 @@ public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constant
 		return profile;
 	}
 	
+	/**
 	@Override
 	public GenericClickProfile<Constants.DOF_0Action> clickProfile() {
 		return clickProfile;
 	}
+	*/
 	
 	@Override
 	public boolean addInPool(Grabbable deviceGrabber) {

@@ -30,13 +30,17 @@ import remixlab.dandelion.core.Constants;
 import remixlab.dandelion.core.InteractiveCameraFrame;
 import remixlab.dandelion.core.InteractiveFrame;
 import remixlab.tersehandling.core.Grabbable;
+import remixlab.tersehandling.duoable.profile.GenericClickProfile;
 import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 
 public class DOF3Device extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF_3Action>> {
 	public DOF3Device(AbstractScene scn, String n) {
-		super(scn.terseHandler(), n);
-		camProfile = new GenericMotionProfile<Constants.DOF_3Action>();
-		profile = new GenericMotionProfile<Constants.DOF_3Action>();
+		super(new GenericMotionProfile<Constants.DOF_3Action>(),
+			    new GenericMotionProfile<Constants.DOF_3Action>(),
+			    new GenericClickProfile<Constants.DOF_0Action>(), scn.terseHandler(), n);
+	  setDefaultGrabber(scn.pinhole().frame());
+		//camProfile = new GenericMotionProfile<Constants.DOF_3Action>();
+		//profile = new GenericMotionProfile<Constants.DOF_3Action>();
 		sens = new float[3];
 		sens[0] = 1f;
 		sens[1] = 1f;

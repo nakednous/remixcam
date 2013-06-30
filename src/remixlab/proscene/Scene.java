@@ -26,8 +26,8 @@
 
 package remixlab.proscene;
 
+import remixlab.dandelion.agent.GenericWheeledMouseAgent;
 import remixlab.dandelion.agent.P5KeyboardAgent;
-import remixlab.dandelion.agent.WheeledMouseAgent;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.event.ClickEvent;
 import remixlab.dandelion.event.DOF1Event;
@@ -37,6 +37,7 @@ import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
 import remixlab.dandelion.util.*;
 import remixlab.tersehandling.core.Grabbable;
+import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 //import remixlab.remixcam.shortcut.*;
 
 /**
@@ -153,11 +154,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	//public class Mouse extends AbstractMouse {
-	public class ProsceneMouse extends WheeledMouseAgent {
+	public class ProsceneMouse extends GenericWheeledMouseAgent<GenericMotionProfile<Constants.DOF_1Action>> {
 	//public class ProsceneMouse extends Mouse {
 		DOF2Event event, prevEvent;
 		public ProsceneMouse(AbstractScene scn, String n) {
-			super(scn, n);	
+			super(new GenericMotionProfile<Constants.DOF_1Action>(),
+					  new GenericMotionProfile<Constants.DOF_1Action>(), scn, n);	
 			//cameraProfile().setBinding(DOF_2Action.ROTATE);//rotate without dragging any button
 			//System.out.println(cameraProfile().bindingsDescription());
 		}

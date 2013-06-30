@@ -11,8 +11,9 @@ public class GenericMotionAgent<P extends GenericProfile<?,?>, C extends Generic
 	protected C clickProfile;
 	protected float[] sens;
 	
-	public GenericMotionAgent(TerseHandler scn, String n) {
-		super(scn, n);
+	public GenericMotionAgent(P p, C c, TerseHandler scn, String n) {
+		super(p, scn, n);
+		clickProfile = c;
 	}
 	
 	public P motionProfile() {

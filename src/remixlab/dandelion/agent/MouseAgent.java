@@ -33,11 +33,13 @@ import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 
 public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF_2Action>> implements Constants {
 	public MouseAgent(AbstractScene scn, String n) {
-		super(scn.terseHandler(), n);
+		super(new GenericMotionProfile<Constants.DOF_2Action>(),
+				  new GenericMotionProfile<Constants.DOF_2Action>(),
+				  new GenericClickProfile<Constants.DOF_0Action>(), scn.terseHandler(), n);
 		setDefaultGrabber(scn.pinhole().frame());
-		camProfile = new GenericMotionProfile<Constants.DOF_2Action>();
-		profile = new GenericMotionProfile<Constants.DOF_2Action>();
-		clickProfile = new GenericClickProfile<Constants.DOF_0Action>();
+		//camProfile = new GenericMotionProfile<Constants.DOF_2Action>();
+		//profile = new GenericMotionProfile<Constants.DOF_2Action>();
+		//clickProfile = new GenericClickProfile<Constants.DOF_0Action>();
 		sens = new float[2];
 		sens[0] = 1f;
 		sens[1] = 1f;
@@ -77,10 +79,12 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 		return profile;
 	}
 	
+	/**
 	@Override
 	public GenericClickProfile<Constants.DOF_0Action> clickProfile() {
 		return clickProfile;
 	}
+	*/
 	
 	@Override
 	public boolean addInPool(Grabbable deviceGrabber) {

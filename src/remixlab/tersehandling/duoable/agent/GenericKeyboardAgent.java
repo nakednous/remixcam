@@ -31,8 +31,8 @@ import remixlab.tersehandling.duoable.profile.KeyDuoble;
 import remixlab.tersehandling.event.GenericEvent;
 
 public class GenericKeyboardAgent<K extends GenericKeyboardProfile<?>> extends GenericActionableAgent<K> {	
-	public GenericKeyboardAgent(TerseHandler scn, String n) {
-		super(scn, n);
+	public GenericKeyboardAgent(K k, TerseHandler scn, String n) {
+		super(k, scn, n);
 	}
 	
 	public K keyboardProfile() {

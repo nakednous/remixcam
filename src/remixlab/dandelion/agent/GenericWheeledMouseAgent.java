@@ -34,11 +34,15 @@ import remixlab.tersehandling.duoable.profile.Duoble;
 import remixlab.tersehandling.event.*;
 
 public class GenericWheeledMouseAgent<W extends GenericMotionProfile<Constants.DOF_1Action>> extends MouseAgent {
-	protected W wheelProfile;
 	protected W frameWheelProfile;
+	protected W wheelProfile;	
 	
-	public GenericWheeledMouseAgent(AbstractScene scn, String n) {
+	public GenericWheeledMouseAgent(W fwProfile, W wProfile, AbstractScene scn, String n) {
 		super(scn, n);
+		frameWheelProfile = fwProfile;
+		wheelProfile = wProfile;
+		wheelProfile().setBinding(DOF_1Action.ZOOM);
+		frameWheelProfile().setBinding(DOF_1Action.ZOOM);
 	}
 	
 	public W wheelProfile() {

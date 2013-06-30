@@ -37,8 +37,9 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 	protected P camProfile;
 	protected float[] sens;
 	
-	public GenericBiMotionAgent(TerseHandler scn, String n) {
-		super(scn, n);	
+	public GenericBiMotionAgent(P fProfile, P cProfile, GenericClickProfile<Constants.DOF_0Action> c, TerseHandler scn, String n) {
+		super(fProfile, c, scn, n);
+		camProfile = cProfile;
 	}
 	
 	public P cameraProfile() {
