@@ -33,16 +33,16 @@ package remixlab.dandelion.event;
 import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.duoable.profile.Duoble;
-import remixlab.tersehandling.event.GenericDOF1Event;
+import remixlab.tersehandling.event.THDOF1Event;
 ///**
-public class DOF1Event extends GenericDOF1Event implements Constants, Duoble<Constants.DOF_1Action> {
+public class DOF1Event extends THDOF1Event implements Constants, Duoble<Constants.DOF_1Action> {
 	DOF_1Action action;
 	
-	public DOF1Event(GenericDOF1Event gEvent) {
+	public DOF1Event(THDOF1Event gEvent) {
 		super(gEvent);
 	}
 	
-	public DOF1Event(GenericDOF1Event gEvent, DOF_1Action a) {
+	public DOF1Event(THDOF1Event gEvent, DOF_1Action a) {
 		super(gEvent);
 		action = a;
 	}

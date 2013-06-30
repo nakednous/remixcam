@@ -29,7 +29,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.tersehandling.core.Util;
 
-public class GenericDOF1Event extends GenericMotionEvent {
+public class THDOF1Event extends THMotionEvent {
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(17, 37).
@@ -48,7 +48,7 @@ public class GenericDOF1Event extends GenericMotionEvent {
 		if (obj.getClass() != getClass())
 			return false;
 
-		GenericDOF1Event other = (GenericDOF1Event) obj;
+		THDOF1Event other = (THDOF1Event) obj;
 		return new EqualsBuilder()
 		.appendSuper(super.equals(obj))
 		.append(x, other.x)
@@ -58,13 +58,13 @@ public class GenericDOF1Event extends GenericMotionEvent {
 
 	protected Float x, dx;
 
-	public GenericDOF1Event(float x, int modifiers, int button) {
+	public THDOF1Event(float x, int modifiers, int button) {
 		super(modifiers, button);
 		this.x = x;
 		this.dx = 0f;
 	}
 
-	public GenericDOF1Event(GenericDOF1Event prevEvent, float x, int modifiers, int button) {
+	public THDOF1Event(THDOF1Event prevEvent, float x, int modifiers, int button) {
 		this(x, modifiers, button);
 		setPreviousEvent(prevEvent);
 		/**
@@ -79,7 +79,7 @@ public class GenericDOF1Event extends GenericMotionEvent {
 	}
 	
   //ready to be enqueued
-	public GenericDOF1Event(float x) {
+	public THDOF1Event(float x) {
 		super();
 		this.x = x;
 		this.dx = 0f;
@@ -87,7 +87,7 @@ public class GenericDOF1Event extends GenericMotionEvent {
 	}
 
 	// idem
-	public GenericDOF1Event(GenericDOF1Event prevEvent, float x) {
+	public THDOF1Event(THDOF1Event prevEvent, float x) {
 		super();		
 		this.x = x;
 		this.dx = 0f;
@@ -97,23 +97,23 @@ public class GenericDOF1Event extends GenericMotionEvent {
 
 	// ---
 
-	protected GenericDOF1Event(GenericDOF1Event other) {
+	protected THDOF1Event(THDOF1Event other) {
 		super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
 	}
 
 	@Override
-	public GenericDOF1Event get() {
-		return new GenericDOF1Event(this);
+	public THDOF1Event get() {
+		return new THDOF1Event(this);
 	}
 	
 	@Override
-  public void setPreviousEvent(GenericMotionEvent prevEvent) {
+  public void setPreviousEvent(THMotionEvent prevEvent) {
   	if(prevEvent!=null)
-  		if(prevEvent instanceof GenericDOF1Event)	{  			
-  			this.dx = this.getX() - ((GenericDOF1Event) prevEvent).getX();
-  			distance = this.getX() - ((GenericDOF1Event) prevEvent).getX();
+  		if(prevEvent instanceof THDOF1Event)	{  			
+  			this.dx = this.getX() - ((THDOF1Event) prevEvent).getX();
+  			distance = this.getX() - ((THDOF1Event) prevEvent).getX();
   			delay = this.timestamp() - prevEvent.timestamp();
   			if(delay==0)
   				speed = distance;

@@ -37,15 +37,15 @@ public class GenericMotionAgent<P extends GenericProfile<?,?>, C extends Generic
 	}
 	
 	@Override
-	public void handle(GenericEvent event) {
+	public void handle(THEvent event) {
 		//overkill but feels safer ;)
 		if(event == null || !handler.isAgentRegistered(this))	return;		
 		if(event instanceof Duoble<?>) {
-			if(event instanceof GenericClickEvent)
+			if(event instanceof THClickEvent)
 				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), grabber()));
 			else
-				if(event instanceof GenericMotionEvent) {
-					((GenericMotionEvent)event).modulate(sens);
+				if(event instanceof THMotionEvent) {
+					((THMotionEvent)event).modulate(sens);
 					if (trackedGrabber() != null )
 						handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, motionProfile().handle((Duoble<?>)event), trackedGrabber()));			
 			}

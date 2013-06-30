@@ -29,16 +29,17 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.tersehandling.core.Util;
 
-public class GenericDOF2Event extends GenericMotionEvent {
+public class THDOF3Event extends THMotionEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
     appendSuper(super.hashCode()).
-		appendSuper(super.hashCode()).
 		append(x).
 		append(dx).
 		append(y).
 		append(dy).
+		append(z).
+		append(dz).
     toHashCode();
 	}
 	
@@ -48,101 +49,97 @@ public class GenericDOF2Event extends GenericMotionEvent {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		GenericDOF2Event other = (GenericDOF2Event) obj;
+		THDOF3Event other = (THDOF3Event) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
     .append(x, other.x)
 		.append(dx, other.dx)
 		.append(y, other.y)
 		.append(dy, other.dy)
+		.append(z, other.z)
+		.append(dz, other.dz)
 		.isEquals();
 	}
 
 	protected Float x, dx;
   protected Float y, dy;
+  protected Float z, dz;
   
-	public GenericDOF2Event(float x, float y, int modifiers, int button) {
+	public THDOF3Event(float x, float y, float z, int modifiers, int button) {
     super(modifiers, button);
 		this.x = x;
 		this.dx = 0f;
     this.y = y;
     this.dy = 0f;
+    this.z = z;
+    this.dz = 0f;
   }
 	
-	public GenericDOF2Event(GenericDOF2Event prevEvent, float x, float y, int modifiers, int button) {
-		this(x, y, modifiers, button);
-		setPreviousEvent(prevEvent);
-		
-		/**
-		if(prevEvent!=null) {
-			distance = Util.distance(x, y, prevEvent.getX(), prevEvent.getY()); 
-			if( sameSequence(prevEvent) ) {
-				this.dx = this.getX() - prevEvent.getX();
-				this.dy = this.getY() - prevEvent.getY();
-				this.action = prevEvent.getAction();
-  		}
-		}
-    // */
-		
+	public THDOF3Event(THDOF3Event prevEvent, float x, float y, float z, int modifiers, int button) {
+    this(x, y, z, modifiers, button);
+    setPreviousEvent(prevEvent);
     /**
-    //TODO debug
-    if( sameSequence(prevEvent) ) {
-    	this.dx = this.getX() - prevEvent.getX();
-  		this.dy = this.getY() - prevEvent.getY();
-  		this.action = prevEvent.getAction();
-  		System.out.println("Current event: x: " + getX() + " y: " + getY());
-  		System.out.println("Prev event: x: " + getPrevX() + " y: " + getPrevY());
-  		//System.out.println("Distance: " + distance());
-  		//System.out.println("Delay: " + delay());
-  		//System.out.println("Speed: " + speed());
+    if(prevEvent!=null) {
+    	distance = Util.distance(x, y, z, prevEvent.getX(), prevEvent.getY(), prevEvent.getZ());
+    	if( sameSequence(prevEvent) ) {
+    		this.dx = this.getX() - prevEvent.getX();
+    		this.dy = this.getY() - prevEvent.getY();
+    		this.dz = this.getZ() - prevEvent.getZ();
+    		this.action = prevEvent.getAction();
+    	}
     }
-    else {
-    	System.out.println("different sequence!");
-    }
-    // */
+    */
   }
 	
-  //ready to be enqueued
-	public GenericDOF2Event(float x, float y) {
+	//ready to be enqueued
+	public THDOF3Event(float x, float y, float z) {
     super();
     this.x = x;
 		this.dx = 0f;
     this.y = y;
     this.dy = 0f;
+    this.z = z;
+    this.dz = 0f;
     this.button = TH_NOBUTTON;
 	}
 
 	//idem
-	public GenericDOF2Event(GenericDOF2Event prevEvent, float x, float y) {
+	public THDOF3Event(THDOF3Event prevEvent, float x, float y, float z) {
     super();
-		this.x = x;
+    this.x = x;
 		this.dx = 0f;
     this.y = y;
     this.dy = 0f;
+    this.z = z;
+    this.dz = 0f;
     this.button = TH_NOBUTTON;
     setPreviousEvent(prevEvent);
-  }
-  
-  protected GenericDOF2Event(GenericDOF2Event other) {
+	}
+	 
+  protected THDOF3Event(THDOF3Event other) {
   	super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
   	this.y = new Float(other.y);
   	this.dy = new Float(other.dy);
+  	this.z = new Float(other.z);
+  	this.dz = new Float(other.z);
 	}
   
   @Override
-	public GenericDOF2Event get() {
-		return new GenericDOF2Event(this);
+	public THDOF3Event get() {
+		return new THDOF3Event(this);
 	}
   
   @Override
-  public void setPreviousEvent(GenericMotionEvent prevEvent) {
+  public void setPreviousEvent(THMotionEvent prevEvent) {
+  	super.setPreviousEvent(prevEvent);
   	if(prevEvent!=null)
-  		if(prevEvent instanceof GenericDOF2Event)	{
-  			this.dx = this.getX() - ((GenericDOF2Event) prevEvent).getX();
-  			this.dy = this.getY() - ((GenericDOF2Event) prevEvent).getY();
-  			distance = Util.distance(x, y, ((GenericDOF2Event) prevEvent).getX(), ((GenericDOF2Event) prevEvent).getY());  			
+  		if(prevEvent instanceof THDOF3Event)	{
+  			this.dx = this.getX() - ((THDOF3Event) prevEvent).getX();
+  			this.dy = this.getY() - ((THDOF3Event) prevEvent).getY();
+  			this.dz = this.getZ() - ((THDOF3Event) prevEvent).getZ();
+  			distance = Util.distance(x, y, z, ((THDOF3Event) prevEvent).getX(), ((THDOF3Event) prevEvent).getY(), ((THDOF3Event) prevEvent).getZ());
   			delay = this.timestamp() - prevEvent.timestamp();
   			if(delay==0)
   				speed = distance;
@@ -152,6 +149,7 @@ public class GenericDOF2Event extends GenericMotionEvent {
   	else {
   		this.dx = 0f;
   		this.dy = 0f;
+  		this.dz = 0f;
   		delay = 0;
 			speed = 0;
 			distance = 0;
@@ -182,42 +180,47 @@ public class GenericDOF2Event extends GenericMotionEvent {
   	return getY() - getDY();
   }
   
+  public float getZ() {
+    return z;
+  }
+  
+  public float getDZ() {
+    return dz;
+  }
+  
+  public float getPrevZ() {
+  	return getZ() - getDZ();
+  }
+  
 	@Override
 	public void modulate(float [] sens) {
 		if(sens != null)
-		if(sens.length>=2 && this.absolute()) {
+		if(sens.length>=3 && this.absolute()) {
 			x = x*sens[0];
 			y = y*sens[1];
+			z = z*sens[2];
 		}
 	}
 	
 	@Override
 	public boolean isNull() {
-  	if(relative() && Util.zero(getDX()) && Util.zero(getDY()))
+  	if(relative() && Util.zero(getDX()) && Util.zero(getDY()) && Util.zero(getDZ()))
   			return true;
-  	if(absolute() && Util.zero(getX()) && Util.zero(getY()))
+  	if(absolute() && Util.zero(getX()) && Util.zero(getY()) && Util.zero(getZ()))
   		return true;
   	return false;
   }
 	
-	public GenericDOF1Event genericDOF1Event(boolean fromX) {
-		GenericDOF1Event pe1;
-		GenericDOF1Event e1;
-		if (fromX) {
-			if (relative()) {
-				pe1 = new GenericDOF1Event(getPrevX(), getModifiers(), getButton());
-				e1 = new GenericDOF1Event(pe1, getX(), getModifiers(), getButton());
-			} else {
-				e1 = new GenericDOF1Event(getX(), getModifiers(), getButton());
-			}
-		} else {
-			if (relative()) {
-				pe1 = new GenericDOF1Event(getPrevY(), getModifiers(), getButton());
-				e1 = new GenericDOF1Event(pe1, getY(), getModifiers(), getButton());
-			} else {
-				e1 = new GenericDOF1Event(getY(), getModifiers(), getButton());
-			}
-		}
-		return e1;
-	}
+	public THDOF2Event genericDOF2Event() {
+		THDOF2Event pe2;
+		THDOF2Event e2;
+  	if(relative()) {  		
+  			pe2 = new THDOF2Event(getPrevX(), getPrevY(), getModifiers(), getButton());
+  			e2 = new THDOF2Event(pe2, getX(), getY(), getModifiers(), getButton());  		
+  	}
+  	else {
+  		e2 = new THDOF2Event(getX(), getY(), getModifiers(), getButton()); 
+  	}
+  	return e2;
+  }
 }

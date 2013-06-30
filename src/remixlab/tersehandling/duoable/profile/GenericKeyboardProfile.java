@@ -24,7 +24,7 @@
 
 package remixlab.tersehandling.duoable.profile;
 
-import remixlab.tersehandling.event.GenericKeyboardEvent;
+import remixlab.tersehandling.event.THKeyboardEvent;
 import remixlab.tersehandling.shortcut.KeyboardShortcut;
 
 public class GenericKeyboardProfile<A extends Actionable<?>>  extends GenericProfile<KeyboardShortcut, A> {
@@ -63,7 +63,7 @@ public class GenericKeyboardProfile<A extends Actionable<?>>  extends GenericPro
 	 * @see #setShortcut(Integer, Integer, Scene.A)
 	 */
 	public void setShortcut(Integer mask, Character key, A action) {
-		setShortcut(mask, GenericKeyboardEvent.getKeyCode(key), action);
+		setShortcut(mask, THKeyboardEvent.getKeyCode(key), action);
 	}
 	
 	/**
@@ -119,7 +119,7 @@ public class GenericKeyboardProfile<A extends Actionable<?>>  extends GenericPro
 	 * @see #removeShortcut(Integer, Integer)
 	 */
 	public void removeShortcut(Integer mask, Character key) {
-		removeShortcut(mask, GenericKeyboardEvent.getKeyCode(key));
+		removeShortcut(mask, THKeyboardEvent.getKeyCode(key));
 	}
 	
 	/**
@@ -182,7 +182,7 @@ public class GenericKeyboardProfile<A extends Actionable<?>>  extends GenericPro
    * @see #shortcut(Integer, Integer)
    */
 	public Actionable<?> shortcut(Integer mask, Character key) {
-		return shortcut(mask, GenericKeyboardEvent.getKeyCode(key));
+		return shortcut(mask, THKeyboardEvent.getKeyCode(key));
 	}
 
 	/**
@@ -215,7 +215,7 @@ public class GenericKeyboardProfile<A extends Actionable<?>>  extends GenericPro
 	 * @see #isKeyInUse(Integer, Integer)
 	 */
 	public boolean isKeyInUse(Integer mask, Character key) {
-		return isKeyInUse(mask, GenericKeyboardEvent.getKeyCode(key));
+		return isKeyInUse(mask, THKeyboardEvent.getKeyCode(key));
 	}
 	
 	/**

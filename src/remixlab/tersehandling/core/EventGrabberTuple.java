@@ -26,13 +26,13 @@ package remixlab.tersehandling.core;
 
 import java.util.LinkedList;
 
-import remixlab.tersehandling.event.GenericEvent;
+import remixlab.tersehandling.event.THEvent;
 
 public class EventGrabberTuple {
-	protected GenericEvent event;
+	protected THEvent event;
 	protected Grabbable grabber;
 	
-	public EventGrabberTuple(GenericEvent e, Grabbable g) {
+	public EventGrabberTuple(THEvent e, Grabbable g) {
 		event = e;
 		grabber = g;
 	}
@@ -45,7 +45,7 @@ public class EventGrabberTuple {
   	return false;
   }
   
-  public GenericEvent event() {
+  public THEvent event() {
   	return event;
   }
   

@@ -28,7 +28,7 @@ package remixlab.dandelion.event;
 import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.duoable.profile.Duoble;
-import remixlab.tersehandling.event.GenericDOF3Event;
+import remixlab.tersehandling.event.THDOF3Event;
 
 /**
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -37,10 +37,10 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 //TODO implement equals and hash including the action
 //see commented lines in GenericEvent
-public class DOF3Event extends GenericDOF3Event implements Constants, Duoble<Constants.DOF_3Action> {
+public class DOF3Event extends THDOF3Event implements Constants, Duoble<Constants.DOF_3Action> {
 	DOF_3Action action;
 	
-	public DOF3Event(GenericDOF3Event genEvent, DOF_3Action a) {
+	public DOF3Event(THDOF3Event genEvent, DOF_3Action a) {
 		super(genEvent);
 		action = a;
 	}
@@ -59,25 +59,25 @@ public class DOF3Event extends GenericDOF3Event implements Constants, Duoble<Con
 		action = a;
 	}
 
-  public DOF3Event(GenericDOF3Event prevEvent, float x, float y, float z, int modifiers, int button) {
+  public DOF3Event(THDOF3Event prevEvent, float x, float y, float z, int modifiers, int button) {
 		super(prevEvent, x, y, z, modifiers, button);
 	}
   
-  public DOF3Event(GenericDOF3Event prevEvent, float x, float y, float z, int modifiers, int button, DOF_3Action a) {
+  public DOF3Event(THDOF3Event prevEvent, float x, float y, float z, int modifiers, int button, DOF_3Action a) {
 		super(prevEvent, x, y, z, modifiers, button);
 		action = a;
 	}
 	
-  public DOF3Event(GenericDOF3Event prevEvent, float x, float y, float z, DOF_3Action a) {
+  public DOF3Event(THDOF3Event prevEvent, float x, float y, float z, DOF_3Action a) {
 		super(prevEvent, x, y, z);
 		action = a;
 	}
   
-  public DOF3Event(GenericDOF3Event prevEvent, float x, float y, float z) {
+  public DOF3Event(THDOF3Event prevEvent, float x, float y, float z) {
 		super(prevEvent, x, y, z);
 	}
 	
-  protected DOF3Event(GenericDOF3Event other) {
+  protected DOF3Event(THDOF3Event other) {
 		super(other);
 	}
 

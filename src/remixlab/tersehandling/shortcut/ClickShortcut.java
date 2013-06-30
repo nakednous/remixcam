@@ -28,7 +28,7 @@ import com.flipthebird.gwthashcodeequals.*;
 
 //import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.core.Copyable;
-import remixlab.tersehandling.event.GenericEvent;
+import remixlab.tersehandling.event.THEvent;
 
 /**
  * This class represents agent click shortcuts.
@@ -153,7 +153,7 @@ public class ClickShortcut extends Shortcut implements Copyable {
 	public String description() {
 		String description = new String();
 		if(mask != 0)
-			description += GenericEvent.getModifiersText(mask) + " + " + button.toString() + "_BUTTON";
+			description += THEvent.getModifiersText(mask) + " + " + button.toString() + "_BUTTON";
 		if(numberOfClicks==1)
 		  description += " + " + numberOfClicks.toString() + " click";
 		else

@@ -76,15 +76,15 @@ public class GenericWheeledMouseAgent<W extends GenericMotionProfile<Constants.D
 	*/
 	
 	@Override
-	public void handle(GenericEvent event) {
+	public void handle(THEvent event) {
 		//TODO warning: should be copy pasted from AbstractMotionDevice
 		if(event == null || !handler.isAgentRegistered(this))	return;
 		if(event instanceof Duoble<?>) {
-			if(event instanceof GenericClickEvent)
+			if(event instanceof THClickEvent)
 				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), grabber()));
 			else
-				if(event instanceof GenericMotionEvent) {
-					((GenericMotionEvent)event).modulate(sens);
+				if(event instanceof THMotionEvent) {
+					((THMotionEvent)event).modulate(sens);
 					if(trackedGrabber() != null )
 						if( event instanceof DOF1Event )
 							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameWheelProfile().handle((Duoble<?>)event), trackedGrabber()));

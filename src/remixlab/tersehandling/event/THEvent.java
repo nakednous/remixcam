@@ -31,7 +31,7 @@ import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.shortcut.Shortcut;
 
-public class GenericEvent implements EventConstants, Copyable {
+public class THEvent implements EventConstants, Copyable {
 	//TODO fix modifiers!
 	@Override
 	public int hashCode() {
@@ -48,7 +48,7 @@ public class GenericEvent implements EventConstants, Copyable {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;		
 		
-		GenericEvent other = (GenericEvent) obj;
+		THEvent other = (THEvent) obj;
 	  return new EqualsBuilder()		
 		//.append(action, other.action)
 		.append(modifiers, other.modifiers)
@@ -60,27 +60,27 @@ public class GenericEvent implements EventConstants, Copyable {
   protected final Integer modifiers;
   protected final Long timestamp;
   
-  public GenericEvent() {
+  public THEvent() {
     this.modifiers = 0;
     //this.action = null;
     timestamp = System.currentTimeMillis();
   }
  
-  public GenericEvent(Integer modifiers) {
+  public THEvent(Integer modifiers) {
     this.modifiers = modifiers;
     //this.action = null;
     timestamp = System.currentTimeMillis();
   }  
   
-  protected GenericEvent(GenericEvent other) {
+  protected THEvent(THEvent other) {
 		this.modifiers = new Integer(other.modifiers);
 		//this.action = other.action;
 		this.timestamp = new Long(System.currentTimeMillis());
 	}  
   
   @Override
-	public GenericEvent get() {
-		return new GenericEvent(this);
+	public THEvent get() {
+		return new THEvent(this);
 	}
   
   public Shortcut shortcut() {

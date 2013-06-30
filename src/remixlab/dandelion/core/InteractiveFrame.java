@@ -332,13 +332,13 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * {@link #position()}.
 	 */
 	@Override
-	public boolean checkIfGrabsInput(GenericEvent event) {
+	public boolean checkIfGrabsInput(THEvent event) {
 		int x=0, y=0;
-		if(event instanceof GenericDOF2Event) {
+		if(event instanceof THDOF2Event) {
 			//x = scene.cursorX - scene.upperLeftCorner.getX();
 			//y = scene.cursorY - scene.upperLeftCorner.getY();
-			x = (int)((GenericDOF2Event)event).getX();
-			y = (int)((GenericDOF2Event)event).getY();
+			x = (int)((THDOF2Event)event).getX();
+			y = (int)((THDOF2Event)event).getY();
 		}
 		Vec proj = scene.pinhole().projectedCoordinatesOf(position());
 		return ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold()));
@@ -728,12 +728,12 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	*/
 	
 	@Override
-	public void performInteraction(GenericEvent e) {
+	public void performInteraction(THEvent e) {
 		stopSpinning();
 		
 		if(e == null) return;
 		
-		if(e instanceof GenericKeyboardEvent || e instanceof GenericClickEvent)
+		if(e instanceof THKeyboardEvent || e instanceof THClickEvent)
 			scene.performInteraction(e);
 		
 		Duoble<?> event;
@@ -758,20 +758,20 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		if( ( scene.is2D() ) && ( !event.getAction().is2D() ) )
 			return;
 		
-		if( event instanceof GenericMotionEvent) {
+		if( event instanceof THMotionEvent) {
 			if( scene.is2D() )
-				execAction2D((GenericMotionEvent)event);
+				execAction2D((THMotionEvent)event);
 			else
-				execAction3D((GenericMotionEvent)event);
+				execAction3D((THMotionEvent)event);
 		}
 	}
 	
 	//TODO implement me
-	protected void execAction2D(GenericMotionEvent event) {
+	protected void execAction2D(THMotionEvent event) {
 	}
 	
   //TODO implement me
-	protected void execAction3D(GenericMotionEvent e) {
+	protected void execAction3D(THMotionEvent e) {
 		Actionable<DLAction> a=null;
 		if(e instanceof DOF1Event)
 			a = ((DOF1Event) e).getAction();

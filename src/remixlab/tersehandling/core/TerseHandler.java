@@ -30,7 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 //import remixlab.duoable.profile.Duoble;
-import remixlab.tersehandling.event.GenericEvent;
+import remixlab.tersehandling.event.THEvent;
 
 public class TerseHandler {
   //D E V I C E S	  &   E V E N T S
@@ -152,7 +152,7 @@ public class TerseHandler {
 	 * @see #registerProfile(AbstractHIDevice)
 	 * @see #removeAllDevices()
 	 */
-	public void removeEventTuple(GenericEvent event) {
+	public void removeEventTuple(THEvent event) {
 		eventTupleQueue.remove(event);
 	}
 	

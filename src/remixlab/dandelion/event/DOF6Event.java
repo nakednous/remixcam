@@ -28,7 +28,7 @@ package remixlab.dandelion.event;
 import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.duoable.profile.Duoble;
-import remixlab.tersehandling.event.GenericDOF6Event;
+import remixlab.tersehandling.event.THDOF6Event;
 
 /**
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -37,10 +37,10 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 //TODO implement equals and hash including the action
 //see commented lines in GenericEvent
-public class DOF6Event extends GenericDOF6Event implements Constants, Duoble<Constants.DOF_6Action> {
+public class DOF6Event extends THDOF6Event implements Constants, Duoble<Constants.DOF_6Action> {
 	DOF_6Action action;
 	
-	public DOF6Event(GenericDOF6Event genEvent, DOF_6Action a) {
+	public DOF6Event(THDOF6Event genEvent, DOF_6Action a) {
 		super(genEvent);
 		action = a;
 	}
@@ -54,20 +54,20 @@ public class DOF6Event extends GenericDOF6Event implements Constants, Duoble<Con
 		action = a;
 	}
 	
-	public DOF6Event(GenericDOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
+	public DOF6Event(THDOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
 		super(prevEvent, x, y, z, rx, ry, rz, modifiers, button);
 	}
 	
-	public DOF6Event(GenericDOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, DOF_6Action a) {
+	public DOF6Event(THDOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, DOF_6Action a) {
 		super(prevEvent, x, y, z, rx, ry, rz);
 		action = a;
 	}
 	
-	public DOF6Event(GenericDOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz) {
+	public DOF6Event(THDOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz) {
 		super(prevEvent, x, y, z, rx, ry, rz);
 	}
 	
-	protected DOF6Event(GenericDOF6Event other) {
+	protected DOF6Event(THDOF6Event other) {
 		super(other);
 	}
 

@@ -28,7 +28,7 @@ package remixlab.dandelion.event;
 import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.duoable.profile.Duoble;
-import remixlab.tersehandling.event.GenericClickEvent;
+import remixlab.tersehandling.event.THClickEvent;
 
 /**
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -37,14 +37,14 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 //TODO implement equals and hash including the action
 // see commented lines in GenericEvent
-public class ClickEvent extends GenericClickEvent implements Constants, Duoble<Constants.DOF_0Action> {
+public class ClickEvent extends THClickEvent implements Constants, Duoble<Constants.DOF_0Action> {
 	Constants.DOF_0Action action;
 	
-	public ClickEvent(GenericClickEvent gEvent) {
+	public ClickEvent(THClickEvent gEvent) {
 		super(gEvent);
 	}
 	
-	public ClickEvent(GenericClickEvent gEvent, DOF_0Action a) {
+	public ClickEvent(THClickEvent gEvent, DOF_0Action a) {
 		super(gEvent);
 		action = a;
 	}

@@ -28,7 +28,7 @@ package remixlab.dandelion.event;
 import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.duoable.profile.Duoble;
-import remixlab.tersehandling.event.GenericDOF2Event;
+import remixlab.tersehandling.event.THDOF2Event;
 /**
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
@@ -36,19 +36,19 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 //TODO implement equals and hash including the action
 //see commented lines in GenericEvent
-public class DOF2Event extends GenericDOF2Event implements Constants, Duoble<Constants.DOF_2Action> {	
+public class DOF2Event extends THDOF2Event implements Constants, Duoble<Constants.DOF_2Action> {	
 	DOF_2Action action;
 	
-	public DOF2Event(GenericDOF2Event genEvent, DOF_2Action a) {
+	public DOF2Event(THDOF2Event genEvent, DOF_2Action a) {
 		super(genEvent);
 		action = a;
 	}
 	
-	public DOF2Event(GenericDOF2Event prevEvent, float x, float y) {
+	public DOF2Event(THDOF2Event prevEvent, float x, float y) {
 		super(prevEvent, x, y);
 	}
 	
-	public DOF2Event(GenericDOF2Event prevEvent, float x, float y, DOF_2Action a) {
+	public DOF2Event(THDOF2Event prevEvent, float x, float y, DOF_2Action a) {
 		super(prevEvent, x, y);
 		action = a;
 	}
@@ -62,11 +62,11 @@ public class DOF2Event extends GenericDOF2Event implements Constants, Duoble<Con
 		action = a;
 	}
 	
-	public DOF2Event(GenericDOF2Event prevEvent, float x, float y, int modifiers, int button) {
+	public DOF2Event(THDOF2Event prevEvent, float x, float y, int modifiers, int button) {
 		super(prevEvent, x, y, modifiers, button);
 	}
 	
-	public DOF2Event(GenericDOF2Event prevEvent, float x, float y, int modifiers, int button, DOF_2Action a) {
+	public DOF2Event(THDOF2Event prevEvent, float x, float y, int modifiers, int button, DOF_2Action a) {
 		super(prevEvent, x, y, modifiers, button);
 		action = a;
 	}

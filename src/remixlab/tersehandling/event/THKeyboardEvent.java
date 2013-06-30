@@ -32,7 +32,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.tersehandling.shortcut.KeyboardShortcut;
 
-public class GenericKeyboardEvent extends GenericEvent {
+public class THKeyboardEvent extends THEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -48,7 +48,7 @@ public class GenericKeyboardEvent extends GenericEvent {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		GenericKeyboardEvent other = (GenericKeyboardEvent) obj;
+		THKeyboardEvent other = (THKeyboardEvent) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
     .append(key, other.key)
@@ -128,44 +128,44 @@ public class GenericKeyboardEvent extends GenericEvent {
   protected Character key;
   protected Integer vKey;
   
-  public GenericKeyboardEvent() {
+  public THKeyboardEvent() {
   	this.key = null;
   	this.vKey = null;
   }
   
-  public GenericKeyboardEvent(Integer modifiers, Character c, Integer vk) {
+  public THKeyboardEvent(Integer modifiers, Character c, Integer vk) {
     super(modifiers);
     this.vKey = vk;
     this.key = c;
   }
   
-  public GenericKeyboardEvent(Integer modifiers, Character c) {
+  public THKeyboardEvent(Integer modifiers, Character c) {
     super(modifiers);
     this.key = c;
     this.vKey = null;
   }
   
-  public GenericKeyboardEvent(Integer modifiers, Integer vk) {
+  public THKeyboardEvent(Integer modifiers, Integer vk) {
     super(modifiers);
     this.key = null;
     this.vKey = vk;
   }
   
-  public GenericKeyboardEvent(Character c) {
+  public THKeyboardEvent(Character c) {
   	super();
     this.key = c;
     this.vKey = null;
   }
   
-  protected GenericKeyboardEvent(GenericKeyboardEvent other) {
+  protected THKeyboardEvent(THKeyboardEvent other) {
   	super(other);
 		this.key = new Character(other.key);
 		this.vKey = new Integer(other.vKey);
 	}
   
   @Override
-	public GenericKeyboardEvent get() {
-		return new GenericKeyboardEvent(this);
+	public THKeyboardEvent get() {
+		return new THKeyboardEvent(this);
 	}
   
   @Override
