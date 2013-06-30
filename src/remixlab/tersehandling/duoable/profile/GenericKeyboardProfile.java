@@ -27,7 +27,7 @@ package remixlab.tersehandling.duoable.profile;
 import remixlab.tersehandling.event.GenericKeyboardEvent;
 import remixlab.tersehandling.shortcut.KeyboardShortcut;
 
-public abstract class AbstractKeyboardProfile<A extends Actionable<?>>  extends AbstractProfile<KeyboardShortcut, A> {
+public class GenericKeyboardProfile<A extends Actionable<?>>  extends GenericProfile<KeyboardShortcut, A> {
 	///**
 	public Actionable<?> handleKey(KeyDuoble<?> event) {
 	//public void handleKey(DLKeyEvent e) {

@@ -78,6 +78,7 @@ public class DOF2Event extends GenericDOF2Event implements Constants, Duoble<Con
 	
 	protected DOF2Event(DOF2Event other) {
 		super(other);
+		action = other.getAction();
 	}
 	
 	@Override

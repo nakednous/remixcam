@@ -23,19 +23,20 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.dandelion.profile;
+package remixlab.dandelion.agent;
 
-import remixlab.dandelion.agent.BiMotionAgent;
 import remixlab.dandelion.core.AbstractScene;
+import remixlab.dandelion.core.Constants;
 import remixlab.dandelion.core.InteractiveCameraFrame;
 import remixlab.dandelion.core.InteractiveFrame;
 import remixlab.tersehandling.core.Grabbable;
+import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 
-public class DOF3Device extends BiMotionAgent {
+public class DOF3Device extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF_3Action>> {
 	public DOF3Device(AbstractScene scn, String n) {
 		super(scn.terseHandler(), n);
-		camProfile = new DOF3Profile();
-		profile = new DOF3Profile();
+		camProfile = new GenericMotionProfile<Constants.DOF_3Action>();
+		profile = new GenericMotionProfile<Constants.DOF_3Action>();
 		sens = new float[3];
 		sens[0] = 1f;
 		sens[1] = 1f;
@@ -43,13 +44,13 @@ public class DOF3Device extends BiMotionAgent {
 	}
 	
 	@Override
-	public DOF3Profile cameraProfile() {
-		return (DOF3Profile)camProfile;
+	public GenericMotionProfile<Constants.DOF_3Action> cameraProfile() {
+		return camProfile;
 	}
 	
 	@Override
-	public DOF3Profile frameProfile() {
-		return (DOF3Profile)profile;
+	public GenericMotionProfile<Constants.DOF_3Action> frameProfile() {
+		return profile;
 	}
 	
 	@Override

@@ -27,17 +27,17 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.event.DOF6Event;
-import remixlab.dandelion.profile.ClickProfile;
-import remixlab.dandelion.profile.DOF6Profile;
 import remixlab.tersehandling.core.Grabbable;
+import remixlab.tersehandling.duoable.profile.GenericClickProfile;
+import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 
-public class HIDAgent extends BiMotionAgent implements Constants {
+public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF_6Action>> implements Constants {
 	public HIDAgent(AbstractScene scn, String n) {
 		super(scn.terseHandler(), n);
 		setDefaultGrabber(scn.pinhole().frame());
-		camProfile = new DOF6Profile();
-		profile = new DOF6Profile();
-		clickProfile = new ClickProfile();
+		camProfile = new GenericMotionProfile<Constants.DOF_6Action>();
+		profile = new GenericMotionProfile<Constants.DOF_6Action>();
+		clickProfile = new GenericClickProfile<Constants.DOF_0Action>();
 		sens = new float[6];
 		sens[0] = 1f;
 		sens[1] = 1f;
@@ -55,18 +55,18 @@ public class HIDAgent extends BiMotionAgent implements Constants {
 	}
 	
 	@Override
-	public DOF6Profile cameraProfile() {
-		return (DOF6Profile)camProfile;
+	public GenericMotionProfile<Constants.DOF_6Action> cameraProfile() {
+		return camProfile;
 	}
 	
 	@Override
-	public DOF6Profile frameProfile() {
-		return (DOF6Profile)profile;
+	public GenericMotionProfile<Constants.DOF_6Action> frameProfile() {
+		return profile;
 	}
 	
 	@Override
-	public ClickProfile clickProfile() {
-		return (ClickProfile)clickProfile;
+	public GenericClickProfile<Constants.DOF_0Action> clickProfile() {
+		return clickProfile;
 	}
 	
 	@Override

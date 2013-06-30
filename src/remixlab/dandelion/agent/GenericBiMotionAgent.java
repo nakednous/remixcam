@@ -25,42 +25,43 @@
 
 package remixlab.dandelion.agent;
 
+import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.core.TerseHandler;
-import remixlab.tersehandling.duoable.agent.MotionAgent;
-import remixlab.tersehandling.duoable.profile.AbstractClickProfile;
-import remixlab.tersehandling.duoable.profile.AbstractMotionProfile;
+import remixlab.tersehandling.duoable.agent.GenericMotionAgent;
+import remixlab.tersehandling.duoable.profile.GenericClickProfile;
+import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 import remixlab.tersehandling.duoable.profile.Duoble;
 import remixlab.tersehandling.event.*;
 
-public class BiMotionAgent extends MotionAgent {
-	protected AbstractMotionProfile<?> camProfile;
+public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends GenericMotionAgent<P, GenericClickProfile<Constants.DOF_0Action>> {
+	protected P camProfile;
 	protected float[] sens;
 	
-	public BiMotionAgent(TerseHandler scn, String n) {
+	public GenericBiMotionAgent(TerseHandler scn, String n) {
 		super(scn, n);	
 	}
 	
-	public AbstractMotionProfile<?> cameraProfile() {
+	public P cameraProfile() {
 		return camProfile;
 	}
 	
-	public AbstractMotionProfile<?> frameProfile() {
-		return (AbstractMotionProfile<?>) profile();
+	public P frameProfile() {
+		return profile();
 	}
 	
-	public AbstractClickProfile<?> clickProfile() {
+	public GenericClickProfile<Constants.DOF_0Action> clickProfile() {
 		return clickProfile;
 	}
 	
-	public void setCameraProfile(AbstractMotionProfile<?>	profile) {
+	public void setCameraProfile(P profile) {
 		camProfile = profile;
 	}
 	
-	public void setFrameProfile(AbstractMotionProfile<?> profile) {
+	public void setFrameProfile(P profile) {
 		setProfile(profile);
 	}
 	
-	public void setClickProfile(AbstractClickProfile<?> profile) {
+	public void setClickProfile(GenericClickProfile<Constants.DOF_0Action> profile) {
 		clickProfile = profile;
 	}
 	

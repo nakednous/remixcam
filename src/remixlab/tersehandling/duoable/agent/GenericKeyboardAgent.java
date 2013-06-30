@@ -25,21 +25,21 @@
 package remixlab.tersehandling.duoable.agent;
 
 import remixlab.tersehandling.core.TerseHandler;
-import remixlab.tersehandling.duoable.profile.AbstractKeyboardProfile;
+import remixlab.tersehandling.duoable.profile.GenericKeyboardProfile;
 import remixlab.tersehandling.duoable.profile.Duoble;
 import remixlab.tersehandling.duoable.profile.KeyDuoble;
 import remixlab.tersehandling.event.GenericEvent;
 
-public class KeyboardAgent extends ActionableAgent {	
-	public KeyboardAgent(TerseHandler scn, String n) {
+public class GenericKeyboardAgent<K extends GenericKeyboardProfile<?>> extends GenericActionableAgent<K> {	
+	public GenericKeyboardAgent(TerseHandler scn, String n) {
 		super(scn, n);
 	}
 	
-	public AbstractKeyboardProfile<?> keyboardProfile() {
-		return (AbstractKeyboardProfile<?>) profile();
+	public K keyboardProfile() {
+		return profile();
 	}
 
-	public void setKeyboardProfile(AbstractKeyboardProfile<?> kprofile) {
+	public void setKeyboardProfile(K kprofile) {
 		setProfile(profile);
 	}
 	

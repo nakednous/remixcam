@@ -24,19 +24,35 @@
 
 package remixlab.tersehandling.duoable.profile;
 
+import java.util.Map;
+
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.shortcut.*;
 
-public abstract class AbstractProfile<K extends Shortcut, A extends Actionable<?>> implements EventConstants, Copyable {
+public class GenericProfile<K extends Shortcut, A extends Actionable<?>> implements EventConstants, Copyable {
 	/**
 	protected AbstractScene scene;
 	protected String nm;
 	*/
 	protected Bindings<K, A> bindings;
 	
-	public AbstractProfile() {
+	public GenericProfile() {
 		bindings = new Bindings<K, A>();
+	}
+	
+	protected GenericProfile(GenericProfile<K, A> other) {
+		bindings = new Bindings<K, A>();    
+    for (Map.Entry<K, A> entry : other.bindings.map().entrySet()) {
+    	K key = entry.getKey();
+    	A value = entry.getValue();
+    	bindings.setBinding(key, value);
+    }
+	}
+	
+	@Override
+	public GenericProfile<K,A> get() {
+		return new GenericProfile<K, A>(this);
 	}
 	
 	/**

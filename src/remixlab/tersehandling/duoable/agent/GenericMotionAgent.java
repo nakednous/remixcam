@@ -2,32 +2,32 @@ package remixlab.tersehandling.duoable.agent;
 
 
 import remixlab.tersehandling.core.TerseHandler;
-import remixlab.tersehandling.duoable.profile.AbstractClickProfile;
-import remixlab.tersehandling.duoable.profile.AbstractMotionProfile;
+import remixlab.tersehandling.duoable.profile.GenericClickProfile;
+import remixlab.tersehandling.duoable.profile.GenericProfile;
 import remixlab.tersehandling.duoable.profile.Duoble;
 import remixlab.tersehandling.event.*;
 
-public class MotionAgent extends ActionableAgent {
-	protected AbstractClickProfile<?> clickProfile;
+public class GenericMotionAgent<P extends GenericProfile<?,?>, C extends GenericClickProfile<?>> extends GenericActionableAgent<P> {
+	protected C clickProfile;
 	protected float[] sens;
 	
-	public MotionAgent(TerseHandler scn, String n) {
-		super(scn, n);	
+	public GenericMotionAgent(TerseHandler scn, String n) {
+		super(scn, n);
 	}
 	
-	public AbstractMotionProfile<?> motionProfile() {
-		return (AbstractMotionProfile<?>) profile();
+	public P motionProfile() {
+		return profile();
 	}
 	
-	public AbstractClickProfile<?> clickProfile() {
-		return clickProfile;
-	}
-	
-	public void setMotionProfile(AbstractMotionProfile<?> profile) {
+	public void setMotionProfile(P profile) {
 		setProfile(profile);
 	}
 	
-	public void setClickProfile(AbstractClickProfile<?> profile) {
+	public C clickProfile() {
+		return clickProfile;
+	}
+	
+	public void setClickProfile(C profile) {
 		clickProfile = profile;
 	}
 	

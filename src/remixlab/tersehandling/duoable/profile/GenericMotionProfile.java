@@ -26,7 +26,7 @@ package remixlab.tersehandling.duoable.profile;
 
 import remixlab.tersehandling.shortcut.*;
 
-public abstract class AbstractMotionProfile<A extends Actionable<?>> extends AbstractProfile<ButtonShortcut, A> {
+public class GenericMotionProfile<A extends Actionable<?>> extends GenericProfile<ButtonShortcut, A> {
 	/**
 	public AbstractMotionProfile(AbstractScene scn, String n) {
 		super(scn, n);

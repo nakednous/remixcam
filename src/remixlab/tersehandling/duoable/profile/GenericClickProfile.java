@@ -26,7 +26,7 @@ package remixlab.tersehandling.duoable.profile;
 
 import remixlab.tersehandling.shortcut.ClickShortcut;
 
-public abstract class AbstractClickProfile<A extends Actionable<?>> extends AbstractProfile<ClickShortcut, A> {
+public class GenericClickProfile<A extends Actionable<?>> extends GenericProfile<ClickShortcut, A> {
   /**
    * Returns true if the given binding binds a click-action.
    *      

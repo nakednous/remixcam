@@ -28,14 +28,14 @@ package remixlab.dandelion.agent;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.core.Constants.DOF_0Action;
 import remixlab.dandelion.event.KeyboardEvent;
-import remixlab.dandelion.profile.KeyboardProfile;
-import remixlab.tersehandling.duoable.agent.KeyboardAgent;
+import remixlab.tersehandling.duoable.agent.GenericKeyboardAgent;
+import remixlab.tersehandling.duoable.profile.GenericKeyboardProfile;
 
 //TODO find a better name for this
-public class P5KeyboardAgent extends KeyboardAgent {
+public class P5KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<Constants.DOF_0Action>> {
 	public P5KeyboardAgent(AbstractScene scn, String n) {
 		super(scn.terseHandler(), n);
-		profile = new KeyboardProfile();
+		profile = new GenericKeyboardProfile<Constants.DOF_0Action>();
 		setDefaultGrabber(scn);
 
 		// D e f a u l t s h o r t c u t s
@@ -74,7 +74,7 @@ public class P5KeyboardAgent extends KeyboardAgent {
 	}
 
 	@Override
-	public KeyboardProfile keyboardProfile() {
-		return (KeyboardProfile)profile;
+	public GenericKeyboardProfile<Constants.DOF_0Action> keyboardProfile() {
+		return profile;
 	}
 }

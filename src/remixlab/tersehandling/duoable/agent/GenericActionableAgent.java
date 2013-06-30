@@ -30,12 +30,12 @@ import remixlab.tersehandling.core.Agent;
 import remixlab.tersehandling.core.EventGrabberTuple;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.TerseHandler;
-import remixlab.tersehandling.duoable.profile.AbstractProfile;
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.duoable.profile.Duoble;
+import remixlab.tersehandling.duoable.profile.GenericProfile;
 import remixlab.tersehandling.event.GenericEvent;
 
-public class ActionableAgent extends Agent {
+public class GenericActionableAgent<P extends GenericProfile<?,?>> extends Agent {
 	public class EventGrabberDuobleTuple extends EventGrabberTuple {
 		public EventGrabberDuobleTuple(GenericEvent e, Actionable<?> a, Grabbable g) {
 	  	super(e,g);
@@ -62,17 +62,17 @@ public class ActionableAgent extends Agent {
 	  }
 	}
 	
-	protected AbstractProfile<?,?> profile;
+	protected P profile;
 	
-	public ActionableAgent(TerseHandler scn, String n) {
+	public GenericActionableAgent(TerseHandler scn, String n) {
 		super(scn, n);
 	}
 
-	public AbstractProfile<?,?> profile() {
+	public P profile() {
 		return profile;
 	}
 	
-	public void setProfile(AbstractProfile<?,?>	p) {
+	public void setProfile(P	p) {
 		profile = p;
 	}
 	
