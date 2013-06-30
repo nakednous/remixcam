@@ -1,110 +1,14 @@
 import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.duoable.agent.*;
+import remixlab.tersehandling.duoable.event.*;
 import remixlab.tersehandling.duoable.profile.*;
 import remixlab.tersehandling.event.*;
-import remixlab.tersehandling.shortcut.*;
 
-public class ClickProfile extends AbstractClickProfile<ClickAction> implements EventConstants {
-  public ClickProfile() {
-    super();
-  }
-
-  protected ClickProfile(ClickProfile other) {
-    throw new RuntimeException("Processing is not supporting the following code which is perfectly fine in Java");
-    /**
-     bindings = new Bindings<ClickShortcut, ClickAction>();   
-     for (Map.Entry<ClickShortcut, ClickAction> entry : other.bindings.map().entrySet()) {
-     ClickShortcut key = entry.getKey().get();
-     ClickAction value = entry.getValue();
-     bindings.setBinding(key, value);
-     }
-     */
-  }
-
-  @Override
-  public ClickProfile get() {
-    return new ClickProfile(this);
-  }
-}
-
-public class MotionProfile extends AbstractMotionProfile<MotionAction> implements EventConstants {
-  public MotionProfile() {
-    super();
-  }
-
-  protected MotionProfile(MotionProfile other) {
-    throw new RuntimeException("Processing is not supporting the following code which is perfectly fine in Java");
-    /**
-     bindings = new Bindings<ButtonShortcut, MotionAction>();
-     for (Map.Entry<ButtonShortcut, MotionAction> entry : other.bindings.map().entrySet()) {
-     ButtonShortcut key = entry.getKey().get();
-     MotionAction value = entry.getValue();
-     bindings.setBinding(key, value);
-     }
-     */
-  }
-
-  @Override
-  public MotionProfile get() {
-    return new MotionProfile(this);
-  }
-}
-
-public class DOF2Event extends GenericDOF2Event implements Duoble<MotionAction> {
-  MotionAction action;
-
-  public DOF2Event(DOF2Event prevEvent, float x, float y, int modifiers, int button) {
-    super(prevEvent, x, y, modifiers, button);
-  }
-
-  public DOF2Event(float x, float y, int modifiers, int button) {
-    super(x, y, modifiers, button);
-  }
-
-  protected DOF2Event(DOF2Event other) {
-    super(other);
-  }
-
-  @Override
-  public MotionAction getAction() {
-    return action;
-  }
-
-  @Override
-  public void setAction(Actionable<?> a) {
-    if ( a instanceof MotionAction ) action = (MotionAction)a;
-  }
-
-  @Override
-  public DOF2Event get() {
-    return new DOF2Event(this);
-  }
-}
-
-public class ClickEvent extends GenericClickEvent implements Duoble<ClickAction> {
-  public ClickEvent(Integer modifiers, int b, int clicks) {
-    super(modifiers, b, clicks);
-  }
-
-  ClickAction action;
-
-  @Override
-  public ClickAction getAction() {
-    return action;
-  }
-
-  @Override
-  public void setAction(Actionable<?> a) {
-    if ( a instanceof ClickAction ) action = (ClickAction)a;
-  }
-}
-
-public class MouseAgent extends AbstractMotionAgent implements EventConstants {
-  DOF2Event event, prevEvent;
-  public MouseAgent(BasicScene scn, String n) {
-    super(scn, n);
-    clickProfile = new ClickProfile();
-    profile = new MotionProfile();
+public class MouseAgent extends GenericMotionAgent<GenericMotionProfile<MotionAction>, GenericClickProfile<ClickAction>> implements EventConstants {
+  GenericDOF2Event<MotionAction> event, prevEvent;
+  public MouseAgent(TerseHandler scn, String n) {
+    super(new GenericMotionProfile<MotionAction>(), 
+    new GenericClickProfile<ClickAction>(), scn, n);
     //default bindings
     clickProfile().setClickBinding(TH_LEFT, 1, ClickAction.CHANGE_COLOR);
     clickProfile().setClickBinding(TH_RIGHT, 1, ClickAction.CHANGE_STROKE_WEIGHT);
@@ -115,28 +19,18 @@ public class MouseAgent extends AbstractMotionAgent implements EventConstants {
 
   public void mouseEvent(processing.event.MouseEvent e) {      
     if ( e.getAction() == processing.event.MouseEvent.MOVE ) {
-      event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+      event = new GenericDOF2Event<MotionAction>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
       updateGrabber(event);
       prevEvent = event.get();
     }
     if ( e.getAction() == processing.event.MouseEvent.DRAG ) {
-      event = new DOF2Event(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+      event = new GenericDOF2Event<MotionAction>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
       handle(event);
       prevEvent = event.get();
     }
     if ( e.getAction() == processing.event.MouseEvent.CLICK ) {
-      handle(new ClickEvent(e.getModifiers(), e.getButton(), e.getCount()));
+      handle(new GenericClickEvent<ClickAction>(e.getModifiers(), e.getButton(), e.getCount()));
     }
-  }
-
-  @Override
-  public ClickProfile clickProfile() {
-    return (ClickProfile)clickProfile;
-  }
-
-  @Override
-  public MotionProfile profile() {
-    return (MotionProfile)profile;
   }
 }
 
@@ -147,7 +41,7 @@ public class GrabbableCircle extends AbstractGrabber {
   public int contourColour;
   public int sWeight;
 
-  public GrabbableCircle(AbstractAgent agent) {
+  public GrabbableCircle(Agent agent) {
     agent.addInPool(this);
     setColor();
     setPosition();
@@ -155,7 +49,7 @@ public class GrabbableCircle extends AbstractGrabber {
     contourColour = color(255, 255, 255);
   }
 
-  public GrabbableCircle(AbstractAgent agent, PVector c, float r) {
+  public GrabbableCircle(Agent agent, PVector c, float r) {
     agent.addInPool(this);
     radiusX = r;
     radiusY = r;
@@ -205,19 +99,19 @@ public class GrabbableCircle extends AbstractGrabber {
   }
 
   @Override
-  public boolean checkIfGrabsInput(GenericEvent event) {
+  public boolean checkIfGrabsInput(BaseEvent event) {
     if (event instanceof GenericDOF2Event) {
-      float x = ((GenericDOF2Event)event).getX();
-      float y = ((GenericDOF2Event)event).getY();
+      float x = ((GenericDOF2Event<?>)event).getX();
+      float y = ((GenericDOF2Event<?>)event).getY();
       return(pow((x - center.x), 2)/pow(radiusX, 2) + pow((y - center.y), 2)/pow(radiusY, 2) <= 1);
     }      
     return false;
   }
 
   @Override
-  public void performInteraction(GenericEvent event) {
-    if ( event instanceof ClickEvent ) {
-      switch (((ClickEvent) event).getAction()) {
+  public void performInteraction(BaseEvent event) {
+    if ( event instanceof GenericClickEvent<?> ) {        
+      switch ( (ClickAction) ((GenericClickEvent<?>) event).getAction() ) {
         case CHANGE_COLOR:
         contourColour = color(random(100, 255), random(100, 255), random(100, 255));      
         break;
@@ -233,14 +127,14 @@ public class GrabbableCircle extends AbstractGrabber {
         break;
       }
     }
-    if ( event instanceof DOF2Event ) {
-      switch (((DOF2Event) event).getAction()) {
-      case CHANGE_POSITION:
-        setPosition( ((DOF2Event) event).getX(), ((DOF2Event) event).getY() );
+    if ( event instanceof GenericDOF2Event<?> ) {
+      switch ( (MotionAction) ((GenericDOF2Event<?>) event).getAction() ) {
+        case CHANGE_POSITION:
+        setPosition( ((GenericDOF2Event<?>)event).getX(), ((GenericDOF2Event<?>)event).getY() );
         break;
-      case CHANGE_SHAPE:
-        radiusX += ((DOF2Event) event).getDX();
-        radiusY += ((DOF2Event) event).getDY();
+        case CHANGE_SHAPE:
+        radiusX += ((GenericDOF2Event<?>)event).getDX();
+        radiusY += ((GenericDOF2Event<?>)event).getDY();
         break;
       }
     }
@@ -249,14 +143,13 @@ public class GrabbableCircle extends AbstractGrabber {
 
 int w = 800;
 int h = 500;
-
 MouseAgent agent;
-BasicScene scene;
+TerseHandler scene;
 GrabbableCircle [] circles;
 
 public void setup() {
   size(w, h);
-  scene = new BasicScene();
+  scene = new TerseHandler();
   agent = new MouseAgent(scene, "my_mouse");
   registerMethod("mouseEvent", agent);
   circles = new GrabbableCircle[50];
@@ -272,6 +165,6 @@ public void draw() {
     else
       circles[i].draw();
   }
-  scene.terseHandling();
+  scene.handle();
 }
 

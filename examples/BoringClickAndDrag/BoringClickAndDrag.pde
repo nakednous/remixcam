@@ -3,15 +3,17 @@ import remixlab.tersehandling.event.*;
 
 int w = 800;
 int h = 500;
-public class MouseAgent extends AbstractAgent {
-  GenericDOF2Event event;
 
-  public MouseAgent(BasicScene scn, String n) {
+public class MouseAgent extends Agent {
+  DOF2Event event;
+  ClickEvent clickEvent;
+
+  public MouseAgent(TerseHandler scn, String n) {
     super(scn, n);
   }
 
   public void mouseEvent(processing.event.MouseEvent e) {
-    event = new GenericDOF2Event(e.getX(), e.getY());
+    event = new DOF2Event(e.getX(), e.getY());
     if ( e.getAction() == processing.event.MouseEvent.MOVE )
       updateGrabber(event);
     if ( e.getAction() == processing.event.MouseEvent.DRAG )
@@ -24,13 +26,13 @@ public class GrabbableCircle extends AbstractGrabber {
   public PVector center;
   public int colour;
 
-  public GrabbableCircle(AbstractAgent agent) {
+  public GrabbableCircle(Agent agent) {
     agent.addInPool(this);
     setColor();
-    setPosition();
+    setPositionAndRadius();
   }
 
-  public GrabbableCircle(AbstractAgent agent, PVector c, float r) {
+  public GrabbableCircle(Agent agent, PVector c, float r) {
     agent.addInPool(this);
     radius = r;
     center = c;    
@@ -45,17 +47,17 @@ public class GrabbableCircle extends AbstractGrabber {
     colour = myC;
   }
 
-  public void setPosition(PVector p, float r) {
+  public void setPositionAndRadius(PVector p, float r) {
     center = p;
     radius = r;
   }
 
-  public void setPosition() {
+  public void setPositionAndRadius() {
     float maxRadius = 50;
     float low = maxRadius;
     float highX = w - maxRadius;
     float highY = h - maxRadius;
-    setPosition(new PVector(random(low, highX), random(low, highY)), random(20, maxRadius));
+    setPositionAndRadius(new PVector(random(low, highX), random(low, highY)), random(20, maxRadius));
   }
 
   public void draw() {
@@ -70,30 +72,29 @@ public class GrabbableCircle extends AbstractGrabber {
   }
 
   @Override
-  public boolean checkIfGrabsInput(GenericEvent event) {
-    if (event instanceof GenericDOF2Event) {
-      float x = ((GenericDOF2Event)event).getX();
-      float y = ((GenericDOF2Event)event).getY();
+  public boolean checkIfGrabsInput(BaseEvent event) {
+    if (event instanceof DOF2Event) {
+      float x = ((DOF2Event)event).getX();
+      float y = ((DOF2Event)event).getY();
       return(pow((x - center.x), 2) + pow((y - center.y), 2) <= pow(radius, 2));
     }      
     return false;
   }
 
   @Override
-  public void performInteraction(GenericEvent event) {
+  public void performInteraction(BaseEvent event) {
     setColor();
-    setPosition();
+    setPositionAndRadius();
   }
 }
 
 MouseAgent agent;
-BasicScene scene;
+TerseHandler scene;
 GrabbableCircle [] circles;
 
 void setup() {
   size(w, h);
-  //scene = new SimpleScene();
-  scene = new BasicScene();
+  scene = new TerseHandler();
   agent = new MouseAgent(scene, "my_mouse");
   registerMethod("mouseEvent", agent);
   circles = new GrabbableCircle[50];
@@ -109,6 +110,6 @@ void draw() {
     else
       circles[i].draw();
   }
-  scene.terseHandling();
+  scene.handle();
 }
 

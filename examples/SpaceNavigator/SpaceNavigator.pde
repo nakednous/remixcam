@@ -1,10 +1,15 @@
 import processing.opengl.*;
+
 import remixlab.proscene.*;
-import remixlab.dandelion.core.*;
-import remixlab.dandelion.core.Constants;
+import remixlab.proscene.Scene.ProsceneKeyboard;
+import remixlab.proscene.Scene.ProsceneMouse;
+import remixlab.tersehandling.core.*;
+import remixlab.tersehandling.duoable.event.*;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.agent.*;
-import remixlab.dandelion.event.*;
+import remixlab.dandelion.core.*;
+import remixlab.dandelion.core.Constants.*;
+
 import procontroll.*;
 import net.java.games.input.*;
 
@@ -58,9 +63,9 @@ void setup() {
 
   hidAgent = new HIDAgent(scene, "SpaceNavigator") {
     @Override
-      public DOF6Event feed() {
-      return new DOF6Event(sliderXpos.getValue(), sliderYpos.getValue(), sliderZpos.getValue(), 
-      sliderXrot.getValue(), sliderYrot.getValue(), sliderZrot.getValue(), 0, 0);
+      public GenericDOF6Event<Constants.DOF_6Action> feed() {
+        return new GenericDOF6Event<Constants.DOF_6Action>(sliderXpos.getValue(), sliderYpos.getValue(), sliderZpos.getValue(), 
+                                                           sliderXrot.getValue(), sliderYrot.getValue(), sliderZrot.getValue(), 0, 0);
     }
   };
   
@@ -253,4 +258,3 @@ void openSpaceNavigator() {
   button1 = device.getButton(0);
   button2 = device.getButton(1);
 }
-
