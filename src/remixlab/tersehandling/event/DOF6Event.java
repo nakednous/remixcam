@@ -29,7 +29,7 @@ import remixlab.tersehandling.core.Util;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-public class THDOF6Event extends THMotionEvent {
+public class DOF6Event extends MotionEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -55,7 +55,7 @@ public class THDOF6Event extends THMotionEvent {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		THDOF6Event other = (THDOF6Event) obj;
+		DOF6Event other = (DOF6Event) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))
     .append(x, other.x)
@@ -81,7 +81,7 @@ public class THDOF6Event extends THMotionEvent {
   protected Float ry, dry;
   protected Float rz, drz;  
 
-	public THDOF6Event(float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
+	public DOF6Event(float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
     super(modifiers, button);
 		this.x = x;
 		this.dx = 0f;
@@ -97,7 +97,7 @@ public class THDOF6Event extends THMotionEvent {
     this.drz = 0f;
   }
 	
-	public THDOF6Event(THDOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
+	public DOF6Event(DOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz, int modifiers, int button) {
     this(x, y, z, rx, ry, rz, modifiers, button);
     setPreviousEvent(prevEvent);
     /**
@@ -118,7 +118,7 @@ public class THDOF6Event extends THMotionEvent {
   }
 	
 	//ready to be enqueued
-	public THDOF6Event(float x, float y, float z, float rx, float ry, float rz) {
+	public DOF6Event(float x, float y, float z, float rx, float ry, float rz) {
     super();
     this.x = x;
 		this.dx = 0f;
@@ -136,7 +136,7 @@ public class THDOF6Event extends THMotionEvent {
 	}
 
 	//idem
-	public THDOF6Event(THDOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz) {
+	public DOF6Event(DOF6Event prevEvent, float x, float y, float z, float rx, float ry, float rz) {
     super();
     this.x = x;
  		this.dx = 0f;
@@ -168,7 +168,7 @@ public class THDOF6Event extends THMotionEvent {
     */
 	}
 	  
-  protected THDOF6Event(THDOF6Event other) {
+  protected DOF6Event(DOF6Event other) {
   	super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
@@ -185,23 +185,23 @@ public class THDOF6Event extends THMotionEvent {
 	}
   
   @Override
-	public THDOF6Event get() {
-		return new THDOF6Event(this);
+	public DOF6Event get() {
+		return new DOF6Event(this);
 	}
   
   @Override
-  public void setPreviousEvent(THMotionEvent prevEvent) {
+  public void setPreviousEvent(MotionEvent prevEvent) {
   	super.setPreviousEvent(prevEvent);
   	if(prevEvent!=null)
-  		if(prevEvent instanceof THDOF6Event)	{  			
-  			this.dx = this.getX() - ((THDOF6Event) prevEvent).getX();
-  			this.dy = this.getY() - ((THDOF6Event) prevEvent).getY();
-  			this.dz = this.getZ() - ((THDOF6Event) prevEvent).getZ();
-  			this.drx = this.getRX() - ((THDOF6Event) prevEvent).getRX();
-  			this.dry = this.getRY() - ((THDOF6Event) prevEvent).getRY();
-  			this.drz = this.getRZ() - ((THDOF6Event) prevEvent).getRZ();
+  		if(prevEvent instanceof DOF6Event)	{  			
+  			this.dx = this.getX() - ((DOF6Event) prevEvent).getX();
+  			this.dy = this.getY() - ((DOF6Event) prevEvent).getY();
+  			this.dz = this.getZ() - ((DOF6Event) prevEvent).getZ();
+  			this.drx = this.getRX() - ((DOF6Event) prevEvent).getRX();
+  			this.dry = this.getRY() - ((DOF6Event) prevEvent).getRY();
+  			this.drz = this.getRZ() - ((DOF6Event) prevEvent).getRZ();
   			distance = Util.distance(x, y, z, rx, ry, rz,
-            ((THDOF6Event) prevEvent).getX(), ((THDOF6Event) prevEvent).getY(), ((THDOF6Event) prevEvent).getZ(), ((THDOF6Event) prevEvent).getRX(), ((THDOF6Event) prevEvent).getRY(), ((THDOF6Event) prevEvent).getRZ());
+            ((DOF6Event) prevEvent).getX(), ((DOF6Event) prevEvent).getY(), ((DOF6Event) prevEvent).getZ(), ((DOF6Event) prevEvent).getRX(), ((DOF6Event) prevEvent).getRY(), ((DOF6Event) prevEvent).getRZ());
   			delay = this.timestamp() - prevEvent.timestamp();
   			if(delay==0)
   				speed = distance;
@@ -327,24 +327,24 @@ public class THDOF6Event extends THMotionEvent {
   	return false;
   }
 	
-	public THDOF3Event genericDOF3Event(boolean fromTranslation) {
-		THDOF3Event pe3;
-		THDOF3Event e3;
+	public DOF3Event genericDOF3Event(boolean fromTranslation) {
+		DOF3Event pe3;
+		DOF3Event e3;
   	if(relative()) {
   		if(fromTranslation) {
-  			pe3 = new THDOF3Event(getPrevX(), getPrevY(), getPrevZ(), getModifiers(), getButton());
-  			e3 = new THDOF3Event(pe3, getX(), getY(), getZ(), getModifiers(), getButton());
+  			pe3 = new DOF3Event(getPrevX(), getPrevY(), getPrevZ(), getModifiers(), getButton());
+  			e3 = new DOF3Event(pe3, getX(), getY(), getZ(), getModifiers(), getButton());
   		}
   		else {
-  			pe3 = new THDOF3Event(getPrevRX(), getPrevRY(), getPrevRZ(), getModifiers(), getButton());
-  			e3 = new THDOF3Event(pe3, getRX(), getRY(), getRZ(), getModifiers(), getButton());
+  			pe3 = new DOF3Event(getPrevRX(), getPrevRY(), getPrevRZ(), getModifiers(), getButton());
+  			e3 = new DOF3Event(pe3, getRX(), getRY(), getRZ(), getModifiers(), getButton());
   		}
   	}
   	else {
   		if(fromTranslation)
-    		e3 = new THDOF3Event(getX(), getY(), getZ(), getModifiers(), getButton());
+    		e3 = new DOF3Event(getX(), getY(), getZ(), getModifiers(), getButton());
   		else
-  			e3 = new THDOF3Event(getRX(), getRY(), getRZ(), getModifiers(), getButton());  		
+  			e3 = new DOF3Event(getRX(), getRY(), getRZ(), getModifiers(), getButton());  		
   	}
   	return e3;
   }

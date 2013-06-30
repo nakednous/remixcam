@@ -29,7 +29,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.tersehandling.core.Util;
 
-public class THDOF1Event extends THMotionEvent {
+public class DOF1Event extends MotionEvent {
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(17, 37).
@@ -48,7 +48,7 @@ public class THDOF1Event extends THMotionEvent {
 		if (obj.getClass() != getClass())
 			return false;
 
-		THDOF1Event other = (THDOF1Event) obj;
+		DOF1Event other = (DOF1Event) obj;
 		return new EqualsBuilder()
 		.appendSuper(super.equals(obj))
 		.append(x, other.x)
@@ -58,13 +58,13 @@ public class THDOF1Event extends THMotionEvent {
 
 	protected Float x, dx;
 
-	public THDOF1Event(float x, int modifiers, int button) {
+	public DOF1Event(float x, int modifiers, int button) {
 		super(modifiers, button);
 		this.x = x;
 		this.dx = 0f;
 	}
 
-	public THDOF1Event(THDOF1Event prevEvent, float x, int modifiers, int button) {
+	public DOF1Event(DOF1Event prevEvent, float x, int modifiers, int button) {
 		this(x, modifiers, button);
 		setPreviousEvent(prevEvent);
 		/**
@@ -79,7 +79,7 @@ public class THDOF1Event extends THMotionEvent {
 	}
 	
   //ready to be enqueued
-	public THDOF1Event(float x) {
+	public DOF1Event(float x) {
 		super();
 		this.x = x;
 		this.dx = 0f;
@@ -87,7 +87,7 @@ public class THDOF1Event extends THMotionEvent {
 	}
 
 	// idem
-	public THDOF1Event(THDOF1Event prevEvent, float x) {
+	public DOF1Event(DOF1Event prevEvent, float x) {
 		super();		
 		this.x = x;
 		this.dx = 0f;
@@ -97,23 +97,23 @@ public class THDOF1Event extends THMotionEvent {
 
 	// ---
 
-	protected THDOF1Event(THDOF1Event other) {
+	protected DOF1Event(DOF1Event other) {
 		super(other);
 		this.x = new Float(other.x);
 		this.dx = new Float(other.dx);
 	}
 
 	@Override
-	public THDOF1Event get() {
-		return new THDOF1Event(this);
+	public DOF1Event get() {
+		return new DOF1Event(this);
 	}
 	
 	@Override
-  public void setPreviousEvent(THMotionEvent prevEvent) {
+  public void setPreviousEvent(MotionEvent prevEvent) {
   	if(prevEvent!=null)
-  		if(prevEvent instanceof THDOF1Event)	{  			
-  			this.dx = this.getX() - ((THDOF1Event) prevEvent).getX();
-  			distance = this.getX() - ((THDOF1Event) prevEvent).getX();
+  		if(prevEvent instanceof DOF1Event)	{  			
+  			this.dx = this.getX() - ((DOF1Event) prevEvent).getX();
+  			distance = this.getX() - ((DOF1Event) prevEvent).getX();
   			delay = this.timestamp() - prevEvent.timestamp();
   			if(delay==0)
   				speed = distance;

@@ -2,9 +2,9 @@ package remixlab.tersehandling.duoable.event;
 
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.duoable.profile.Duoble;
-import remixlab.tersehandling.event.THClickEvent;
+import remixlab.tersehandling.event.ClickEvent;
 
-public class GenericClickEvent <A extends Actionable<?>> extends THClickEvent implements Duoble<A> {
+public class GenericClickEvent <A extends Actionable<?>> extends ClickEvent implements Duoble<A> {
 	Actionable<?> action;
 	
 	public GenericClickEvent(int b) {

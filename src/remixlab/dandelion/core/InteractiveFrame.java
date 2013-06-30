@@ -329,13 +329,13 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * {@link #position()}.
 	 */
 	@Override
-	public boolean checkIfGrabsInput(THEvent event) {
+	public boolean checkIfGrabsInput(BaseEvent event) {
 		int x=0, y=0;
-		if(event instanceof THDOF2Event) {
+		if(event instanceof DOF2Event) {
 			//x = scene.cursorX - scene.upperLeftCorner.getX();
 			//y = scene.cursorY - scene.upperLeftCorner.getY();
-			x = (int)((THDOF2Event)event).getX();
-			y = (int)((THDOF2Event)event).getY();
+			x = (int)((DOF2Event)event).getX();
+			y = (int)((DOF2Event)event).getY();
 		}
 		Vec proj = scene.pinhole().projectedCoordinatesOf(position());
 		return ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold()));
@@ -725,7 +725,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	*/
 	
 	@Override
-	public void performInteraction(THEvent e) {
+	public void performInteraction(BaseEvent e) {
 		stopSpinning();
 		
 		if(e == null) return;
@@ -755,20 +755,20 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		if( ( scene.is2D() ) && ( !event.getAction().is2D() ) )
 			return;
 		
-		if( event instanceof THMotionEvent) {
+		if( event instanceof MotionEvent) {
 			if( scene.is2D() )
-				execAction2D((THMotionEvent)event);
+				execAction2D((MotionEvent)event);
 			else
-				execAction3D((THMotionEvent)event);
+				execAction3D((MotionEvent)event);
 		}
 	}
 	
 	//TODO implement me
-	protected void execAction2D(THMotionEvent event) {
+	protected void execAction2D(MotionEvent event) {
 	}
 	
   //TODO implement me
-	protected void execAction3D(THMotionEvent e) {
+	protected void execAction3D(MotionEvent e) {
 		Actionable<DLAction> a=null;
 		if(e instanceof GenericDOF1Event)
 			a = (DOF_1Action) ((GenericDOF1Event<?>) e).getAction();

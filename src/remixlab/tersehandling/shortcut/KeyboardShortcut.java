@@ -25,8 +25,8 @@
 package remixlab.tersehandling.shortcut;
 
 import remixlab.tersehandling.core.Copyable;
-import remixlab.tersehandling.event.THEvent;
-import remixlab.tersehandling.event.THKeyboardEvent;
+import remixlab.tersehandling.event.BaseEvent;
+import remixlab.tersehandling.event.KeyboardEvent;
 
 import com.flipthebird.gwthashcodeequals.*;
 
@@ -114,9 +114,9 @@ public final class KeyboardShortcut extends Shortcut implements Copyable {
 			description = key.toString();
 		else {
 			if(mask == 0)
-				description = THKeyboardEvent.getKeyText(vKey);
+				description = KeyboardEvent.getKeyText(vKey);
 			else
-				description = THEvent.getModifiersText(mask) + "+" + THKeyboardEvent.getKeyText(vKey);
+				description = BaseEvent.getModifiersText(mask) + "+" + KeyboardEvent.getKeyText(vKey);
 		}			
 		return description;
 	}

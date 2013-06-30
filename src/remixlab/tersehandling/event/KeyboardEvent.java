@@ -32,7 +32,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.tersehandling.shortcut.KeyboardShortcut;
 
-public class THKeyboardEvent extends THEvent {
+public class KeyboardEvent extends BaseEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -48,7 +48,7 @@ public class THKeyboardEvent extends THEvent {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		THKeyboardEvent other = (THKeyboardEvent) obj;
+		KeyboardEvent other = (KeyboardEvent) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
     .append(key, other.key)
@@ -128,44 +128,44 @@ public class THKeyboardEvent extends THEvent {
   protected Character key;
   protected Integer vKey;
   
-  public THKeyboardEvent() {
+  public KeyboardEvent() {
   	this.key = null;
   	this.vKey = null;
   }
   
-  public THKeyboardEvent(Integer modifiers, Character c, Integer vk) {
+  public KeyboardEvent(Integer modifiers, Character c, Integer vk) {
     super(modifiers);
     this.vKey = vk;
     this.key = c;
   }
   
-  public THKeyboardEvent(Integer modifiers, Character c) {
+  public KeyboardEvent(Integer modifiers, Character c) {
     super(modifiers);
     this.key = c;
     this.vKey = null;
   }
   
-  public THKeyboardEvent(Integer modifiers, Integer vk) {
+  public KeyboardEvent(Integer modifiers, Integer vk) {
     super(modifiers);
     this.key = null;
     this.vKey = vk;
   }
   
-  public THKeyboardEvent(Character c) {
+  public KeyboardEvent(Character c) {
   	super();
     this.key = c;
     this.vKey = null;
   }
   
-  protected THKeyboardEvent(THKeyboardEvent other) {
+  protected KeyboardEvent(KeyboardEvent other) {
   	super(other);
 		this.key = new Character(other.key);
 		this.vKey = new Integer(other.vKey);
 	}
   
   @Override
-	public THKeyboardEvent get() {
-		return new THKeyboardEvent(this);
+	public KeyboardEvent get() {
+		return new KeyboardEvent(this);
 	}
   
   @Override

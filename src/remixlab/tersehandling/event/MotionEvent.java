@@ -30,7 +30,7 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 // /**
-public class THMotionEvent extends THEvent {
+public class MotionEvent extends BaseEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -48,7 +48,7 @@ public class THMotionEvent extends THEvent {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		THMotionEvent other = (THMotionEvent) obj;
+		MotionEvent other = (MotionEvent) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))
 		.append(button, other.button)
@@ -65,24 +65,24 @@ public class THMotionEvent extends THEvent {
 	protected long delay;
 	protected float distance, speed;
 	
-	public THMotionEvent() {
+	public MotionEvent() {
     super();
     this.button = TH_NOBUTTON;
   }
 	
-	public THMotionEvent(int modifiers) {
+	public MotionEvent(int modifiers) {
     super(modifiers);
     this.button = TH_NOBUTTON;
   }
 	
-	public THMotionEvent(int modifiers, int button) {
+	public MotionEvent(int modifiers, int button) {
     super(modifiers);
     this.button = button;
   }
   
 	// ---
 	
-  protected THMotionEvent(THMotionEvent other) {
+  protected MotionEvent(MotionEvent other) {
   	super(other);
 		this.button = new Integer(other.button);
 		this.delay = other.delay;
@@ -91,8 +91,8 @@ public class THMotionEvent extends THEvent {
 	}
   
   @Override
-	public THMotionEvent get() {
-		return new THMotionEvent(this);
+	public MotionEvent get() {
+		return new MotionEvent(this);
 	}
   
   public void modulate(float [] sens) {}
@@ -128,7 +128,7 @@ public class THMotionEvent extends THEvent {
 		return !relative();
 	}
 	
-	public void setPreviousEvent(THMotionEvent prevEvent) {
+	public void setPreviousEvent(MotionEvent prevEvent) {
 		if(prevEvent == null) {
 			delay = 0;
 			speed = 0;

@@ -73,6 +73,6 @@ public class Shortcut implements Constants, Copyable {
 	}
 	
 	public String description() {
-		return THEvent.getModifiersText(mask);
+		return BaseEvent.getModifiersText(mask);
 	}
 }

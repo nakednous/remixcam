@@ -2,9 +2,9 @@ package remixlab.tersehandling.duoable.event;
 
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.duoable.profile.KeyDuoble;
-import remixlab.tersehandling.event.THKeyboardEvent;
+import remixlab.tersehandling.event.KeyboardEvent;
 
-public class GenericKeyboardEvent<A extends Actionable<?>> extends THKeyboardEvent implements KeyDuoble<A> {
+public class GenericKeyboardEvent<A extends Actionable<?>> extends KeyboardEvent implements KeyDuoble<A> {
 	Actionable<?> action;
 	
 	public GenericKeyboardEvent() {

@@ -186,11 +186,11 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	}
 	
 	@Override
-	protected void execAction2D(THMotionEvent event) {
+	protected void execAction2D(MotionEvent event) {
 	}
 	
 	@Override
-	protected void execAction3D(THMotionEvent e) {
+	protected void execAction3D(MotionEvent e) {
 		Actionable<DLAction> a=null;
 		if(e instanceof GenericDOF1Event)
 			a = (DOF_1Action) ((GenericDOF1Event<?>) e).getAction();

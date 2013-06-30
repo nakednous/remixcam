@@ -188,7 +188,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}
 	
 	@Override
-	public boolean checkIfGrabsInput(THEvent event) {		
+	public boolean checkIfGrabsInput(BaseEvent event) {		
 		return (event instanceof GenericKeyboardEvent || event instanceof GenericClickEvent);
 	}
 	
@@ -196,7 +196,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * Internal method. Handles the different global keyboard actions.
 	 */
 	@Override
-	public void performInteraction(THEvent event) {
+	public void performInteraction(BaseEvent event) {
 		if( !(event instanceof GenericClickEvent) && ! (event instanceof GenericKeyboardEvent))
 			return;
 		

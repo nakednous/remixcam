@@ -2,9 +2,9 @@ package remixlab.tersehandling.duoable.event;
 
 import remixlab.tersehandling.duoable.profile.Actionable;
 import remixlab.tersehandling.duoable.profile.Duoble;
-import remixlab.tersehandling.event.THDOF2Event;
+import remixlab.tersehandling.event.DOF2Event;
 
-public class GenericDOF2Event<A extends Actionable<?>> extends THDOF2Event implements Duoble<A> {
+public class GenericDOF2Event<A extends Actionable<?>> extends DOF2Event implements Duoble<A> {
 	Actionable<?> action;
 	
 	public GenericDOF2Event(float x, float y) {

@@ -29,7 +29,7 @@ import remixlab.tersehandling.shortcut.ClickShortcut;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-public class THClickEvent extends THEvent {
+public class ClickEvent extends BaseEvent {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -45,7 +45,7 @@ public class THClickEvent extends THEvent {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		THClickEvent other = (THClickEvent) obj;
+		ClickEvent other = (ClickEvent) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))
     .append(button, other.button)
@@ -56,39 +56,39 @@ public class THClickEvent extends THEvent {
 	protected final Integer numberOfClicks;
 	protected final Integer button;
 	
-	public THClickEvent(int b) {
+	public ClickEvent(int b) {
 		this.button = b;
   	this.numberOfClicks = 1;  	
   }
 	
-	public THClickEvent(int b, int clicks) {
+	public ClickEvent(int b, int clicks) {
 		this.button = b;
   	this.numberOfClicks = clicks;
   }
 	
 	//--
 	
-	public THClickEvent(Integer modifiers, int b) {
+	public ClickEvent(Integer modifiers, int b) {
 		super(modifiers);
 		this.button = b;
   	this.numberOfClicks = 1;  	
   }
 	
-	public THClickEvent(Integer modifiers, int b, int clicks) {
+	public ClickEvent(Integer modifiers, int b, int clicks) {
 		super(modifiers);
 		this.button = b;
   	this.numberOfClicks = clicks;
   }
 	
-	protected THClickEvent(THClickEvent other) {
+	protected ClickEvent(ClickEvent other) {
 		super(other);
 		this.button = new Integer(other.button);
 		this.numberOfClicks = new Integer(other.numberOfClicks);		
 	}
 	
 	@Override
-	public THClickEvent get() {
-		return new THClickEvent(this);
+	public ClickEvent get() {
+		return new ClickEvent(this);
 	}
 	
 	@Override
