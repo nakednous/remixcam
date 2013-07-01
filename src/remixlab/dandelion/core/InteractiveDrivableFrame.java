@@ -41,8 +41,8 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * <p>
  * An InteractiveDrivableFrame basically moves forward, and turns according to
  * the mouse motion. See {@link #flySpeed()}, {@link #flyUpVector()} and the
- * {@link remixlab.remixcam.action.DOF_6Action#MOVE_FORWARD} and
- * {@link remixlab.remixcam.action.DOF_6Action#MOVE_BACKWARD}.
+ * {@link remixlab.DOF6Action.action.DOF_6Action#MOVE_FORWARD} and
+ * {@link remixlab.DOF6Action.action.DOF_6Action#MOVE_BACKWARD}.
  */
 public class InteractiveDrivableFrame extends InteractiveFrame implements Copyable {	
 	@Override
@@ -143,8 +143,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * <p>
 	 * It corresponds to the incremental displacement that is periodically applied
 	 * to the InteractiveDrivableFrame position when a
-	 * {@link remixlab.remixcam.action.DOF_6Action#MOVE_FORWARD} or
-	 * {@link remixlab.remixcam.action.DOF_6Action#MOVE_BACKWARD} Scene.MouseAction is proceeded.
+	 * {@link remixlab.DOF6Action.action.DOF_6Action#MOVE_FORWARD} or
+	 * {@link remixlab.DOF6Action.action.DOF_6Action#MOVE_BACKWARD} Scene.MouseAction is proceeded.
 	 * <p>
 	 * <b>Attention:</b> When the InteractiveDrivableFrame is set as the
 	 * {@link remixlab.dandelion.core.Camera#frame()} (which indeed is an instance of
@@ -178,8 +178,8 @@ public class InteractiveDrivableFrame extends InteractiveFrame implements Copyab
 	 * system.
 	 * <p>
 	 * Fly mode corresponds to the
-	 * {@link remixlab.remixcam.action.DOF_6Action#MOVE_FORWARD} and
-	 * {@link remixlab.remixcam.action.DOF_6Action#MOVE_BACKWARD} Scene.MouseAction
+	 * {@link remixlab.DOF6Action.action.DOF_6Action#MOVE_FORWARD} and
+	 * {@link remixlab.DOF6Action.action.DOF_6Action#MOVE_BACKWARD} Scene.MouseAction
 	 * bindings. In these modes, horizontal displacements of the mouse rotate the
 	 * InteractiveDrivableFrame around this vector. Vertical displacements rotate
 	 * always around the frame {@code X} axis.

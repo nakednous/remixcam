@@ -26,6 +26,6 @@ package remixlab.tersehandling.duoable.profile;
 
 import remixlab.tersehandling.shortcut.KeyboardShortcut;
 
-public interface KeyDuoble<A extends Actionable<?>> extends Duoble<A> {
+public interface KeyDuoable<A extends Actionable<?>> extends Duoable<A> {
 	public KeyboardShortcut keyShortcut();
 }

@@ -71,7 +71,7 @@ public class GenericProfile<K extends Shortcut, A extends Actionable<?>> impleme
 	}	
 	// */
 	
-	public Actionable<?> handle(Duoble<?> event) {
+	public Actionable<?> handle(Duoable<?> event) {
 		if(event != null)
 			return binding(event.shortcut());
 		return null;

@@ -31,11 +31,11 @@ import remixlab.tersehandling.duoable.event.GenericDOF6Event;
 import remixlab.tersehandling.duoable.profile.GenericClickProfile;
 import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 
-public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF_6Action>> implements Constants {
+public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF6Action>> implements Constants {
 	public HIDAgent(AbstractScene scn, String n) {
-		super(new GenericMotionProfile<Constants.DOF_6Action>(),
-			    new GenericMotionProfile<Constants.DOF_6Action>(),
-			    new GenericClickProfile<Constants.DOF_0Action>(), scn.terseHandler(), n);
+		super(new GenericMotionProfile<Constants.DOF6Action>(),
+			    new GenericMotionProfile<Constants.DOF6Action>(),
+			    new GenericClickProfile<Constants.DOF0Action>(), scn.terseHandler(), n);
 	  setDefaultGrabber(scn.pinhole().frame());
 		//super(scn.terseHandler(), n);
 		setDefaultGrabber(scn.pinhole().frame());
@@ -49,22 +49,22 @@ public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constant
 		sens[3] = 1f;
 		sens[4] = 1f;
 		sens[5] = 1f;
-		cameraProfile().setBinding(DOF_6Action.NATURAL);
-		frameProfile().setBinding(DOF_6Action.NATURAL);
+		cameraProfile().setBinding(DOF6Action.NATURAL);
+		frameProfile().setBinding(DOF6Action.NATURAL);
 	}
 	
 	@Override
-	public GenericDOF6Event<Constants.DOF_6Action> feed() {
+	public GenericDOF6Event<Constants.DOF6Action> feed() {
 		return null;
 	}
 	
 	@Override
-	public GenericMotionProfile<Constants.DOF_6Action> cameraProfile() {
+	public GenericMotionProfile<Constants.DOF6Action> cameraProfile() {
 		return camProfile;
 	}
 	
 	@Override
-	public GenericMotionProfile<Constants.DOF_6Action> frameProfile() {
+	public GenericMotionProfile<Constants.DOF6Action> frameProfile() {
 		return profile;
 	}
 	

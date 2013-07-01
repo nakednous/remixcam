@@ -14,6 +14,7 @@ public class MouseAgent extends GenericMotionAgent<GenericMotionProfile<MotionAc
     clickProfile().setClickBinding(TH_RIGHT, 1, ClickAction.CHANGE_STROKE_WEIGHT);
     clickProfile().setClickBinding(TH_SHIFT, TH_RIGHT, 1, ClickAction.CHANGE_STROKE_WEIGHT);
     profile().setBinding(TH_LEFT, MotionAction.CHANGE_POSITION);
+    profile().setBinding(TH_SHIFT, TH_LEFT, MotionAction.CHANGE_SHAPE);
     profile().setBinding(TH_RIGHT, MotionAction.CHANGE_SHAPE);
   }
 
@@ -110,31 +111,25 @@ public class GrabbableCircle extends AbstractGrabber {
 
   @Override
   public void performInteraction(BaseEvent event) {
-    if ( event instanceof GenericClickEvent<?> ) {        
-      switch ( (ClickAction) ((GenericClickEvent<?>) event).getAction() ) {
+    if (event instanceof Duoable) {
+      switch ((GlobalAction) ((Duoable<?>)event).action().referenceAction()) {
         case CHANGE_COLOR:
-        contourColour = color(random(100, 255), random(100, 255), random(100, 255));      
+          contourColour = color(random(100, 255), random(100, 255), random(100, 255));
         break;
-      case CHANGE_STROKE_WEIGHT:
-        if (event.isShiftDown()) {          
-          if (sWeight > 1)
-            sWeight--;
-        }
-        else      
-          sWeight++;    
+        case CHANGE_STROKE_WEIGHT:
+          if (event.isShiftDown()) {					
+            if (sWeight > 1)
+              sWeight--;
+          }
+          else			
+            sWeight++;		
         break;
-      default:
-        break;
-      }
-    }
-    if ( event instanceof GenericDOF2Event<?> ) {
-      switch ( (MotionAction) ((GenericDOF2Event<?>) event).getAction() ) {
         case CHANGE_POSITION:
-        setPosition( ((GenericDOF2Event<?>)event).getX(), ((GenericDOF2Event<?>)event).getY() );
+          setPosition( ((GenericDOF2Event<?>)event).getX(), ((GenericDOF2Event<?>)event).getY() );
         break;
         case CHANGE_SHAPE:
-        radiusX += ((GenericDOF2Event<?>)event).getDX();
-        radiusY += ((GenericDOF2Event<?>)event).getDY();
+          radiusX += ((GenericDOF2Event<?>)event).getDX();
+          radiusY += ((GenericDOF2Event<?>)event).getDY();
         break;
       }
     }
@@ -167,4 +162,3 @@ public void draw() {
   }
   scene.handle();
 }
-

@@ -33,7 +33,7 @@ import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.duoable.event.*;
 import remixlab.tersehandling.duoable.profile.Actionable;
-import remixlab.tersehandling.duoable.profile.Duoble;
+import remixlab.tersehandling.duoable.profile.Duoable;
 import remixlab.tersehandling.event.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -733,26 +733,26 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		if(e instanceof GenericKeyboardEvent || e instanceof GenericClickEvent)
 			scene.performInteraction(e);
 		
-		Duoble<?> event;
+		Duoable<?> event;
 		//begin:
 		//if (grabsInput()) keepsGrabbingCursor = true;
 		//end:
 		
-		if(e instanceof Duoble)
-			event = (Duoble<?>)e;
+		if(e instanceof Duoable)
+			event = (Duoable<?>)e;
 		else 
 			return;	
 		
 		
 		// same as no action
-		if( event.getAction() == null )
+		if( event.action() == null )
 			return;
 		
 		if( !(event instanceof GenericDOF1Event) && ! (event instanceof GenericDOF2Event) &&
 				!(event instanceof GenericDOF3Event) && ! (event instanceof GenericDOF6Event))
 			return;
 		
-		if( ( scene.is2D() ) && ( !event.getAction().is2D() ) )
+		if( ( scene.is2D() ) && ( !event.action().is2D() ) )
 			return;
 		
 		if( event instanceof MotionEvent) {
@@ -769,18 +769,18 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	
   //TODO implement me
 	protected void execAction3D(MotionEvent e) {
-		Actionable<DLAction> a=null;
+		Actionable<DandelionAction> a=null;
 		if(e instanceof GenericDOF1Event)
-			a = (DOF_1Action) ((GenericDOF1Event<?>) e).getAction();
+			a = (DOF1Action) ((GenericDOF1Event<?>) e).action();
 		if(e instanceof GenericDOF2Event)
-			a = (DOF_2Action) ((GenericDOF2Event<?>) e).getAction();
+			a = (DOF2Action) ((GenericDOF2Event<?>) e).action();
 		if(e instanceof GenericDOF3Event)
-			a = (DOF_3Action) ((GenericDOF3Event<?>) e).getAction();
+			a = (DOF3Action) ((GenericDOF3Event<?>) e).action();
 		if(e instanceof GenericDOF6Event)
-			a = (DOF_6Action) ((GenericDOF6Event<?>) e).getAction();
+			a = (DOF6Action) ((GenericDOF6Event<?>) e).action();
 		
 		if(a == null) return;
-		DLAction id = a.action();		
+		DandelionAction id = a.referenceAction();		
 		
 		GenericDOF2Event<?> event;
 		float delta = 0;

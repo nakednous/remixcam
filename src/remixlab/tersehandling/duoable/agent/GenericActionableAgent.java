@@ -31,7 +31,7 @@ import remixlab.tersehandling.core.EventGrabberTuple;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.TerseHandler;
 import remixlab.tersehandling.duoable.profile.Actionable;
-import remixlab.tersehandling.duoable.profile.Duoble;
+import remixlab.tersehandling.duoable.profile.Duoable;
 import remixlab.tersehandling.duoable.profile.GenericProfile;
 import remixlab.tersehandling.event.BaseEvent;
 
@@ -39,8 +39,8 @@ public class GenericActionableAgent<P extends GenericProfile<?,?>> extends Agent
 	public class EventGrabberDuobleTuple extends EventGrabberTuple {
 		public EventGrabberDuobleTuple(BaseEvent e, Actionable<?> a, Grabbable g) {
 	  	super(e,g);
-	  	if(event instanceof Duoble)
-	  		((Duoble<?>)event).setAction(a);
+	  	if(event instanceof Duoable)
+	  		((Duoable<?>)event).setAction(a);
 	  	else
 	  		System.out.println("Action will not be handled by grabber using this event type. Supply a Duoble event");
 	  }
@@ -49,8 +49,8 @@ public class GenericActionableAgent<P extends GenericProfile<?,?>> extends Agent
 		public boolean enqueue(LinkedList<EventGrabberTuple> queue) {
 			if( event().isNull() )
 				return false;
-			if(event instanceof Duoble) {
-				if( ((Duoble<?>)event).getAction() != null ) {
+			if(event instanceof Duoable) {
+				if( ((Duoable<?>)event).action() != null ) {
 					queue.add(this);
 					return true;
 		    }
@@ -81,7 +81,7 @@ public class GenericActionableAgent<P extends GenericProfile<?,?>> extends Agent
 	public void handle(BaseEvent event) {		
 		//overkill but feels safer ;)
 		if(event == null || !handler.isAgentRegistered(this))	return;		
-		if(event instanceof Duoble<?>)
-			handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, profile().handle((Duoble<?>)event), grabber()));
+		if(event instanceof Duoable<?>)
+			handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, profile().handle((Duoable<?>)event), grabber()));
 	}
 }

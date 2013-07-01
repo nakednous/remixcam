@@ -25,7 +25,7 @@
 package remixlab.tersehandling.duoable.profile;
 
 public interface Actionable<E extends Enum<E>> {
-	E action();
+	E referenceAction();
 	String description();
 	public boolean is2D();
 	public int dofs();

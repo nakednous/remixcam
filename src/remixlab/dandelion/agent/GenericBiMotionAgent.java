@@ -30,14 +30,14 @@ import remixlab.tersehandling.core.TerseHandler;
 import remixlab.tersehandling.duoable.agent.GenericMotionAgent;
 import remixlab.tersehandling.duoable.profile.GenericClickProfile;
 import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
-import remixlab.tersehandling.duoable.profile.Duoble;
+import remixlab.tersehandling.duoable.profile.Duoable;
 import remixlab.tersehandling.event.*;
 
-public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends GenericMotionAgent<P, GenericClickProfile<Constants.DOF_0Action>> {
+public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends GenericMotionAgent<P, GenericClickProfile<Constants.DOF0Action>> {
 	protected P camProfile;
 	protected float[] sens;
 	
-	public GenericBiMotionAgent(P fProfile, P cProfile, GenericClickProfile<Constants.DOF_0Action> c, TerseHandler scn, String n) {
+	public GenericBiMotionAgent(P fProfile, P cProfile, GenericClickProfile<Constants.DOF0Action> c, TerseHandler scn, String n) {
 		super(fProfile, c, scn, n);
 		camProfile = cProfile;
 	}
@@ -50,7 +50,7 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 		return profile();
 	}
 	
-	public GenericClickProfile<Constants.DOF_0Action> clickProfile() {
+	public GenericClickProfile<Constants.DOF0Action> clickProfile() {
 		return clickProfile;
 	}
 	
@@ -62,7 +62,7 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 		setProfile(profile);
 	}
 	
-	public void setClickProfile(GenericClickProfile<Constants.DOF_0Action> profile) {
+	public void setClickProfile(GenericClickProfile<Constants.DOF0Action> profile) {
 		clickProfile = profile;
 	}
 	
@@ -74,16 +74,16 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 	public void handle(BaseEvent event) {
 		//overkill but feels safer ;)
 		if(event == null || !handler.isAgentRegistered(this))	return;		
-		if(event instanceof Duoble<?>) {
+		if(event instanceof Duoable<?>) {
 			if(event instanceof ClickEvent)
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoble<?>)event), grabber()));
+				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoable<?>)event), grabber()));
 			else
 				if(event instanceof MotionEvent) {
 					((MotionEvent)event).modulate(sens);
 					if (trackedGrabber() != null )
-						handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoble<?>)event), trackedGrabber()));						
+						handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoable<?>)event), trackedGrabber()));						
 					else 
-						handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoble<?>)event), defaultGrabber()));			
+						handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoable<?>)event), defaultGrabber()));			
 			}
 		}
 	}	

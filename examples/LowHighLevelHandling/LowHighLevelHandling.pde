@@ -12,11 +12,11 @@ Scene scene;
 boolean enforced = false;  
 boolean grabsInput;
 
-Constants.DOF_0Action keyAction;
-Constants.DOF_2Action mouseAction;
-GenericDOF2Event<Constants.DOF_2Action> prevEvent, event;
-GenericDOF2Event<Constants.DOF_2Action> gEvent, prevGenEvent;
-GenericKeyboardEvent<Constants.DOF_0Action> kEvent;
+Constants.DOF0Action keyAction;
+Constants.DOF2Action mouseAction;
+GenericDOF2Event<Constants.DOF2Action> prevEvent, event;
+GenericDOF2Event<Constants.DOF2Action> gEvent, prevGenEvent;
+GenericKeyboardEvent<Constants.DOF0Action> kEvent;
 
 int count = 4;
 
@@ -45,8 +45,8 @@ public void setup() {
   //switch timers to awt if not happy with P5 poorly frame rate (see my comment in draw)
   scene.switchTimers();
 
-  mouseAction = Constants.DOF_2Action.ROTATE;
-  //keyAction = Constants.DOF_0Action.NO_ACTION;
+  mouseAction = Constants.DOF2Action.ROTATE;
+  //keyAction = Constants.DOF0Action.NO_ACTION;
   //restore spinning at some point in the future
   //scene.interactiveFrame().setSpinningFriction(0);
   frameRate(100);
@@ -55,7 +55,7 @@ public void setup() {
   // /**
   if ( scene.prosceneKeyboard.keyboardProfile().isKeyInUse('f') )
     println("'f' key is in use");
-  if ( scene.prosceneKeyboard.keyboardProfile().isKeyboardActionBound(DOF_0Action.DRAW_FRAME_SELECTION_HINT ) )
+  if ( scene.prosceneKeyboard.keyboardProfile().isKeyboardActionBound(DOF0Action.DRAW_FRAME_SELECTION_HINT ) )
     println("DRAW_FRAME_SELECTION_HINT action is bound");    
   if ( scene.prosceneKeyboard.keyboardProfile().isKeyInUse('s') )
     println("'s' key is in use");
@@ -100,7 +100,7 @@ public boolean iFrameGrabsInput() {
 public void mouseMoved() {
   if (!scene.terseHandler().isAgentRegistered(scene.prosceneMouse)) {
     //if (!scene.isAgentRegistered("proscene_mouse")) {
-    event = new GenericDOF2Event<Constants.DOF_2Action>(prevEvent, (float) mouseX, (float) mouseY);
+    event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, (float) mouseX, (float) mouseY);
     if (enforced)
       grabsInput = true;
     else
@@ -112,7 +112,7 @@ public void mouseMoved() {
 @Override
 public void mouseDragged() {
   if (!scene.terseHandler().isAgentRegistered("proscene_mouse")) {
-    event = new GenericDOF2Event<Constants.DOF_2Action>(prevEvent, (float) mouseX, (float) mouseY, mouseAction);
+    event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, (float) mouseX, (float) mouseY, mouseAction);
     if (grabsInput)
       scene.terseHandler().enqueueEventTuple(new EventGrabberTuple(event, iFrame));
     else
@@ -126,10 +126,10 @@ public void keyPressed() {
   if (!scene.terseHandler().isAgentRegistered("proscene_keyboard")) {
     if (key == 'a' || key == 'g') {
       if (key == 'a')
-        keyAction = Constants.DOF_0Action.DRAW_GRID;
+        keyAction = Constants.DOF0Action.DRAW_GRID;
       if (key == 'g')
-        keyAction = Constants.DOF_0Action.DRAW_AXIS;
-      kEvent = new GenericKeyboardEvent<Constants.DOF_0Action>(key, keyAction);
+        keyAction = Constants.DOF0Action.DRAW_AXIS;
+      kEvent = new GenericKeyboardEvent<Constants.DOF0Action>(key, keyAction);
       scene.terseHandler().enqueueEventTuple(new EventGrabberTuple(kEvent, iFrame));
     }
   }
@@ -171,9 +171,9 @@ public void keyPressed() {
     }
   }    
   if (key == 'c')
-    if (mouseAction == Constants.DOF_2Action.ROTATE)
-      mouseAction = Constants.DOF_2Action.TRANSLATE;
+    if (mouseAction == Constants.DOF2Action.ROTATE)
+      mouseAction = Constants.DOF2Action.TRANSLATE;
     else
-      mouseAction = Constants.DOF_2Action.ROTATE;
+      mouseAction = Constants.DOF2Action.ROTATE;
 }
 

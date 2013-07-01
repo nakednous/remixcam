@@ -33,11 +33,11 @@ import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.duoable.profile.GenericClickProfile;
 import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
 
-public class DOF3Device extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF_3Action>> {
-	public DOF3Device(AbstractScene scn, String n) {
-		super(new GenericMotionProfile<Constants.DOF_3Action>(),
-			    new GenericMotionProfile<Constants.DOF_3Action>(),
-			    new GenericClickProfile<Constants.DOF_0Action>(), scn.terseHandler(), n);
+public class JoystickAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF3Action>> {
+	public JoystickAgent(AbstractScene scn, String n) {
+		super(new GenericMotionProfile<Constants.DOF3Action>(),
+			    new GenericMotionProfile<Constants.DOF3Action>(),
+			    new GenericClickProfile<Constants.DOF0Action>(), scn.terseHandler(), n);
 	  setDefaultGrabber(scn.pinhole().frame());
 		//camProfile = new GenericMotionProfile<Constants.DOF_3Action>();
 		//profile = new GenericMotionProfile<Constants.DOF_3Action>();
@@ -48,12 +48,12 @@ public class DOF3Device extends GenericBiMotionAgent<GenericMotionProfile<Consta
 	}
 	
 	@Override
-	public GenericMotionProfile<Constants.DOF_3Action> cameraProfile() {
+	public GenericMotionProfile<Constants.DOF3Action> cameraProfile() {
 		return camProfile;
 	}
 	
 	@Override
-	public GenericMotionProfile<Constants.DOF_3Action> frameProfile() {
+	public GenericMotionProfile<Constants.DOF3Action> frameProfile() {
 		return profile;
 	}
 	

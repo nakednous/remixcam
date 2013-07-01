@@ -29,7 +29,7 @@ import remixlab.tersehandling.shortcut.KeyboardShortcut;
 
 public class GenericKeyboardProfile<A extends Actionable<?>>  extends GenericProfile<KeyboardShortcut, A> {
 	///**
-	public Actionable<?> handleKey(KeyDuoble<?> event) {
+	public Actionable<?> handleKey(KeyDuoable<?> event) {
 	//public void handleKey(DLKeyEvent e) {
 		if(event != null)
 			return binding(event.keyShortcut());

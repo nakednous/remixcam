@@ -26,8 +26,8 @@ package remixlab.tersehandling.duoable.profile;
 
 import remixlab.tersehandling.shortcut.Shortcut;
 
-public interface Duoble <A extends Actionable<?>> {
-	public Actionable<?> getAction();
+public interface Duoable <A extends Actionable<?>> {
+	public Actionable<?> action();
 	public void setAction(Actionable<?> a);
 	public Shortcut shortcut();
 }

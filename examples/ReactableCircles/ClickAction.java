@@ -5,7 +5,7 @@ public enum ClickAction implements Actionable<GlobalAction> {
   CHANGE_STROKE_WEIGHT(GlobalAction.CHANGE_STROKE_WEIGHT);
 
   @Override
-  public GlobalAction action() {
+  public GlobalAction referenceAction() {
     return act;
   }
 

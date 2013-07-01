@@ -5,7 +5,7 @@ public enum MotionAction implements Actionable<GlobalAction> {
   CHANGE_SHAPE(GlobalAction.CHANGE_SHAPE);
 
   @Override
-  public GlobalAction action() {
+  public GlobalAction referenceAction() {
     return act;
   }
 

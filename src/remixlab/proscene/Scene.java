@@ -27,7 +27,7 @@
 package remixlab.proscene;
 
 import remixlab.dandelion.agent.GenericWheeledMouseAgent;
-import remixlab.dandelion.agent.P5KeyboardAgent;
+import remixlab.dandelion.agent.KeyboardAgent;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
@@ -133,7 +133,7 @@ import java.util.TimerTask;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {
-	public class ProsceneKeyboard extends P5KeyboardAgent {
+	public class ProsceneKeyboard extends KeyboardAgent {
 		public ProsceneKeyboard(AbstractScene scn, String n) {
 			super(scn, n);
 			//this.addInDeviceGrabberPool(scn);
@@ -141,7 +141,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		public void keyEvent(KeyEvent e) {
-			GenericKeyboardEvent<Constants.DOF_0Action> event = new GenericKeyboardEvent<Constants.DOF_0Action>( e.getModifiers(), e.getKey(), e.getKeyCode() );
+			GenericKeyboardEvent<Constants.DOF0Action> event = new GenericKeyboardEvent<Constants.DOF0Action>( e.getModifiers(), e.getKey(), e.getKeyCode() );
 			if(e.getAction() == KeyEvent.TYPE)
 				handleKey(event);
 			else
@@ -151,12 +151,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	//public class Mouse extends AbstractMouse {
-	public class ProsceneMouse extends GenericWheeledMouseAgent<GenericMotionProfile<Constants.DOF_1Action>> {
+	public class ProsceneMouse extends GenericWheeledMouseAgent<GenericMotionProfile<Constants.DOF1Action>> {
 	//public class ProsceneMouse extends Mouse {
-		GenericDOF2Event<Constants.DOF_2Action> event, prevEvent;
+		GenericDOF2Event<Constants.DOF2Action> event, prevEvent;
 		public ProsceneMouse(AbstractScene scn, String n) {
-			super(new GenericMotionProfile<Constants.DOF_1Action>(),
-					  new GenericMotionProfile<Constants.DOF_1Action>(), scn, n);	
+			super(new GenericMotionProfile<Constants.DOF1Action>(),
+					  new GenericMotionProfile<Constants.DOF1Action>(), scn, n);	
 			//cameraProfile().setBinding(DOF_2Action.ROTATE);//rotate without dragging any button
 			//System.out.println(cameraProfile().bindingsDescription());
 		}
@@ -168,27 +168,27 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			//if( e.getAction() == processing.event.MouseEvent.DRAG ) {//rotate without dragging any button
 			// /**
 			if( e.getAction() == processing.event.MouseEvent.MOVE ) {
-				event = new GenericDOF2Event<Constants.DOF_2Action>(prevEvent, e.getX(), e.getY());
+				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY());
 				updateGrabber(event);
 				prevEvent = event.get();
 			}
 			// */
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 			//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//rotate without dragging any button
-				event = new GenericDOF2Event<Constants.DOF_2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 				handle(event);
 			  prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
-				event = new GenericDOF2Event<Constants.DOF_2Action>(prevEvent, e.getX(), e.getY());
+				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY());
 				updateGrabber(event);
 				prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
-				handle(new GenericDOF1Event<Constants.DOF_1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
+				handle(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
-				handle(new GenericClickEvent<Constants.DOF_0Action>(e.getModifiers(), e.getButton(), e.getCount()));
+				handle(new GenericClickEvent<Constants.DOF0Action>(e.getModifiers(), e.getButton(), e.getCount()));
 			}	
 		}
 	}

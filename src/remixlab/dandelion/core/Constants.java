@@ -74,7 +74,7 @@ public interface Constants extends EventConstants {
   static final float TWO_PI     = PI * 2.0f;  
   
   //Actions
-  public enum DLAction {
+  public enum DandelionAction {
   	//NO_ACTION("No action", true, 0),
   	
   	//KEYfRAMES
@@ -166,25 +166,25 @@ public interface Constants extends EventConstants {
   	boolean twoD;
   	int dofs;
   	
-  	DLAction(String description, boolean td, int ds) {
+  	DandelionAction(String description, boolean td, int ds) {
        this.description = description;
        this.twoD = td;
        this.dofs = ds;
     }
   	
-  	DLAction(String description, int ds) {
+  	DandelionAction(String description, int ds) {
       this.description = description;
       this.twoD = true;
       this.dofs = ds;
     }
   	
-  	DLAction(String description, boolean td) {
+  	DandelionAction(String description, boolean td) {
       this.description = description;
       this.twoD = td;
       this.dofs = 2;
     }
      	
-  	DLAction(String description) {
+  	DandelionAction(String description) {
       this.description = description;
       this.twoD = true;
       this.dofs = 0;
@@ -276,75 +276,75 @@ public interface Constants extends EventConstants {
     	*/   
   }
   
-  public enum DOF_0Action implements Actionable<DLAction> {
+  public enum DOF0Action implements Actionable<DandelionAction> {
     //DOF_0
   	//NO_ACTION(DLAction.NO_ACTION),
   	
     //KEYfRAMES
-  	ADD_KEYFRAME_TO_PATH(DLAction.ADD_KEYFRAME_TO_PATH),
-  	PLAY_PATH(DLAction.PLAY_PATH),
-  	DELETE_PATH(DLAction.DELETE_PATH),
+  	ADD_KEYFRAME_TO_PATH(DandelionAction.ADD_KEYFRAME_TO_PATH),
+  	PLAY_PATH(DandelionAction.PLAY_PATH),
+  	DELETE_PATH(DandelionAction.DELETE_PATH),
   	
   	// CLICk ACTIONs	  	
-  	ZOOM_TO_FIT(DLAction.ZOOM_TO_FIT),
-  	CENTER_FRAME(DLAction.CENTER_FRAME),
-  	CENTER_SCENE(DLAction.CENTER_SCENE),
-  	ALIGN_FRAME(DLAction.ALIGN_FRAME),
-  	ALIGN_CAMERA(DLAction.ALIGN_CAMERA),
+  	ZOOM_TO_FIT(DandelionAction.ZOOM_TO_FIT),
+  	CENTER_FRAME(DandelionAction.CENTER_FRAME),
+  	CENTER_SCENE(DandelionAction.CENTER_SCENE),
+  	ALIGN_FRAME(DandelionAction.ALIGN_FRAME),
+  	ALIGN_CAMERA(DandelionAction.ALIGN_CAMERA),
   	
     //Click actions require cursor pos:
-    ZOOM_ON_PIXEL(DLAction.ZOOM_ON_PIXEL),
-    INTERPOLATE_TO_ZOOM_ON_PIXEL(DLAction.INTERPOLATE_TO_ZOOM_ON_PIXEL),
-    ARP_FROM_PIXEL(DLAction.ARP_FROM_PIXEL),
+    ZOOM_ON_PIXEL(DandelionAction.ZOOM_ON_PIXEL),
+    INTERPOLATE_TO_ZOOM_ON_PIXEL(DandelionAction.INTERPOLATE_TO_ZOOM_ON_PIXEL),
+    ARP_FROM_PIXEL(DandelionAction.ARP_FROM_PIXEL),
   	
   	//GENERAL KEYBOARD ACTIONs	
-  	DRAW_AXIS(DLAction.DRAW_AXIS),
-  	DRAW_GRID(DLAction.DRAW_GRID),
-  	CAMERA_PROFILE(DLAction.CAMERA_PROFILE),
-  	CAMERA_TYPE(DLAction.CAMERA_TYPE),
-  	CAMERA_KIND(DLAction.CAMERA_KIND),
-  	ANIMATION(DLAction.ANIMATION),  	
-  	RESET_ARP(DLAction.RESET_ARP),
-  	GLOBAL_HELP(DLAction.GLOBAL_HELP),
-  	CURRENT_CAMERA_PROFILE_HELP(DLAction.CURRENT_CAMERA_PROFILE_HELP),
-  	EDIT_CAMERA_PATH(DLAction.EDIT_CAMERA_PATH),
-  	FOCUS_INTERACTIVE_FRAME(DLAction.FOCUS_INTERACTIVE_FRAME),
-  	DRAW_FRAME_SELECTION_HINT(DLAction.DRAW_FRAME_SELECTION_HINT),
-  	CONSTRAIN_FRAME(DLAction.CONSTRAIN_FRAME),
-  	INTERPOLATE_TO_FIT_SCENE(DLAction.INTERPOLATE_TO_FIT_SCENE),
-  	SHOW_ALL(DLAction.SHOW_ALL),
+  	DRAW_AXIS(DandelionAction.DRAW_AXIS),
+  	DRAW_GRID(DandelionAction.DRAW_GRID),
+  	CAMERA_PROFILE(DandelionAction.CAMERA_PROFILE),
+  	CAMERA_TYPE(DandelionAction.CAMERA_TYPE),
+  	CAMERA_KIND(DandelionAction.CAMERA_KIND),
+  	ANIMATION(DandelionAction.ANIMATION),  	
+  	RESET_ARP(DandelionAction.RESET_ARP),
+  	GLOBAL_HELP(DandelionAction.GLOBAL_HELP),
+  	CURRENT_CAMERA_PROFILE_HELP(DandelionAction.CURRENT_CAMERA_PROFILE_HELP),
+  	EDIT_CAMERA_PATH(DandelionAction.EDIT_CAMERA_PATH),
+  	FOCUS_INTERACTIVE_FRAME(DandelionAction.FOCUS_INTERACTIVE_FRAME),
+  	DRAW_FRAME_SELECTION_HINT(DandelionAction.DRAW_FRAME_SELECTION_HINT),
+  	CONSTRAIN_FRAME(DandelionAction.CONSTRAIN_FRAME),
+  	INTERPOLATE_TO_FIT_SCENE(DandelionAction.INTERPOLATE_TO_FIT_SCENE),
+  	SHOW_ALL(DandelionAction.SHOW_ALL),
   	
     //CAMERA KEYBOARD ACTIONs
-  	MOVE_CAMERA_LEFT(DLAction.MOVE_CAMERA_LEFT),
-  	MOVE_CAMERA_RIGHT(DLAction.MOVE_CAMERA_RIGHT),
-  	MOVE_CAMERA_UP(DLAction.MOVE_CAMERA_UP),
-  	MOVE_CAMERA_DOWN(DLAction.MOVE_CAMERA_DOWN),
-  	INCREASE_ROTATION_SENSITIVITY(DLAction.INCREASE_ROTATION_SENSITIVITY),
-  	DECREASE_ROTATION_SENSITIVITY(DLAction.DECREASE_ROTATION_SENSITIVITY),
-  	INCREASE_CAMERA_FLY_SPEED(DLAction.INCREASE_CAMERA_FLY_SPEED),
-  	DECREASE_CAMERA_FLY_SPEED(DLAction.DECREASE_CAMERA_FLY_SPEED),
-  	INCREASE_AVATAR_FLY_SPEED(DLAction.INCREASE_AVATAR_FLY_SPEED),
-  	DECREASE_AVATAR_FLY_SPEED(DLAction.DECREASE_AVATAR_FLY_SPEED),
-  	INCREASE_AZYMUTH(DLAction.INCREASE_AZYMUTH),
-  	DECREASE_AZYMUTH(DLAction.DECREASE_AZYMUTH),
-  	INCREASE_INCLINATION(DLAction.INCREASE_INCLINATION),
-  	DECREASE_INCLINATION(DLAction.DECREASE_INCLINATION),
-  	INCREASE_TRACKING_DISTANCE(DLAction.INCREASE_TRACKING_DISTANCE),
-  	DECREASE_TRACKING_DISTANCE(DLAction.DECREASE_TRACKING_DISTANCE),
+  	MOVE_CAMERA_LEFT(DandelionAction.MOVE_CAMERA_LEFT),
+  	MOVE_CAMERA_RIGHT(DandelionAction.MOVE_CAMERA_RIGHT),
+  	MOVE_CAMERA_UP(DandelionAction.MOVE_CAMERA_UP),
+  	MOVE_CAMERA_DOWN(DandelionAction.MOVE_CAMERA_DOWN),
+  	INCREASE_ROTATION_SENSITIVITY(DandelionAction.INCREASE_ROTATION_SENSITIVITY),
+  	DECREASE_ROTATION_SENSITIVITY(DandelionAction.DECREASE_ROTATION_SENSITIVITY),
+  	INCREASE_CAMERA_FLY_SPEED(DandelionAction.INCREASE_CAMERA_FLY_SPEED),
+  	DECREASE_CAMERA_FLY_SPEED(DandelionAction.DECREASE_CAMERA_FLY_SPEED),
+  	INCREASE_AVATAR_FLY_SPEED(DandelionAction.INCREASE_AVATAR_FLY_SPEED),
+  	DECREASE_AVATAR_FLY_SPEED(DandelionAction.DECREASE_AVATAR_FLY_SPEED),
+  	INCREASE_AZYMUTH(DandelionAction.INCREASE_AZYMUTH),
+  	DECREASE_AZYMUTH(DandelionAction.DECREASE_AZYMUTH),
+  	INCREASE_INCLINATION(DandelionAction.INCREASE_INCLINATION),
+  	DECREASE_INCLINATION(DandelionAction.DECREASE_INCLINATION),
+  	INCREASE_TRACKING_DISTANCE(DandelionAction.INCREASE_TRACKING_DISTANCE),
+  	DECREASE_TRACKING_DISTANCE(DandelionAction.DECREASE_TRACKING_DISTANCE),
   	
-  	CUSTOM1(DLAction.CUSTOM1),
-  	CUSTOM2(DLAction.CUSTOM2),
-  	CUSTOM3(DLAction.CUSTOM3),
-  	CUSTOM4(DLAction.CUSTOM4);
+  	CUSTOM1(DandelionAction.CUSTOM1),
+  	CUSTOM2(DandelionAction.CUSTOM2),
+  	CUSTOM3(DandelionAction.CUSTOM3),
+  	CUSTOM4(DandelionAction.CUSTOM4);
 
   	@Override
-  	public DLAction action() {
+  	public DandelionAction referenceAction() {
   		return act;
   	}
 
   	@Override
   	public String description() {
-  		return this.action().description();
+  		return this.referenceAction().description();
   	}
   	
   	@Override
@@ -373,32 +373,32 @@ public interface Constants extends EventConstants {
 		}
 		// */
 
-  	DLAction act;
+  	DandelionAction act;
 
-  	DOF_0Action(DLAction a) {
+  	DOF0Action(DandelionAction a) {
   		act = a;
   	}
   }
   
-  public enum DOF_1Action implements Actionable<DLAction> {
+  public enum DOF1Action implements Actionable<DandelionAction> {
     //DOF_0
   	//NO_ACTION(DLAction.NO_ACTION),
   	
-  	ZOOM(DLAction.ZOOM),
+  	ZOOM(DandelionAction.ZOOM),
   	
-  	CUSTOM1(DLAction.CUSTOM1),
-  	CUSTOM2(DLAction.CUSTOM2),
-  	CUSTOM3(DLAction.CUSTOM3),
-  	CUSTOM4(DLAction.CUSTOM4);
+  	CUSTOM1(DandelionAction.CUSTOM1),
+  	CUSTOM2(DandelionAction.CUSTOM2),
+  	CUSTOM3(DandelionAction.CUSTOM3),
+  	CUSTOM4(DandelionAction.CUSTOM4);
 
   	@Override
-  	public DLAction action() {
+  	public DandelionAction referenceAction() {
   		return act;
   	}
 
   	@Override
   	public String description() {
-  		return this.action().description();
+  		return this.referenceAction().description();
   	}
   	
   	@Override
@@ -418,45 +418,45 @@ public interface Constants extends EventConstants {
 		}
 		*/
 
-  	DLAction act;
+  	DandelionAction act;
 
-  	DOF_1Action(DLAction a) {
+  	DOF1Action(DandelionAction a) {
   		act = a;
   	}
   }
   
-  public enum DOF_2Action implements Actionable<DLAction> {
+  public enum DOF2Action implements Actionable<DandelionAction> {
   	//NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1
-  	ZOOM(DLAction.ZOOM),
+  	ZOOM(DandelionAction.ZOOM),
     
   	//DOF_2
-  	ROTATE(DLAction.ROTATE),
-  	CAD_ROTATE(DLAction.CAD_ROTATE),
-  	TRANSLATE(DLAction.TRANSLATE),
-  	MOVE_FORWARD(DLAction.MOVE_FORWARD),
-  	MOVE_BACKWARD(DLAction.MOVE_BACKWARD),
-  	LOOK_AROUND(DLAction.LOOK_AROUND),
-  	SCREEN_ROTATE(DLAction.SCREEN_ROTATE),
-  	ROLL(DLAction.ROLL),
-  	DRIVE(DLAction.DRIVE),
-  	SCREEN_TRANSLATE(DLAction.SCREEN_TRANSLATE),
-  	ZOOM_ON_REGION(DLAction.ZOOM_ON_REGION),
+  	ROTATE(DandelionAction.ROTATE),
+  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
+  	TRANSLATE(DandelionAction.TRANSLATE),
+  	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
+  	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
+  	LOOK_AROUND(DandelionAction.LOOK_AROUND),
+  	SCREEN_ROTATE(DandelionAction.SCREEN_ROTATE),
+  	ROLL(DandelionAction.ROLL),
+  	DRIVE(DandelionAction.DRIVE),
+  	SCREEN_TRANSLATE(DandelionAction.SCREEN_TRANSLATE),
+  	ZOOM_ON_REGION(DandelionAction.ZOOM_ON_REGION),
   	
-  	CUSTOM1(DLAction.CUSTOM1),
-  	CUSTOM2(DLAction.CUSTOM2),
-  	CUSTOM3(DLAction.CUSTOM3),
-  	CUSTOM4(DLAction.CUSTOM4);
+  	CUSTOM1(DandelionAction.CUSTOM1),
+  	CUSTOM2(DandelionAction.CUSTOM2),
+  	CUSTOM3(DandelionAction.CUSTOM3),
+  	CUSTOM4(DandelionAction.CUSTOM4);
 
   	@Override
-  	public DLAction action() {
+  	public DandelionAction referenceAction() {
   		return act;
   	}
 
   	@Override
   	public String description() {
-  		return this.action().description();
+  		return this.referenceAction().description();
   	}
   	
   	@Override
@@ -476,49 +476,49 @@ public interface Constants extends EventConstants {
 		}
 		*/
 
-  	DLAction act;
+  	DandelionAction act;
 
-  	DOF_2Action(DLAction a) {
+  	DOF2Action(DandelionAction a) {
   		act = a;
   	}
   }
   
-  public enum DOF_3Action implements Actionable<DLAction> {
+  public enum DOF3Action implements Actionable<DandelionAction> {
     //NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1
-  	ZOOM(DLAction.ZOOM),
+  	ZOOM(DandelionAction.ZOOM),
     
   	//DOF_2
-  	ROTATE(DLAction.ROTATE),
-  	CAD_ROTATE(DLAction.CAD_ROTATE),
-  	TRANSLATE(DLAction.TRANSLATE),
-  	MOVE_FORWARD(DLAction.MOVE_FORWARD),
-  	MOVE_BACKWARD(DLAction.MOVE_BACKWARD),
-  	LOOK_AROUND(DLAction.LOOK_AROUND),
-  	SCREEN_ROTATE(DLAction.SCREEN_ROTATE),
-  	ROLL(DLAction.ROLL),
-  	DRIVE(DLAction.DRIVE),
-  	SCREEN_TRANSLATE(DLAction.SCREEN_TRANSLATE),
-  	ZOOM_ON_REGION(DLAction.ZOOM_ON_REGION),
+  	ROTATE(DandelionAction.ROTATE),
+  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
+  	TRANSLATE(DandelionAction.TRANSLATE),
+  	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
+  	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
+  	LOOK_AROUND(DandelionAction.LOOK_AROUND),
+  	SCREEN_ROTATE(DandelionAction.SCREEN_ROTATE),
+  	ROLL(DandelionAction.ROLL),
+  	DRIVE(DandelionAction.DRIVE),
+  	SCREEN_TRANSLATE(DandelionAction.SCREEN_TRANSLATE),
+  	ZOOM_ON_REGION(DandelionAction.ZOOM_ON_REGION),
   	
     //DOF_3
-  	TRANSLATE3(DLAction.TRANSLATE3),	
-  	FROM_EULER_ANGLES(DLAction.TRANSLATE3),
+  	TRANSLATE3(DandelionAction.TRANSLATE3),	
+  	FROM_EULER_ANGLES(DandelionAction.TRANSLATE3),
   	
-  	CUSTOM1(DLAction.CUSTOM1),
-  	CUSTOM2(DLAction.CUSTOM2),
-  	CUSTOM3(DLAction.CUSTOM3),
-  	CUSTOM4(DLAction.CUSTOM4);
+  	CUSTOM1(DandelionAction.CUSTOM1),
+  	CUSTOM2(DandelionAction.CUSTOM2),
+  	CUSTOM3(DandelionAction.CUSTOM3),
+  	CUSTOM4(DandelionAction.CUSTOM4);
 
   	@Override
-  	public DLAction action() {
+  	public DandelionAction referenceAction() {
   		return act;
   	}
 
   	@Override
   	public String description() {
-  		return this.action().description();
+  		return this.referenceAction().description();
   	}
   	
   	@Override
@@ -538,53 +538,53 @@ public interface Constants extends EventConstants {
 		}
 		*/
 
-  	DLAction act;
+  	DandelionAction act;
 
-  	DOF_3Action(DLAction a) {
+  	DOF3Action(DandelionAction a) {
   		act = a;
   	}
   }
   
-  public enum DOF_6Action implements Actionable<DLAction> {
+  public enum DOF6Action implements Actionable<DandelionAction> {
     //NO_ACTION(DLAction.NO_ACTION),
   	
     //DOF_1
-  	ZOOM(DLAction.ZOOM),
+  	ZOOM(DandelionAction.ZOOM),
     
   	//DOF_2
-  	ROTATE(DLAction.ROTATE),
-  	CAD_ROTATE(DLAction.CAD_ROTATE),
-  	TRANSLATE(DLAction.TRANSLATE),
-  	MOVE_FORWARD(DLAction.MOVE_FORWARD),
-  	MOVE_BACKWARD(DLAction.MOVE_BACKWARD),
-  	LOOK_AROUND(DLAction.LOOK_AROUND),
-  	SCREEN_ROTATE(DLAction.SCREEN_ROTATE),
-  	ROLL(DLAction.ROLL),
-  	DRIVE(DLAction.DRIVE),
-  	SCREEN_TRANSLATE(DLAction.SCREEN_TRANSLATE),
-  	ZOOM_ON_REGION(DLAction.ZOOM_ON_REGION),
+  	ROTATE(DandelionAction.ROTATE),
+  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
+  	TRANSLATE(DandelionAction.TRANSLATE),
+  	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
+  	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
+  	LOOK_AROUND(DandelionAction.LOOK_AROUND),
+  	SCREEN_ROTATE(DandelionAction.SCREEN_ROTATE),
+  	ROLL(DandelionAction.ROLL),
+  	DRIVE(DandelionAction.DRIVE),
+  	SCREEN_TRANSLATE(DandelionAction.SCREEN_TRANSLATE),
+  	ZOOM_ON_REGION(DandelionAction.ZOOM_ON_REGION),
   	
     //DOF_3
-  	TRANSLATE3(DLAction.TRANSLATE3),	
-  	FROM_EULER_ANGLES(DLAction.TRANSLATE3),
+  	TRANSLATE3(DandelionAction.TRANSLATE3),	
+  	FROM_EULER_ANGLES(DandelionAction.TRANSLATE3),
   	
     //DOF_6
-  	GOOGLE_EARTH(DLAction.GOOGLE_EARTH),	
-  	NATURAL(DLAction.NATURAL),
+  	GOOGLE_EARTH(DandelionAction.GOOGLE_EARTH),	
+  	NATURAL(DandelionAction.NATURAL),
   	
-  	CUSTOM1(DLAction.CUSTOM1),
-  	CUSTOM2(DLAction.CUSTOM2),
-  	CUSTOM3(DLAction.CUSTOM3),
-  	CUSTOM4(DLAction.CUSTOM4);
+  	CUSTOM1(DandelionAction.CUSTOM1),
+  	CUSTOM2(DandelionAction.CUSTOM2),
+  	CUSTOM3(DandelionAction.CUSTOM3),
+  	CUSTOM4(DandelionAction.CUSTOM4);
 
   	@Override
-  	public DLAction action() {
+  	public DandelionAction referenceAction() {
   		return act;
   	}
 
   	@Override
   	public String description() {
-  		return this.action().description();
+  		return this.referenceAction().description();
   	}
   	
   	@Override
@@ -604,9 +604,9 @@ public interface Constants extends EventConstants {
 		}
 		*/
 
-  	DLAction act;
+  	DandelionAction act;
 
-  	DOF_6Action(DLAction a) {
+  	DOF6Action(DandelionAction a) {
   		act = a;
   	}  	
   }

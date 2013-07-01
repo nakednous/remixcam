@@ -191,18 +191,18 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	
 	@Override
 	protected void execAction3D(MotionEvent e) {
-		Actionable<DLAction> a=null;
+		Actionable<DandelionAction> a=null;
 		if(e instanceof GenericDOF1Event)
-			a = (DOF_1Action) ((GenericDOF1Event<?>) e).getAction();
+			a = (DOF1Action) ((GenericDOF1Event<?>) e).action();
 		if(e instanceof GenericDOF2Event)
-			a = (DOF_2Action) ((GenericDOF2Event<?>) e).getAction();
+			a = (DOF2Action) ((GenericDOF2Event<?>) e).action();
 		if(e instanceof GenericDOF3Event)
-			a = (DOF_3Action) ((GenericDOF3Event<?>) e).getAction();
+			a = (DOF3Action) ((GenericDOF3Event<?>) e).action();
 		if(e instanceof GenericDOF6Event)
-			a = (DOF_6Action) ((GenericDOF6Event<?>) e).getAction();
+			a = (DOF6Action) ((GenericDOF6Event<?>) e).action();
 		
 		if(a == null) return;
-		DLAction id = a.action();
+		DandelionAction id = a.referenceAction();
 		
 		GenericDOF2Event<?> event;
 		
