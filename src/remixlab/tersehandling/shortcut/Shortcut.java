@@ -27,11 +27,11 @@ package remixlab.tersehandling.shortcut;
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
-import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.core.Copyable;
+import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.event.*;
 
-public class Shortcut implements Constants, Copyable {
+public class Shortcut implements EventConstants, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		

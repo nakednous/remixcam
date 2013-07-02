@@ -27,7 +27,7 @@ public class MouseAgent extends GenericMotionAgent<GenericMotionProfile<MotionAc
     if ( e.getAction() == processing.event.MouseEvent.DRAG ) {
       event = new GenericDOF2Event<MotionAction>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
       if(event.isControlDown())
-        tearseHandler().enqueueEventTuple(new EventGrabberDuobleTuple(event, MotionAction.CHANGE_POSITION, circles[20]));
+        terseHandler().enqueueEventTuple(new EventGrabberDuobleTuple(event, MotionAction.CHANGE_POSITION, circles[20]));
       else
         handle(event);
       prevEvent = event.get();
