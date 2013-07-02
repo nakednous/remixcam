@@ -6,7 +6,6 @@ int h = 500;
 
 public class MouseAgent extends Agent {
   DOF2Event event;
-  ClickEvent clickEvent;
 
   public MouseAgent(TerseHandler scn, String n) {
     super(scn, n);
@@ -89,13 +88,13 @@ public class GrabbableCircle extends AbstractGrabber {
 }
 
 MouseAgent agent;
-TerseHandler scene;
+TerseHandler terseHandler;
 GrabbableCircle [] circles;
 
 void setup() {
   size(w, h);
-  scene = new TerseHandler();
-  agent = new MouseAgent(scene, "my_mouse");
+  terseHandler = new TerseHandler();
+  agent = new MouseAgent(terseHandler, "my_mouse");
   registerMethod("mouseEvent", agent);
   circles = new GrabbableCircle[50];
   for (int i = 0; i < circles.length; i++)
@@ -110,6 +109,5 @@ void draw() {
     else
       circles[i].draw();
   }
-  scene.handle();
+  terseHandler.handle();
 }
-

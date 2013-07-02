@@ -146,6 +146,10 @@ public class Agent {
 		return null;
 	}
 	
+	public TerseHandler terseHandler() {
+		return handler;
+	}
+	
 	/**
 	 * Returns a list containing references to all the active MouseGrabbers.
 	 * <p>
