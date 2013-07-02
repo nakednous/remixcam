@@ -184,7 +184,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	
 	@Override
 	public boolean grabsAgent(Agent agent) {
-		return agent.trackedGrabber() == this;
+		return agent.grabber() == this;
 	}
 	
 	@Override

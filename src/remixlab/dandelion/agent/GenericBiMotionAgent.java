@@ -35,7 +35,6 @@ import remixlab.tersehandling.event.*;
 
 public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends GenericMotionAgent<P, GenericClickProfile<Constants.DOF0Action>> {
 	protected P camProfile;
-	protected float[] sens;
 	
 	public GenericBiMotionAgent(P fProfile, P cProfile, GenericClickProfile<Constants.DOF0Action> c, TerseHandler scn, String n) {
 		super(fProfile, c, scn, n);
@@ -64,10 +63,6 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 	
 	public void setClickProfile(GenericClickProfile<Constants.DOF0Action> profile) {
 		clickProfile = profile;
-	}
-	
-	public float [] sensitivities() {
-		return sens;
 	}
 	
 	@Override

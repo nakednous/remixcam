@@ -370,7 +370,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 */
 	@Override
 	public boolean grabsAgent(Agent agent) {
-		return agent.trackedGrabber() == this;
+		return agent.grabber() == this;
 	}
 
 	/**

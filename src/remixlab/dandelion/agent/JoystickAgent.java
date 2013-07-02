@@ -41,10 +41,6 @@ public class JoystickAgent extends GenericBiMotionAgent<GenericMotionProfile<Con
 	  setDefaultGrabber(scn.pinhole().frame());
 		//camProfile = new GenericMotionProfile<Constants.DOF_3Action>();
 		//profile = new GenericMotionProfile<Constants.DOF_3Action>();
-		sens = new float[3];
-		sens[0] = 1f;
-		sens[1] = 1f;
-		sens[2] = 1f;
 	}
 	
 	@Override
@@ -79,11 +75,5 @@ public class JoystickAgent extends GenericBiMotionAgent<GenericMotionProfile<Con
 	
 	public void setZTranslationSensitivity(float s) {
 		sens[2] = s;
-	}
-	
-	public void setSensitivities(float x, float y, float z) {
-		sens[0] = x;
-		sens[1] = y;
-		sens[2] = z;
 	}
 }

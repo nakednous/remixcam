@@ -40,9 +40,6 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 		//camProfile = new GenericMotionProfile<Constants.DOF_2Action>();
 		//profile = new GenericMotionProfile<Constants.DOF_2Action>();
 		//clickProfile = new GenericClickProfile<Constants.DOF_0Action>();
-		sens = new float[2];
-		sens[0] = 1f;
-		sens[1] = 1f;
 		cameraProfile().setBinding(TH_CENTER, DOF2Action.ZOOM);
 		cameraProfile().setBinding(TH_LEFT, DOF2Action.ROTATE);
 		cameraProfile().setBinding(TH_RIGHT, DOF2Action.TRANSLATE);
@@ -104,10 +101,5 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 	
 	public void setYTranslationSensitivity(float s) {
 		sens[1] = s;
-	}
-	
-	public void setSensitivities(float x, float y) {
-		sens[0] = x;
-		sens[1] = y;
 	}
 }

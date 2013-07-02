@@ -67,7 +67,7 @@ public class Agent {
 	protected TerseHandler handler;
 	protected String nm;
 	protected List<Grabbable> grabbers;
-	protected Grabbable grabber;
+	protected Grabbable trackedGrabber;
 	protected Grabbable defaultGrabber;
 	
 	//protected boolean enforcedGrabber;
@@ -111,6 +111,8 @@ public class Agent {
 	*/
 	public void setTracking(boolean enable) {
 		deviceTrckn = enable;
+		if(!isTracking())
+			setTrackedGrabber(null);
 	}
 
 	/**
@@ -206,7 +208,7 @@ public class Agent {
 	 * {@link #pinhole()} or {@link #interactiveFrame()}).
 	 */
 	public Grabbable trackedGrabber() {
-		return grabber;
+		return trackedGrabber;
 	}
 	
 	public Grabbable grabber() {
@@ -258,17 +260,31 @@ public class Agent {
 	 * {@link remixlab.tersehandling.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}
 	 * test performed by parsing the mouse moved event.
 	 */
-	public boolean setTrackedGrabber(Grabbable deviceGrabber) {
+	/**
+	protected boolean setTrackedGrabber(Grabbable deviceGrabber) {
+		//if(!isTracking())	return false;
 		if( deviceGrabber == null ) {
-			grabber = null;
+			trackedGrabber = null;
 			return true;
 		}
 		else
 			if( isInPool(deviceGrabber) ) {
-				grabber = deviceGrabber;
+				trackedGrabber = deviceGrabber;
 				return true;
 			}
 		return false;
+		//deviceGrabberIsAnIFrame = deviceGrabber instanceof InteractiveFrame;
+	}
+	*/
+	private void setTrackedGrabber(Grabbable deviceGrabber) {
+		//if(!isTracking())	return false;
+		if( deviceGrabber == null ) {
+			trackedGrabber = null;
+		}
+		else
+			if( isInPool(deviceGrabber) ) {
+				trackedGrabber = deviceGrabber;
+			}
 		//deviceGrabberIsAnIFrame = deviceGrabber instanceof InteractiveFrame;
 	}
 }

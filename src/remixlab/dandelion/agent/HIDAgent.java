@@ -38,17 +38,9 @@ public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constant
 			    new GenericClickProfile<Constants.DOF0Action>(), scn.terseHandler(), n);
 	  setDefaultGrabber(scn.pinhole().frame());
 		//super(scn.terseHandler(), n);
-		setDefaultGrabber(scn.pinhole().frame());
 		//camProfile = new GenericMotionProfile<Constants.DOF_6Action>();
 		//profile = new GenericMotionProfile<Constants.DOF_6Action>();
 		//clickProfile = new GenericClickProfile<Constants.DOF_0Action>();
-		sens = new float[6];
-		sens[0] = 1f;
-		sens[1] = 1f;
-		sens[2] = 1f;
-		sens[3] = 1f;
-		sens[4] = 1f;
-		sens[5] = 1f;
 		cameraProfile().setBinding(DOF6Action.NATURAL);
 		frameProfile().setBinding(DOF6Action.NATURAL);
 	}
@@ -109,14 +101,5 @@ public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constant
 	
 	public void setZRotationSensitivity(float s) {
 		sens[5] = s;
-	}
-	
-	public void setSensitivities(float x, float y, float z, float rx, float ry, float rz) {
-		sens[0] = x;
-		sens[1] = y;
-		sens[2] = z;
-		sens[3] = rx;
-		sens[4] = ry;
-		sens[5] = rz;
 	}
 }

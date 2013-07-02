@@ -136,8 +136,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public class ProsceneKeyboard extends KeyboardAgent {
 		public ProsceneKeyboard(AbstractScene scn, String n) {
 			super(scn, n);
-			//this.addInDeviceGrabberPool(scn);
-			//this.enforceGrabber(scn);
 		}
 		
 		public void keyEvent(KeyEvent e) {

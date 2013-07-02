@@ -37,6 +37,7 @@ public class GenericMotionAgent<P extends GenericProfile<?,?>, C extends Generic
 	public GenericMotionAgent(P p, C c, TerseHandler scn, String n) {
 		super(p, scn, n);
 		clickProfile = c;
+		sens = new float[] {1f, 1f, 1f, 1f, 1f, 1f};
 	}
 	
 	public P motionProfile() {
@@ -55,6 +56,27 @@ public class GenericMotionAgent<P extends GenericProfile<?,?>, C extends Generic
 		clickProfile = profile;
 	}
 	
+	public void setSensitivities(float x) {
+		setSensitivities(x,0,0,0,0,0);
+	}
+	
+	public void setSensitivities(float x, float y) {
+		setSensitivities(x,y,0,0,0,0);
+	}
+	
+	public void setSensitivities(float x, float y, float z) {
+		setSensitivities(x,y,z,0,0,0);
+	}
+	
+	public void setSensitivities(float x, float y, float z, float rx, float ry,	float rz) {
+		sens[0] = x;
+		sens[1] = y;
+		sens[2] = z;
+		sens[3] = rx;
+		sens[4] = ry;
+		sens[5] = rz;
+	}
+	
 	public float [] sensitivities() {
 		return sens;
 	}
@@ -69,8 +91,8 @@ public class GenericMotionAgent<P extends GenericProfile<?,?>, C extends Generic
 			else
 				if(event instanceof MotionEvent) {
 					((MotionEvent)event).modulate(sens);
-					if (trackedGrabber() != null )
-						handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, motionProfile().handle((Duoable<?>)event), trackedGrabber()));			
+					if (grabber() != null )
+						handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, motionProfile().handle((Duoable<?>)event), grabber()));			
 			}
 		}
 	}	
