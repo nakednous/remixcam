@@ -89,7 +89,7 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 			return false;
 		if( (deviceGrabber instanceof InteractiveFrame) && !(deviceGrabber instanceof InteractiveCameraFrame) )
 			if (!isInPool(deviceGrabber)) {
-				deviceGrabberPool().add(deviceGrabber);
+				pool().add(deviceGrabber);
 				return true;
 			}
 		return false;

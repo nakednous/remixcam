@@ -144,7 +144,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		super(scn.is3D());		
 		scene = scn;		
 
-		scene.terseHandler().addInDeviceGrabberPool(this);
+		scene.terseHandler().addInAllAgentPools(this);
 		isInCamPath = false;
 		//grbsDevice = false;
 
@@ -174,7 +174,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		super(otherFrame);
 		this.scene = otherFrame.scene;
 		
-		this.scene.terseHandler().addInDeviceGrabberPool(this);
+		this.scene.terseHandler().addInAllAgentPools(this);
 		this.isInCamPath = otherFrame.isInCamPath;
 		//this.grbsDevice = otherFrame.grbsDevice;
 		
@@ -238,7 +238,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		super(iFrame.rotation(), iFrame.translation(), iFrame.scaling());
 		scene = scn;
 
-		scene.terseHandler().addInDeviceGrabberPool(this);
+		scene.terseHandler().addInAllAgentPools(this);
 		isInCamPath = true;
 		//grbsDevice = false;
 

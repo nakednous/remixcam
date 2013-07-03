@@ -59,7 +59,7 @@ public class JoystickAgent extends GenericBiMotionAgent<GenericMotionProfile<Con
 			return false;
 		if( (deviceGrabber instanceof InteractiveFrame) && !(deviceGrabber instanceof InteractiveCameraFrame) )
 			if (!isInPool(deviceGrabber)) {
-				deviceGrabberPool().add(deviceGrabber);
+				pool().add(deviceGrabber);
 				return true;
 			}
 		return false;

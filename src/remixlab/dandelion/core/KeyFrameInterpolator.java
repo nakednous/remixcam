@@ -793,7 +793,7 @@ public class KeyFrameInterpolator implements Copyable {
 			stopInterpolation();
 		AbstractKeyFrame kf = keyFr.remove(index);
 		if (kf.frm  instanceof InteractiveFrame)
-			scene.terseHandler().removeFromDeviceGrabberPool( (InteractiveFrame) kf.frm );
+			scene.terseHandler().removeFromAllAgentPools( (InteractiveFrame) kf.frm );
 		  //before:
 			//if (((InteractiveFrame) kf.frm).isInDeviceGrabberPool())
 				//((InteractiveFrame) kf.frm).removeFromDeviceGrabberPool();
@@ -826,7 +826,7 @@ public class KeyFrameInterpolator implements Copyable {
 	protected void removeFramesFromMouseGrabberPool() {
 		for (int i = 0; i < keyFr.size(); ++i) {
 			if (keyFr.get(i).frame() != null)
-				scene.terseHandler().removeFromDeviceGrabberPool((InteractiveFrame) keyFr.get(i).frame());
+				scene.terseHandler().removeFromAllAgentPools((InteractiveFrame) keyFr.get(i).frame());
 				//before:
 				//if (((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
 					//((InteractiveFrame) keyFr.get(i).frame()).removeFromDeviceGrabberPool();
@@ -843,7 +843,7 @@ public class KeyFrameInterpolator implements Copyable {
 	protected void addFramesToMouseGrabberPool() {
 		for (int i = 0; i < keyFr.size(); ++i) {
 			if (keyFr.get(i).frame() != null)
-				scene.terseHandler().addInDeviceGrabberPool((InteractiveFrame) keyFr.get(i).frame());
+				scene.terseHandler().removeFromAllAgentPools((InteractiveFrame) keyFr.get(i).frame());
 			  //before:
 				//if (!((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
 					//((InteractiveFrame) keyFr.get(i).frame()).addInDeviceGrabberPool();

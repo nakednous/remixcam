@@ -147,12 +147,12 @@ public void keyPressed() {
     enforced = !enforced;
     if (scene.terseHandler().isAgentRegistered(scene.prosceneMouse))
       if (enforced) {
-        scene.prosceneMouse.setTrackedGrabber(iFrame);
+        scene.prosceneMouse.setDefaultGrabber(iFrame);
         scene.prosceneMouse.disableTracking();
       }
       else {
-        scene.prosceneMouse.setTrackedGrabber(null);
-        scene.prosceneMouse.enableTracking();
+        scene.prosceneMouse.setDefaultGrabber(scene.pinhole().frame());
+		scene.prosceneMouse.enableTracking();
       }
     else
       if (enforced)

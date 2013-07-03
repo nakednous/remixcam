@@ -2360,7 +2360,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	@Override
 	protected void drawSelectionHints() {
-		for (Grabbable mg : terseHandler().deviceGrabberPool()) {
+		for (Grabbable mg : terseHandler().globalGrabberList()) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
@@ -2388,7 +2388,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 	@Override
 	protected void drawCameraPathSelectionHints() {
-		for (Grabbable mg : terseHandler().deviceGrabberPool()) {
+		for (Grabbable mg : terseHandler().globalGrabberList()) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
