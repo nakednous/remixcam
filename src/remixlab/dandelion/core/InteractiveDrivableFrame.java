@@ -28,8 +28,8 @@ package remixlab.dandelion.core;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.util.AbstractTimerJob;
 import remixlab.tersehandling.core.Copyable;
-import remixlab.tersehandling.duoable.event.GenericDOF1Event;
-import remixlab.tersehandling.duoable.event.GenericDOF2Event;
+import remixlab.tersehandling.generic.event.GenericDOF1Event;
+import remixlab.tersehandling.generic.event.GenericDOF2Event;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;

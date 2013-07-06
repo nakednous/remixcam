@@ -27,10 +27,10 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.core.TerseHandler;
-import remixlab.tersehandling.duoable.agent.GenericMotionAgent;
-import remixlab.tersehandling.duoable.profile.GenericClickProfile;
-import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
-import remixlab.tersehandling.duoable.profile.Duoable;
+import remixlab.tersehandling.generic.agent.GenericMotionAgent;
+import remixlab.tersehandling.generic.profile.GenericClickProfile;
+import remixlab.tersehandling.generic.profile.GenericMotionProfile;
+import remixlab.tersehandling.generic.profile.Duoable;
 import remixlab.tersehandling.event.*;
 
 public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends GenericMotionAgent<P, GenericClickProfile<Constants.DOF0Action>> {

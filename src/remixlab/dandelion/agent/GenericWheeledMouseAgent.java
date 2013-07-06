@@ -27,9 +27,9 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.core.Constants;
-import remixlab.tersehandling.duoable.event.GenericDOF1Event;
-import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
-import remixlab.tersehandling.duoable.profile.Duoable;
+import remixlab.tersehandling.generic.event.GenericDOF1Event;
+import remixlab.tersehandling.generic.profile.GenericMotionProfile;
+import remixlab.tersehandling.generic.profile.Duoable;
 import remixlab.tersehandling.event.*;
 
 public class GenericWheeledMouseAgent<W extends GenericMotionProfile<Constants.DOF1Action>> extends MouseAgent {

@@ -30,8 +30,8 @@ import remixlab.dandelion.core.Constants;
 import remixlab.dandelion.core.InteractiveCameraFrame;
 import remixlab.dandelion.core.InteractiveFrame;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.duoable.profile.GenericClickProfile;
-import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
+import remixlab.tersehandling.generic.profile.GenericClickProfile;
+import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 
 public class JoystickAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF3Action>> {
 	public JoystickAgent(AbstractScene scn, String n) {

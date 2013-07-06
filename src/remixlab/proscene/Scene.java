@@ -32,9 +32,9 @@ import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
 import remixlab.dandelion.util.*;
-import remixlab.tersehandling.duoable.event.*;
+import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
+import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 //import remixlab.remixcam.shortcut.*;
 
 /**

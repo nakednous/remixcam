@@ -26,7 +26,7 @@
 package remixlab.dandelion.core;
 
 import remixlab.tersehandling.core.EventConstants;
-import remixlab.tersehandling.duoable.profile.Actionable;
+import remixlab.tersehandling.generic.profile.Actionable;
 
 
 public interface Constants extends EventConstants {	

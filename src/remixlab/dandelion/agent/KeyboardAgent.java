@@ -27,9 +27,9 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.core.Constants.DOF0Action;
-import remixlab.tersehandling.duoable.agent.GenericKeyboardAgent;
-import remixlab.tersehandling.duoable.event.GenericKeyboardEvent;
-import remixlab.tersehandling.duoable.profile.GenericKeyboardProfile;
+import remixlab.tersehandling.generic.agent.GenericKeyboardAgent;
+import remixlab.tersehandling.generic.event.GenericKeyboardEvent;
+import remixlab.tersehandling.generic.profile.GenericKeyboardProfile;
 
 //TODO find a better name for this
 public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<Constants.DOF0Action>> {

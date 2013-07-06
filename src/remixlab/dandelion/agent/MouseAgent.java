@@ -27,9 +27,9 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.duoable.event.GenericDOF2Event;
-import remixlab.tersehandling.duoable.profile.GenericClickProfile;
-import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
+import remixlab.tersehandling.generic.event.GenericDOF2Event;
+import remixlab.tersehandling.generic.profile.GenericClickProfile;
+import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 
 public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF2Action>> implements Constants {
 	public MouseAgent(AbstractScene scn, String n) {

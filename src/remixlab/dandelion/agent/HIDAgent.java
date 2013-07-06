@@ -27,9 +27,9 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.duoable.event.GenericDOF6Event;
-import remixlab.tersehandling.duoable.profile.GenericClickProfile;
-import remixlab.tersehandling.duoable.profile.GenericMotionProfile;
+import remixlab.tersehandling.generic.event.GenericDOF6Event;
+import remixlab.tersehandling.generic.profile.GenericClickProfile;
+import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 
 public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF6Action>> implements Constants {
 	public HIDAgent(AbstractScene scn, String n) {

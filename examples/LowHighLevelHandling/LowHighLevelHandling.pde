@@ -2,7 +2,7 @@ import remixlab.proscene.*;
 import remixlab.proscene.Scene.ProsceneKeyboard;
 import remixlab.proscene.Scene.ProsceneMouse;
 import remixlab.tersehandling.core.*;
-import remixlab.tersehandling.duoable.event.*;
+import remixlab.tersehandling.generic.event.*;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.core.Constants.*;

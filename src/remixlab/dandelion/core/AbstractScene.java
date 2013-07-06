@@ -35,9 +35,9 @@ import remixlab.dandelion.util.*;
 import remixlab.tersehandling.core.Agent;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.TerseHandler;
-import remixlab.tersehandling.duoable.event.GenericClickEvent;
-import remixlab.tersehandling.duoable.event.GenericKeyboardEvent;
-import remixlab.tersehandling.duoable.profile.Actionable;
+import remixlab.tersehandling.generic.event.GenericClickEvent;
+import remixlab.tersehandling.generic.event.GenericKeyboardEvent;
+import remixlab.tersehandling.generic.profile.Actionable;
 import remixlab.tersehandling.event.*;
 
 public abstract class AbstractScene implements Constants, Grabbable {	

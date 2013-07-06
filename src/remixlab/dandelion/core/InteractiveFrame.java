@@ -31,9 +31,9 @@ import remixlab.dandelion.util.AbstractTimerJob;
 import remixlab.tersehandling.core.Agent;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.duoable.event.*;
-import remixlab.tersehandling.duoable.profile.Actionable;
-import remixlab.tersehandling.duoable.profile.Duoable;
+import remixlab.tersehandling.generic.event.*;
+import remixlab.tersehandling.generic.profile.Actionable;
+import remixlab.tersehandling.generic.profile.Duoable;
 import remixlab.tersehandling.event.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;

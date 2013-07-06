@@ -28,9 +28,9 @@ package remixlab.dandelion.core;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Util;
-import remixlab.tersehandling.duoable.profile.Actionable;
+import remixlab.tersehandling.generic.profile.Actionable;
 import remixlab.tersehandling.event.*;
-import remixlab.tersehandling.duoable.event.*;
+import remixlab.tersehandling.generic.event.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
