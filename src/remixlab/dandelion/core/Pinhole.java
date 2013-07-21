@@ -467,8 +467,8 @@ public abstract class Pinhole {
 		setFlySpeed(0.01f * sceneRadius());
 
 		// if there's an avatar we change its fly speed as well
-		if (scene.avatarIsInteractiveDrivableFrame)
-			((InteractiveDrivableFrame) scene.avatar()).setFlySpeed(0.01f * scene.radius());
+		if (scene.avatarIsInteractiveFrame)
+			((InteractiveFrame) scene.avatar()).setFlySpeed(0.01f * scene.radius());
 	}
 	
   //11. FLYSPEED

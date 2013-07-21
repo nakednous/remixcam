@@ -75,7 +75,7 @@ public class GenericWheeledMouseAgent<W extends GenericMotionProfile<Constants.D
 	*/
 	
 	@Override
-	public void handle(BaseEvent event) {
+	public void handle(TerseEvent event) {
 		//TODO warning: should be copy pasted from AbstractMotionDevice
 		if(event == null || !handler.isAgentRegistered(this))	return;
 		if(event instanceof Duoable<?>) {

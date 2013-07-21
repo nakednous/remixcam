@@ -62,7 +62,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	//protected InteractiveFrame glIFrame;
 	protected boolean iFrameIsDrwn;
 	protected Trackable trck;
-	public boolean avatarIsInteractiveDrivableFrame;
+	public boolean avatarIsInteractiveFrame;
 	protected boolean avatarIsInteractiveAvatarFrame;
 	
   //E X C E P T I O N H A N D L I N G
@@ -188,7 +188,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}
 	
 	@Override
-	public boolean checkIfGrabsInput(BaseEvent event) {		
+	public boolean checkIfGrabsInput(TerseEvent event) {		
 		return (event instanceof GenericKeyboardEvent || event instanceof GenericClickEvent);
 	}
 	
@@ -196,7 +196,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * Internal method. Handles the different global keyboard actions.
 	 */
 	@Override
-	public void performInteraction(BaseEvent event) {
+	public void performInteraction(TerseEvent event) {
 		if( !(event instanceof GenericClickEvent) && ! (event instanceof GenericKeyboardEvent))
 			return;
 		
@@ -313,13 +313,13 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			break;
 		case INCREASE_AVATAR_FLY_SPEED:
 			if (avatar() != null)
-				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() * 1.2f);
+				if (avatarIsInteractiveFrame)
+					((InteractiveFrame) avatar()).setFlySpeed(((InteractiveFrame) avatar()).flySpeed() * 1.2f);
 			break;
 		case DECREASE_AVATAR_FLY_SPEED:
 			if (avatar() != null)
-				if (avatarIsInteractiveDrivableFrame)
-					((InteractiveDrivableFrame) avatar()).setFlySpeed(((InteractiveDrivableFrame) avatar()).flySpeed() / 1.2f);
+				if (avatarIsInteractiveFrame)
+					((InteractiveFrame) avatar()).setFlySpeed(((InteractiveFrame) avatar()).flySpeed() / 1.2f);
 			break;
 		case INCREASE_AZYMUTH:
 			if (avatar() != null)
@@ -1905,14 +1905,14 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	public void setAvatar(Trackable t) {
 		trck = t;
 		avatarIsInteractiveAvatarFrame = false;
-		avatarIsInteractiveDrivableFrame = false;
+		avatarIsInteractiveFrame = false;
 		if (avatar() instanceof InteractiveAvatarFrame) {
 			avatarIsInteractiveAvatarFrame = true;
-			avatarIsInteractiveDrivableFrame = true;
+			avatarIsInteractiveFrame = true;
 			//if (interactiveFrame() != null)	((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
-		} else if (avatar() instanceof InteractiveDrivableFrame) {
+		} else if (avatar() instanceof InteractiveFrame) {
 			avatarIsInteractiveAvatarFrame = false;
-			avatarIsInteractiveDrivableFrame = true;
+			avatarIsInteractiveFrame = true;
 			//if (interactiveFrame() != null)	((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
 		}
 	}
@@ -1925,7 +1925,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	public void unsetAvatar() {
 		trck = null;
 		avatarIsInteractiveAvatarFrame = false;
-		avatarIsInteractiveDrivableFrame = false;
+		avatarIsInteractiveFrame = false;
 	}
 
 	/**
@@ -2411,7 +2411,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		
 	/**
 	 * Draws all InteractiveFrames' selection regions: a shooter target
-	 * visual hint of {@link remixlab.dandelion.core.InteractiveFrame#grabsDeviceThreshold()} pixels size.
+	 * visual hint of {@link remixlab.dandelion.core.InteractiveFrame#grabsInputThreshold()} pixels size.
 	 * 
 	 * <b>Attention:</b> If the InteractiveFrame is part of a Camera path draws
 	 * nothing.
@@ -2422,7 +2422,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	
 	/**
 	 * Draws the selection regions (a shooter target visual hint of
-	 * {@link remixlab.dandelion.core.InteractiveFrame#grabsDeviceThreshold()} pixels size) of all
+	 * {@link remixlab.dandelion.core.InteractiveFrame#grabsInputThreshold()} pixels size) of all
 	 * InteractiveFrames forming part of the Camera paths.
 	 * 
 	 * @see #drawSelectionHints()
@@ -2521,9 +2521,22 @@ public abstract class AbstractScene implements Constants, Grabbable {
   
   /**
    * Display a warning that the specified method lacks implementation.
-   */
+   */  
   static public void showMissingImplementationWarning(String method) {
     showWarning(method + "(), should be implemented by your AbstractScene, " +
                 "derived class.");
+  }
+  
+  static public void showMissingImplementationWarning(DandelionAction action) {
+    showWarning(action + "(), should be implemented by your iFrame, " +
+                "derived class.");
+  }
+  
+  static public void showVariationWarning(DandelionAction action) {
+    showWarning(action + " is not available in 2D.");
+  }
+  
+  static public void showEventVariationWarning(DandelionAction action) {
+    showWarning(action + " can only be performed using a relative event.");
   }
 }

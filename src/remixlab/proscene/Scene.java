@@ -1750,7 +1750,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		setDefaultShortcuts();
 		// */
 
-		avatarIsInteractiveDrivableFrame = false;// also init in setAvatar, but we
+		avatarIsInteractiveFrame = false;// also init in setAvatar, but we
 		// need it here to properly init the camera
 		avatarIsInteractiveAvatarFrame = false;// also init in setAvatar, but we
 		// need it here to properly init the camera
@@ -2370,7 +2370,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					  //pg3d.stroke(mouseGrabberOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 0));
 						pg().strokeWeight(2);
-						drawShooterTarget(center, (iF.grabsDeviceThreshold() + 1));
+						drawShooterTarget(center, (iF.grabsInputThreshold() + 1));
 						pg().popStyle();					
 					}
 					else {						
@@ -2378,7 +2378,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					  //pg3d.stroke(mouseGrabberOffSelectionHintColor());
 						pg().stroke(pg().color(240, 240, 240));
 						pg().strokeWeight(1);
-						drawShooterTarget(center, iF.grabsDeviceThreshold());
+						drawShooterTarget(center, iF.grabsInputThreshold());
 						pg().popStyle();
 					}
 				}
@@ -2398,7 +2398,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					  //pg3d.stroke(mouseGrabberCameraPathOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 255));
 						pg().strokeWeight(2);
-						drawShooterTarget(center, (iF.grabsDeviceThreshold() + 1));
+						drawShooterTarget(center, (iF.grabsInputThreshold() + 1));
 						pg().popStyle();
 					}
 					else {
@@ -2406,7 +2406,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					  //pg3d.stroke(mouseGrabberCameraPathOffSelectionHintColor());
 						pg().stroke(pg().color(255, 255, 0));
 						pg().strokeWeight(1);
-						drawShooterTarget(center, iF.grabsDeviceThreshold());
+						drawShooterTarget(center, iF.grabsInputThreshold());
 						pg().popStyle();
 					}
 				}

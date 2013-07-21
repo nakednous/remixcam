@@ -32,7 +32,6 @@ import remixlab.tersehandling.core.Agent;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.generic.event.*;
-import remixlab.tersehandling.generic.profile.Actionable;
 import remixlab.tersehandling.generic.profile.Duoable;
 import remixlab.tersehandling.event.*;
 
@@ -58,8 +57,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
     appendSuper(super.hashCode()).
-		append(grabsDeviceThreshold).
-		//append(grbsDevice).
+		append(grabsInputThreshold).
 		append(isInCamPath).
 		append(isSpng).
 		append(rotSensitivity).
@@ -69,6 +67,10 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		append(sFriction).
 		append(transSensitivity).
 		append(wheelSensitivity).
+		append(drvSpd).
+		append(flyDisp).
+		append(flySpd).
+		append(flyUpVec).
     toHashCode();
 	}
 
@@ -81,8 +83,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		InteractiveFrame other = (InteractiveFrame) obj;
 		return new EqualsBuilder()
     .appendSuper(super.equals(obj))
-		.append(grabsDeviceThreshold, other.grabsDeviceThreshold)
-		//.append(grbsDevice, other.grbsDevice)	
+		.append(grabsInputThreshold, other.grabsInputThreshold)
 		.append(isInCamPath, other.isInCamPath)
 		.append(isSpng, other.isSpng)
 		.append(spinningFriction, other.spinningFriction)
@@ -91,19 +92,25 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		.append(spngQuat,other.spngQuat)
 		.append(spngSensitivity,other.spngSensitivity)
 		.append(transSensitivity, other.transSensitivity)
-		.append(wheelSensitivity, other.wheelSensitivity)
+		.append(wheelSensitivity, other.wheelSensitivity)	
+		.append(drvSpd,other.drvSpd)
+		.append(flyDisp,other.flyDisp)
+		.append(flySpd,other.flySpd)
+		.append(flyUpVec,other.flyUpVec)
 		.isEquals();
 	}
 	
 	//private boolean horiz;// Two simultaneous InteractiveFrame require two mice!
-	private int grabsDeviceThreshold;
+	private int grabsInputThreshold;
 	private float rotSensitivity;
 	private float transSensitivity;
 	private float wheelSensitivity;
 	
 	// spinning stuff:
-	protected float deviceSpeed;
+	protected float eventSpeed;
 	private float spngSensitivity;
+	
+	//TODO: remove this flag?:
 	private boolean isSpng;
 	private AbstractTimerJob spinningTimerJob;
 	private Orientable spngQuat;
@@ -121,9 +128,16 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	// Previous mouse position (used for incremental updates) and mouse press position.
 	//protected Point prevPos, pressPos;
 
-	//protected boolean grbsDevice;
-
 	protected boolean isInCamPath;
+	
+	// " D R I V A B L E "   S T U F F :
+	protected float flySpd;
+	protected float drvSpd;
+	protected AbstractTimerJob flyTimerJob;
+	protected Vec flyUpVec;
+	protected Vec flyDisp;
+	protected static final long FLY_UPDATE_PERDIOD = 10;
+	DandelionAction flyAction;
 
 	// P R O S C E N E A N D P R O C E S S I N G A P P L E T A N D O B J E C T S
 	public AbstractScene scene;
@@ -146,9 +160,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 
 		scene.terseHandler().addInAllAgentPools(this);
 		isInCamPath = false;
-		//grbsDevice = false;
 
-		setGrabsDeviceThreshold(10);
+		setGrabsInputThreshold(10);
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
 		setWheelSensitivity(20.0f);
@@ -163,6 +176,21 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			}
 		};	
 		scene.registerJob(spinningTimerJob);
+		
+		// Drivable stuff:
+		drvSpd = 0.0f;
+		flyUpVec = new Vec(0.0f, 1.0f, 0.0f);
+
+		flyDisp = new Vec(0.0f, 0.0f, 0.0f);
+
+		setFlySpeed(0.0f);
+
+		flyTimerJob = new AbstractTimerJob() {
+			public void execute() {
+				flyUpdate();
+			}
+		};		
+		scene.registerJob(flyTimerJob);
 	}
 	
 	/**
@@ -176,7 +204,6 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		
 		this.scene.terseHandler().addInAllAgentPools(this);
 		this.isInCamPath = otherFrame.isInCamPath;
-		//this.grbsDevice = otherFrame.grbsDevice;
 		
 		/**
 		// TODO need check?
@@ -189,12 +216,11 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		}
 		*/
 
-		this.setGrabsDeviceThreshold( otherFrame.grabsDeviceThreshold()  );
+		this.setGrabsInputThreshold( otherFrame.grabsInputThreshold()  );
 		this.setRotationSensitivity( otherFrame.rotationSensitivity() );
 		this.setTranslationSensitivity( otherFrame.translationSensitivity() );
 		this.setWheelSensitivity( otherFrame.wheelSensitivity() );
 
-		//this.keepsGrabbingCursor = otherFrame.keepsGrabbingCursor;		
 		//this.prevConstraint = otherFrame.prevConstraint; 
 		
 		this.isSpng = otherFrame.isSpng;
@@ -206,7 +232,22 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 				spin();
 			}
 		};		
-		scene.registerJob(spinningTimerJob);
+		this.scene.registerJob(spinningTimerJob);
+		
+		// Drivable stuff:
+		this.drvSpd = otherFrame.drvSpd;
+		this.flyUpVec = new Vec();
+		this.flyUpVec.set(otherFrame.flyUpVector());
+		this.flyDisp = new Vec();
+		this.flyDisp.set(otherFrame.flyDisp);
+		this.setFlySpeed( otherFrame.flySpeed() );
+		
+		this.flyTimerJob = new AbstractTimerJob() {
+			public void execute() {
+				flyUpdate();
+			}
+		};		
+		this.scene.registerJob(flyTimerJob);
 	}
   
 	/**
@@ -240,9 +281,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 
 		scene.terseHandler().addInAllAgentPools(this);
 		isInCamPath = true;
-		//grbsDevice = false;
 
-		setGrabsDeviceThreshold(10);
+		setGrabsInputThreshold(10);
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
 		setWheelSensitivity(20.0f);
@@ -265,6 +305,18 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			}
 		};		
 		scene.registerJob(spinningTimerJob);
+		
+		// Drivable stuff:
+		drvSpd = 0.0f;
+		flyUpVec = new Vec(0.0f, 1.0f, 0.0f);
+		flyDisp = new Vec(0.0f, 0.0f, 0.0f);
+		setFlySpeed(0.0f);
+		flyTimerJob = new AbstractTimerJob() {
+			public void execute() {
+				flyUpdate();
+			}
+		};
+		scene.registerJob(flyTimerJob);
 	}	
 
 	/**
@@ -298,10 +350,10 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * Returns the grabs mouse threshold which is used by this interactive frame to
 	 * {@link #checkIfGrabsDevice(int, int, Camera)}.
 	 * 
-	 * @see #setGrabsDeviceThreshold(int)
+	 * @see #setGrabsInputThreshold(int)
 	 */
-	public int grabsDeviceThreshold() {
-		return grabsDeviceThreshold;
+	public int grabsInputThreshold() {
+		return grabsInputThreshold;
 	}
 	
 	/**
@@ -312,24 +364,24 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * condition. Default value is 10 pixels (which is set in the constructor). Negative values are
 	 * silently ignored.
 	 * 
-	 * @see #grabsDeviceThreshold()
+	 * @see #grabsInputThreshold()
 	 * @see #checkIfGrabsDevice(int, int, Camera)
 	 */
-	public void setGrabsDeviceThreshold( int threshold ) {
+	public void setGrabsInputThreshold( int threshold ) {
 		if(threshold >= 0)
-			grabsDeviceThreshold = threshold; 
+			grabsInputThreshold = threshold; 
 	}
 
 	/**
 	 * Implementation of the MouseGrabber main method.
 	 * <p>
-	 * The InteractiveFrame {@link #grabsAgent()} when the mouse is within a {@link #grabsDeviceThreshold()}
+	 * The InteractiveFrame {@link #grabsAgent()} when the mouse is within a {@link #grabsInputThreshold()}
 	 * pixels region around its
 	 * {@link remixlab.dandelion.core.Camera#projectedCoordinatesOf(Vec)}
 	 * {@link #position()}.
 	 */
 	@Override
-	public boolean checkIfGrabsInput(BaseEvent event) {
+	public boolean checkIfGrabsInput(TerseEvent event) {
 		int x=0, y=0;
 		if(event instanceof DOF2Event) {
 			//x = scene.cursorX - scene.upperLeftCorner.getX();
@@ -338,29 +390,9 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			y = (int)((DOF2Event)event).getY();
 		}
 		Vec proj = scene.pinhole().projectedCoordinatesOf(position());
-		return ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold()));
+		return ((Math.abs(x - proj.vec[0]) < grabsInputThreshold()) && (Math.abs(y - proj.vec[1]) < grabsInputThreshold()));
 		//setGrabsInput(keepsGrabbingCursor || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
 	}
-	
-	/**
-	@Override
-	public void checkIfGrabsInput(GenericEvent<?> event) {
-		int x=0, y=0;
-		if(event instanceof DOF2Event) {
-			//x = scene.cursorX - scene.upperLeftCorner.getX();
-			//y = scene.cursorY - scene.upperLeftCorner.getY();
-			x = (int)((DOF2Event)event).getX();
-			y = (int)((DOF2Event)event).getY();
-		}
-		DLVector proj = scene.pinhole().projectedCoordinatesOf(position());
-		
-		if( scene.interactiveFrameIsDrawn() && scene.interactiveFrame() == this)
-			setGrabsInput(true);
-		else
-			setGrabsInput((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold()));
-		//setGrabsInput(keepsGrabbingCursor || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
-	}
-	*/
 
 	/**
 	 * Returns {@code true} when the MouseGrabber grabs the Scene's mouse events.
@@ -387,16 +419,16 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * 
 	 * @see remixlab.dandelion.core.AbstractScene#addInDeviceGrabberPool(Grabbable)
 	 */
-	public void addInPool(Agent agent) {
+	public void addInAgentPool(Agent agent) {
 		agent.addInPool(this);
 	}
 
 	/**
 	 * Convenience wrapper function that simply calls {@code scene.removeFromMouseGrabberPool(this)}.
 	 * 
-	 * @see remixlab.dandelion.core.AbstractScene#removeFromDeviceGrabberPool(Grabbable)
+	 * @see remixlab.dandelion.core.AbstractScene#removeFromAgentPool(Grabbable)
 	 */
-	public void removeFromDeviceGrabberPool(Agent agent) {
+	public void removeFromAgentPool(Agent agent) {
 		agent.removeFromPool(this);
 	}
 
@@ -604,8 +636,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * @see #spinningFriction()
 	 * @see #toss()
 	 */
-	public void startSpinning(GenericDOF2Event<?> e) {
-		deviceSpeed = e.speed();
+	public void startSpinning(DOF2Event e) {
+		eventSpeed = e.speed();
 		isSpng = true;
 		int updateInterval = (int) e.delay();
 		if(updateInterval>0)
@@ -624,7 +656,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 */
 	public void spin() {		
 		if(spinningFriction() > 0) {
-			if (deviceSpeed == 0) {
+			if (eventSpeed == 0) {
 				stopSpinning();
 				return;
 			}
@@ -687,12 +719,12 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * @see #recomputeTossingDirection()
 	 */
 	protected void recomputeSpinningQuaternion() {
-		float prevSpeed = deviceSpeed;
+		float prevSpeed = eventSpeed;
 		float damping = 1.0f - spinningFrictionFx();
-		deviceSpeed *= damping;
-		if (Math.abs(deviceSpeed) < .001f)
-			deviceSpeed = 0;
-		float currSpeed = deviceSpeed;
+		eventSpeed *= damping;
+		if (Math.abs(eventSpeed) < .001f)
+			eventSpeed = 0;
+		float currSpeed = eventSpeed;
 		if( scene.is3D() )
 			((Quat)spinningQuaternion()).fromAxisAngle(((Quat)spinningQuaternion()).axis(), spinningQuaternion().angle() * (currSpeed / prevSpeed) );
 		else
@@ -725,13 +757,19 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	*/
 	
 	@Override
-	public void performInteraction(BaseEvent e) {
+	public void performInteraction(TerseEvent e) {
 		stopSpinning();
+		//TODO test drivable:
+		this.flyTimerJob.stop();
 		
 		if(e == null) return;
 		
-		if(e instanceof GenericKeyboardEvent || e instanceof GenericClickEvent)
+		if(e instanceof KeyboardEvent || e instanceof ClickEvent) {
 			scene.performInteraction(e);
+			return;
+		}
+		
+		// then it's a MotionEvent
 		
 		Duoable<?> event;
 		//begin:
@@ -743,81 +781,174 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		else 
 			return;	
 		
-		
 		// same as no action
 		if( event.action() == null )
 			return;
 		
-		if( !(event instanceof GenericDOF1Event) && ! (event instanceof GenericDOF2Event) &&
-				!(event instanceof GenericDOF3Event) && ! (event instanceof GenericDOF6Event))
-			return;
+		if( ( scene.is2D() ) && ( ((DandelionAction)event.action().referenceAction()).is2D() ) )
+			execAction2D( reduceEvent( (MotionEvent)e ));
+		else
+			if(scene.is3D())
+				execAction3D( reduceEvent( (MotionEvent)e ));
+	}
+	
+	MotionEvent mE;
+	DOF1Event e1;
+	DOF2Event e2;
+	DOF3Event e3;
+	DOF6Event e6;
+	DandelionAction a;
+	
+	protected DandelionAction reduceEvent(MotionEvent e) {
+		mE = e;
+		if( !(e instanceof Duoable) )	return null;
 		
-		if( ( scene.is2D() ) && ( !event.action().is2D() ) )
-			return;
+		a = (DandelionAction) ((Duoable<?>) e).action().referenceAction();		
+		if( a == null ) return null;
 		
-		if( event instanceof MotionEvent) {
-			if( scene.is2D() )
-				execAction2D((MotionEvent)event);
-			else
-				execAction3D((MotionEvent)event);
+		int dofs = a.dofs();
+		
+		switch(dofs) {
+		case 1:
+			if( e instanceof DOF1Event )
+				e1 = (DOF1Event) e.get();
+			else if( e instanceof DOF2Event )
+				e1 = ((DOF2Event)e).dof1Event(false);
+			else if( e instanceof DOF3Event )
+				e1 = ((DOF3Event)e).dof2Event().dof1Event(false);
+			else if( e instanceof DOF6Event )
+				e1 = ((DOF6Event)e).dof3Event().dof2Event().dof1Event(false);
+			break;
+		case 2:
+			if( e instanceof DOF2Event )
+				e2 = ((DOF2Event)e).get();
+			else if( e instanceof DOF3Event )
+				e2 = ((DOF3Event)e).dof2Event();
+			else if( e instanceof DOF6Event )
+				e2 = ((DOF6Event)e).dof3Event().dof2Event();
+			break;
+		case 3:
+			if( e instanceof DOF3Event )
+				e3 = ((DOF3Event)e).get();
+			else if( e instanceof DOF3Event )
+				e3 = ((DOF6Event)e).dof3Event();
+			break;
+		case 6:
+			if( e instanceof DOF6Event )
+			  e6 = ((DOF6Event)e).get();
+			break;
+		default:
+		  break;
 		}
+		return a;		
 	}
 	
 	//TODO implement me
-	protected void execAction2D(MotionEvent event) {
-	}
-	
-  //TODO implement me
-	protected void execAction3D(MotionEvent e) {
-		Actionable<DandelionAction> a=null;
-		if(e instanceof GenericDOF1Event)
-			a = (DOF1Action) ((GenericDOF1Event<?>) e).action();
-		if(e instanceof GenericDOF2Event)
-			a = (DOF2Action) ((GenericDOF2Event<?>) e).action();
-		if(e instanceof GenericDOF3Event)
-			a = (DOF3Action) ((GenericDOF3Event<?>) e).action();
-		if(e instanceof GenericDOF6Event)
-			a = (DOF6Action) ((GenericDOF6Event<?>) e).action();
-		
-		if(a == null) return;
-		DandelionAction id = a.referenceAction();		
-		
-		GenericDOF2Event<?> event;
-		float delta = 0;
-		
-		switch (id) {
-		case ZOOM: {
-			if( e instanceof GenericDOF1Event ) {
-				delta = ((GenericDOF1Event<?>)e).getX() * wheelSensitivity();	
-			}
-			else {
-				event = (GenericDOF2Event<?>)e;
-				delta = event.getDY(); /**((float)event.getY() - (float)event.getPrevY())*/;
-			}
-			
+	protected void execAction2D(DandelionAction a) {
+		if(a==null) return;
+		switch(a) {
+		case CUSTOM:
+			break;
+		case DRIVE:
+			break;
+		case LOOK_AROUND:
+			break;
+		case MOVE_BACKWARD:
+			break;
+		case MOVE_FORWARD:
+			break;
+		//TODO: seems only one DRIVABLE action having 2d version
+			// it calls spinning -> no flyUpdate is needed
+		case ROLL:
+			break;
+		case ROTATE:
+			break;
+		case ROTATE3:
+			break;
+		case SCREEN_ROTATE:
+			break;
+		case SCREEN_TRANSLATE:
+			break;
+		case TRANSLATE:
+			break;
+		case TRANSLATE3:
+			break;
+		case TRANSLATE_ROTATE:
+			break;
+		case ZOOM:
+			float delta;
+			if( e1.absolute() )
+			  delta = e1.getX();
+			else
+				delta = e1.getDX();
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
 			else
 				inverseScale(1 + Math.abs(delta) / (float) scene.height());
 			break;
+		case ZOOM_ON_REGION:
+			break;
+		default:
+			break;
 		}
-		
-		case ROTATE: {
-			event = (GenericDOF2Event<?>)e;
-			Vec trans = scene.camera().projectedCoordinatesOf(position());
-			Quat rot = deformedBallQuaternion(event, trans.x(), trans.y(), scene.camera());
+	}
+	
+	protected void execAction3D(DandelionAction a) {
+	//TODO DRIVABLE actions should call:}
+			//this.flyTimerJob.run(FLY_UPDATE_PERDIOD);
+		if(a==null) return;
+		Quat q;
+		Vec trans;
+		Vec t;
+		switch(a) {
+		case CUSTOM:
+			AbstractScene.showMissingImplementationWarning(a);
+			break;
+		case DRIVE:
+			break;
+		case LOOK_AROUND:
+			break;
+		case MOVE_BACKWARD:
+			break;
+		case MOVE_FORWARD:
+			break;
+		case ROLL:
+			break;
+		case ROTATE:
+			if(e2.absolute()) {
+				AbstractScene.showEventVariationWarning(a);
+				break;
+			}
+			trans = scene.camera().projectedCoordinatesOf(position());
+			Quat rot = deformedBallQuaternion(e2, trans.x(), trans.y(), scene.camera());
 			rot = iFrameQuaternion(rot, scene.camera());			
 			setSpinningQuaternion(rot);
-			//rotate(spinningQuaternion());
-			startSpinning(event);
-			break;			
-		}
-		
-		case TRANSLATE: {
-			event = (GenericDOF2Event<?>)e;
-			//Point delta = new Point(event.getX(), scene.isRightHanded() ? event.getY() : -event.getY());
-			Vec trans = new Vec(event.getDX(), scene.isRightHanded() ? -event.getDY() : event.getDY(), 0.0f);			
-			
+			startSpinning(e2);
+			break;		
+		case ROTATE3:
+			q = new Quat();
+			t = scene.camera().projectedCoordinatesOf(position());
+	    if(e3.absolute())
+	    	q.fromEulerAngles(e3.getX(), e3.getY(), -e3.getZ());
+	    else
+	    	q.fromEulerAngles(e3.getDX(), e3.getDY(), -e3.getDZ());
+	    t.set(-q.x(), -q.y(), -q.z());
+	    t = scene.camera().frame().orientation().rotate(t);
+	    t = transformOf(t, false);
+	    q.x(t.x());
+	    q.y(t.y());
+	    q.z(t.z());
+	    rotate(q);
+			break;
+		case SCREEN_ROTATE:
+			break;
+		case SCREEN_TRANSLATE:
+			break;
+		case TRANSLATE:
+			if(e2.relative())
+			  trans = new Vec(e2.getDX(), scene.isRightHanded() ? -e2.getDY() : e2.getDY(), 0.0f);
+			else
+				trans = new Vec(e2.getX(), scene.isRightHanded() ? -e2.getY() : e2.getY(), 0.0f);
 		  // Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
@@ -842,22 +973,38 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 				trans = referenceFrame().transformOf(trans);
 			translate(trans);
 			break;
-		}
-		
-		case NATURAL: {
-			GenericDOF6Event<?> event6 = (GenericDOF6Event<?>)e;
-			Vec t = new Vec();
-	    Quat q = new Quat();
+		case TRANSLATE3:
+			t = new Vec();
       // A. Translate the iFrame
 	    // Transform to world coordinate system
-	    t = scene.camera().frame().inverseTransformOf(new Vec(event6.getX(),event6.getY(),-event6.getZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
+	    if(e3.absolute())
+	    	t = scene.camera().frame().inverseTransformOf(new Vec(e3.getX(),e3.getY(),-e3.getZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
+	    else
+	    	t = scene.camera().frame().inverseTransformOf(new Vec(e3.getDX(),e3.getDY(),-e3.getDZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
+	    // And then down to frame
+	    if (referenceFrame() != null)
+	    	t = referenceFrame().transformOf(t, false);
+	    translate(t);
+			break;
+		case TRANSLATE_ROTATE:
+			t = new Vec();
+	    q = new Quat();
+      // A. Translate the iFrame
+	    // Transform to world coordinate system
+	    if(e6.absolute())
+	    	t = scene.camera().frame().inverseTransformOf(new Vec(e6.getX(),e6.getY(),-e6.getZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
+	    else
+	    	t = scene.camera().frame().inverseTransformOf(new Vec(e6.getDX(),e6.getDY(),-e6.getDZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
 	    // And then down to frame
 	    if (referenceFrame() != null)
 	    	t = referenceFrame().transformOf(t, false);
 	    translate(t);
 	    // B. Rotate the iFrame
-	    t = scene.camera().projectedCoordinatesOf(position()); 
-	    q.fromEulerAngles(event6.roll(), event6.pitch(), -event6.yaw());
+	    t = scene.camera().projectedCoordinatesOf(position());
+	    if(e6.absolute())
+	    	q.fromEulerAngles(e6.roll(), e6.pitch(), -e6.yaw());
+	    else
+	    	q.fromEulerAngles(e6.getDRX(), e6.getDRY(), -e6.getDRZ());
 	    t.set(-q.x(), -q.y(), -q.z());
 	    t = scene.camera().frame().orientation().rotate(t);
 	    t = transformOf(t, false);
@@ -866,9 +1013,24 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	    q.z(t.z());
 	    rotate(q);
 			break;
-		}
-		
+		case ZOOM:
+			float delta;
+			if( mE instanceof GenericDOF1Event ) //its a wheel wheel :P
+				delta = -e1.getX() * wheelSensitivity();
+			else
+				if( e1.absolute() )
+				  delta = e1.getX();
+				else
+					delta = e1.getDX();	
+			if(delta >= 0)
+				scale(1 + Math.abs(delta) / (float) scene.height());
+			else
+				inverseScale(1 + Math.abs(delta) / (float) scene.height());
+			break;
+		case ZOOM_ON_REGION:
+			break;
 		default:
+			AbstractScene.showMissingImplementationWarning(a);
 			break;
 		}
 	}
@@ -881,7 +1043,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * Returns a Quaternion computed according to the mouse motion. Mouse positions
 	 * are projected on a deformed ball, centered on ({@code cx}, {@code cy}).
 	 */
-	protected Quat deformedBallQuaternion(GenericDOF2Event<?> event, float cx, float cy, Camera camera) {
+	protected Quat deformedBallQuaternion(DOF2Event event, float cx, float cy, Camera camera) {
+		//TODO absolute events!?
 		float x = event.getX();
 		float y = event.getY();
 		float prevX = event.getPrevX();
@@ -930,5 +1093,154 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 
 		float d = x * x + y * y;
 		return d < size_limit ? (float) Math.sqrt(size2 - d) : size_limit	/ (float) Math.sqrt(d);
+	}
+	
+	//TODO re-implement me!
+	public void flyUpdate() {
+		if( ( scene.is2D() ) && ( !flyAction.is2D() ) )
+			return;
+		
+		flyDisp.set(0.0f, 0.0f, 0.0f);
+		Vec trans;
+		switch (flyAction) {
+		case MOVE_FORWARD:
+			flyDisp.vec[2] = -flySpeed();
+			if(scene.is2D())
+				trans = localInverseTransformOf(flyDisp);
+			else
+				trans = rotation().rotate(flyDisp);
+			translate(trans);
+			//setTossingDirection(trans);
+			break;
+		case MOVE_BACKWARD:
+			flyDisp.vec[2] = flySpeed();
+			if(scene.is2D())
+				trans = localInverseTransformOf(flyDisp);
+			else
+				trans = rotation().rotate(flyDisp);
+			translate(trans);
+			//setTossingDirection(trans);
+			break;
+		case DRIVE:
+			flyDisp.vec[2] = flySpeed() * drvSpd;
+			if(scene.is2D())
+				trans = localInverseTransformOf(flyDisp);
+			else
+				trans = rotation().rotate(flyDisp);
+			translate(trans);
+			//setTossingDirection(trans);
+			break;
+		default:
+			break;
+		}
+	}
+
+	/**
+	 * Returns the fly speed, expressed in processing scene units.
+	 * <p>
+	 * It corresponds to the incremental displacement that is periodically applied
+	 * to the InteractiveDrivableFrame position when a
+	 * {@link remixlab.DOF6Action.action.DOF_6Action#MOVE_FORWARD} or
+	 * {@link remixlab.DOF6Action.action.DOF_6Action#MOVE_BACKWARD} Scene.MouseAction is proceeded.
+	 * <p>
+	 * <b>Attention:</b> When the InteractiveDrivableFrame is set as the
+	 * {@link remixlab.dandelion.core.Camera#frame()} (which indeed is an instance of
+	 * the InteractiveCameraFrame class) or when it is set as the
+	 * {@link remixlab.dandelion.core.AbstractScene#avatar()} (which indeed is an instance of
+	 * the InteractiveAvatarFrame class), this value is set according to the
+	 * {@link remixlab.dandelion.core.AbstractScene#radius()} by
+	 * {@link remixlab.dandelion.core.AbstractScene#setRadius(float)}.
+	 */
+	public float flySpeed() {
+		return flySpd;
+	}
+
+	/**
+	 * Sets the {@link #flySpeed()}, defined in processing scene units.
+	 * <p>
+	 * Default value is 0.0, but it is modified according to the
+	 * {@link remixlab.dandelion.core.AbstractScene#radius()} when the InteractiveDrivableFrame
+	 * is set as the {@link remixlab.dandelion.core.Camera#frame()} (which indeed is an
+	 * instance of the InteractiveCameraFrame class) or when the
+	 * InteractiveDrivableFrame is set as the
+	 * {@link remixlab.dandelion.core.AbstractScene#avatar()} (which indeed is an instance of
+	 * the InteractiveAvatarFrame class).
+	 */
+	public void setFlySpeed(float speed) {
+		flySpd = speed;
+	}
+
+	/**
+	 * Returns the up vector used in fly mode, expressed in the world coordinate
+	 * system.
+	 * <p>
+	 * Fly mode corresponds to the
+	 * {@link remixlab.DOF6Action.action.DOF_6Action#MOVE_FORWARD} and
+	 * {@link remixlab.DOF6Action.action.DOF_6Action#MOVE_BACKWARD} Scene.MouseAction
+	 * bindings. In these modes, horizontal displacements of the mouse rotate the
+	 * InteractiveDrivableFrame around this vector. Vertical displacements rotate
+	 * always around the frame {@code X} axis.
+	 * <p>
+	 * Default value is (0,1,0), but it is updated by the Camera when set as its
+	 * {@link remixlab.dandelion.core.Camera#frame()}.
+	 * {@link remixlab.dandelion.core.Camera#setOrientation(Quat)} and
+	 * {@link remixlab.dandelion.core.Camera#setUpVector(Vec)} modify this value and
+	 * should be used instead.
+	 */
+	public Vec flyUpVector() {
+		return flyUpVec;
+	}
+
+	/**
+	 * Sets the {@link #flyUpVector()}, defined in the world coordinate system.
+	 * <p>
+	 * Default value is (0,1,0), but it is updated by the Camera when set as its
+	 * {@link remixlab.dandelion.core.Camera#frame()}. Use
+	 * {@link remixlab.dandelion.core.Camera#setUpVector(Vec)} instead in that case.
+	 */
+	public void setFlyUpVector(Vec up) {
+		flyUpVec = up;
+	}
+
+	/**
+	 * This method will be called by the Camera when its orientation is changed,
+	 * so that the {@link #flyUpVector()} (private) is changed accordingly. You
+	 * should not need to call this method.
+	 */
+	public final void updateFlyUpVector() {
+		//flyUpVec = inverseTransformOf(new Vector3D(0.0f, 1.0f, 0.0f));
+		flyUpVec = inverseTransformOf(new Vec(0.0f, 1.0f, 0.0f), false);
+	}
+
+	/**
+	 * Returns a Quaternion that is a rotation around current camera Y,
+	 * proportional to the horizontal mouse position.
+	 */
+	protected final Quat turnQuaternion(DOF1Event event, Camera camera) {
+		float x = event.getX();
+		float prevX = event.getPrevX();
+		return new Quat(new Vec(0.0f, 1.0f, 0.0f), rotationSensitivity()	* ((int)prevX - x) / camera.screenWidth());
+	}
+
+	/**
+	 * Returns a Quaternion that is the composition of two rotations, inferred
+	 * from the mouse pitch (X axis) and yaw ({@link #flyUpVector()} axis).
+	 */
+	protected final Quat pitchYawQuaternion(DOF2Event event, Camera camera) {
+		float x = event.getX();
+		float y = event.getY();
+		float prevX = event.getPrevX();
+		float prevY = event.getPrevY();
+		
+		int deltaY;
+		if( scene.isRightHanded() )
+			deltaY = (int) (prevY - y);
+		else
+			deltaY = (int) (y - prevY);
+		
+		Quat rotX = new Quat(new Vec(1.0f, 0.0f, 0.0f), rotationSensitivity() * deltaY / camera.screenHeight());
+		//Quaternion rotY = new Quaternion(transformOf(flyUpVector()), rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());	
+		Quat rotY = new Quat(transformOf(flyUpVector(), false), rotationSensitivity() * ((int)prevX - x) / camera.screenWidth());
+		return Quat.multiply(rotY, rotX);
 	}
 }

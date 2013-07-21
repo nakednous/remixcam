@@ -41,7 +41,7 @@ import remixlab.tersehandling.core.Copyable;
  * {@link #trackingDistance()}) respect to the {@link #position()} (which
  * defines its {@link #target()}) of the InteractiveAvatarFrame.
  */
-public class InteractiveAvatarFrame extends InteractiveDrivableFrame implements	Constants, Trackable, Copyable {
+public class InteractiveAvatarFrame extends InteractiveFrame implements	Constants, Trackable, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).

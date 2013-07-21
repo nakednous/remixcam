@@ -28,8 +28,6 @@ package remixlab.dandelion.core;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Util;
-import remixlab.tersehandling.generic.profile.Actionable;
-import remixlab.tersehandling.event.*;
 import remixlab.tersehandling.generic.event.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -53,7 +51,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * <b>Note:</b> The InteractiveCameraFrame is not added to the
  * {@link remixlab.dandelion.core.AbstractScene#deviceGrabberPool()} upon creation.
  */
-public class InteractiveCameraFrame extends InteractiveDrivableFrame implements Copyable {
+public class InteractiveCameraFrame extends InteractiveFrame implements Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -146,7 +144,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	@Override
 	public void spin() {
 		if(spinningFriction > 0) {
-			if (deviceSpeed == 0) {
+			if (eventSpeed == 0) {
 				stopSpinning();
 				return;
 			}
@@ -186,118 +184,117 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
 	}
 	
 	@Override
-	protected void execAction2D(MotionEvent event) {
+	protected void execAction2D(DandelionAction a) {
+		if(a==null) return;
 	}
 	
 	@Override
-	protected void execAction3D(MotionEvent e) {
-		Actionable<DandelionAction> a=null;
-		if(e instanceof GenericDOF1Event)
-			a = (DOF1Action) ((GenericDOF1Event<?>) e).action();
-		if(e instanceof GenericDOF2Event)
-			a = (DOF2Action) ((GenericDOF2Event<?>) e).action();
-		if(e instanceof GenericDOF3Event)
-			a = (DOF3Action) ((GenericDOF3Event<?>) e).action();
-		if(e instanceof GenericDOF6Event)
-			a = (DOF6Action) ((GenericDOF6Event<?>) e).action();
-		
-		if(a == null) return;
-		DandelionAction id = a.referenceAction();
-		
-		GenericDOF2Event<?> event;
-		
-		GenericDOF6Event<?> event6;
-		Vec t = new Vec();
-    Quat q = new Quat();
-		switch (id) {
-		case ZOOM: {
-			float wheelSensitivityCoef = 8E-4f;
-			float coef = 0;
-			Vec trans = new Vec();
-		  //TODO 1-DOF -> wheel
-			if( e instanceof GenericDOF1Event ) {
-			  coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z()), 0.2f * scene.camera().sceneRadius());
-				//trans = new Vector3D(0.0f, 0.0f, coef * ((DOFEvent)event).getX() * wheelSensitivity() * wheelSensitivityCoef);
-			  trans = new Vec(0.0f, 0.0f, coef * ((GenericDOF1Event<?>)e).getX() * -wheelSensitivity() * wheelSensitivityCoef);
-			}			
-		  //TODO higher dofs
-			// /**
-			else {
-				event = (GenericDOF2Event<?>)e;
-				coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * scene.camera().sceneRadius());
-			  //float coef = Math.max(Math.abs((vp.frame().coordinatesOf(vp.arcballReferencePoint())).vec[2]), 0.2f * vp.sceneRadius());
-			  // Warning: same for left and right CoordinateSystemConvention:
-			  trans = new Vec(0.0f, 0.0f,	-coef	* ((int) (event.getY() - event.getPrevY())) / scene.camera().screenHeight());
+	protected void execAction3D(DandelionAction a) {
+		if(a==null) return;
+		Vec trans;
+		Quat q;
+		switch(a) {
+		case CUSTOM:
+		case DRIVE:
+		case LOOK_AROUND:
+		case MOVE_BACKWARD:
+		case MOVE_FORWARD:
+		case ROLL:
+			super.execAction3D(a);
+			break;
+		case ROTATE:
+			if(e2.absolute()) {
+				AbstractScene.showEventVariationWarning(a);
+				break;
 			}
-			// */
-			
-			//No Scl
-			Vec mag = magnitude();
-			trans.div(mag);
-			
-			translate(inverseTransformOf(trans));
-			break;
-		}
-		
-		case ROTATE: {			
-			event = (GenericDOF2Event<?>)e;
-			Vec trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
-			Quat rot = deformedBallQuaternion(event, trans.vec[0], trans.vec[1], scene.camera());	
+			trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
+			Quat rot = deformedBallQuaternion(e2, trans.vec[0], trans.vec[1], scene.camera());	
 			setSpinningQuaternion(rot);
-			startSpinning(event);
-			//spin();
+			startSpinning(e2);
+			break;		
+		case ROTATE3:
+			q = new Quat();
+			if(e3.absolute())
+				q.fromEulerAngles(-e3.getX(), -e3.getDY(), e3.getDZ());
+			else
+				q.fromEulerAngles(-e3.getDX(), -e3.getDY(), e3.getDZ());
+      rotate(q);
 			break;
-			
-			/**
-			Vector3D trans = camera.projectedCoordinatesOf(arcballReferencePoint());
-			Quaternion rot = deformedBallQuaternion((int) eventPoint.x, (int) eventPoint.y, trans.vec[0], trans.vec[1], camera);				
-			// #CONNECTION# These two methods should go together (spinning detection and activation)				
-			setSpinningQuaternion(rot);
-			//computeDeviceSpeed(eventPoint);
-			//spin();				
-			startDampedSpinning(eventPoint);
-			prevPos = eventPoint;
+		case SCREEN_ROTATE:
 			break;
-			*/
-		}
-		
-		case TRANSLATE: {
-			event = (GenericDOF2Event<?>)e;
-			///**
-			Point delta = new Point(-event.getDX(),
-					                     scene.isRightHanded() ? -event.getDY() : event.getDY());
-			//System.out.println("RC coord: dx: " + delta.x + " dy: " + delta.y);
-			
-			Vec trans = new Vec((int) delta.x, (int) -delta.y, 0.0f);
-			//*/	
-			
-			/**
-			Vector3D trans = new Vector3D(-event.getDX(),
-					                           scene.isRightHanded() ? ((DOF2Event)event).getDY() : -((DOF2Event)event).getDY(),
-					                           0.0f);
-			//*/
-			
+		case SCREEN_TRANSLATE:
+			break;
+		case TRANSLATE:
+			Point pDelta;
+			if( e2.relative() )
+				pDelta = new Point(-e2.getDX(), scene.isRightHanded() ? -e2.getDY() : e2.getDY());
+			else
+				pDelta = new Point(-e2.getX(), scene.isRightHanded() ? -e2.getY() : e2.getY());
+			trans = new Vec((int) pDelta.x, (int) -pDelta.y, 0.0f);
 			// Scale to fit the screen mouse displacement
 			switch (scene.camera().type()) {
 			case PERSPECTIVE:
-				trans.mult(2.0f
-						       * (float) Math.tan( scene.camera().fieldOfView() / 2.0f)
-						       * Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
-						       / scene.camera().screenHeight());
+				trans.mult(2.0f * (float) Math.tan( scene.camera().fieldOfView() / 2.0f)
+                        * Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
+                        / scene.camera().screenHeight());
 				break;
 			case ORTHOGRAPHIC:
 				float[] wh = scene.camera().getOrthoWidthHeight();
 				trans.vec[0] *= 2.0f * wh[0] / scene.camera().screenWidth();
 				trans.vec[1] *= 2.0f * wh[1] / scene.camera().screenHeight();
 				break;
-			}			
-			
+			}
 			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
-			
+			break;
+		case TRANSLATE3:
+			if(e3.absolute())
+				translate(localInverseTransformOf(new Vec(e3.getX(),e3.getY(),-e3.getZ()), false));
+			else
+				translate(localInverseTransformOf(new Vec(e3.getDX(),e3.getDY(),-e3.getDZ()), false));
+			break;
+		case TRANSLATE_ROTATE:
+			if(e6.absolute())
+				translate(localInverseTransformOf(new Vec(e6.getX(),e6.getY(),-e6.getZ()), false));
+			else
+				translate(localInverseTransformOf(new Vec(e6.getDX(),e6.getDY(),-e6.getDZ()), false));
+		  // Rotate
+			q = new Quat();
+			if(e6.absolute())
+				q.fromEulerAngles(-e6.roll(), -e6.pitch(), e6.yaw());
+			else
+				q.fromEulerAngles(-e6.getDRX(), -e6.getDRY(), e6.getDRZ());
+      rotate(q);
+			break;
+		case ZOOM:
+			float wheelSensitivityCoef = 8E-4f;
+			float coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * scene.camera().sceneRadius());
+			float delta;
+			if( mE instanceof GenericDOF1Event ) //its a wheel wheel :P
+				delta = coef * e1.getX() * -wheelSensitivity() * wheelSensitivityCoef;
+			else
+				if( e1.absolute() )
+				  delta = -coef	* e1.getX() / scene.camera().screenHeight();
+				else
+					delta = -coef	* e1.getDX() / scene.camera().screenHeight();
+			trans = new Vec(0.0f, 0.0f,	delta);
+			//No Scl
+			Vec mag = magnitude();
+			trans.div(mag);			
+			translate(inverseTransformOf(trans));
+			break;
+		case ZOOM_ON_REGION:
+			break;
+		default:
+			AbstractScene.showMissingImplementationWarning(a);
 			break;
 		}
 		
+		/**
+		//TODO implement me as an example
 		case GOOGLE_EARTH:
+		  Vec t = new Vec();
+	    Quat q = new Quat();
+	    
 			event6 = (GenericDOF6Event<?>)e;
 			float magic = 0.01f; // rotSens/transSens?
       
@@ -315,18 +312,7 @@ public class InteractiveCameraFrame extends InteractiveDrivableFrame implements 
       q.fromEulerAngles(-event6.roll(), 0, 0);
       rotate(q);
 			break;
-			
-		case NATURAL:
-			event6 = (GenericDOF6Event<?>)e;
-			translate(localInverseTransformOf(new Vec(event6.getX(),event6.getY(),-event6.getZ()), false));
-      // Rotate
-      q.fromEulerAngles(-event6.roll(), -event6.pitch(), event6.yaw());
-      rotate(q);
-			break;
-		
-		default:
-			break;
-		}
+			// */
 	}
 	
 	/**

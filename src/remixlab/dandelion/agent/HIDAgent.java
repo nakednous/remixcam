@@ -41,8 +41,8 @@ public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constant
 		//camProfile = new GenericMotionProfile<Constants.DOF_6Action>();
 		//profile = new GenericMotionProfile<Constants.DOF_6Action>();
 		//clickProfile = new GenericClickProfile<Constants.DOF_0Action>();
-		cameraProfile().setBinding(DOF6Action.NATURAL);
-		frameProfile().setBinding(DOF6Action.NATURAL);
+		cameraProfile().setBinding(DOF6Action.TRANSLATE_ROTATE);
+		frameProfile().setBinding(DOF6Action.TRANSLATE_ROTATE);
 	}
 	
 	@Override

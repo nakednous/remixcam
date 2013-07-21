@@ -138,29 +138,26 @@ public interface Constants extends EventConstants {
   	// DEVICE ACTIONs
   	//NO_DEVICE_ACTION("No device action", true, 2),
   	ROTATE("Rotate frame (camera or interactive frame)", true, 2),
-  	CAD_ROTATE("Rotate (only) camera frame as in CAD applications)", false, 2),
+  	//CAD_ROTATE("Rotate (only) camera frame as in CAD applications)", false, 2),
   	//ZOOM("Zoom", true, 1),
   	TRANSLATE("Translate frame (camera or interactive frame)", true, 2),
   	MOVE_FORWARD("Move forward frame (camera or interactive frame)", false, 2),
   	MOVE_BACKWARD("move backward frame (camera or interactive frame)", false, 2),
   	LOOK_AROUND("Look around with frame (camera or interactive drivable frame)", false, 2),
-  	SCREEN_ROTATE("Screen rotate (camera or interactive frame)", true, 2),
   	ROLL("Roll frame (camera or interactive drivable frame)", true, 2),
   	DRIVE("Drive (camera or interactive drivable frame)", false, 2),
+  	SCREEN_ROTATE("Screen rotate (camera or interactive frame)", true, 2),
   	SCREEN_TRANSLATE("Screen translate frame (camera or interactive frame)", true, 2),
   	ZOOM_ON_REGION("Zoom on region (camera or interactive drivable frame)", true, 2),
-  	
+  	 	
   	TRANSLATE3("Translate frame (camera or interactive frame) from dx, dy, dz simultaneously", false, 3),	
-  	FROM_EULER_ANGLES("Rotate frame (camera or interactive frame) from Euler angles", false, 3),	
+  	ROTATE3("Rotate frame (camera or interactive frame) from Euler angles", false, 3),
   	
-  	GOOGLE_EARTH("Google earth emulation", false, 6),	
-  	NATURAL("Natural (camera or interactive frame)", false, 6),
+  	//GOOGLE_EARTH("Google earth emulation", false, 6),	
+  	TRANSLATE_ROTATE("Natural (camera or interactive frame)", false, 6),
   	
   	//CUSTOM ACTIONs  	
-  	CUSTOM1("User defined action no 1"),
-  	CUSTOM2("User defined action no 2"),
-  	CUSTOM3("User defined action no 3"),
-  	CUSTOM4("User defined action no 4");
+  	CUSTOM("User defined action");
   	
   	String description;
   	boolean twoD;
@@ -332,10 +329,7 @@ public interface Constants extends EventConstants {
   	INCREASE_TRACKING_DISTANCE(DandelionAction.INCREASE_TRACKING_DISTANCE),
   	DECREASE_TRACKING_DISTANCE(DandelionAction.DECREASE_TRACKING_DISTANCE),
   	
-  	CUSTOM1(DandelionAction.CUSTOM1),
-  	CUSTOM2(DandelionAction.CUSTOM2),
-  	CUSTOM3(DandelionAction.CUSTOM3),
-  	CUSTOM4(DandelionAction.CUSTOM4);
+  	CUSTOM(DandelionAction.CUSTOM);
 
   	@Override
   	public DandelionAction referenceAction() {
@@ -348,13 +342,12 @@ public interface Constants extends EventConstants {
   	}
   	
   	@Override
-  	public boolean is2D() {
-  		return act.is2D();
-  	}
-  	
-  	@Override
   	public int dofs() {
   		return act.dofs();
+  	}
+  	
+  	public boolean is2D() {
+  		return act.is2D();
   	}
   	
   	/**
@@ -386,10 +379,7 @@ public interface Constants extends EventConstants {
   	
   	ZOOM(DandelionAction.ZOOM),
   	
-  	CUSTOM1(DandelionAction.CUSTOM1),
-  	CUSTOM2(DandelionAction.CUSTOM2),
-  	CUSTOM3(DandelionAction.CUSTOM3),
-  	CUSTOM4(DandelionAction.CUSTOM4);
+  	CUSTOM(DandelionAction.CUSTOM);
 
   	@Override
   	public DandelionAction referenceAction() {
@@ -402,13 +392,12 @@ public interface Constants extends EventConstants {
   	}
   	
   	@Override
-  	public boolean is2D() {
-  		return act.is2D();
-  	}
-  	
-  	@Override
   	public int dofs() {
   		return act.dofs();
+  	}
+  	
+  	public boolean is2D() {
+  		return act.is2D();
   	}
   	
   	/**
@@ -433,7 +422,6 @@ public interface Constants extends EventConstants {
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
-  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
   	TRANSLATE(DandelionAction.TRANSLATE),
   	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
@@ -444,10 +432,7 @@ public interface Constants extends EventConstants {
   	SCREEN_TRANSLATE(DandelionAction.SCREEN_TRANSLATE),
   	ZOOM_ON_REGION(DandelionAction.ZOOM_ON_REGION),
   	
-  	CUSTOM1(DandelionAction.CUSTOM1),
-  	CUSTOM2(DandelionAction.CUSTOM2),
-  	CUSTOM3(DandelionAction.CUSTOM3),
-  	CUSTOM4(DandelionAction.CUSTOM4);
+  	CUSTOM(DandelionAction.CUSTOM);
 
   	@Override
   	public DandelionAction referenceAction() {
@@ -460,13 +445,12 @@ public interface Constants extends EventConstants {
   	}
   	
   	@Override
-  	public boolean is2D() {
-  		return act.is2D();
-  	}
-  	
-  	@Override
   	public int dofs() {
   		return act.dofs();
+  	}
+  	
+  	public boolean is2D() {
+  		return act.is2D();
   	}
   	
   	/**
@@ -491,7 +475,6 @@ public interface Constants extends EventConstants {
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
-  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
   	TRANSLATE(DandelionAction.TRANSLATE),
   	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
@@ -504,12 +487,9 @@ public interface Constants extends EventConstants {
   	
     //DOF_3
   	TRANSLATE3(DandelionAction.TRANSLATE3),	
-  	FROM_EULER_ANGLES(DandelionAction.TRANSLATE3),
+  	ROTATE3(DandelionAction.ROTATE3),
   	
-  	CUSTOM1(DandelionAction.CUSTOM1),
-  	CUSTOM2(DandelionAction.CUSTOM2),
-  	CUSTOM3(DandelionAction.CUSTOM3),
-  	CUSTOM4(DandelionAction.CUSTOM4);
+  	CUSTOM(DandelionAction.CUSTOM);
 
   	@Override
   	public DandelionAction referenceAction() {
@@ -522,13 +502,12 @@ public interface Constants extends EventConstants {
   	}
   	
   	@Override
-  	public boolean is2D() {
-  		return act.is2D();
-  	}
-  	
-  	@Override
   	public int dofs() {
   		return act.dofs();
+  	}
+  	
+  	public boolean is2D() {
+  		return act.is2D();
   	}
   	
   	/**
@@ -553,7 +532,6 @@ public interface Constants extends EventConstants {
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
-  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
   	TRANSLATE(DandelionAction.TRANSLATE),
   	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
@@ -566,16 +544,12 @@ public interface Constants extends EventConstants {
   	
     //DOF_3
   	TRANSLATE3(DandelionAction.TRANSLATE3),	
-  	FROM_EULER_ANGLES(DandelionAction.TRANSLATE3),
+  	ROTATE3(DandelionAction.ROTATE3),
   	
     //DOF_6
-  	GOOGLE_EARTH(DandelionAction.GOOGLE_EARTH),	
-  	NATURAL(DandelionAction.NATURAL),
+  	TRANSLATE_ROTATE(DandelionAction.TRANSLATE_ROTATE),
   	
-  	CUSTOM1(DandelionAction.CUSTOM1),
-  	CUSTOM2(DandelionAction.CUSTOM2),
-  	CUSTOM3(DandelionAction.CUSTOM3),
-  	CUSTOM4(DandelionAction.CUSTOM4);
+  	CUSTOM(DandelionAction.CUSTOM);
 
   	@Override
   	public DandelionAction referenceAction() {
@@ -588,13 +562,12 @@ public interface Constants extends EventConstants {
   	}
   	
   	@Override
-  	public boolean is2D() {
-  		return act.is2D();
-  	}
-  	
-  	@Override
   	public int dofs() {
   		return act.dofs();
+  	}
+  	
+  	public boolean is2D() {
+  		return act.is2D();
   	}
   	
   	/**
