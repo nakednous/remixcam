@@ -91,6 +91,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		//append(viewport).
 		append(zClippingCoef).
 		append(zNearCoef).
+		append(cadRotate).
     toHashCode();
 	}
 
@@ -141,6 +142,7 @@ public class Camera extends Pinhole implements Constants, Copyable {
 		//.append(viewport,other.viewport)
 		.append(zClippingCoef,other.zClippingCoef)
 		.append(zNearCoef,other.zNearCoef)
+		.append(cadRotate,other.cadRotate)
 		.isEquals();
 	}	
 	
@@ -269,7 +271,9 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	private float IODist; // inter-ocular distance, in meters
 	private float focusDist; // in scene units
 	private float physicalDist2Scrn; // in meters
-	private float physicalScrnWidth; // in meters				
+	private float physicalScrnWidth; // in meters			
+	
+	protected boolean cadRotate;
 
 	/**
 	 * Main constructor.
@@ -388,6 +392,22 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	@Override
 	public Camera get() {
 		return new Camera(this);
+	}
+	
+	public boolean isArcBallRotate() {
+		return !isCadRotate();
+	}
+	
+	public boolean isCadRotate() {
+		return cadRotate;
+	}
+	
+	public void setCadRotate(boolean flag) {
+		cadRotate = flag;
+	}
+	
+	public void setArcBallRotate(boolean flag) {
+		setCadRotate(!flag);
 	}
 
 	// 2. POSITION AND ORIENTATION

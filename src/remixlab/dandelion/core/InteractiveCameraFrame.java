@@ -28,6 +28,7 @@ package remixlab.dandelion.core;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Util;
+import remixlab.tersehandling.event.DOF2Event;
 import remixlab.tersehandling.generic.event.*;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
@@ -207,9 +208,11 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 				AbstractScene.showEventVariationWarning(a);
 				break;
 			}
-			trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());
-			Quat rot = deformedBallQuaternion(e2, trans.vec[0], trans.vec[1], scene.camera());	
-			setSpinningQuaternion(rot);
+			trans = scene.camera().projectedCoordinatesOf(arcballReferencePoint());			
+			if( scene.camera().isArcBallRotate() )
+				setSpinningQuaternion(deformedBallQuaternion(e2, trans.vec[0], trans.vec[1], scene.camera()));
+			else
+				setSpinningQuaternion(cadQuaternion(e2,  trans.vec[0], trans.vec[1], scene.camera()));
 			startSpinning(e2);
 			break;		
 		case ROTATE3:
@@ -269,7 +272,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			float wheelSensitivityCoef = 8E-4f;
 			float coef = Math.max(Math.abs((coordinatesOf(scene.camera().arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * scene.camera().sceneRadius());
 			float delta;
-			if( mE instanceof GenericDOF1Event ) //its a wheel wheel :P
+			if( currentEvent instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = coef * e1.getX() * -wheelSensitivity() * wheelSensitivityCoef;
 			else
 				if( e1.absolute() )
@@ -323,7 +326,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	 * 
 	 * @see #getCADAxis()
 	 */	
-	protected Quat computeCADQuaternion(GenericDOF2Event<?> event, float cx,	float cy, Pinhole camera) {
+	protected Quat cadQuaternion(DOF2Event event, float cx,	float cy, Pinhole camera) {
 		if(! (camera instanceof Camera) )
 			throw new RuntimeException("CAD cam is oly available in 3D");
 		
@@ -342,7 +345,8 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		Vec axisX = new Vec(1, 0, 0);
 		//0,0,1 is given in the world and then transform to the camera frame
 		
-		//TODO broken when cam frame has scaling
+		//TODO broken when cam frame has scaling, maybe should go like this:?
+		//Vec world2camAxis = camera.frame().transformOf(worldAxis, false);
 		Vec world2camAxis = camera.frame().transformOf(worldAxis);
 		//Vector3D world2camAxis = camera.frame().transformOfNoScl(worldAxis);
 

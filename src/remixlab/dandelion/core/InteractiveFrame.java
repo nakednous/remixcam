@@ -137,7 +137,6 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	protected Vec flyUpVec;
 	protected Vec flyDisp;
 	protected static final long FLY_UPDATE_PERDIOD = 10;
-	DandelionAction flyAction;
 
 	// P R O S C E N E A N D P R O C E S S I N G A P P L E T A N D O B J E C T S
 	public AbstractScene scene;
@@ -792,21 +791,21 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 				execAction3D( reduceEvent( (MotionEvent)e ));
 	}
 	
-	MotionEvent mE;
+	MotionEvent currentEvent;
 	DOF1Event e1;
 	DOF2Event e2;
 	DOF3Event e3;
 	DOF6Event e6;
-	DandelionAction a;
+	DandelionAction currentAction;
 	
 	protected DandelionAction reduceEvent(MotionEvent e) {
-		mE = e;
+		currentEvent = e;
 		if( !(e instanceof Duoable) )	return null;
 		
-		a = (DandelionAction) ((Duoable<?>) e).action().referenceAction();		
-		if( a == null ) return null;
+		currentAction = (DandelionAction) ((Duoable<?>) e).action().referenceAction();		
+		if( currentAction == null ) return null;
 		
-		int dofs = a.dofs();
+		int dofs = currentAction.dofs();
 		
 		switch(dofs) {
 		case 1:
@@ -840,7 +839,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		default:
 		  break;
 		}
-		return a;		
+		return currentAction;		
 	}
 	
 	//TODO implement me
@@ -905,14 +904,37 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			AbstractScene.showMissingImplementationWarning(a);
 			break;
 		case DRIVE:
+			flyTimerJob.run(FLY_UPDATE_PERDIOD);
+			rotate(turnQuaternion(e2, scene.camera()));
+			if( e2.absolute() )
+				drvSpd = 0.01f * -e2.getY();
+			else
+				drvSpd = 0.01f * -e2.getDY();
 			break;
 		case LOOK_AROUND:
-			break;
+			rotate(pitchYawQuaternion(e2, scene.camera()));
 		case MOVE_BACKWARD:
-			break;
+			flyTimerJob.run(FLY_UPDATE_PERDIOD);
+			rotate(pitchYawQuaternion(e2, scene.camera()));
 		case MOVE_FORWARD:
+			flyTimerJob.run(FLY_UPDATE_PERDIOD);
+			rotate(pitchYawQuaternion(e2, scene.camera()));
 			break;
 		case ROLL:
+			float angle;
+			if( e2.absolute() )
+				angle = (float) Math.PI * e2.getX()	/ scene.camera().screenWidth();
+			else
+        angle = (float) Math.PI * e2.getDX()/ scene.camera().screenWidth();
+			
+		  //lef-handed coordinate system correction
+			if ( scene.isLeftHanded() )
+				angle = -angle;
+			
+			q = new Quat(new Vec(0.0f, 0.0f, 1.0f), angle);
+			rotate(q);
+			setSpinningQuaternion(q);
+			updateFlyUpVector();
 			break;
 		case ROTATE:
 			if(e2.absolute()) {
@@ -1015,7 +1037,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			break;
 		case ZOOM:
 			float delta;
-			if( mE instanceof GenericDOF1Event ) //its a wheel wheel :P
+			if( currentEvent instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = -e1.getX() * wheelSensitivity();
 			else
 				if( e1.absolute() )
@@ -1097,12 +1119,12 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	
 	//TODO re-implement me!
 	public void flyUpdate() {
-		if( ( scene.is2D() ) && ( !flyAction.is2D() ) )
+		if( ( scene.is2D() ) && ( !currentAction.is2D() ) )
 			return;
 		
 		flyDisp.set(0.0f, 0.0f, 0.0f);
 		Vec trans;
-		switch (flyAction) {
+		switch (currentAction) {
 		case MOVE_FORWARD:
 			flyDisp.vec[2] = -flySpeed();
 			if(scene.is2D())
@@ -1216,10 +1238,9 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * Returns a Quaternion that is a rotation around current camera Y,
 	 * proportional to the horizontal mouse position.
 	 */
-	protected final Quat turnQuaternion(DOF1Event event, Camera camera) {
-		float x = event.getX();
-		float prevX = event.getPrevX();
-		return new Quat(new Vec(0.0f, 1.0f, 0.0f), rotationSensitivity()	* ((int)prevX - x) / camera.screenWidth());
+	protected final Quat turnQuaternion(DOF2Event event, Camera camera) {
+		float deltaX = event.absolute() ? event.getX() : event.getDX();
+		return new Quat(new Vec(0.0f, 1.0f, 0.0f), rotationSensitivity()	* (-deltaX) / camera.screenWidth());
 	}
 
 	/**
@@ -1227,20 +1248,15 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * from the mouse pitch (X axis) and yaw ({@link #flyUpVector()} axis).
 	 */
 	protected final Quat pitchYawQuaternion(DOF2Event event, Camera camera) {
-		float x = event.getX();
-		float y = event.getY();
-		float prevX = event.getPrevX();
-		float prevY = event.getPrevY();
+		float deltaX = event.absolute() ? event.getX() : event.getDX();
+		float deltaY = event.absolute() ? event.getY() : event.getDY();
 		
-		int deltaY;
 		if( scene.isRightHanded() )
-			deltaY = (int) (prevY - y);
-		else
-			deltaY = (int) (y - prevY);
+			deltaY = -deltaY;
 		
 		Quat rotX = new Quat(new Vec(1.0f, 0.0f, 0.0f), rotationSensitivity() * deltaY / camera.screenHeight());
 		//Quaternion rotY = new Quaternion(transformOf(flyUpVector()), rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());	
-		Quat rotY = new Quat(transformOf(flyUpVector(), false), rotationSensitivity() * ((int)prevX - x) / camera.screenWidth());
+		Quat rotY = new Quat(transformOf(flyUpVector(), false), rotationSensitivity() * (-deltaX) / camera.screenWidth());
 		return Quat.multiply(rotY, rotX);
 	}
 }
