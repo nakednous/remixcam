@@ -178,9 +178,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			
 			// /**
 			if( e.getAction() == processing.event.MouseEvent.PRESS ) {
-				if( this.grabber() != null ) {
+				//if( this.grabber() != null ) {
+					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 					if(grabber() instanceof InteractiveFrame) {
-						event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 						Actionable<?> a = (grabber() instanceof InteractiveCameraFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event); 
 						DandelionAction dA = (DandelionAction) a.referenceAction();
 						needByPass = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE);
@@ -190,14 +190,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					  	handler.eventTupleQueue().add(new EventGrabberDuobleTuple(event, a, grabber()));	  	
 					  }
 					  else
-					  	handle(event);
-					  prevEvent = event.get();		
-					} else {
-						event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+					  	handle(event);		
+					} else
 						handle(event);
-					  prevEvent = event.get();
-					}
-				}			  
+					prevEvent = event.get();
+				//}			  
 			}
 			// */
 			
