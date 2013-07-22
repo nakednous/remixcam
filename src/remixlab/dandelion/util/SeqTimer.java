@@ -157,12 +157,14 @@ public class SeqTimer implements Timable {
   	
   	if(result) {
   		counter++;
+  		/**
   		if( prd < timePerFrame )
   		System.out.println("Your current frame rate (~" + scene.frameRate() + " fps) is not high enough " +
           "to run the timer and reach the specified " + prd + " ms period, " + timePerFrame
           + " ms period will be used instead. If you want to sustain a lower timer " +
           "period, define a higher frame rate (minimum of " + 1000f/prd + " fps) " +
           "before running the timer (you may need to simplify your drawing to achieve it.)");
+      // */
   	}
   	
   	return result;  	

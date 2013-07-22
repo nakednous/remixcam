@@ -144,7 +144,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	 */
 	@Override
 	public void spin() {
-		if(spinningFriction > 0) {
+		if(dampFriction > 0) {
 			if (eventSpeed == 0) {
 				stopSpinning();
 				return;

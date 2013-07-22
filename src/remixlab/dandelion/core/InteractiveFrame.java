@@ -63,7 +63,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		append(rotSensitivity).
 		append(spngQuat).
 		append(spngSensitivity).
-		append(spinningFriction).
+		append(dampFriction).
 		append(sFriction).
 		append(transSensitivity).
 		append(wheelSensitivity).
@@ -86,7 +86,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		.append(grabsInputThreshold, other.grabsInputThreshold)
 		.append(isInCamPath, other.isInCamPath)
 		.append(isSpng, other.isSpng)
-		.append(spinningFriction, other.spinningFriction)
+		.append(dampFriction, other.dampFriction)
 		.append(sFriction, other.sFriction)
 		.append(rotSensitivity, other.rotSensitivity)
 		.append(spngQuat,other.spngQuat)
@@ -114,7 +114,9 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	private boolean isSpng;
 	private AbstractTimerJob spinningTimerJob;
 	private Orientable spngQuat;
-	protected float spinningFriction; //new	
+	protected float dampFriction; //new
+	//TODO decide whether or not toss should have its own damp var
+	// currently its share among the two -> test behavior
 	private float sFriction; //new
 
 	// Whether the SCREEN_TRANS direction (horizontal or vertical) is fixed or not.
@@ -131,6 +133,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	protected boolean isInCamPath;
 	
 	// " D R I V A B L E "   S T U F F :
+	protected Vec tDir;
 	protected float flySpd;
 	protected float drvSpd;
 	protected AbstractTimerJob flyTimerJob;
@@ -167,7 +170,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		
 		isSpng = false;
 		setSpinningSensitivity(0.3f);
-		setSpinningFriction(0.5f);
+		setDampingFriction(0.5f);
 		
 		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -186,7 +189,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 
 		flyTimerJob = new AbstractTimerJob() {
 			public void execute() {
-				flyUpdate();
+				toss();
 			}
 		};		
 		scene.registerJob(flyTimerJob);
@@ -224,7 +227,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		
 		this.isSpng = otherFrame.isSpng;
 		this.setSpinningSensitivity( otherFrame.spinningSensitivity() );
-		this.setSpinningFriction( otherFrame.spinningFriction() );
+		this.setDampingFriction( otherFrame.dampingFriction() );
 		
 		this.spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -243,7 +246,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		
 		this.flyTimerJob = new AbstractTimerJob() {
 			public void execute() {
-				flyUpdate();
+				toss();
 			}
 		};		
 		this.scene.registerJob(flyTimerJob);
@@ -296,7 +299,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		
 		isSpng = false;
 		setSpinningSensitivity(0.3f);
-		setSpinningFriction(0.5f);
+		setDampingFriction(0.5f);
 				
 		spinningTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -312,7 +315,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		setFlySpeed(0.0f);
 		flyTimerJob = new AbstractTimerJob() {
 			public void execute() {
-				flyUpdate();
+				toss();
 			}
 		};
 		scene.registerJob(flyTimerJob);
@@ -576,13 +579,21 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * {@link remixlab.proscene.Frame#transformOfFrom(PVector, Frame)} to convert
 	 * this axis from another Frame coordinate system.
 	 * <p>
-	 * <b>Attention: </b>Spinning may be decelerated according to {@link #spinningFriction()}
+	 * <b>Attention: </b>Spinning may be decelerated according to {@link #dampingFriction()}
 	 * till it stops completely.
 	 * 
 	 * @see #tossingDirection()
 	 */
 	public final Orientable spinningQuaternion() {
 		return spngQuat;
+	}
+	
+	public final Vec tossingDirection() {
+		return tDir;
+	}
+	
+	public final void setTossingDirection(Vec dir) {
+		tDir = dir;
 	}
 
 	/**
@@ -606,15 +617,19 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		return action != DOF_6Action.NO_ACTION;
 	}
 	*/
-
+	
+	public final void stopTossing() {
+		this.flyTimerJob.stop();
+	}
+	
 	/**
 	 * Stops the spinning motion started using {@link #startSpinning(long)}.
 	 * {@link #isSpinning()} will return {@code false} after this call.
 	 * <p>
 	 * <b>Attention: </b>This method may be called by {@link #spin()}, since spinning may
-	 * be decelerated according to {@link #spinningFriction()} till it stops completely.
+	 * be decelerated according to {@link #dampingFriction()} till it stops completely.
 	 * 
-	 * @see #spinningFriction()
+	 * @see #dampingFriction()
 	 * @see #toss()
 	 */
 	public final void stopSpinning() {
@@ -629,10 +644,10 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * updateInterval} milliseconds. The InteractiveFrame {@link #isSpinning()}
 	 * until you call {@link #stopSpinning()}.
 	 * <p>
-	 * <b>Attention: </b>Spinning may be decelerated according to {@link #spinningFriction()}
+	 * <b>Attention: </b>Spinning may be decelerated according to {@link #dampingFriction()}
 	 * till it stops completely.
 	 * 
-	 * @see #spinningFriction()
+	 * @see #dampingFriction()
 	 * @see #toss()
 	 */
 	public void startSpinning(DOF2Event e) {
@@ -643,18 +658,23 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			spinningTimerJob.run(updateInterval);
 	}
 	
+	public void startTossing(DOF2Event e) {
+		eventSpeed = e.speed();
+		flyTimerJob.run(FLY_UPDATE_PERDIOD);
+	}
+	
 	/**
 	 * Rotates the InteractiveFrame by its {@link #spinningQuaternion()}. Called
 	 * by a timer when the InteractiveFrame {@link #isSpinning()}. 
 	 * <p>
 	 * <b>Attention: </b>Spinning may be decelerated according to
-	 * {@link #spinningFriction()} till it stops completely.
+	 * {@link #dampingFriction()} till it stops completely.
 	 * 
-	 * @see #spinningFriction()
+	 * @see #dampingFriction()
 	 * @see #toss()
 	 */
 	public void spin() {		
-		if(spinningFriction() > 0) {
+		if(dampingFriction() > 0) {
 			if (eventSpeed == 0) {
 				stopSpinning();
 				return;
@@ -666,29 +686,42 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			rotate(spinningQuaternion());
 	}
 	
+	public void toss() {		
+		if(dampingFriction() > 0) {
+			if (eventSpeed == 0) {
+				stopTossing();
+				return;
+			}
+			translate(tossingDirection());
+			recomputeTossingDirection();						
+		}
+		else
+			translate(tossingDirection());
+	}
+	
 	/**
-	 * Defines the {@link #spinningFriction()}. Values must be
+	 * Defines the {@link #dampingFriction()}. Values must be
 	 * in the range [0..1].
 	 */
-	public void setSpinningFriction(float f) {
+	public void setDampingFriction(float f) {
 		if(f < 0 || f > 1)
 			return;
-		spinningFriction = f;
-		setSpinningFrictionFx(spinningFriction);
+		dampFriction = f;
+		setDampingFrictionFx(dampFriction);
 	} 
 	
 	/**
 	 * Defines the spinning deceleration.
 	 * <p>
 	 * Default value is 0.0, i.e., no spinning deceleration. Use
-	 * {@link #setSpinningFriction(float)} to tune this value.
+	 * {@link #setDampingFriction(float)} to tune this value.
 	 * A higher value will make spinning more difficult (a value of
 	 * 1.0 forbids spinning).
 	 * 
 	 * @see #tossingFriction()
 	 */
-	public float spinningFriction() {
-		return spinningFriction;
+	public float dampingFriction() {
+		return dampFriction;
 	}
 	
 	/**
@@ -697,7 +730,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * Computes and caches the value of the spinning friction used in
 	 * {@link #recomputeSpinningQuaternion()}.
 	 */
-	protected void setSpinningFrictionFx(float spinningFriction) {
+	protected void setDampingFrictionFx(float spinningFriction) {
 		sFriction = spinningFriction*spinningFriction*spinningFriction;
 	}
 	
@@ -707,27 +740,42 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * Returns the cached value of the spinning friction used in
 	 * {@link #recomputeSpinningQuaternion()}.
 	 */
-	protected float spinningFrictionFx() {
+	protected float dampingFrictionFx() {
 		return sFriction;
 	}
 	
 	/**
 	 * Internal method. Recomputes the {@link #spinningQuaternion()}
-	 * according to {@link #spinningFriction()}.
+	 * according to {@link #dampingFriction()}.
 	 * 
 	 * @see #recomputeTossingDirection()
 	 */
 	protected void recomputeSpinningQuaternion() {
 		float prevSpeed = eventSpeed;
-		float damping = 1.0f - spinningFrictionFx();
+		float damping = 1.0f - dampingFrictionFx();
 		eventSpeed *= damping;
 		if (Math.abs(eventSpeed) < .001f)
 			eventSpeed = 0;
-		float currSpeed = eventSpeed;
+		//float currSpeed = eventSpeed;
 		if( scene.is3D() )
-			((Quat)spinningQuaternion()).fromAxisAngle(((Quat)spinningQuaternion()).axis(), spinningQuaternion().angle() * (currSpeed / prevSpeed) );
+			((Quat)spinningQuaternion()).fromAxisAngle(((Quat)spinningQuaternion()).axis(), spinningQuaternion().angle() * (eventSpeed / prevSpeed) );
 		else
-			this.setSpinningQuaternion(new Rotation(spinningQuaternion().angle() * (currSpeed / prevSpeed)));
+			this.setSpinningQuaternion(new Rotation(spinningQuaternion().angle() * (eventSpeed / prevSpeed)));
+	}
+	
+	protected void recomputeTossingDirection() {
+		float prevSpeed = eventSpeed;
+		float damping = 1.0f - dampingFrictionFx();
+		eventSpeed *= damping;
+		if (Math.abs(eventSpeed) < .001f)
+			eventSpeed = 0;
+		
+		flyDisp.z(flyDisp.z() * (eventSpeed / prevSpeed));
+		
+		if(scene.is2D())
+			setTossingDirection(localInverseTransformOf(flyDisp));
+		else
+			setTossingDirection(rotation().rotate(flyDisp));
 	}
 	
 	/**
@@ -759,7 +807,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	public void performInteraction(TerseEvent e) {
 		stopSpinning();
 		//TODO test drivable:
-		this.flyTimerJob.stop();
+		stopTossing();
 		
 		if(e == null) return;
 		
@@ -771,9 +819,6 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		// then it's a MotionEvent
 		
 		Duoable<?> event;
-		//begin:
-		//if (grabsInput()) keepsGrabbingCursor = true;
-		//end:
 		
 		if(e instanceof Duoable)
 			event = (Duoable<?>)e;
@@ -804,6 +849,9 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		
 		currentAction = (DandelionAction) ((Duoable<?>) e).action().referenceAction();		
 		if( currentAction == null ) return null;
+		
+		//TODO debug
+		//System.out.println("Action: " + currentAction);
 		
 		int dofs = currentAction.dofs();
 		
@@ -904,21 +952,41 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			AbstractScene.showMissingImplementationWarning(a);
 			break;
 		case DRIVE:
-			flyTimerJob.run(FLY_UPDATE_PERDIOD);
 			rotate(turnQuaternion(e2, scene.camera()));
 			if( e2.absolute() )
 				drvSpd = 0.01f * -e2.getY();
 			else
 				drvSpd = 0.01f * -e2.getDY();
+			flyDisp.set(0.0f, 0.0f, flySpeed() * drvSpd);
+			if(scene.is2D())
+				trans = localInverseTransformOf(flyDisp);
+			else
+				trans = rotation().rotate(flyDisp);			
+			setTossingDirection(trans);
+			startTossing(e2);
 			break;
 		case LOOK_AROUND:
 			rotate(pitchYawQuaternion(e2, scene.camera()));
+			break;
 		case MOVE_BACKWARD:
-			flyTimerJob.run(FLY_UPDATE_PERDIOD);
 			rotate(pitchYawQuaternion(e2, scene.camera()));
+			flyDisp.set(0.0f, 0.0f, flySpeed());
+			if(scene.is2D())
+				trans = localInverseTransformOf(flyDisp);
+			else
+				trans = rotation().rotate(flyDisp);			
+			setTossingDirection(trans);
+			startTossing(e2);
+			break;
 		case MOVE_FORWARD:
-			flyTimerJob.run(FLY_UPDATE_PERDIOD);
 			rotate(pitchYawQuaternion(e2, scene.camera()));
+			flyDisp.set(0.0f, 0.0f, -flySpeed());
+			if(scene.is2D())
+				trans = localInverseTransformOf(flyDisp);
+			else
+				trans = rotation().rotate(flyDisp);			
+			setTossingDirection(trans);
+			startTossing(e2);
 			break;
 		case ROLL:
 			float angle;
@@ -1049,8 +1117,6 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			else
 				inverseScale(1 + Math.abs(delta) / (float) scene.height());
 			break;
-		case ZOOM_ON_REGION:
-			break;
 		default:
 			AbstractScene.showMissingImplementationWarning(a);
 			break;
@@ -1117,46 +1183,6 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		return d < size_limit ? (float) Math.sqrt(size2 - d) : size_limit	/ (float) Math.sqrt(d);
 	}
 	
-	//TODO re-implement me!
-	public void flyUpdate() {
-		if( ( scene.is2D() ) && ( !currentAction.is2D() ) )
-			return;
-		
-		flyDisp.set(0.0f, 0.0f, 0.0f);
-		Vec trans;
-		switch (currentAction) {
-		case MOVE_FORWARD:
-			flyDisp.vec[2] = -flySpeed();
-			if(scene.is2D())
-				trans = localInverseTransformOf(flyDisp);
-			else
-				trans = rotation().rotate(flyDisp);
-			translate(trans);
-			//setTossingDirection(trans);
-			break;
-		case MOVE_BACKWARD:
-			flyDisp.vec[2] = flySpeed();
-			if(scene.is2D())
-				trans = localInverseTransformOf(flyDisp);
-			else
-				trans = rotation().rotate(flyDisp);
-			translate(trans);
-			//setTossingDirection(trans);
-			break;
-		case DRIVE:
-			flyDisp.vec[2] = flySpeed() * drvSpd;
-			if(scene.is2D())
-				trans = localInverseTransformOf(flyDisp);
-			else
-				trans = rotation().rotate(flyDisp);
-			translate(trans);
-			//setTossingDirection(trans);
-			break;
-		default:
-			break;
-		}
-	}
-
 	/**
 	 * Returns the fly speed, expressed in processing scene units.
 	 * <p>
@@ -1250,7 +1276,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	protected final Quat pitchYawQuaternion(DOF2Event event, Camera camera) {
 		float deltaX = event.absolute() ? event.getX() : event.getDX();
 		float deltaY = event.absolute() ? event.getY() : event.getDY();
-		
+			
 		if( scene.isRightHanded() )
 			deltaY = -deltaY;
 		

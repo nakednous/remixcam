@@ -34,6 +34,8 @@ import remixlab.dandelion.renderer.*;
 import remixlab.dandelion.util.*;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.core.Grabbable;
+import remixlab.tersehandling.generic.profile.Actionable;
+import remixlab.tersehandling.generic.profile.Duoable;
 import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 //import remixlab.remixcam.shortcut.*;
 
@@ -151,7 +153,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	//public class Mouse extends AbstractMouse {
 	public class ProsceneMouse extends GenericWheeledMouseAgent<GenericMotionProfile<Constants.DOF1Action>> {
 	//public class ProsceneMouse extends Mouse {
+		boolean needByPass;
 		GenericDOF2Event<Constants.DOF2Action> event, prevEvent;
+		float dFriction = camera().frame().dampingFriction();
 		public ProsceneMouse(AbstractScene scn, String n) {
 			super(new GenericMotionProfile<Constants.DOF1Action>(),
 					  new GenericMotionProfile<Constants.DOF1Action>(), scn, n);	
@@ -171,16 +175,49 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				prevEvent = event.get();
 			}
 			// */
-			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
-			//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//rotate without dragging any button
-				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
-				handle(event);
-			  prevEvent = event.get();
+			
+			// /**
+			if( e.getAction() == processing.event.MouseEvent.PRESS ) {
+				if( this.grabber() != null ) {
+					if(grabber() instanceof InteractiveFrame) {
+						event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+						Actionable<?> a = (grabber() instanceof InteractiveCameraFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event); 
+						DandelionAction dA = (DandelionAction) a.referenceAction();
+						needByPass = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE);
+					  if(needByPass) {
+					  	dFriction = ((InteractiveFrame)grabber()).dampingFriction();
+					  	((InteractiveFrame)grabber()).setDampingFriction(0);
+					  	handler.eventTupleQueue().add(new EventGrabberDuobleTuple(event, a, grabber()));	  	
+					  }
+					  else
+					  	handle(event);
+					  prevEvent = event.get();		
+					} else {
+						event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+						handle(event);
+					  prevEvent = event.get();
+					}
+				}			  
 			}
+			// */
+			
+			// /**
+			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
+				//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//rotate without dragging any button
+					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+					handle(event);
+				  prevEvent = event.get();
+			}
+			// */
+			
 			if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
 				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY());
 				updateGrabber(event);
 				prevEvent = event.get();
+				if(needByPass) {
+					((InteractiveFrame)grabber()).setDampingFriction(dFriction);
+					needByPass = !needByPass;
+				}
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
 				handle(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
