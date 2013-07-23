@@ -224,8 +224,54 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
       rotate(q);
 			break;
 		case SCREEN_ROTATE:
+			if(e2.absolute()) {
+				AbstractScene.showEventVariationWarning(a);
+				break;
+			}
+			trans = viewport.projectedCoordinatesOf(arcballReferencePoint());
+			float angle = (float) Math.atan2(e2.getY() - trans.vec[1], e2.getX() - trans.vec[0])
+					        - (float) Math.atan2(e2.getPrevY() - trans.vec[1], e2.getPrevX() - trans.vec[0]);
+			// lef-handed coordinate system correction
+			//if( scene.isLeftHanded() )
+			if( !isFlipped() )
+				angle = -angle;
+			Orientable rot = new Quat(new Vec(0.0f, 0.0f, 1.0f), angle);
+			setSpinningQuaternion(rot);
+			startSpinning(e2);
+			updateFlyUpVector();
 			break;
 		case SCREEN_TRANSLATE:
+			trans = new Vec();
+			int dir = originalDirection(e2);
+			if (dir == 1)
+				if( e2.absolute() )
+					trans.set(-e2.getX(), 0.0f, 0.0f);
+				else
+					trans.set(-e2.getDX(), 0.0f, 0.0f);
+			else if (dir == -1)
+				if( e2.absolute() )
+					trans.set(0.0f, -e2.getY(), 0.0f);
+				else
+					trans.set(0.0f, -e2.getDY(), 0.0f);	
+			switch (((Camera)viewport).type()) {
+			case PERSPECTIVE:
+				trans.mult(2.0f
+						* (float) Math.tan( ((Camera)viewport).fieldOfView() / 2.0f)
+						* Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
+						//* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2])
+						//* Math.abs((camera.frame().coordinatesOfNoScl(arcballReferencePoint())).vec[2])
+						/ viewport.screenHeight());
+				break;
+			case ORTHOGRAPHIC:
+				float[] wh = viewport.getOrthoWidthHeight();
+				trans.vec[0] *= 2.0f * wh[0] / viewport.screenWidth();
+				trans.vec[1] *= 2.0f * wh[1] / viewport.screenHeight();
+				break;
+			}
+			trans = Vec.mult(trans, translationSensitivity());				
+			trans.div(magnitude());
+			translate(inverseTransformOf(trans));
+			//translate(inverseTransformOf(trans, false));
 			break;
 		case TRANSLATE:
 			Point pDelta;

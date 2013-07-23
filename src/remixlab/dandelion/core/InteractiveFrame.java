@@ -100,7 +100,6 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		.isEquals();
 	}
 	
-	//private boolean horiz;// Two simultaneous InteractiveFrame require two mice!
 	private int grabsInputThreshold;
 	private float rotSensitivity;
 	private float transSensitivity;
@@ -120,8 +119,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	private float sFriction; //new
 
 	// Whether the SCREEN_TRANS direction (horizontal or vertical) is fixed or not.
-	//TODO how to deal with SCREEN_TRANS
-	//private boolean dirIsFixed;
+	public boolean dirIsFixed;
+  private boolean horiz = true;// Two simultaneous InteractiveFrame require two mice!
 
 	// MouseGrabber
 	//public boolean keepsGrabbingCursor;
@@ -806,7 +805,6 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	@Override
 	public void performInteraction(TerseEvent e) {
 		stopSpinning();
-		//TODO test drivable:
 		stopTossing();
 		
 		if(e == null) return;
@@ -816,8 +814,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			return;
 		}
 		
-		// then it's a MotionEvent
-		
+		// then it's a MotionEvent		
 		Duoable<?> event;
 		
 		if(e instanceof Duoable)
@@ -849,10 +846,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		
 		currentAction = (DandelionAction) ((Duoable<?>) e).action().referenceAction();		
 		if( currentAction == null ) return null;
-		
-		//TODO debug
-		//System.out.println("Action: " + currentAction);
-		
+
 		int dofs = currentAction.dofs();
 		
 		switch(dofs) {
@@ -941,12 +935,11 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	}
 	
 	protected void execAction3D(DandelionAction a) {
-	//TODO DRIVABLE actions should call:}
-			//this.flyTimerJob.run(FLY_UPDATE_PERDIOD);
 		if(a==null) return;
-		Quat q;
+		Quat q, rot;
 		Vec trans;
 		Vec t;
+		float angle;
 		switch(a) {
 		case CUSTOM:
 			AbstractScene.showMissingImplementationWarning(a);
@@ -989,7 +982,6 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			startTossing(e2);
 			break;
 		case ROLL:
-			float angle;
 			if( e2.absolute() )
 				angle = (float) Math.PI * e2.getX()	/ scene.camera().screenWidth();
 			else
@@ -1010,7 +1002,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 				break;
 			}
 			trans = scene.camera().projectedCoordinatesOf(position());
-			Quat rot = deformedBallQuaternion(e2, trans.x(), trans.y(), scene.camera());
+			rot = deformedBallQuaternion(e2, trans.x(), trans.y(), scene.camera());
 			rot = iFrameQuaternion(rot, scene.camera());			
 			setSpinningQuaternion(rot);
 			startSpinning(e2);
@@ -1031,8 +1023,53 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	    rotate(q);
 			break;
 		case SCREEN_ROTATE:
+			if(e2.absolute()) {
+				AbstractScene.showEventVariationWarning(a);
+				break;
+			}
+			trans = scene.camera().projectedCoordinatesOf(position());
+			float prev_angle = (float) Math.atan2(e2.getPrevY() - trans.vec[1], e2.getPrevX() - trans.vec[0]);
+			angle = (float) Math.atan2(e2.getY() - trans.vec[1], e2.getX() - trans.vec[0]);			
+			Vec axis = transformOf(scene.camera().frame().inverseTransformOf(new Vec(0.0f, 0.0f, -1.0f)));			
+			//TODO testing handed
+			if( scene.isRightHanded() )
+				rot = new Quat(axis, angle - prev_angle);
+			else
+				rot = new Quat(axis, prev_angle - angle);
+			setSpinningQuaternion(rot);
+			startSpinning(e2);
 			break;
 		case SCREEN_TRANSLATE:
+		  // TODO: needs testing to see if it works correctly when left-handed is set
+			int dir = originalDirection(e2);
+			trans = new Vec();
+			if (dir == 1)
+				if( e2.absolute() )
+					trans.set(e2.getX(), 0.0f, 0.0f);
+				else
+					trans.set(e2.getDX(), 0.0f, 0.0f);
+			else if (dir == -1)
+				if( e2.absolute() )
+					trans.set(0.0f, e2.getY(), 0.0f);
+				else
+					trans.set(0.0f, e2.getDY(), 0.0f);	
+			switch ( scene.camera().type() ) {
+			case PERSPECTIVE:
+				trans.mult(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
+						            * Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2] * scene.camera().frame().magnitude().z())
+						            //* Math.abs((camera.frame().coordinatesOf(position())).vec[2])						            
+						            / scene.camera().screenHeight());
+				break;
+			case ORTHOGRAPHIC:
+				float[] wh = scene.camera().getOrthoWidthHeight();
+				trans.vec[0] *= 2.0 * wh[0] / scene.camera().screenWidth();
+				trans.vec[1] *= 2.0 * wh[1] / scene.camera().screenHeight();
+				break;
+			}
+			trans = scene.camera().frame().orientation().rotate(Vec.mult(trans, translationSensitivity()));
+			if (referenceFrame() != null)
+				trans = referenceFrame().transformOf(trans);
+			translate(trans);
 			break;
 		case TRANSLATE:
 			if(e2.relative())
@@ -1284,5 +1321,30 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		//Quaternion rotY = new Quaternion(transformOf(flyUpVector()), rotationSensitivity() * ((int)prevPos.x - x) / camera.screenWidth());	
 		Quat rotY = new Quat(transformOf(flyUpVector(), false), rotationSensitivity() * (-deltaX) / camera.screenWidth());
 		return Quat.multiply(rotY, rotX);
+	}
+	
+	/**
+	 * Return 1 if mouse motion was started horizontally and -1 if it was more
+	 * vertical. Returns 0 if this could not be determined yet (perfect diagonal
+	 * motion, rare).
+	 */
+	protected int originalDirection(DOF2Event event) {
+		if (!dirIsFixed) {
+			Point delta;
+			if( event.absolute() )
+				delta = new Point(event.getX(), event.getY());
+			else
+				delta = new Point(event.getDX(), event.getDY());
+			dirIsFixed = Math.abs((int)delta.x) != Math.abs((int)delta.y);
+			horiz = Math.abs((int)delta.x) > Math.abs((int)delta.y);
+		}
+
+		if (dirIsFixed)
+			if (horiz)
+				return 1;
+			else
+				return -1;
+		else
+			return 0;
 	}
 }

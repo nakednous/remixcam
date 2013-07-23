@@ -183,6 +183,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					if(grabber() instanceof InteractiveFrame) {
 						Actionable<?> a = (grabber() instanceof InteractiveCameraFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event); 
 						DandelionAction dA = (DandelionAction) a.referenceAction();
+						if( dA == DandelionAction.SCREEN_TRANSLATE ) ((InteractiveFrame)grabber()).dirIsFixed = false;
 						needByPass = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE);
 					  if(needByPass) {
 					  	dFriction = ((InteractiveFrame)grabber()).dampingFriction();
