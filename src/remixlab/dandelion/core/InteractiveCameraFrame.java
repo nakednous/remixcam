@@ -333,6 +333,16 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			translate(inverseTransformOf(trans));
 			break;
 		case ZOOM_ON_REGION:
+			if(e2.absolute()) {
+				AbstractScene.showEventVariationWarning(a);
+				break;
+			}
+			int w = (int) Math.abs(e2.getDX());
+			int tlX = (int) e2.getPrevX() < (int) e2.getX() ? (int) e2.getPrevX() : (int) e2.getX();
+			int h = (int) Math.abs(e2.getDY());
+			int tlY = (int) e2.getPrevY() < (int) e2.getY() ? (int) e2.getPrevY() : (int) e2.getY();
+			// camera.fitScreenRegion( new Rectangle (tlX, tlY, w, h) );			
+			camera.interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
 			break;
 		default:
 			AbstractScene.showMissingImplementationWarning(a);

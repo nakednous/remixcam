@@ -28,7 +28,6 @@ package remixlab.dandelion.core;
 import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.generic.profile.Actionable;
 
-
 public interface Constants extends EventConstants {	
 	/**
    * PI is a mathematical constant with the value 3.14159265358979323846.

@@ -927,9 +927,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			else
 				inverseScale(1 + Math.abs(delta) / (float) scene.height());
 			break;
-		case ZOOM_ON_REGION:
-			break;
 		default:
+			AbstractScene.showMissingImplementationWarning(a);
 			break;
 		}
 	}

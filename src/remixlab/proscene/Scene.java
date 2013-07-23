@@ -153,7 +153,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	//public class Mouse extends AbstractMouse {
 	public class ProsceneMouse extends GenericWheeledMouseAgent<GenericMotionProfile<Constants.DOF1Action>> {
 	//public class ProsceneMouse extends Mouse {
-		boolean needByPass;
+		boolean bypassNullEvent, zoomOnRegion, screenRotate;
+		Point fCorner = new Point();
+		Point lCorner = new Point();
 		GenericDOF2Event<Constants.DOF2Action> event, prevEvent;
 		float dFriction = camera().frame().dampingFriction();
 		InteractiveFrame iFrame;
@@ -179,18 +181,30 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			
 			// /**
 			if( e.getAction() == processing.event.MouseEvent.PRESS ) {
-				//if( this.grabber() != null ) {
+				//if( this.grabber() != null ) { //overkill :P
 					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 					if(grabber() instanceof InteractiveFrame) {
 						iFrame = (InteractiveFrame)grabber();
-						Actionable<?> a = (grabber() instanceof InteractiveCameraFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event); 
+						Actionable<?> a = (grabber() instanceof InteractiveCameraFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event);
+						if(a==null) return;
 						DandelionAction dA = (DandelionAction) a.referenceAction();
 						if( dA == DandelionAction.SCREEN_TRANSLATE ) ((InteractiveFrame)grabber()).dirIsFixed = false;
-						needByPass = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE);
-					  if(needByPass) {
-					  	dFriction = ((InteractiveFrame)grabber()).dampingFriction();
-					  	((InteractiveFrame)grabber()).setDampingFriction(0);
-					  	handler.eventTupleQueue().add(new EventGrabberDuobleTuple(event, a, grabber()));	  	
+						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE);
+						zoomOnRegion = dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveCameraFrame);
+						screenRotate = dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveCameraFrame);
+						if(bypassNullEvent || zoomOnRegion || screenRotate) {
+							if(bypassNullEvent) {
+								dFriction = ((InteractiveFrame)grabber()).dampingFriction();
+								((InteractiveFrame)grabber()).setDampingFriction(0);
+								handler.eventTupleQueue().add(new EventGrabberDuobleTuple(event, a, grabber()));	
+							}
+							if(zoomOnRegion) {
+								fCorner.set(e.getX(), e.getY());
+								lCorner.set(e.getX(), e.getY());
+							}
+							if(screenRotate) {
+								fCorner.set(e.getX(), e.getY());
+							}
 					  }
 					  else
 					  	handle(event);		
@@ -203,21 +217,36 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			
 			// /**
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
-				//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//rotate without dragging any button
+				//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//e.g., rotate without dragging any button also possible :P
+				if(zoomOnRegion)
+					lCorner.set(e.getX(), e.getY());
+				if(screenRotate)
+					fCorner.set(e.getX(), e.getY());
+				if( ! zoomOnRegion ) { //bypass zoom_on_region, may be different when using a touch device :P
 					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 					handle(event);
 				  prevEvent = event.get();
+				}
 			}
 			// */
 			
 			if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
-				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY());
+				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+				if(zoomOnRegion) {
+					//at first glance this should work
+					//handle(event);
+					//but the problem is that depending on the order the button and the modifiers are released,
+					//dufferent actions maybe triggered, so we go for sure ;) :
+					handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, DOF2Action.ZOOM_ON_REGION, grabber()));
+					zoomOnRegion = false;
+				}
+				if(screenRotate) screenRotate = false;
 				updateGrabber(event);
 				prevEvent = event.get();
-				if(needByPass) {	
+				if(bypassNullEvent) {	
 					iFrame.setDampingFriction(dFriction);
-					needByPass = !needByPass;
-				}
+					bypassNullEvent = !bypassNullEvent;
+				}				
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
 				handle(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
@@ -436,14 +465,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().popStyle();
 		}	
 
-		//TODO these two are pending
 		@Override
 		public void drawZoomWindowHint() {
-			/**
-			float p1x = (float) ((Scene)scene).eventDispatcher.fCorner.getX();
-			float p1y = (float) ((Scene)scene).eventDispatcher.fCorner.getY();
-			float p2x = (float) ((Scene)scene).eventDispatcher.lCorner.getX();
-			float p2y = (float) ((Scene)scene).eventDispatcher.lCorner.getY();
+			float p1x = (float) ((Scene)scene).prosceneMouse.fCorner.getX();
+			float p1y = (float) ((Scene)scene).prosceneMouse.fCorner.getY();
+			float p2x = (float) ((Scene)scene).prosceneMouse.lCorner.getX();
+			float p2y = (float) ((Scene)scene).prosceneMouse.lCorner.getY();
 			scene.beginScreenDrawing();
 			pg().pushStyle();
 			pg().stroke(255, 255, 255);
@@ -456,16 +483,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().vertex(p1x, p2y);
 			pg().endShape(CLOSE);
 			pg().popStyle();
-			scene.endScreenDrawing();	
-			*/	
+			scene.endScreenDrawing();
 		}
 
 		@Override
 		public void drawScreenRotateLineHint() {
-			/**
-			float p1x = (float) ((Scene)scene).eventDispatcher.fCorner.getX();
-			float p1y = (float) ((Scene)scene).eventDispatcher.fCorner.getY();
-			Vector3D p2 = scene.pinhole().projectedCoordinatesOf(scene.arcballReferencePoint());
+			float p1x = (float) ((Scene)scene).prosceneMouse.fCorner.getX();
+			float p1y = (float) ((Scene)scene).prosceneMouse.fCorner.getY();
+			Vec p2 = scene.pinhole().projectedCoordinatesOf(scene.arcballReferencePoint());
 			scene.beginScreenDrawing();
 			pg().pushStyle();
 			pg().stroke(255, 255, 255);
@@ -474,7 +499,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().line(p2.x(), p2.y(), p1x, p1y);
 			pg().popStyle();
 			scene.endScreenDrawing();
-			*/
 		}
 
 		@Override
@@ -2135,13 +2159,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		} else {
 			pinhole().hideAllPaths();
 		}
-		//TODO pending
-		/**
-		if (eventDispatcher.camMouseAction == DOF_6Action.ZOOM_ON_REGION)			
-			drawZoomWindowHint();		
-		if (eventDispatcher.camMouseAction == DOF_6Action.SCREEN_ROTATE)
+		if (prosceneMouse.zoomOnRegion)
+			drawZoomWindowHint();
+		if (prosceneMouse.screenRotate)
 			drawScreenRotateLineHint();
-		*/
 		if (arpFlag) 
 			drawArcballReferencePointHint();
 		if (pupFlag) {
