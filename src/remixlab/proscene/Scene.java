@@ -198,12 +198,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 								((InteractiveFrame)grabber()).setDampingFriction(0);
 								handler.eventTupleQueue().add(new EventGrabberDuobleTuple(event, a, grabber()));	
 							}
-							if(zoomOnRegion) {
+							if(zoomOnRegion || screenRotate) {
 								fCorner.set(e.getX(), e.getY());
 								lCorner.set(e.getX(), e.getY());
-							}
-							if(screenRotate) {
-								fCorner.set(e.getX(), e.getY());
 							}
 					  }
 					  else
@@ -218,10 +215,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			// /**
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 				//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//e.g., rotate without dragging any button also possible :P
-				if(zoomOnRegion)
+				if(zoomOnRegion || screenRotate)
 					lCorner.set(e.getX(), e.getY());
-				if(screenRotate)
-					fCorner.set(e.getX(), e.getY());
 				if( ! zoomOnRegion ) { //bypass zoom_on_region, may be different when using a touch device :P
 					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 					handle(event);
@@ -488,8 +483,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawScreenRotateLineHint() {
-			float p1x = (float) ((Scene)scene).prosceneMouse.fCorner.getX();
-			float p1y = (float) ((Scene)scene).prosceneMouse.fCorner.getY();
+			float p1x = (float) ((Scene)scene).prosceneMouse.lCorner.getX();
+			float p1y = (float) ((Scene)scene).prosceneMouse.lCorner.getY();
 			Vec p2 = scene.pinhole().projectedCoordinatesOf(scene.arcballReferencePoint());
 			scene.beginScreenDrawing();
 			pg().pushStyle();
