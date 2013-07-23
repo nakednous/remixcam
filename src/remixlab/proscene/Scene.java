@@ -156,6 +156,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		boolean needByPass;
 		GenericDOF2Event<Constants.DOF2Action> event, prevEvent;
 		float dFriction = camera().frame().dampingFriction();
+		InteractiveFrame iFrame;
 		public ProsceneMouse(AbstractScene scn, String n) {
 			super(new GenericMotionProfile<Constants.DOF1Action>(),
 					  new GenericMotionProfile<Constants.DOF1Action>(), scn, n);	
@@ -181,6 +182,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				//if( this.grabber() != null ) {
 					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
 					if(grabber() instanceof InteractiveFrame) {
+						iFrame = (InteractiveFrame)grabber();
 						Actionable<?> a = (grabber() instanceof InteractiveCameraFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event); 
 						DandelionAction dA = (DandelionAction) a.referenceAction();
 						if( dA == DandelionAction.SCREEN_TRANSLATE ) ((InteractiveFrame)grabber()).dirIsFixed = false;
@@ -212,8 +214,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY());
 				updateGrabber(event);
 				prevEvent = event.get();
-				if(needByPass) {
-					((InteractiveFrame)grabber()).setDampingFriction(dFriction);
+				if(needByPass) {	
+					iFrame.setDampingFriction(dFriction);
 					needByPass = !needByPass;
 				}
 			}
