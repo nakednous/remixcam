@@ -190,13 +190,13 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		ViewWindow viewWindow = (ViewWindow) viewport;
 		Vec trans;
 		float deltaX, deltaY;
+		Orientable rot;
 		switch(a) {
 		case CUSTOM:
 			break;
 		case ROTATE:	
 		case SCREEN_ROTATE:
 			trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());			
-			Orientable rot;
 			if(e2.relative()) {
 				Point prevPos = new Point(e2.getPrevX(), e2.getPrevY());
 				Point curPos= new Point(e2.getX(), e2.getY());
@@ -204,13 +204,15 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 				rot = new Rotation(rot.angle() * rotationSensitivity());
 			}
 			else
-				rot = new Rotation(e2.getX() * rotationSensitivity());		
-			
+				rot = new Rotation(e2.getX() * rotationSensitivity());			
 			if ( !isFlipped() ) rot.negate();
-			if (scene.viewWindow().frame().magnitude().x() * scene.viewWindow().frame().magnitude().y() < 0 ) rot.negate();
-			
-			setSpinningQuaternion(rot);
-			startSpinning(e2);
+			//but its not enough to cover all different cases, so:
+			if (scene.viewWindow().frame().magnitude().x() * scene.viewWindow().frame().magnitude().y() < 0 ) rot.negate();		
+			if(e2.relative()) {
+				setSpinningQuaternion(rot);
+				startSpinning(e2);
+			} else //absolute needs testing
+				rotate(rot);
 			break;
 		case SCREEN_TRANSLATE:
 			trans = new Vec();
@@ -243,8 +245,35 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 				trans = referenceFrame().transformOf(trans);
 			translate(trans);
 			break;
-		//TODO implement me
 		case TRANSLATE_ROTATE:
+			//translate:
+			deltaX = (e6.relative()) ? e6.getDX() : e6.getX();
+			if(e6.relative())
+				deltaY = scene.isRightHanded() ? -e6.getDY() : e6.getDY();
+			else
+				deltaY = scene.isRightHanded() ? -e6.getY() : e6.getY();			
+			trans = new Vec(-deltaX, -deltaY, 0.0f);			
+			trans = viewWindow.frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			// And then down to frame
+			if (referenceFrame() != null)
+				trans = referenceFrame().transformOf(trans);
+			translate(trans);
+			//rotate:
+			trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());
+		  //TODO "relative" is experimental here.
+			//Hard to think of a DOF6 relative device in the first place.
+			if(e6.relative()) 
+				rot = new Rotation(e6.getDRX() * rotationSensitivity());	
+			else
+				rot = new Rotation(e6.getRX() * rotationSensitivity());			
+			if ( !isFlipped() ) rot.negate();
+			//but its not enough to cover all different cases, so:
+			if (scene.viewWindow().frame().magnitude().x() * scene.viewWindow().frame().magnitude().y() < 0 ) rot.negate();		
+			if(e6.relative()) {
+				setSpinningQuaternion(rot);
+				startSpinning(e6);
+			} else //absolute needs testing
+				rotate(rot);
 			break;
 		case ZOOM:
 			float delta;
@@ -392,6 +421,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 				translate(localInverseTransformOf(new Vec(e3.getDX(),e3.getDY(),-e3.getDZ()), false));
 			break;
 		case TRANSLATE_ROTATE:
+			//translate
 			if(e6.absolute())
 				translate(localInverseTransformOf(new Vec(e6.getX(),e6.getY(),-e6.getZ()), false));
 			else

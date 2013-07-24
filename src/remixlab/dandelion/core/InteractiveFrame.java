@@ -649,7 +649,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * @see #dampingFriction()
 	 * @see #toss()
 	 */
-	public void startSpinning(DOF2Event e) {
+	public void startSpinning(MotionEvent e) {
 		eventSpeed = e.speed();
 		isSpng = true;
 		int updateInterval = (int) e.delay();
@@ -884,13 +884,13 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		if(a==null) return;
 		Vec trans;
 		float deltaX, deltaY;
+		Orientable rot;
 		switch(a) {
 		case CUSTOM:
 			break;
 		case ROTATE:
 		case SCREEN_ROTATE:
-			trans = scene.viewWindow().projectedCoordinatesOf(position());			
-			Orientable rot;
+			trans = scene.viewWindow().projectedCoordinatesOf(position());
 			if(e2.relative()) {
 				Point prevPos = new Point(e2.getPrevX(), e2.getPrevY());
 				Point curPos= new Point(e2.getX(), e2.getY());
@@ -898,13 +898,14 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 				rot = new Rotation(rot.angle() * rotationSensitivity());
 			}
 			else 
-				rot = new Rotation(e2.getX() * rotationSensitivity());
-			
+				rot = new Rotation(e2.getX() * rotationSensitivity());			
 			if ( isFlipped() ) rot.negate();	
 			if (scene.viewWindow().frame().magnitude().x() * scene.viewWindow().frame().magnitude().y() < 0 ) rot.negate();
-			
-			setSpinningQuaternion(rot);
-			startSpinning(e2);
+			if(e2.relative()) {
+				setSpinningQuaternion(rot);
+				startSpinning(e2);
+			} else //absolute needs testing
+				rotate(rot);
 			break;
 		case SCREEN_TRANSLATE:
 			deltaX = (e2.relative()) ? e2.getDX() : e2.getX();
@@ -937,8 +938,36 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 				trans = referenceFrame().transformOf(trans);
 			translate(trans);
 			break;
-		//TODO implement me
+		//TODO needs testing with space navigator
 		case TRANSLATE_ROTATE:
+			//translate
+			deltaX = (e6.relative()) ? e6.getDX() : e6.getX();
+			if(e6.relative())
+				deltaY = scene.isRightHanded() ? e6.getDY() : -e6.getDY();
+			else
+				deltaY = scene.isRightHanded() ? e6.getY() : -e6.getY();
+			trans = new Vec(deltaX, -deltaY, 0.0f);
+			trans = scene.viewWindow().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			// And then down to frame
+			if (referenceFrame() != null)
+				trans = referenceFrame().transformOf(trans);
+			translate(trans);
+			//rotate
+			trans = scene.viewWindow().projectedCoordinatesOf(position());
+			//TODO "relative" is experimental here.
+			//Hard to think of a DOF6 relative device in the first place.
+			if(e6.relative())
+				rot = new Rotation(e6.getDRX() * rotationSensitivity());
+			else 
+				rot = new Rotation(e6.getRX() * rotationSensitivity());			
+			if ( isFlipped() ) rot.negate();	
+			if (scene.viewWindow().frame().magnitude().x() * scene.viewWindow().frame().magnitude().y() < 0 ) rot.negate();			
+			if(e6.relative()) {
+				setSpinningQuaternion(rot);
+				startSpinning(e6);
+			} else //absolute needs testing
+			  // absolute should simply go (only relative has speed which is needed by start spinning):
+				rotate(rot);
 			break;
 		case ZOOM:
 			float delta;

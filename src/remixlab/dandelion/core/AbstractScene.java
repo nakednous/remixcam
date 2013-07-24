@@ -60,7 +60,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	protected Renderable renderer;
 	protected Pinhole ph;
 	//protected InteractiveFrame glIFrame;
-	protected boolean iFrameIsDrwn;
+	//protected boolean iFrameIsDrwn;
 	protected Trackable trck;
 	public boolean avatarIsInteractiveFrame;
 	protected boolean avatarIsInteractiveAvatarFrame;
@@ -242,10 +242,11 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		case EDIT_CAMERA_PATH:
 			toggleCameraPathsAreDrawn();
 			break;
+		/**
 		case FOCUS_INTERACTIVE_FRAME:
-			//TODO
-			//toggleDrawInteractiveFrame();
+			toggleDrawInteractiveFrame();
 			break;
+			*/
 		case DRAW_FRAME_SELECTION_HINT:
 			toggleFrameSelectionHintIsDrawn();
 			break;
@@ -2182,9 +2183,11 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * Returns {@code true} if axis is currently being drawn and {@code false}
 	 * otherwise.
 	 */
+	/**
 	public boolean interactiveFrameIsDrawn() {
 		return iFrameIsDrwn;
 	}
+	*/
 
 	/**
 	 * Convenience function that simply calls {@code setAxisIsDrawn(true)}
