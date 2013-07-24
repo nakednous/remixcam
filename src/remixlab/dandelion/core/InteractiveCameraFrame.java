@@ -187,6 +187,95 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	@Override
 	protected void execAction2D(DandelionAction a) {
 		if(a==null) return;
+		ViewWindow viewWindow = (ViewWindow) viewport;
+		Vec trans;
+		float deltaX, deltaY;
+		switch(a) {
+		case CUSTOM:
+			break;
+		case ROTATE:	
+		case SCREEN_ROTATE:
+			trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());			
+			Orientable rot;
+			if(e2.relative()) {
+				Point prevPos = new Point(e2.getPrevX(), e2.getPrevY());
+				Point curPos= new Point(e2.getX(), e2.getY());
+				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, curPos);
+				rot = new Rotation(rot.angle() * rotationSensitivity());
+			}
+			else
+				rot = new Rotation(e2.getX() * rotationSensitivity());		
+			
+			if ( !isFlipped() ) rot.negate();
+			if (scene.viewWindow().frame().magnitude().x() * scene.viewWindow().frame().magnitude().y() < 0 ) rot.negate();
+			
+			setSpinningQuaternion(rot);
+			startSpinning(e2);
+			break;
+		case SCREEN_TRANSLATE:
+			trans = new Vec();
+			int dir = originalDirection(e2);			
+			deltaX = (e2.relative()) ? e2.getDX() : e2.getX();
+			if(e2.relative())
+				deltaY = scene.isRightHanded() ? e2.getDY() : -e2.getDY();
+			else
+				deltaY = scene.isRightHanded() ? e2.getY() : -e2.getY();
+			if (dir == 1)
+				trans.set(-deltaX, 0.0f, 0.0f);
+			else if (dir == -1)
+				trans.set(0.0f, deltaY, 0.0f);	
+			
+			float[] wh = viewWindow.getOrthoWidthHeight();
+			trans.vec[0] *= 2.0f * wh[0] / viewWindow.screenWidth();
+			trans.vec[1] *= 2.0f * wh[1] / viewWindow.screenHeight();			
+			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity())));
+			break;
+		case TRANSLATE:
+			deltaX = (e2.relative()) ? e2.getDX() : e2.getX();
+			if(e2.relative())
+				deltaY = scene.isRightHanded() ? -e2.getDY() : e2.getDY();
+			else
+				deltaY = scene.isRightHanded() ? -e2.getY() : e2.getY();			
+			trans = new Vec(-deltaX, -deltaY, 0.0f);			
+			trans = viewWindow.frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			// And then down to frame
+			if (referenceFrame() != null)
+				trans = referenceFrame().transformOf(trans);
+			translate(trans);
+			break;
+		//TODO implement me
+		case TRANSLATE_ROTATE:
+			break;
+		case ZOOM:
+			float delta;
+			if( currentEvent instanceof GenericDOF1Event ) //its a wheel wheel :P
+				delta = e1.getX() * wheelSensitivity();
+			else
+				if( e1.absolute() )
+					delta = e1.getX();
+				else
+					delta = e1.getDX();
+			if(delta >= 0)
+				scale(1 + Math.abs(delta) / (float) -scene.height());
+			else
+				inverseScale(1 + Math.abs(delta) / (float) -scene.height());
+			break;
+		case ZOOM_ON_REGION:
+			if(e2.absolute()) {
+				AbstractScene.showEventVariationWarning(a);
+				break;
+			}
+			int w = (int) Math.abs(e2.getDX());
+			int tlX = (int) e2.getPrevX() < (int) e2.getX() ? (int) e2.getPrevX() : (int) e2.getX();
+			int h = (int) Math.abs(e2.getDY());
+			int tlY = (int) e2.getPrevY() < (int) e2.getY() ? (int) e2.getPrevY() : (int) e2.getY();
+			// viewWindow.fitScreenRegion( new Rectangle (tlX, tlY, w, h) );			
+			viewWindow.interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
+			break;
+		default:
+			AbstractScene.showVariationWarning(a);
+			break;
+		}
 	}
 	
 	@Override

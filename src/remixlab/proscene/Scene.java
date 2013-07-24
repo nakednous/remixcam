@@ -157,7 +157,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		Point fCorner = new Point();
 		Point lCorner = new Point();
 		GenericDOF2Event<Constants.DOF2Action> event, prevEvent;
-		float dFriction = camera().frame().dampingFriction();
+		float dFriction = pinhole().frame().dampingFriction();
 		InteractiveFrame iFrame;
 		public ProsceneMouse(AbstractScene scn, String n) {
 			super(new GenericMotionProfile<Constants.DOF1Action>(),
@@ -199,8 +199,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 								handler.eventTupleQueue().add(new EventGrabberDuobleTuple(event, a, grabber()));	
 							}
 							if(zoomOnRegion || screenRotate) {
-								fCorner.set(e.getX(), e.getY());
 								lCorner.set(e.getX(), e.getY());
+								if(zoomOnRegion)
+									fCorner.set(e.getX(), e.getY());
 							}
 					  }
 					  else

@@ -26,6 +26,7 @@
 package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
+import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.generic.event.GenericDOF2Event;
 import remixlab.tersehandling.generic.profile.GenericClickProfile;
@@ -37,12 +38,13 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 				  new GenericMotionProfile<Constants.DOF2Action>(),
 				  new GenericClickProfile<Constants.DOF0Action>(), scn.terseHandler(), n);
 		setDefaultGrabber(scn.pinhole().frame());
-		//camProfile = new GenericMotionProfile<Constants.DOF_2Action>();
-		//profile = new GenericMotionProfile<Constants.DOF_2Action>();
-		//clickProfile = new GenericClickProfile<Constants.DOF_0Action>();
-		cameraProfile().setBinding(TH_CENTER, DOF2Action.ZOOM);
+		
 		cameraProfile().setBinding(TH_LEFT, DOF2Action.ROTATE);
-		cameraProfile().setBinding(TH_RIGHT, DOF2Action.TRANSLATE);
+		cameraProfile().setBinding(TH_CENTER, DOF2Action.ZOOM);
+		cameraProfile().setBinding(TH_RIGHT, DOF2Action.TRANSLATE);		
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_LEFT, DOF2Action.ZOOM_ON_REGION);
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.SCREEN_TRANSLATE);
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_RIGHT, DOF2Action.SCREEN_ROTATE);
 		
 		/**
 		//first person:
@@ -51,19 +53,15 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 		cameraProfile().setBinding(TH_RIGHT, DOF2Action.MOVE_BACKWARD);
 		// */
 		
-		//testing things out :P
+		frameProfile().setBinding(TH_LEFT, DOF2Action.ROTATE);
 		frameProfile().setBinding(TH_CENTER, DOF2Action.ZOOM);
-		frameProfile().setBinding(TH_RIGHT, DOF2Action.ROTATE);
-		frameProfile().setBinding(TH_LEFT, DOF2Action.TRANSLATE);
+		frameProfile().setBinding(TH_RIGHT, DOF2Action.TRANSLATE);
+		frameProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.SCREEN_TRANSLATE);
+		frameProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_RIGHT, DOF2Action.SCREEN_ROTATE);
 		
-		clickProfile().setClickBinding(TH_LEFT, 1, DOF0Action.DRAW_FRAME_SELECTION_HINT);
-		clickProfile().setClickBinding(TH_RIGHT, 1, DOF0Action.DRAW_AXIS);
-		
-		//clickProfile().setClickBinding(LEFT, 1, DOF_0Action.DRAW_AXIS);		
-		//setClickBinding(RIGHT, 2, DOF_0Action.DRAW_GRID);
-		
-		//clickProfile().setClickBinding(RIGHT, 1, DOF_0Action.DRAW_FRAME_SELECTION_HINT);
-		
+		//clickProfile().setClickBinding(TH_LEFT, 1, DOF0Action.DRAW_FRAME_SELECTION_HINT);
+		//clickProfile().setClickBinding(TH_RIGHT, 1, DOF0Action.DRAW_AXIS);
+	
 		clickProfile().setClickBinding(TH_SHIFT, TH_LEFT, 2, DOF0Action.ALIGN_CAMERA);
 		clickProfile().setClickBinding(TH_SHIFT, TH_CENTER, 2, DOF0Action.SHOW_ALL);
 		clickProfile().setClickBinding((TH_SHIFT | TH_CTRL ), TH_RIGHT, 2, DOF0Action.ZOOM_TO_FIT);

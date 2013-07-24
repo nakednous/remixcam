@@ -805,27 +805,21 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	@Override
 	public void performInteraction(TerseEvent e) {
 		stopSpinning();
-		stopTossing();
-		
-		if(e == null) return;
-		
+		stopTossing();		
+		if(e == null) return;		
 		if(e instanceof KeyboardEvent || e instanceof ClickEvent) {
 			scene.performInteraction(e);
 			return;
-		}
-		
+		}		
 		// then it's a MotionEvent		
-		Duoable<?> event;
-		
+		Duoable<?> event;		
 		if(e instanceof Duoable)
 			event = (Duoable<?>)e;
 		else 
 			return;	
-		
 		// same as no action
 		if( event.action() == null )
-			return;
-		
+			return;		
 		if( ( scene.is2D() ) && ( ((DandelionAction)event.action().referenceAction()).is2D() ) )
 			execAction2D( reduceEvent( (MotionEvent)e ));
 		else
@@ -871,8 +865,10 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		case 3:
 			if( e instanceof DOF3Event )
 				e3 = ((DOF3Event)e).get();
-			else if( e instanceof DOF3Event )
+			else if( e instanceof DOF6Event )
 				e3 = ((DOF6Event)e).dof3Event();
+			if(scene.is2D())
+				e2 = e3.dof2Event();
 			break;
 		case 6:
 			if( e instanceof DOF6Event )
@@ -884,51 +880,82 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		return currentAction;		
 	}
 	
-	//TODO implement me
 	protected void execAction2D(DandelionAction a) {
 		if(a==null) return;
+		Vec trans;
+		float deltaX, deltaY;
 		switch(a) {
 		case CUSTOM:
 			break;
-		case DRIVE:
-			break;
-		case LOOK_AROUND:
-			break;
-		case MOVE_BACKWARD:
-			break;
-		case MOVE_FORWARD:
-			break;
-		//TODO: seems only one DRIVABLE action having 2d version
-			// it calls spinning -> no flyUpdate is needed
-		case ROLL:
-			break;
 		case ROTATE:
-			break;
-		case ROTATE3:
-			break;
 		case SCREEN_ROTATE:
+			trans = scene.viewWindow().projectedCoordinatesOf(position());			
+			Orientable rot;
+			if(e2.relative()) {
+				Point prevPos = new Point(e2.getPrevX(), e2.getPrevY());
+				Point curPos= new Point(e2.getX(), e2.getY());
+				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, curPos);
+				rot = new Rotation(rot.angle() * rotationSensitivity());
+			}
+			else 
+				rot = new Rotation(e2.getX() * rotationSensitivity());
+			
+			if ( isFlipped() ) rot.negate();	
+			if (scene.viewWindow().frame().magnitude().x() * scene.viewWindow().frame().magnitude().y() < 0 ) rot.negate();
+			
+			setSpinningQuaternion(rot);
+			startSpinning(e2);
 			break;
 		case SCREEN_TRANSLATE:
+			deltaX = (e2.relative()) ? e2.getDX() : e2.getX();
+			if(e2.relative())
+				deltaY = scene.isRightHanded() ? e2.getDY() : -e2.getDY();
+			else
+				deltaY = scene.isRightHanded() ? e2.getY() : -e2.getY();
+			trans = new Vec();
+			int dir = originalDirection(e2);
+			if (dir == 1)
+				trans.set(deltaX, 0.0f, 0.0f);
+			else if (dir == -1)
+				trans.set(0.0f, -deltaY, 0.0f);				
+			trans = scene.viewWindow().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			// And then down to frame
+			if (referenceFrame() != null)
+				trans = referenceFrame().transformOf(trans);
+			translate(trans);
 			break;
 		case TRANSLATE:
+			deltaX = (e2.relative()) ? e2.getDX() : e2.getX();
+			if(e2.relative())
+				deltaY = scene.isRightHanded() ? e2.getDY() : -e2.getDY();
+			else
+				deltaY = scene.isRightHanded() ? e2.getY() : -e2.getY();
+			trans = new Vec(deltaX, -deltaY, 0.0f);
+			trans = scene.viewWindow().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			// And then down to frame
+			if (referenceFrame() != null)
+				trans = referenceFrame().transformOf(trans);
+			translate(trans);
 			break;
-		case TRANSLATE3:
-			break;
+		//TODO implement me
 		case TRANSLATE_ROTATE:
 			break;
 		case ZOOM:
 			float delta;
-			if( e1.absolute() )
-			  delta = e1.getX();
+			if( currentEvent instanceof GenericDOF1Event ) //its a wheel wheel :P
+				delta = e1.getX() * wheelSensitivity();
 			else
-				delta = e1.getDX();
+				if( e1.absolute() )
+					delta = e1.getX();
+				else
+					delta = e1.getDX();
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
 			else
 				inverseScale(1 + Math.abs(delta) / (float) scene.height());
 			break;
 		default:
-			AbstractScene.showMissingImplementationWarning(a);
+			AbstractScene.showVariationWarning(a);
 			break;
 		}
 	}
@@ -1142,7 +1169,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		case ZOOM:
 			float delta;
 			if( currentEvent instanceof GenericDOF1Event ) //its a wheel wheel :P
-				delta = -e1.getX() * wheelSensitivity();
+				delta = e1.getX() * wheelSensitivity();
 			else
 				if( e1.absolute() )
 				  delta = e1.getX();
