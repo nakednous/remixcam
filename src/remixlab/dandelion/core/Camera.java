@@ -426,8 +426,11 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	public void setUpVector(Vec up, boolean noMove) {
 		Quat q = new Quat(new Vec(0.0f, frame().magnitude().y() > 0 ? 1.0f : -1.0f, 0.0f), frame().transformOf(up));
 
-		if (!noMove)
-			frame().rotate(q);
+		if (!noMove && scene.is3D())
+			frame().setPosition(Vec.sub(arcballReferencePoint(), 
+							            (Quat.multiply((Quat)frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));
+		
+		frame().rotate(q);
 
 		// Useful in fly mode to keep the horizontal direction.
 		frame().updateFlyUpVector();
@@ -1888,8 +1891,6 @@ public class Camera extends Pinhole implements Constants, Copyable {
 	 */
 	@Override
 	public void fitScreenRegion(Rectangle rectangle) {
-		//TODO fix me
-		System.out.println("calling fit SR");
 		Vec vd = viewDirection();
 		float distToPlane = distanceToSceneCenter();
 

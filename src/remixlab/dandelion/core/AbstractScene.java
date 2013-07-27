@@ -54,6 +54,9 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	//protected List<Grabbable> msGrabberPool;
 	protected boolean grbsDevice = true;
 	
+	//TODO implement 3rd person
+	protected boolean modeTHIRD_PERSON;
+	
 	protected boolean dottedGrid;	
 	
   //O B J E C T S
@@ -214,16 +217,35 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		Vec trans;
 		switch (id) {
 		//case NO_ACTION:	break;
+		case ADD_KEYFRAME_TO_PATH:
+			if( event instanceof GenericKeyboardEvent<?> )
+				pinhole().addKeyFrameToPath(Character.getNumericValue( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) ));
+			break;
+		case DELETE_PATH:
+			if( event instanceof GenericKeyboardEvent<?> )
+				pinhole().deletePath(Character.getNumericValue( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) ));
+			break;
+		case PLAY_PATH:
+			if( event instanceof GenericKeyboardEvent<?> )
+				pinhole().playPath(Character.getNumericValue( ((KeyboardEvent) event).getKey()));
+			break;
 		case DRAW_AXIS:
 			toggleAxisIsDrawn();
 			break;
 		case DRAW_GRID:
 			toggleGridIsDrawn();
 			break;
-		case CAMERA_PROFILE:
+		case THIRD_PERSON:
+			modeTHIRD_PERSON = !modeTHIRD_PERSON;
+			if( this.modeTHIRD_PERSON )
+				System.out.println("Third person camera mode set");
+			else
+				System.out.println("Third person camera mode unset");
+			break;
+		//case CAMERA_PROFILE:
 			//TODO pending
 			//nextCameraProfile();
-			break;
+			//break;
 		case CAMERA_TYPE:
 			toggleCameraType();
 			break;
@@ -236,9 +258,9 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		case GLOBAL_HELP:
 			displayGlobalHelp();
 			break;
-		case CURRENT_CAMERA_PROFILE_HELP:
-			displayCurrentCameraProfileHelp();
-			break;
+		//case CURRENT_CAMERA_PROFILE_HELP:
+			//displayCurrentCameraProfileHelp();
+			//break;
 		case EDIT_CAMERA_PATH:
 			toggleCameraPathsAreDrawn();
 			break;
@@ -250,9 +272,9 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		case DRAW_FRAME_SELECTION_HINT:
 			toggleFrameSelectionHintIsDrawn();
 			break;
-		case CONSTRAIN_FRAME:
+		//case CONSTRAIN_FRAME:
 			//toggleDrawWithConstraint();
-			break;			
+			//break;			
 		// --
 		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
 			if( this.is3D() ) {
@@ -511,17 +533,13 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	// D R A W I N G   M E T H O D S
 	
 	public void preDraw() {
-		/**
-		// TODO: how to handle this?
-		if ((currentCameraProfile().mode() == CameraProfile.Mode.THIRD_PERSON)
-				&& (!camera().anyInterpolationIsStarted())) {
+		// TODO: decide 2d
+		if ( modeTHIRD_PERSON	&& (!camera().anyInterpolationIsStarted() ) && avatar() != null ) {
 			camera().setPosition(avatar().cameraPosition());
 			camera().setUpVector(avatar().upVector());
 			camera().lookAt(avatar().target());
 		}
-		*/
-		
-		// TODO if leave it here it gives results very close to P5	  
+		 
 		updateFrameRate();		
 		bindMatrices();
 		if (frustumEquationsUpdateIsEnable())
@@ -1902,7 +1920,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * 
 	 * @see #unsetAvatar()
 	 */
-	//TODO pending
+	//TODO pending animation
 	public void setAvatar(Trackable t) {
 		trck = t;
 		avatarIsInteractiveAvatarFrame = false;
@@ -1916,6 +1934,10 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			avatarIsInteractiveFrame = true;
 			//if (interactiveFrame() != null)	((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
 		}
+	}
+	
+	public boolean isIn3RDPersonMode() {
+		return this.modeTHIRD_PERSON;
 	}
 
 	/**

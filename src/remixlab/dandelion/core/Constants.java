@@ -99,17 +99,17 @@ public interface Constants extends EventConstants {
   	//GENERAL KEYBOARD ACTIONs	
   	DRAW_AXIS("Toggles the display of the world axis", true, 0),
   	DRAW_GRID("Toggles the display of the XY grid", true, 0),
-  	CAMERA_PROFILE("Cycles to the registered camera profiles", true, 0),
+  	//CAMERA_PROFILE("Cycles to the registered camera profiles", true, 0),
   	CAMERA_TYPE("Toggles camera type (orthographic or perspective)", false, 0),
   	CAMERA_KIND("Toggles camera kind (proscene or standard)", false, 0),
   	ANIMATION("Toggles animation", true, 0),  	
   	RESET_ARP("Reset the arcball reference point to the 3d frame world origin", true, 0),
   	GLOBAL_HELP("Displays the global help", true, 0),
-  	CURRENT_CAMERA_PROFILE_HELP("Displays the current camera profile help", true, 0),
+  	//CURRENT_CAMERA_PROFILE_HELP("Displays the current camera profile help", true, 0),
   	EDIT_CAMERA_PATH("Toggles the key frame camera paths (if any) for edition", true, 0),
   	//FOCUS_INTERACTIVE_FRAME("Toggle interactivity between camera and interactive frame (if any)", true, 0),
   	DRAW_FRAME_SELECTION_HINT("Toggle interactive frame selection region drawing", true, 0),
-  	CONSTRAIN_FRAME("Toggles on and off frame constraints (if any)", true, 0),
+  	//CONSTRAIN_FRAME("Toggles on and off frame constraints (if any)", true, 0),
   	INTERPOLATE_TO_FIT_SCENE("Interpolate the camera to fit the whole scene", true, 0),
   	SHOW_ALL("Show the whole scene", true, 0),
   	
@@ -130,6 +130,8 @@ public interface Constants extends EventConstants {
   	DECREASE_INCLINATION("Decrease camera inclination respect to the avatar (only meaningful in third-person mode)", false, 0),
   	INCREASE_TRACKING_DISTANCE("Increase camera tracking distance respect to the avatar (only meaningful in third-person mode)", false, 0),
   	DECREASE_TRACKING_DISTANCE("Decrease camera tracking distance respect to the avatar (only meaningful in third-person mode)", false, 0),
+  	//TODO decide 2d
+  	THIRD_PERSON("3rd person Camera", false, 0),
   	
     // Typically wheel
   	ZOOM("Zoom", true, 1),
@@ -197,79 +199,7 @@ public interface Constants extends EventConstants {
     
     public int dofs() {
     	return dofs;
-    }
-    
-    /**
-    public DOF_6Action dof6Action() {
-    	DOF_6Action a6;
-    	switch (this) {
-  			case CAD_ROTATE:
-  				a6 = DOF_6Action.CAD_ROTATE;
-  				break;
-  			case CUSTOM1:
-  				a6 = DOF_6Action.CUSTOM1;
-  				break;
-  			case CUSTOM2:
-  				a6 = DOF_6Action.CUSTOM2;
-  				break;
-  			case CUSTOM3:
-  				a6 = DOF_6Action.CUSTOM3;
-  				break;
-  			case CUSTOM4:
-  				a6 = DOF_6Action.CUSTOM4;
-  				break;
-  			case DRIVE:
-  				a6 = DOF_6Action.DRIVE;
-  				break;
-  			case FROM_EULER_ANGLES:
-  				a6 = DOF_6Action.FROM_EULER_ANGLES;
-  				break;
-  			case GOOGLE_EARTH:
-  				a6 = DOF_6Action.GOOGLE_EARTH;
-  				break;
-  			case LOOK_AROUND:
-  				a6 = DOF_6Action.LOOK_AROUND;
-  				break;
-  			case MOVE_BACKWARD:
-  				a6 = DOF_6Action.MOVE_BACKWARD;
-  				break;
-  			case MOVE_FORWARD:
-  				a6 = DOF_6Action.MOVE_FORWARD;
-  				break;
-  			case NATURAL:
-  				a6 = DOF_6Action.NATURAL;
-  				break;  			
-  			case ROLL:
-  				a6 = DOF_6Action.ROLL;
-  				break;
-  			case ROTATE:
-  				a6 = DOF_6Action.ROTATE;
-  				break;
-  			case SCREEN_ROTATE:
-  				a6 = DOF_6Action.SCREEN_ROTATE;
-  				break;
-  			case SCREEN_TRANSLATE:
-  				a6 = DOF_6Action.SCREEN_TRANSLATE;
-  				break;
-  			case TRANSLATE:
-  				a6 = DOF_6Action.TRANSLATE;
-  				break;
-  			case TRANSLATE3:
-  				a6 = DOF_6Action.TRANSLATE3;
-  				break;
-  			case ZOOM:
-  				a6 = DOF_6Action.ZOOM;
-  				break;
-  			case ZOOM_ON_REGION:
-  				a6 = DOF_6Action.ZOOM_ON_REGION;
-  				break;
-  			default:
-  				a6 = DOF_6Action.NO_ACTION;
-  				break;    	
-      	}
-    		return a6;
-    	}
-    	*/   
+    }   
   }
   
   public enum DOF0Action implements Actionable<DandelionAction> {
@@ -296,17 +226,17 @@ public interface Constants extends EventConstants {
   	//GENERAL KEYBOARD ACTIONs	
   	DRAW_AXIS(DandelionAction.DRAW_AXIS),
   	DRAW_GRID(DandelionAction.DRAW_GRID),
-  	CAMERA_PROFILE(DandelionAction.CAMERA_PROFILE),
+  	//CAMERA_PROFILE(DandelionAction.CAMERA_PROFILE),
   	CAMERA_TYPE(DandelionAction.CAMERA_TYPE),
   	CAMERA_KIND(DandelionAction.CAMERA_KIND),
   	ANIMATION(DandelionAction.ANIMATION),  	
   	RESET_ARP(DandelionAction.RESET_ARP),
   	GLOBAL_HELP(DandelionAction.GLOBAL_HELP),
-  	CURRENT_CAMERA_PROFILE_HELP(DandelionAction.CURRENT_CAMERA_PROFILE_HELP),
+  	//CURRENT_CAMERA_PROFILE_HELP(DandelionAction.CURRENT_CAMERA_PROFILE_HELP),
   	EDIT_CAMERA_PATH(DandelionAction.EDIT_CAMERA_PATH),
   	//FOCUS_INTERACTIVE_FRAME(DandelionAction.FOCUS_INTERACTIVE_FRAME),
   	DRAW_FRAME_SELECTION_HINT(DandelionAction.DRAW_FRAME_SELECTION_HINT),
-  	CONSTRAIN_FRAME(DandelionAction.CONSTRAIN_FRAME),
+  	//CONSTRAIN_FRAME(DandelionAction.CONSTRAIN_FRAME),
   	INTERPOLATE_TO_FIT_SCENE(DandelionAction.INTERPOLATE_TO_FIT_SCENE),
   	SHOW_ALL(DandelionAction.SHOW_ALL),
   	
@@ -327,6 +257,7 @@ public interface Constants extends EventConstants {
   	DECREASE_INCLINATION(DandelionAction.DECREASE_INCLINATION),
   	INCREASE_TRACKING_DISTANCE(DandelionAction.INCREASE_TRACKING_DISTANCE),
   	DECREASE_TRACKING_DISTANCE(DandelionAction.DECREASE_TRACKING_DISTANCE),
+  	THIRD_PERSON(DandelionAction.THIRD_PERSON),
   	
   	CUSTOM(DandelionAction.CUSTOM);
 

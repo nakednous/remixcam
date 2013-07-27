@@ -32,6 +32,7 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.dandelion.geom.*;
+import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.Util;
 
 public abstract class Pinhole {
@@ -456,6 +457,7 @@ public abstract class Pinhole {
 		
 	}
 	
+	/**
 	public void setSceneRadius(float radius) {
 		if (radius <= 0.0f) {
 			System.out.println("Warning: Scene radius must be positive - Ignoring value");
@@ -469,6 +471,34 @@ public abstract class Pinhole {
 		// if there's an avatar we change its fly speed as well
 		if (scene.avatarIsInteractiveFrame)
 			((InteractiveFrame) scene.avatar()).setFlySpeed(0.01f * scene.radius());
+	}
+	*/
+	
+	public void setSceneRadius(float radius) {
+		if (radius <= 0.0f) {
+			System.out.println("Warning: Scene radius must be positive - Ignoring value");
+			return;
+		}		
+		scnRadius = radius;		
+		setFlySpeed(0.01f * sceneRadius());
+
+		/**
+		Iterator<Grabbable> it = scene.terseHandler().globalGrabberList().iterator();
+		while (it.hasNext()) {
+			Grabbable element = it.next();
+			if(element instanceof InteractiveFrame)
+				if(!((InteractiveFrame) element).isInCameraPath())
+					((InteractiveFrame) element).setFlySpeed(0.01f * sceneRadius());
+		}
+		*/
+		
+		// /**
+		for (Grabbable mg : scene.terseHandler().globalGrabberList()) {
+			if(mg instanceof InteractiveFrame)
+				if(!((InteractiveFrame) mg).isInCameraPath())
+					((InteractiveFrame) mg).setFlySpeed(0.01f * sceneRadius());
+		}
+		//*/
 	}
 	
   //11. FLYSPEED
@@ -1398,21 +1428,8 @@ public abstract class Pinhole {
 			info = false;
 		}
 
-		//TODO editable is broken again!!
-		//Fix me!
-		if (editablePath) {
+		if (editablePath)
 		  kfi.get(key).addKeyFrame(new InteractiveFrame(scene, frame()));
-			/**
-			System.out.println("entered editable");			
-			InteractiveCameraFrame iFrame = frame().get();
-			iFrame.addInMouseGrabberPool();			
-			kfi.get(key).addKeyFrame(iFrame, true);
-			if(iFrame.isInMouseGrabberPool())
-				System.out.println("is in mouse grabber pool");
-			else
-				System.out.println("is NOT in mouse grabber pool");
-			*/
-		}
 		else
 			kfi.get(key).addKeyFrame(frame(), false);
 
@@ -1495,7 +1512,7 @@ public abstract class Pinhole {
 		itrtr = kfi.keySet().iterator();
 		while (itrtr.hasNext()) {
 			Integer key = itrtr.next();
-			kfi.get(key).addFramesToMouseGrabberPool();
+			kfi.get(key).addFramesToAllAgentPools();
 			kfi.get(key).drawPath(3, 5, sceneRadius());
 		}
 	}
@@ -1513,7 +1530,7 @@ public abstract class Pinhole {
 		itrtr = kfi.keySet().iterator();
 		while (itrtr.hasNext()) {
 			Integer key = itrtr.next();
-			kfi.get(key).removeFramesFromMouseGrabberPool();
+			kfi.get(key).removeFramesFromAllAgentPools();
 		}
 	}
 	

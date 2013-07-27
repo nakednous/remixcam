@@ -85,6 +85,7 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 		q.fromTaitBryan(QUARTER_PI, 0, 0);
 		camRelPos = new Vec();
 		setTrackingDistance(scene.radius() / 5);
+		scene.setAvatar(this);
 	}
 	
 	/**
@@ -106,6 +107,7 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	 * 
 	 * @see #InteractiveAvatarFrame(InteractiveAvatarFrame)
 	 */
+	@Override
 	public InteractiveAvatarFrame get() {
 		return new InteractiveAvatarFrame(this);
 	}
@@ -168,6 +170,7 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	 * Returns the world coordinates of the camera position computed in
 	 * {@link #computeCameraPosition()}.
 	 */
+	@Override
 	public Vec cameraPosition() {
 		return inverseCoordinatesOf(camRelPos);
 	}
@@ -176,6 +179,7 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	 * Overloading of {@link remixlab.dandelion.core.Trackable#upVector()}. Simply
 	 * returns the frame {@link #yAxis()}.
 	 */
+	@Override
 	public Vec upVector() {
 		return yAxis();
 	}
@@ -184,6 +188,7 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	 * Overloading of {@link remixlab.dandelion.core.Trackable#target()}. Simply returns
 	 * the frame {@link #position()}.
 	 */
+	@Override
 	public Vec target() {
 		return position();
 	}
@@ -197,6 +202,7 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	 * {@link #inclination()} and {@link #trackingDistance()}) respect to the
 	 * {@link #position()}.
 	 */
+	@Override
 	public void computeCameraPosition() {
 		camRelPos = q.rotate(new Vec(0, 0, 1));
 		camRelPos.mult(trackingDistance());

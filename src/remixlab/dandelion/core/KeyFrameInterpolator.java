@@ -758,6 +758,7 @@ public class KeyFrameInterpolator implements Copyable {
 		if (keyFr.isEmpty())
 			interpolationTm = time;
 
+		///**
 		if ((!keyFr.isEmpty()) && (keyFr.get(keyFr.size() - 1).time() > time))
 			System.out.println("Error in KeyFrameInterpolator.addKeyFrame: time is not monotone");
 		else {
@@ -766,6 +767,7 @@ public class KeyFrameInterpolator implements Copyable {
 			else
 				keyFr.add(new KeyFrame2D(frame, time, setRef));
 		}
+		// */
 
 		// connect(frame, SIGNAL(modified()), SLOT(invalidateValues()));
 		if (setRef) // only when setting reference
@@ -802,14 +804,14 @@ public class KeyFrameInterpolator implements Copyable {
 
 	/**
 	 * Removes all keyFrames from the path. Calls
-	 * {@link #removeFramesFromMouseGrabberPool()}. The
+	 * {@link #removeFramesFromAllAgentPools()}. The
 	 * {@link #numberOfKeyFrames()} is set to 0.
 	 * 
-	 * @see #removeFramesFromMouseGrabberPool()
+	 * @see #removeFramesFromAllAgentPools()
 	 */
 	public void deletePath() {
 		stopInterpolation();
-		removeFramesFromMouseGrabberPool();
+		removeFramesFromAllAgentPools();
 		keyFr.clear();
 		pathIsValid = false;
 		valuesAreValid = false;
@@ -820,34 +822,24 @@ public class KeyFrameInterpolator implements Copyable {
 	 * Removes all the Frames from the mouse grabber pool (if they were provided
 	 * as references).
 	 * 
-	 * @see #addFramesToMouseGrabberPool()
+	 * @see #addFramesToAllAgentPools()
 	 */
-	//TODO testing
-	protected void removeFramesFromMouseGrabberPool() {
-		for (int i = 0; i < keyFr.size(); ++i) {
+	protected void removeFramesFromAllAgentPools() {
+		for (int i = 0; i < keyFr.size(); ++i)
 			if (keyFr.get(i).frame() != null)
 				scene.terseHandler().removeFromAllAgentPools((InteractiveFrame) keyFr.get(i).frame());
-				//before:
-				//if (((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
-					//((InteractiveFrame) keyFr.get(i).frame()).removeFromDeviceGrabberPool();
-		}
 	}
 
 	/**
 	 * Re-adds all the Frames to the mouse grabber pool (if they were provided as
 	 * references).
 	 * 
-	 * @see #removeFramesFromMouseGrabberPool()
+	 * @see #removeFramesFromAllAgentPools()
 	 */
-  //TODO testing
-	protected void addFramesToMouseGrabberPool() {
-		for (int i = 0; i < keyFr.size(); ++i) {
-			if (keyFr.get(i).frame() != null)
-				scene.terseHandler().removeFromAllAgentPools((InteractiveFrame) keyFr.get(i).frame());
-			  //before:
-				//if (!((InteractiveFrame) keyFr.get(i).frame()).isInDeviceGrabberPool())
-					//((InteractiveFrame) keyFr.get(i).frame()).addInDeviceGrabberPool();
-		}
+	protected void addFramesToAllAgentPools() {
+		for (int i = 0; i < keyFr.size(); ++i)
+			if (keyFr.get(i).frame() != null)				
+				scene.terseHandler().addInAllAgentPools((InteractiveFrame) keyFr.get(i).frame());			  
 	}
 
 	protected void updateModifiedFrameValues() {

@@ -224,7 +224,7 @@ public class GeomFrame implements Copyable, Constants {
 		*/
 		
 		public void setListeners(GeomFrame iFrame) {
-			list = new ArrayList<KeyFrameInterpolator>();
+			//list = new ArrayList<KeyFrameInterpolator>();
 			Iterator<KeyFrameInterpolator> it = iFrame.listeners().iterator();
 			while (it.hasNext())
 				listeners().add(it.next());

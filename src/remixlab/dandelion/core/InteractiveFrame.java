@@ -129,7 +129,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	// Previous mouse position (used for incremental updates) and mouse press position.
 	//protected Point prevPos, pressPos;
 
-	protected boolean isInCamPath;
+  //TODO it should be protected
+	public boolean isInCamPath;
 	
 	// " D R I V A B L E "   S T U F F :
 	protected Vec tDir;
@@ -184,7 +185,8 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 
 		flyDisp = new Vec(0.0f, 0.0f, 0.0f);
 
-		setFlySpeed(0.0f);
+		if(! (this instanceof InteractiveCameraFrame) )
+			setFlySpeed(0.01f * scene.radius());
 
 		flyTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -280,20 +282,14 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		super(iFrame.rotation(), iFrame.translation(), iFrame.scaling());
 		scene = scn;
 
-		scene.terseHandler().addInAllAgentPools(this);
 		isInCamPath = true;
-
+		scene.terseHandler().addInAllAgentPools(this);
+		
 		setGrabsInputThreshold(10);
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
 		setWheelSensitivity(20.0f);
-
-		/**
-		setListeners(new ArrayList<KeyFrameInterpolator>());
-		Iterator<KeyFrameInterpolator> it = iFrame.listeners().iterator();
-		while (it.hasNext())
-			listeners().add(it.next());
-		*/
+		
 		setListeners(iFrame);
 		
 		isSpng = false;
