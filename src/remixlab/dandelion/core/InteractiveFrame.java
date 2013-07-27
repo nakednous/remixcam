@@ -1334,6 +1334,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * {@link remixlab.dandelion.core.Camera#frame()}. Use
 	 * {@link remixlab.dandelion.core.Camera#setUpVector(Vec)} instead in that case.
 	 */
+	//TODO: decide if this should go or not
 	public void setFlyUpVector(Vec up) {
 		flyUpVec = up;
 	}
