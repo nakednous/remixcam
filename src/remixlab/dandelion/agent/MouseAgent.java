@@ -62,9 +62,9 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 		//clickProfile().setClickBinding(TH_LEFT, 1, DOF0Action.DRAW_FRAME_SELECTION_HINT);
 		//clickProfile().setClickBinding(TH_RIGHT, 1, DOF0Action.DRAW_AXIS);
 	
-		clickProfile().setClickBinding(TH_SHIFT, TH_LEFT, 2, DOF0Action.ALIGN_CAMERA);
-		clickProfile().setClickBinding(TH_SHIFT, TH_CENTER, 2, DOF0Action.SHOW_ALL);
-		clickProfile().setClickBinding((TH_SHIFT | TH_CTRL ), TH_RIGHT, 2, DOF0Action.ZOOM_TO_FIT);
+		clickProfile().setClickBinding(TH_SHIFT, TH_LEFT, 1, DOF0Action.ALIGN_CAMERA);
+		clickProfile().setClickBinding(TH_SHIFT, TH_CENTER, 1, DOF0Action.SHOW_ALL);
+		clickProfile().setClickBinding((TH_SHIFT | TH_CTRL ), TH_RIGHT, 1, DOF0Action.ZOOM_TO_FIT);
 	}
 	
 	@Override
@@ -81,27 +81,6 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 	public GenericMotionProfile<Constants.DOF2Action> frameProfile() {
 		return profile;
 	}
-	
-	/**
-	@Override
-	public GenericClickProfile<Constants.DOF_0Action> clickProfile() {
-		return clickProfile;
-	}
-	*/
-	
-	/**
-	@Override
-	public boolean addInPool(Grabbable deviceGrabber) {
-		if(deviceGrabber == null)
-			return false;
-		if( (deviceGrabber instanceof InteractiveFrame) && !(deviceGrabber instanceof InteractiveCameraFrame) )
-			if (!isInPool(deviceGrabber)) {
-				pool().add(deviceGrabber);
-				return true;
-			}
-		return false;
-	}
-	*/
 	
 	public void setXTranslationSensitivity(float s) {
 		sens[0] = s;

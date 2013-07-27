@@ -25,7 +25,10 @@
 
 package remixlab.dandelion.agent;
 
+import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.core.Constants;
+import remixlab.dandelion.core.InteractiveFrame;
+import remixlab.tersehandling.core.EventGrabberTuple;
 import remixlab.tersehandling.core.TerseHandler;
 import remixlab.tersehandling.generic.agent.GenericMotionAgent;
 import remixlab.tersehandling.generic.profile.GenericClickProfile;
@@ -68,7 +71,14 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 	@Override
 	public void handle(TerseEvent event) {
 		//overkill but feels safer ;)
-		if(event == null || !handler.isAgentRegistered(this))	return;		
+		if(event == null || !handler.isAgentRegistered(this))	return;
+		//grabber is external, i.e., action -> null
+		if( grabber() != null )
+			if(!( grabber() instanceof InteractiveFrame ) && !( grabber() instanceof AbstractScene ) ) {
+				handler.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
+				return;
+			}
+		//normal here is: iFrame or camIFrame:
 		if(event instanceof Duoable<?>) {
 			if(event instanceof ClickEvent)
 				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoable<?>)event), grabber()));

@@ -27,9 +27,11 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.core.Constants;
+import remixlab.dandelion.core.InteractiveFrame;
 import remixlab.tersehandling.generic.event.GenericDOF1Event;
 import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 import remixlab.tersehandling.generic.profile.Duoable;
+import remixlab.tersehandling.core.EventGrabberTuple;
 import remixlab.tersehandling.event.*;
 
 public class GenericWheeledMouseAgent<W extends GenericMotionProfile<Constants.DOF1Action>> extends MouseAgent {
@@ -60,25 +62,16 @@ public class GenericWheeledMouseAgent<W extends GenericMotionProfile<Constants.D
 		frameWheelProfile = profile;
 	}
 	
-	/**
-	public void handle(GenericEvent event) {
-		if(event == null)	return;		
-		if(updateGrabber(event)) return;		
-		if(event instanceof GenericMotionEvent && event instanceof Duoble<?>) {
-			((GenericMotionEvent)event).modulate(sens);
-			if (deviceGrabber() != null )
-				scene.enqueueEvent(new EventGrabberTuple(event, frameProfile().handle((Duoble<?>)event), deviceGrabber()));
-			else
-				scene.enqueueEvent(new EventGrabberTuple(event, cameraProfile().handle((Duoble<?>)event), null));
-		}
-	}
-	*/
-	
 	@Override
 	public void handle(TerseEvent event) {
-		//TODO warning: should be copy pasted from AbstractMotionDevice
+		//Warning: should be copy pasted from AbstractMotionDevice
 		if(event == null || !handler.isAgentRegistered(this))	return;
-		if(event instanceof Duoable<?>) {
+		if( grabber() != null )
+			if(!( grabber() instanceof InteractiveFrame )) {
+				handler.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
+				return;
+			}
+		if(event instanceof Duoable<?>) {		
 			if(event instanceof ClickEvent)
 				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoable<?>)event), grabber()));
 			else

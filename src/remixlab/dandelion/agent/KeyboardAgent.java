@@ -28,6 +28,7 @@ package remixlab.dandelion.agent;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.core.Constants.DOF0Action;
 import remixlab.tersehandling.core.EventConstants;
+import remixlab.tersehandling.core.EventGrabberTuple;
 import remixlab.tersehandling.event.KeyboardEvent;
 import remixlab.tersehandling.event.TerseEvent;
 import remixlab.tersehandling.generic.agent.GenericKeyboardAgent;
@@ -107,6 +108,14 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 	public void handle(TerseEvent event) {
 		if(event == null || !handler.isAgentRegistered(this)) return;
 		
+	  //grabber is external, i.e., action -> null
+		if( grabber() != null )
+			if(!( grabber() instanceof InteractiveFrame ) && !( grabber() instanceof AbstractScene ) ) {
+				handler.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
+				return;
+			}
+		
+		//add keyframe?
 		if( (((KeyboardEvent) event).getModifiers() & addMod) != 0 ) {
 			if( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) == null ) return;
 			int path = Character.getNumericValue( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) );
@@ -116,6 +125,7 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 			}
 		}
 		
+		//remove frame?
 		if( (((KeyboardEvent) event).getModifiers() & delMod) != 0 ) {
 			if( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) == null ) return;
 			int path = Character.getNumericValue( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) );
@@ -125,6 +135,7 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 			}
 		}
 				
+		//"normal" case, just:
 		if(event instanceof Duoable<?>)
 			handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handle((Duoable<?>)event), grabber()));
 	}
@@ -133,6 +144,14 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 	public void handleKey(TerseEvent event) {
 		if(event == null || !handler.isAgentRegistered(this)) return;	
 		
+	  //grabber is external, i.e., action -> null
+		if( grabber() != null )
+			if(!( grabber() instanceof InteractiveFrame ) && !( grabber() instanceof AbstractScene ) ) {
+				handler.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
+				return;
+			}
+		
+		//need to play a path?
 		if( ((KeyboardEvent) event).getModifiers() == 0 ) {
 			int path = Character.getNumericValue( ((KeyboardEvent) event).getKey());
 			if( 0<= path && path <= 9 ) {
@@ -141,6 +160,7 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 			}
 		}
 		
+	  //"normal" case, just:
 		if(event instanceof KeyDuoable<?>)
 			handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handleKey((KeyDuoable<?>)event), grabber()));
 	}

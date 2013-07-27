@@ -60,27 +60,6 @@ public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constant
 		return profile;
 	}
 	
-	/**
-	@Override
-	public GenericClickProfile<Constants.DOF_0Action> clickProfile() {
-		return clickProfile;
-	}
-	*/
-	
-	/**
-	@Override
-	public boolean addInPool(Grabbable deviceGrabber) {
-		if(deviceGrabber == null)
-			return false;
-		if( (deviceGrabber instanceof InteractiveFrame) && !(deviceGrabber instanceof InteractiveCameraFrame) )
-			if (!isInPool(deviceGrabber)) {
-				pool().add(deviceGrabber);
-				return true;
-			}
-		return false;
-	}
-	*/
-	
 	public void setXTranslationSensitivity(float s) {
 		sens[0] = s;
 	}
