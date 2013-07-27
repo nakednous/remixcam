@@ -114,11 +114,6 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, DOF0Action.ADD_KEYFRAME_TO_PATH, grabber()));				
 				return;
 			}
-		  //TODO
-			else {
-				System.out.println("showing this is needed");
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handle((Duoable<?>)event), grabber()));
-			}
 		}
 		
 		if( (((KeyboardEvent) event).getModifiers() & delMod) != 0 ) {
@@ -127,11 +122,6 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 			if( 0<= path && path <= 9 ) {
 				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, DOF0Action.DELETE_PATH, grabber()));
 				return;
-			}
-			//TODO
-			else {
-				System.out.println("showing this is needed");
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handle((Duoable<?>)event), grabber()));
 			}
 		}
 				
