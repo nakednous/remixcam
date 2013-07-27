@@ -33,7 +33,6 @@ int SINCOS_LENGTH = int(360.0 / SINCOS_PRECISION);
 Scene scene;
 InteractiveFrame iFrame;
 HIDAgent hidAgent;
-boolean natural = false;
 boolean enforced = false;
 
 ControllIO controll;
@@ -73,7 +72,7 @@ void setup() {
   //declare some sensitivities for the space navigator device
   hidAgent.setSensitivities(0.01, 0.01, 0.01, 0.0001, 0.0001, 0.0001);
   //Set by default:  
-  //dev.cameraProfile().setBinding(Constants.DOF6Action.NATURAL);
+  //dev.cameraProfile().setBinding(Constants.DOF6Action.TRANSLATE_ROTATE);
 
   smooth();
 }
@@ -85,17 +84,6 @@ void draw() {
 }
 
 void keyPressed() {
-  if (key == 'n') {
-    if (!natural) {
-      hidAgent.cameraProfile().setBinding(Constants.DOF6Action.NATURAL);
-      println("NATURAL navigation set");
-    }
-    else {
-      hidAgent.cameraProfile().setBinding(Constants.DOF6Action.GOOGLE_EARTH);
-      println("GOOGLE_EARTH navigation set");
-    }
-    natural = !natural;
-  }
   if (key == 'y') {
     enforced = !enforced;
     if(enforced) {
