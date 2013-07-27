@@ -27,9 +27,9 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.core.Constants;
-import remixlab.dandelion.core.InteractiveCameraFrame;
-import remixlab.dandelion.core.InteractiveFrame;
-import remixlab.tersehandling.core.Grabbable;
+//import remixlab.dandelion.core.InteractiveCameraFrame;
+//import remixlab.dandelion.core.InteractiveFrame;
+//import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.generic.profile.GenericClickProfile;
 import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 
@@ -53,6 +53,7 @@ public class JoystickAgent extends GenericBiMotionAgent<GenericMotionProfile<Con
 		return profile;
 	}
 	
+	/**
 	@Override
 	public boolean addInPool(Grabbable deviceGrabber) {
 		if(deviceGrabber == null)
@@ -64,6 +65,7 @@ public class JoystickAgent extends GenericBiMotionAgent<GenericMotionProfile<Con
 			}
 		return false;
 	}
+	*/
 	
 	public void setXTranslationSensitivity(float s) {
 		sens[0] = s;

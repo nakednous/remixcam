@@ -26,7 +26,7 @@
 package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
-import remixlab.tersehandling.core.Grabbable;
+//import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.generic.event.GenericDOF6Event;
 import remixlab.tersehandling.generic.profile.GenericClickProfile;
 import remixlab.tersehandling.generic.profile.GenericMotionProfile;
@@ -67,6 +67,7 @@ public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constant
 	}
 	*/
 	
+	/**
 	@Override
 	public boolean addInPool(Grabbable deviceGrabber) {
 		if(deviceGrabber == null)
@@ -78,6 +79,7 @@ public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constant
 			}
 		return false;
 	}
+	*/
 	
 	public void setXTranslationSensitivity(float s) {
 		sens[0] = s;
