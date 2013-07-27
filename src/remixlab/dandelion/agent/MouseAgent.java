@@ -51,6 +51,9 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 		cameraProfile().setBinding(TH_LEFT, DOF2Action.MOVE_FORWARD);
 		cameraProfile().setBinding(TH_CENTER, DOF2Action.LOOK_AROUND);
 		cameraProfile().setBinding(TH_RIGHT, DOF2Action.MOVE_BACKWARD);
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_LEFT, DOF2Action.ROLL);
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.DRIVE);
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_RIGHT, DOF2Action.SCREEN_ROTATE);
 		// */
 		
 		frameProfile().setBinding(TH_LEFT, DOF2Action.ROTATE);

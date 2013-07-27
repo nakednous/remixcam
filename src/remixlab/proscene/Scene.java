@@ -194,6 +194,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 						screenRotate = dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveCameraFrame);
 						if(bypassNullEvent || zoomOnRegion || screenRotate) {
 							if(bypassNullEvent) {
+								//TODO: experimental, this is needed for first person:
+								((InteractiveFrame)grabber()).updateFlyUpVector();
 								dFriction = ((InteractiveFrame)grabber()).dampingFriction();
 								((InteractiveFrame)grabber()).setDampingFriction(0);
 								handler.eventTupleQueue().add(new EventGrabberDuobleTuple(event, a, grabber()));	
