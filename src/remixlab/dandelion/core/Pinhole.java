@@ -32,10 +32,11 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.dandelion.geom.*;
+import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.Util;
 
-public abstract class Pinhole {
+public abstract class Pinhole implements Copyable {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
@@ -248,11 +249,9 @@ public abstract class Pinhole {
 		this.projectionViewMat = new Mat(oVP.projectionViewMat);
 	}
 
-	/**
+	// /**
 	@Override
-	public Object get(); {
-		new Pinhole(this);
-	}
+	public abstract Pinhole get();
 	// */
 	
 	/**

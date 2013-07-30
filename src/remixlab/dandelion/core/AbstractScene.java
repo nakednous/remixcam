@@ -236,9 +236,24 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			toggleGridIsDrawn();
 			break;
 		case THIRD_PERSON:
-			modeTHIRD_PERSON = !modeTHIRD_PERSON;
-			if( this.modeTHIRD_PERSON )
+			modeTHIRD_PERSON = !modeTHIRD_PERSON;			
+			if( this.modeTHIRD_PERSON ) {
+				pinhole().frame().updateFlyUpVector();// ?
+				pinhole().frame().stopSpinning();
+				if( this.avatarIsInteractiveFrame ) {
+					((InteractiveFrame) (avatar())).updateFlyUpVector();
+					((InteractiveFrame) (avatar())).stopSpinning();
+				}
+				// perform small animation ;)
+				if (pinhole().anyInterpolationIsStarted())
+					pinhole().stopAllInterpolations();
+				Pinhole cm = pinhole().get();
+				cm.setPosition(avatar().cameraPosition());
+				cm.setUpVector(avatar().upVector());
+				cm.lookAt(avatar().target());
+				camera().interpolateTo(cm.frame());
 				System.out.println("Third person camera mode set");
+			}
 			else
 				System.out.println("Third person camera mode unset");
 			break;
