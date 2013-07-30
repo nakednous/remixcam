@@ -815,7 +815,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			return;	
 		// same as no action
 		if( event.action() == null )
-			return;		
+			return;
 		if( ( scene.is2D() ) && ( ((DandelionAction)event.action().referenceAction()).is2D() ) )
 			execAction2D( reduceEvent( (MotionEvent)e ));
 		else

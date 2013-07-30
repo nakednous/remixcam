@@ -27,6 +27,7 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.core.Constants;
+import remixlab.dandelion.core.InteractiveCameraFrame;
 import remixlab.dandelion.core.InteractiveFrame;
 import remixlab.tersehandling.generic.event.GenericDOF1Event;
 import remixlab.tersehandling.generic.profile.GenericMotionProfile;
@@ -62,6 +63,7 @@ public class GenericWheeledMouseAgent<W extends GenericMotionProfile<Constants.D
 		frameWheelProfile = profile;
 	}
 	
+	/**
 	@Override
 	public void handle(TerseEvent event) {
 		//Warning: should be copy pasted from AbstractMotionDevice
@@ -87,6 +89,47 @@ public class GenericWheeledMouseAgent<W extends GenericMotionProfile<Constants.D
 							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, wheelProfile().handle((Duoable<?>)event), defaultGrabber()));
 						else
 							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoable<?>)event), defaultGrabber()));
+			}
+		}
+	}
+	// */
+	@Override
+	public void handle(TerseEvent event) {
+		//Warning: should be copy pasted from AbstractMotionDevice
+		if(event == null || !handler.isAgentRegistered(this))	return;
+		if( grabber() != null )
+			if(!( grabber() instanceof InteractiveFrame )) {
+				handler.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
+				return;
+			}
+		if(event instanceof Duoable<?>) {		
+			if(event instanceof ClickEvent)
+				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoable<?>)event), grabber()));
+			else
+				if(event instanceof MotionEvent) {
+					((MotionEvent)event).modulate(sens);					
+					if( grabber() instanceof InteractiveCameraFrame )
+						if(trackedGrabber() != null )
+							if(event instanceof GenericDOF1Event)
+								handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, wheelProfile().handle((Duoable<?>)event), trackedGrabber()));
+							else
+								handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoable<?>)event), trackedGrabber()));
+						else
+							if(event instanceof GenericDOF1Event)
+								handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, wheelProfile().handle((Duoable<?>)event), defaultGrabber()));
+							else
+								handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoable<?>)event), defaultGrabber()));
+					else if( grabber() instanceof InteractiveFrame )
+						if(trackedGrabber() != null )
+							if(event instanceof GenericDOF1Event)
+								handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameWheelProfile().handle((Duoable<?>)event), trackedGrabber()));
+							else
+								handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoable<?>)event), trackedGrabber()));
+						else
+							if(event instanceof GenericDOF1Event)
+								handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameWheelProfile().handle((Duoable<?>)event), defaultGrabber()));
+							else
+								handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoable<?>)event), defaultGrabber()));
 			}
 		}
 	}
