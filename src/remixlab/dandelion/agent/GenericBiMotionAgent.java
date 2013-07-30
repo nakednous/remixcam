@@ -34,7 +34,6 @@ import remixlab.tersehandling.core.TerseHandler;
 import remixlab.tersehandling.generic.agent.GenericMotionAgent;
 import remixlab.tersehandling.generic.profile.GenericClickProfile;
 import remixlab.tersehandling.generic.profile.GenericMotionProfile;
-import remixlab.tersehandling.generic.profile.Duoable;
 import remixlab.tersehandling.event.*;
 
 public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends GenericMotionAgent<P, GenericClickProfile<Constants.DOF0Action>> {
@@ -69,32 +68,14 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 		clickProfile = profile;
 	}
 	
-	/**
 	@Override
-	public void handle(TerseEvent event) {
-		//overkill but feels safer ;)
-		if(event == null || !handler.isAgentRegistered(this))	return;
-		//grabber is external, i.e., action -> null
-		if( grabber() != null )
-			if(!( grabber() instanceof InteractiveFrame ) && !( grabber() instanceof AbstractScene ) ) {
-				handler.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
-				return;
-			}
-		//normal here is: iFrame or camIFrame:
-		if(event instanceof Duoable<?>) {
-			if(event instanceof ClickEvent)
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoable<?>)event), grabber()));
-			else
-				if(event instanceof MotionEvent) {
-					((MotionEvent)event).modulate(sens);
-					if (trackedGrabber() != null )
-						handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoable<?>)event), trackedGrabber()));						
-					else 
-						handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoable<?>)event), defaultGrabber()));			
-			}
-		}
+	public P motionProfile() {
+		if( grabber() instanceof InteractiveCameraFrame )
+			return cameraProfile();
+		if( grabber() instanceof InteractiveFrame )
+			return frameProfile();					
+		return null;
 	}
-	*/
 	
 	@Override
 	public void handle(TerseEvent event) {
@@ -105,25 +86,7 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 			if(!( grabber() instanceof InteractiveFrame ) && !( grabber() instanceof AbstractScene ) ) {
 				handler.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
 				return;
-			}
-		//normal here is: iFrame or camIFrame:
-		if(event instanceof Duoable<?>) {
-			if(event instanceof ClickEvent)
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, clickProfile().handle((Duoable<?>)event), grabber()));
-			else
-				if(event instanceof MotionEvent) {
-					((MotionEvent)event).modulate(sens);
-					if( grabber() instanceof InteractiveCameraFrame )
-						if(trackedGrabber() != null )
-							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoable<?>)event), trackedGrabber()));
-						else
-							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, cameraProfile().handle((Duoable<?>)event), defaultGrabber()));
-					else if( grabber() instanceof InteractiveFrame )
-						if(trackedGrabber() != null )
-							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoable<?>)event), trackedGrabber()));
-						else
-							handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, frameProfile().handle((Duoable<?>)event), defaultGrabber()));
-			}
-		}
+			}		
+		super.handle(event);
 	}
 }
