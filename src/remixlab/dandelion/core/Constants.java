@@ -130,8 +130,6 @@ public interface Constants extends EventConstants {
   	DECREASE_INCLINATION("Decrease camera inclination respect to the avatar (only meaningful in third-person mode)", false, 0),
   	INCREASE_TRACKING_DISTANCE("Increase camera tracking distance respect to the avatar (only meaningful in third-person mode)", false, 0),
   	DECREASE_TRACKING_DISTANCE("Decrease camera tracking distance respect to the avatar (only meaningful in third-person mode)", false, 0),
-  	//TODO decide 2d
-  	THIRD_PERSON("3rd person Camera", false, 0),
   	
     // Typically wheel
   	ZOOM("Zoom", true, 1),
@@ -257,7 +255,6 @@ public interface Constants extends EventConstants {
   	DECREASE_INCLINATION(DandelionAction.DECREASE_INCLINATION),
   	INCREASE_TRACKING_DISTANCE(DandelionAction.INCREASE_TRACKING_DISTANCE),
   	DECREASE_TRACKING_DISTANCE(DandelionAction.DECREASE_TRACKING_DISTANCE),
-  	THIRD_PERSON(DandelionAction.THIRD_PERSON),
   	
   	CUSTOM(DandelionAction.CUSTOM);
 

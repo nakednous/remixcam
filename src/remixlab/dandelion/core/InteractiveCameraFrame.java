@@ -108,6 +108,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		this.arcballRefPnt.set(otherFrame.arcballRefPnt );
 		this.worldAxis = new Vec();
 		this.worldAxis.set(otherFrame.worldAxis );
+		this.scene.terseHandler().removeFromAllAgentPools(this);
 	}
 	
 	/**

@@ -59,7 +59,6 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 
 		keyboardProfile().setShortcut('s', DOF0Action.INTERPOLATE_TO_FIT_SCENE);
 		keyboardProfile().setShortcut('S', DOF0Action.SHOW_ALL);
-		keyboardProfile().setShortcut(' ', DOF0Action.THIRD_PERSON);
 
 		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_RIGHT, DOF0Action.MOVE_CAMERA_RIGHT);
 		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_LEFT, DOF0Action.MOVE_CAMERA_LEFT);

@@ -52,11 +52,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	
   //M o u s e G r a b b e r
 	//protected List<Grabbable> msGrabberPool;
-	protected boolean grbsDevice = true;
-	
-	//TODO implement 3rd person
-	protected boolean modeTHIRD_PERSON;
-	
+	protected boolean grbsDevice = true;	
 	protected boolean dottedGrid;	
 	
   //O B J E C T S
@@ -234,28 +230,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			break;
 		case DRAW_GRID:
 			toggleGridIsDrawn();
-			break;
-		case THIRD_PERSON:
-			modeTHIRD_PERSON = !modeTHIRD_PERSON;			
-			if( this.modeTHIRD_PERSON ) {
-				pinhole().frame().updateFlyUpVector();// ?
-				pinhole().frame().stopSpinning();
-				if( this.avatarIsInteractiveFrame ) {
-					((InteractiveFrame) (avatar())).updateFlyUpVector();
-					((InteractiveFrame) (avatar())).stopSpinning();
-				}
-				// perform small animation ;)
-				if (pinhole().anyInterpolationIsStarted())
-					pinhole().stopAllInterpolations();
-				Pinhole cm = pinhole().get();
-				cm.setPosition(avatar().cameraPosition());
-				cm.setUpVector(avatar().upVector());
-				cm.lookAt(avatar().target());
-				camera().interpolateTo(cm.frame());
-				System.out.println("Third person camera mode set");
-			}
-			else
-				System.out.println("Third person camera mode unset");
 			break;
 		//case CAMERA_PROFILE:
 			//TODO pending
@@ -549,7 +523,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	
 	public void preDraw() {
 		// TODO: decide 2d
-		if ( modeTHIRD_PERSON	&& (!camera().anyInterpolationIsStarted() ) && avatar() != null ) {
+		if ( avatar() != null	&& (!camera().anyInterpolationIsStarted() )  ) {
 			camera().setPosition(avatar().cameraPosition());
 			camera().setUpVector(avatar().upVector());
 			camera().lookAt(avatar().target());
@@ -1935,24 +1909,31 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * 
 	 * @see #unsetAvatar()
 	 */
-	//TODO pending animation
 	public void setAvatar(Trackable t) {
 		trck = t;
 		avatarIsInteractiveAvatarFrame = false;
 		avatarIsInteractiveFrame = false;
-		if (avatar() instanceof InteractiveAvatarFrame) {
-			avatarIsInteractiveAvatarFrame = true;
+		if (avatar() == null)
+			return;			
+		if (avatar() instanceof InteractiveFrame) {
 			avatarIsInteractiveFrame = true;
-			//if (interactiveFrame() != null)	((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
-		} else if (avatar() instanceof InteractiveFrame) {
-			avatarIsInteractiveAvatarFrame = false;
-			avatarIsInteractiveFrame = true;
-			//if (interactiveFrame() != null)	((InteractiveDrivableFrame) interactiveFrame()).setFlySpeed(0.01f * radius());
+			if (avatar() instanceof InteractiveAvatarFrame)
+				avatarIsInteractiveAvatarFrame = true;
+			pinhole().frame().updateFlyUpVector();// ?
+			pinhole().frame().stopSpinning();
+			if( this.avatarIsInteractiveFrame ) {
+				((InteractiveFrame) (avatar())).updateFlyUpVector();
+				((InteractiveFrame) (avatar())).stopSpinning();
+			}
+			// perform small animation ;)
+			if (pinhole().anyInterpolationIsStarted())
+				pinhole().stopAllInterpolations();
+			Pinhole cm = pinhole().get();
+			cm.setPosition(avatar().cameraPosition());
+			cm.setUpVector(avatar().upVector());
+			cm.lookAt(avatar().target());
+			camera().interpolateTo(cm.frame());
 		}
-	}
-	
-	public boolean isIn3RDPersonMode() {
-		return this.modeTHIRD_PERSON;
 	}
 
 	/**

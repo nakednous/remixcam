@@ -85,7 +85,7 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 		q.fromTaitBryan(QUARTER_PI, 0, 0);
 		camRelPos = new Vec();
 		setTrackingDistance(scene.radius() / 5);
-		scene.setAvatar(this);
+		//scene.setAvatar(this);
 	}
 	
 	/**

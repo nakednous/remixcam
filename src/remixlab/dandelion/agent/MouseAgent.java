@@ -39,28 +39,7 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 				  new GenericClickProfile<Constants.DOF0Action>(), scn.terseHandler(), n);
 		setDefaultGrabber(scn.pinhole().frame());
 		
-		cameraProfile().setBinding(TH_LEFT, DOF2Action.ROTATE);
-		cameraProfile().setBinding(TH_CENTER, DOF2Action.ZOOM);
-		cameraProfile().setBinding(TH_RIGHT, DOF2Action.TRANSLATE);		
-		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_LEFT, DOF2Action.ZOOM_ON_REGION);
-		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.SCREEN_TRANSLATE);
-		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_RIGHT, DOF2Action.SCREEN_ROTATE);
-		
-		/**
-		//first person:
-		cameraProfile().setBinding(TH_LEFT, DOF2Action.MOVE_FORWARD);
-		cameraProfile().setBinding(TH_CENTER, DOF2Action.LOOK_AROUND);
-		cameraProfile().setBinding(TH_RIGHT, DOF2Action.MOVE_BACKWARD);
-		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_LEFT, DOF2Action.ROLL);
-		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.DRIVE);
-		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_RIGHT, DOF2Action.SCREEN_ROTATE);
-		// */
-		
-		frameProfile().setBinding(TH_LEFT, DOF2Action.ROTATE);
-		frameProfile().setBinding(TH_CENTER, DOF2Action.ZOOM);
-		frameProfile().setBinding(TH_RIGHT, DOF2Action.TRANSLATE);
-		frameProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.SCREEN_TRANSLATE);
-		frameProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_RIGHT, DOF2Action.SCREEN_ROTATE);
+		setAsArcballBindings();
 		
 		//clickProfile().setClickBinding(TH_LEFT, 1, DOF0Action.DRAW_FRAME_SELECTION_HINT);
 		//clickProfile().setClickBinding(TH_RIGHT, 1, DOF0Action.DRAW_AXIS);
@@ -68,6 +47,37 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 		clickProfile().setClickBinding(TH_SHIFT, TH_LEFT, 1, DOF0Action.ALIGN_CAMERA);
 		clickProfile().setClickBinding(TH_SHIFT, TH_CENTER, 1, DOF0Action.SHOW_ALL);
 		clickProfile().setClickBinding((TH_SHIFT | TH_CTRL ), TH_RIGHT, 1, DOF0Action.ZOOM_TO_FIT);
+	}
+	
+	public void setAsFirstPersonBindings() {		
+		cameraProfile().setBinding(EventConstants.TH_LEFT, DOF2Action.MOVE_FORWARD);
+		cameraProfile().setBinding(EventConstants.TH_CENTER, DOF2Action.LOOK_AROUND);
+		cameraProfile().setBinding(EventConstants.TH_RIGHT, DOF2Action.MOVE_BACKWARD);
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_LEFT, DOF2Action.ROLL);
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.DRIVE);		
+	}
+	
+	public void setAsThirdPersonBindings() {
+		frameProfile().setBinding(EventConstants.TH_LEFT, DOF2Action.MOVE_FORWARD);
+    frameProfile().setBinding(EventConstants.TH_CENTER, DOF2Action.LOOK_AROUND);
+    frameProfile().setBinding(EventConstants.TH_RIGHT, DOF2Action.MOVE_BACKWARD);
+    frameProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_LEFT, DOF2Action.ROLL);
+		frameProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.DRIVE);
+	}
+	
+	public void setAsArcballBindings() {
+		cameraProfile().setBinding(TH_LEFT, DOF2Action.ROTATE);
+		cameraProfile().setBinding(TH_CENTER, DOF2Action.ZOOM);
+		cameraProfile().setBinding(TH_RIGHT, DOF2Action.TRANSLATE);		
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_LEFT, DOF2Action.ZOOM_ON_REGION);
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.SCREEN_TRANSLATE);
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_RIGHT, DOF2Action.SCREEN_ROTATE);
+			
+		frameProfile().setBinding(TH_LEFT, DOF2Action.ROTATE);
+		frameProfile().setBinding(TH_CENTER, DOF2Action.ZOOM);
+		frameProfile().setBinding(TH_RIGHT, DOF2Action.TRANSLATE);
+		frameProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.SCREEN_TRANSLATE);
+		frameProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_RIGHT, DOF2Action.SCREEN_ROTATE);
 	}
 	
 	@Override
