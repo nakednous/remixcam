@@ -26,6 +26,7 @@
 package remixlab.dandelion.core;
 
 import remixlab.dandelion.geom.*;
+import remixlab.dandelion.util.AbstractTimerJob;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Util;
 import remixlab.tersehandling.event.DOF2Event;
@@ -79,6 +80,12 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	protected Pinhole viewport;
 	protected Vec arcballRefPnt;	
 	protected Vec worldAxis;
+	
+  //L O C A L   T I M E R
+	public boolean arpFlag;
+	public boolean pupFlag;
+	public Vec pupVec;
+	protected AbstractTimerJob timerFx;
 
 	/**
 	 * Default constructor.
@@ -94,6 +101,13 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		scene.terseHandler().removeFromAllAgentPools(this);
 		arcballRefPnt = new Vec(0.0f, 0.0f, 0.0f);
 		worldAxis = new Vec(0, 0, 1);
+		
+		timerFx = new AbstractTimerJob() {
+			public void execute() {
+				unSetTimerFlag();
+				}
+			};
+		scene.registerJob(timerFx);
 	}
 	
 	/**
@@ -109,6 +123,12 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		this.worldAxis = new Vec();
 		this.worldAxis.set(otherFrame.worldAxis );
 		this.scene.terseHandler().removeFromAllAgentPools(this);
+		this.timerFx = new AbstractTimerJob() {
+			public void execute() {
+				unSetTimerFlag();
+			}
+		};		
+		this.scene.registerJob(timerFx);
 	}
 	
 	/**
@@ -123,6 +143,16 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	
 	public Pinhole pinhole() {
 		return viewport;
+	}
+	
+	// 2. Local timer
+	/**
+	 * Called from the timer to stop displaying the point under pixel and arcball
+	 * reference point visual hints.
+	 */
+	protected void unSetTimerFlag() {
+		arpFlag = false;
+		pupFlag = false;
 	}
 
 	/**
@@ -302,7 +332,27 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			// viewWindow.fitScreenRegion( new Rectangle (tlX, tlY, w, h) );			
 			viewWindow.interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
 			break;
+		case CENTER_FRAME:
+			viewWindow.centerScene();
+			break;
+		case ALIGN_FRAME:
+			viewWindow.frame().alignWithFrame(null, true);
+			break;
+			//TODO these timer actions need testing
+		case ZOOM_ON_PIXEL:
+				viewWindow.interpolateToZoomOnPixel(new Point(cEvent.getX(), cEvent.getY()));
+				pupVec = viewWindow.unprojectedCoordinatesOf(new Vec(cEvent.getX(), cEvent.getY(), 0.5f));
+				pupFlag = true;
+				timerFx.runOnce(1000);
+			break;
+		case ARP_FROM_PIXEL:
+			if (viewWindow.setArcballReferencePointFromPixel( new Point(cEvent.getX(), cEvent.getY()) )) {			  
+				arpFlag = true;
+				timerFx.runOnce(1000);					
+			}
+			break;
 		default:
+			//AbstractScene.showMissingImplementationWarning(a);
 			AbstractScene.showVariationWarning(a);
 			break;
 		}
@@ -314,6 +364,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		Camera camera = (Camera) viewport;
 		Vec trans;
 		Quat q;
+		Camera.WorldPoint wP;
 		switch(a) {
 		case CUSTOM:
 		case DRIVE:
@@ -463,6 +514,26 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			int tlY = (int) e2.getPrevY() < (int) e2.getY() ? (int) e2.getPrevY() : (int) e2.getY();
 			// camera.fitScreenRegion( new Rectangle (tlX, tlY, w, h) );			
 			camera.interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
+			break;
+		case CENTER_FRAME:
+			camera.centerScene();
+			break;
+		case ALIGN_FRAME:
+			camera.frame().alignWithFrame(null, true);
+			break;			
+		case ZOOM_ON_PIXEL:
+				wP = camera.interpolateToZoomOnPixel(new Point(cEvent.getX(), cEvent.getY()));
+				if (wP.found) {
+					pupVec = wP.point;
+					pupFlag = true;
+					timerFx.runOnce(1000);						
+				}
+			break;
+		case ARP_FROM_PIXEL:
+			if (camera.setArcballReferencePointFromPixel(new Point(cEvent.getX(), cEvent.getY()))) {			  
+				arpFlag = true;
+				timerFx.runOnce(1000);					
+			}
 			break;
 		default:
 			AbstractScene.showMissingImplementationWarning(a);

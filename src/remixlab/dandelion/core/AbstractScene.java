@@ -94,12 +94,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	public boolean animatedFrameWasTriggered;
 	protected long animationPeriod;	
 	
-	// L O C A L   T I M E R
-	protected boolean arpFlag;
-	protected boolean pupFlag;
-	protected Vec pupVec;
-	protected AbstractTimerJob timerFx;
-	
 	// S I Z E
 	protected int width, height;
 	
@@ -131,18 +125,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		singleThreadedTaskableTimers = true;
 		//drawing timer pool
 		timerPool = new ArrayList<AbstractTimerJob>();
-		timerFx = new AbstractTimerJob() {
-			public void execute() {
-				unSetTimerFlag();
-				}
-			};
-		// TODO 
-	  // bug 1: registration of this timer vs singleThreadedTaskableTimers state
-		// has to do with calling abstract methods from here!
-	  // otherwise need to be set from here
-		// bug2: poor performance when doing: animation + camera kfi interpolation + drawing the cam path
-	  // but luckyly seems to be only for P3D
-		registerJob(timerFx);
 		
 		terseHandler = new TerseHandler();
 		
@@ -202,7 +184,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		Actionable<DandelionAction> a=null;
 		
 		if(event instanceof GenericClickEvent<?>)
-		  a = (DOF0Action) ((GenericClickEvent<?>) event).action();
+		  a = (DOF2ClickAction) ((GenericClickEvent<?>) event).action();
 		if(event instanceof GenericKeyboardEvent<?>)
 			a =  (DOF0Action) ((GenericKeyboardEvent<?>) event).action();		
 		if(a == null) return;
@@ -265,25 +247,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			//toggleDrawWithConstraint();
 			//break;			
 		// --
-		case INTERPOLATE_TO_ZOOM_ON_PIXEL:
-			if( this.is3D() ) {
-				Camera.WorldPoint wP = camera().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
-				if (wP.found) {
-					pupVec = wP.point;
-					pupFlag = true;
-					timerFx.runOnce(1000);
-				}
-			}
-			else {
-				viewWindow().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
-				pupVec = viewWindow().unprojectedCoordinatesOf(new Vec((float)cursorX, (float)cursorY, 0.5f));
-				pupFlag = true;
-				timerFx.runOnce(1000);
-			}
-			break;
-		case INTERPOLATE_TO_FIT_SCENE:
-			pinhole().interpolateToFitScene();
-			break;
 		case SHOW_ALL:
 			showAll();
 			break;
@@ -364,51 +327,15 @@ public abstract class AbstractScene implements Constants, Grabbable {
 					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() - radius() / 50);
 			break;
 		// ---
-		case ZOOM_ON_PIXEL:
-			if (this.is2D()) {
-				viewWindow().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
-				pupVec = viewWindow().unprojectedCoordinatesOf(new Vec((float)cursorX, (float)cursorY, 0.5f));
-				pupFlag = true;
-				timerFx.runOnce(1000);
-			}				
-			else {
-				Camera.WorldPoint wP = camera().interpolateToZoomOnPixel(new Point(cursorX, cursorY));
-				if (wP.found) {
-					pupVec = wP.point;
-					pupFlag = true;
-					timerFx.runOnce(1000);						
-				}
-			}
-			break;
-		case ZOOM_TO_FIT:
+		case INTERPOLATE_TO_FIT:
 			pinhole().interpolateToFitScene();
 			break;
-		case ARP_FROM_PIXEL:
-			if (setArcballReferencePointFromPixel(new Point(cursorX, cursorY))) {			  
-				arpFlag = true;
-				timerFx.runOnce(1000);					
-			}
-			break;			
 		case RESET_ARP:		  
 			pinhole().setArcballReferencePoint(new Vec(0, 0, 0));
-			arpFlag = true;
-			timerFx.runOnce(1000);				
+			//TODO looks horrible, but works ;)
+			pinhole().frame().arpFlag = true;
+			pinhole().frame().timerFx.runOnce(1000);				
 			break;
-			//TODO
-		case CENTER_FRAME:
-			// TODO test 2d case
-			//if (interactiveFrame() != null)	interactiveFrame().projectOnLine(pinhole().position(), pinhole().viewDirection());
-			break;
-		case CENTER_SCENE:
-			pinhole().centerScene();
-			break;
-		case ALIGN_FRAME:
-		//TODO
-			//if (interactiveFrame() != null)	interactiveFrame().alignWithFrame(pinhole().frame());
-			break;
-		case ALIGN_CAMERA:
-			pinhole().frame().alignWithFrame(null, true);
-			break;		
 		default: 
 			System.out.println("Action cannot be handled here!");
     break;
@@ -1975,16 +1902,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		deviceGrabberIsAnIFrame = deviceGrabber instanceof InteractiveFrame;
 	}
 	*/
-	
-	// 2. Local timer
-	/**
-	 * Called from the timer to stop displaying the point under pixel and arcball
-	 * reference point visual hints.
-	 */
-	protected void unSetTimerFlag() {
-		arpFlag = false;
-		pupFlag = false;
-	}
 	
 	// 3. Scene dimensions
 

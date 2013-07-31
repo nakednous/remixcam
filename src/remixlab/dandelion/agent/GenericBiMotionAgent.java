@@ -36,12 +36,16 @@ import remixlab.tersehandling.generic.profile.GenericClickProfile;
 import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 import remixlab.tersehandling.event.*;
 
-public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends GenericMotionAgent<P, GenericClickProfile<Constants.DOF0Action>> {
+public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends GenericMotionAgent<P, GenericClickProfile<Constants.DOF2ClickAction>> {
 	protected P camProfile;
+	protected GenericClickProfile<Constants.DOF2ClickAction> camClickProfile;
 	
-	public GenericBiMotionAgent(P fProfile, P cProfile, GenericClickProfile<Constants.DOF0Action> c, TerseHandler scn, String n) {
+	public GenericBiMotionAgent(P fProfile, P cProfile, GenericClickProfile<Constants.DOF2ClickAction> c,
+																											GenericClickProfile<Constants.DOF2ClickAction> d,
+																											TerseHandler scn, String n) {
 		super(fProfile, c, scn, n);
 		camProfile = cProfile;
+		camClickProfile = d;
 	}
 	
 	public P cameraProfile() {
@@ -52,7 +56,11 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 		return profile();
 	}
 	
-	public GenericClickProfile<Constants.DOF0Action> clickProfile() {
+	public GenericClickProfile<Constants.DOF2ClickAction> cameraClickProfile() {
+		return camClickProfile;
+	}
+	
+	public GenericClickProfile<Constants.DOF2ClickAction> frameClickProfile() {
 		return clickProfile;
 	}
 	
@@ -64,7 +72,8 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 		setProfile(profile);
 	}
 	
-	public void setClickProfile(GenericClickProfile<Constants.DOF0Action> profile) {
+	@Override
+	public void setClickProfile(GenericClickProfile<Constants.DOF2ClickAction> profile) {
 		clickProfile = profile;
 	}
 	
@@ -74,6 +83,15 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 			return cameraProfile();
 		if( grabber() instanceof InteractiveFrame )
 			return frameProfile();					
+		return null;
+	}
+	
+	@Override
+	public GenericClickProfile<Constants.DOF2ClickAction> clickProfile() {
+		if( grabber() instanceof InteractiveCameraFrame )
+			return cameraClickProfile();
+		if( grabber() instanceof InteractiveFrame )
+			return frameClickProfile();					
 		return null;
 	}
 	

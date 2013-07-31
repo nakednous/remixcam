@@ -250,7 +250,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				handle(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
-				handle(new GenericClickEvent<Constants.DOF0Action>(e.getModifiers(), e.getButton(), e.getCount()));
+				handle(new GenericClickEvent<Constants.DOF2ClickAction>(e.getX(), e.getY(), e.getModifiers(), e.getButton(), e.getCount()));
 			}	
 		}
 	}
@@ -1841,9 +1841,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		animationTimer = new SeqTimer(this);
 		setAnimationPeriod(40, false); // 25Hz
 		stopAnimation();
-		
-		arpFlag = false;
-		pupFlag = false;
 
 		//withConstraint = true;
 
@@ -2161,10 +2158,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			drawZoomWindowHint();
 		if (prosceneMouse.screenRotate)
 			drawScreenRotateLineHint();
-		if (arpFlag) 
+		if (pinhole().frame().arpFlag) 
 			drawArcballReferencePointHint();
-		if (pupFlag) {
-			Vec v = pinhole().projectedCoordinatesOf(pupVec);
+		if (pinhole().frame().pupFlag) {
+			Vec v = pinhole().projectedCoordinatesOf(pinhole().frame().pupVec);
 			pg().pushStyle();		
 			pg().stroke(255);
 			pg().strokeWeight(3);

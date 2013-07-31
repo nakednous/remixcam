@@ -773,40 +773,39 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			setTossingDirection(rotation().rotate(flyDisp));
 	}
 	
-	/**
-	 * Overloading of
-	 * {@link remixlab.remixcam.core.DeviceGrabbable#buttonClicked(remixlab.remixcam.core.AbstractScene.Button, int, Camera)}.
-	 * <p>
-	 * Left button double click aligns the InteractiveFrame with the camera axis (see {@link #alignWithFrame(GeomFrame)}
-	 * and {@link remixlab.remixcam.core.AbstractScene.ClickAction#ALIGN_FRAME}). Right button projects the InteractiveFrame on
-	 * the camera view direction.
-	 */
-	/**
-	@Override
-	public void buttonClicked(DLClickEvent clickEvent) {
-		Pinhole camera = scene.pinhole();
-		if(numberOfClicks != 2)
-			return;
-		switch (button) {
-		case LEFT:  alignWithFrame(camera.frame()); break;
-    case RIGHT:
-      //TODO test 2D case
-    	projectOnLine(camera.position(), camera.viewDirection());
-    break;
-    default: break;
-    }
-	}
-	*/
-	
 	@Override
 	public void performInteraction(TerseEvent e) {
 		stopSpinning();
 		stopTossing();		
 		if(e == null) return;		
-		if(e instanceof KeyboardEvent || e instanceof ClickEvent) {
+		if(e instanceof KeyboardEvent) {
 			scene.performInteraction(e);
 			return;
-		}		
+		}
+		//new
+		if(e instanceof GenericClickEvent) {
+			GenericClickEvent<?> genericClickEvent = (GenericClickEvent<?>)e;
+			if( genericClickEvent.action() == null ) return;		
+			if( genericClickEvent.action() != DOF2ClickAction.CENTER_FRAME && 
+					genericClickEvent.action() != DOF2ClickAction.ALIGN_FRAME &&
+					genericClickEvent.action() != DOF2ClickAction.ZOOM_ON_PIXEL &&
+					genericClickEvent.action() != DOF2ClickAction.ARP_FROM_PIXEL ) {
+				scene.performInteraction(e); // ;)
+				return;
+			}
+			if( ( scene.is2D() ) && ( ((DandelionAction)genericClickEvent.action().referenceAction()).is2D() ) ) {
+				cEvent = (ClickEvent) e.get();
+				execAction2D( ((DandelionAction)genericClickEvent.action().referenceAction() ) );
+				return;
+			}
+			else
+				if(scene.is3D()) {
+					cEvent = (ClickEvent) e.get();
+					execAction3D( ((DandelionAction)genericClickEvent.action().referenceAction() ) );
+					return;
+				}
+		}
+		//end
 		// then it's a MotionEvent		
 		Duoable<?> event;		
 		if(e instanceof Duoable)
@@ -824,6 +823,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	}
 	
 	MotionEvent currentEvent;
+	ClickEvent cEvent;
 	DOF1Event e1;
 	DOF2Event e2;
 	DOF3Event e3;
@@ -979,8 +979,15 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			else
 				inverseScale(1 + Math.abs(delta) / (float) scene.height());
 			break;
+		case CENTER_FRAME:
+			projectOnLine(scene.viewWindow().position(), scene.viewWindow().viewDirection());
+			break;
+		case ALIGN_FRAME:
+			alignWithFrame(scene.viewWindow().frame());
+			break;
 		default:
-			AbstractScene.showVariationWarning(a);
+			AbstractScene.showMissingImplementationWarning(a);
+			//AbstractScene.showVariationWarning(a);
 			break;
 		}
 	}
@@ -1204,6 +1211,12 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 				scale(1 + Math.abs(delta) / (float) scene.height());
 			else
 				inverseScale(1 + Math.abs(delta) / (float) scene.height());
+			break;
+		case CENTER_FRAME:
+			projectOnLine(scene.camera().position(), scene.camera().viewDirection());
+			break;
+		case ALIGN_FRAME:
+			alignWithFrame(scene.camera().frame());
 			break;
 		default:
 			AbstractScene.showMissingImplementationWarning(a);

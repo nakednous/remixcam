@@ -74,26 +74,17 @@ public interface Constants extends EventConstants {
   
   //Actions
   public enum DandelionAction {
-  	//NO_ACTION("No action", true, 0),
-  	
   	//KEYfRAMES
   	ADD_KEYFRAME_TO_PATH("Add keyframe to path", true, 0),
   	PLAY_PATH("Play keyframe path", true, 0),
   	DELETE_PATH("Delete keyframepath", true, 0),
   	
-  	// CLICk ACTIONs	  	
-  	ZOOM_TO_FIT("Zoom to fit the scene", true, 0),
-  	//ARP_FROM_PIXEL("Set the arcball reference point from the pixel under the mouse"),
-  	//RESET_ARP("Reset the arcball reference point to the 3d frame world origin"),
+  	// CLICk ACTIONs	  	  	
   	CENTER_FRAME("Center frame", true, 0),
-  	CENTER_SCENE("Center scene", true, 0),
-  	//SHOW_ALL("Show the whole scene"),
-  	ALIGN_FRAME("Align interactive frame (if any) with world", true, 0),
-  	ALIGN_CAMERA("Align camera with world", true, 0),
+  	ALIGN_FRAME("Align frame with world", true, 0),
   	
     //Click actions require cursor pos:
-    ZOOM_ON_PIXEL("Zoom on pixel", true, 0),
-    INTERPOLATE_TO_ZOOM_ON_PIXEL("Interpolate the camera to zoom on pixel", true, 0),
+    ZOOM_ON_PIXEL("Interpolate the camera to zoom on pixel", true, 0),
     ARP_FROM_PIXEL("Set the arcball reference point from the pixel under the mouse", true, 0),
   	
   	//GENERAL KEYBOARD ACTIONs	
@@ -102,7 +93,8 @@ public interface Constants extends EventConstants {
   	//CAMERA_PROFILE("Cycles to the registered camera profiles", true, 0),
   	CAMERA_TYPE("Toggles camera type (orthographic or perspective)", false, 0),
   	CAMERA_KIND("Toggles camera kind (proscene or standard)", false, 0),
-  	ANIMATION("Toggles animation", true, 0),  	
+  	ANIMATION("Toggles animation", true, 0),
+  	INTERPOLATE_TO_FIT("Zoom to fit the scene", true, 0),
   	RESET_ARP("Reset the arcball reference point to the 3d frame world origin", true, 0),
   	GLOBAL_HELP("Displays the global help", true, 0),
   	//CURRENT_CAMERA_PROFILE_HELP("Displays the current camera profile help", true, 0),
@@ -110,7 +102,6 @@ public interface Constants extends EventConstants {
   	//FOCUS_INTERACTIVE_FRAME("Toggle interactivity between camera and interactive frame (if any)", true, 0),
   	DRAW_FRAME_SELECTION_HINT("Toggle interactive frame selection region drawing", true, 0),
   	//CONSTRAIN_FRAME("Toggles on and off frame constraints (if any)", true, 0),
-  	INTERPOLATE_TO_FIT_SCENE("Interpolate the camera to fit the whole scene", true, 0),
   	SHOW_ALL("Show the whole scene", true, 0),
   	
     //CAMERA KEYBOARD ACTIONs  // TODO all of these could be dof_1
@@ -201,25 +192,14 @@ public interface Constants extends EventConstants {
   }
   
   public enum DOF0Action implements Actionable<DandelionAction> {
-    //DOF_0
-  	//NO_ACTION(DLAction.NO_ACTION),
-  	
+    //DOF_0  	
     //KEYfRAMES
   	ADD_KEYFRAME_TO_PATH(DandelionAction.ADD_KEYFRAME_TO_PATH),
   	PLAY_PATH(DandelionAction.PLAY_PATH),
   	DELETE_PATH(DandelionAction.DELETE_PATH),
   	
   	// CLICk ACTIONs	  	
-  	ZOOM_TO_FIT(DandelionAction.ZOOM_TO_FIT),
-  	CENTER_FRAME(DandelionAction.CENTER_FRAME),
-  	CENTER_SCENE(DandelionAction.CENTER_SCENE),
-  	ALIGN_FRAME(DandelionAction.ALIGN_FRAME),
-  	ALIGN_CAMERA(DandelionAction.ALIGN_CAMERA),
-  	
-    //Click actions require cursor pos:
-    ZOOM_ON_PIXEL(DandelionAction.ZOOM_ON_PIXEL),
-    INTERPOLATE_TO_ZOOM_ON_PIXEL(DandelionAction.INTERPOLATE_TO_ZOOM_ON_PIXEL),
-    ARP_FROM_PIXEL(DandelionAction.ARP_FROM_PIXEL),
+  	INTERPOLATE_TO_FIT(DandelionAction.INTERPOLATE_TO_FIT),
   	
   	//GENERAL KEYBOARD ACTIONs	
   	DRAW_AXIS(DandelionAction.DRAW_AXIS),
@@ -235,7 +215,6 @@ public interface Constants extends EventConstants {
   	//FOCUS_INTERACTIVE_FRAME(DandelionAction.FOCUS_INTERACTIVE_FRAME),
   	DRAW_FRAME_SELECTION_HINT(DandelionAction.DRAW_FRAME_SELECTION_HINT),
   	//CONSTRAIN_FRAME(DandelionAction.CONSTRAIN_FRAME),
-  	INTERPOLATE_TO_FIT_SCENE(DandelionAction.INTERPOLATE_TO_FIT_SCENE),
   	SHOW_ALL(DandelionAction.SHOW_ALL),
   	
     //CAMERA KEYBOARD ACTIONs
@@ -276,22 +255,6 @@ public interface Constants extends EventConstants {
   	public boolean is2D() {
   		return act.is2D();
   	}
-  	
-  	/**
-  	@Override
-		public boolean selectionMode() {
-  		if( this == ADD_KEYFRAME_TO_PATH )
-  			return true;
-			return false;
-		}
-		*/
-  	
-  	/**
-  	@Override
-		public DLAction defaultAction() {
-			return DLAction.NO_ACTION;
-		}
-		// */
 
   	DandelionAction act;
 
@@ -300,10 +263,8 @@ public interface Constants extends EventConstants {
   	}
   }
   
-  public enum DOF1Action implements Actionable<DandelionAction> {
-    //DOF_0
-  	//NO_ACTION(DLAction.NO_ACTION),
-  	
+  public enum DOF1Action implements Actionable<DandelionAction> {  	
+    //DOF_1  	
   	ZOOM(DandelionAction.ZOOM),
   	
   	CUSTOM(DandelionAction.CUSTOM);
@@ -327,13 +288,6 @@ public interface Constants extends EventConstants {
   		return act.is2D();
   	}
   	
-  	/**
-  	@Override
-		public DLAction defaultAction() {
-			return DLAction.NO_ACTION;
-		}
-		*/
-
   	DandelionAction act;
 
   	DOF1Action(DandelionAction a) {
@@ -342,9 +296,7 @@ public interface Constants extends EventConstants {
   }
   
   public enum DOF2Action implements Actionable<DandelionAction> {
-  	//NO_ACTION(DLAction.NO_ACTION),
-  	
-    //DOF_1
+  	//DOF_1
   	ZOOM(DandelionAction.ZOOM),
     
   	//DOF_2
@@ -379,13 +331,6 @@ public interface Constants extends EventConstants {
   	public boolean is2D() {
   		return act.is2D();
   	}
-  	
-  	/**
-  	@Override
-		public DLAction defaultAction() {
-			return DLAction.NO_ACTION;
-		}
-		*/
 
   	DandelionAction act;
 
@@ -394,10 +339,82 @@ public interface Constants extends EventConstants {
   	}
   }
   
-  public enum DOF3Action implements Actionable<DandelionAction> {
-    //NO_ACTION(DLAction.NO_ACTION),
+  public enum DOF2ClickAction implements Actionable<DandelionAction> {
+    //DOF_0
   	
-    //DOF_1
+  	// CLICk ACTIONs	  	
+  	INTERPOLATE_TO_FIT(DandelionAction.INTERPOLATE_TO_FIT),
+   	CENTER_FRAME(DandelionAction.CENTER_FRAME),
+  	ALIGN_FRAME(DandelionAction.ALIGN_FRAME),
+  	
+    //Click actions require cursor pos:
+    ZOOM_ON_PIXEL(DandelionAction.ZOOM_ON_PIXEL),
+    ARP_FROM_PIXEL(DandelionAction.ARP_FROM_PIXEL),
+  	
+  	//GENERAL KEYBOARD ACTIONs	
+  	DRAW_AXIS(DandelionAction.DRAW_AXIS),
+  	DRAW_GRID(DandelionAction.DRAW_GRID),
+  	//CAMERA_PROFILE(DandelionAction.CAMERA_PROFILE),
+  	CAMERA_TYPE(DandelionAction.CAMERA_TYPE),
+  	CAMERA_KIND(DandelionAction.CAMERA_KIND),
+  	ANIMATION(DandelionAction.ANIMATION),  	
+  	RESET_ARP(DandelionAction.RESET_ARP),
+  	GLOBAL_HELP(DandelionAction.GLOBAL_HELP),
+  	//CURRENT_CAMERA_PROFILE_HELP(DandelionAction.CURRENT_CAMERA_PROFILE_HELP),
+  	EDIT_CAMERA_PATH(DandelionAction.EDIT_CAMERA_PATH),
+  	//FOCUS_INTERACTIVE_FRAME(DandelionAction.FOCUS_INTERACTIVE_FRAME),
+  	DRAW_FRAME_SELECTION_HINT(DandelionAction.DRAW_FRAME_SELECTION_HINT),
+  	//CONSTRAIN_FRAME(DandelionAction.CONSTRAIN_FRAME),
+  	SHOW_ALL(DandelionAction.SHOW_ALL),
+  	
+    //CAMERA KEYBOARD ACTIONs
+  	MOVE_CAMERA_LEFT(DandelionAction.MOVE_CAMERA_LEFT),
+  	MOVE_CAMERA_RIGHT(DandelionAction.MOVE_CAMERA_RIGHT),
+  	MOVE_CAMERA_UP(DandelionAction.MOVE_CAMERA_UP),
+  	MOVE_CAMERA_DOWN(DandelionAction.MOVE_CAMERA_DOWN),
+  	INCREASE_ROTATION_SENSITIVITY(DandelionAction.INCREASE_ROTATION_SENSITIVITY),
+  	DECREASE_ROTATION_SENSITIVITY(DandelionAction.DECREASE_ROTATION_SENSITIVITY),
+  	INCREASE_CAMERA_FLY_SPEED(DandelionAction.INCREASE_CAMERA_FLY_SPEED),
+  	DECREASE_CAMERA_FLY_SPEED(DandelionAction.DECREASE_CAMERA_FLY_SPEED),
+  	INCREASE_AVATAR_FLY_SPEED(DandelionAction.INCREASE_AVATAR_FLY_SPEED),
+  	DECREASE_AVATAR_FLY_SPEED(DandelionAction.DECREASE_AVATAR_FLY_SPEED),
+  	INCREASE_AZYMUTH(DandelionAction.INCREASE_AZYMUTH),
+  	DECREASE_AZYMUTH(DandelionAction.DECREASE_AZYMUTH),
+  	INCREASE_INCLINATION(DandelionAction.INCREASE_INCLINATION),
+  	DECREASE_INCLINATION(DandelionAction.DECREASE_INCLINATION),
+  	INCREASE_TRACKING_DISTANCE(DandelionAction.INCREASE_TRACKING_DISTANCE),
+  	DECREASE_TRACKING_DISTANCE(DandelionAction.DECREASE_TRACKING_DISTANCE),
+  	
+  	CUSTOM(DandelionAction.CUSTOM);
+
+  	@Override
+  	public DandelionAction referenceAction() {
+  		return act;
+  	}
+
+  	@Override
+  	public String description() {
+  		return this.referenceAction().description();
+  	}
+  	
+  	@Override
+  	public int dofs() {
+  		return act.dofs();
+  	}
+  	
+  	public boolean is2D() {
+  		return act.is2D();
+  	}
+
+  	DandelionAction act;
+
+  	DOF2ClickAction(DandelionAction a) {
+  		act = a;
+  	}
+  }
+  
+  public enum DOF3Action implements Actionable<DandelionAction> {
+  	//DOF_1
   	ZOOM(DandelionAction.ZOOM),
     
   	//DOF_2
@@ -436,14 +453,7 @@ public interface Constants extends EventConstants {
   	public boolean is2D() {
   		return act.is2D();
   	}
-  	
-  	/**
-  	@Override
-		public DLAction defaultAction() {
-			return DLAction.NO_ACTION;
-		}
-		*/
-
+  
   	DandelionAction act;
 
   	DOF3Action(DandelionAction a) {
@@ -496,14 +506,7 @@ public interface Constants extends EventConstants {
   	public boolean is2D() {
   		return act.is2D();
   	}
-  	
-  	/**
-  	@Override
-		public DLAction defaultAction() {
-			return DLAction.NO_ACTION;
-		}
-		*/
-
+  
   	DandelionAction act;
 
   	DOF6Action(DandelionAction a) {
