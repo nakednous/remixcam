@@ -26,7 +26,7 @@
 package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
-import remixlab.dandelion.core.Constants.DOF0Action;
+import remixlab.dandelion.core.Constants.KeyboardAction;
 import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.core.EventGrabberTuple;
 import remixlab.tersehandling.event.KeyboardEvent;
@@ -37,50 +37,50 @@ import remixlab.tersehandling.generic.profile.Duoable;
 import remixlab.tersehandling.generic.profile.GenericKeyboardProfile;
 import remixlab.tersehandling.generic.profile.KeyDuoable;
 
-public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<Constants.DOF0Action>> {	
+public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<Constants.KeyboardAction>> {	
 	int addMod;
 	int delMod;
 	public KeyboardAgent(AbstractScene scn, String n) {
-		super(new GenericKeyboardProfile<Constants.DOF0Action>(), scn.terseHandler(), n);
+		super(new GenericKeyboardProfile<Constants.KeyboardAction>(), scn.terseHandler(), n);
 		//profile = new GenericKeyboardProfile<Constants.DOF_0Action>();
 		setDefaultGrabber(scn);
 
 		// D e f a u l t s h o r t c u t s
-		keyboardProfile().setShortcut('a', DOF0Action.DRAW_AXIS);
-		keyboardProfile().setShortcut('f', DOF0Action.DRAW_FRAME_SELECTION_HINT);
-		keyboardProfile().setShortcut('g', DOF0Action.DRAW_GRID);
-		keyboardProfile().setShortcut('m', DOF0Action.ANIMATION);
+		keyboardProfile().setShortcut('a', KeyboardAction.DRAW_AXIS);
+		keyboardProfile().setShortcut('f', KeyboardAction.DRAW_FRAME_SELECTION_HINT);
+		keyboardProfile().setShortcut('g', KeyboardAction.DRAW_GRID);
+		keyboardProfile().setShortcut('m', KeyboardAction.ANIMATION);
 		//keyboardProfile().setShortcut('i', DOF0Action.FOCUS_INTERACTIVE_FRAME);
 		//keyboardProfile().setShortcut(' ', DOF0Action.CAMERA_PROFILE);
-		keyboardProfile().setShortcut('e', DOF0Action.CAMERA_TYPE);
-		keyboardProfile().setShortcut('h', DOF0Action.GLOBAL_HELP);
+		keyboardProfile().setShortcut('e', KeyboardAction.CAMERA_TYPE);
+		keyboardProfile().setShortcut('h', KeyboardAction.GLOBAL_HELP);
 		//keyboardProfile().setShortcut('H', DOF0Action.CURRENT_CAMERA_PROFILE_HELP);
-		keyboardProfile().setShortcut('r', DOF0Action.EDIT_CAMERA_PATH);
+		keyboardProfile().setShortcut('r', KeyboardAction.EDIT_CAMERA_PATH);
 
-		keyboardProfile().setShortcut('s', DOF0Action.INTERPOLATE_TO_FIT);
-		keyboardProfile().setShortcut('S', DOF0Action.SHOW_ALL);
-		
-		//TODO testing:
-		keyboardProfile().setShortcut('z', DOF0Action.RESET_ARP);
+		keyboardProfile().setShortcut('s', KeyboardAction.INTERPOLATE_TO_FIT);
+		keyboardProfile().setShortcut('S', KeyboardAction.SHOW_ALL);
 
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_RIGHT, DOF0Action.MOVE_CAMERA_RIGHT);
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_LEFT, DOF0Action.MOVE_CAMERA_LEFT);
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_UP, DOF0Action.MOVE_CAMERA_UP);
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_DOWN, DOF0Action.MOVE_CAMERA_DOWN);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_RIGHT, KeyboardAction.MOVE_CAMERA_RIGHT);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_LEFT, KeyboardAction.MOVE_CAMERA_LEFT);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_UP, KeyboardAction.MOVE_CAMERA_UP);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_DOWN, KeyboardAction.MOVE_CAMERA_DOWN);
 
-		keyboardProfile().setShortcut((GenericKeyboardEvent.TH_ALT | GenericKeyboardEvent.TH_SHIFT), 'l',	DOF0Action.MOVE_CAMERA_LEFT);
+		keyboardProfile().setShortcut((GenericKeyboardEvent.TH_ALT | GenericKeyboardEvent.TH_SHIFT), 'l',	KeyboardAction.MOVE_CAMERA_LEFT);
 		
 		setAddKeyFrameKeyboardModifier(EventConstants.TH_CTRL);
 		setDeleteKeyFrameKeyboardModifier(EventConstants.TH_ALT);
+		
+	  //TODO testing:
+		keyboardProfile().setShortcut('z', KeyboardAction.RESET_ARP);
 	}
 	
 	@Override
-	public GenericKeyboardEvent<Constants.DOF0Action> feed() {
+	public GenericKeyboardEvent<Constants.KeyboardAction> feed() {
 		return null;
 	}
 
 	@Override
-	public GenericKeyboardProfile<Constants.DOF0Action> keyboardProfile() {
+	public GenericKeyboardProfile<Constants.KeyboardAction> keyboardProfile() {
 		return profile;
 	}
 	
@@ -122,7 +122,7 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 			if( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) == null ) return;
 			int path = Character.getNumericValue( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) );
 			if( 0<= path && path <= 9 ) {
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, DOF0Action.ADD_KEYFRAME_TO_PATH, grabber()));				
+				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, KeyboardAction.ADD_KEYFRAME_TO_PATH, grabber()));				
 				return;
 			}
 		}
@@ -132,7 +132,7 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 			if( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) == null ) return;
 			int path = Character.getNumericValue( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) );
 			if( 0<= path && path <= 9 ) {
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, DOF0Action.DELETE_PATH, grabber()));
+				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, KeyboardAction.DELETE_PATH, grabber()));
 				return;
 			}
 		}
@@ -157,7 +157,7 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 		if( ((KeyboardEvent) event).getModifiers() == 0 ) {
 			int path = Character.getNumericValue( ((KeyboardEvent) event).getKey());
 			if( 0<= path && path <= 9 ) {
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, DOF0Action.PLAY_PATH, grabber()));
+				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, KeyboardAction.PLAY_PATH, grabber()));
 				return;
 			}
 		}

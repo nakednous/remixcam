@@ -786,10 +786,10 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		if(e instanceof GenericClickEvent) {
 			GenericClickEvent<?> genericClickEvent = (GenericClickEvent<?>)e;
 			if( genericClickEvent.action() == null ) return;		
-			if( genericClickEvent.action() != DOF2ClickAction.CENTER_FRAME && 
-					genericClickEvent.action() != DOF2ClickAction.ALIGN_FRAME &&
-					genericClickEvent.action() != DOF2ClickAction.ZOOM_ON_PIXEL &&
-					genericClickEvent.action() != DOF2ClickAction.ARP_FROM_PIXEL ) {
+			if( genericClickEvent.action() != ClickAction.CENTER_FRAME && 
+					genericClickEvent.action() != ClickAction.ALIGN_FRAME &&
+					genericClickEvent.action() != ClickAction.ZOOM_ON_PIXEL &&
+					genericClickEvent.action() != ClickAction.ARP_FROM_PIXEL ) {
 				scene.performInteraction(e); // ;)
 				return;
 			}

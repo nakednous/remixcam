@@ -37,8 +37,8 @@ public class JoystickAgent extends GenericBiMotionAgent<GenericMotionProfile<Con
 	public JoystickAgent(AbstractScene scn, String n) {
 		super(new GenericMotionProfile<Constants.DOF3Action>(),
 			    new GenericMotionProfile<Constants.DOF3Action>(),
-			    new GenericClickProfile<Constants.DOF2ClickAction>(),
-			    new GenericClickProfile<Constants.DOF2ClickAction>(), scn.terseHandler(), n);
+			    new GenericClickProfile<Constants.ClickAction>(),
+			    new GenericClickProfile<Constants.ClickAction>(), scn.terseHandler(), n);
 	  setDefaultGrabber(scn.pinhole().frame());
 		//camProfile = new GenericMotionProfile<Constants.DOF_3Action>();
 		//profile = new GenericMotionProfile<Constants.DOF_3Action>();

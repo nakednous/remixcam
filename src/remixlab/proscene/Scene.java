@@ -140,7 +140,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		public void keyEvent(KeyEvent e) {
-			GenericKeyboardEvent<Constants.DOF0Action> event = new GenericKeyboardEvent<Constants.DOF0Action>( e.getModifiers(), e.getKey(), e.getKeyCode() );
+			GenericKeyboardEvent<Constants.KeyboardAction> event = new GenericKeyboardEvent<Constants.KeyboardAction>( e.getModifiers(), e.getKey(), e.getKeyCode() );
 			if(e.getAction() == KeyEvent.TYPE)
 				handleKey(event);
 			else
@@ -250,7 +250,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 						                      DOF1Action.ZOOM, grabber()));
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
-				handle(new GenericClickEvent<Constants.DOF2ClickAction>(e.getX(), e.getY(), e.getModifiers(), e.getButton(), e.getCount()));
+				handle(new GenericClickEvent<Constants.ClickAction>(e.getX(), e.getY(), e.getModifiers(), e.getButton(), e.getCount()));
 			}	
 		}
 	}

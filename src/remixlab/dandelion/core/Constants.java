@@ -177,7 +177,6 @@ public interface Constants extends EventConstants {
       this.dofs = 0;
     }
     
-  	//TODO These methods should belong to the interface!
     public String description() {
       return description;
     }
@@ -191,8 +190,79 @@ public interface Constants extends EventConstants {
     }   
   }
   
-  public enum DOF0Action implements Actionable<DandelionAction> {
-    //DOF_0  	
+  public enum ClickAction implements Actionable<DandelionAction> {
+    // CLICk ACTIONs	  	
+  	INTERPOLATE_TO_FIT(DandelionAction.INTERPOLATE_TO_FIT),
+   	CENTER_FRAME(DandelionAction.CENTER_FRAME),
+  	ALIGN_FRAME(DandelionAction.ALIGN_FRAME),
+  	
+    //Click actions require cursor pos:
+    ZOOM_ON_PIXEL(DandelionAction.ZOOM_ON_PIXEL),
+    ARP_FROM_PIXEL(DandelionAction.ARP_FROM_PIXEL),
+  	
+  	//GENERAL KEYBOARD ACTIONs	
+  	DRAW_AXIS(DandelionAction.DRAW_AXIS),
+  	DRAW_GRID(DandelionAction.DRAW_GRID),
+  	//CAMERA_PROFILE(DandelionAction.CAMERA_PROFILE),
+  	CAMERA_TYPE(DandelionAction.CAMERA_TYPE),
+  	CAMERA_KIND(DandelionAction.CAMERA_KIND),
+  	ANIMATION(DandelionAction.ANIMATION),  	
+  	RESET_ARP(DandelionAction.RESET_ARP),
+  	GLOBAL_HELP(DandelionAction.GLOBAL_HELP),
+  	//CURRENT_CAMERA_PROFILE_HELP(DandelionAction.CURRENT_CAMERA_PROFILE_HELP),
+  	EDIT_CAMERA_PATH(DandelionAction.EDIT_CAMERA_PATH),
+  	//FOCUS_INTERACTIVE_FRAME(DandelionAction.FOCUS_INTERACTIVE_FRAME),
+  	DRAW_FRAME_SELECTION_HINT(DandelionAction.DRAW_FRAME_SELECTION_HINT),
+  	//CONSTRAIN_FRAME(DandelionAction.CONSTRAIN_FRAME),
+  	SHOW_ALL(DandelionAction.SHOW_ALL),
+  	
+    //CAMERA KEYBOARD ACTIONs
+  	MOVE_CAMERA_LEFT(DandelionAction.MOVE_CAMERA_LEFT),
+  	MOVE_CAMERA_RIGHT(DandelionAction.MOVE_CAMERA_RIGHT),
+  	MOVE_CAMERA_UP(DandelionAction.MOVE_CAMERA_UP),
+  	MOVE_CAMERA_DOWN(DandelionAction.MOVE_CAMERA_DOWN),
+  	INCREASE_ROTATION_SENSITIVITY(DandelionAction.INCREASE_ROTATION_SENSITIVITY),
+  	DECREASE_ROTATION_SENSITIVITY(DandelionAction.DECREASE_ROTATION_SENSITIVITY),
+  	INCREASE_CAMERA_FLY_SPEED(DandelionAction.INCREASE_CAMERA_FLY_SPEED),
+  	DECREASE_CAMERA_FLY_SPEED(DandelionAction.DECREASE_CAMERA_FLY_SPEED),
+  	INCREASE_AVATAR_FLY_SPEED(DandelionAction.INCREASE_AVATAR_FLY_SPEED),
+  	DECREASE_AVATAR_FLY_SPEED(DandelionAction.DECREASE_AVATAR_FLY_SPEED),
+  	INCREASE_AZYMUTH(DandelionAction.INCREASE_AZYMUTH),
+  	DECREASE_AZYMUTH(DandelionAction.DECREASE_AZYMUTH),
+  	INCREASE_INCLINATION(DandelionAction.INCREASE_INCLINATION),
+  	DECREASE_INCLINATION(DandelionAction.DECREASE_INCLINATION),
+  	INCREASE_TRACKING_DISTANCE(DandelionAction.INCREASE_TRACKING_DISTANCE),
+  	DECREASE_TRACKING_DISTANCE(DandelionAction.DECREASE_TRACKING_DISTANCE),
+  	
+  	CUSTOM(DandelionAction.CUSTOM);
+
+  	@Override
+  	public DandelionAction referenceAction() {
+  		return act;
+  	}
+
+  	@Override
+  	public String description() {
+  		return this.referenceAction().description();
+  	}
+  	
+  	@Override
+  	public int dofs() {
+  		return act.dofs();
+  	}
+  	
+  	public boolean is2D() {
+  		return act.is2D();
+  	}
+
+  	DandelionAction act;
+
+  	ClickAction(DandelionAction a) {
+  		act = a;
+  	}
+  }
+  
+  public enum KeyboardAction implements Actionable<DandelionAction> {
     //KEYfRAMES
   	ADD_KEYFRAME_TO_PATH(DandelionAction.ADD_KEYFRAME_TO_PATH),
   	PLAY_PATH(DandelionAction.PLAY_PATH),
@@ -258,7 +328,7 @@ public interface Constants extends EventConstants {
 
   	DandelionAction act;
 
-  	DOF0Action(DandelionAction a) {
+  	KeyboardAction(DandelionAction a) {
   		act = a;
   	}
   }
@@ -335,80 +405,6 @@ public interface Constants extends EventConstants {
   	DandelionAction act;
 
   	DOF2Action(DandelionAction a) {
-  		act = a;
-  	}
-  }
-  
-  public enum DOF2ClickAction implements Actionable<DandelionAction> {
-    //DOF_0
-  	
-  	// CLICk ACTIONs	  	
-  	INTERPOLATE_TO_FIT(DandelionAction.INTERPOLATE_TO_FIT),
-   	CENTER_FRAME(DandelionAction.CENTER_FRAME),
-  	ALIGN_FRAME(DandelionAction.ALIGN_FRAME),
-  	
-    //Click actions require cursor pos:
-    ZOOM_ON_PIXEL(DandelionAction.ZOOM_ON_PIXEL),
-    ARP_FROM_PIXEL(DandelionAction.ARP_FROM_PIXEL),
-  	
-  	//GENERAL KEYBOARD ACTIONs	
-  	DRAW_AXIS(DandelionAction.DRAW_AXIS),
-  	DRAW_GRID(DandelionAction.DRAW_GRID),
-  	//CAMERA_PROFILE(DandelionAction.CAMERA_PROFILE),
-  	CAMERA_TYPE(DandelionAction.CAMERA_TYPE),
-  	CAMERA_KIND(DandelionAction.CAMERA_KIND),
-  	ANIMATION(DandelionAction.ANIMATION),  	
-  	RESET_ARP(DandelionAction.RESET_ARP),
-  	GLOBAL_HELP(DandelionAction.GLOBAL_HELP),
-  	//CURRENT_CAMERA_PROFILE_HELP(DandelionAction.CURRENT_CAMERA_PROFILE_HELP),
-  	EDIT_CAMERA_PATH(DandelionAction.EDIT_CAMERA_PATH),
-  	//FOCUS_INTERACTIVE_FRAME(DandelionAction.FOCUS_INTERACTIVE_FRAME),
-  	DRAW_FRAME_SELECTION_HINT(DandelionAction.DRAW_FRAME_SELECTION_HINT),
-  	//CONSTRAIN_FRAME(DandelionAction.CONSTRAIN_FRAME),
-  	SHOW_ALL(DandelionAction.SHOW_ALL),
-  	
-    //CAMERA KEYBOARD ACTIONs
-  	MOVE_CAMERA_LEFT(DandelionAction.MOVE_CAMERA_LEFT),
-  	MOVE_CAMERA_RIGHT(DandelionAction.MOVE_CAMERA_RIGHT),
-  	MOVE_CAMERA_UP(DandelionAction.MOVE_CAMERA_UP),
-  	MOVE_CAMERA_DOWN(DandelionAction.MOVE_CAMERA_DOWN),
-  	INCREASE_ROTATION_SENSITIVITY(DandelionAction.INCREASE_ROTATION_SENSITIVITY),
-  	DECREASE_ROTATION_SENSITIVITY(DandelionAction.DECREASE_ROTATION_SENSITIVITY),
-  	INCREASE_CAMERA_FLY_SPEED(DandelionAction.INCREASE_CAMERA_FLY_SPEED),
-  	DECREASE_CAMERA_FLY_SPEED(DandelionAction.DECREASE_CAMERA_FLY_SPEED),
-  	INCREASE_AVATAR_FLY_SPEED(DandelionAction.INCREASE_AVATAR_FLY_SPEED),
-  	DECREASE_AVATAR_FLY_SPEED(DandelionAction.DECREASE_AVATAR_FLY_SPEED),
-  	INCREASE_AZYMUTH(DandelionAction.INCREASE_AZYMUTH),
-  	DECREASE_AZYMUTH(DandelionAction.DECREASE_AZYMUTH),
-  	INCREASE_INCLINATION(DandelionAction.INCREASE_INCLINATION),
-  	DECREASE_INCLINATION(DandelionAction.DECREASE_INCLINATION),
-  	INCREASE_TRACKING_DISTANCE(DandelionAction.INCREASE_TRACKING_DISTANCE),
-  	DECREASE_TRACKING_DISTANCE(DandelionAction.DECREASE_TRACKING_DISTANCE),
-  	
-  	CUSTOM(DandelionAction.CUSTOM);
-
-  	@Override
-  	public DandelionAction referenceAction() {
-  		return act;
-  	}
-
-  	@Override
-  	public String description() {
-  		return this.referenceAction().description();
-  	}
-  	
-  	@Override
-  	public int dofs() {
-  		return act.dofs();
-  	}
-  	
-  	public boolean is2D() {
-  		return act.is2D();
-  	}
-
-  	DandelionAction act;
-
-  	DOF2ClickAction(DandelionAction a) {
   		act = a;
   	}
   }

@@ -184,9 +184,9 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		Actionable<DandelionAction> a=null;
 		
 		if(event instanceof GenericClickEvent<?>)
-		  a = (DOF2ClickAction) ((GenericClickEvent<?>) event).action();
+		  a = (ClickAction) ((GenericClickEvent<?>) event).action();
 		if(event instanceof GenericKeyboardEvent<?>)
-			a =  (DOF0Action) ((GenericKeyboardEvent<?>) event).action();		
+			a =  (KeyboardAction) ((GenericKeyboardEvent<?>) event).action();		
 		if(a == null) return;
 		DandelionAction id = a.referenceAction();
 		

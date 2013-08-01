@@ -36,29 +36,22 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 	public MouseAgent(AbstractScene scn, String n) {
 		super(new GenericMotionProfile<Constants.DOF2Action>(),
 				  new GenericMotionProfile<Constants.DOF2Action>(),
-				  new GenericClickProfile<Constants.DOF2ClickAction>(),
-				  new GenericClickProfile<Constants.DOF2ClickAction>(), scn.terseHandler(), n);
+				  new GenericClickProfile<Constants.ClickAction>(),
+				  new GenericClickProfile<Constants.ClickAction>(), scn.terseHandler(), n);
 		setDefaultGrabber(scn.pinhole().frame());
 		
 		setAsArcballBindings();
 		
-		cameraClickProfile().setClickBinding(TH_LEFT, 2, DOF2ClickAction.ALIGN_FRAME);
-		cameraClickProfile().setClickBinding(TH_RIGHT, 2, DOF2ClickAction.CENTER_FRAME);
+		cameraClickProfile().setClickBinding(TH_LEFT, 2, ClickAction.ALIGN_FRAME);
+		cameraClickProfile().setClickBinding(TH_RIGHT, 2, ClickAction.CENTER_FRAME);
 		
-		frameClickProfile().setClickBinding(TH_LEFT, 2, DOF2ClickAction.ALIGN_FRAME);
-		frameClickProfile().setClickBinding(TH_RIGHT, 2, DOF2ClickAction.CENTER_FRAME);
+		frameClickProfile().setClickBinding(TH_LEFT, 2, ClickAction.ALIGN_FRAME);
+		frameClickProfile().setClickBinding(TH_RIGHT, 2, ClickAction.CENTER_FRAME);
 	
 		//TODO testing:
-		cameraClickProfile().setClickBinding((TH_SHIFT | TH_CTRL ), TH_RIGHT, 1, DOF2ClickAction.INTERPOLATE_TO_FIT);
-		cameraClickProfile().setClickBinding(TH_CENTER, 1, DOF2ClickAction.DRAW_AXIS);
-		frameClickProfile().setClickBinding(TH_CENTER, 1, DOF2ClickAction.DRAW_GRID);
-		
-		//clickProfile().setClickBinding(TH_LEFT, 1, DOF2ClickAction.DRAW_FRAME_SELECTION_HINT);
-		//clickProfile().setClickBinding(TH_RIGHT, 1, DOF2ClickAction.DRAW_AXIS);
-	
-		//clickProfile().setClickBinding(TH_SHIFT, TH_LEFT, 1, DOF2ClickAction.ALIGN_FRAME);
-		//clickProfile().setClickBinding(TH_SHIFT, TH_CENTER, 1, DOF2ClickAction.SHOW_ALL);
-		//clickProfile().setClickBinding((TH_SHIFT | TH_CTRL ), TH_RIGHT, 1, DOF2ClickAction.INTERPOLATE_TO_FIT);
+		cameraClickProfile().setClickBinding((TH_SHIFT | TH_CTRL ), TH_RIGHT, 1, ClickAction.INTERPOLATE_TO_FIT);
+		cameraClickProfile().setClickBinding(TH_CENTER, 1, ClickAction.DRAW_AXIS);
+		frameClickProfile().setClickBinding(TH_CENTER, 1, ClickAction.DRAW_GRID);
 	}
 	
 	public void setAsFirstPersonBindings() {		

@@ -35,8 +35,8 @@ public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constant
 	public HIDAgent(AbstractScene scn, String n) {
 		super(new GenericMotionProfile<Constants.DOF6Action>(),
 			    new GenericMotionProfile<Constants.DOF6Action>(),
-			    new GenericClickProfile<Constants.DOF2ClickAction>(),
-			    new GenericClickProfile<Constants.DOF2ClickAction>(), scn.terseHandler(), n);
+			    new GenericClickProfile<Constants.ClickAction>(),
+			    new GenericClickProfile<Constants.ClickAction>(), scn.terseHandler(), n);
 	  setDefaultGrabber(scn.pinhole().frame());
 		//super(scn.terseHandler(), n);
 		//camProfile = new GenericMotionProfile<Constants.DOF_6Action>();
