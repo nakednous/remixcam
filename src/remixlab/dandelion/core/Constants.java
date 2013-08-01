@@ -75,9 +75,15 @@ public interface Constants extends EventConstants {
   //Actions
   public enum DandelionAction {
   	//KEYfRAMES
-  	ADD_KEYFRAME_TO_PATH("Add keyframe to path", true, 0),
-  	PLAY_PATH("Play keyframe path", true, 0),
-  	DELETE_PATH("Delete keyframepath", true, 0),
+  	ADD_KEYFRAME_TO_PATH_1("Add keyframe to path 1", true, 0),
+  	PLAY_PATH_1("Play keyframe path 1", true, 0),
+  	DELETE_PATH_1("Delete keyframepath 1", true, 0),
+  	ADD_KEYFRAME_TO_PATH_2("Add keyframe to path 2", true, 0),
+  	PLAY_PATH_2("Play keyframe path 2", true, 0),
+  	DELETE_PATH_2("Delete keyframepath 2", true, 0),
+  	ADD_KEYFRAME_TO_PATH_3("Add keyframe to path 3", true, 0),
+  	PLAY_PATH_3("Play keyframe path 3", true, 0),
+  	DELETE_PATH_3("Delete keyframepath 3", true, 0),
   	
   	// CLICk ACTIONs	  	  	
   	CENTER_FRAME("Center frame", true, 0),
@@ -191,6 +197,17 @@ public interface Constants extends EventConstants {
   }
   
   public enum ClickAction implements Actionable<DandelionAction> {
+    //KEYfRAMES
+  	ADD_KEYFRAME_TO_PATH_1(DandelionAction.ADD_KEYFRAME_TO_PATH_1),
+  	PLAY_PATH_1(DandelionAction.PLAY_PATH_1),
+  	DELETE_PATH_1(DandelionAction.DELETE_PATH_1),
+  	ADD_KEYFRAME_TO_PATH_2(DandelionAction.ADD_KEYFRAME_TO_PATH_2),
+  	PLAY_PATH_2(DandelionAction.PLAY_PATH_2),
+  	DELETE_PATH_2(DandelionAction.DELETE_PATH_2),
+  	ADD_KEYFRAME_TO_PATH_3(DandelionAction.ADD_KEYFRAME_TO_PATH_3),
+  	PLAY_PATH_3(DandelionAction.PLAY_PATH_3),
+  	DELETE_PATH_3(DandelionAction.DELETE_PATH_3),
+  	
     // CLICk ACTIONs	  	
   	INTERPOLATE_TO_FIT(DandelionAction.INTERPOLATE_TO_FIT),
    	CENTER_FRAME(DandelionAction.CENTER_FRAME),
@@ -264,9 +281,15 @@ public interface Constants extends EventConstants {
   
   public enum KeyboardAction implements Actionable<DandelionAction> {
     //KEYfRAMES
-  	ADD_KEYFRAME_TO_PATH(DandelionAction.ADD_KEYFRAME_TO_PATH),
-  	PLAY_PATH(DandelionAction.PLAY_PATH),
-  	DELETE_PATH(DandelionAction.DELETE_PATH),
+  	ADD_KEYFRAME_TO_PATH_1(DandelionAction.ADD_KEYFRAME_TO_PATH_1),
+  	PLAY_PATH_1(DandelionAction.PLAY_PATH_1),
+  	DELETE_PATH_1(DandelionAction.DELETE_PATH_1),
+  	ADD_KEYFRAME_TO_PATH_2(DandelionAction.ADD_KEYFRAME_TO_PATH_2),
+  	PLAY_PATH_2(DandelionAction.PLAY_PATH_2),
+  	DELETE_PATH_2(DandelionAction.DELETE_PATH_2),
+  	ADD_KEYFRAME_TO_PATH_3(DandelionAction.ADD_KEYFRAME_TO_PATH_3),
+  	PLAY_PATH_3(DandelionAction.PLAY_PATH_3),
+  	DELETE_PATH_3(DandelionAction.DELETE_PATH_3),
   	
   	// CLICk ACTIONs	  	
   	INTERPOLATE_TO_FIT(DandelionAction.INTERPOLATE_TO_FIT),

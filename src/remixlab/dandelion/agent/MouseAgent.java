@@ -51,7 +51,8 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 		//TODO testing:
 		cameraClickProfile().setClickBinding((TH_SHIFT | TH_CTRL ), TH_RIGHT, 1, ClickAction.INTERPOLATE_TO_FIT);
 		cameraClickProfile().setClickBinding(TH_CENTER, 1, ClickAction.DRAW_AXIS);
-		frameClickProfile().setClickBinding(TH_CENTER, 1, ClickAction.DRAW_GRID);
+		frameClickProfile().setClickBinding(TH_CENTER, 1, ClickAction.DRAW_GRID);		
+		cameraClickProfile().setClickBinding(TH_SHIFT, TH_RIGHT, 1, ClickAction.PLAY_PATH_1);
 	}
 	
 	public void setAsFirstPersonBindings() {		

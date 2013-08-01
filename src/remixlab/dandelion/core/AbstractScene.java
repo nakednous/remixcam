@@ -194,18 +194,32 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			return;
 		Vec trans;
 		switch (id) {
-		//case NO_ACTION:	break;
-		case ADD_KEYFRAME_TO_PATH:
-			if( event instanceof GenericKeyboardEvent<?> )
-				pinhole().addKeyFrameToPath(Character.getNumericValue( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) ));
+		case ADD_KEYFRAME_TO_PATH_1:
+			pinhole().addKeyFrameToPath(1);
 			break;
-		case DELETE_PATH:
-			if( event instanceof GenericKeyboardEvent<?> )
-				pinhole().deletePath(Character.getNumericValue( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) ));
+		case DELETE_PATH_1:
+			pinhole().deletePath(1);
 			break;
-		case PLAY_PATH:
-			if( event instanceof GenericKeyboardEvent<?> )
-				pinhole().playPath(Character.getNumericValue( ((KeyboardEvent) event).getKey()));
+		case PLAY_PATH_1:
+			pinhole().playPath(1);
+			break;
+		case ADD_KEYFRAME_TO_PATH_2:
+			pinhole().addKeyFrameToPath(2);
+			break;
+		case DELETE_PATH_2:
+			pinhole().deletePath(2);
+			break;
+		case PLAY_PATH_2:
+			pinhole().playPath(2);
+			break;
+		case ADD_KEYFRAME_TO_PATH_3:
+			pinhole().addKeyFrameToPath(3);
+			break;
+		case DELETE_PATH_3:
+			pinhole().deletePath(3);
+			break;
+		case PLAY_PATH_3:
+			pinhole().playPath(3);
 			break;
 		case DRAW_AXIS:
 			toggleAxisIsDrawn();

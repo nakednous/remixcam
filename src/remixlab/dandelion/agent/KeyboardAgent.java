@@ -27,19 +27,11 @@ package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.core.Constants.KeyboardAction;
-import remixlab.tersehandling.core.EventConstants;
-import remixlab.tersehandling.core.EventGrabberTuple;
-import remixlab.tersehandling.event.KeyboardEvent;
-import remixlab.tersehandling.event.TerseEvent;
 import remixlab.tersehandling.generic.agent.GenericKeyboardAgent;
 import remixlab.tersehandling.generic.event.GenericKeyboardEvent;
-import remixlab.tersehandling.generic.profile.Duoable;
 import remixlab.tersehandling.generic.profile.GenericKeyboardProfile;
-import remixlab.tersehandling.generic.profile.KeyDuoable;
 
 public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<Constants.KeyboardAction>> {	
-	int addMod;
-	int delMod;
 	public KeyboardAgent(AbstractScene scn, String n) {
 		super(new GenericKeyboardProfile<Constants.KeyboardAction>(), scn.terseHandler(), n);
 		//profile = new GenericKeyboardProfile<Constants.DOF_0Action>();
@@ -67,23 +59,46 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 
 		keyboardProfile().setShortcut((GenericKeyboardEvent.TH_ALT | GenericKeyboardEvent.TH_SHIFT), 'l',	KeyboardAction.MOVE_CAMERA_LEFT);
 		
-		setAddKeyFrameKeyboardModifier(EventConstants.TH_CTRL);
-		setDeleteKeyFrameKeyboardModifier(EventConstants.TH_ALT);
+		//only one not working but horrible: 
+		//keyboardProfile().setShortcut('1', KeyboardAction.PLAY_PATH);
+		
+		//keyboardProfile().setShortcut(49, KeyboardAction.PLAY_PATH);
+		//keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, 49, KeyboardAction.ADD_KEYFRAME_TO_PATH);
+		//keyboardProfile().setShortcut(GenericKeyboardEvent.TH_ALT, 49, KeyboardAction.DELETE_PATH);
+		//keyboardProfile().setShortcut(GenericKeyboardEvent.TH_NOMODIFIER_MASK, '1', KeyboardAction.PLAY_PATH_1);
+		
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, '1', KeyboardAction.ADD_KEYFRAME_TO_PATH_1);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_ALT, '1', KeyboardAction.DELETE_PATH_1);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, '2', KeyboardAction.ADD_KEYFRAME_TO_PATH_2);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_ALT, '2', KeyboardAction.DELETE_PATH_2);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, '3', KeyboardAction.ADD_KEYFRAME_TO_PATH_3);
+		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_ALT, '3', KeyboardAction.DELETE_PATH_3);
+		
+		setKeyToPlayPath('1', 1);
+		setKeyToPlayPath('2', 2);
+		setKeyToPlayPath('3', 3);
 		
 	  //TODO testing:
 		keyboardProfile().setShortcut('z', KeyboardAction.RESET_ARP);
 	}
 	
-	@Override
-	public GenericKeyboardEvent<Constants.KeyboardAction> feed() {
-		return null;
-	}
-
-	@Override
-	public GenericKeyboardProfile<Constants.KeyboardAction> keyboardProfile() {
-		return profile;
+	public void setKeyToPlayPath(char key, int path) {			
+		switch (path) {
+		case 1 :
+			keyboardProfile().setShortcut(GenericKeyboardEvent.TH_NOMODIFIER_MASK, key, KeyboardAction.PLAY_PATH_1);
+			break;
+		case 2 :
+			keyboardProfile().setShortcut(GenericKeyboardEvent.TH_NOMODIFIER_MASK, key, KeyboardAction.PLAY_PATH_2);
+			break;
+		case 3 :
+			keyboardProfile().setShortcut(GenericKeyboardEvent.TH_NOMODIFIER_MASK, key, KeyboardAction.PLAY_PATH_3);
+			break;
+		default :
+			break;
+		}		
 	}
 	
+	/**
 	public void setAddKeyFrameKeyboardModifier(int modifier) {
 		if( modifier != EventConstants.TH_SHIFT &&
 				modifier != EventConstants.TH_CTRL &&
@@ -91,8 +106,9 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 				modifier != EventConstants.TH_ALT_GRAPH &&
 				modifier != EventConstants.TH_META )
   			System.out.println("Expected a modifier here");
-		else
-			addMod = modifier;
+		else {
+			keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, '1', KeyboardAction.ADD_KEYFRAME_TO_PATH_1);
+		}
 	}
 	
 	public void setDeleteKeyFrameKeyboardModifier(int modifier) {
@@ -102,68 +118,19 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 				modifier != EventConstants.TH_ALT_GRAPH &&
 				modifier != EventConstants.TH_META )
   			System.out.println("Expected a modifier here");
-		else
-			delMod = modifier;
+		else {
+			keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, '1', KeyboardAction.DELETE_PATH_1);
+		}
 	}
+	*/
 	
 	@Override
-	public void handle(TerseEvent event) {
-		if(event == null || !handler.isAgentRegistered(this)) return;
-		
-	  //grabber is external, i.e., action -> null
-		if( grabber() != null )
-			if(!( grabber() instanceof InteractiveFrame ) && !( grabber() instanceof AbstractScene ) ) {
-				handler.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
-				return;
-			}
-		
-		//add keyframe?
-		if( (((KeyboardEvent) event).getModifiers() & addMod) != 0 ) {
-			if( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) == null ) return;
-			int path = Character.getNumericValue( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) );
-			if( 0<= path && path <= 9 ) {
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, KeyboardAction.ADD_KEYFRAME_TO_PATH, grabber()));				
-				return;
-			}
-		}
-		
-		//remove frame?
-		if( (((KeyboardEvent) event).getModifiers() & delMod) != 0 ) {
-			if( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) == null ) return;
-			int path = Character.getNumericValue( KeyboardEvent.getKey(((KeyboardEvent) event).getKeyCode()) );
-			if( 0<= path && path <= 9 ) {
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, KeyboardAction.DELETE_PATH, grabber()));
-				return;
-			}
-		}
-				
-		//"normal" case, just:
-		if(event instanceof Duoable<?>)
-			handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handle((Duoable<?>)event), grabber()));
+	public GenericKeyboardEvent<Constants.KeyboardAction> feed() {
+		return null;
 	}
-	
+
 	@Override
-	public void handleKey(TerseEvent event) {
-		if(event == null || !handler.isAgentRegistered(this)) return;	
-		
-	  //grabber is external, i.e., action -> null
-		if( grabber() != null )
-			if(!( grabber() instanceof InteractiveFrame ) && !( grabber() instanceof AbstractScene ) ) {
-				handler.enqueueEventTuple(new EventGrabberTuple(event, grabber()));
-				return;
-			}
-		
-		//need to play a path?
-		if( ((KeyboardEvent) event).getModifiers() == 0 ) {
-			int path = Character.getNumericValue( ((KeyboardEvent) event).getKey());
-			if( 0<= path && path <= 9 ) {
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, KeyboardAction.PLAY_PATH, grabber()));
-				return;
-			}
-		}
-		
-	  //"normal" case, just:
-		if(event instanceof KeyDuoable<?>)
-			handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, keyboardProfile().handleKey((KeyDuoable<?>)event), grabber()));
+	public GenericKeyboardProfile<Constants.KeyboardAction> keyboardProfile() {
+		return profile;
 	}
 }
