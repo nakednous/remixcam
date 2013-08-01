@@ -45,9 +45,6 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 		cameraClickProfile().setClickBinding(TH_LEFT, 2, DOF2ClickAction.ALIGN_FRAME);
 		cameraClickProfile().setClickBinding(TH_RIGHT, 2, DOF2ClickAction.CENTER_FRAME);
 		
-		cameraClickProfile().setClickBinding(TH_LEFT, 2, DOF2ClickAction.ALIGN_FRAME);
-		cameraClickProfile().setClickBinding(TH_RIGHT, 2, DOF2ClickAction.CENTER_FRAME);
-		
 		frameClickProfile().setClickBinding(TH_LEFT, 2, DOF2ClickAction.ALIGN_FRAME);
 		frameClickProfile().setClickBinding(TH_RIGHT, 2, DOF2ClickAction.CENTER_FRAME);
 	

@@ -26,8 +26,8 @@
 
 package remixlab.proscene;
 
-import remixlab.dandelion.agent.GenericWheeledMouseAgent;
 import remixlab.dandelion.agent.KeyboardAgent;
+import remixlab.dandelion.agent.MouseAgent;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
@@ -36,7 +36,6 @@ import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.generic.profile.Actionable;
 import remixlab.tersehandling.generic.profile.Duoable;
-import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 //import remixlab.remixcam.shortcut.*;
 
 /**
@@ -151,7 +150,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	//public class Mouse extends AbstractMouse {
-	public class ProsceneMouse extends GenericWheeledMouseAgent<GenericMotionProfile<Constants.DOF1Action>> {
+	public class ProsceneMouse extends MouseAgent {
 	//public class ProsceneMouse extends Mouse {
 		boolean bypassNullEvent, zoomOnRegion, screenRotate;
 		Point fCorner = new Point();
@@ -160,8 +159,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		float dFriction = pinhole().frame().dampingFriction();
 		InteractiveFrame iFrame;
 		public ProsceneMouse(AbstractScene scn, String n) {
-			super(new GenericMotionProfile<Constants.DOF1Action>(),
-					  new GenericMotionProfile<Constants.DOF1Action>(), scn, n);	
+			super(scn, n);	
 			//cameraProfile().setBinding(DOF_2Action.ROTATE);//rotate without dragging any button
 			//System.out.println(cameraProfile().bindingsDescription());
 		}
@@ -247,7 +245,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				}				
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
-				handle(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
+				//handle(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
+				handler.enqueueEventTuple(new EventGrabberDuobleTuple(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON),
+						                      DOF1Action.ZOOM, grabber()));
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
 				handle(new GenericClickEvent<Constants.DOF2ClickAction>(e.getX(), e.getY(), e.getModifiers(), e.getButton(), e.getCount()));
