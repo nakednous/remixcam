@@ -708,13 +708,113 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		 	}
 
 		  @Override
-		  public void drawKFIViewport(float scale) {
-		  	AbstractScene.showDepthWarning("cylinder");
+		  public void drawKFIViewport(float scale) {		  	
+		  	float halfHeight = scale * 1f;
+				float halfWidth = halfHeight * 1.3f;
+
+				float arrowHeight = 1.5f * halfHeight;
+				float baseHeight = 1.2f * halfHeight;
+				float arrowHalfWidth = 0.5f * halfWidth;
+				float baseHalfWidth = 0.3f * halfWidth;
+
+				pg().pushStyle();
+
+				// /**
+			  // Frustum outline
+				pg().noFill();		
+				pg().beginShape();
+				pg().vertex(-halfWidth, halfHeight);
+				pg().vertex(-halfWidth, -halfHeight);
+				pg().vertex(0.0f, 0.0f, 0.0f);
+				pg().vertex(halfWidth, -halfHeight);
+				pg().vertex(-halfWidth, -halfHeight);
+				pg().endShape();
+				pg().noFill();
+				pg().beginShape();
+				pg().vertex(halfWidth, -halfHeight);
+				pg().vertex(halfWidth, halfHeight);
+				pg().vertex(0.0f, 0.0f, 0.0f);
+				pg().vertex(-halfWidth, halfHeight);
+				pg().vertex(halfWidth, halfHeight);
+				pg().endShape();
+				// */
+
+				// Up arrow
+				pg().noStroke();
+				pg().fill(170);
+				// Base
+				pg().beginShape(PApplet.QUADS);
+				
+				if( isLeftHanded() ) {
+					pg().vertex(baseHalfWidth, -halfHeight);
+					pg().vertex(-baseHalfWidth, -halfHeight);
+					pg().vertex(-baseHalfWidth, -baseHeight);
+					pg().vertex(baseHalfWidth, -baseHeight);
+				}
+				else {
+					pg().vertex(-baseHalfWidth, halfHeight);
+					pg().vertex(baseHalfWidth, halfHeight);
+					pg().vertex(baseHalfWidth, baseHeight);
+					pg().vertex(-baseHalfWidth, baseHeight);
+				}
+				
+				pg().endShape();
+				// Arrow
+				pg().beginShape(PApplet.TRIANGLES);
+				
+				if( isLeftHanded() ) {
+					pg().vertex(0.0f, -arrowHeight);
+					pg().vertex(arrowHalfWidth, -baseHeight);
+					pg().vertex(-arrowHalfWidth, -baseHeight);
+				}
+				else {
+				  pg().vertex(0.0f, arrowHeight);
+				  pg().vertex(-arrowHalfWidth, baseHeight);
+				  pg().vertex(arrowHalfWidth, baseHeight);
+				}
+				
+				pg().endShape();
+
+				pg().popStyle();
 		 	}
 
 		@Override
-		public void drawPath(List<GeomFrame> path, int mask, int nbFrames,	int nbSteps, float scale) {
-			// TODO pend		
+		public void drawPath(List<GeomFrame> path, int mask, int nbFrames,int nbSteps, float scale) {
+			if (mask != 0) {
+				pg().pushStyle();
+				pg().strokeWeight(2);
+				pg().noFill();
+				pg().stroke(170);
+				
+				if (((mask & 1) != 0) && path.size() > 1 ) {				
+					pg().beginShape();
+					for (GeomFrame myFr : path)
+						pg().vertex(myFr.position().x(), myFr.position().y());
+					pg().endShape();
+				}
+				if ((mask & 6) != 0) {
+					int count = 0;
+					if (nbFrames > nbSteps)
+						nbFrames = nbSteps;
+					float goal = 0.0f;
+
+					for (GeomFrame myFr : path)
+						if ((count++) >= goal) {
+							goal += nbSteps / (float) nbFrames;
+							pg().pushMatrix();
+												  
+							scene.applyTransformation(myFr);						
+
+							if ((mask & 2) != 0)
+								drawKFIViewport(scale);
+							if ((mask & 4) != 0)
+								drawAxis(scale / 10.0f);
+
+							pg().popMatrix();
+						}
+				}
+				pg().popStyle();
+			}
 		}
 	}
 	
@@ -1420,12 +1520,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawPath(List<GeomFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
-			// TODO Auto-generated method stub
-			
-		}	
-
-		@Override
 		public void setMatrix(Mat source) {
 			PMatrix3D pM = new PMatrix3D();
 			pM.set(source.getTransposed(new float[16]));
@@ -1457,7 +1551,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 			// /**
 		  // option 3 (new, Andres suggestion)
-			//TODO: optimize me set per value basis
 			// /**		
 			proj = scene.viewWindow().getProjectionMatrix(true);
 			pg2d().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
@@ -1561,7 +1654,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		  // /**
 		  // option 3 (new, Andres suggestion)
-		  //TODO: optimize me set per value basis
 		  //proj.set((scene.camera().getProjectionMatrix(true).getTransposed(new float[16])));
 		  proj = scene.camera().getProjectionMatrix(true);
 		  pg3d().setProjection(new PMatrix3D( proj.mat[0], proj.mat[4], proj.mat[8], proj.mat[12],
@@ -1800,15 +1892,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		setMouseGrabberCameraPathOffSelectionHintColor(pg3d.color(0, 255, 255));
 		*/		
 		
-		// 1 ->   	
-
-		/**
-		//TODO pull up
-		gProfile = new Bindings<KeyboardShortcut, KeyboardAction>(this);
-		pathKeys = new Bindings<Integer, Integer>(this);		
-		setDefaultShortcuts();
-		// */
-
+		// 1 ->
 		avatarIsInteractiveFrame = false;// also init in setAvatar, but we
 		// need it here to properly init the camera
 		avatarIsInteractiveAvatarFrame = false;// also init in setAvatar, but we
@@ -1820,8 +1904,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			ph = new ViewWindow(this);
 		setViewPort(pinhole());//calls showAll();
 		
-		//TODO
-		//setInteractiveFrame(null);
 		setAvatar(null);
 		
   	// This scene is offscreen if the provided renderer is
@@ -2124,20 +2206,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			setSingleThreadedTimers();
 	}
 	
-	/**
-	public void registerJob(AbstractTimerJob job) {
-		if (timersAreSingleThreaded()) {
-			super.registerJob(job);
-			//registerJobInTimerPool(job);
-			//PApplet.println("registering singleThreadedTaskableTimer " +  job.getClass() +  " in timer pool");
-		}
-		else {
-			job.setTimer(new TimerWrap(this, job));
-			//PApplet.println("creating new awt timer " +  job.getClass());
-		}
-	}
-	*/	
-	
 	// 5. Drawing methods
 
 	/**
@@ -2187,18 +2255,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			height = pg().height;				
 			pinhole().setScreenWidthAndHeight(width, height);				
 		}
-		//TODO pending
-		/**
-		else {
-			if ((currentCameraProfile() instanceof ThirdPersonCameraProfile)
-					&& (!pinhole().anyInterpolationIsStarted())) {
-				pinhole().setPosition(avatar().cameraPosition());
-				pinhole().setUpVector(avatar().upVector());
-				pinhole().lookAt(avatar().target());
-			}
-		}
-		*/
-
 		preDraw();
 	}
 
@@ -2237,18 +2293,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				throw new RuntimeException(
 						"There should be exactly one beginDraw() call followed by a "
 								+ "endDraw() and they cannot be nested. Check your implementation!");			
-			beginOffScreenDrawingCalls++;
-						
-			//TODO pending
-			/**
-			if ((currentCameraProfile() instanceof ThirdPersonCameraProfile)
-					&& (!pinhole().anyInterpolationIsStarted())) {
-				pinhole().setPosition(avatar().cameraPosition());
-				pinhole().setUpVector(avatar().upVector());
-				pinhole().lookAt(avatar().target());
-			}
-			*/
-			
+			beginOffScreenDrawingCalls++;			
 			preDraw();	
 		}
 	}

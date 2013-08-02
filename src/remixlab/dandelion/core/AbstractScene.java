@@ -385,52 +385,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			AbstractScene.showMissingImplementationWarning("displayCurrentCameraProfileHelp");
 		*/
 	}
-		
-	/**
-	 * Sets global default keyboard shortcuts and the default key-frame shortcut keys.
-	 * <p>
-	 * Default global keyboard shortcuts are:
-	 * <p>
-	 * <ul>
-	 * <li><b>'a'</b>: {@link remixlab.proscene.Scene.DOF_0Action#DRAW_AXIS}.
-	 * <li><b>'e'</b>: {@link remixlab.proscene.Scene.DOF_0Action#CAMERA_TYPE}.
-	 * <li><b>'g'</b>: {@link remixlab.proscene.Scene.DOF_0Action#DRAW_GRID}.
-	 * <li><b>'h'</b>: {@link remixlab.proscene.Scene.DOF_0Action#GLOBAL_HELP}
-	 * <li><b>'H'</b>: {@link remixlab.proscene.Scene.DOF_0Action#CURRENT_CAMERA_PROFILE_HELP}
-	 * <li><b>'r'</b>: {@link remixlab.proscene.Scene.DOF_0Action#EDIT_CAMERA_PATH}.
-	 * <li><b>space bar</b>: {@link remixlab.proscene.Scene.DOF_0Action#CAMERA_PROFILE}.
-	 * </ul> 
-	 * <p>
-	 * Default key-frame shortcuts keys are:
-	 * <ul>
-	 * <li><b>'[1..5]'</b>: Play path [1..5]. 
-	 * <li><b>'CTRL'+'[1..5]'</b>: Add key-frame to path [1..5].   
-	 * <li><b>'ALT'+'[1..5]'</b>: Remove path [1..5].
-	 * </ul> 
-	 */
-	/**
-	//TODO pend: implement me when you are done with the keyboard profile
-	public void setDefaultShortcuts() {
-		// D e f a u l t s h o r t c u t s		
-		setShortcut('a', DOF_0Action.DRAW_AXIS);
-		setShortcut('g', DOF_0Action.DRAW_GRID);
-		setShortcut(' ', DOF_0Action.CAMERA_PROFILE);
-		setShortcut('e', DOF_0Action.CAMERA_TYPE);		
-		setShortcut('h', DOF_0Action.GLOBAL_HELP);
-		setShortcut('H', DOF_0Action.CURRENT_CAMERA_PROFILE_HELP);
-		setShortcut('r', DOF_0Action.EDIT_CAMERA_PATH);
 
-		// K e y f r a m e s s h o r t c u t k e y s
-		setAddKeyFrameKeyboardModifier(CTRL);
-		setDeleteKeyFrameKeyboardModifier(ALT);
-		setPathKey('1', 1);
-		setPathKey('2', 2);
-		setPathKey('3', 3);
-		setPathKey('4', 4);
-		setPathKey('5', 5);
-	}
-	*/
-	
 	/**
 	public String globalHelp() {
 		String description = new String();
@@ -463,8 +418,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	// D R A W I N G   M E T H O D S
 	
 	public void preDraw() {
-		// TODO: decide 2d
-		if ( avatar() != null	&& (!camera().anyInterpolationIsStarted() )  ) {
+		if ( avatar() != null	&& (!camera().anyInterpolationIsStarted() ) ) {
 			camera().setPosition(avatar().cameraPosition());
 			camera().setUpVector(avatar().upVector());
 			camera().lookAt(avatar().target());
@@ -475,20 +429,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		if (frustumEquationsUpdateIsEnable())
 			pinhole().updateFrustumEquations();
 	}
-	
-  //Should be called after updating cursor position
-	/**
-	protected void updateGrabber() {
-		updateCursor();
-		setDeviceGrabber(null);
-		if( isTrackingDevice() )
-			for (Grabbable mg : deviceGrabberPool()) {
-				mg.checkIfGrabsInput();
-				if (mg.grabsInput())
-					setDeviceGrabber(mg);
-			}
-	}
-	*/
 	
 	/**
 	 * Internal method. Called by {@link #draw()} and {@link #endDraw()}.
@@ -906,44 +846,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}
 	*/
 	
-	/**
-	public List<AbstractProfile<?>> getActivatedDevices() {
-		//TODO test me
-		// see: http://viralpatel.net/blogs/convert-arraylist-to-arrays-in-java/
-		List<AbstractProfile<?>> list = Arrays.asList(profiles.values().toArray(new AbstractProfile<?>[0]));
-		
-		Iterator<AbstractProfile<?>> iterator = list.iterator();
-		while (iterator.hasNext()) {
-			if(!iterator.next().isActive()) 
-				iterator.remove();
-		}		
-		return list;
-	}
-	*/
-	
-	/**
-	public void activateAllDevices() {
-		Iterator<AbstractProfile<?>> iterator = profiles.values().iterator();
-		while (iterator.hasNext()) {
-			iterator.next().activate();
-		}	
-	}
-	
-	public void deactivateAllDevices() {
-		Iterator<AbstractProfile<?>> iterator = profiles.values().iterator();
-		while (iterator.hasNext()) {
-			iterator.next().deactivate();
-		}	
-	}
-	*/
-	
   // Event registration
-	
-	/**
-	public boolean isEventRegistered(GenericEvent event) {
-		return eventQueue.contains(event);
-	}
-	*/
 		
 	// WRAPPERS
 	
@@ -1328,27 +1231,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		
 		disableDepthTest();
 		renderer.beginScreenDrawing();
-		
-		 /**
-		if( this.isAP5Scene() )
-			renderer.beginScreenDrawing();
-		else { // TODO needs implementation and testing pushProjection();
-			
-			//resetProjection();
-			//camera().ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
-			//multiplyProjection(camera().getProjectionMatrix());
-			
-			// next two same as the prv three?
-			if( this.is3D() )
-				((Camera) pinhole()).ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
-			else {
-			//TODO implement 2D case
-			}
-			loadProjection(pinhole().getProjectionMatrix());
-			pushMatrix();
-			resetMatrix();
-		}
-		//*/
   }
 	
 	public void endScreenDrawing() {
@@ -1359,15 +1241,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		
 		renderer.endScreenDrawing();
 		enableDepthTest();
-		
-		/**
-		if( this.isAP5Scene() )
-			renderer.endScreenDrawing();
-		else {
-			popProjection();
-			popMatrix();			
-		}		
-		*/
 	}
 	
 	public abstract void disableDepthTest();
@@ -1746,9 +1619,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		timerPool.add(job);
 	}
 	
-	// TODO need this methods here?
-  // need it here (or it should just go into proscene.js)? need to be overloaded?
-	// it was previously set in proscene.Scene
 	public void unregisterJob(SeqTaskableTimer t) {		
 			timerPool.remove( t.timerJob() );
 	}
