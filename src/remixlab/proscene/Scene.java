@@ -135,7 +135,7 @@ import java.util.TimerTask;
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {
 	public class ProsceneKeyboard extends KeyboardAgent {
-		public ProsceneKeyboard(AbstractScene scn, String n) {
+		public ProsceneKeyboard(Scene scn, String n) {
 			super(scn, n);
 		}
 		
@@ -152,26 +152,28 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	//public class Mouse extends AbstractMouse {
 	public class ProsceneMouse extends MouseAgent {
 	//public class ProsceneMouse extends Mouse {
+		Scene scene;
 		boolean bypassNullEvent, zoomOnRegion, screenRotate;
 		Point fCorner = new Point();
 		Point lCorner = new Point();
 		GenericDOF2Event<Constants.DOF2Action> event, prevEvent;
 		float dFriction = pinhole().frame().dampingFriction();
 		InteractiveFrame iFrame;
-		public ProsceneMouse(AbstractScene scn, String n) {
-			super(scn, n);	
+		public ProsceneMouse(Scene scn, String n) {
+			super(scn, n);
+			scene = scn;
 			//cameraProfile().setBinding(DOF_2Action.ROTATE);//rotate without dragging any button
 			//System.out.println(cameraProfile().bindingsDescription());
 		}
 		
 		public void mouseEvent(processing.event.MouseEvent e) {
 			//if( ((MouseEvent)e).getAction() == MouseEvent.PRESS ) {
-			//	prevEvent = new DOF2Event(e.getX(), e.getY(), e.getModifiers(), e.getButton());
+			//	prevEvent = new DOF2Event(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
 			//}
 			//if( e.getAction() == processing.event.MouseEvent.DRAG ) {//rotate without dragging any button
 			// /**
 			if( e.getAction() == processing.event.MouseEvent.MOVE ) {
-				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY());
+				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
 				updateGrabber(event);
 				prevEvent = event.get();
 			}
@@ -180,16 +182,16 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			// /**
 			if( e.getAction() == processing.event.MouseEvent.PRESS ) {
 				//if( this.grabber() != null ) { //overkill :P
-					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
 					if(grabber() instanceof InteractiveFrame) {
 						iFrame = (InteractiveFrame)grabber();
 						Actionable<?> a = (grabber() instanceof InteractiveCameraFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event);
 						if(a==null) return;
 						DandelionAction dA = (DandelionAction) a.referenceAction();
 						if( dA == DandelionAction.SCREEN_TRANSLATE ) ((InteractiveFrame)grabber()).dirIsFixed = false;
-						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE);
-						zoomOnRegion = dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveCameraFrame);
-						screenRotate = dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveCameraFrame);
+						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE) && scene.isDefaultMouseAgentInUse();
+						zoomOnRegion = dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveCameraFrame) && scene.isDefaultMouseAgentInUse();
+						screenRotate = dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveCameraFrame) && scene.isDefaultMouseAgentInUse();
 						if(bypassNullEvent || zoomOnRegion || screenRotate) {
 							if(bypassNullEvent) {
 								//TODO: experimental, this is needed for first person:
@@ -199,9 +201,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 								handler.eventTupleQueue().add(new EventGrabberDuobleTuple(event, a, grabber()));	
 							}
 							if(zoomOnRegion || screenRotate) {
-								lCorner.set(e.getX(), e.getY());
+								lCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
 								if(zoomOnRegion)
-									fCorner.set(e.getX(), e.getY());
+									fCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
 							}
 					  }
 					  else
@@ -217,9 +219,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 				//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//e.g., rotate without dragging any button also possible :P
 				if(zoomOnRegion || screenRotate)
-					lCorner.set(e.getX(), e.getY());
+					lCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
 				if( ! zoomOnRegion ) { //bypass zoom_on_region, may be different when using a touch device :P
-					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
 					handle(event);
 				  prevEvent = event.get();
 				}
@@ -227,13 +229,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			// */
 			
 			if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
-				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX(), e.getY(), e.getModifiers(), e.getButton());
+				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
 				if(zoomOnRegion) {
 					//at first glance this should work
 					//handle(event);
 					//but the problem is that depending on the order the button and the modifiers are released,
-					//dufferent actions maybe triggered, so we go for sure ;) :
-					handler.enqueueEventTuple(new EventGrabberDuobleTuple(event, DOF2Action.ZOOM_ON_REGION, grabber()));
+					//different actions maybe triggered, so we go for sure ;) :
+					enqueueEventTuple(new EventGrabberDuobleTuple(event, DOF2Action.ZOOM_ON_REGION, grabber()));
 					zoomOnRegion = false;
 				}
 				if(screenRotate) screenRotate = false;
@@ -246,11 +248,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
 				//handle(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
-				handler.enqueueEventTuple(new EventGrabberDuobleTuple(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON),
-						                      DOF1Action.ZOOM, grabber()));
+				enqueueEventTuple(new EventGrabberDuobleTuple(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON),
+						              DOF1Action.ZOOM, grabber()));
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
-				handle(new GenericClickEvent<Constants.ClickAction>(e.getX(), e.getY(), e.getModifiers(), e.getButton(), e.getCount()));
+				handle(new GenericClickEvent<Constants.ClickAction>(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton(), e.getCount()));
 			}	
 		}
 	}
@@ -1783,9 +1785,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public PApplet parent;
 	
 	// H A R D W A R E
-	//TODO find better getters
-  public ProsceneMouse prosceneMouse;
-  public ProsceneKeyboard prosceneKeyboard;
+  protected ProsceneMouse prosceneMouse;
+  protected ProsceneKeyboard prosceneKeyboard;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1955,73 +1956,67 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		// called only once
 		init();
-	}	
+	}
 	
-	//TODO all these should be pending now
+	public ProsceneMouse defaultMouseAgent() {
+		return prosceneMouse;
+	}
+	
+	public ProsceneKeyboard defaultKeyboardAgent() {
+		return prosceneKeyboard;
+	}
+	
+	public boolean isDefaultMouseAgentInUse() {
+	  return terseHandler().isAgentRegistered(prosceneMouse);
+	}
+	
+	public boolean isDefaultKeyboardAgentInUse() {
+	  return terseHandler().isAgentRegistered(prosceneKeyboard);
+	}
 	
 	/**
 	 * Enables Proscene keyboard handling.
 	 * 
-	 * @see #keyboardIsHandled()
-	 * @see #enableMouseHandling()
-	 * @see #disableKeyboardHandling()
+	 * @see #isDefaultKeyboardAgentInUse()
+	 * @see #enableDefaultMouseAgent()
+	 * @see #disableDefaultKeyboardAgent()
 	 */
-	/**
-	@Override
-	public void enableKeyboardHandling() {
-		if( !this.keyboardIsHandled() ) {
-			super.enableKeyboardHandling();
-			parent.registerMethod("keyEvent", eventDispatcher);
-		}
+	public void enableDefaultKeyboardAgent() {
+		if( !isDefaultKeyboardAgentInUse() )
+			terseHandler().registerAgent(prosceneKeyboard);
 	}
-	*/
 
 	/**
 	 * Disables Proscene keyboard handling.
 	 * 
-	 * @see #keyboardIsHandled()
+	 * @see #isDefaultKeyboardAgentInUse()
 	 */
-	/**
-	@Override
-	public void disableKeyboardHandling() {
-		if( this.keyboardIsHandled() ) {
-			super.disableKeyboardHandling();
-			parent.unregisterMethod("keyEvent", eventDispatcher);
-		}
+	public void disableDefaultKeyboardAgent() {
+		if( isDefaultKeyboardAgentInUse() )
+			terseHandler().unregisterAgent(prosceneKeyboard);
 	}
-	*/
 
 	/**
 	 * Enables Proscene mouse handling.
 	 * 
-	 * @see #mouseIsHandled()
-	 * @see #disableMouseHandling()
-	 * @see #enableKeyboardHandling()
+	 * @see #isDefaultMouseAgentInUse()
+	 * @see #disableDefaultMouseAgent()
+	 * @see #enableDefaultKeyboardAgent()
 	 */
-	/**
-	@Override
-	public void enableMouseHandling() {
-		if( !this.mouseIsHandled() ) {
-			super.enableMouseHandling();
-			parent.registerMethod("mouseEvent", eventDispatcher);
-		}
+	public void enableDefaultMouseAgent() {
+		if( !isDefaultMouseAgentInUse() )
+			terseHandler().registerAgent(prosceneMouse);
 	}
-	*/
 	
 	/**
 	 * Disables Proscene mouse handling.
 	 * 
-	 * @see #mouseIsHandled()
+	 * @see #isDefaultMouseAgentInUse()
 	 */
-	/**
-	@Override
-	public void disableMouseHandling() {
-		if( this.mouseIsHandled() ) {
-			super.disableMouseHandling();
-			parent.unregisterMethod("mouseEvent", eventDispatcher);
-		}
+	public void disableDefaultMouseAgent() {
+		if( isDefaultMouseAgentInUse() )
+			terseHandler().unregisterAgent(prosceneMouse);
 	}
-	*/
 	
 	// matrix stuff
 	
