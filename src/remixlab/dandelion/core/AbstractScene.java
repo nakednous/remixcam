@@ -41,25 +41,11 @@ import remixlab.tersehandling.generic.profile.Actionable;
 import remixlab.tersehandling.event.*;
 
 public abstract class AbstractScene implements Constants, Grabbable {	
-	/**
-  //M o u s e G r a b b e r
-	protected List<Grabbable> msGrabberPool;
-	protected Grabbable deviceGrbbr;
-	protected Actionable<?> lastDeviceGrbbrAction;
-	public boolean deviceGrabberIsAnIFrame;//false by default, see: http://stackoverflow.com/questions/3426843/what-is-the-default-initialization-of-an-array-in-java
-	protected boolean deviceTrckn;
-	*/
-	
-  //M o u s e G r a b b e r
-	//protected List<Grabbable> msGrabberPool;
-	protected boolean grbsDevice = true;	
 	protected boolean dottedGrid;	
 	
   //O B J E C T S
 	protected Renderable renderer;
 	protected Pinhole ph;
-	//protected InteractiveFrame glIFrame;
-	//protected boolean iFrameIsDrwn;
 	protected Trackable trck;
 	public boolean avatarIsInteractiveFrame;
 	protected boolean avatarIsInteractiveAvatarFrame;
@@ -80,10 +66,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	protected boolean gridIsDrwn; // world XY grid
 	protected boolean frameSelectionHintIsDrwn;
 	protected boolean cameraPathsAreDrwn;
-	
-  //C O N S T R A I N T S
-	//TODO deactivate globally, see iFrameprevConstraint
-	//protected boolean withConstraint;
 	
 	// LEFT vs RIGHT_HAND
 	protected boolean rightHanded;
@@ -120,7 +102,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	  startCoordCalls = 0;
 			
 	  // 1 ->
-	  //TODO testing
 		//To define the timers to be used pass the flag in the constructor?
 		singleThreadedTaskableTimers = true;
 		//drawing timer pool
@@ -130,9 +111,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		
 		setDottedGrid(true);
 		setRightHanded();
-		
-		//TODO pending
-		//setDefaultShortcuts();
 	}
 	
 	protected void setRenderer(Renderable r) {
@@ -228,7 +206,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			toggleGridIsDrawn();
 			break;
 		//case CAMERA_PROFILE:
-			//TODO pending
 			//nextCameraProfile();
 			//break;
 		case CAMERA_TYPE:
@@ -241,7 +218,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			toggleAnimation();
 			break;
 		case GLOBAL_HELP:
-			displayGlobalHelp();
+			displayInfo();
 			break;
 		//case CURRENT_CAMERA_PROFILE_HELP:
 			//displayCurrentCameraProfileHelp();
@@ -257,9 +234,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		case DRAW_FRAME_SELECTION_HINT:
 			toggleFrameSelectionHintIsDrawn();
 			break;
-		//case CONSTRAIN_FRAME:
-			//toggleDrawWithConstraint();
-			//break;			
 		// --
 		case SHOW_ALL:
 			showAll();
@@ -346,7 +320,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			break;
 		case RESET_ARP:		  
 			pinhole().setArcballReferencePoint(new Vec(0, 0, 0));
-			//TODO looks horrible, but works ;)
+			//looks horrible, but works ;)
 			pinhole().frame().arpFlag = true;
 			pinhole().frame().timerFx.runOnce(1000);				
 			break;
@@ -356,36 +330,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		}
 	}
 	
-	/**
-	 * Convenience funstion that simply calls {@code displayGlobalHelp(true)}.
-	 * 
-	 * @see #displayGlobalHelp(boolean)
-	 */
-	public void displayGlobalHelp() {
-		displayGlobalHelp(true);
-	}
-	
-	public abstract void displayGlobalHelp(boolean onConsole);
-	
-	/**
-	 * Convenience function that simply calls {@code displayCurrentCameraProfileHelp(true)}.
-	 * 
-	 * @see #displayCurrentCameraProfileHelp(boolean)
-	 */
-	public void displayCurrentCameraProfileHelp() {
-		displayCurrentCameraProfileHelp(true);
-	}
-	
-	public void displayCurrentCameraProfileHelp(boolean onConsole) {
-		//TODO pending
-		/**
-		if (onConsole)
-			System.out.println(currentCameraProfileHelp());
-		else
-			AbstractScene.showMissingImplementationWarning("displayCurrentCameraProfileHelp");
-		*/
-	}
-
 	/**
 	public String globalHelp() {
 		String description = new String();
@@ -406,6 +350,35 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		return description;		
 	}
 	*/
+	
+	/**
+	 * Convenience function that simply calls {@code displayCurrentCameraProfileHelp(true)}.
+	 * 
+	 * @see #displayInfo(boolean)
+	 */	
+	public String info() {
+		String description = new String();
+		description += "Agents' info\n";
+		int index = 1;
+		for( Agent agent : terseHandler().agents() ) {
+			description += index;
+			description += ". ";
+			description += agent.info();
+			index++;
+		}
+		return description;
+	}
+	
+	public void displayInfo() {
+		displayInfo(true);
+	}
+	
+	public void displayInfo(boolean onConsole) {
+		if (onConsole)
+			System.out.println(info());
+		else
+			AbstractScene.showMissingImplementationWarning("displayInfo");
+	}
 	
 	/**
 	 * Returns the {@link PApplet#width} to {@link PApplet#height} aspect ratio of
@@ -452,16 +425,12 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	public void postDraw() {	
 		//updateFrameRate();
 		
-		// 1 ?
+		// 1
 		updateCursor();
 			
 		// 2. timers
 		if (timersAreSingleThreaded())
 			handleTimers();
-		
-		//4 INTERACTIVITY
-	  // 4a. HIDevices
-		//updateGrabber();
 		
 		// 3. Agents
 		terseHandler().handle();
@@ -493,13 +462,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	public TerseHandler terseHandler() {
 		return terseHandler;
 	}
-
-	/**
-	@Override
-	public void defaultPerformer(GenericEvent event) {
-		pinhole().frame().performInteraction(event);
-	}
-	// */
 	
 	protected abstract void updateCursor();
 	
@@ -525,53 +487,13 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	protected void bindMatrices() {
 		// we should simply go:
 		renderer.bindMatrices();
-		/**
-	  // TODO implement stereo
-		if(this.isAP5Scene()) {
-			renderer.bindMatrices();
-			pinhole().cacheProjViewInvMat();
-		}
-		else {
-			//TODO weird to separate these two cases
-			//maybe these three sets should belong to the renderer even if it's opengl?
-			// and hence isAP5Scene should be out of the question
-			setProjectionMatrix();
-			setModelViewMatrix();
-			setProjectionModelViewMatrix();
-			pinhole().cacheProjViewInvMat();
-		}
-		*/
 	}
-	
-	/**
-	 * Sets the processing camera projection matrix from {@link #pinhole()}. Calls
-	 * {@code PApplet.perspective()} or {@code PApplet.orhto()} depending on the
-	 * {@link remixlab.remixcam.core.Camera#type()}.
-	 */
-	/**
-	protected void setProjectionMatrix() {
-		pinhole().loadProjectionMatrix();
-	}
-	*/
-	
-	/**
-	 * Sets the processing camera matrix from {@link #pinhole()}. Simply calls
-	 * {@code PApplet.camera()}.
-	 */
-	/**
-	protected void setModelViewMatrix() {		
-		// TODO find a better name for this:
-		pinhole().resetViewMatrix(); // model is separated from view always
-		//  alternative is
-			//camera().loadViewMatrix();	  
-	}
-	*/
-	
+
 	protected void setProjectionModelViewMatrix() {
 		pinhole().computeProjectionViewMatrix();
 	}
 	
-	// TODO try to optimize assignments in all three matrix getters?
+	// Try to optimize assignments in all three matrix getters?
 	// Requires allowing returning references as well as copies of the matrices,
 	// but it seems overkill. 
 	public Mat getModelViewMatrix() {		
@@ -794,57 +716,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	public void toggleAnimation() {
 		if (animationIsStarted()) stopAnimation(); else startAnimation();
 	}
-	
-  //Device registration
-	
-	/**
-	 * Returns a String with the {@link #currentCameraProfile()} keyboard and mouse bindings.
-	 * 
-	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#cameraDeviceBindingsDescription()
-	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#frameDeviceBindingsDescription()
-	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#deviceClickBindingsDescription()
-	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#keyboardShortcutsDescription()
-	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#cameraWheelBindingsDescription()
-	 * @see remixlab.remixcam.deprecatedprofile.DeprecatedCameraProfile#frameWheelBindingsDescription()
-	 */
-	/**
-	public String currentCameraProfileHelp() {
-		String description = new String();
-		description += currentCameraProfile().name() + " camera profile keyboard shortcuts and mouse bindings\n";
-		int index = 1;
-		if( currentCameraProfile().keyboardShortcutsDescription().length() != 0 ) {
-			description += index + ". " + "Keyboard shortcuts\n";
-			description += currentCameraProfile().keyboardShortcutsDescription();
-			index++;
-		}
-		if( currentCameraProfile().cameraDeviceBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Camera mouse bindings\n";
-			description += currentCameraProfile().cameraDeviceBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().deviceClickBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Mouse click bindings\n";
-			description += currentCameraProfile().deviceClickBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().frameDeviceBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Interactive frame mouse bindings\n";
-			description += currentCameraProfile().frameDeviceBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().cameraWheelBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Camera mouse wheel bindings\n";
-			description += currentCameraProfile().cameraWheelBindingsDescription();
-			index++;
-		}
-		if( currentCameraProfile().frameWheelBindingsDescription().length() != 0 ) {
-			description += index + ". " + "Interactive frame mouse wheel bindings\n";
-			description += currentCameraProfile().frameWheelBindingsDescription();
-			index++;
-		}
-		return description;
-	}
-	*/
 	
   // Event registration
 		
@@ -1385,23 +1256,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		else 
 			throw new RuntimeException("ViewWindow type is only available in 2D");
 	}
-	
-	//TODO change review API here
-	/**
-	public float viewWindowSize() {
-		if (is2D())
-			return viewWindow().scaleFactor();
-		else
-			throw new RuntimeException("size is only available in 2D");
-	}
-	*/
-	
-	public void setViewWindowSize(float s) {
-		if (is2D())
-			viewWindow().setScaling(s);
-		else
-			throw new RuntimeException("size is only available in 2D");		
-	}
 
 	/**
 	 * Replaces the current {@link #pinhole()} with {@code vp}
@@ -1632,77 +1486,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}		
 	
   //2. Associated objects
-	
-	//TODO study iFrame
-	
-	/**
-	 * Returns the InteractiveFrame associated to this Scene. It could be null if
-	 * there's no InteractiveFrame associated to this Scene.
-	 * 
-	 * @see #setInteractiveFrame(InteractiveFrame)
-	 */
-	/**
-	public InteractiveFrame interactiveFrame() {
-		return glIFrame;
-	}
-	*/
-	
-	/**
-	 * Sets the interactivity to the Scene {@link #interactiveFrame()} instance
-	 * according to {@code draw}
-	 */
-	/**
-	public void setDrawInteractiveFrame(boolean draw) {
-		if (draw && (glIFrame == null))
-			return;
-		//TODO pending
-		//if (!draw && currentCameraProfile() instanceof ThirdPersonCameraProfile	&& interactiveFrame().equals(avatar()))// more natural than to bypass it
-			//return;
-		iFrameIsDrwn = draw;
-	}
-	*/
-	
-	/**
-	 * Toggles the {@link #interactiveFrame()} interactivity on and off.
-	 */
-	/**
-	public void toggleDrawInteractiveFrame() {
-		if (interactiveFrameIsDrawn())
-			setDrawInteractiveFrame(false);
-		else
-			setDrawInteractiveFrame(true);
-	}
-	*/
-	
-	/**
-	 * Convenience function that simply calls {@code setDrawInteractiveFrame(true)}.
-	 * 
-	 * @see #setDrawInteractiveFrame(boolean)
-	 */
-	/**
-	public void setDrawInteractiveFrame() {
-		setDrawInteractiveFrame(true);
-	}
-	*/
-	
-	/**
-	 * Sets {@code frame} as the InteractiveFrame associated to this Scene. If
-	 * {@code frame} is instance of Trackable it is also automatically set as the
-	 * Scene {@link #avatar()} (by automatically calling {@code
-	 * setAvatar((Trackable) frame)}).
-	 * 
-	 * @see #interactiveFrame()
-	 * @see #setAvatar(Trackable)
-	 */
-	/**
-	public void setInteractiveFrame(InteractiveFrame frame) {
-		glIFrame = frame;		
-		if (glIFrame == null)
-			iFrameIsDrwn = false;
-		else if (glIFrame instanceof Trackable)
-			setAvatar((Trackable) glIFrame);
-	}
-	*/
 	
 	/**
 	 * Returns the avatar object to be tracked by the Camera when it
@@ -1953,18 +1736,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	public void toggleCameraPathsAreDrawn() {
 		setCameraPathsAreDrawn(!cameraPathsAreDrawn());
 	}	
-
-	/**
-	 * Toggles the draw with constraint on and off.
-	 */
-	/**
-	public void toggleDrawWithConstraint() {
-		if (drawIsConstrained())
-			setDrawWithConstraint(false);
-		else
-			setDrawWithConstraint(true);
-	}	
-	*/
 	
 	/**
 	 * Returns {@code true} if axis is currently being drawn and {@code false}
@@ -2050,25 +1821,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	public void setCameraPathsAreDrawn(boolean draw) {
 		cameraPathsAreDrwn = draw;
 	}
-	
-	/**
-	 * Returns {@code true} if drawn is currently being constrained and {@code
-	 * false} otherwise.
-	 */
-	/**
-	public boolean drawIsConstrained() {
-		return withConstraint;
-	}
-	*/
-
-	/**
-	 * Constrain frame displacements according to {@code wConstraint}
-	 */
-	/**
-	public void setDrawWithConstraint(boolean wConstraint) {
-		withConstraint = wConstraint;
-	}
-	*/
 	
 	// Abstract drawing methods
 		

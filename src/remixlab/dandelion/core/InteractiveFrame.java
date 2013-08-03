@@ -122,15 +122,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	public boolean dirIsFixed;
   private boolean horiz = true;// Two simultaneous InteractiveFrame require two mice!
 
-	// MouseGrabber
-	//public boolean keepsGrabbingCursor;
-	//TODO define if this shpuld go
-	//protected Constraint prevConstraint; // When manipulation is without Constraint.
-	// Previous mouse position (used for incremental updates) and mouse press position.
-	//protected Point prevPos, pressPos;
-
-  //TODO it should be protected
-	public boolean isInCamPath;
+	protected boolean isInCamPath;
 	
 	// " D R I V A B L E "   S T U F F :
 	protected Vec tDir;
@@ -224,8 +216,6 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		this.setTranslationSensitivity( otherFrame.translationSensitivity() );
 		this.setWheelSensitivity( otherFrame.wheelSensitivity() );
 
-		//this.prevConstraint = otherFrame.prevConstraint; 
-		
 		this.isSpng = otherFrame.isSpng;
 		this.setSpinningSensitivity( otherFrame.spinningSensitivity() );
 		this.setDampingFriction( otherFrame.dampingFriction() );

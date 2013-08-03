@@ -2528,6 +2528,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * {@code keyTyped}.
 	 */
 	/**
+	//TODO decide this:
 	protected void parseKeyXxxxMethods() {
 		boolean foundKP = true;
 		boolean foundKR = true;
@@ -2568,58 +2569,28 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 	}
 	*/
-		
-	/**
-	 * Displays global keyboard bindings.
-	 * 
-	 * @param onConsole if this flag is true displays the help on console.
-	 * Otherwise displays it on the applet
-	 * 
-	 * @see #displayGlobalHelp()
-	 */
-	//TODO pending
-	@Override
-	public void displayGlobalHelp(boolean onConsole) {
-		/**
-		if (onConsole)
-			System.out.println(globalHelp());
-		else { //on applet
-			pg().textFont(parent.createFont("Arial", 12));
-			//pGraphics().textMode(SCREEN);
-			//TODO test me!
-			beginScreenDrawing();
-			pg().fill(0,255,0);
-			pg().textLeading(20);
-			pg().text(globalHelp(), 10, 10, (pg().width-20), (pg().height-20));
-			endScreenDrawing();
-		}
-		*/
-	}	
 	
 	/**
-	 * Displays the {@link #currentCameraProfile()} bindings.
+	 * Displays the {@link #info()} bindings.
 	 * 
 	 * @param onConsole if this flag is true displays the help on console.
 	 * Otherwise displays it on the applet
 	 * 
-	 * @see #displayCurrentCameraProfileHelp()
+	 * @see #info()
 	 */
 	@Override
-	public void displayCurrentCameraProfileHelp(boolean onConsole) {
-		//TODO pending
-		/**
+	public void displayInfo(boolean onConsole) {
 		if (onConsole)
-			PApplet.println(currentCameraProfileHelp());
+		//PApplet.println(info());
+			System.out.println(info());
 		else { //on applet
 			pg().textFont(parent.createFont("Arial", 12));
-			//TODO test me!
 			beginScreenDrawing();
 			pg().fill(0,255,0);
 			pg().textLeading(20);
-			pg().text(currentCameraProfileHelp(), 10, 10, (pg().width-20), (pg().height-20));
+			pg().text(info(), 10, 10, (pg().width-20), (pg().height-20));
 			endScreenDrawing();
 		}
-		*/
 	}	
 
 	// 9. Mouse customization
