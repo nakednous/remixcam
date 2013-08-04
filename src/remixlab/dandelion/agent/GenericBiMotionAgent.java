@@ -25,14 +25,10 @@
 
 package remixlab.dandelion.agent;
 
-import remixlab.dandelion.core.AbstractScene;
-import remixlab.dandelion.core.Constants;
-import remixlab.dandelion.core.InteractiveCameraFrame;
-import remixlab.dandelion.core.InteractiveFrame;
-import remixlab.tersehandling.core.TerseHandler;
-import remixlab.tersehandling.generic.agent.GenericMotionAgent;
-import remixlab.tersehandling.generic.profile.GenericClickProfile;
-import remixlab.tersehandling.generic.profile.GenericMotionProfile;
+import remixlab.dandelion.core.*;
+import remixlab.tersehandling.core.*;
+import remixlab.tersehandling.generic.agent.*;
+import remixlab.tersehandling.generic.profile.*;
 
 public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends GenericMotionAgent<P, GenericClickProfile<Constants.ClickAction>> {
 	protected P camProfile;
@@ -54,14 +50,6 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 		return profile();
 	}
 	
-	public GenericClickProfile<Constants.ClickAction> cameraClickProfile() {
-		return camClickProfile;
-	}
-	
-	public GenericClickProfile<Constants.ClickAction> frameClickProfile() {
-		return clickProfile;
-	}
-	
 	public void setCameraProfile(P profile) {
 		camProfile = profile;
 	}
@@ -70,9 +58,20 @@ public class GenericBiMotionAgent<P extends GenericMotionProfile<?>> extends Gen
 		setProfile(profile);
 	}
 	
-	@Override
-	public void setClickProfile(GenericClickProfile<Constants.ClickAction> profile) {
-		clickProfile = profile;
+	public GenericClickProfile<Constants.ClickAction> cameraClickProfile() {
+		return camClickProfile;
+	}
+	
+	public GenericClickProfile<Constants.ClickAction> frameClickProfile() {
+		return clickProfile;
+	}
+	
+	public void setCameraClickProfile(GenericClickProfile<Constants.ClickAction> profile) {
+		camClickProfile = profile;
+	}
+	
+	public void setFrameClickProfile(GenericClickProfile<Constants.ClickAction> profile) {
+		setClickProfile(profile);
 	}
 	
 	@Override

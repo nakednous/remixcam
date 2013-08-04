@@ -312,7 +312,7 @@ public abstract class StackRenderer extends Renderer {
 	
 	protected MatrixStack mStack;
 
-	public StackRenderer(AbstractScene scn, Drawerable dw) {
+	public StackRenderer(AbstractScene scn, Depictable dw) {
 		super(scn, dw);
 		mStack = new MatrixStack();
 	}

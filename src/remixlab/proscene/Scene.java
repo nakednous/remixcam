@@ -26,8 +26,8 @@
 
 package remixlab.proscene;
 
-import remixlab.dandelion.agent.KeyboardAgent;
-import remixlab.dandelion.agent.MouseAgent;
+import remixlab.dandelion.agent.*;
+import remixlab.dandelion.agent.WheeledMouseAgent;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
@@ -150,7 +150,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	//public class Mouse extends AbstractMouse {
-	public class ProsceneMouse extends MouseAgent {
+	public class ProsceneMouse extends WheeledMouseAgent {
 	//public class ProsceneMouse extends Mouse {
 		Scene scene;
 		boolean bypassNullEvent, zoomOnRegion, screenRotate;
@@ -247,9 +247,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				}				
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
-				//handle(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
-				enqueueEventTuple(new EventGrabberDuobleTuple(new GenericDOF1Event<Constants.DOF1Action>(e.getCount(), e.getModifiers(), TH_NOBUTTON),
-						              DOF1Action.ZOOM, grabber()));
+				handle(new GenericDOF1Event<Constants.WheelAction>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
+				//enqueueEventTuple(new EventGrabberDuobleTuple(new GenericDOF1Event<Constants.WheelAction>(e.getCount(), e.getModifiers(), TH_NOBUTTON), WheelAction.ZOOM, grabber()));
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
 				handle(new GenericClickEvent<Constants.ClickAction>(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton(), e.getCount()));
@@ -347,7 +346,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 	}
 	
-	protected class P5Drawing2D implements Drawerable, PConstants {
+	protected class P5Drawing2D implements Depictable, PConstants {
 		protected Scene scene;
 		Mat proj;
 
@@ -1414,7 +1413,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		PGraphics pg;
 		Mat proj;
 		
-		public P5RendererJava2D(Scene scn, PGraphics renderer, Drawerable d) {
+		public P5RendererJava2D(Scene scn, PGraphics renderer, Depictable d) {
 			super(scn, d);
 			pg = renderer;
 		}
@@ -1442,7 +1441,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		PGraphicsOpenGL pg;
 		Mat proj;
 		
-		public P5Renderer(Scene scn, PGraphicsOpenGL renderer, Drawerable d) {
+		public P5Renderer(Scene scn, PGraphicsOpenGL renderer, Depictable d) {
 			super(scn, d);
 			pg = renderer;
 			proj = new Mat();

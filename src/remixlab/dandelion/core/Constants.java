@@ -356,7 +356,7 @@ public interface Constants extends EventConstants {
   	}
   }
   
-  public enum DOF1Action implements Actionable<DandelionAction> {  	
+  public enum WheelAction implements Actionable<DandelionAction> {  	
     //DOF_1  	
   	ZOOM(DandelionAction.ZOOM),
   	
@@ -383,7 +383,7 @@ public interface Constants extends EventConstants {
   	
   	DandelionAction act;
 
-  	DOF1Action(DandelionAction a) {
+  	WheelAction(DandelionAction a) {
   		act = a;
   	}
   }

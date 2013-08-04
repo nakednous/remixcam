@@ -30,9 +30,11 @@ import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.generic.profile.*;
 
-public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF2Action>> implements Constants {
-	public MouseAgent(AbstractScene scn, String n) {
-		super(new GenericMotionProfile<Constants.DOF2Action>(),
+public class WheeledMouseAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile<Constants.DOF2Action>> implements Constants {
+	public WheeledMouseAgent(AbstractScene scn, String n) {
+		super(new GenericMotionProfile<Constants.WheelAction>(),
+				  new GenericMotionProfile<Constants.WheelAction>(),
+				  new GenericMotionProfile<Constants.DOF2Action>(),
 				  new GenericMotionProfile<Constants.DOF2Action>(),
 				  new GenericClickProfile<Constants.ClickAction>(),
 				  new GenericClickProfile<Constants.ClickAction>(), scn.terseHandler(), n);
@@ -43,8 +45,13 @@ public class MouseAgent extends GenericBiMotionAgent<GenericMotionProfile<Consta
 		cameraClickProfile().setClickBinding(TH_LEFT, 2, ClickAction.ALIGN_FRAME);
 		cameraClickProfile().setClickBinding(TH_RIGHT, 2, ClickAction.CENTER_FRAME);
 		
+		
 		frameClickProfile().setClickBinding(TH_LEFT, 2, ClickAction.ALIGN_FRAME);
 		frameClickProfile().setClickBinding(TH_RIGHT, 2, ClickAction.CENTER_FRAME);
+		
+		cameraWheelProfile().setBinding(WheelAction.ZOOM);
+		
+		frameWheelProfile().setBinding(WheelAction.ZOOM);
 	
 		//TODO testing:
 		cameraClickProfile().setClickBinding((TH_SHIFT | TH_CTRL ), TH_RIGHT, 1, ClickAction.INTERPOLATE_TO_FIT);

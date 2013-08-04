@@ -29,7 +29,7 @@ import java.util.List;
 
 import remixlab.dandelion.geom.*;
 
-public interface Drawerable {
+public interface Depictable {
   //drawing
 
   // 2D-3D

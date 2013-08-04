@@ -27,7 +27,7 @@ package remixlab.dandelion.core;
 
 import remixlab.dandelion.geom.*;
 
-public interface Renderable extends Drawerable {
+public interface Renderable extends Depictable {
 	//public void setScene(AbstractScene scn);
 	
 	public AbstractScene scene();

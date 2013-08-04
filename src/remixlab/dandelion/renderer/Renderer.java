@@ -32,9 +32,9 @@ import remixlab.dandelion.geom.*;
 
 public abstract class Renderer implements Renderable, Constants {
 	protected AbstractScene scene;
-	protected Drawerable d;
+	protected Depictable d;
 	
-	public Renderer(AbstractScene scn, Drawerable dw) {
+	public Renderer(AbstractScene scn, Depictable dw) {
 		scene = scn;
 		d = dw;
 	}
@@ -44,11 +44,11 @@ public abstract class Renderer implements Renderable, Constants {
 		return scene;
 	}
 	
-	public Drawerable drawer() {
+	public Depictable drawer() {
 		return d;
 	}
 	
-	public void setDrawerable(Drawerable dw) {
+	public void setDrawerable(Depictable dw) {
 		d = dw;
 	}
 	
