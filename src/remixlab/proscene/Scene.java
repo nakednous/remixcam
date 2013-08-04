@@ -27,7 +27,7 @@
 package remixlab.proscene;
 
 import remixlab.dandelion.agent.*;
-import remixlab.dandelion.agent.WheeledMouseAgent;
+import remixlab.dandelion.agent.MouseAgent;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
@@ -150,7 +150,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	//public class Mouse extends AbstractMouse {
-	public class ProsceneMouse extends WheeledMouseAgent {
+	public class ProsceneMouse extends MouseAgent {
 	//public class ProsceneMouse extends Mouse {
 		Scene scene;
 		boolean bypassNullEvent, zoomOnRegion, screenRotate;

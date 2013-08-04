@@ -33,9 +33,11 @@ import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.generic.profile.GenericClickProfile;
 import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 
-public class JoystickAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF3Action>> {
+public class JoystickAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile<Constants.DOF3Action>> {
 	public JoystickAgent(AbstractScene scn, String n) {
-		super(new GenericMotionProfile<Constants.DOF3Action>(),
+		super(new GenericMotionProfile<Constants.WheelAction>(),
+			    new GenericMotionProfile<Constants.WheelAction>(),
+	        new GenericMotionProfile<Constants.DOF3Action>(),
 			    new GenericMotionProfile<Constants.DOF3Action>(),
 			    new GenericClickProfile<Constants.ClickAction>(),
 			    new GenericClickProfile<Constants.ClickAction>(), scn.terseHandler(), n);

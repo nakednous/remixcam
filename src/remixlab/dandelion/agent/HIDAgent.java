@@ -31,9 +31,11 @@ import remixlab.tersehandling.generic.event.GenericDOF6Event;
 import remixlab.tersehandling.generic.profile.GenericClickProfile;
 import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 
-public class HIDAgent extends GenericBiMotionAgent<GenericMotionProfile<Constants.DOF6Action>> implements Constants {
+public class HIDAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile<Constants.DOF6Action>> implements Constants {
 	public HIDAgent(AbstractScene scn, String n) {
-		super(new GenericMotionProfile<Constants.DOF6Action>(),
+		super(new GenericMotionProfile<Constants.WheelAction>(),
+			    new GenericMotionProfile<Constants.WheelAction>(),
+				  new GenericMotionProfile<Constants.DOF6Action>(),
 			    new GenericMotionProfile<Constants.DOF6Action>(),
 			    new GenericClickProfile<Constants.ClickAction>(),
 			    new GenericClickProfile<Constants.ClickAction>(), scn.terseHandler(), n);
