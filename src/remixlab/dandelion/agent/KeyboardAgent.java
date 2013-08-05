@@ -26,15 +26,13 @@
 package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
-import remixlab.dandelion.core.Constants.KeyboardAction;
 import remixlab.tersehandling.generic.agent.GenericKeyboardAgent;
 import remixlab.tersehandling.generic.event.GenericKeyboardEvent;
 import remixlab.tersehandling.generic.profile.GenericKeyboardProfile;
 
-public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<Constants.KeyboardAction>> {	
+public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<Constants.KeyboardAction>> implements Constants {	
 	public KeyboardAgent(AbstractScene scn, String n) {
-		super(new GenericKeyboardProfile<Constants.KeyboardAction>(), scn.terseHandler(), n);
-		//profile = new GenericKeyboardProfile<Constants.DOF_0Action>();
+		super(new GenericKeyboardProfile<KeyboardAction>(), scn.terseHandler(), n);
 		setDefaultGrabber(scn);
 
 		// D e f a u l t s h o r t c u t s
@@ -50,27 +48,27 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 		keyboardProfile().setShortcut('s', KeyboardAction.INTERPOLATE_TO_FIT);
 		keyboardProfile().setShortcut('S', KeyboardAction.SHOW_ALL);
 
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_RIGHT, KeyboardAction.MOVE_CAMERA_RIGHT);
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_LEFT, KeyboardAction.MOVE_CAMERA_LEFT);
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_UP, KeyboardAction.MOVE_CAMERA_UP);
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_DOWN, KeyboardAction.MOVE_CAMERA_DOWN);
+		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_RIGHT, KeyboardAction.MOVE_CAMERA_RIGHT);
+		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_LEFT, KeyboardAction.MOVE_CAMERA_LEFT);
+		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_UP, KeyboardAction.MOVE_CAMERA_UP);
+		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_DOWN, KeyboardAction.MOVE_CAMERA_DOWN);
 
-		keyboardProfile().setShortcut((GenericKeyboardEvent.TH_ALT | GenericKeyboardEvent.TH_SHIFT), 'l',	KeyboardAction.MOVE_CAMERA_LEFT);
+		keyboardProfile().setShortcut((TH_ALT | GenericKeyboardEvent.TH_SHIFT), 'l',	KeyboardAction.MOVE_CAMERA_LEFT);
 		
 		//only one not working but horrible: 
 		//keyboardProfile().setShortcut('1', KeyboardAction.PLAY_PATH);
 		
 		//keyboardProfile().setShortcut(49, KeyboardAction.PLAY_PATH);
-		//keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, 49, KeyboardAction.ADD_KEYFRAME_TO_PATH);
-		//keyboardProfile().setShortcut(GenericKeyboardEvent.TH_ALT, 49, KeyboardAction.DELETE_PATH);
-		//keyboardProfile().setShortcut(GenericKeyboardEvent.TH_NOMODIFIER_MASK, '1', KeyboardAction.PLAY_PATH_1);
+		//keyboardProfile().setShortcut(TH_CTRL, 49, KeyboardAction.ADD_KEYFRAME_TO_PATH);
+		//keyboardProfile().setShortcut(TH_ALT, 49, KeyboardAction.DELETE_PATH);
+		//keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, '1', KeyboardAction.PLAY_PATH_1);
 		
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, '1', KeyboardAction.ADD_KEYFRAME_TO_PATH_1);
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_ALT, '1', KeyboardAction.DELETE_PATH_1);
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, '2', KeyboardAction.ADD_KEYFRAME_TO_PATH_2);
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_ALT, '2', KeyboardAction.DELETE_PATH_2);
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, '3', KeyboardAction.ADD_KEYFRAME_TO_PATH_3);
-		keyboardProfile().setShortcut(GenericKeyboardEvent.TH_ALT, '3', KeyboardAction.DELETE_PATH_3);
+		keyboardProfile().setShortcut(TH_CTRL, '1', KeyboardAction.ADD_KEYFRAME_TO_PATH_1);
+		keyboardProfile().setShortcut(TH_ALT, '1', KeyboardAction.DELETE_PATH_1);
+		keyboardProfile().setShortcut(TH_CTRL, '2', KeyboardAction.ADD_KEYFRAME_TO_PATH_2);
+		keyboardProfile().setShortcut(TH_ALT, '2', KeyboardAction.DELETE_PATH_2);
+		keyboardProfile().setShortcut(TH_CTRL, '3', KeyboardAction.ADD_KEYFRAME_TO_PATH_3);
+		keyboardProfile().setShortcut(TH_ALT, '3', KeyboardAction.DELETE_PATH_3);
 		
 		setKeyToPlayPath('1', 1);
 		setKeyToPlayPath('2', 2);
@@ -83,13 +81,13 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 	public void setKeyToPlayPath(char key, int path) {			
 		switch (path) {
 		case 1 :
-			keyboardProfile().setShortcut(GenericKeyboardEvent.TH_NOMODIFIER_MASK, key, KeyboardAction.PLAY_PATH_1);
+			keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, key, KeyboardAction.PLAY_PATH_1);
 			break;
 		case 2 :
-			keyboardProfile().setShortcut(GenericKeyboardEvent.TH_NOMODIFIER_MASK, key, KeyboardAction.PLAY_PATH_2);
+			keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, key, KeyboardAction.PLAY_PATH_2);
 			break;
 		case 3 :
-			keyboardProfile().setShortcut(GenericKeyboardEvent.TH_NOMODIFIER_MASK, key, KeyboardAction.PLAY_PATH_3);
+			keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, key, KeyboardAction.PLAY_PATH_3);
 			break;
 		default :
 			break;
@@ -105,7 +103,7 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 				modifier != EventConstants.TH_META )
   			System.out.println("Expected a modifier here");
 		else {
-			keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, '1', KeyboardAction.ADD_KEYFRAME_TO_PATH_1);
+			keyboardProfile().setShortcut(TH_CTRL, '1', KeyboardAction.ADD_KEYFRAME_TO_PATH_1);
 		}
 	}
 	
@@ -117,18 +115,18 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 				modifier != EventConstants.TH_META )
   			System.out.println("Expected a modifier here");
 		else {
-			keyboardProfile().setShortcut(GenericKeyboardEvent.TH_CTRL, '1', KeyboardAction.DELETE_PATH_1);
+			keyboardProfile().setShortcut(TH_CTRL, '1', KeyboardAction.DELETE_PATH_1);
 		}
 	}
 	*/
 	
 	@Override
-	public GenericKeyboardEvent<Constants.KeyboardAction> feed() {
+	public GenericKeyboardEvent<KeyboardAction> feed() {
 		return null;
 	}
 
 	@Override
-	public GenericKeyboardProfile<Constants.KeyboardAction> keyboardProfile() {
+	public GenericKeyboardProfile<KeyboardAction> keyboardProfile() {
 		return profile;
 	}
 }

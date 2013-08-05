@@ -35,15 +35,13 @@ import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 
 public class JoystickAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile<Constants.DOF3Action>> {
 	public JoystickAgent(AbstractScene scn, String n) {
-		super(new GenericMotionProfile<Constants.WheelAction>(),
-			    new GenericMotionProfile<Constants.WheelAction>(),
-	        new GenericMotionProfile<Constants.DOF3Action>(),
-			    new GenericMotionProfile<Constants.DOF3Action>(),
-			    new GenericClickProfile<Constants.ClickAction>(),
-			    new GenericClickProfile<Constants.ClickAction>(), scn.terseHandler(), n);
+		super(new GenericMotionProfile<WheelAction>(),
+			    new GenericMotionProfile<WheelAction>(),
+	        new GenericMotionProfile<DOF3Action>(),
+			    new GenericMotionProfile<DOF3Action>(),
+			    new GenericClickProfile<ClickAction>(),
+			    new GenericClickProfile<ClickAction>(), scn.terseHandler(), n);
 	  setDefaultGrabber(scn.pinhole().frame());
-		//camProfile = new GenericMotionProfile<Constants.DOF_3Action>();
-		//profile = new GenericMotionProfile<Constants.DOF_3Action>();
 	}
 	
 	@Override

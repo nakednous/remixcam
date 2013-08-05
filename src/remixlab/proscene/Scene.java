@@ -1934,14 +1934,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		disableFrustumEquationsUpdate();
 		
-		// /**
-		prosceneKeyboard = new ProsceneKeyboard(this, "proscene_keyboard");
-		parent.registerMethod("keyEvent", prosceneKeyboard);
-		prosceneMouse = new ProsceneMouse(this, "proscene_mouse");
-		parent.registerMethod("mouseEvent", prosceneMouse);
-		
-		//parent.registerMethod("mouseEvent", this);		
-		// */
+		enableDefaultKeyboardAgent();
+		enableDefaultMouseAgent();
 
 		parent.registerMethod("pre", this);
 		parent.registerMethod("draw", this);
@@ -1967,10 +1961,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	public boolean isDefaultMouseAgentInUse() {
+		if(prosceneMouse == null)
+			return false;
 	  return terseHandler().isAgentRegistered(prosceneMouse);
 	}
 	
 	public boolean isDefaultKeyboardAgentInUse() {
+		if(prosceneKeyboard == null)
+			return false;
 	  return terseHandler().isAgentRegistered(prosceneKeyboard);
 	}
 	
@@ -1982,8 +1980,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #disableDefaultKeyboardAgent()
 	 */
 	public void enableDefaultKeyboardAgent() {
-		if( !isDefaultKeyboardAgentInUse() )
-			terseHandler().registerAgent(prosceneKeyboard);
+		if( !isDefaultKeyboardAgentInUse() ) {
+			if(prosceneKeyboard == null)
+				prosceneKeyboard = new ProsceneKeyboard(this, "proscene_keyboard");
+			else
+				terseHandler().registerAgent(prosceneKeyboard);			
+			parent.registerMethod("keyEvent", prosceneKeyboard);
+		}
 	}
 
 	/**
@@ -1992,8 +1995,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #isDefaultKeyboardAgentInUse()
 	 */
 	public void disableDefaultKeyboardAgent() {
-		if( isDefaultKeyboardAgentInUse() )
+		if( isDefaultKeyboardAgentInUse() ) {
 			terseHandler().unregisterAgent(prosceneKeyboard);
+			parent.unregisterMethod("keyEvent", prosceneKeyboard);
+		}
 	}
 
 	/**
@@ -2004,8 +2009,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #enableDefaultKeyboardAgent()
 	 */
 	public void enableDefaultMouseAgent() {
-		if( !isDefaultMouseAgentInUse() )
-			terseHandler().registerAgent(prosceneMouse);
+		if( !isDefaultMouseAgentInUse() ) {
+			if( prosceneMouse == null )
+				prosceneMouse = new ProsceneMouse(this, "proscene_mouse");
+			else
+				terseHandler().registerAgent(prosceneMouse);
+			parent.registerMethod("mouseEvent", prosceneMouse);
+		}
 	}
 	
 	/**
@@ -2014,8 +2024,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #isDefaultMouseAgentInUse()
 	 */
 	public void disableDefaultMouseAgent() {
-		if( isDefaultMouseAgentInUse() )
+		if( isDefaultMouseAgentInUse() ) {
 			terseHandler().unregisterAgent(prosceneMouse);
+			parent.unregisterMethod("mouseEvent", prosceneMouse);
+		}
 	}
 	
 	// matrix stuff

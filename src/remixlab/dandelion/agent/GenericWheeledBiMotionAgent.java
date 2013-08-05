@@ -7,17 +7,17 @@ import remixlab.tersehandling.generic.profile.*;
 
 public class GenericWheeledBiMotionAgent<P extends GenericMotionProfile<?>> extends GenericWheeledMotionAgent<GenericMotionProfile<Constants.WheelAction>,
                                                                            																		P,
-                                                                           																		GenericClickProfile<Constants.ClickAction>> {
+                                                                           																		GenericClickProfile<Constants.ClickAction>> implements Constants {
 	protected P camProfile;
-	protected GenericMotionProfile<Constants.WheelAction> camWheelProfile;
-	protected GenericClickProfile<Constants.ClickAction> camClickProfile;
+	protected GenericMotionProfile<WheelAction> camWheelProfile;
+	protected GenericClickProfile<ClickAction> camClickProfile;
 	
-	public GenericWheeledBiMotionAgent(GenericMotionProfile<Constants.WheelAction> fWProfile,
-			                               GenericMotionProfile<Constants.WheelAction> cWProfile,
+	public GenericWheeledBiMotionAgent(GenericMotionProfile<WheelAction> fWProfile,
+			                               GenericMotionProfile<WheelAction> cWProfile,
 			                               P fProfile,
 			                               P cProfile,
-			                               GenericClickProfile<Constants.ClickAction> c,
-																		 GenericClickProfile<Constants.ClickAction> d,
+			                               GenericClickProfile<ClickAction> c,
+																		 GenericClickProfile<ClickAction> d,
 																		 TerseHandler scn, String n) {
 		super(fWProfile, fProfile, c, scn, n);
 		camProfile = cProfile;
@@ -41,35 +41,35 @@ public class GenericWheeledBiMotionAgent<P extends GenericMotionProfile<?>> exte
 		setProfile(profile);
 	}
 	
-	public GenericClickProfile<Constants.ClickAction> cameraClickProfile() {
+	public GenericClickProfile<ClickAction> cameraClickProfile() {
 		return camClickProfile;
 	}
 	
-	public GenericClickProfile<Constants.ClickAction> frameClickProfile() {
+	public GenericClickProfile<ClickAction> frameClickProfile() {
 		return clickProfile;
 	}
 	
-	public void setCameraClickProfile(GenericClickProfile<Constants.ClickAction> profile) {
+	public void setCameraClickProfile(GenericClickProfile<ClickAction> profile) {
 		camClickProfile = profile;
 	}
 	
-	public void setFrameClickProfile(GenericClickProfile<Constants.ClickAction> profile) {
+	public void setFrameClickProfile(GenericClickProfile<ClickAction> profile) {
 		setClickProfile(profile);
 	}
 	
-	public GenericMotionProfile<Constants.WheelAction> cameraWheelProfile() {
+	public GenericMotionProfile<WheelAction> cameraWheelProfile() {
 		return camWheelProfile;
 	}
 	
-	public GenericMotionProfile<Constants.WheelAction> frameWheelProfile() {
+	public GenericMotionProfile<WheelAction> frameWheelProfile() {
 		return wheelProfile;
 	}
 	
-	public void setCameraWheelProfile(GenericMotionProfile<Constants.WheelAction> profile) {
+	public void setCameraWheelProfile(GenericMotionProfile<WheelAction> profile) {
 		camWheelProfile = profile;
 	}
 	
-	public void setFrameWheelProfile(GenericMotionProfile<Constants.WheelAction> profile) {
+	public void setFrameWheelProfile(GenericMotionProfile<WheelAction> profile) {
 		setWheelProfile(profile);
 	}
 	
@@ -83,7 +83,7 @@ public class GenericWheeledBiMotionAgent<P extends GenericMotionProfile<?>> exte
 	}
 	
 	@Override
-	public GenericClickProfile<Constants.ClickAction> clickProfile() {
+	public GenericClickProfile<ClickAction> clickProfile() {
 		if( grabber() instanceof InteractiveCameraFrame )
 			return cameraClickProfile();
 		if( grabber() instanceof InteractiveFrame )
@@ -92,7 +92,7 @@ public class GenericWheeledBiMotionAgent<P extends GenericMotionProfile<?>> exte
 	}
 	
 	@Override
-	public GenericMotionProfile<Constants.WheelAction> wheelProfile() {
+	public GenericMotionProfile<WheelAction> wheelProfile() {
 		if( grabber() instanceof InteractiveCameraFrame )
 			return cameraWheelProfile();
 		if( grabber() instanceof InteractiveFrame )

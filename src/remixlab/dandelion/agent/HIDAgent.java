@@ -31,21 +31,17 @@ import remixlab.tersehandling.generic.event.GenericDOF6Event;
 import remixlab.tersehandling.generic.profile.GenericClickProfile;
 import remixlab.tersehandling.generic.profile.GenericMotionProfile;
 
-public class HIDAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile<Constants.DOF6Action>> implements Constants {
+public class HIDAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile<Constants.DOF6Action>> {
 	public HIDAgent(AbstractScene scn, String n) {
-		super(new GenericMotionProfile<Constants.WheelAction>(),
-			    new GenericMotionProfile<Constants.WheelAction>(),
-				  new GenericMotionProfile<Constants.DOF6Action>(),
-			    new GenericMotionProfile<Constants.DOF6Action>(),
-			    new GenericClickProfile<Constants.ClickAction>(),
-			    new GenericClickProfile<Constants.ClickAction>(), scn.terseHandler(), n);
+		super(new GenericMotionProfile<WheelAction>(),
+			    new GenericMotionProfile<WheelAction>(),
+				  new GenericMotionProfile<DOF6Action>(),
+			    new GenericMotionProfile<DOF6Action>(),
+			    new GenericClickProfile<ClickAction>(),
+			    new GenericClickProfile<ClickAction>(), scn.terseHandler(), n);
 	  setDefaultGrabber(scn.pinhole().frame());
-		//super(scn.terseHandler(), n);
-		//camProfile = new GenericMotionProfile<Constants.DOF_6Action>();
-		//profile = new GenericMotionProfile<Constants.DOF_6Action>();
-		//clickProfile = new GenericClickProfile<Constants.DOF_0Action>();
-		cameraProfile().setBinding(DOF6Action.TRANSLATE_ROTATE);
-		frameProfile().setBinding(DOF6Action.TRANSLATE_ROTATE);
+		cameraProfile().setBinding(TH_NOMODIFIER_MASK, TH_NOBUTTON, DOF6Action.TRANSLATE_ROTATE);
+		frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_NOBUTTON, DOF6Action.TRANSLATE_ROTATE);
 	}
 	
 	@Override
