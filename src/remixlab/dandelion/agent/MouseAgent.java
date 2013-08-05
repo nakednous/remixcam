@@ -64,8 +64,6 @@ public class MouseAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile
 		cameraProfile().setBinding(TH_NOMODIFIER_MASK, TH_RIGHT, DOF2Action.MOVE_BACKWARD);
 		cameraProfile().setBinding(TH_SHIFT, TH_LEFT, DOF2Action.ROLL);
 		cameraProfile().setBinding(TH_SHIFT, TH_CENTER, DOF2Action.DRIVE);
-		//TODO testing (needs fixing in terse handling!)
-		//cameraWheelProfile().setBinding(TH_SHIFT, EventConstants.TH_NOBUTTON, WheelAction.DRIVE);
 		cameraWheelProfile().setBinding(TH_CTRL, TH_NOBUTTON, WheelAction.ROLL);
 		cameraWheelProfile().setBinding(TH_SHIFT, TH_NOBUTTON, WheelAction.DRIVE);
 	}
