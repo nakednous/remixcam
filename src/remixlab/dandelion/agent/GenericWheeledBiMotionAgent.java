@@ -104,4 +104,36 @@ public class GenericWheeledBiMotionAgent<P extends GenericMotionProfile<?>> exte
 	protected boolean foreignGrabber() {
 		return !( grabber() instanceof InteractiveFrame ) && !( grabber() instanceof AbstractScene);
 	}
+	
+	@Override
+	public String info() {
+		String description = new String();
+		description += name();
+		description += "\n";
+		if( cameraClickProfile().bindingsDescription().length() != 0 ) {
+			description += "Camera click shortcuts\n";
+			description += cameraClickProfile().bindingsDescription();
+		}
+		if( frameClickProfile().bindingsDescription().length() != 0 ) {
+			description += "Frame click shortcuts\n";
+			description += frameClickProfile().bindingsDescription();
+		}		
+		if( cameraProfile().bindingsDescription().length() != 0 ) {
+			description += "Camera shortcuts\n";
+			description += cameraProfile().bindingsDescription();
+		}
+		if( frameProfile().bindingsDescription().length() != 0 ) {
+			description += "Frame shortcuts\n";
+			description += frameProfile().bindingsDescription();
+		}
+		if( cameraWheelProfile().bindingsDescription().length() != 0 ) {
+			description += "Camera wheel shortcuts\n";
+			description += cameraWheelProfile().bindingsDescription();
+		}
+		if( frameWheelProfile().bindingsDescription().length() != 0 ) {
+			description += "Frame wheel shortcuts\n";
+			description += frameWheelProfile().bindingsDescription();
+		}		
+		return description;
+	}
 }
