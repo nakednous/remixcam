@@ -64,7 +64,11 @@ public class MouseAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile
 		cameraProfile().setBinding(EventConstants.TH_CENTER, DOF2Action.LOOK_AROUND);
 		cameraProfile().setBinding(EventConstants.TH_RIGHT, DOF2Action.MOVE_BACKWARD);
 		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_LEFT, DOF2Action.ROLL);
-		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.DRIVE);		
+		cameraProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_CENTER, DOF2Action.DRIVE);
+		//TODO testing (needs fixing in terse handling!)
+		//cameraWheelProfile().setBinding(EventConstants.TH_SHIFT, EventConstants.TH_NOBUTTON, WheelAction.DRIVE);
+		cameraWheelProfile().setBinding(EventConstants.TH_CTRL, WheelAction.ROLL);
+		cameraWheelProfile().setBinding(EventConstants.TH_SHIFT, WheelAction.DRIVE);
 	}
 	
 	public void setAsThirdPersonBindings() {

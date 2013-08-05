@@ -128,8 +128,10 @@ public interface Constants extends EventConstants {
   	INCREASE_TRACKING_DISTANCE("Increase camera tracking distance respect to the avatar (only meaningful in third-person mode)", false, 0),
   	DECREASE_TRACKING_DISTANCE("Decrease camera tracking distance respect to the avatar (only meaningful in third-person mode)", false, 0),
   	
-    // Typically wheel
+    // Wheel
   	ZOOM("Zoom", true, 1),
+  	ROLL("Roll frame (camera or interactive drivable frame)", true, 1),
+  	DRIVE("Drive (camera or interactive drivable frame)", false, 1),
     
   	// DEVICE ACTIONs
   	//NO_DEVICE_ACTION("No device action", true, 2),
@@ -139,9 +141,7 @@ public interface Constants extends EventConstants {
   	TRANSLATE("Translate frame (camera or interactive frame)", true, 2),
   	MOVE_FORWARD("Move forward frame (camera or interactive frame)", false, 2),
   	MOVE_BACKWARD("move backward frame (camera or interactive frame)", false, 2),
-  	LOOK_AROUND("Look around with frame (camera or interactive drivable frame)", false, 2),
-  	ROLL("Roll frame (camera or interactive drivable frame)", true, 2),
-  	DRIVE("Drive (camera or interactive drivable frame)", false, 2),
+  	LOOK_AROUND("Look around with frame (camera or interactive drivable frame)", false, 2),  	
   	SCREEN_ROTATE("Screen rotate (camera or interactive frame)", true, 2),
   	SCREEN_TRANSLATE("Screen translate frame (camera or interactive frame)", true, 2),
   	ZOOM_ON_REGION("Zoom on region (camera or interactive drivable frame)", true, 2),
@@ -359,6 +359,8 @@ public interface Constants extends EventConstants {
   public enum WheelAction implements Actionable<DandelionAction> {  	
     //DOF_1  	
   	ZOOM(DandelionAction.ZOOM),
+  	ROLL(DandelionAction.ROLL),
+  	DRIVE(DandelionAction.DRIVE),
   	
   	CUSTOM(DandelionAction.CUSTOM);
 
@@ -391,6 +393,8 @@ public interface Constants extends EventConstants {
   public enum DOF2Action implements Actionable<DandelionAction> {
   	//DOF_1
   	ZOOM(DandelionAction.ZOOM),
+  	ROLL(DandelionAction.ROLL),
+  	DRIVE(DandelionAction.DRIVE),
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
@@ -399,8 +403,6 @@ public interface Constants extends EventConstants {
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
   	LOOK_AROUND(DandelionAction.LOOK_AROUND),
   	SCREEN_ROTATE(DandelionAction.SCREEN_ROTATE),
-  	ROLL(DandelionAction.ROLL),
-  	DRIVE(DandelionAction.DRIVE),
   	SCREEN_TRANSLATE(DandelionAction.SCREEN_TRANSLATE),
   	ZOOM_ON_REGION(DandelionAction.ZOOM_ON_REGION),
   	
@@ -435,6 +437,8 @@ public interface Constants extends EventConstants {
   public enum DOF3Action implements Actionable<DandelionAction> {
   	//DOF_1
   	ZOOM(DandelionAction.ZOOM),
+  	ROLL(DandelionAction.ROLL),
+  	DRIVE(DandelionAction.DRIVE),
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
@@ -443,8 +447,6 @@ public interface Constants extends EventConstants {
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
   	LOOK_AROUND(DandelionAction.LOOK_AROUND),
   	SCREEN_ROTATE(DandelionAction.SCREEN_ROTATE),
-  	ROLL(DandelionAction.ROLL),
-  	DRIVE(DandelionAction.DRIVE),
   	SCREEN_TRANSLATE(DandelionAction.SCREEN_TRANSLATE),
   	ZOOM_ON_REGION(DandelionAction.ZOOM_ON_REGION),
   	
@@ -481,10 +483,10 @@ public interface Constants extends EventConstants {
   }
   
   public enum DOF6Action implements Actionable<DandelionAction> {
-    //NO_ACTION(DLAction.NO_ACTION),
-  	
-    //DOF_1
+  	//DOF_1
   	ZOOM(DandelionAction.ZOOM),
+  	ROLL(DandelionAction.ROLL),
+  	DRIVE(DandelionAction.DRIVE),
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
@@ -493,8 +495,6 @@ public interface Constants extends EventConstants {
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
   	LOOK_AROUND(DandelionAction.LOOK_AROUND),
   	SCREEN_ROTATE(DandelionAction.SCREEN_ROTATE),
-  	ROLL(DandelionAction.ROLL),
-  	DRIVE(DandelionAction.DRIVE),
   	SCREEN_TRANSLATE(DandelionAction.SCREEN_TRANSLATE),
   	ZOOM_ON_REGION(DandelionAction.ZOOM_ON_REGION),
   	

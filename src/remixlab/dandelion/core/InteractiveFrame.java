@@ -643,7 +643,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			spinningTimerJob.run(updateInterval);
 	}
 	
-	public void startTossing(DOF2Event e) {
+	public void startTossing(MotionEvent e) {
 		eventSpeed = e.speed();
 		flyTimerJob.run(FLY_UPDATE_PERDIOD);
 	}
@@ -812,7 +812,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 				execAction3D( reduceEvent( (MotionEvent)e ));
 	}
 	
-	MotionEvent currentEvent;
+	//MotionEvent currentEvent;
 	ClickEvent cEvent;
 	DOF1Event e1;
 	DOF2Event e2;
@@ -821,7 +821,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	DandelionAction currentAction;
 	
 	protected DandelionAction reduceEvent(MotionEvent e) {
-		currentEvent = e;
+		//currentEvent = e;
 		if( !(e instanceof Duoable) )	return null;
 		
 		currentAction = (DandelionAction) ((Duoable<?>) e).action().referenceAction();		
@@ -834,11 +834,11 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			if( e instanceof DOF1Event )
 				e1 = (DOF1Event) e.get();
 			else if( e instanceof DOF2Event )
-				e1 = ((DOF2Event)e).dof1Event(false);
+				e1 = currentAction == DandelionAction.ROLL || currentAction == DandelionAction.DRIVE ? ((DOF2Event)e).dof1Event() : ((DOF2Event)e).dof1Event(false);
 			else if( e instanceof DOF3Event )
-				e1 = ((DOF3Event)e).dof2Event().dof1Event(false);
+				e1 = currentAction == DandelionAction.ROLL || currentAction == DandelionAction.DRIVE ? ((DOF3Event)e).dof2Event().dof1Event() : ((DOF3Event)e).dof2Event().dof1Event(false);
 			else if( e instanceof DOF6Event )
-				e1 = ((DOF6Event)e).dof3Event().dof2Event().dof1Event(false);
+				e1 = currentAction == DandelionAction.ROLL || currentAction == DandelionAction.DRIVE ? ((DOF6Event)e).dof3Event().dof2Event().dof1Event() : ((DOF6Event)e).dof3Event().dof2Event().dof1Event(false);
 			break;
 		case 2:
 			if( e instanceof DOF2Event )
@@ -871,8 +871,27 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		Vec trans;
 		float deltaX, deltaY;
 		Orientable rot;
+		float angle;
 		switch(a) {
 		case CUSTOM:
+			break;
+		case ROLL:
+			//TODO needs testing
+			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
+				angle = (float) Math.PI * e1.getX()	* wheelSensitivity() / scene.camera().screenWidth();
+			else
+				if( e1.absolute() )
+					angle = (float) Math.PI * e1.getX()	/ scene.camera().screenWidth();
+				else
+					angle = (float) Math.PI * e1.getDX()/ scene.camera().screenWidth();			
+		  //lef-handed coordinate system correction
+			if ( scene.isLeftHanded() )
+				angle = -angle;			
+			rot = new Rotation(angle);
+			rotate(rot);
+			setSpinningQuaternion(rot);
+			//TODO needs this:?
+			updateFlyUpVector();
 			break;
 		case ROTATE:
 		case SCREEN_ROTATE:
@@ -957,7 +976,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			break;
 		case ZOOM:
 			float delta;
-			if( currentEvent instanceof GenericDOF1Event ) //its a wheel wheel :P
+			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = e1.getX() * wheelSensitivity();
 			else
 				if( e1.absolute() )
@@ -993,18 +1012,21 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			AbstractScene.showMissingImplementationWarning(a);
 			break;
 		case DRIVE:
-			rotate(turnQuaternion(e2, scene.camera()));
-			if( e2.absolute() )
-				drvSpd = 0.01f * -e2.getY();
+			rotate(turnQuaternion(e1, scene.camera()));
+			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
+				drvSpd = 0.01f * -e1.getX() * wheelSensitivity();
 			else
-				drvSpd = 0.01f * -e2.getDY();
+				if( e1.absolute() )
+					drvSpd = 0.01f * -e1.getX();
+				else
+					drvSpd = 0.01f * -e1.getDX();
 			flyDisp.set(0.0f, 0.0f, flySpeed() * drvSpd);
 			if(scene.is2D())
 				trans = localInverseTransformOf(flyDisp);
 			else
 				trans = rotation().rotate(flyDisp);			
 			setTossingDirection(trans);
-			startTossing(e2);
+			startTossing(e1);
 			break;
 		case LOOK_AROUND:
 			rotate(pitchYawQuaternion(e2, scene.camera()));
@@ -1030,15 +1052,16 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			startTossing(e2);
 			break;
 		case ROLL:
-			if( e2.absolute() )
-				angle = (float) Math.PI * e2.getX()	/ scene.camera().screenWidth();
+			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
+				angle = (float) Math.PI * e1.getX()	* wheelSensitivity() / scene.camera().screenWidth();
 			else
-        angle = (float) Math.PI * e2.getDX()/ scene.camera().screenWidth();
-			
+				if( e1.absolute() )
+					angle = (float) Math.PI * e1.getX()	/ scene.camera().screenWidth();
+				else
+					angle = (float) Math.PI * e1.getDX()/ scene.camera().screenWidth();			
 		  //lef-handed coordinate system correction
 			if ( scene.isLeftHanded() )
-				angle = -angle;
-			
+				angle = -angle;			
 			q = new Quat(new Vec(0.0f, 0.0f, 1.0f), angle);
 			rotate(q);
 			setSpinningQuaternion(q);
@@ -1190,7 +1213,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			break;
 		case ZOOM:
 			float delta;
-			if( currentEvent instanceof GenericDOF1Event ) //its a wheel wheel :P
+			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = e1.getX() * wheelSensitivity();
 			else
 				if( e1.absolute() )
@@ -1356,8 +1379,12 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	 * Returns a Quaternion that is a rotation around current camera Y,
 	 * proportional to the horizontal mouse position.
 	 */
-	protected final Quat turnQuaternion(DOF2Event event, Camera camera) {
-		float deltaX = event.absolute() ? event.getX() : event.getDX();
+	protected final Quat turnQuaternion(DOF1Event event, Camera camera) {
+		float deltaX;
+		if( event instanceof GenericDOF1Event ) //it's a wheel then :P
+			deltaX = event.getX() * wheelSensitivity();
+		else
+			deltaX = event.absolute() ? event.getX() : event.getDX();
 		return new Quat(new Vec(0.0f, 1.0f, 0.0f), rotationSensitivity()	* (-deltaX) / camera.screenWidth());
 	}
 

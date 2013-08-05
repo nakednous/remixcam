@@ -308,7 +308,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			break;
 		case ZOOM:
 			float delta;
-			if( currentEvent instanceof GenericDOF1Event ) //its a wheel wheel :P
+			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = e1.getX() * wheelSensitivity();
 			else
 				if( e1.absolute() )
@@ -490,7 +490,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			float wheelSensitivityCoef = 8E-4f;
 			float coef = Math.max(Math.abs((coordinatesOf(camera.arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * camera.sceneRadius());
 			float delta;
-			if( currentEvent instanceof GenericDOF1Event ) //its a wheel wheel :P
+			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = coef * e1.getX() * -wheelSensitivity() * wheelSensitivityCoef;
 			else
 				if( e1.absolute() )

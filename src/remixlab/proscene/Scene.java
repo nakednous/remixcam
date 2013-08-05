@@ -247,6 +247,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				}				
 			}
 			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
+				//TODO terse seems broken here!
 				handle(new GenericDOF1Event<Constants.WheelAction>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
 				//enqueueEventTuple(new EventGrabberDuobleTuple(new GenericDOF1Event<Constants.WheelAction>(e.getCount(), e.getModifiers(), TH_NOBUTTON), WheelAction.ZOOM, grabber()));
 			}			
