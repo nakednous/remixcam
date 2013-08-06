@@ -110,29 +110,29 @@ public class GenericWheeledBiMotionAgent<P extends GenericMotionProfile<?>> exte
 		String description = new String();
 		description += name();
 		description += "\n";
-		if( cameraClickProfile().bindingsDescription().length() != 0 ) {
+		if( cameraClickProfile().description().length() != 0 ) {
 			description += "Camera click shortcuts\n";
-			description += cameraClickProfile().bindingsDescription();
+			description += cameraClickProfile().description();
 		}
-		if( frameClickProfile().bindingsDescription().length() != 0 ) {
+		if( frameClickProfile().description().length() != 0 ) {
 			description += "Frame click shortcuts\n";
-			description += frameClickProfile().bindingsDescription();
+			description += frameClickProfile().description();
 		}		
-		if( cameraProfile().bindingsDescription().length() != 0 ) {
+		if( cameraProfile().description().length() != 0 ) {
 			description += "Camera shortcuts\n";
-			description += cameraProfile().bindingsDescription();
+			description += cameraProfile().description();
 		}
-		if( frameProfile().bindingsDescription().length() != 0 ) {
+		if( frameProfile().description().length() != 0 ) {
 			description += "Frame shortcuts\n";
-			description += frameProfile().bindingsDescription();
+			description += frameProfile().description();
 		}
-		if( cameraWheelProfile().bindingsDescription().length() != 0 ) {
+		if( cameraWheelProfile().description().length() != 0 ) {
 			description += "Camera wheel shortcuts\n";
-			description += cameraWheelProfile().bindingsDescription();
+			description += cameraWheelProfile().description();
 		}
-		if( frameWheelProfile().bindingsDescription().length() != 0 ) {
+		if( frameWheelProfile().description().length() != 0 ) {
 			description += "Frame wheel shortcuts\n";
-			description += frameWheelProfile().bindingsDescription();
+			description += frameWheelProfile().description();
 		}		
 		return description;
 	}
