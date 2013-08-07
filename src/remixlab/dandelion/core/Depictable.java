@@ -54,7 +54,7 @@ public interface Depictable {
 	
 	public void drawDottedGrid(float size, int nbSubdivisions);
 	
-	public void drawViewWindow(ViewWindow window, float scale);	
+	public void drawWindow(Window window, float scale);	
 	
 	/**
 	 * Draws a rectangle on the screen showing the region where a zoom operation

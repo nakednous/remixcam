@@ -26,8 +26,7 @@
 package remixlab.dandelion.core;
 
 import remixlab.dandelion.geom.*;
-import remixlab.tersehandling.core.Copyable;
-import remixlab.tersehandling.core.Util;
+import remixlab.tersehandling.core.*;
 
 import java.util.ArrayList;
 
@@ -55,7 +54,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * and {@link #setStandardZFar(float)}).
  * 
  */
-public class Camera extends Pinhole implements Constants, Copyable {
+public class Camera extends Viewport implements Constants, Copyable {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).

@@ -38,7 +38,7 @@ public abstract class ProjectionRenderer extends Renderer implements Constants {
 	public void bindMatrices() {
 		setProjectionMatrix();
 		setModelViewMatrix();
-		scene.pinhole().cacheProjViewInvMat();
+		scene.viewport().cacheProjViewInvMat();
 	}
 	
 	@Override

@@ -41,7 +41,7 @@ public class JoystickAgent extends GenericWheeledBiMotionAgent<GenericMotionProf
 			    new GenericMotionProfile<DOF3Action>(),
 			    new GenericClickProfile<ClickAction>(),
 			    new GenericClickProfile<ClickAction>(), scn.terseHandler(), n);
-	  setDefaultGrabber(scn.pinhole().frame());
+	  setDefaultGrabber(scn.viewport().frame());
 	}
 	
 	@Override

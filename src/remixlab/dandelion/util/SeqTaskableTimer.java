@@ -25,7 +25,7 @@
 
 package remixlab.dandelion.util;
 
-import remixlab.dandelion.core.AbstractScene;
+import remixlab.dandelion.core.*;
 
 public class SeqTaskableTimer extends SeqTimer {
 	Taskable caller;

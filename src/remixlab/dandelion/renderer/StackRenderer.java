@@ -485,21 +485,21 @@ public abstract class StackRenderer extends Renderer {
 	public void bindMatrices() {
 		setProjectionMatrix();
 		setModelViewMatrix();
-		scene.pinhole().cacheProjViewInvMat();
+		scene.viewport().cacheProjViewInvMat();
 	}
 	
 	@Override
 	protected void setProjectionMatrix() {
     resetProjection();	  
-	  Mat projectionMat = scene.pinhole().getProjectionMatrix(true);	  
+	  Mat projectionMat = scene.viewport().getProjectionMatrix(true);	  
 	  applyProjection(projectionMat);
 	}
 	
 	@Override
   protected void setModelViewMatrix() {
-		scene.pinhole().computeViewMatrix();	  	  
+		scene.viewport().computeViewMatrix();	  	  
 	  resetMatrix();
-	  scene.pinhole().computeProjectionViewMatrix();
+	  scene.viewport().computeProjectionViewMatrix();
 	}
 		
 	// /**
@@ -511,11 +511,11 @@ public abstract class StackRenderer extends Renderer {
 		
 		// next two same as the prv three?
 		if( this.is3D() )
-			((Camera) scene.pinhole()).ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
+			((Camera) scene.viewport()).ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
 		else {
 		//TODO implement 2D case
 		}
-		setProjection(scene.pinhole().getProjectionMatrix());
+		setProjection(scene.viewport().getProjectionMatrix());
 		pushMatrix();
 		resetMatrix();
 		

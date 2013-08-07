@@ -298,8 +298,8 @@ public abstract class Renderer implements Renderable, Constants {
 	}
 
 	@Override
-	public void drawViewWindow(ViewWindow window, float scale) {
-		d.drawViewWindow(window, scale);
+	public void drawWindow(Window window, float scale) {
+		d.drawWindow(window, scale);
 	}
 
 	@Override
@@ -346,18 +346,18 @@ public abstract class Renderer implements Renderable, Constants {
 	
 	@Override
 	public void bindMatrices() {
-		scene.pinhole().computeProjectionMatrix();
-		scene.pinhole().computeViewMatrix();
-		scene.pinhole().computeProjectionViewMatrix();
+		scene.viewport().computeProjectionMatrix();
+		scene.viewport().computeViewMatrix();
+		scene.viewport().computeProjectionViewMatrix();
 
-		Vec pos = scene.pinhole().position();
-		Orientable quat = scene.pinhole().frame().orientation();
+		Vec pos = scene.viewport().position();
+		Orientable quat = scene.viewport().frame().orientation();
 
 		if( scene.is2D() ) {
 			translate(scene.width() / 2, scene.height() / 2);
 			if(scene.isRightHanded()) scale(1,-1);		
-			scale(scene.pinhole().frame().inverseMagnitude().x(), 
-				    scene.pinhole().frame().inverseMagnitude().y());		
+			scale(scene.viewport().frame().inverseMagnitude().x(), 
+				    scene.viewport().frame().inverseMagnitude().y());		
 			rotate(-quat.angle());		
 			translate(-pos.x(), -pos.y());
 		}
@@ -377,16 +377,16 @@ public abstract class Renderer implements Renderable, Constants {
 	
 	@Override
 	public void beginScreenDrawing() {
-		Vec pos = scene.pinhole().position();
-		Orientable quat = scene.pinhole().frame().orientation();		
+		Vec pos = scene.viewport().position();
+		Orientable quat = scene.viewport().frame().orientation();		
 		
 		pushMatrix();
 		
 		if( scene.is2D() ) {
 		  translate(pos.x(), pos.y());
 		  rotate(quat.angle());		
-		  scale(scene.viewWindow().frame().magnitude().x(),
-		        scene.viewWindow().frame().magnitude().y());
+		  scale(scene.window().frame().magnitude().x(),
+		        scene.window().frame().magnitude().y());
 	    if(scene.isRightHanded()) scale(1,-1);
 		  translate(-scene.width()/2, -scene.height()/2);			
 		}

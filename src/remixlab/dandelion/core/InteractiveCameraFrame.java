@@ -77,7 +77,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		.isEquals();
 	}
 	
-	protected Pinhole viewport;
+	protected Viewport viewport;
 	protected Vec arcballRefPnt;	
 	protected Vec worldAxis;
 	
@@ -95,7 +95,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	 * <p>
 	 * <b>Attention:</b> Created object is {@link #removeFromDeviceGrabberPool()}.
 	 */
-	public InteractiveCameraFrame(Pinhole vp) {
+	public InteractiveCameraFrame(Viewport vp) {
 		super(vp.scene);
 		viewport = vp;
 		scene.terseHandler().removeFromAllAgentPools(this);
@@ -141,7 +141,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		return new InteractiveCameraFrame(this);
 	}	
 	
-	public Pinhole pinhole() {
+	public Viewport pinhole() {
 		return viewport;
 	}
 	
@@ -218,7 +218,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	@Override
 	protected void execAction2D(DandelionAction a) {
 		if(a==null) return;
-		ViewWindow viewWindow = (ViewWindow) viewport;
+		Window viewWindow = (Window) viewport;
 		Vec trans;
 		float deltaX, deltaY;
 		Orientable rot;
@@ -238,7 +238,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 				rot = new Rotation(e2.getX() * rotationSensitivity());			
 			if ( !isFlipped() ) rot.negate();
 			//but its not enough to cover all different cases, so:
-			if (scene.viewWindow().frame().magnitude().x() * scene.viewWindow().frame().magnitude().y() < 0 ) rot.negate();		
+			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();		
 			if(e2.relative()) {
 				setSpinningQuaternion(rot);
 				startSpinning(e2);
@@ -299,7 +299,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 				rot = new Rotation(e6.getRX() * rotationSensitivity());			
 			if ( !isFlipped() ) rot.negate();
 			//but its not enough to cover all different cases, so:
-			if (scene.viewWindow().frame().magnitude().x() * scene.viewWindow().frame().magnitude().y() < 0 ) rot.negate();		
+			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();		
 			if(e6.relative()) {
 				setSpinningQuaternion(rot);
 				startSpinning(e6);
@@ -574,7 +574,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	 * 
 	 * @see #getCADAxis()
 	 */	
-	protected Quat cadQuaternion(DOF2Event event, float cx,	float cy, Pinhole camera) {
+	protected Quat cadQuaternion(DOF2Event event, float cx,	float cy, Viewport camera) {
 		if(! (camera instanceof Camera) )
 			throw new RuntimeException("CAD cam is oly available in 3D");
 		

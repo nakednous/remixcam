@@ -39,7 +39,7 @@ public class HIDAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile<C
 			    new GenericMotionProfile<DOF6Action>(),
 			    new GenericClickProfile<ClickAction>(),
 			    new GenericClickProfile<ClickAction>(), scn.terseHandler(), n);
-	  setDefaultGrabber(scn.pinhole().frame());
+	  setDefaultGrabber(scn.viewport().frame());
 		cameraProfile().setBinding(TH_NOMODIFIER_MASK, TH_NOBUTTON, DOF6Action.TRANSLATE_ROTATE);
 		frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_NOBUTTON, DOF6Action.TRANSLATE_ROTATE);
 	}

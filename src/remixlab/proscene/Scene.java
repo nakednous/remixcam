@@ -157,7 +157,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		Point fCorner = new Point();
 		Point lCorner = new Point();
 		GenericDOF2Event<Constants.DOF2Action> event, prevEvent;
-		float dFriction = pinhole().frame().dampingFriction();
+		float dFriction = viewport().frame().dampingFriction();
 		InteractiveFrame iFrame;
 		public ProsceneMouse(Scene scn, String n) {
 			super(scn, n);
@@ -490,7 +490,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		public void drawScreenRotateLineHint() {
 			float p1x = (float) ((Scene)scene).prosceneMouse.lCorner.getX();
 			float p1y = (float) ((Scene)scene).prosceneMouse.lCorner.getY();
-			Vec p2 = scene.pinhole().projectedCoordinatesOf(scene.arcballReferencePoint());
+			Vec p2 = scene.viewport().projectedCoordinatesOf(scene.arcballReferencePoint());
 			scene.beginScreenDrawing();
 			pg().pushStyle();
 			pg().stroke(255, 255, 255);
@@ -503,7 +503,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawArcballReferencePointHint() {
-			Vec p = scene.pinhole().projectedCoordinatesOf(scene.arcballReferencePoint());
+			Vec p = scene.viewport().projectedCoordinatesOf(scene.arcballReferencePoint());
 			pg().pushStyle();
 			pg().stroke(255);
 			pg().strokeWeight(3);
@@ -611,7 +611,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawViewWindow(ViewWindow camera, float scale) {
+		public void drawWindow(Window camera, float scale) {
 			pg().pushMatrix();
 			
 			/**
@@ -1320,7 +1320,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public void drawViewWindow(ViewWindow camera, float scale) {
+		public void drawWindow(Window camera, float scale) {
 			pg().pushMatrix();
 			
 			//VFrame tmpFrame = new VFrame(scene.is3D());
@@ -1554,7 +1554,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			// /**
 		  // option 3 (new, Andres suggestion)
 			// /**		
-			proj = scene.viewWindow().getProjectionMatrix(true);
+			proj = scene.window().getProjectionMatrix(true);
 			pg2d().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
 		                                      proj.mat[1],  proj.mat[5], proj.mat[9],  proj.mat[13],
 		                                      proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
@@ -1590,11 +1590,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 			// /**		
 			// Option 2
-			pg2d().modelview.set(scene.viewWindow().getViewMatrix(true).getTransposed(new float[16]));						
+			pg2d().modelview.set(scene.window().getViewMatrix(true).getTransposed(new float[16]));						
 			// Finally, caches projmodelview
 			//pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(true).getTransposed(new float[16]));		
-			Mat.mult(proj, scene.viewWindow().view(), scene.viewWindow().projectionView());
-			pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(false).getTransposed(new float[16]));
+			Mat.mult(proj, scene.window().view(), scene.window().projectionView());
+			pg2d().projmodelview.set(scene.window().getProjectionViewMatrix(false).getTransposed(new float[16]));
 		  // */
 		}
 	}
@@ -1900,10 +1900,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		// need it here to properly init the camera
 		
 		if( is3D() )
-			ph = new Camera(this);
+			vport = new Camera(this);
 		else
-			ph = new ViewWindow(this);
-		setViewPort(pinhole());//calls showAll();
+			vport = new Window(this);
+		setViewPort(viewport());//calls showAll();
 		
 		setAvatar(null);
 		
@@ -2224,19 +2224,19 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		if (frameSelectionHintIsDrawn())
 			drawSelectionHints();
 		if (cameraPathsAreDrawn()) {
-			pinhole().drawAllPaths();
+			viewport().drawAllPaths();
 			drawCameraPathSelectionHints();
 		} else {
-			pinhole().hideAllPaths();
+			viewport().hideAllPaths();
 		}
 		if (prosceneMouse.zoomOnRegion)
 			drawZoomWindowHint();
 		if (prosceneMouse.screenRotate)
 			drawScreenRotateLineHint();
-		if (pinhole().frame().arpFlag) 
+		if (viewport().frame().arpFlag) 
 			drawArcballReferencePointHint();
-		if (pinhole().frame().pupFlag) {
-			Vec v = pinhole().projectedCoordinatesOf(pinhole().frame().pupVec);
+		if (viewport().frame().pupFlag) {
+			Vec v = viewport().projectedCoordinatesOf(viewport().frame().pupVec);
 			pg().pushStyle();		
 			pg().stroke(255);
 			pg().strokeWeight(3);
@@ -2250,7 +2250,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * method. This method is registered at the PApplet and hence you don't need
 	 * to call it.
 	 * <p>
-	 * Sets the processing camera parameters from {@link #pinhole()} and updates
+	 * Sets the processing camera parameters from {@link #viewport()} and updates
 	 * the frustum planes equations if {@link #enableFrustumEquationsUpdate(boolean)}
 	 * has been set to {@code true}.
 	 */
@@ -2260,7 +2260,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		if ((width != pg().width) || (height != pg().height)) {
 			width = pg().width;
 			height = pg().height;				
-			pinhole().setScreenWidthAndHeight(width, height);				
+			viewport().setScreenWidthAndHeight(width, height);				
 		}
 		preDraw();
 	}
@@ -2469,7 +2469,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
-					Vec center = pinhole().projectedCoordinatesOf(iF.position());
+					Vec center = viewport().projectedCoordinatesOf(iF.position());
 					if (mg.grabsAgent(prosceneMouse)) {
 						pg().pushStyle();
 					  //pg3d.stroke(mouseGrabberOnSelectionHintColor());
@@ -2497,7 +2497,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
-					Vec center = pinhole().projectedCoordinatesOf(iF.position());
+					Vec center = viewport().projectedCoordinatesOf(iF.position());
 					if (mg.grabsAgent(prosceneMouse)) {
 						pg().pushStyle();						
 					  //pg3d.stroke(mouseGrabberCameraPathOnSelectionHintColor());

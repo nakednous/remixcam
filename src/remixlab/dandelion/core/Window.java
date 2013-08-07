@@ -28,12 +28,12 @@ package remixlab.dandelion.core;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
 
-public class ViewWindow extends Pinhole implements Copyable {
+public class Window extends Viewport implements Copyable {
 	
 	static final float FAKED_ZNEAR = -10;  
   static final float FAKED_ZFAR = 10;	
 	
-	public ViewWindow(AbstractScene scn) {
+	public Window(AbstractScene scn) {
 		super(scn);
 		if(scene.is3D())
 			throw new RuntimeException("Use ViewWindow only for a 2D Scene");
@@ -42,7 +42,7 @@ public class ViewWindow extends Pinhole implements Copyable {
 		//flip();
 	}
 	
-	protected ViewWindow(ViewWindow oVW) {
+	protected Window(Window oVW) {
 		super(oVW);		
 	}
 	
@@ -53,8 +53,8 @@ public class ViewWindow extends Pinhole implements Copyable {
 	 * @see #Camera(Camera)
 	 */	
 	@Override
-	public ViewWindow get() {
-		return new ViewWindow(this);
+	public Window get() {
+		return new Window(this);
 	}
 	
 	@Override

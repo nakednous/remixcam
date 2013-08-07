@@ -33,10 +33,10 @@ import remixlab.dandelion.geom.*;
  * <p>
  * <h3>How does it work ?</h3>
  * All objects that are to be tracked by the
- * {@link remixlab.dandelion.core.AbstractScene#pinhole()} (known as avatars) should implement
+ * {@link remixlab.dandelion.core.AbstractScene#viewport()} (known as avatars) should implement
  * this interface. To setup an avatar you should then call
  * {@link remixlab.dandelion.core.AbstractScene#setAvatar(Trackable)}. The avatar will be
- * tracked by the {@link remixlab.dandelion.core.AbstractScene#pinhole()} when the camera
+ * tracked by the {@link remixlab.dandelion.core.AbstractScene#viewport()} when the camera
  * is in Third Person mode.
  */
 

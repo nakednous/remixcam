@@ -32,12 +32,9 @@ import java.util.List;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
 import remixlab.dandelion.util.*;
-import remixlab.tersehandling.core.Agent;
-import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.core.TerseHandler;
-import remixlab.tersehandling.generic.event.GenericClickEvent;
-import remixlab.tersehandling.generic.event.GenericKeyboardEvent;
-import remixlab.tersehandling.generic.profile.Actionable;
+import remixlab.tersehandling.core.*;
+import remixlab.tersehandling.generic.event.*;
+import remixlab.tersehandling.generic.profile.*;
 import remixlab.tersehandling.event.*;
 
 public abstract class AbstractScene implements Constants, Grabbable {	
@@ -45,7 +42,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	
   //O B J E C T S
 	protected Renderable renderer;
-	protected Pinhole ph;
+	protected Viewport vport;
 	protected Trackable trck;
 	public boolean avatarIsInteractiveFrame;
 	protected boolean avatarIsInteractiveAvatarFrame;
@@ -173,31 +170,31 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		Vec trans;
 		switch (id) {
 		case ADD_KEYFRAME_TO_PATH_1:
-			pinhole().addKeyFrameToPath(1);
+			viewport().addKeyFrameToPath(1);
 			break;
 		case DELETE_PATH_1:
-			pinhole().deletePath(1);
+			viewport().deletePath(1);
 			break;
 		case PLAY_PATH_1:
-			pinhole().playPath(1);
+			viewport().playPath(1);
 			break;
 		case ADD_KEYFRAME_TO_PATH_2:
-			pinhole().addKeyFrameToPath(2);
+			viewport().addKeyFrameToPath(2);
 			break;
 		case DELETE_PATH_2:
-			pinhole().deletePath(2);
+			viewport().deletePath(2);
 			break;
 		case PLAY_PATH_2:
-			pinhole().playPath(2);
+			viewport().playPath(2);
 			break;
 		case ADD_KEYFRAME_TO_PATH_3:
-			pinhole().addKeyFrameToPath(3);
+			viewport().addKeyFrameToPath(3);
 			break;
 		case DELETE_PATH_3:
-			pinhole().deletePath(3);
+			viewport().deletePath(3);
 			break;
 		case PLAY_PATH_3:
-			pinhole().playPath(3);
+			viewport().playPath(3);
 			break;
 		case DRAW_AXIS:
 			toggleAxisIsDrawn();
@@ -239,40 +236,40 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			showAll();
 			break;
 		case MOVE_CAMERA_LEFT:
-			trans = new Vec(-10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
+			trans = new Vec(-10.0f * viewport().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
-			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
+			viewport().frame().translate(viewport().frame().inverseTransformOf(trans));			
 			break;
 		case MOVE_CAMERA_RIGHT:
-			trans = new Vec(10.0f * pinhole().flySpeed(), 0.0f, 0.0f);
+			trans = new Vec(10.0f * viewport().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
-			pinhole().frame().translate(pinhole().frame().inverseTransformOf(trans));			
+			viewport().frame().translate(viewport().frame().inverseTransformOf(trans));			
 			break;
 		case MOVE_CAMERA_UP:
-			trans = pinhole().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? 10.0f : -10.0f * pinhole().flySpeed(), 0.0f));
+			trans = viewport().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? 10.0f : -10.0f * viewport().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
-			pinhole().frame().translate(trans);					  
+			viewport().frame().translate(trans);					  
 			break;
 		case MOVE_CAMERA_DOWN:
-			trans = pinhole().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? -10.0f : 10.0f * pinhole().flySpeed(), 0.0f));
+			trans = viewport().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? -10.0f : 10.0f * viewport().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
-			pinhole().frame().translate(trans);			
+			viewport().frame().translate(trans);			
 			break;
 		case INCREASE_ROTATION_SENSITIVITY:
-			pinhole().setRotationSensitivity(pinhole().rotationSensitivity() * 1.2f);
+			viewport().setRotationSensitivity(viewport().rotationSensitivity() * 1.2f);
 			break;
 		case DECREASE_ROTATION_SENSITIVITY:
-			pinhole().setRotationSensitivity(pinhole().rotationSensitivity() / 1.2f);
+			viewport().setRotationSensitivity(viewport().rotationSensitivity() / 1.2f);
 			break;
 		case INCREASE_CAMERA_FLY_SPEED:
-			((Camera) pinhole()).setFlySpeed(((Camera) pinhole()).flySpeed() * 1.2f);
+			((Camera) viewport()).setFlySpeed(((Camera) viewport()).flySpeed() * 1.2f);
 			break;
 		case DECREASE_CAMERA_FLY_SPEED:
-			((Camera) pinhole()).setFlySpeed(((Camera) pinhole()).flySpeed() / 1.2f);
+			((Camera) viewport()).setFlySpeed(((Camera) viewport()).flySpeed() / 1.2f);
 			break;
 		case INCREASE_AVATAR_FLY_SPEED:
 			if (avatar() != null)
@@ -316,13 +313,13 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			break;
 		// ---
 		case INTERPOLATE_TO_FIT:
-			pinhole().interpolateToFitScene();
+			viewport().interpolateToFitScene();
 			break;
 		case RESET_ARP:		  
-			pinhole().setArcballReferencePoint(new Vec(0, 0, 0));
+			viewport().setArcballReferencePoint(new Vec(0, 0, 0));
 			//looks horrible, but works ;)
-			pinhole().frame().arpFlag = true;
-			pinhole().frame().timerFx.runOnce(1000);				
+			viewport().frame().arpFlag = true;
+			viewport().frame().timerFx.runOnce(1000);				
 			break;
 		default: 
 			System.out.println("Action cannot be handled here!");
@@ -400,7 +397,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		updateFrameRate();		
 		bindMatrices();
 		if (frustumEquationsUpdateIsEnable())
-			pinhole().updateFrustumEquations();
+			viewport().updateFrustumEquations();
 	}
 	
 	/**
@@ -448,12 +445,12 @@ public abstract class AbstractScene implements Constants, Grabbable {
     // 7. Grid and axis drawing
  		if (gridIsDrawn()) {
  			if(gridIsDotted())
- 				drawDottedGrid(pinhole().sceneRadius());
+ 				drawDottedGrid(viewport().sceneRadius());
  			else
- 				drawGrid(pinhole().sceneRadius());
+ 				drawGrid(viewport().sceneRadius());
  		}
  		if (axisIsDrawn())
- 			drawAxis(pinhole().sceneRadius());		
+ 			drawAxis(viewport().sceneRadius());		
  		
     // 8. Display visual hints
  		displayVisualHints(); // abstract
@@ -490,7 +487,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}
 
 	protected void setProjectionModelViewMatrix() {
-		pinhole().computeProjectionViewMatrix();
+		viewport().computeProjectionViewMatrix();
 	}
 	
 	// Try to optimize assignments in all three matrix getters?
@@ -504,7 +501,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}
 	
 	public Mat getViewMatrix() {
-		Mat view = pinhole().getViewMatrix();  	
+		Mat view = viewport().getViewMatrix();  	
   	return view;
 	}
 	
@@ -527,7 +524,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		Mat PVM;  	
   	PVM = getMatrix();//model  	
     //PVM.preApply(camera().projectionViewMat);
-  	PVM.preApply(pinhole().getProjectionViewMatrix());  	
+  	PVM.preApply(viewport().getProjectionViewMatrix());  	
   	return PVM;
 	}
 	
@@ -547,7 +544,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * initialize stuff not initialized in {@code PApplet.setup()}. The default
 	 * implementation is empty.
 	 * <p>
-	 * Typical usage include {@link #pinhole()} initialization ({@link #showAll()})
+	 * Typical usage include {@link #viewport()} initialization ({@link #showAll()})
 	 * and Scene state setup ({@link #setAxisIsDrawn(boolean)} and
 	 * {@link #setGridIsDrawn(boolean)}.
 	 */
@@ -1049,8 +1046,8 @@ public abstract class AbstractScene implements Constants, Grabbable {
   	renderer.drawDottedGrid(size, nbSubdivisions);
   }
     
-  public void drawViewWindow(ViewWindow window, float scale) {
-  	renderer.drawViewWindow(window, scale);
+  public void drawWindow(Window window, float scale) {
+  	renderer.drawWindow(window, scale);
   }
   
   public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
@@ -1236,8 +1233,8 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	/**
 	 * Returns the associated Camera, never {@code null}.
 	 */
-	public Pinhole pinhole() {
-		return ph;
+	public Viewport viewport() {
+		return vport;
 	}
 	
 	/**
@@ -1245,22 +1242,22 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 */
 	public Camera camera() {
 		if (this.is3D())
-			return (Camera) ph;
+			return (Camera) vport;
 		else 
 			throw new RuntimeException("Camera type is only available in 3D");
 	}
 	
-	public ViewWindow viewWindow() {
+	public Window window() {
 		if (this.is2D())
-			return (ViewWindow) ph;
+			return (Window) vport;
 		else 
-			throw new RuntimeException("ViewWindow type is only available in 2D");
+			throw new RuntimeException("Window type is only available in 2D");
 	}
 
 	/**
-	 * Replaces the current {@link #pinhole()} with {@code vp}
+	 * Replaces the current {@link #viewport()} with {@code vp}
 	 */
-	public void setViewPort(Pinhole vp)  {
+	public void setViewPort(Viewport vp)  {
 		if (vp == null)
 			return;
 
@@ -1269,7 +1266,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 
 		vp.setScreenWidthAndHeight(width(), height());
     
-		ph = vp;		
+		vport = vp;		
 
 		showAll();
 	}
@@ -1286,7 +1283,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see remixlab.dandelion.core.Camera#updateFrustumEquations()
 	 */
 	public boolean frustumEquationsUpdateIsEnable() {
-		return pinhole().frustumEquationsUpdateIsEnable();
+		return viewport().frustumEquationsUpdateIsEnable();
 	}
 
 	/**
@@ -1347,18 +1344,18 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see remixlab.dandelion.core.Camera#updateFrustumEquations()
 	 */
 	public void enableFrustumEquationsUpdate(boolean flag) {
-		pinhole().enableFrustumEquationsUpdate(flag);
+		viewport().enableFrustumEquationsUpdate(flag);
 	}
 	
 	/**
-	 * Toggles the {@link #pinhole()} type between PERSPECTIVE and ORTHOGRAPHIC.
+	 * Toggles the {@link #viewport()} type between PERSPECTIVE and ORTHOGRAPHIC.
 	 */
 	public void toggleCameraType() {
 		if( this.is2D() ) {
 			System.out.println("Warning: Camera Type is only available in 3D");
 		}
 		else {
-		if (((Camera) pinhole()).type() == Camera.Type.PERSPECTIVE)
+		if (((Camera) viewport()).type() == Camera.Type.PERSPECTIVE)
 			setCameraType(Camera.Type.ORTHOGRAPHIC);
 		else
 			setCameraType(Camera.Type.PERSPECTIVE);
@@ -1366,14 +1363,14 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}
 
 	/**
-	 * Toggles the {@link #pinhole()} kind between PROSCENE and STANDARD.
+	 * Toggles the {@link #viewport()} kind between PROSCENE and STANDARD.
 	 */
 	public void toggleCameraKind() {
 		if( this.is2D() ) {
 			System.out.println("Warning: Camera Kind is only available in 3D");
 		}
 		else {
-		if (((Camera) pinhole()).kind() == Camera.Kind.PROSCENE)
+		if (((Camera) viewport()).kind() == Camera.Kind.PROSCENE)
 			setCameraKind(Camera.Kind.STANDARD);
 		else
 			setCameraKind(Camera.Kind.PROSCENE);
@@ -1381,7 +1378,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}
 	
 	/**
-	 * Returns the current {@link #pinhole()} type.
+	 * Returns the current {@link #viewport()} type.
 	 */
 	public final Camera.Type cameraType() {
 		if( this.is2D() ) {
@@ -1389,42 +1386,42 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			return null;
 		}
 		else
-			return ((Camera) pinhole()).type();		
+			return ((Camera) viewport()).type();		
 	}
 
 	/**
-	 * Sets the {@link #pinhole()} type.
+	 * Sets the {@link #viewport()} type.
 	 */
 	public void setCameraType(Camera.Type type) {
 		if( this.is2D() ) {
 			System.out.println("Warning: Camera Type is only available in 3D");			
 		}
 		else
-			if (type != ((Camera) pinhole()).type())
-				((Camera) pinhole()).setType(type);
+			if (type != ((Camera) viewport()).type())
+				((Camera) viewport()).setType(type);
 	}
 
 	/**
-	 * Returns the current {@link #pinhole()} kind.
+	 * Returns the current {@link #viewport()} kind.
 	 */
 	public final Camera.Kind cameraKind() {
 		if( this.is2D() ) {
 			System.out.println("Warning: Camera Kype is only available in 3D");
 			return null;
 		}
-		return ((Camera) pinhole()).kind();
+		return ((Camera) viewport()).kind();
 	}
 
 	/**
-	 * Sets the {@link #pinhole()} kind.
+	 * Sets the {@link #viewport()} kind.
 	 */
 	public void setCameraKind(Camera.Kind kind) {
 		if( this.is2D() ) {
 			System.out.println("Warning: Camera Kind is only available in 3D");			
 		}
 		else {
-		if (kind != ((Camera) pinhole()).kind()) {
-			((Camera) pinhole()).setKind(kind);
+		if (kind != ((Camera) viewport()).kind()) {
+			((Camera) viewport()).setKind(kind);
 			if (kind == Camera.Kind.PROSCENE)
 				System.out.println("Changing camera kind to Proscene");
 			else
@@ -1513,16 +1510,16 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			avatarIsInteractiveFrame = true;
 			if (avatar() instanceof InteractiveAvatarFrame)
 				avatarIsInteractiveAvatarFrame = true;
-			pinhole().frame().updateFlyUpVector();// ?
-			pinhole().frame().stopSpinning();
+			viewport().frame().updateFlyUpVector();// ?
+			viewport().frame().stopSpinning();
 			if( this.avatarIsInteractiveFrame ) {
 				((InteractiveFrame) (avatar())).updateFlyUpVector();
 				((InteractiveFrame) (avatar())).stopSpinning();
 			}
 			// perform small animation ;)
-			if (pinhole().anyInterpolationIsStarted())
-				pinhole().stopAllInterpolations();
-			Pinhole cm = pinhole().get();
+			if (viewport().anyInterpolationIsStarted())
+				viewport().stopAllInterpolations();
+			Viewport cm = viewport().get();
 			cm.setPosition(avatar().cameraPosition());
 			cm.setUpVector(avatar().upVector());
 			cm.lookAt(avatar().target());
@@ -1582,7 +1579,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see #center()
 	 */
 	public float radius() {
-		return pinhole().sceneRadius();
+		return viewport().sceneRadius();
 	}
 
 	/**
@@ -1594,7 +1591,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see #setCenter(Vec) {@link #radius()}
 	 */
 	public Vec center() {
-		return pinhole().sceneCenter();
+		return viewport().sceneCenter();
 	}
 
 	/**
@@ -1606,7 +1603,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see #setCenter(Vec) {@link #radius()}
 	 */
 	public Vec arcballReferencePoint() {
-		return pinhole().arcballReferencePoint();
+		return viewport().arcballReferencePoint();
 	}
 
 	/**
@@ -1618,7 +1615,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see #setCenter(Vec)
 	 */
 	public void setRadius(float radius) {
-		pinhole().setSceneRadius(radius);
+		viewport().setSceneRadius(radius);
 	}
 
 	/**
@@ -1629,7 +1626,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see #setRadius(float)
 	 */
 	public void setCenter(Vec center) {
-		pinhole().setSceneCenter(center);
+		viewport().setSceneCenter(center);
 	}
 
 	/**
@@ -1646,14 +1643,14 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		if( this.is2D() )
 			System.out.println("setBoundingBox is available only in 3D. Use setBoundingRect instead");
 		else
-			((Camera) pinhole()).setSceneBoundingBox(min, max);
+			((Camera) viewport()).setSceneBoundingBox(min, max);
 	}
 	
 	public void setBoundingRect(Vec min, Vec max) {
 		if( this.is3D() )
 			System.out.println("setBoundingRect is available only in 2D. Use setBoundingBox instead");
 		else
-			((ViewWindow) pinhole()).setSceneBoundingRect(min, max);
+			((Window) viewport()).setSceneBoundingRect(min, max);
 	}
 
 	/**
@@ -1663,7 +1660,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see remixlab.dandelion.core.Camera#showEntireScene()
 	 */
 	public void showAll() {
-		pinhole().showEntireScene();
+		viewport().showEntireScene();
 	}
 
 	/**
@@ -1679,7 +1676,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see remixlab.dandelion.core.Camera#pointUnderPixel(Point)
 	 */
 	public boolean setArcballReferencePointFromPixel(Point pixel) {
-		return pinhole().setArcballReferencePointFromPixel(pixel);
+		return viewport().setArcballReferencePointFromPixel(pixel);
 	}
 	
 	/**
@@ -1695,7 +1692,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * @see remixlab.dandelion.core.Camera#pointUnderPixel(Point)
 	 */
 	public boolean setCenterFromPixel(Point pixel) {
-		return pinhole().setSceneCenterFromPixel(pixel);
+		return viewport().setSceneCenterFromPixel(pixel);
 	}
 	
 	// * Control what is drawing
@@ -1977,10 +1974,10 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	/**
 	 * Convenience function that simply calls {@code drawViewWindow(camera, 1)}
 	 * 
-	 * @see #drawViewWindow(ViewWindow, float)
+	 * @see #drawWindow(Window, float)
 	 */
-	public void drawViewWindow(ViewWindow vWindow) {
-		drawViewWindow(vWindow, 1);
+	public void drawWindow(Window vWindow) {
+		drawWindow(vWindow, 1);
 	}
 		
 	/**

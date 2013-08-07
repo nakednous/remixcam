@@ -376,7 +376,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			x = (int)((DOF2Event)event).getX();
 			y = (int)((DOF2Event)event).getY();
 		}
-		Vec proj = scene.pinhole().projectedCoordinatesOf(position());
+		Vec proj = scene.viewport().projectedCoordinatesOf(position());
 		return ((Math.abs(x - proj.vec[0]) < grabsInputThreshold()) && (Math.abs(y - proj.vec[1]) < grabsInputThreshold()));
 		//setGrabsInput(keepsGrabbingCursor || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
 	}
@@ -895,7 +895,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			break;
 		case ROTATE:
 		case SCREEN_ROTATE:
-			trans = scene.viewWindow().projectedCoordinatesOf(position());
+			trans = scene.window().projectedCoordinatesOf(position());
 			if(e2.relative()) {
 				Point prevPos = new Point(e2.getPrevX(), e2.getPrevY());
 				Point curPos= new Point(e2.getX(), e2.getY());
@@ -905,7 +905,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			else 
 				rot = new Rotation(e2.getX() * rotationSensitivity());			
 			if ( isFlipped() ) rot.negate();	
-			if (scene.viewWindow().frame().magnitude().x() * scene.viewWindow().frame().magnitude().y() < 0 ) rot.negate();
+			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();
 			if(e2.relative()) {
 				setSpinningQuaternion(rot);
 				startSpinning(e2);
@@ -924,7 +924,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 				trans.set(deltaX, 0.0f, 0.0f);
 			else if (dir == -1)
 				trans.set(0.0f, -deltaY, 0.0f);				
-			trans = scene.viewWindow().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			trans = scene.window().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -937,7 +937,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			else
 				deltaY = scene.isRightHanded() ? e2.getY() : -e2.getY();
 			trans = new Vec(deltaX, -deltaY, 0.0f);
-			trans = scene.viewWindow().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			trans = scene.window().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -952,13 +952,13 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			else
 				deltaY = scene.isRightHanded() ? e6.getY() : -e6.getY();
 			trans = new Vec(deltaX, -deltaY, 0.0f);
-			trans = scene.viewWindow().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			trans = scene.window().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
 			translate(trans);
 			//rotate
-			trans = scene.viewWindow().projectedCoordinatesOf(position());
+			trans = scene.window().projectedCoordinatesOf(position());
 			//TODO "relative" is experimental here.
 			//Hard to think of a DOF6 relative device in the first place.
 			if(e6.relative())
@@ -966,7 +966,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			else 
 				rot = new Rotation(e6.getRX() * rotationSensitivity());			
 			if ( isFlipped() ) rot.negate();	
-			if (scene.viewWindow().frame().magnitude().x() * scene.viewWindow().frame().magnitude().y() < 0 ) rot.negate();			
+			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();			
 			if(e6.relative()) {
 				setSpinningQuaternion(rot);
 				startSpinning(e6);
@@ -989,10 +989,10 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 				inverseScale(1 + Math.abs(delta) / (float) scene.height());
 			break;
 		case CENTER_FRAME:
-			projectOnLine(scene.viewWindow().position(), scene.viewWindow().viewDirection());
+			projectOnLine(scene.window().position(), scene.window().viewDirection());
 			break;
 		case ALIGN_FRAME:
-			alignWithFrame(scene.viewWindow().frame());
+			alignWithFrame(scene.window().frame());
 			break;
 		default:
 			AbstractScene.showMissingImplementationWarning(a);

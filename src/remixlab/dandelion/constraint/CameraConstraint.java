@@ -37,13 +37,13 @@ import remixlab.dandelion.geom.*;
  */
 public class CameraConstraint extends AxisPlaneConstraint {
 
-	private Pinhole camera;
+	private Viewport camera;
 
 	/**
 	 * Creates a CameraConstraint, whose constrained directions are defined in the
 	 * {@link #camera()} coordinate system.
 	 */
-	public CameraConstraint(Pinhole cam) {
+	public CameraConstraint(Viewport cam) {
 		super();
 		camera = cam;
 	}
@@ -51,7 +51,7 @@ public class CameraConstraint extends AxisPlaneConstraint {
 	/**
 	 * Returns the associated Camera. Set using the CameraConstraint constructor.
 	 */
-	public Pinhole camera() {
+	public Viewport camera() {
 		return camera;
 	}
 
