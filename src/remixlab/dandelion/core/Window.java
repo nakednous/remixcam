@@ -278,12 +278,12 @@ public class Window extends Viewport implements Copyable {
 	}
 
 	@Override
-	public void setOrientation(Quat q) {
+	public void setOrientation(Orientable q) {
 		setOrientation(q.angle());
 	}
 	
 	public void setOrientation(float angle) {
-		Quat quat = new Quat(viewDirection(), angle);
+		Orientable quat = new Rotation(angle);
 		frame().setOrientation(quat);
 		frame().updateFlyUpVector();
 	}

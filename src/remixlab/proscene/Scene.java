@@ -1930,7 +1930,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		setAxisIsDrawn(true);
 		setGridIsDrawn(true);
 		setFrameSelectionHintIsDrawn(false);
-		setCameraPathsAreDrawn(false);
+		setViewportPathsAreDrawn(false);
 		
 		disableFrustumEquationsUpdate();
 		
@@ -2223,9 +2223,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected void displayVisualHints() {		
 		if (frameSelectionHintIsDrawn())
 			drawSelectionHints();
-		if (cameraPathsAreDrawn()) {
+		if (viewportPathsAreDrawn()) {
 			viewport().drawAllPaths();
-			drawCameraPathSelectionHints();
+			drawViewportPathSelectionHints();
 		} else {
 			viewport().hideAllPaths();
 		}
@@ -2408,7 +2408,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	/**
 	 * Returns the mouse grabber off selection hint {@code color} for camera paths.
 	 * 
-	 * @see #drawCameraPathSelectionHints()
+	 * @see #drawViewportPathSelectionHints()
 	 */
   //public int mouseGrabberCameraPathOffSelectionHintColor() {	return cameraPathOffSelectionHintColor;	}
 	
@@ -2492,7 +2492,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 
 	@Override
-	protected void drawCameraPathSelectionHints() {
+	protected void drawViewportPathSelectionHints() {
 		for (Grabbable mg : terseHandler().globalGrabberList()) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed

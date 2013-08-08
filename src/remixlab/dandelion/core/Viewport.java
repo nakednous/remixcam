@@ -437,7 +437,7 @@ public abstract class Viewport implements Copyable {
 	 */
 	public abstract Vec rightVector();
 	
-	public abstract void setOrientation(Quat q);
+	public abstract void setOrientation(Orientable q);
 	
 	/**
 	 * Returns the radius of the scene observed by the Camera.

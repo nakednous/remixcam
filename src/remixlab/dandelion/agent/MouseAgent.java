@@ -39,7 +39,7 @@ public class MouseAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile
 				  new GenericClickProfile<ClickAction>(), scn.terseHandler(), n);
 		setDefaultGrabber(scn.viewport().frame());
 		
-		setAsArcballBindings();
+		setAsArcball();
 		
 		cameraClickProfile().setClickBinding(TH_NOMODIFIER_MASK, TH_LEFT, 2, ClickAction.ALIGN_FRAME);
 		cameraClickProfile().setClickBinding(TH_NOMODIFIER_MASK, TH_RIGHT, 2, ClickAction.CENTER_FRAME);
@@ -58,7 +58,7 @@ public class MouseAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile
 		cameraClickProfile().setClickBinding(TH_SHIFT, TH_RIGHT, 1, ClickAction.PLAY_PATH_1);
 	}
 	
-	public void setAsFirstPersonBindings() {		
+	public void setAsFirstPerson() {		
 		cameraProfile().setBinding(TH_NOMODIFIER_MASK, TH_LEFT, DOF2Action.MOVE_FORWARD);
 		cameraProfile().setBinding(TH_NOMODIFIER_MASK, TH_CENTER, DOF2Action.LOOK_AROUND);
 		cameraProfile().setBinding(TH_NOMODIFIER_MASK, TH_RIGHT, DOF2Action.MOVE_BACKWARD);
@@ -68,7 +68,7 @@ public class MouseAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile
 		cameraWheelProfile().setBinding(TH_SHIFT, TH_NOBUTTON, WheelAction.DRIVE);
 	}
 	
-	public void setAsThirdPersonBindings() {
+	public void setAsThirdPerson() {
 		frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_LEFT, DOF2Action.MOVE_FORWARD);
     frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_CENTER, DOF2Action.LOOK_AROUND);
     frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_RIGHT, DOF2Action.MOVE_BACKWARD);
@@ -76,7 +76,7 @@ public class MouseAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile
 		frameProfile().setBinding(TH_SHIFT, TH_CENTER, DOF2Action.DRIVE);
 	}
 	
-	public void setAsArcballBindings() {
+	public void setAsArcball() {
 		cameraProfile().setBinding(TH_NOMODIFIER_MASK, TH_LEFT, DOF2Action.ROTATE);
 		cameraProfile().setBinding(TH_NOMODIFIER_MASK, TH_CENTER, DOF2Action.ZOOM);
 		cameraProfile().setBinding(TH_NOMODIFIER_MASK, TH_RIGHT, DOF2Action.TRANSLATE);		

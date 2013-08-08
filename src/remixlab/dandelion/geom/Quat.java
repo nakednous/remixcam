@@ -1227,4 +1227,10 @@ public class Quat implements Constants, Primitivable, Orientable {
 	public static float squaredNorm(Quat q) {
 		return (q.quat[0] * q.quat[0]) + (q.quat[1] * q.quat[1]) + (q.quat[2] * q.quat[2]) + (q.quat[3] * q.quat[3]);
 	}
+	
+	@Override
+	public void print() {
+		axis().print();
+		System.out.println(angle());
+	}
 }

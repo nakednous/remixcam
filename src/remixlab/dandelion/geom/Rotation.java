@@ -218,4 +218,9 @@ public class Rotation implements Constants, Orientable {
 			//angle =(float) Math.acos( (double)Vector3D.dot(from, to) / ( fromNorm * toNorm ));
 			angle = (float )Math.atan2( from.x()*to.y() - from.y()*to.x(), from.x()*to.x() + from.y()*to.y() );
 	}
+	
+	@Override
+	public void print() {
+		System.out.println(angle());
+	}
 }

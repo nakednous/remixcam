@@ -62,7 +62,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	protected boolean axisIsDrwn; // world axis
 	protected boolean gridIsDrwn; // world XY grid
 	protected boolean frameSelectionHintIsDrwn;
-	protected boolean cameraPathsAreDrwn;
+	protected boolean viewportPathsAreDrwn;
 	
 	// LEFT vs RIGHT_HAND
 	protected boolean rightHanded;
@@ -202,9 +202,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		case DRAW_GRID:
 			toggleGridIsDrawn();
 			break;
-		//case CAMERA_PROFILE:
-			//nextCameraProfile();
-			//break;
 		case CAMERA_TYPE:
 			toggleCameraType();
 			break;
@@ -217,43 +214,34 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		case GLOBAL_HELP:
 			displayInfo();
 			break;
-		//case CURRENT_CAMERA_PROFILE_HELP:
-			//displayCurrentCameraProfileHelp();
-			//break;
-		case EDIT_CAMERA_PATH:
-			toggleCameraPathsAreDrawn();
+		case EDIT_VIEWPORT_PATH:
+			toggleViewportPathsAreDrawn();
 			break;
-		/**
-		case FOCUS_INTERACTIVE_FRAME:
-			toggleDrawInteractiveFrame();
-			break;
-			*/
 		case DRAW_FRAME_SELECTION_HINT:
 			toggleFrameSelectionHintIsDrawn();
 			break;
-		// --
 		case SHOW_ALL:
 			showAll();
 			break;
-		case MOVE_CAMERA_LEFT:
+		case MOVE_VIEWPORT_LEFT:
 			trans = new Vec(-10.0f * viewport().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
 			viewport().frame().translate(viewport().frame().inverseTransformOf(trans));			
 			break;
-		case MOVE_CAMERA_RIGHT:
+		case MOVE_VIEWPORT_RIGHT:
 			trans = new Vec(10.0f * viewport().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
 			viewport().frame().translate(viewport().frame().inverseTransformOf(trans));			
 			break;
-		case MOVE_CAMERA_UP:
+		case MOVE_VIEWPORT_UP:
 			trans = viewport().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? 10.0f : -10.0f * viewport().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
 			viewport().frame().translate(trans);					  
 			break;
-		case MOVE_CAMERA_DOWN:
+		case MOVE_VIEWPORT_DOWN:
 			trans = viewport().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? -10.0f : 10.0f * viewport().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
@@ -311,7 +299,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 				if (avatarIsInteractiveAvatarFrame)
 					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() - radius() / 50);
 			break;
-		// ---
 		case INTERPOLATE_TO_FIT:
 			viewport().interpolateToFitScene();
 			break;
@@ -326,27 +313,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
     break;
 		}
 	}
-	
-	/**
-	public String globalHelp() {
-		String description = new String();
-		description += "GLOBAL keyboard shortcuts\n";
-		for (Entry<KeyboardShortcut, DOF_0Action> entry : gProfile.map().entrySet()) {			
-			Character space = ' ';
-			if (!entry.getKey().description().equals(space.toString())) 
-				description += entry.getKey().description() + " -> " + entry.getValue().description() + "\n";
-			else
-				description += "space_bar" + " -> " + entry.getValue().description() + "\n";
-		}
-		
-		for (Entry<Integer, Integer> entry : pathKeys.map().entrySet())
-			description += DLKeyEvent.getKeyText(entry.getKey()) + " -> plays camera path " + entry.getValue().toString() + "\n";
-		description += DLEvent.getModifiersText(addKeyFrameKeyboardModifier) + " + one of the above keys -> adds keyframe to the camera path \n";
-		description += DLEvent.getModifiersText(deleteKeyFrameKeyboardModifier) + " + one of the above keys -> deletes the camera path \n";
-		
-		return description;		
-	}
-	*/
 	
 	/**
 	 * Convenience function that simply calls {@code displayCurrentCameraProfileHelp(true)}.
@@ -388,10 +354,10 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	// D R A W I N G   M E T H O D S
 	
 	public void preDraw() {
-		if ( avatar() != null	&& (!camera().anyInterpolationIsStarted() ) ) {
-			camera().setPosition(avatar().cameraPosition());
-			camera().setUpVector(avatar().upVector());
-			camera().lookAt(avatar().target());
+		if ( avatar() != null	&& (!viewport().anyInterpolationIsStarted() ) ) {
+			viewport().setPosition(avatar().viewportPosition());
+			viewport().setUpVector(avatar().upVector());
+			viewport().lookAt(avatar().target());
 		}
 		 
 		updateFrameRate();		
@@ -1520,10 +1486,10 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			if (viewport().anyInterpolationIsStarted())
 				viewport().stopAllInterpolations();
 			Viewport cm = viewport().get();
-			cm.setPosition(avatar().cameraPosition());
+			cm.setPosition(avatar().viewportPosition());
 			cm.setUpVector(avatar().upVector());
 			cm.lookAt(avatar().target());
-			camera().interpolateTo(cm.frame());
+			viewport().interpolateTo(cm.frame());
 		}
 	}
 
@@ -1537,35 +1503,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		avatarIsInteractiveAvatarFrame = false;
 		avatarIsInteractiveFrame = false;
 	}
-
-	/**
-	 * Returns the current MouseGrabber, or {@code null} if none currently grabs
-	 * mouse events.
-	 * <p>
-	 * When {@link remixlab.remixcam.core.Grabbable#grabsInput()}, the different
-	 * mouse events are sent to it instead of their usual targets (
-	 * {@link #pinhole()} or {@link #interactiveFrame()}).
-	 */
-	/**
-	public Grabbable deviceGrabber() {
-		return deviceGrbbr;
-	}
-	*/
-	
-	/**
-	 * Directly defines the {@link #deviceGrabber()}.
-	 * <p>
-	 * You should not call this method directly as it bypasses the
-	 * {@link remixlab.remixcam.core.Grabbable#checkIfGrabsDevice(int, int, Camera)}
-	 * test performed by parsing the mouse moved event.
-	 */
-	/**
-	public void setDeviceGrabber(Grabbable deviceGrabber) {
-		deviceGrbbr = deviceGrabber;
-
-		deviceGrabberIsAnIFrame = deviceGrabber instanceof InteractiveFrame;
-	}
-	*/
 	
 	// 3. Scene dimensions
 
@@ -1726,12 +1663,12 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}
 
 	/**
-	 * Toggles the state of {@link #cameraPathsAreDrawn()}.
+	 * Toggles the state of {@link #viewportPathsAreDrawn()}.
 	 * 
-	 * @see #setCameraPathsAreDrawn(boolean)
+	 * @see #setViewportPathsAreDrawn(boolean)
 	 */
-	public void toggleCameraPathsAreDrawn() {
-		setCameraPathsAreDrawn(!cameraPathsAreDrawn());
+	public void toggleViewportPathsAreDrawn() {
+		setViewportPathsAreDrawn(!viewportPathsAreDrawn());
 	}	
 	
 	/**
@@ -1762,8 +1699,8 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * Returns {@code true} if the camera key frame paths are currently being
 	 * drawn and {@code false} otherwise.
 	 */
-	public boolean cameraPathsAreDrawn() {
-		return cameraPathsAreDrwn;
+	public boolean viewportPathsAreDrawn() {
+		return viewportPathsAreDrwn;
 	}
 
 	/**
@@ -1815,8 +1752,8 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	/**
 	 * Sets the display of the camera key frame paths according to {@code draw}
 	 */
-	public void setCameraPathsAreDrawn(boolean draw) {
-		cameraPathsAreDrwn = draw;
+	public void setViewportPathsAreDrawn(boolean draw) {
+		viewportPathsAreDrwn = draw;
 	}
 	
 	// Abstract drawing methods
@@ -1987,7 +1924,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * <b>Attention:</b> If the InteractiveFrame is part of a Camera path draws
 	 * nothing.
 	 * 
-	 * @see #drawCameraPathSelectionHints()
+	 * @see #drawViewportPathSelectionHints()
 	 */
 	protected abstract void drawSelectionHints();
 	
@@ -1998,7 +1935,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * 
 	 * @see #drawSelectionHints()
 	 */
-	protected abstract void drawCameraPathSelectionHints();
+	protected abstract void drawViewportPathSelectionHints();
 		
 	/**
 	 * Convenience function that simply calls

@@ -47,7 +47,7 @@ public interface Trackable {
 	 * @return Vector3D holding the camera position defined in the world coordinate
 	 *         system.
 	 */
-	public Vec cameraPosition();
+	public Vec viewportPosition();
 
 	/**
 	 * Returns the vector to be set as the
@@ -75,5 +75,5 @@ public interface Trackable {
 	 * It is responsibility of the object implementing this interface to update
 	 * the camera position by properly calling this method.
 	 */
-	public void computeCameraPosition();
+	public void computeViewportPosition();
 }

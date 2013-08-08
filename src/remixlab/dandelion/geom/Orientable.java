@@ -27,7 +27,6 @@ package remixlab.dandelion.geom;
 
 import remixlab.tersehandling.core.Copyable;
 
-
 public interface Orientable extends Copyable {	
 	@Override
 	public Orientable get();	
@@ -45,4 +44,5 @@ public interface Orientable extends Copyable {
 	public void fromRotationMatrix(float[][] m);
 	public float normalize();
 	public void fromTo(Vec from, Vec to);
+	public void print();
 }

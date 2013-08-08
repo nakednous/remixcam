@@ -517,7 +517,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 	 * system.
 	 */
 	@Override
-	public void setOrientation(Quat q) {
+	public void setOrientation(Orientable q) {
 		frame().setOrientation(q);
 		frame().updateFlyUpVector();
 	}
