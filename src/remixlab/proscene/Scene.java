@@ -727,7 +727,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				pg().beginShape();
 				pg().vertex(-halfWidth, halfHeight);
 				pg().vertex(-halfWidth, -halfHeight);
-				pg().vertex(0.0f, 0.0f, 0.0f);
+				pg().vertex(0.0f, 0.0f);
 				pg().vertex(halfWidth, -halfHeight);
 				pg().vertex(-halfWidth, -halfHeight);
 				pg().endShape();
@@ -735,7 +735,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				pg().beginShape();
 				pg().vertex(halfWidth, -halfHeight);
 				pg().vertex(halfWidth, halfHeight);
-				pg().vertex(0.0f, 0.0f, 0.0f);
+				pg().vertex(0.0f, 0.0f);
 				pg().vertex(-halfWidth, halfHeight);
 				pg().vertex(halfWidth, halfHeight);
 				pg().endShape();
