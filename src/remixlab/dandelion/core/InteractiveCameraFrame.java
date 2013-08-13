@@ -231,11 +231,11 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			if(e2.relative()) {
 				Point prevPos = new Point(e2.getPrevX(), e2.getPrevY());
 				Point curPos= new Point(e2.getX(), e2.getY());
-				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, curPos);
-				rot = new Rotation(rot.angle() * rotationSensitivity());
+				rot = new Rot(new Point(trans.x(), trans.y()), prevPos, curPos);
+				rot = new Rot(rot.angle() * rotationSensitivity());
 			}
 			else
-				rot = new Rotation(e2.getX() * rotationSensitivity());			
+				rot = new Rot(e2.getX() * rotationSensitivity());			
 			if ( !isFlipped() ) rot.negate();
 			//but its not enough to cover all different cases, so:
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();		
@@ -294,9 +294,9 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		  //TODO "relative" is experimental here.
 			//Hard to think of a DOF6 relative device in the first place.
 			if(e6.relative()) 
-				rot = new Rotation(e6.getDRX() * rotationSensitivity());	
+				rot = new Rot(e6.getDRX() * rotationSensitivity());	
 			else
-				rot = new Rotation(e6.getRX() * rotationSensitivity());			
+				rot = new Rot(e6.getRX() * rotationSensitivity());			
 			if ( !isFlipped() ) rot.negate();
 			//but its not enough to cover all different cases, so:
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();		
@@ -330,7 +330,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			int h = (int) Math.abs(e2.getDY());
 			int tlY = (int) e2.getPrevY() < (int) e2.getY() ? (int) e2.getPrevY() : (int) e2.getY();
 			// viewWindow.fitScreenRegion( new Rectangle (tlX, tlY, w, h) );			
-			viewWindow.interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
+			viewWindow.interpolateToZoomOnRegion(new Rect(tlX, tlY, w, h));
 			break;
 		case CENTER_FRAME:
 			viewWindow.centerScene();
@@ -513,7 +513,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			int h = (int) Math.abs(e2.getDY());
 			int tlY = (int) e2.getPrevY() < (int) e2.getY() ? (int) e2.getPrevY() : (int) e2.getY();
 			// camera.fitScreenRegion( new Rectangle (tlX, tlY, w, h) );			
-			camera.interpolateToZoomOnRegion(new Rectangle(tlX, tlY, w, h));
+			camera.interpolateToZoomOnRegion(new Rect(tlX, tlY, w, h));
 			break;
 		case CENTER_FRAME:
 			camera.centerScene();

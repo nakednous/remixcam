@@ -31,7 +31,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 /**
  * Rectangle class that provides a quick replacement for the java.awt.Rectangle.
  */
-public class Rectangle {
+public class Rect {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).    
@@ -48,7 +48,7 @@ public class Rectangle {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 				
-		Rectangle other = (Rectangle) obj;
+		Rect other = (Rect) obj;
 		return new EqualsBuilder()		
 		.append(this.x, other.x)
 		.append(this.y, other.y)
@@ -81,7 +81,7 @@ public class Rectangle {
 	 * Constructs a new Rectangle whose upper-left corner is at (0, 0) in the
 	 * coordinate space, and whose width and height are both zero.
 	 */
-	public Rectangle() {
+	public Rect() {
 		this(0, 0, 0, 0);
 	}
 
@@ -91,7 +91,7 @@ public class Rectangle {
 	 * @param r
 	 *          the rectangle to be copied
 	 */
-	public Rectangle(Rectangle r) {
+	public Rect(Rect r) {
 		this(r.x, r.y, r.width, r.height);
 	}
 
@@ -99,7 +99,7 @@ public class Rectangle {
 	 * Constructs a new Rectangle whose upper-left corner is specified as (x,y)
 	 * and whose width and height are specified by the arguments of the same name.
 	 */
-	public Rectangle(int x, int y, int width, int height) {
+	public Rect(int x, int y, int width, int height) {
 		this.x = x;
 		this.y = y;
 		this.width = width;

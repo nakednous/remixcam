@@ -62,7 +62,7 @@ public class CameraConstraint extends AxisPlaneConstraint {
 	 * {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public Vec constrainTranslation(Vec translation, GeomFrame frame) {
+	public Vec constrainTranslation(Vec translation, RefFrame frame) {
 		Vec res = new Vec(translation.vec[0], translation.vec[1], translation.vec[2]);
 		Vec proj;
 		switch (translationConstraintType()) {
@@ -94,7 +94,7 @@ public class CameraConstraint extends AxisPlaneConstraint {
 	 * {@link #rotationConstraintDirection()}.
 	 */
 	@Override
-	public Orientable constrainRotation(Orientable rotation, GeomFrame frame) {
+	public Orientable constrainRotation(Orientable rotation, RefFrame frame) {
 		Orientable res = rotation.get();
 		switch (rotationConstraintType()) {
 		case FREE:
@@ -113,7 +113,7 @@ public class CameraConstraint extends AxisPlaneConstraint {
 			if(rotation instanceof Quat)
 				res = new Quat(); // identity
 			else
-				res = new Rotation(); // identity
+				res = new Rot(); // identity
 			break;
 		}
 		return res;

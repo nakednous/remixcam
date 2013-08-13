@@ -120,7 +120,7 @@ public interface Depictable {
 	 */
 	public void drawShooterTarget(Vec center, float length);
 		
-	public void drawPath(List<GeomFrame> path, int mask, int nbFrames, int nbSteps, float scale);	
+	public void drawPath(List<RefFrame> path, int mask, int nbFrames, int nbSteps, float scale);	
 	
 	// 3D
 	/**

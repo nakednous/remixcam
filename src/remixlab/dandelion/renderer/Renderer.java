@@ -338,7 +338,7 @@ public abstract class Renderer implements Renderable, Constants {
 	}
 
 	@Override
-	public void drawPath(List<GeomFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
+	public void drawPath(List<RefFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
 		d.drawPath(path, mask, nbFrames, nbSteps, scale);		
 	}
 	

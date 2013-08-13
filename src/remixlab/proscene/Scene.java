@@ -781,7 +781,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		 	}
 
 		@Override
-		public void drawPath(List<GeomFrame> path, int mask, int nbFrames,int nbSteps, float scale) {
+		public void drawPath(List<RefFrame> path, int mask, int nbFrames,int nbSteps, float scale) {
 			if (mask != 0) {
 				pg().pushStyle();
 				pg().strokeWeight(2);
@@ -790,7 +790,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				
 				if (((mask & 1) != 0) && path.size() > 1 ) {				
 					pg().beginShape();
-					for (GeomFrame myFr : path)
+					for (RefFrame myFr : path)
 						pg().vertex(myFr.position().x(), myFr.position().y());
 					pg().endShape();
 				}
@@ -800,7 +800,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 						nbFrames = nbSteps;
 					float goal = 0.0f;
 
-					for (GeomFrame myFr : path)
+					for (RefFrame myFr : path)
 						if ((count++) >= goal) {
 							goal += nbSteps / (float) nbFrames;
 							pg().pushMatrix();
@@ -1281,7 +1281,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public void drawPath(List<GeomFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
+		public void drawPath(List<RefFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
 			if (mask != 0) {
 				pg3d().pushStyle();
 				pg3d().strokeWeight(2);
@@ -1290,7 +1290,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				
 				if (((mask & 1) != 0) && path.size() > 1 ) {				
 					pg3d().beginShape();
-					for (GeomFrame myFr : path)
+					for (RefFrame myFr : path)
 						pg3d().vertex(myFr.position().x(), myFr.position().y(), myFr.position().z());
 					pg3d().endShape();
 				}
@@ -1300,7 +1300,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 						nbFrames = nbSteps;
 					float goal = 0.0f;
 
-					for (GeomFrame myFr : path)
+					for (RefFrame myFr : path)
 						if ((count++) >= goal) {
 							goal += nbSteps / (float) nbFrames;
 							pg3d().pushMatrix();

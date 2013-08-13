@@ -52,7 +52,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * the {@link remixlab.dandelion.core.AbstractScene#deviceGrabberPool()}.
  */
 
-public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
+public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -309,7 +309,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	/**
 	 * Convenience function that simply calls {@code applyTransformation(AbstractScene)}.
 	 * 
-	 * @see remixlab.dandelion.geom.GeomFrame#applyTransformation(AbstractScene)
+	 * @see remixlab.dandelion.geom.RefFrame#applyTransformation(AbstractScene)
 	 */
 	public void applyTransformation() {
 		applyTransformation(scene);
@@ -318,7 +318,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 	/**
 	 * Convenience function that simply calls {@code applyWorldTransformation(Abstractscene)}
 	 * 
-	 * @see remixlab.dandelion.geom.GeomFrame#applyWorldTransformation(AbstractScene)
+	 * @see remixlab.dandelion.geom.RefFrame#applyWorldTransformation(AbstractScene)
 	 */
 	public void applyWorldTransformation() {
 		applyWorldTransformation(scene);
@@ -745,7 +745,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		if( scene.is3D() )
 			((Quat)spinningQuaternion()).fromAxisAngle(((Quat)spinningQuaternion()).axis(), spinningQuaternion().angle() * (eventSpeed / prevSpeed) );
 		else
-			this.setSpinningQuaternion(new Rotation(spinningQuaternion().angle() * (eventSpeed / prevSpeed)));
+			this.setSpinningQuaternion(new Rot(spinningQuaternion().angle() * (eventSpeed / prevSpeed)));
 	}
 	
 	protected void recomputeTossingDirection() {
@@ -887,7 +887,7 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 		  //lef-handed coordinate system correction
 			if ( scene.isLeftHanded() )
 				angle = -angle;			
-			rot = new Rotation(angle);
+			rot = new Rot(angle);
 			rotate(rot);
 			setSpinningQuaternion(rot);
 			//TODO needs this:?
@@ -899,11 +899,11 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			if(e2.relative()) {
 				Point prevPos = new Point(e2.getPrevX(), e2.getPrevY());
 				Point curPos= new Point(e2.getX(), e2.getY());
-				rot = new Rotation(new Point(trans.x(), trans.y()), prevPos, curPos);
-				rot = new Rotation(rot.angle() * rotationSensitivity());
+				rot = new Rot(new Point(trans.x(), trans.y()), prevPos, curPos);
+				rot = new Rot(rot.angle() * rotationSensitivity());
 			}
 			else 
-				rot = new Rotation(e2.getX() * rotationSensitivity());			
+				rot = new Rot(e2.getX() * rotationSensitivity());			
 			if ( isFlipped() ) rot.negate();	
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();
 			if(e2.relative()) {
@@ -962,9 +962,9 @@ public class InteractiveFrame extends GeomFrame implements Grabbable, Copyable {
 			//TODO "relative" is experimental here.
 			//Hard to think of a DOF6 relative device in the first place.
 			if(e6.relative())
-				rot = new Rotation(e6.getDRX() * rotationSensitivity());
+				rot = new Rot(e6.getDRX() * rotationSensitivity());
 			else 
-				rot = new Rotation(e6.getRX() * rotationSensitivity());			
+				rot = new Rot(e6.getRX() * rotationSensitivity());			
 			if ( isFlipped() ) rot.negate();	
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();			
 			if(e6.relative()) {

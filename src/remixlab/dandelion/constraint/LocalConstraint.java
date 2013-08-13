@@ -32,7 +32,7 @@ import remixlab.dandelion.geom.*;
  * <p>
  * The {@link #translationConstraintDirection()} and
  * {@link #rotationConstraintDirection()} are expressed in the Frame local
- * coordinate system (see {@link remixlab.dandelion.geom.GeomFrame#referenceFrame()}).
+ * coordinate system (see {@link remixlab.dandelion.geom.RefFrame#referenceFrame()}).
  */
 public class LocalConstraint extends AxisPlaneConstraint {
 
@@ -42,7 +42,7 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	 * local coordinate system by {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public Vec constrainTranslation(Vec translation, GeomFrame frame) {
+	public Vec constrainTranslation(Vec translation, RefFrame frame) {
 		Vec res = new Vec(translation.vec[0], translation.vec[1], translation.vec[2]);
 		Vec proj;
 		switch (translationConstraintType()) {
@@ -71,7 +71,7 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	 * Frame local coordinate system by {@link #rotationConstraintDirection()}.
 	 */
 	@Override
-	public Orientable constrainRotation(Orientable rotation, GeomFrame frame) {
+	public Orientable constrainRotation(Orientable rotation, RefFrame frame) {
 		Orientable res = rotation.get();
 		switch (rotationConstraintType()) {
 		case FREE:
@@ -90,7 +90,7 @@ public class LocalConstraint extends AxisPlaneConstraint {
 			if( rotation instanceof Quat)
 				res = new Quat(); // identity
 			else
-				res = new Rotation(); // identity
+				res = new Rot(); // identity
 			break;
 		}
 		return res;

@@ -31,7 +31,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.dandelion.core.Constants;
 import remixlab.tersehandling.core.Util;
 
-public class Rotation implements Constants, Orientable {
+public class Rot implements Constants, Orientable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).  
@@ -45,7 +45,7 @@ public class Rotation implements Constants, Orientable {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 				
-		Rotation other = (Rotation) obj;
+		Rot other = (Rot) obj;
 		return new EqualsBuilder()		
 		.append(this.angle,  other.angle)
 		.isEquals();						
@@ -53,33 +53,33 @@ public class Rotation implements Constants, Orientable {
 	
 	protected float angle;
 	
-	public Rotation() {
+	public Rot() {
 		angle = 0;
 	}
 	
-	public Rotation(float a) {
+	public Rot(float a) {
 		angle = a;
 		normalize();
 	}
 	
-	public Rotation(Vec from, Vec to) {
+	public Rot(Vec from, Vec to) {
 		fromTo(from, to);
 	}
 	
-	public Rotation(Point center, Point prev, Point curr) {
+	public Rot(Point center, Point prev, Point curr) {
 		Vec from = new Vec(prev.x - center.x, prev.y - center.y);
 		Vec to = new Vec(curr.x - center.x, curr.y - center.y);
 		fromTo(from, to);
 	}
 	
-	protected Rotation(Rotation a1) {
+	protected Rot(Rot a1) {
 		this.angle = a1.angle();
 		normalize();
 	}
 	
 	@Override
-	public Rotation get() {
-		return new Rotation(this);
+	public Rot get() {
+		return new Rot(this);
 	}
 	
 	@Override
@@ -94,7 +94,7 @@ public class Rotation implements Constants, Orientable {
 
 	@Override
 	public Orientable inverse() {
-		return new Rotation(-angle());
+		return new Rot(-angle());
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class Rotation implements Constants, Orientable {
 	}
 	
 	public final static Orientable compose(Orientable r1, Orientable r2) {		
-		return new Rotation(r1.angle() + r2.angle());
+		return new Rot(r1.angle() + r2.angle());
 	}
 	
 	public float normalize(boolean onlypos) {

@@ -59,7 +59,7 @@ public class Window extends Viewport implements Copyable {
 	
 	@Override
 	public void computeViewMatrix() {		
-		Rotation q = (Rotation)frame().orientation();
+		Rot q = (Rot)frame().orientation();
 		
 		float cosB = (float)Math.cos((double)q.angle());
 		float sinB = (float)Math.sin((double)q.angle());
@@ -164,7 +164,7 @@ public class Window extends Viewport implements Copyable {
 		Quat q = new Quat(new Vec(0.0f, 1.0f, 0.0f), frame().transformOf(up));
 
 		if (!noMove) 		
-			frame().setPosition(Vec.sub(arcballReferencePoint(), (Rotation.compose((Rotation) frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));		
+			frame().setPosition(Vec.sub(arcballReferencePoint(), (Rot.compose((Rot) frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));		
 
 		frame().rotate(q);
 	}
@@ -222,7 +222,7 @@ public class Window extends Viewport implements Copyable {
 	}
 	
 	@Override
-	public void fitScreenRegion(Rectangle rectangle) {
+	public void fitScreenRegion(Rect rectangle) {
 		float rectRatio = (float)rectangle.width / (float)rectangle.height;
 		//TODO needs testing
 		
@@ -283,7 +283,7 @@ public class Window extends Viewport implements Copyable {
 	}
 	
 	public void setOrientation(float angle) {
-		Orientable quat = new Rotation(angle);
+		Orientable quat = new Rot(angle);
 		frame().setOrientation(quat);
 		frame().updateFlyUpVector();
 	}
@@ -329,7 +329,7 @@ public class Window extends Viewport implements Copyable {
 		float winH = this.screenHeight()/3;
 		float cX = (float)pixel.x - winW/2;
 		float cY = (float)pixel.y - winH/2;
-		Rectangle rect = new Rectangle((int)cX, (int)cY, (int)winW, (int)winH);
+		Rect rect = new Rect((int)cX, (int)cY, (int)winW, (int)winH);
 		this.interpolateToZoomOnRegion(rect);		
 	}	
 }

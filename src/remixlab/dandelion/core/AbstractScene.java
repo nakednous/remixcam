@@ -1052,7 +1052,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		renderer.drawShooterTarget(center, length);
 	}
 	
-	public void drawPath(List<GeomFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
+	public void drawPath(List<RefFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
 		renderer.drawPath(path, mask, nbFrames, nbSteps, scale);
 	}
 	
@@ -1147,7 +1147,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * <b>Attention:</b> When drawing a frame hierarchy as above, this method
 	 * should be used whenever possible.
 	 */
-	public void applyTransformation(GeomFrame frame) {
+	public void applyTransformation(RefFrame frame) {
 		if( is2D() ) {
 			translate(frame.translation().x(), frame.translation().y());
 			rotate(frame.rotation().angle());
@@ -1160,8 +1160,8 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		}
 	}
 	
-	public void applyWorldTransformation(GeomFrame frame) {
-		GeomFrame refFrame = frame.referenceFrame();
+	public void applyWorldTransformation(RefFrame frame) {
+		RefFrame refFrame = frame.referenceFrame();
 		if(refFrame != null) {
 			applyWorldTransformation(refFrame);
 			applyTransformation(frame);

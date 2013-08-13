@@ -33,9 +33,9 @@ import remixlab.tersehandling.core.Util;
  * <p>
  * This class defines the interface for the constraint that can be applied to a
  * Frame to limit its motion. Use
- * {@link remixlab.dandelion.geom.GeomFrame#setConstraint(Constraint)} to associate a
+ * {@link remixlab.dandelion.geom.RefFrame#setConstraint(Constraint)} to associate a
  * Constraint to a Frame (default is a {@code null}
- * {@link remixlab.dandelion.geom.GeomFrame#constraint()}.
+ * {@link remixlab.dandelion.geom.RefFrame#constraint()}.
  */
 public abstract class Constraint {
 	private Vec sclConstraintValues = new Vec(1,1,1);
@@ -47,14 +47,14 @@ public abstract class Constraint {
 	 * Overload this method in your own Constraint class to define a new
 	 * translation constraint. {@code frame} is the Frame to which is applied the
 	 * translation. You should refrain from directly changing its value in the
-	 * constraint. Use its {@link remixlab.dandelion.geom.GeomFrame#position()} and update
+	 * constraint. Use its {@link remixlab.dandelion.geom.RefFrame#position()} and update
 	 * the translation accordingly instead.
 	 * <p>
 	 * {@code translation} is expressed in the local Frame coordinate system. Use
-	 * {@link remixlab.dandelion.geom.GeomFrame#inverseTransformOf(Vec)} to express it
+	 * {@link remixlab.dandelion.geom.RefFrame#inverseTransformOf(Vec)} to express it
 	 * in the world coordinate system if needed.
 	 */
-	public Vec constrainTranslation(Vec translation, GeomFrame frame) {
+	public Vec constrainTranslation(Vec translation, RefFrame frame) {
 		return new Vec(translation.vec[0], translation.vec[1], translation.vec[2]);
 	}
 
@@ -63,13 +63,13 @@ public abstract class Constraint {
 	 * implementation is empty (no filtering).
 	 * <p>
 	 * Overload this method in your own Constraint class to define a new rotation
-	 * constraint. See {@link #constrainTranslation(Vec, GeomFrame)} for details.
+	 * constraint. See {@link #constrainTranslation(Vec, RefFrame)} for details.
 	 * <p>
-	 * Use {@link remixlab.dandelion.geom.GeomFrame#inverseTransformOf(Vec)} on the
+	 * Use {@link remixlab.dandelion.geom.RefFrame#inverseTransformOf(Vec)} on the
 	 * {@code rotation} {@link remixlab.dandelion.geom.Quat#axis()} to express
 	 * {@code rotation} in the world coordinate system if needed.
 	 */
-	public Orientable constrainRotation(Orientable rotation, GeomFrame frame) {
+	public Orientable constrainRotation(Orientable rotation, RefFrame frame) {
 		return rotation.get();
 	}
 	
@@ -99,12 +99,12 @@ public abstract class Constraint {
 	 * Overload this method in your own Constraint class to define a new
 	 * translation constraint. {@code frame} is the Frame to which is applied the
 	 * scaling. You should refrain from directly changing its value in the
-	 * constraint. Use its {@link remixlab.dandelion.geom.GeomFrame#position()} and update
+	 * constraint. Use its {@link remixlab.dandelion.geom.RefFrame#position()} and update
 	 * the translation accordingly instead.
 	 * <p>
 	 * {@code scaling} is expressed in the local Frame coordinate system.
 	 */	
-	public Vec constrainScaling(Vec scaling, GeomFrame frame) {
+	public Vec constrainScaling(Vec scaling, RefFrame frame) {
 		Vec res = new Vec(scaling.x(), scaling.y(), scaling.z());		
 		// special case
 		if( Util.zero(res.x()) ) res.x(1);

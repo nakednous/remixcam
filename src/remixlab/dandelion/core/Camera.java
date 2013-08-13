@@ -1889,7 +1889,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 	 * eventually fitted.
 	 */
 	@Override
-	public void fitScreenRegion(Rectangle rectangle) {
+	public void fitScreenRegion(Rect rectangle) {
 		Vec vd = viewDirection();
 		float distToPlane = distanceToSceneCenter();
 
@@ -1966,7 +1966,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 		interpolationKfi.deletePath();
 		interpolationKfi.addKeyFrame(frame(), false);
 
-		interpolationKfi.addKeyFrame(new GeomFrame(frame().orientation(),
+		interpolationKfi.addKeyFrame(new RefFrame(frame().orientation(),
 				                                    Vec.add(Vec.mult(frame().position(),
 				                         0.3f), Vec.mult(target.point, 0.7f))), 0.4f, false);
 
