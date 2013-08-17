@@ -369,16 +369,23 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	 */
 	@Override
 	public boolean checkIfGrabsInput(TerseEvent event) {
-		int x=0, y=0;
-		if(event instanceof DOF2Event) {
-			//x = scene.cursorX - scene.upperLeftCorner.getX();
-			//y = scene.cursorY - scene.upperLeftCorner.getY();
-			x = (int)((DOF2Event)event).getX();
-			y = (int)((DOF2Event)event).getY();
+		DOF2Event event2 = null;
+		
+		if ( ( ! (event instanceof MotionEvent) ) || (event instanceof DOF1Event) )  {
+			throw new RuntimeException("Gravving an interactive frame requires at least a DOF2 event");
 		}
+		
+		if( event instanceof DOF2Event )
+			event2 = ((DOF2Event)event).get();
+		else if( event instanceof DOF3Event )
+			event2 = ((DOF3Event)event).dof2Event();
+		else if( event instanceof DOF6Event )
+			event2 = ((DOF6Event)event).dof3Event().dof2Event();
+		
 		Vec proj = scene.viewport().projectedCoordinatesOf(position());
-		return ((Math.abs(x - proj.vec[0]) < grabsInputThreshold()) && (Math.abs(y - proj.vec[1]) < grabsInputThreshold()));
-		//setGrabsInput(keepsGrabbingCursor || ((Math.abs(x - proj.vec[0]) < grabsDeviceThreshold()) && (Math.abs(y - proj.vec[1]) < grabsDeviceThreshold())));
+		
+		return ((Math.abs((event2.getX() - scene.upperLeftCorner.getX()) - proj.vec[0]) < grabsInputThreshold()) &&
+				    (Math.abs((event2.getY() - scene.upperLeftCorner.getY()) - proj.vec[1]) < grabsInputThreshold()));
 	}
 
 	/**
@@ -635,8 +642,8 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	 * @see #dampingFriction()
 	 * @see #toss()
 	 */
-	public void startSpinning(MotionEvent e) {
-		eventSpeed = e.speed();
+	public void startSpinning(MotionEvent e) {	  
+		eventSpeed = e.speed();	  
 		isSpng = true;
 		int updateInterval = (int) e.delay();
 		if(updateInterval>0)

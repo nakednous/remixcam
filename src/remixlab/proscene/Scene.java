@@ -27,7 +27,6 @@
 package remixlab.proscene;
 
 import remixlab.dandelion.agent.*;
-import remixlab.dandelion.agent.MouseAgent;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
@@ -2470,7 +2469,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
 					Vec center = viewport().projectedCoordinatesOf(iF.position());
-					if (mg.grabsAgent(prosceneMouse)) {
+					if (grabsAnAgent(mg)) {
 						pg().pushStyle();
 					  //pg3d.stroke(mouseGrabberOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 0));
@@ -2498,7 +2497,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
 					Vec center = viewport().projectedCoordinatesOf(iF.position());
-					if (mg.grabsAgent(prosceneMouse)) {
+					if (grabsAnAgent(mg)) {
 						pg().pushStyle();						
 					  //pg3d.stroke(mouseGrabberCameraPathOnSelectionHintColor());
 						pg().stroke(pg().color(0, 255, 255));

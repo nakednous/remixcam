@@ -426,6 +426,14 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		return terseHandler;
 	}
 	
+	public boolean grabsAnAgent(Grabbable g) {
+		for( Agent agent : terseHandler().agents() ) {
+			if (g.grabsAgent(agent))
+					return true;
+		}
+		return false;
+	}
+	
 	protected abstract void updateCursor();
 	
 	private void updateFrameRate() {
