@@ -87,14 +87,14 @@ void keyPressed() {
   if (key == 'y') {
     enforced = !enforced;
     if(enforced) {
-      scene.prosceneMouse.setDefaultGrabber(iFrame);
-      scene.prosceneMouse.disableTracking();
+      scene.defaultMouseAgent().setDefaultGrabber(iFrame);
+      scene.defaultMouseAgent().disableTracking();
       hidAgent.setDefaultGrabber(iFrame);
     }
     else {
-      scene.prosceneMouse.setDefaultGrabber(scene.pinhole().frame());
-      scene.prosceneMouse.enableTracking();
-      hidAgent.setDefaultGrabber(scene.pinhole().frame());
+      scene.defaultMouseAgent().setDefaultGrabber(scene.viewport().frame());
+      scene.defaultMouseAgent().enableTracking();
+      hidAgent.setDefaultGrabber(scene.viewport().frame());
     }
   }
 }
@@ -116,7 +116,7 @@ void renderIFrame() {
   // Draw an axis using the Scene static function
   scene.drawAxis(20);
   // Draw a second box
-  if (iFrame.grabsAgent(scene.prosceneMouse) || iFrame.grabsAgent(hidAgent) ) {
+  if (iFrame.grabsAgent(scene.defaultMouseAgent()) || iFrame.grabsAgent(hidAgent) ) {
     fill(255, 0, 0);
     box(12, 17, 22);
   }
