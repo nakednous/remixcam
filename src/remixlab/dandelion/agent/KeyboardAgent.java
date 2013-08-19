@@ -74,8 +74,8 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 		setKeyToPlayPath('2', 2);
 		setKeyToPlayPath('3', 3);
 		
-	  //TODO testing:
-		keyboardProfile().setShortcut('z', KeyboardAction.RESET_ARP);
+	  //testing:
+		//keyboardProfile().setShortcut('z', KeyboardAction.RESET_ARP);
 	}
 	
 	public void setKeyToPlayPath(char key, int path) {			

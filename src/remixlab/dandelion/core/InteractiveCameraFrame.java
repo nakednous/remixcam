@@ -389,7 +389,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		case ROTATE3:
 			q = new Quat();
 			if(e3.absolute())
-				q.fromEulerAngles(-e3.getX(), -e3.getDY(), e3.getDZ());
+				q.fromEulerAngles(-e3.getX(), -e3.getY(), e3.getZ());
 			else
 				q.fromEulerAngles(-e3.getDX(), -e3.getDY(), e3.getDZ());
       rotate(q);
@@ -444,13 +444,11 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			translate(inverseTransformOf(trans));
 			//translate(inverseTransformOf(trans, false));
 			break;
-		case TRANSLATE:
-			Point pDelta;
-			if( e2.relative() )
-				pDelta = new Point(-e2.getDX(), scene.isRightHanded() ? -e2.getDY() : e2.getDY());
+		case TRANSLATE:			
+			if(e2.relative())
+			  trans = new Vec(-e2.getDX(), scene.isRightHanded() ? e2.getDY() : -e2.getDY(), 0.0f);
 			else
-				pDelta = new Point(-e2.getX(), scene.isRightHanded() ? -e2.getY() : e2.getY());
-			trans = new Vec((int) pDelta.x, (int) -pDelta.y, 0.0f);
+				trans = new Vec(-e2.getX(), scene.isRightHanded() ? e2.getY() : -e2.getY(), 0.0f);
 			// Scale to fit the screen mouse displacement
 			switch (camera.type()) {
 			case PERSPECTIVE:
@@ -467,17 +465,45 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
 			break;
 		case TRANSLATE3:
-			if(e3.absolute())
-				translate(localInverseTransformOf(new Vec(e3.getX(),e3.getY(),-e3.getZ()), false));
+			if(e3.relative())
+			  trans = new Vec(-e3.getDX(), scene.isRightHanded() ? e3.getDY() : -e3.getDY(), -e3.getDZ());
 			else
-				translate(localInverseTransformOf(new Vec(e3.getDX(),e3.getDY(),-e3.getDZ()), false));
+				trans = new Vec(-e3.getX(), scene.isRightHanded() ? e3.getY() : -e3.getY(), -e3.getZ());
+			// Scale to fit the screen mouse displacement
+			switch (camera.type()) {
+			case PERSPECTIVE:
+				trans.mult(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
+                        * Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
+                        / camera.screenHeight());
+				break;
+			case ORTHOGRAPHIC:
+				float[] wh = camera.getOrthoWidthHeight();
+				trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
+				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
+				break;
+			}
+			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
 			break;
 		case TRANSLATE_ROTATE:
 			//translate
-			if(e6.absolute())
-				translate(localInverseTransformOf(new Vec(e6.getX(),e6.getY(),-e6.getZ()), false));
+			if(e6.relative())
+			  trans = new Vec(-e6.getDX(), scene.isRightHanded() ? e6.getDY() : -e6.getDY(), -e6.getDZ());
 			else
-				translate(localInverseTransformOf(new Vec(e6.getDX(),e6.getDY(),-e6.getDZ()), false));
+				trans = new Vec(-e6.getX(), scene.isRightHanded() ? e6.getY() : -e6.getY(), -e6.getZ());
+			// Scale to fit the screen mouse displacement
+			switch (camera.type()) {
+			case PERSPECTIVE:
+				trans.mult(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
+                        * Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
+                        / camera.screenHeight());
+				break;
+			case ORTHOGRAPHIC:
+				float[] wh = camera.getOrthoWidthHeight();
+				trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
+				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
+				break;
+			}
+			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
 		  // Rotate
 			q = new Quat();
 			if(e6.absolute())

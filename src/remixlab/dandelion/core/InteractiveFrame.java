@@ -1012,7 +1012,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 		if(a==null) return;
 		Quat q, rot;
 		Vec trans;
-		Vec t;
+		//Vec t;
 		float angle;
 		switch(a) {
 		case CUSTOM:
@@ -1087,17 +1087,17 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 			break;		
 		case ROTATE3:
 			q = new Quat();
-			t = scene.camera().projectedCoordinatesOf(position());
+			trans = scene.camera().projectedCoordinatesOf(position());
 	    if(e3.absolute())
 	    	q.fromEulerAngles(e3.getX(), e3.getY(), -e3.getZ());
 	    else
 	    	q.fromEulerAngles(e3.getDX(), e3.getDY(), -e3.getDZ());
-	    t.set(-q.x(), -q.y(), -q.z());
-	    t = scene.camera().frame().orientation().rotate(t);
-	    t = transformOf(t, false);
-	    q.x(t.x());
-	    q.y(t.y());
-	    q.z(t.z());
+	    trans.set(-q.x(), -q.y(), -q.z());
+	    trans = scene.camera().frame().orientation().rotate(trans);
+	    trans = transformOf(trans, false);
+	    q.x(trans.x());
+	    q.y(trans.y());
+	    q.z(trans.z());
 	    rotate(q);
 			break;
 		case SCREEN_ROTATE:
@@ -1179,43 +1179,76 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 			translate(trans);
 			break;
 		case TRANSLATE3:
-			t = new Vec();
-      // A. Translate the iFrame
-	    // Transform to world coordinate system
-	    if(e3.absolute())
-	    	t = scene.camera().frame().inverseTransformOf(new Vec(e3.getX(),e3.getY(),-e3.getZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
-	    else
-	    	t = scene.camera().frame().inverseTransformOf(new Vec(e3.getDX(),e3.getDY(),-e3.getDZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
-	    // And then down to frame
-	    if (referenceFrame() != null)
-	    	t = referenceFrame().transformOf(t, false);
-	    translate(t);
+			if(e3.relative())
+			  trans = new Vec(e3.getDX(), scene.isRightHanded() ? -e3.getDY() : e3.getDY(), -e3.getDZ());
+			else
+				trans = new Vec(e3.getX(), scene.isRightHanded() ? -e3.getY() : e3.getY(), -e3.getZ());
+		  // Scale to fit the screen mouse displacement
+			switch ( scene.camera().type() ) {
+			case PERSPECTIVE:
+				trans.mult(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
+						            * Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2] * scene.camera().frame().magnitude().z())
+								        //* Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2])						            
+								        / scene.camera().screenHeight());
+				break;
+				case ORTHOGRAPHIC: {
+					float[] wh = scene.camera().getOrthoWidthHeight();
+					trans.vec[0] *= 2.0 * wh[0] / scene.camera().screenWidth();
+					trans.vec[1] *= 2.0 * wh[1] / scene.camera().screenHeight();
+					break;
+				}
+			}
+		  // same as:
+			trans = scene.camera().frame().orientation().rotate(Vec.mult(trans, translationSensitivity()));
+			// but takes into account scaling
+			//trans = scene.camera().frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
+			// And then down to frame
+			if (referenceFrame() != null)
+				trans = referenceFrame().transformOf(trans);
+			translate(trans);
 			break;
 		case TRANSLATE_ROTATE:
-			t = new Vec();
-	    q = new Quat();
-      // A. Translate the iFrame
-	    // Transform to world coordinate system
-	    if(e6.absolute())
-	    	t = scene.camera().frame().inverseTransformOf(new Vec(e6.getX(),e6.getY(),-e6.getZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
-	    else
-	    	t = scene.camera().frame().inverseTransformOf(new Vec(e6.getDX(),e6.getDY(),-e6.getDZ()), false); //same as: t = cameraFrame.orientation().rotate(new PVector(tx,ty,-tz));
-	    // And then down to frame
-	    if (referenceFrame() != null)
-	    	t = referenceFrame().transformOf(t, false);
-	    translate(t);
+		  // A. Translate the iFrame
+			if(e6.relative())
+			  trans = new Vec(e6.getDX(), scene.isRightHanded() ? -e6.getDY() : e6.getDY(), -e6.getDZ());
+			else
+				trans = new Vec(e6.getX(), scene.isRightHanded() ? -e6.getY() : e6.getY(), -e6.getZ());
+		  // Scale to fit the screen mouse displacement
+			switch ( scene.camera().type() ) {
+			case PERSPECTIVE:
+				trans.mult(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
+						            * Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2] * scene.camera().frame().magnitude().z())
+								        //* Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2])						            
+								        / scene.camera().screenHeight());
+				break;
+				case ORTHOGRAPHIC: {
+					float[] wh = scene.camera().getOrthoWidthHeight();
+					trans.vec[0] *= 2.0 * wh[0] / scene.camera().screenWidth();
+					trans.vec[1] *= 2.0 * wh[1] / scene.camera().screenHeight();
+					break;
+				}
+			}
+		  // same as:
+			trans = scene.camera().frame().orientation().rotate(Vec.mult(trans, translationSensitivity()));
+			// but takes into account scaling
+			//trans = scene.camera().frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
+			// And then down to frame
+			if (referenceFrame() != null)
+				trans = referenceFrame().transformOf(trans);
+			translate(trans);
 	    // B. Rotate the iFrame
-	    t = scene.camera().projectedCoordinatesOf(position());
+	    q = new Quat();
+	    trans = scene.camera().projectedCoordinatesOf(position());	    
 	    if(e6.absolute())
 	    	q.fromEulerAngles(e6.roll(), e6.pitch(), -e6.yaw());
 	    else
 	    	q.fromEulerAngles(e6.getDRX(), e6.getDRY(), -e6.getDRZ());
-	    t.set(-q.x(), -q.y(), -q.z());
-	    t = scene.camera().frame().orientation().rotate(t);
-	    t = transformOf(t, false);
-	    q.x(t.x());
-	    q.y(t.y());
-	    q.z(t.z());
+	    trans.set(-q.x(), -q.y(), -q.z());
+	    trans = scene.camera().frame().orientation().rotate(trans);
+	    trans = transformOf(trans, false);
+	    q.x(trans.x());
+	    q.y(trans.y());
+	    q.z(trans.z());
 	    rotate(q);
 			break;
 		case ZOOM:
