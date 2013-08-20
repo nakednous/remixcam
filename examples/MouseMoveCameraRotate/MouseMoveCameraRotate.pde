@@ -17,6 +17,8 @@ public void setup() {
   scene.setRadius(150);
   scene.showAll();
   agent = new MouseMoveAgent(scene, "MyMouseAgent");
+  // agents creation registers it at the terseHandler.
+  // we unregister it here, keeping the default mouse agent
   scene.terseHandler().unregisterAgent(agent);
 }
 
@@ -31,6 +33,7 @@ public void draw() {
 }
 
 public void keyPressed() {
+  // We switch between the default mouse agent and the one we created:
   if ( key != ' ') return;
   if ( !scene.terseHandler().isAgentRegistered(agent) ) {
     scene.terseHandler().registerAgent(agent);

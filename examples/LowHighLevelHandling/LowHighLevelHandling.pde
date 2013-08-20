@@ -20,48 +20,17 @@ GenericKeyboardEvent<Constants.KeyboardAction> kEvent;
 
 int count = 4;
 
-ProsceneMouse mouse;
-ProsceneKeyboard keyboard;
-
 InteractiveFrame iFrame;
-
-//MyIFrame iFrame;
 
 @Override
 public void setup() {
   size(640, 360, P3D);
   scene = new Scene(this);
-
-  mouse = scene.defaultMouseAgent();
-  keyboard = scene.defaultKeyboardAgent();
-
-  //scene.setInteractiveFrame(new InteractiveFrame(scene));
-  //scene.interactiveFrame().translate(new DLVector(30, 30, 0));
+  
   iFrame = new InteractiveFrame(scene);
-
   iFrame.translate(new Vec(30, 30, 0));
 
-  //switch timers to awt if not happy with P5 poorly frame rate (see my comment in draw)
-  //scene.switchTimers();
-
   mouseAction = Constants.DOF2Action.ROTATE;
-  //keyAction = Constants.DOF_0Action.NO_ACTION;
-  //restore spinning at some point in the future
-  //scene.interactiveFrame().setSpinningFriction(0);
-  frameRate(100);
-  //Testing some things out to test whether framework is ill behave or not ;)
-  //using tersehandling here:
-
-  // /**
-  if ( scene.defaultKeyboardAgent().keyboardProfile().isKeyInUse('f') )
-    println("'f' key is in use");
-  if ( scene.defaultKeyboardAgent().keyboardProfile().isKeyboardActionBound(KeyboardAction.DRAW_FRAME_SELECTION_HINT ) )
-    println("DRAW_FRAME_SELECTION_HINT action is bound");		
-  if ( scene.defaultKeyboardAgent().keyboardProfile().isKeyInUse('s') )
-    println("'s' key is in use");
-  if ( scene.defaultKeyboardAgent().keyboardProfile().isKeyInUse('S') )
-    println("'S' key is in use");
-  // */
 }
 
 @Override
@@ -71,7 +40,6 @@ public void draw() {
   fill(204, 102, 0);
   box(20, 30, 40);
 
-  // /**
   pushMatrix();
   iFrame.applyTransformation();
   scene.drawAxis(20);
@@ -90,7 +58,7 @@ public void draw() {
 }
 
 public boolean iFrameGrabsInput() {
-  if (scene.terseHandler().isAgentRegistered("proscene_mouse"))
+  if (scene.isDefaultMouseAgentInUse())
     return iFrame.grabsAgent(scene.defaultMouseAgent());
   else
     return grabsInput;
@@ -98,8 +66,7 @@ public boolean iFrameGrabsInput() {
 
 @Override
 public void mouseMoved() {
-  if (!scene.terseHandler().isAgentRegistered(scene.defaultMouseAgent())) {
-    //if (!scene.isAgentRegistered("proscene_mouse")) {
+  if (!scene.isDefaultMouseAgentInUse()) {
     event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, (float) mouseX, (float) mouseY);
     if (enforced)
       grabsInput = true;
@@ -111,7 +78,7 @@ public void mouseMoved() {
 
 @Override
 public void mouseDragged() {
-  if (!scene.terseHandler().isAgentRegistered("proscene_mouse")) {
+  if (!scene.isDefaultMouseAgentInUse()) {
     event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, (float) mouseX, (float) mouseY, mouseAction);
     if (grabsInput)
       scene.terseHandler().enqueueEventTuple(new EventGrabberTuple(event, iFrame));
@@ -123,42 +90,23 @@ public void mouseDragged() {
 
 @Override
 public void keyPressed() {
-  if ( key == 'x' || key == 'X' ) {
-    println(" size: " + scene.terseHandler().globalGrabberList().size());
-    for (Grabbable mg : scene.terseHandler().globalGrabberList()) {
-      if (mg instanceof InteractiveFrame) {
-        InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
-        if (iF.isInCameraPath()) {
-          println("frame is in cam path! win!!!");
-        }
-        else 
-          println("frame is not in cam path!");
-      }
-      else {
-        println("NOT INSTANCE !!??");
-      }
-    }
-    //println("cam listeners: " + scene.pinhole().frame().listeners() + " number: " + scene.pinhole().frame().listeners().size());
-  }
-
-  if (!scene.terseHandler().isAgentRegistered("proscene_keyboard")) {
+  if (!scene.isDefaultKeyboardAgentInUse()) {  
     if (key == 'a' || key == 'g') {
       if (key == 'a')
         keyAction = Constants.KeyboardAction.DRAW_GRID;
       if (key == 'g')
         keyAction = Constants.KeyboardAction.DRAW_AXIS;
-      kEvent = new GenericKeyboardEvent<Constants.KeyboardAction>(key, keyAction);
-      //scene.terseHandler().enqueueEventTuple(new EventGrabberTuple(kEvent, iFrame));
+      kEvent = new GenericKeyboardEvent<Constants.KeyboardAction>(key, keyAction);      
       scene.terseHandler().enqueueEventTuple(new EventGrabberTuple(kEvent, scene));
     }
   }
   if ( key == 'k' || key == 'K' ) {
-    if (!scene.terseHandler().isAgentRegistered("proscene_keyboard")) {
-      scene.terseHandler().registerAgent(keyboard);
+    if (scene.isDefaultKeyboardAgentInUse()) {
+      scene.disableDefaultKeyboardAgent();
       println("High level key event handling");
     }
     else {
-      keyboard = (ProsceneKeyboard)scene.terseHandler().unregisterAgent("proscene_keyboard");
+      scene.enableDefaultKeyboardAgent();
       println("low level key event handling");
     }
   }
@@ -180,12 +128,12 @@ public void keyPressed() {
         grabsInput = false;
   }
   if ( key == 'm' || key == 'M' ) {
-    if (!scene.terseHandler().isAgentRegistered("proscene_mouse")) {
-      scene.terseHandler().registerAgent(mouse);
+    if (scene.isDefaultMouseAgentInUse()) {
+      scene.disableDefaultMouseAgent();
       println("High level mouse event handling");
     }
     else {
-      mouse = (ProsceneMouse)scene.terseHandler().unregisterAgent("proscene_mouse");
+      scene.enableDefaultMouseAgent();
       println("low level mouse event handling");
     }
   }		
