@@ -27,16 +27,15 @@ package remixlab.dandelion.core;
 
 //import remixlab.remixcam.constraint.Constraint;
 import remixlab.dandelion.geom.*;
-import remixlab.dandelion.util.AbstractTimerJob;
 import remixlab.tersehandling.core.Agent;
-import remixlab.tersehandling.core.Copyable;
+import remixlab.util.Copyable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.generic.profile.Duoable;
 import remixlab.tersehandling.event.*;
-
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+import remixlab.util.gwthashcodeequals.EqualsBuilder;
+import remixlab.util.gwthashcodeequals.HashCodeBuilder;
+import remixlab.util.timer.AbstractTimerJob;
 
 /**
  * A InteractiveFrame is a Frame that can be rotated and translated using the

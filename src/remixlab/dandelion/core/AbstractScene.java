@@ -31,11 +31,11 @@ import java.util.List;
 
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
-import remixlab.dandelion.util.*;
 import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.generic.profile.*;
 import remixlab.tersehandling.event.*;
+import remixlab.util.timer.*;
 
 public abstract class AbstractScene implements Constants, Grabbable {	
 	protected boolean dottedGrid;	

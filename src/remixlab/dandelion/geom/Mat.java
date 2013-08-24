@@ -25,10 +25,9 @@
 
 package remixlab.dandelion.geom;
 
-import remixlab.tersehandling.core.Util;
-
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+import remixlab.util.Util;
+import remixlab.util.gwthashcodeequals.EqualsBuilder;
+import remixlab.util.gwthashcodeequals.HashCodeBuilder;
 
 /**
  * 4x4 matrix implementation.

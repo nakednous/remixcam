@@ -29,16 +29,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
 import remixlab.dandelion.constraint.*;
 import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.core.Constants;
 import remixlab.dandelion.core.InteractiveCameraFrame;
 import remixlab.dandelion.core.KeyFrameInterpolator;
-import remixlab.tersehandling.core.Copyable;
-import remixlab.tersehandling.core.Util;
+import remixlab.util.Copyable;
+import remixlab.util.Util;
+import remixlab.util.gwthashcodeequals.EqualsBuilder;
+import remixlab.util.gwthashcodeequals.HashCodeBuilder;
 
 /**
  * A Frame is a 3D coordinate system, represented by a {@link #position()} and

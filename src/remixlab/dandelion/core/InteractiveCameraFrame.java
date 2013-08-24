@@ -26,14 +26,13 @@
 package remixlab.dandelion.core;
 
 import remixlab.dandelion.geom.*;
-import remixlab.dandelion.util.AbstractTimerJob;
-import remixlab.tersehandling.core.Copyable;
-import remixlab.tersehandling.core.Util;
+import remixlab.util.Copyable;
+import remixlab.util.Util;
 import remixlab.tersehandling.event.DOF2Event;
 import remixlab.tersehandling.generic.event.*;
-
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+import remixlab.util.gwthashcodeequals.EqualsBuilder;
+import remixlab.util.gwthashcodeequals.HashCodeBuilder;
+import remixlab.util.timer.AbstractTimerJob;
 
 /**
  * The InteractiveCameraFrame class represents an InteractiveFrame with Camera

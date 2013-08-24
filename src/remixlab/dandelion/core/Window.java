@@ -26,7 +26,7 @@
 package remixlab.dandelion.core;
 
 import remixlab.dandelion.geom.*;
-import remixlab.tersehandling.core.Copyable;
+import remixlab.util.Copyable;
 
 public class Window extends Viewport implements Copyable {
 	

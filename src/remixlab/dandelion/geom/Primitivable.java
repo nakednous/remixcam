@@ -25,8 +25,7 @@
 
 package remixlab.dandelion.geom;
 
-import remixlab.tersehandling.core.Copyable;
-
+import remixlab.util.Copyable;
 
 public interface Primitivable extends Copyable {
 	public void link(float [] src);

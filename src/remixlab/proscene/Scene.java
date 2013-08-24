@@ -30,39 +30,11 @@ import remixlab.dandelion.agent.*;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
-import remixlab.dandelion.util.*;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.generic.profile.Actionable;
 import remixlab.tersehandling.generic.profile.Duoable;
-//import remixlab.remixcam.shortcut.*;
-
-/**
-import remixlab.remixcam.core.AbstractScene;
-import remixlab.remixcam.core.Camera;
-import remixlab.remixcam.core.Drawerable;
-import remixlab.remixcam.core.InteractiveFrame;
-import remixlab.remixcam.core.ViewWindow;
-import remixlab.remixcam.devices.DeviceGrabbable;
-import remixlab.remixcam.devices.CameraProfile;
-import remixlab.remixcam.events.DLKeyEvent;
-import remixlab.remixcam.events.DLMouseEvent;
-import remixlab.remixcam.events.DesktopEvents;
-import remixlab.remixcam.geom.GeomFrame;
-import remixlab.remixcam.geom.Matrix3D;
-import remixlab.remixcam.geom.Point;
-import remixlab.remixcam.geom.Vector3D;
-import remixlab.remixcam.geom.Quaternion;
-import remixlab.remixcam.renderers.ProjectionRenderer;
-import remixlab.remixcam.renderers.Renderer;
-import remixlab.remixcam.util.AbstractTimerJob;
-import remixlab.remixcam.util.SingleThreadedTaskableTimer;
-import remixlab.remixcam.util.SingleThreadedTimer;
-import remixlab.remixcam.util.Taskable;
-import remixlab.remixcam.util.Timable;
-// */
-
-//import java.awt.event.MouseEvent;
+import remixlab.util.timer.*;
 import processing.core.*;
 import processing.event.*;
 import processing.opengl.*;
@@ -139,7 +111,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		public void keyEvent(KeyEvent e) {
-			GenericKeyboardEvent<Constants.KeyboardAction> event = new GenericKeyboardEvent<Constants.KeyboardAction>( e.getModifiers(), e.getKey(), e.getKeyCode() );
+			GenericKeyboardEvent<KeyboardAction> event = new GenericKeyboardEvent<KeyboardAction>( e.getModifiers(), e.getKey(), e.getKeyCode() );
 			if(e.getAction() == KeyEvent.TYPE)
 				handleKey(event);
 			else
@@ -148,40 +120,36 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 	}
 	
-	//public class Mouse extends AbstractMouse {
 	public class ProsceneMouse extends MouseAgent {
-	//public class ProsceneMouse extends Mouse {
 		Scene scene;
 		boolean bypassNullEvent, zoomOnRegion, screenRotate;
 		Point fCorner = new Point();
 		Point lCorner = new Point();
-		GenericDOF2Event<Constants.DOF2Action> event, prevEvent;
+		GenericDOF2Event<DOF2Action> event, prevEvent;
 		float dFriction = viewport().frame().dampingFriction();
 		InteractiveFrame iFrame;
 		public ProsceneMouse(Scene scn, String n) {
 			super(scn, n);
 			scene = scn;
-			//cameraProfile().setBinding(DOF_2Action.ROTATE);//rotate without dragging any button
-			//System.out.println(cameraProfile().bindingsDescription());
+			cameraProfile().setBinding(TH_META, TH_RIGHT, DOF2Action.TRANSLATE);	
+			
+			/**
+			//TODO testing:
+			cameraClickProfile().setClickBinding((TH_SHIFT | TH_CTRL ), TH_RIGHT, 1, ClickAction.INTERPOLATE_TO_FIT);
+			cameraClickProfile().setClickBinding(TH_NOMODIFIER_MASK, TH_CENTER, 1, ClickAction.DRAW_AXIS);
+			frameClickProfile().setClickBinding(TH_NOMODIFIER_MASK, TH_CENTER, 1, ClickAction.DRAW_GRID);		
+			cameraClickProfile().setClickBinding(TH_SHIFT, TH_RIGHT, 1, ClickAction.PLAY_PATH_1);
+			*/
 		}
 		
 		public void mouseEvent(processing.event.MouseEvent e) {
-			//if( ((MouseEvent)e).getAction() == MouseEvent.PRESS ) {
-			//	prevEvent = new DOF2Event(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
-			//}
-			//if( e.getAction() == processing.event.MouseEvent.DRAG ) {//rotate without dragging any button
-			// /**
 			if( e.getAction() == processing.event.MouseEvent.MOVE ) {
-				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
+				event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
 				updateGrabber(event);
 				prevEvent = event.get();
 			}
-			// */
-			
-			// /**
 			if( e.getAction() == processing.event.MouseEvent.PRESS ) {
-				//if( this.grabber() != null ) { //overkill :P
-					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
+				  event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
 					if(grabber() instanceof InteractiveFrame) {
 						iFrame = (InteractiveFrame)grabber();
 						Actionable<?> a = (grabber() instanceof InteractiveCameraFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event);
@@ -209,26 +177,22 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					  	handle(event);		
 					} else
 						handle(event);
-					prevEvent = event.get();
-				//}			  
+					prevEvent = event.get();	  
 			}
-			// */
 			
-			// /**
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 				//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//e.g., rotate without dragging any button also possible :P
 				if(zoomOnRegion || screenRotate)
 					lCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
 				if( ! zoomOnRegion ) { //bypass zoom_on_region, may be different when using a touch device :P
-					event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
+					event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
 					handle(event);
 				  prevEvent = event.get();
 				}
 			}
-			// */
 			
 			if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
-				event = new GenericDOF2Event<Constants.DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
+				event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
 				if(zoomOnRegion) {
 					//at first glance this should work
 					//handle(event);
@@ -245,14 +209,52 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					bypassNullEvent = !bypassNullEvent;
 				}				
 			}
-			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {
-				//TODO terse seems broken here!
-				handle(new GenericDOF1Event<Constants.WheelAction>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
-				//enqueueEventTuple(new EventGrabberDuobleTuple(new GenericDOF1Event<Constants.WheelAction>(e.getCount(), e.getModifiers(), TH_NOBUTTON), WheelAction.ZOOM, grabber()));
+			if( e.getAction() == processing.event.MouseEvent.WHEEL ) {				
+				handle(new GenericDOF1Event<WheelAction>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
-				handle(new GenericClickEvent<Constants.ClickAction>(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton(), e.getCount()));
+				handle(new GenericClickEvent<ClickAction>(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton(), e.getCount()));
 			}	
+		}
+		
+		//hack to deal with this: https://github.com/processing/processing/issues/1693
+		//is to override all the following so that:
+		//1. Whenever TH_CENTER appears TH_ALT should be present
+		//2. Whenever TH_RIGHT appears TH_META should be present
+		@Override
+		public void setAsFirstPerson() {		
+			cameraProfile().setBinding(TH_NOMODIFIER_MASK, TH_LEFT, DOF2Action.MOVE_FORWARD);
+			cameraProfile().setBinding(TH_ALT, TH_CENTER, DOF2Action.LOOK_AROUND);
+			cameraProfile().setBinding(TH_META, TH_RIGHT, DOF2Action.MOVE_BACKWARD);
+			cameraProfile().setBinding(TH_SHIFT, TH_LEFT, DOF2Action.ROLL);
+			cameraProfile().setBinding((TH_ALT | TH_SHIFT), TH_CENTER, DOF2Action.DRIVE);
+			cameraWheelProfile().setBinding(TH_CTRL, TH_NOBUTTON, WheelAction.ROLL);
+			cameraWheelProfile().setBinding(TH_SHIFT, TH_NOBUTTON, WheelAction.DRIVE);
+		}
+		
+		@Override
+		public void setAsThirdPerson() {
+			frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_LEFT, DOF2Action.MOVE_FORWARD);
+	    frameProfile().setBinding(TH_ALT, TH_CENTER, DOF2Action.LOOK_AROUND);
+	    frameProfile().setBinding(TH_META, TH_RIGHT, DOF2Action.MOVE_BACKWARD);
+	    frameProfile().setBinding(TH_SHIFT, TH_LEFT, DOF2Action.ROLL);
+			frameProfile().setBinding((TH_ALT | TH_SHIFT), TH_CENTER, DOF2Action.DRIVE);
+		}
+		
+		@Override
+		public void setAsArcball() {
+			cameraProfile().setBinding(TH_NOMODIFIER_MASK, TH_LEFT, DOF2Action.ROTATE);
+			cameraProfile().setBinding(TH_ALT, TH_CENTER, DOF2Action.ZOOM);
+			cameraProfile().setBinding(TH_META, TH_RIGHT, DOF2Action.TRANSLATE);		
+			cameraProfile().setBinding(TH_SHIFT, TH_LEFT, DOF2Action.ZOOM_ON_REGION);
+			cameraProfile().setBinding((TH_ALT | TH_SHIFT), TH_CENTER, DOF2Action.SCREEN_TRANSLATE);
+			cameraProfile().setBinding((TH_META | TH_SHIFT), TH_RIGHT, DOF2Action.SCREEN_ROTATE);
+				
+			frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_LEFT, DOF2Action.ROTATE);
+			frameProfile().setBinding(TH_ALT, TH_CENTER, DOF2Action.ZOOM);
+			frameProfile().setBinding(TH_META, TH_RIGHT, DOF2Action.TRANSLATE);
+			frameProfile().setBinding((TH_ALT | TH_SHIFT), TH_CENTER, DOF2Action.SCREEN_TRANSLATE);
+			frameProfile().setBinding((TH_META | TH_SHIFT), TH_RIGHT, DOF2Action.SCREEN_ROTATE);
 		}
 	}
 	

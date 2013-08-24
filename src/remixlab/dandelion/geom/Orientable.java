@@ -25,7 +25,7 @@
 
 package remixlab.dandelion.geom;
 
-import remixlab.tersehandling.core.Copyable;
+import remixlab.util.Copyable;
 
 public interface Orientable extends Copyable {	
 	@Override

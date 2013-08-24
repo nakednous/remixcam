@@ -26,12 +26,12 @@
 package remixlab.dandelion.core;
 
 import remixlab.dandelion.geom.*;
-import remixlab.tersehandling.core.*;
+import remixlab.util.Copyable;
+import remixlab.util.Util;
+import remixlab.util.gwthashcodeequals.EqualsBuilder;
+import remixlab.util.gwthashcodeequals.HashCodeBuilder;
 
 import java.util.ArrayList;
-
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 /**
  * A perspective or orthographic camera.

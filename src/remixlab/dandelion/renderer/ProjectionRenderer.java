@@ -27,7 +27,7 @@ package remixlab.dandelion.renderer;
 
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
-import remixlab.tersehandling.core.Util;
+import remixlab.util.Util;
 
 public abstract class ProjectionRenderer extends Renderer implements Constants {
 	public ProjectionRenderer(AbstractScene scn, Depictable dw) {

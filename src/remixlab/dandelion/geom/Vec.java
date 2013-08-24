@@ -25,11 +25,10 @@
 
 package remixlab.dandelion.geom;
 
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
 import remixlab.dandelion.core.Constants;
-import remixlab.tersehandling.core.Util;
+import remixlab.util.Util;
+import remixlab.util.gwthashcodeequals.EqualsBuilder;
+import remixlab.util.gwthashcodeequals.HashCodeBuilder;
 
 /**
  * A class to describe a two or three dimensional vector.
