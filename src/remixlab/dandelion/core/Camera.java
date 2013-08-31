@@ -401,12 +401,12 @@ public class Camera extends Viewport implements Constants, Copyable {
 		return cadRotate;
 	}
 	
-	public void setCadRotate(boolean flag) {
-		cadRotate = flag;
+	public void setCadRotate() {
+		cadRotate = true;
 	}
 	
-	public void setArcBallRotate(boolean flag) {
-		setCadRotate(!flag);
+	public void setArcBallRotate() {
+		cadRotate = false;
 	}
 
 	// 2. POSITION AND ORIENTATION
