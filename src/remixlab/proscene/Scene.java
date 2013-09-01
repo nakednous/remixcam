@@ -105,6 +105,26 @@ import java.util.TimerTask;
  * occurs. See the example <i>Flock</i>.
  */
 public class Scene extends AbstractScene /**implements PConstants*/ {
+	public static Vec toVec(PVector v) {
+		return new Vec(v.x,v.y,v.z);
+	}
+	
+	public static PVector toPVector(Vec v) {
+		return new PVector(v.x(),v.y(),v.z());
+	}
+	
+	public static Mat toMat(PMatrix3D m) {
+		return new Mat(m.get(new float[16]), true);
+	}
+	
+  public static PMatrix3D toPMatrix(Mat m) {
+  	float[] a = m.getTransposed(new float[16]);
+		return new PMatrix3D(a[0]  ,a[1]  ,a[2]  ,a[3],
+												 a[4]  ,a[5]  ,a[6]  ,a[7],
+												 a[8]  ,a[9]  ,a[10] ,a[11],
+												 a[12] ,a[13] ,a[14] ,a[15]);
+	}
+	
 	public class ProsceneKeyboard extends KeyboardAgent {
 		public ProsceneKeyboard(Scene scn, String n) {
 			super(scn, n);
