@@ -215,7 +215,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	}
 	
 	@Override
-	protected void execAction2D(DandelionAction a) {
+	public void execAction2D(DandelionAction a) {
 		if(a==null) return;
 		Window viewWindow = (Window) viewport;
 		Vec trans;
@@ -358,7 +358,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	}
 	
 	@Override
-	protected void execAction3D(DandelionAction a) {
+	public void execAction3D(DandelionAction a) {
 		if(a==null) return;
 		Camera camera = (Camera) viewport;
 		Vec trans;

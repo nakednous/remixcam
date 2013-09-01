@@ -167,6 +167,11 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		
 		if( !id.is2D() && this.is2D() )
 			return;
+		
+		execAction(id);
+	}
+	
+	public void execAction(DandelionAction id) {
 		Vec trans;
 		switch (id) {
 		case ADD_KEYFRAME_TO_PATH_1:
@@ -308,11 +313,24 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			viewport().frame().arpFlag = true;
 			viewport().frame().timerFx.runOnce(1000);				
 			break;
+		case CUSTOM:
+			AbstractScene.showMissingImplementationWarning(id);
+			break;
 		default: 
 			System.out.println("Action cannot be handled here!");
     break;
 		}
 	}
+	
+	/**
+	public void customClickInteraction(GenericClickEvent<?> event) {
+		AbstractScene.showDepthWarning("customClickInteraction");
+	}
+	
+  public void customKeyboardInteraction(GenericKeyboardEvent<?> event) {
+  	AbstractScene.showDepthWarning("GenericKeyboardEvent");
+	}
+	*/
 	
 	/**
 	 * Convenience function that simply calls {@code displayCurrentCameraProfileHelp(true)}.

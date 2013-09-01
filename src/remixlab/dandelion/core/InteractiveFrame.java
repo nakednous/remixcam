@@ -785,7 +785,8 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 			if( genericClickEvent.action() != ClickAction.CENTER_FRAME && 
 					genericClickEvent.action() != ClickAction.ALIGN_FRAME &&
 					genericClickEvent.action() != ClickAction.ZOOM_ON_PIXEL &&
-					genericClickEvent.action() != ClickAction.ARP_FROM_PIXEL ) {
+					genericClickEvent.action() != ClickAction.ARP_FROM_PIXEL &&
+					genericClickEvent.action() != ClickAction.CUSTOM ) {
 				scene.performInteraction(e); // ;)
 				return;
 			}
@@ -872,7 +873,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 		return currentAction;		
 	}
 	
-	protected void execAction2D(DandelionAction a) {
+	public void execAction2D(DandelionAction a) {
 		if(a==null) return;
 		Vec trans;
 		float deltaX, deltaY;
@@ -1007,7 +1008,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 		}
 	}
 	
-	protected void execAction3D(DandelionAction a) {
+	public void execAction3D(DandelionAction a) {
 		if(a==null) return;
 		Quat q, rot;
 		Vec trans;
