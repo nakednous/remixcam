@@ -827,6 +827,15 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	DOF6Event e6;
 	DandelionAction currentAction;
 	
+	/**
+   * Returns {@code true} when the InteractiveFrame is being manipulated with
+   * the mouse. Can be used to change the display of the manipulated object
+   * during manipulation.
+   */
+  public boolean isInInteraction() {
+  	return currentAction != null;
+  }
+	
 	protected DandelionAction reduceEvent(MotionEvent e) {
 		//currentEvent = e;
 		if( !(e instanceof Duoable) )	return null;
