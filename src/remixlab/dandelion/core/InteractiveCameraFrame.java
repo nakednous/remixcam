@@ -240,7 +240,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();		
 			if(e2.relative()) {
 				setSpinningQuaternion(rot);
-				startSpinning(e2);
+				if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
 			} else //absolute needs testing
 				rotate(rot);
 			break;
@@ -301,7 +301,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();		
 			if(e6.relative()) {
 				setSpinningQuaternion(rot);
-				startSpinning(e6);
+				if( Util.nonZero(dampingFriction()) ) startSpinning(e6);	else spin();
 			} else //absolute needs testing
 				rotate(rot);
 			break;
@@ -383,7 +383,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 				setSpinningQuaternion(deformedBallQuaternion(e2, trans.vec[0], trans.vec[1], camera));
 			else
 				setSpinningQuaternion(cadQuaternion(e2,  trans.vec[0], trans.vec[1], camera));
-			startSpinning(e2);
+			if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
 			break;		
 		case ROTATE3:
 			q = new Quat();
@@ -407,7 +407,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 				angle = -angle;
 			Orientable rot = new Quat(new Vec(0.0f, 0.0f, 1.0f), angle);
 			setSpinningQuaternion(rot);
-			startSpinning(e2);
+			if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
 			updateFlyUpVector();
 			break;
 		case SCREEN_TRANSLATE:

@@ -142,12 +142,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	public class ProsceneMouse extends MouseAgent {
 		Scene scene;
-		boolean bypassNullEvent, zoomOnRegion, screenRotate;
+		boolean bypassNullEvent, zoomOnRegion, screenRotate, need4Spin;
 		Point fCorner = new Point();
 		Point lCorner = new Point();
 		GenericDOF2Event<DOF2Action> event, prevEvent;
 		float dFriction = viewport().frame().dampingFriction();
 		InteractiveFrame iFrame;
+		
 		public ProsceneMouse(Scene scn, String n) {
 			super(scn, n);
 			scene = scn;
@@ -171,11 +172,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			if( e.getAction() == processing.event.MouseEvent.PRESS ) {
 				  event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
 					if(grabber() instanceof InteractiveFrame) {
+						if( need4Spin )	((InteractiveFrame)grabber()).stopSpinning();
 						iFrame = (InteractiveFrame)grabber();
 						Actionable<?> a = (grabber() instanceof InteractiveCameraFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event);
 						if(a==null) return;
 						DandelionAction dA = (DandelionAction) a.referenceAction();
-						if( dA == DandelionAction.SCREEN_TRANSLATE ) ((InteractiveFrame)grabber()).dirIsFixed = false;
+						if( dA == DandelionAction.SCREEN_TRANSLATE ) ((InteractiveFrame)grabber()).dirIsFixed = false;						
+						need4Spin = ( ((dA == DandelionAction.ROTATE) || (dA == DandelionAction.ROTATE3) || (dA == DandelionAction.SCREEN_ROTATE) || (dA == DandelionAction.TRANSLATE_ROTATE) ) && (((InteractiveFrame) grabber()).dampingFriction() == 0));
 						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE) && scene.isDefaultMouseAgentInUse();
 						zoomOnRegion = dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveCameraFrame) && scene.isDefaultMouseAgentInUse();
 						screenRotate = dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveCameraFrame) && scene.isDefaultMouseAgentInUse();
@@ -198,8 +201,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					} else
 						handle(event);
 					prevEvent = event.get();	  
-			}
-			
+			}			
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 				//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//e.g., rotate without dragging any button also possible :P
 				if(zoomOnRegion || screenRotate)
@@ -209,9 +211,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					handle(event);
 				  prevEvent = event.get();
 				}
-			}
-			
+			}			
 			if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
+				if( grabber() instanceof InteractiveFrame ) if(need4Spin && (prevEvent.speed() >= ((InteractiveFrame) grabber()).spinningSensitivity()))	
+					((InteractiveFrame) grabber()).startSpinning(prevEvent);
 				event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
 				if(zoomOnRegion) {
 					//at first glance this should work

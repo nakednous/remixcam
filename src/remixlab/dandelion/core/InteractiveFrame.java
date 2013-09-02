@@ -29,6 +29,7 @@ package remixlab.dandelion.core;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Agent;
 import remixlab.util.Copyable;
+import remixlab.util.Util;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.generic.profile.Duoable;
@@ -596,18 +597,15 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	public final void setSpinningQuaternion(Orientable spinningQuaternion) {
 		spngQuat = spinningQuaternion;
 	}
-
+	
 	/**
-	 * Returns {@code true} when the InteractiveFrame is being manipulated with
-	 * the mouse. Can be used to change the display of the manipulated object
-	 * during manipulation.
-	 */
-	//TODO how does this fit new model? Maire is using it
-	/**
-	public boolean isInInteraction() {
-		return action != DOF_6Action.NO_ACTION;
-	}
-	*/
+   * Returns {@code true} when the InteractiveFrame is being manipulated with
+   * an agent. Can be used to change the display of the manipulated object
+   * during manipulation.
+   */
+  public boolean isInInteraction() {
+  	return currentAction != null;
+  }
 	
 	public final void stopTossing() {
 		this.flyTimerJob.stop();
@@ -665,7 +663,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	 * @see #toss()
 	 */
 	public void spin() {		
-		if(dampingFriction() > 0) {
+		if(Util.nonZero(dampingFriction())) {
 			if (eventSpeed == 0) {
 				stopSpinning();
 				return;
@@ -678,7 +676,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	}
 	
 	public void toss() {		
-		if(dampingFriction() > 0) {
+		if(Util.nonZero(dampingFriction())) {
 			if (eventSpeed == 0) {
 				stopTossing();
 				return;
@@ -704,7 +702,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	/**
 	 * Defines the spinning deceleration.
 	 * <p>
-	 * Default value is 0.0, i.e., no spinning deceleration. Use
+	 * Default value is 0.5, i.e., no spinning deceleration. Use
 	 * {@link #setDampingFriction(float)} to tune this value.
 	 * A higher value will make spinning more difficult (a value of
 	 * 1.0 forbids spinning).
@@ -771,7 +769,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	
 	@Override
 	public void performInteraction(TerseEvent e) {
-		stopSpinning();
+		if( isSpinning() && Util.nonZero(dampingFriction()) ) stopSpinning();
 		stopTossing();		
 		if(e == null) return;		
 		if(e instanceof KeyboardEvent) {
@@ -826,15 +824,6 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	DOF3Event e3;
 	DOF6Event e6;
 	DandelionAction currentAction;
-	
-	/**
-   * Returns {@code true} when the InteractiveFrame is being manipulated with
-   * the mouse. Can be used to change the display of the manipulated object
-   * during manipulation.
-   */
-  public boolean isInInteraction() {
-  	return currentAction != null;
-  }
 	
 	protected DandelionAction reduceEvent(MotionEvent e) {
 		//currentEvent = e;
@@ -924,7 +913,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();
 			if(e2.relative()) {
 				setSpinningQuaternion(rot);
-				startSpinning(e2);
+				if( Util.nonZero(dampingFriction()) ) startSpinning(e2); else spin();
 			} else //absolute needs testing
 				rotate(rot);
 			break;
@@ -985,7 +974,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();			
 			if(e6.relative()) {
 				setSpinningQuaternion(rot);
-				startSpinning(e6);
+				if( Util.nonZero(dampingFriction()) ) startSpinning(e6);	else spin();
 			} else //absolute needs testing
 			  // absolute should simply go (only relative has speed which is needed by start spinning):
 				rotate(rot);
@@ -1092,7 +1081,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 			rot = deformedBallQuaternion(e2, trans.x(), trans.y(), scene.camera());
 			rot = iFrameQuaternion(rot, scene.camera());			
 			setSpinningQuaternion(rot);
-			startSpinning(e2);
+			if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
 			break;		
 		case ROTATE3:
 			q = new Quat();
@@ -1124,7 +1113,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 			else
 				rot = new Quat(axis, prev_angle - angle);
 			setSpinningQuaternion(rot);
-			startSpinning(e2);
+			if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
 			break;
 		case SCREEN_TRANSLATE:
 		  // TODO: needs testing to see if it works correctly when left-handed is set
