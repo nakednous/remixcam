@@ -26,6 +26,7 @@ void setup() {
   //Set right handed world frame (useful for architects...)
   scene.setRightHanded();
   scene.camera().frame().setCADAxis(new Vec(0, 1, 0));
+  scene.camera().setCadRotate();
   scene.camera().frame().setRotationSensitivity(1.5);
 }
 
