@@ -23,14 +23,9 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.dandelion.timer;
-
-import remixlab.dandelion.core.*;
+package remixlab.tersehandling.timer;
 
 /**
- * this timer should belong to all P5 versions. Don't know yet if it
- * should belong to jogl too.
- * 
  * @author pierre
  *
  */
@@ -69,18 +64,18 @@ public class SeqTimer implements Timable {
 		return true;
 	}
 
-	protected AbstractScene scene;
+	protected TimerHandler scene;
 	protected boolean active;
 	protected boolean runOnlyOnce;
 	private long counter;
 	private long prd;
 	private long startTime;	
 	
-	public SeqTimer(AbstractScene scn) {
+	public SeqTimer(TimerHandler scn) {
 		this(scn, false);
 	}
 	
-	public SeqTimer(AbstractScene scn, boolean singleShot) {
+	public SeqTimer(TimerHandler scn, boolean singleShot) {
 		scene = scn;
 		runOnlyOnce = singleShot;
 		create();

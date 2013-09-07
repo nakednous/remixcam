@@ -23,14 +23,12 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.dandelion.timer;
-
-import remixlab.dandelion.core.*;
+package remixlab.tersehandling.timer;
 
 public class SeqTaskableTimer extends SeqTimer {
 	Taskable caller;
 	
-	public SeqTaskableTimer(AbstractScene scn, Taskable t) {
+	public SeqTaskableTimer(TimerHandler scn, Taskable t) {
 		super(scn);
 		caller = t;
 	}

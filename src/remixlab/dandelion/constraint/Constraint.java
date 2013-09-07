@@ -26,7 +26,7 @@
 package remixlab.dandelion.constraint;
 
 import remixlab.dandelion.geom.*;
-import remixlab.util.Util;
+import remixlab.tersehandling.core.Util;
 
 /**
  * An interface class for Frame constraints.

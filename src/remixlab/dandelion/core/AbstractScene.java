@@ -25,18 +25,17 @@
 
 package remixlab.dandelion.core;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
-import remixlab.dandelion.timer.AbstractTimerJob;
-import remixlab.dandelion.timer.SeqTaskableTimer;
-import remixlab.dandelion.timer.SeqTimer;
 import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.generic.profile.*;
+import remixlab.tersehandling.timer.AbstractTimerJob;
+import remixlab.tersehandling.timer.SeqTimer;
+import remixlab.tersehandling.timer.TimerHandler;
 import remixlab.tersehandling.event.*;
 
 public abstract class AbstractScene implements Constants, Grabbable {	
@@ -54,8 +53,8 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	
   // T i m e r P o o l
   //T I M E R S
-  protected boolean singleThreadedTaskableTimers;
-	protected ArrayList<AbstractTimerJob> timerPool;
+  //protected boolean singleThreadedTaskableTimers;
+	protected TimerHandler timerHandler;
 	
 	//TerseHandler
 	protected TerseHandler terseHandler;
@@ -88,23 +87,14 @@ public abstract class AbstractScene implements Constants, Grabbable {
    */ 
   public int cursorX, cursorY, pcursorX, pcursorY;
 	
-	protected long frameCount;
-	protected float frameRate;
-	protected long frameRateLastNanos;
-	
 	public AbstractScene() {		
-		frameCount = 0;
-		frameRate = 10;
-		frameRateLastNanos = 0;
-		
 	  // E X C E P T I O N H A N D L I N G
 	  startCoordCalls = 0;
 			
 	  // 1 ->
 		//To define the timers to be used pass the flag in the constructor?
-		singleThreadedTaskableTimers = true;
-		//drawing timer pool
-		timerPool = new ArrayList<AbstractTimerJob>();
+		//singleThreadedTaskableTimers = true;
+	  timerHandler = new TimerHandler();
 		
 		terseHandler = new TerseHandler();
 		
@@ -126,6 +116,10 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	
 	public void setDottedGrid(boolean dotted) {
 		dottedGrid = dotted;
+	}
+	
+	public void registerJob(AbstractTimerJob job) {
+		timerHandler().registerJob(job);
 	}
 	
 	/**
@@ -380,7 +374,8 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			viewport().lookAt(avatar().target());
 		}
 		 
-		updateFrameRate();		
+		//TODO put in timerHandler().handle()?
+		//timerHandler().updateFrameRate();		
 		bindMatrices();
 		if (frustumEquationsUpdateIsEnable())
 			viewport().updateFrustumEquations();
@@ -412,8 +407,8 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		updateCursor();
 			
 		// 2. timers
-		if (timersAreSingleThreaded())
-			handleTimers();
+		//if (timersAreSingleThreaded())
+		timerHandler().handle();
 		
 		// 3. Agents
 		terseHandler().handle();
@@ -446,6 +441,10 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		return terseHandler;
 	}
 	
+	public TimerHandler timerHandler() {
+		return timerHandler;
+	}
+	
 	public boolean grabsAnAgent(Grabbable g) {
 		for( Agent agent : terseHandler().agents() ) {
 			if (g.grabsAgent(agent))
@@ -455,20 +454,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}
 	
 	protected abstract void updateCursor();
-	
-	private void updateFrameRate() {
-		long now = System.nanoTime();
-		
-		if(frameCount > 1) {
-		  // update the current frameRate
-	     double rate = 1000000.0 / ((now - frameRateLastNanos) / 1000000.0);
-	     float instantaneousRate = (float) rate / 1000.0f;
-	     frameRate = (frameRate * 0.9f) + (instantaneousRate * 0.1f);
-		}
-			
-		frameRateLastNanos = now;
-		frameCount++;
-	}
 	
 	protected abstract void invokeRegisteredMethod();
 	
@@ -523,13 +508,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	}
 	
 	protected abstract void displayVisualHints();
-	
-	protected void handleTimers() {
-		for ( AbstractTimerJob tJob : timerPool )
-			if (tJob.timer() != null)
-				if (tJob.timer() instanceof SeqTaskableTimer)
-					((SeqTaskableTimer)tJob.timer()).execute();
-	}	
 	
   //1. Scene overloaded
 	
@@ -1198,31 +1176,10 @@ public abstract class AbstractScene implements Constants, Grabbable {
 			applyTransformation(frame);
 		}
 	}	
-	
-	/**
-	 * Returns the approximate frame rate of the software as it executes.
-	 * The initial value is 10 fps and is updated with each frame.
-	 * The value is averaged (integrated) over several frames.
-	 * As such, this value won't be valid until after 5-10 frames.
-	 */
-	public float frameRate() {
-		return frameRate;
-	}
-	//public abstract float frameRate();
-	
-	/**
-	 * Returns the number of frames displayed since the program started.
-	 */
-	public long frameCount() {
-		return frameCount;
-	}
+
 	//public abstract long frameCount();
 	
 	// 1. Associated objects
-	
-	public boolean timersAreSingleThreaded() {
-		return singleThreadedTaskableTimers;
-	}
 	
 	/**
 	 * Returns the associated Camera, never {@code null}.
@@ -1458,23 +1415,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		setDeviceTracking(!isTrackingDevice());
 	}
 	*/
-	  
-	public void registerJob(AbstractTimerJob job) {
-		job.setTimer(new SeqTaskableTimer(this, job));
-		timerPool.add(job);
-	}
-	
-	public void unregisterJob(SeqTaskableTimer t) {		
-			timerPool.remove( t.timerJob() );
-	}
-	
-	public void unregisterJob(AbstractTimerJob job) {
-		timerPool.remove(job);		
-	}  
-	
-	public boolean isJobRegistered(AbstractTimerJob job) {
-		return timerPool.contains(job);
-	}		
 	
   //2. Associated objects
 	

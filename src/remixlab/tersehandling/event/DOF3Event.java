@@ -24,9 +24,9 @@
 
 package remixlab.tersehandling.event;
 
-import remixlab.util.Util;
-import remixlab.util.gwthashcodeequals.EqualsBuilder;
-import remixlab.util.gwthashcodeequals.HashCodeBuilder;
+import remixlab.tersehandling.core.Util;
+import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
+import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 public class DOF3Event extends MotionEvent {
 	@Override

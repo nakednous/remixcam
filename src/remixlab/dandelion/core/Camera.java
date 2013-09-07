@@ -26,10 +26,10 @@
 package remixlab.dandelion.core;
 
 import remixlab.dandelion.geom.*;
-import remixlab.util.Copyable;
-import remixlab.util.Util;
-import remixlab.util.gwthashcodeequals.EqualsBuilder;
-import remixlab.util.gwthashcodeequals.HashCodeBuilder;
+import remixlab.tersehandling.core.Copyable;
+import remixlab.tersehandling.core.Util;
+import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
+import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 import java.util.ArrayList;
 
@@ -556,7 +556,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 	 */
 	public void setKind(Kind k) {
 		if(k!=knd)
-			lastFrameUpdate = scene.frameCount();
+			lastFrameUpdate = scene.timerHandler().frameCount();
 		knd = k;		
 	}
 
@@ -569,7 +569,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 	 */
 	public void setStandardZNear(float zN) {
 		if( (kind() == Camera.Kind.STANDARD) && (zN != stdZNear) )
-			lastFrameUpdate = scene.frameCount();
+			lastFrameUpdate = scene.timerHandler().frameCount();
 		stdZNear = zN;
 	}
 
@@ -593,7 +593,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 	 */
 	public void setStandardZFar(float zF) {
 		if( (kind() == Camera.Kind.STANDARD) && (zF != stdZFar) )
-			lastFrameUpdate = scene.frameCount();
+			lastFrameUpdate = scene.timerHandler().frameCount();
 		stdZFar = zF;
 	}
 
@@ -618,7 +618,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 	 */
 	public void changeStandardOrthoFrustumSize(boolean augment) {
 		if( (kind() == Camera.Kind.STANDARD) && (type() == Camera.Type.ORTHOGRAPHIC) )
-			lastFrameUpdate = scene.frameCount();
+			lastFrameUpdate = scene.timerHandler().frameCount();
 		if (augment)
 			orthoSize *= 1.01f;
 		else
@@ -651,7 +651,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 		// been changed with a
 		// setArcballReferencePoint in the meantime.		
 		if( type != type() )
-			lastFrameUpdate = scene.frameCount();
+			lastFrameUpdate = scene.timerHandler().frameCount();
 		if ((type == Camera.Type.ORTHOGRAPHIC) && (type() == Camera.Type.PERSPECTIVE))
 			orthoCoef = (float) Math.tan(fieldOfView() / 2.0f);
 
@@ -897,7 +897,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 	 */
 	public void setZNearCoefficient(float coef) {
 		if(coef != zNearCoef)
-			lastFrameUpdate = scene.frameCount();
+			lastFrameUpdate = scene.timerHandler().frameCount();
 		zNearCoef = coef;
 	}
 
@@ -927,7 +927,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 	 */
 	public void setZClippingCoefficient(float coef) {
 		if(coef != zClippingCoef)
-			lastFrameUpdate = scene.frameCount();
+			lastFrameUpdate = scene.timerHandler().frameCount();
 		zClippingCoef = coef;
 	}
 
@@ -2076,7 +2076,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 	 */
 	public void setFocusDistance(float distance) {
 		if(distance != focusDist)
-			lastFrameUpdate = scene.frameCount();
+			lastFrameUpdate = scene.timerHandler().frameCount();
 		focusDist = distance;
 	}  
 }

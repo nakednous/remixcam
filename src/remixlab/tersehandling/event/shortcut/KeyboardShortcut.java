@@ -24,11 +24,11 @@
 
 package remixlab.tersehandling.event.shortcut;
 
+import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.event.TerseEvent;
 import remixlab.tersehandling.event.KeyboardEvent;
-import remixlab.util.*;
-import remixlab.util.gwthashcodeequals.EqualsBuilder;
-import remixlab.util.gwthashcodeequals.HashCodeBuilder;
+import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
+import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 /**
  * This class represents keyboard shortcuts.

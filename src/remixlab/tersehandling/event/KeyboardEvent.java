@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import remixlab.tersehandling.event.shortcut.KeyboardShortcut;
-import remixlab.util.gwthashcodeequals.EqualsBuilder;
-import remixlab.util.gwthashcodeequals.HashCodeBuilder;
+import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
+import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 public class KeyboardEvent extends TerseEvent {
 	@Override

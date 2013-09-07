@@ -26,9 +26,9 @@
 package remixlab.dandelion.geom;
 
 import remixlab.dandelion.core.Constants;
-import remixlab.util.Util;
-import remixlab.util.gwthashcodeequals.EqualsBuilder;
-import remixlab.util.gwthashcodeequals.HashCodeBuilder;
+import remixlab.tersehandling.core.Util;
+import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
+import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 public class Rot implements Constants, Orientable {
 	@Override

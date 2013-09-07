@@ -34,10 +34,10 @@ import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.core.Constants;
 import remixlab.dandelion.core.InteractiveCameraFrame;
 import remixlab.dandelion.core.KeyFrameInterpolator;
-import remixlab.util.Copyable;
-import remixlab.util.Util;
-import remixlab.util.gwthashcodeequals.EqualsBuilder;
-import remixlab.util.gwthashcodeequals.HashCodeBuilder;
+import remixlab.tersehandling.core.Copyable;
+import remixlab.tersehandling.core.Util;
+import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
+import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 /**
  * A Frame is a 3D coordinate system, represented by a {@link #position()} and
@@ -300,7 +300,7 @@ public class RefFrame implements Copyable, Constants {
 		 */
 		protected void modified() {
 			if(RefFrame.this instanceof InteractiveCameraFrame)
-				((InteractiveCameraFrame)RefFrame.this).pinhole().lastFrameUpdate = ((InteractiveCameraFrame)RefFrame.this).scene.frameCount();
+				((InteractiveCameraFrame)RefFrame.this).pinhole().lastFrameUpdate = ((InteractiveCameraFrame)RefFrame.this).scene.timerHandler().frameCount();
 			Iterator<KeyFrameInterpolator> it = list.iterator();
 			while (it.hasNext()) {
 				it.next().invalidateValues();

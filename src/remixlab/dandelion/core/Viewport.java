@@ -29,11 +29,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import remixlab.dandelion.geom.*;
+import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.util.Util;
-import remixlab.util.Copyable;
-import remixlab.util.gwthashcodeequals.EqualsBuilder;
-import remixlab.util.gwthashcodeequals.HashCodeBuilder;
+import remixlab.tersehandling.core.Util;
+import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
+import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 public abstract class Viewport implements Copyable {
 	@Override
@@ -637,7 +637,7 @@ public abstract class Viewport implements Copyable {
 	public void setScreenWidthAndHeight(int width, int height) {
 		// Prevent negative and zero dimensions that would cause divisions by zero.
 		if( (width != scrnWidth) && (height != scrnHeight) )
-			lastFrameUpdate = scene.frameCount();
+			lastFrameUpdate = scene.timerHandler().frameCount();
 		scrnWidth = width > 0 ? width : 1;
 		scrnHeight = height > 0 ? height : 1;
 	}

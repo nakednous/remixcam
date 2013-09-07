@@ -33,10 +33,10 @@ import remixlab.dandelion.agent.*;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
-import remixlab.dandelion.timer.*;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.generic.profile.*;
+import remixlab.tersehandling.timer.*;
 
 import java.lang.reflect.Method;
 import java.nio.FloatBuffer;
@@ -151,7 +151,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		public ProsceneMouse(Scene scn, String n) {
 			super(scn, n);
 			scene = scn;
-			cameraProfile().setBinding(TH_META, TH_RIGHT, DOF2Action.TRANSLATE);	
+			
+			//cameraProfile().setBinding(TH_META, TH_RIGHT, DOF2Action.TRANSLATE);	
 			
 			/**
 			//TODO testing:
@@ -1837,6 +1838,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected Method animateHandlerMethod;
 	/** the name of the method to handle the animation */
 	protected String animateHandlerMethodName;	
+	
+	protected boolean javaTiming;
 
 	/**
 	 * Constructor that defines an on-screen Scene (the one that most likely
@@ -1944,7 +1947,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		//deviceGrabberIsAnIFrame = false;
 
 		//animation
-		animationTimer = new SeqTimer(this);
+		animationTimer = new SeqTimer(timerHandler());
 		setAnimationPeriod(40, false); // 25Hz
 		stopAnimation();
 
@@ -2166,39 +2169,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	@Override
 	public void registerJob(AbstractTimerJob job) {
 		if (timersAreSingleThreaded())
-			super.registerJob(job);
-		else {
-			job.setTimer(new TimerWrap(this, job));
-			timerPool.add(job);
-		}
-	}
-	
-	public void setSingleThreadedTimers() {
-		if( timersAreSingleThreaded() )
-			return;
-		
-		boolean isActive;
-		
-		for ( AbstractTimerJob job : timerPool ) {
-			long period = 0;
-			boolean rOnce = false;
-			isActive = job.isActive();
-			if(isActive) {
-				period = job.period();
-				rOnce = job.timer().isSingleShot();
-			}
-			job.stop();
-			job.setTimer(new SeqTaskableTimer(this, job));			
-			if(isActive) {
-				if(rOnce)
-					job.runOnce(period);
-				else
-					job.run(period);
-			}
-		}
-		
-		singleThreadedTaskableTimers = true;		
-		PApplet.println("single threaded timers set");
+			timerHandler().registerJob(job);
+		else
+			timerHandler().registerJob(job, new TimerWrap(this, job));
 	}
 	
 	public void setJavaTimers() {
@@ -2207,7 +2180,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		boolean isActive;
 		
-		for ( AbstractTimerJob job : timerPool ) {
+		for ( AbstractTimerJob job : timerHandler().timerPool() ) {
 			long period = 0;
 			boolean rOnce = false;
 			isActive = job.isActive();
@@ -2225,8 +2198,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			}
 		}	
 		
-		singleThreadedTaskableTimers = false;
+		javaTiming = true;
 		PApplet.println("awt timers set");
+	}
+	
+	public boolean timersAreSingleThreaded() {
+		return !javaTiming;
 	}
 	
 	public void switchTimers() {
@@ -2234,6 +2211,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			setJavaTimers();
 		else
 			setSingleThreadedTimers();
+	}
+	
+	public void setSingleThreadedTimers() {
+		javaTiming = false;
+		timerHandler().restoreTimers();
 	}
 	
 	// 5. Drawing methods

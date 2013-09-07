@@ -22,7 +22,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.util;
+package remixlab.tersehandling.core;
 
 public class Util {
 	public static float FLOAT_EPS = Float.MIN_VALUE;

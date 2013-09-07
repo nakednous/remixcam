@@ -25,8 +25,8 @@
 package remixlab.tersehandling.event;
 
 import remixlab.tersehandling.event.shortcut.*;
-import remixlab.util.gwthashcodeequals.EqualsBuilder;
-import remixlab.util.gwthashcodeequals.HashCodeBuilder;
+import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
+import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 // /**
 public class MotionEvent extends TerseEvent {
