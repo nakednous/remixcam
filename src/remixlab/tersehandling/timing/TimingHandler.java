@@ -1,8 +1,8 @@
-package remixlab.tersehandling.timer;
+package remixlab.tersehandling.timing;
 
 import java.util.ArrayList;
 
-public class TimerHandler {
+public class TimingHandler {
 	//protected boolean singleThreadedTaskableTimers;
   //T i m e r P o o l
 	protected ArrayList<AbstractTimerJob> timerPool;
@@ -10,12 +10,21 @@ public class TimerHandler {
 	protected float frameRate;
 	protected long frameRateLastNanos;
 	
-	public TimerHandler() {
+  //A N I M A T I O N
+	protected ArrayList<Animatable> animationPool;
+	
+	public TimingHandler() {
 		frameCount = 0;
 		frameRate = 10;
 		frameRateLastNanos = 0;
 		//drawing timer pool
 		timerPool = new ArrayList<AbstractTimerJob>();
+		animationPool = new ArrayList<Animatable>();
+	}
+	
+	public TimingHandler(Animatable aObject) {
+		this();
+		this.registerAnimatable(aObject);
 	}
 	
 	public void handle() {
@@ -24,6 +33,18 @@ public class TimerHandler {
 			if (tJob.timer() != null)
 				if (tJob.timer() instanceof SeqTaskableTimer)
 					((SeqTaskableTimer)tJob.timer()).execute();
+		// Animation
+		for ( Animatable aObj : animationPool ) {
+			if( aObj.animationIsStarted() ) {
+				if( !aObj.timer().isTrigggered() ) {
+					aObj.setAnimatedFrameWasTriggered(false);
+					return;
+				}
+				aObj.setAnimatedFrameWasTriggered(true);
+				if(!aObj.externalAnimation())
+					aObj.animate();
+			}
+		}
 	}
 	
 	public ArrayList<AbstractTimerJob> timerPool() {
@@ -109,5 +130,25 @@ public class TimerHandler {
 		}
 	
 		System.out.println("single threaded timers set");
+	}
+	
+	// Animation -->
+	
+	public ArrayList<Animatable> animationPool() {
+		return animationPool;
+	}
+	
+	public void registerAnimatable(Animatable object) {
+		if( object.timingHandler() != this )
+			object.setTimingHandler(this);
+		animationPool.add(object);
+	}
+	
+	public void unregisterAnimatable(Animatable object) {		
+		animationPool.remove( object );
+	} 
+	
+	public boolean isAnimatableRegistered(Animatable object) {
+		return animationPool.contains(object);
 	}
 }

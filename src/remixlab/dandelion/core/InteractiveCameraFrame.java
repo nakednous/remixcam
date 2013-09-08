@@ -32,7 +32,7 @@ import remixlab.tersehandling.event.DOF2Event;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
 import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
-import remixlab.tersehandling.timer.AbstractTimerJob;
+import remixlab.tersehandling.timing.AbstractTimerJob;
 
 /**
  * The InteractiveCameraFrame class represents an InteractiveFrame with Camera

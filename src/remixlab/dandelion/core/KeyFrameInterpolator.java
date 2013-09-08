@@ -32,7 +32,7 @@ import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Util;
 import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
 import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
-import remixlab.tersehandling.timer.AbstractTimerJob;
+import remixlab.tersehandling.timing.AbstractTimerJob;
 
 /**
  * A keyFrame Catmull-Rom Frame interpolator.

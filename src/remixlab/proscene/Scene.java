@@ -36,7 +36,7 @@ import remixlab.dandelion.renderer.*;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.generic.profile.*;
-import remixlab.tersehandling.timer.*;
+import remixlab.tersehandling.timing.*;
 
 import java.lang.reflect.Method;
 import java.nio.FloatBuffer;
@@ -1946,11 +1946,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		//deviceGrabberIsAnIFrame = false;
 
-		//animation
-		animationTimer = new SeqTimer(timerHandler());
-		setAnimationPeriod(40, false); // 25Hz
-		stopAnimation();
-
 		//withConstraint = true;
 
 		setAxisIsDrawn(true);
@@ -2740,23 +2735,17 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #startAnimation()
 	 */
 	@Override
-	protected void performAnimation() {
-		if( !animationTimer.isTrigggered() ) {
-			animatedFrameWasTriggered = false;
-			return;
-		}
-		
-		animatedFrameWasTriggered = true;		
+	public boolean externalAnimation() {
 		if (animateHandlerObject != null) {
 			try {
 				animateHandlerMethod.invoke(animateHandlerObject, new Object[] { this });
+				return true;
 			} catch (Exception e) {
 				PApplet.println("Something went wrong when invoking your " + animateHandlerMethodName + " method");
 				e.printStackTrace();
 			}
 		}
-		else
-			animate();
+		return false;
 	}
 	
 	/**

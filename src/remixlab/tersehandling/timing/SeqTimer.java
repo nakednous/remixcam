@@ -23,7 +23,7 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.tersehandling.timer;
+package remixlab.tersehandling.timing;
 
 /**
  * @author pierre
@@ -64,18 +64,18 @@ public class SeqTimer implements Timable {
 		return true;
 	}
 
-	protected TimerHandler scene;
+	protected TimingHandler scene;
 	protected boolean active;
 	protected boolean runOnlyOnce;
 	private long counter;
 	private long prd;
 	private long startTime;	
 	
-	public SeqTimer(TimerHandler scn) {
+	public SeqTimer(TimingHandler scn) {
 		this(scn, false);
 	}
 	
-	public SeqTimer(TimerHandler scn, boolean singleShot) {
+	public SeqTimer(TimingHandler scn, boolean singleShot) {
 		scene = scn;
 		runOnlyOnce = singleShot;
 		create();

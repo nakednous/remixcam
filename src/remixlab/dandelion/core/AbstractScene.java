@@ -33,12 +33,12 @@ import remixlab.dandelion.renderer.*;
 import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.generic.profile.*;
-import remixlab.tersehandling.timer.AbstractTimerJob;
-import remixlab.tersehandling.timer.SeqTimer;
-import remixlab.tersehandling.timer.TimerHandler;
+import remixlab.tersehandling.timing.AbstractTimerJob;
+import remixlab.tersehandling.timing.AnimatedObject;
+import remixlab.tersehandling.timing.TimingHandler;
 import remixlab.tersehandling.event.*;
 
-public abstract class AbstractScene implements Constants, Grabbable {	
+public abstract class AbstractScene extends AnimatedObject implements Constants, Grabbable {	
 	protected boolean dottedGrid;	
 	
   //O B J E C T S
@@ -54,7 +54,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
   // T i m e r P o o l
   //T I M E R S
   //protected boolean singleThreadedTaskableTimers;
-	protected TimerHandler timerHandler;
+	protected TimingHandler timerHandler;
 	
 	//TerseHandler
 	protected TerseHandler terseHandler;
@@ -67,12 +67,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	
 	// LEFT vs RIGHT_HAND
 	protected boolean rightHanded;
-	
-  //A N I M A T I O N
-	protected SeqTimer animationTimer;
-	protected boolean animationStarted;
-	public boolean animatedFrameWasTriggered;
-	protected long animationPeriod;	
 	
 	// S I Z E
 	protected int width, height;
@@ -90,14 +84,8 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	public AbstractScene() {		
 	  // E X C E P T I O N H A N D L I N G
 	  startCoordCalls = 0;
-			
-	  // 1 ->
-		//To define the timers to be used pass the flag in the constructor?
-		//singleThreadedTaskableTimers = true;
-	  timerHandler = new TimerHandler();
-		
-		terseHandler = new TerseHandler();
-		
+	  timerHandler = new TimingHandler(this);		
+		terseHandler = new TerseHandler();		
 		setDottedGrid(true);
 		setRightHanded();
 	}
@@ -416,10 +404,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	  // 4. Alternative use only
 		proscenium();
 		
-		// 5. Animation
-		if( animationIsStarted() )
-			performAnimation(); //abstract	
-		
 		// 6. Draw external registered method (only in java sub-classes)
 		invokeRegisteredMethod(); // abstract
     
@@ -441,7 +425,7 @@ public abstract class AbstractScene implements Constants, Grabbable {
 		return terseHandler;
 	}
 	
-	public TimerHandler timerHandler() {
+	public TimingHandler timerHandler() {
 		return timerHandler;
 	}
 	
@@ -537,154 +521,6 @@ public abstract class AbstractScene implements Constants, Grabbable {
 	 * in OpenGL).
 	 */
 	public void proscenium() {}
-	
-	// ANIMATION
-	
-	protected abstract void performAnimation();
-	
-	/**
-	 * Return {@code true} when the animation loop is started.
-	 * <p>
-	 * Proscene animation loop relies on processing drawing loop. The {@link #draw()} function will
-	 * check when {@link #animationIsStarted()} and then called the animation handler method
-	 * (set with {@link #addAnimationHandler(Object, String)}) or {@link #animate()} (if no handler
-	 * has been added to the scene) every {@link #animationPeriod()} milliseconds. In addition,
-	 * During the drawing loop, the variable {@link #animatedFrameWasTriggered} is set
-   * to {@code true} each time an animated frame is triggered (and {@code false} otherwise),
-   * which is useful to notify to the outside world when an animation event occurs. 
-	 * <p>
-	 * Be sure to call {@code loop()} before an animation is started.
-	 * <p>
-	 * <b>Note:</b> The drawing frame rate may be modified when {@link #startAnimation()} is called,
-	 * depending on the {@link #animationPeriod()}.   
-	 * <p>
-	 * Use {@link #startAnimation()}, {@link #stopAnimation()} or {@link #toggleAnimation()}
-	 * to change this value.
-	 * 
-	 * @see #startAnimation()
-	 * @see #addAnimationHandler(Object, String)
-	 * @see #animate()
-	 */
-	public boolean animationIsStarted() {
-		return animationStarted;
-	}
-	
-	/**
-	 * The animation loop period, in milliseconds. When {@link #animationIsStarted()}, this is
-	 * the delay that takes place between two consecutive iterations of the animation loop.
-	 * <p>
-	 * This delay defines a target frame rate that will only be achieved if your
-	 * {@link #animate()} and {@link #draw()} methods are fast enough. If you want to know
-	 * the maximum possible frame rate of your machine on a given scene,
-	 * {@link #setAnimationPeriod(float)} to {@code 1}, and {@link #startAnimation()}. The display
-	 * will then be updated as often as possible, and the frame rate will be meaningful.  
-	 * <p>
-	 * Default value is 16.6666 milliseconds (60 Hz) which matches <b>processing</b> default
-	 * frame rate.
-	 * <p>
-	 * <b>Note:</b> This value is taken into account only the next time you call
-	 * {@link #startAnimation()}. If {@link #animationIsStarted()}, you should
-	 * {@link #stopAnimation()} first. See {@link #restartAnimation()} and
-	 * {@link #setAnimationPeriod(float, boolean)}.
-	 * 
-	 * @see #setAnimationPeriod(float, boolean)
-	 */
-	public long animationPeriod() {
-		return animationPeriod;
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code setAnimationPeriod(period, true)}.
-	 * 
-	 * @see #setAnimationPeriod(float, boolean)
-	 */
-	public void setAnimationPeriod(long period) {
-		setAnimationPeriod(period, true);
-	}
-	
-	/**
-	 * Sets the {@link #animationPeriod()}, in milliseconds. If restart is {@code true}
-	 * and {@link #animationIsStarted()} then {@link #restartAnimation()} is called.
-	 * <p>
-	 * <b>Note:</b> The drawing frame rate could be modified when {@link #startAnimation()} is called
-	 * depending on the {@link #animationPeriod()}.
-	 * 
-	 * @see #startAnimation()
-	 */
-	public void setAnimationPeriod(long period, boolean restart) {
-		if(period>0) {
-			animationPeriod = period;
-			if(animationIsStarted() && restart)				
-				restartAnimation();
-		}
-	}
-	
-	/**
-	 * Stops animation.
-	 * <p>
-	 * <b>Warning:</b> Restores the {@code PApplet} frame rate to its default value,
-	 * i.e., calls {@code parent.frameRate(60)}. 
-	 * 
-	 * @see #animationIsStarted()
-	 */
-	public void stopAnimation()	{
-		animationStarted = false;
-		animatedFrameWasTriggered = false;
-		animationTimer.stop();
-	}
-	
-	/**
-	 * Starts the animation loop.
-	 * <p>
-	 * Syncs the drawing frame rate according to {@link #animationPeriod()}: If the animation
-	 * frame rate (which value depends on the {@link #animationPeriod()})
-	 * is higher than the current {@link #frameRate()}, the frame rate is modified to match it,
-	 * i.e., each drawing frame will trigger exactly one animation event. If the animation
-	 * frame rate is lower than the {@link #frameRate()}, the frame rate is left unmodified,
-	 * and the animation frames will be interleaved among the drawing frames in intervals
-	 * needed to achieve the target {@link #animationPeriod()} (provided that your
-	 * {@link #animate()} and {@link #draw()} methods are fast enough).
-	 * 
-	 * @see #animationIsStarted()
-	 */
-	public void startAnimation() {
-		animationStarted = true;	
-		animationTimer.run(animationPeriod);
-	}
-	
-	/**
-	 * Restart the animation.
-	 * <p>
-	 * Simply calls {@link #stopAnimation()} and then {@link #startAnimation()}.
-	 */
-  public void restartAnimation() {
-  	stopAnimation();
-  	startAnimation();
-	}
-  
-  /**
-	 * Scene animation method.
-	 * <p>
-	 * When {@link #animationIsStarted()}, this method defines how your scene evolves over time.
-	 * <p>
-	 * Overload it as needed. Default implementation is empty. You may
-	 * {@link #addAnimationHandler(Object, String)} instead.
-	 * <p>
-	 * <b>Note</b> that remixlab.proscene.KeyFrameInterpolator (which regularly updates a Frame)
-	 * do not use this method.
-	 * 
-	 * @see #addAnimationHandler(Object, String).
-	 */
-	public void animate() {
-	}
-	
-	/**
-	 * Calls {@link #startAnimation()} or {@link #stopAnimation()}, depending on
-	 * {@link #animationIsStarted()}.
-	 */
-	public void toggleAnimation() {
-		if (animationIsStarted()) stopAnimation(); else startAnimation();
-	}
 	
   // Event registration
 		
