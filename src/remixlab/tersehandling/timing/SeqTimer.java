@@ -29,7 +29,7 @@ package remixlab.tersehandling.timing;
  * @author pierre
  *
  */
-public class SeqTimer implements Timable {
+public class SeqTimer implements Timable {	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

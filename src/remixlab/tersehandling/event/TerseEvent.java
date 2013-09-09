@@ -31,7 +31,6 @@ import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
 import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 public class TerseEvent implements EventConstants, Copyable {
-	//TODO fix modifiers!
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
