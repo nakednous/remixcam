@@ -639,8 +639,8 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	 * @see #dampingFriction()
 	 * @see #toss()
 	 */
-	public void startSpinning(MotionEvent e) {	  
-		eventSpeed = e.speed();	  
+	public void startSpinning(MotionEvent e) {
+		eventSpeed = e.speed();	
 		isSpng = true;
 		int updateInterval = (int) e.delay();
 		if(updateInterval>0)
@@ -769,8 +769,9 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	
 	@Override
 	public void performInteraction(TerseEvent e) {
-		if( isSpinning() && Util.nonZero(dampingFriction()) ) stopSpinning();
-		stopTossing();		
+		//TODO following line prevents spinning when frameRate is low (as P5 default)
+		//if( isSpinning() && Util.nonZero(dampingFriction()) ) stopSpinning();
+		stopTossing();	
 		if(e == null) return;		
 		if(e instanceof KeyboardEvent) {
 			scene.performInteraction(e);
@@ -1081,7 +1082,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 			rot = deformedBallQuaternion(e2, trans.x(), trans.y(), scene.camera());
 			rot = iFrameQuaternion(rot, scene.camera());			
 			setSpinningQuaternion(rot);
-			if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
+			if( Util.nonZero(dampingFriction()) ) startSpinning(e2); else spin();
 			break;		
 		case ROTATE3:
 			q = new Quat();
