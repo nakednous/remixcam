@@ -13,7 +13,5 @@ public interface Animatable {
 	boolean animationIsStarted();
 	void setTimingHandler(TimingHandler h);
 	TimingHandler timingHandler();
-	boolean animatedFrameWasTriggered();
 	SeqTimer timer();
-	void setAnimatedFrameWasTriggered(boolean flag);
 }

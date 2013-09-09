@@ -362,7 +362,8 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			viewport().lookAt(avatar().target());
 		}
 		 
-		//TODO put in timerHandler().handle()?
+		//TODO testing again
+		//before timerHandler().handle() it was here:
 		//timerHandler().updateFrameRate();		
 		bindMatrices();
 		if (frustumEquationsUpdateIsEnable())

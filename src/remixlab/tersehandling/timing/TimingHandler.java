@@ -28,23 +28,17 @@ public class TimingHandler {
 	}
 	
 	public void handle() {
-		updateFrameRate();
+		//updateFrameRate();
 		for ( AbstractTimerJob tJob : timerPool )
 			if (tJob.timer() != null)
 				if (tJob.timer() instanceof SeqTaskableTimer)
 					((SeqTaskableTimer)tJob.timer()).execute();
 		// Animation
-		for ( Animatable aObj : animationPool ) {
-			if( aObj.animationIsStarted() ) {
-				if( !aObj.timer().isTrigggered() ) {
-					aObj.setAnimatedFrameWasTriggered(false);
-					return;
-				}
-				aObj.setAnimatedFrameWasTriggered(true);
-				if(!aObj.externalAnimation())
-					aObj.animate();
-			}
-		}
+		for ( Animatable aObj : animationPool )
+			if( aObj.animationIsStarted() )
+				if( aObj.timer().isTrigggered() )
+					if(!aObj.externalAnimation())
+						aObj.animate();
 	}
 	
 	public ArrayList<AbstractTimerJob> timerPool() {
@@ -73,8 +67,9 @@ public class TimingHandler {
 		return timerPool.contains(job);
 	}
 	
-	//TODO should be protected and handled internally??
+	//TODO testing
 	protected void updateFrameRate() {
+	//public void updateFrameRate() {
 		long now = System.nanoTime();
 		
 		if(frameCount > 1) {

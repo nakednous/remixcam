@@ -3,7 +3,6 @@ package remixlab.tersehandling.timing;
 public class AnimatedObject implements Animatable {
 	protected SeqTimer animationTimer;
 	protected boolean animationStarted;
-	public boolean animatedFrameWasTriggered;
 	protected long animationPeriod;
 	protected TimingHandler handler;
 	
@@ -126,7 +125,6 @@ public class AnimatedObject implements Animatable {
 	@Override
 	public void stopAnimation()	{
 		animationStarted = false;
-		animatedFrameWasTriggered = false;
 		if(timer()!=null)
 			timer().stop();
 	}
@@ -180,15 +178,5 @@ public class AnimatedObject implements Animatable {
 	@Override
 	public boolean externalAnimation() {
 		return false;
-	}
-
-	@Override
-	public boolean animatedFrameWasTriggered() {
-		return animatedFrameWasTriggered;
-	}
-	
-	@Override
-	public void setAnimatedFrameWasTriggered(boolean flag) {
-		animatedFrameWasTriggered = flag;
 	}
 }
