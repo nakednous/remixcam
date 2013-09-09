@@ -1907,6 +1907,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			this.setDottedGrid(false);
 		
 		//setJavaTimers();
+		//TODO broken in the meantime
 		//this.parent.frameRate(100);
 		setLeftHanded();
 		

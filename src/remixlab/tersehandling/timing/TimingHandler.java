@@ -28,7 +28,7 @@ public class TimingHandler {
 	}
 	
 	public void handle() {
-		//updateFrameRate();
+		updateFrameRate();
 		for ( AbstractTimerJob tJob : timerPool )
 			if (tJob.timer() != null)
 				if (tJob.timer() instanceof SeqTaskableTimer)
@@ -67,18 +67,14 @@ public class TimingHandler {
 		return timerPool.contains(job);
 	}
 	
-	//TODO testing
 	protected void updateFrameRate() {
-	//public void updateFrameRate() {
-		long now = System.nanoTime();
-		
+		long now = System.nanoTime();		
 		if(frameCount > 1) {
-		  // update the current frameRate
-	     double rate = 1000000.0 / ((now - frameRateLastNanos) / 1000000.0);
-	     float instantaneousRate = (float) rate / 1000.0f;
-	     frameRate = (frameRate * 0.9f) + (instantaneousRate * 0.1f);
-		}
-			
+			// update the current frameRate
+			double rate = 1000000.0 / ((now - frameRateLastNanos) / 1000000.0);
+      float instantaneousRate = (float) rate / 1000.0f;
+      frameRate = (frameRate * 0.9f) + (instantaneousRate * 0.1f);	     
+		}			
 		frameRateLastNanos = now;
 		frameCount++;
 	}
