@@ -23,8 +23,8 @@
  * WALKTHROUGH, and THIRD_PERSON.
  *
  * Press 'm' to toggle (start/stop) animation.
- * Press 'x' to decrease the animation period (animation speeds up).
- * Press 'y' to increase the animation period (animation speeds down).
+ * Press '+' to decrease the animation period (animation speeds up).
+ * Press '-' to increase the animation period (animation speeds down).
  * Press 'u' to toggle smoothing.
  * Press 'v' to toggle boids' wall skipping.
  * Press 'f' to toggle the drawing of the frame selection hits.
@@ -49,6 +49,8 @@ boolean smoothEdges = false;
 boolean avoidWalls = true;
 float hue = 255;
 boolean triggered;
+boolean inThirdPerson;
+boolean changedMode;
 
 void setup() {
   size(640, 360, P3D);
@@ -62,10 +64,22 @@ void setup() {
   for (int i = 0; i < initBoidNum; i++)
     flock.add(new Boid(new PVector(flockWidth/2, flockHeight/2, flockDepth/2 )));
   scene.startAnimation();
+  if (smoothEdges)
+    smooth();
+  else
+    noSmooth();
 }
 
 void draw() {
-  background(0);  
+  background(0); 
+  if (inThirdPerson && scene.avatar()==null) {
+    inThirdPerson = false;
+    adjustFrameRate();
+  }
+  else if (!inThirdPerson && scene.avatar()!=null) {
+    inThirdPerson = true;
+    adjustFrameRate();
+  }
   ambientLight(128, 128, 128);
   directionalLight(255, 255, 255, 0, 1, -100);
   noFill();
@@ -90,42 +104,42 @@ void draw() {
   for (int i = 0; i < flock.size(); i++) {
     // create a temporary boid to process and make it the current boid in the list
     Boid tempBoid = (Boid) flock.get(i);
-    if(triggered)
+    if (triggered)
       tempBoid.run(flock); // tell the temporary boid to execute its run method
     tempBoid.render(); // tell the temporary boid to execute its render method
   }
-
-  if (smoothEdges)
-    smooth();
-  else
-    noSmooth();
 }
 
-// /**
 void adjustFrameRate() {
   if (scene.avatar() != null)
-    frameRate(1000/scene.animationPeriod());//restarts animation
-  else {
-    frameRate(60);//restarts animation
-    if (scene.animationIsStarted())
-      scene.restartAnimation();
-  }
+    frameRate(1000/scene.animationPeriod());
+  else
+    frameRate(60);
+  if (scene.animationIsStarted())
+    scene.restartAnimation();
 }
-// */
 
 void keyPressed() {
   switch (key) {
+  case 't':
+    scene.switchTimers();
+  case 'p':
+    println("Frame rate: " + frameRate);
   case 'u':
     smoothEdges = !smoothEdges;
+    if (smoothEdges)
+      smooth();
+    else
+      noSmooth();
     break;
   case 'v':
     avoidWalls = !avoidWalls;
     break;
-  case 'x':
+  case '+':
     scene.setAnimationPeriod(scene.animationPeriod()-2, false);
     adjustFrameRate();
     break;
-  case 'y':
+  case '-':
     scene.setAnimationPeriod(scene.animationPeriod()+2, false);
     adjustFrameRate();
     break;
