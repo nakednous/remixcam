@@ -27,6 +27,7 @@ package remixlab.dandelion.core;
 
 //import remixlab.remixcam.constraint.Constraint;
 import remixlab.dandelion.geom.*;
+import remixlab.fpstiming.AbstractTimerJob;
 import remixlab.tersehandling.core.Agent;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Util;
@@ -35,7 +36,6 @@ import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.generic.profile.Duoable;
 import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
 import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
-import remixlab.tersehandling.timing.AbstractTimerJob;
 import remixlab.tersehandling.event.*;
 
 /**

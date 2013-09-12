@@ -33,10 +33,10 @@ import remixlab.dandelion.agent.*;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
+import remixlab.fpstiming.*;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.generic.profile.*;
-import remixlab.tersehandling.timing.*;
 
 import java.lang.reflect.Method;
 import java.nio.FloatBuffer;

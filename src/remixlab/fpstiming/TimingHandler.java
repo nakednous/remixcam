@@ -1,4 +1,4 @@
-package remixlab.tersehandling.timing;
+package remixlab.fpstiming;
 
 import java.util.ArrayList;
 

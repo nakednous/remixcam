@@ -23,17 +23,8 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.tersehandling.timing;
+package remixlab.fpstiming;
 
-public interface Timable { 
-	public void run(long period);
-	public void run();
-	public void stop();
-	public void cancel();
-	public void create();
-	public boolean isActive();
-	public long period();
-	public void setPeriod(long period);
-	public boolean isSingleShot();
-	public void setSingleShot(boolean singleShot);
+public interface Taskable {
+	public void execute();
 }

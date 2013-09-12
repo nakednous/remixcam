@@ -23,8 +23,35 @@
  * Boston, MA 02110-1335, USA.
  */
 
-package remixlab.tersehandling.timing;
+package remixlab.fpstiming;
 
-public interface Taskable {
-	public void execute();
+public class SeqTaskableTimer extends SeqTimer {
+	Taskable caller;
+	
+	public SeqTaskableTimer(TimingHandler scn, Taskable t) {
+		super(scn);
+		caller = t;
+	}
+	
+	public Taskable timerJob() {
+		return caller;
+	}
+	
+	@Override
+	public void cancel() {
+		super.cancel();
+		scene.unregisterJob(this);
+	}
+	
+	public boolean execute() {
+		boolean result = isTrigggered();
+		
+		if(result) {
+			caller.execute();
+			if(runOnlyOnce)
+				inactivate();		
+		}
+		
+		return result;
+	}	
 }

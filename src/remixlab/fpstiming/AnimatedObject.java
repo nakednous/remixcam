@@ -1,4 +1,4 @@
-package remixlab.tersehandling.timing;
+package remixlab.fpstiming;
 
 public class AnimatedObject implements Animatable {
 	protected SeqTimer animationTimer;

@@ -30,12 +30,12 @@ import java.util.List;
 
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
+import remixlab.fpstiming.AbstractTimerJob;
+import remixlab.fpstiming.AnimatedObject;
+import remixlab.fpstiming.TimingHandler;
 import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.generic.event.*;
 import remixlab.tersehandling.generic.profile.*;
-import remixlab.tersehandling.timing.AbstractTimerJob;
-import remixlab.tersehandling.timing.AnimatedObject;
-import remixlab.tersehandling.timing.TimingHandler;
 import remixlab.tersehandling.event.*;
 
 public abstract class AbstractScene extends AnimatedObject implements Constants, Grabbable {	

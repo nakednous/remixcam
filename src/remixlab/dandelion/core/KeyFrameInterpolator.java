@@ -28,11 +28,11 @@ package remixlab.dandelion.core;
 import java.util.*;
 
 import remixlab.dandelion.geom.*;
+import remixlab.fpstiming.AbstractTimerJob;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Util;
 import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
 import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
-import remixlab.tersehandling.timing.AbstractTimerJob;
 
 /**
  * A keyFrame Catmull-Rom Frame interpolator.

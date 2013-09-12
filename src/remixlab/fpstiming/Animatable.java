@@ -1,4 +1,4 @@
-package remixlab.tersehandling.timing;
+package remixlab.fpstiming;
 
 public interface Animatable {
 	void animate();
