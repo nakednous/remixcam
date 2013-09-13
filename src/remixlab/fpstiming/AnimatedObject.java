@@ -20,6 +20,7 @@ public class AnimatedObject implements Animatable {
 	@Override
 	public void setTimingHandler(TimingHandler h) {
 		handler = h;
+		handler.registerAnimatable(this);
 		animationTimer = new SeqTimer(handler);
 	}
 	
