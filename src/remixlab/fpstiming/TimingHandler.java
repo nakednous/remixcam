@@ -8,7 +8,7 @@ public class TimingHandler {
 	protected ArrayList<AbstractTimerJob> timerPool;
 	protected long frameCount;
 	protected float frameRate;
-	protected long frameRateLastNanos;
+	protected long frameRateLastMillis;
 	
   //A N I M A T I O N
 	protected ArrayList<Animatable> animationPool;
@@ -16,7 +16,7 @@ public class TimingHandler {
 	public TimingHandler() {
 		frameCount = 0;
 		frameRate = 10;
-		frameRateLastNanos = 0;
+		frameRateLastMillis = System.currentTimeMillis();
 		//drawing timer pool
 		timerPool = new ArrayList<AbstractTimerJob>();
 		animationPool = new ArrayList<Animatable>();
@@ -68,14 +68,14 @@ public class TimingHandler {
 	}
 	
 	protected void updateFrameRate() {
-		long now = System.nanoTime();		
+		long now = System.currentTimeMillis();	
 		if(frameCount > 1) {
 			// update the current frameRate
-			double rate = 1000000.0 / ((now - frameRateLastNanos) / 1000000.0);
-      float instantaneousRate = (float) rate / 1000.0f;
-      frameRate = (frameRate * 0.9f) + (instantaneousRate * 0.1f);	     
+			double rate = 1000.0 / ((now - frameRateLastMillis) / 1000.0);
+			float instantaneousRate = (float) rate / 1000.0f;
+			frameRate = (frameRate * 0.9f) + (instantaneousRate * 0.1f);	     
 		}			
-		frameRateLastNanos = now;
+		frameRateLastMillis = now;
 		frameCount++;
 	}
 	
