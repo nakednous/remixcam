@@ -24,9 +24,10 @@
 
 package remixlab.tersehandling.event;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 import remixlab.tersehandling.event.shortcut.ClickShortcut;
-import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
-import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 public class ClickEvent extends TerseEvent {
 	@Override

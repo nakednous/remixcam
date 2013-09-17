@@ -28,12 +28,13 @@ package remixlab.dandelion.core;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.Util;
-import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
-import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 public abstract class Viewport implements Copyable {
 	@Override

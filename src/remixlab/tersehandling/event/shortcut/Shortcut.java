@@ -27,11 +27,12 @@ package remixlab.tersehandling.event.shortcut;
 
 
 //import remixlab.dandelion.core.Constants;
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.event.*;
-import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
-import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
 
 public class Shortcut implements EventConstants, Copyable {
 	@Override

@@ -25,8 +25,8 @@
 
 package remixlab.dandelion.geom;
 
-import remixlab.tersehandling.gwthashcodeequals.EqualsBuilder;
-import remixlab.tersehandling.gwthashcodeequals.HashCodeBuilder;
+import com.flipthebird.gwthashcodeequals.EqualsBuilder;
+import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 /**
  * Rectangle class that provides a quick replacement for the java.awt.Rectangle.
