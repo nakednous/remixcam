@@ -1772,8 +1772,8 @@ public class Camera extends Viewport implements Constants, Copyable {
 		switch (type()) {
 		case PERSPECTIVE:
 			orig.set(position());
-			dir.set(new Vec(((2.0f * (int)pixel.x / screenWidth()) - 1.0f)	* (float) Math.tan(fieldOfView() / 2.0f) * aspectRatio(),
-					                 ((2.0f * (screenHeight() - (int)pixel.y) / screenHeight()) - 1.0f) * (float) Math.tan(fieldOfView() / 2.0f),
+			dir.set(new Vec(((2.0f * pixel.x / screenWidth()) - 1.0f)	* (float) Math.tan(fieldOfView() / 2.0f) * aspectRatio(),
+					                 ((2.0f * (screenHeight() - pixel.y) / screenHeight()) - 1.0f) * (float) Math.tan(fieldOfView() / 2.0f),
 					                   -1.0f));
 			dir.set(Vec.sub(frame().inverseCoordinatesOf(dir, false), orig));
 			dir.normalize();
@@ -1781,8 +1781,8 @@ public class Camera extends Viewport implements Constants, Copyable {
 
 		case ORTHOGRAPHIC: {
 			float[] wh = getOrthoWidthHeight();
-			orig.set(new Vec((2.0f * (int)pixel.x / screenWidth() - 1.0f) * wh[0],
-					-(2.0f * (int)pixel.y / screenHeight() - 1.0f) * wh[1], 0.0f));
+			orig.set(new Vec((2.0f * pixel.x / screenWidth() - 1.0f) * wh[0],
+					-(2.0f * pixel.y / screenHeight() - 1.0f) * wh[1], 0.0f));
 			orig.set(frame().inverseCoordinatesOf(orig, false));
 			dir.set(viewDirection());
 			break;

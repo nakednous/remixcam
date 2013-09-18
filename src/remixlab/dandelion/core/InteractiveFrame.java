@@ -1457,8 +1457,8 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 				delta = new Point(event.getX(), event.getY());
 			else
 				delta = new Point(event.getDX(), event.getDY());
-			dirIsFixed = Math.abs((int)delta.x) != Math.abs((int)delta.y);
-			horiz = Math.abs((int)delta.x) > Math.abs((int)delta.y);
+			dirIsFixed = Math.abs(delta.x) != Math.abs(delta.y);
+			horiz = Math.abs(delta.x) > Math.abs(delta.y);
 		}
 
 		if (dirIsFixed)

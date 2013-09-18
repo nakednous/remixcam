@@ -491,10 +491,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawZoomWindowHint() {
-			float p1x = (float) ((Scene)scene).prosceneMouse.fCorner.getX();
-			float p1y = (float) ((Scene)scene).prosceneMouse.fCorner.getY();
-			float p2x = (float) ((Scene)scene).prosceneMouse.lCorner.getX();
-			float p2y = (float) ((Scene)scene).prosceneMouse.lCorner.getY();
+			float p1x = (float) scene.prosceneMouse.fCorner.getX();
+			float p1y = (float) scene.prosceneMouse.fCorner.getY();
+			float p2x = (float) scene.prosceneMouse.lCorner.getX();
+			float p2y = (float) scene.prosceneMouse.lCorner.getY();
 			scene.beginScreenDrawing();
 			pg().pushStyle();
 			pg().stroke(255, 255, 255);
@@ -512,8 +512,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawScreenRotateLineHint() {
-			float p1x = (float) ((Scene)scene).prosceneMouse.lCorner.getX();
-			float p1y = (float) ((Scene)scene).prosceneMouse.lCorner.getY();
+			float p1x = (float) scene.prosceneMouse.lCorner.getX();
+			float p1y = (float) scene.prosceneMouse.lCorner.getY();
 			Vec p2 = scene.viewport().projectedCoordinatesOf(scene.arcballReferencePoint());
 			scene.beginScreenDrawing();
 			pg().pushStyle();
@@ -1853,7 +1853,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #Scene(PApplet, PGraphics, int, int)
 	 */	
 	public Scene(PApplet p) {
-		this(p, (PGraphics) p.g);		
+		this(p, p.g);		
 	}
 	
 	/**
@@ -2802,9 +2802,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected Camera.WorldPoint pointUnderPixel(Point pixel) {
 		float[] depth = new float[1];
 		PGL pgl = pggl().beginPGL();
-		pgl.readPixels((int) pixel.x, (camera().screenHeight() - (int) pixel.y), 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, FloatBuffer.wrap(depth));		
+		pgl.readPixels(pixel.x, (camera().screenHeight() - pixel.y), 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, FloatBuffer.wrap(depth));		
 		pggl().endPGL();		
-		Vec point = new Vec((int) pixel.x, (int) pixel.y, depth[0]);		
+		Vec point = new Vec(pixel.x, pixel.y, depth[0]);		
 		point = camera().unprojectedCoordinatesOf(point);
 		return camera().new WorldPoint(point, (depth[0] < 1.0f));
 	}	

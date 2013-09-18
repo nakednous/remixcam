@@ -1041,7 +1041,7 @@ public abstract class Viewport implements Copyable {
 			project(src.vec[0], src.vec[1], src.vec[2], xyz);	
 			//project(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, getViewport(), xyz);
 
-		return new Vec((float) xyz[0], (float) xyz[1], (float) xyz[2]);
+		return new Vec(xyz[0], xyz[1], xyz[2]);
 	}
 	
 	/**
@@ -1095,9 +1095,9 @@ public abstract class Viewport implements Copyable {
 		//unproject(src.vec[0], src.vec[1], src.vec[2], this.getViewMatrix(true), this.getProjectionMatrix(true), getViewport(), xyz);		
 		unproject(src.vec[0], src.vec[1], src.vec[2], xyz);		
 		if (frame != null)
-			return frame.coordinatesOf(new Vec((float) xyz[0], (float) xyz[1],	(float) xyz[2]));
+			return frame.coordinatesOf(new Vec(xyz[0], xyz[1], xyz[2]));
 		else
-			return new Vec((float) xyz[0], (float) xyz[1], (float) xyz[2]);
+			return new Vec(xyz[0], xyz[1], xyz[2]);
 	}
 	
 	protected void updateViewPort() {

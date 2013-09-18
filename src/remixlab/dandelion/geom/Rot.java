@@ -99,15 +99,15 @@ public class Rot implements Constants, Orientable {
 
 	@Override
 	public Vec rotate(Vec v) {
-		float cosB = (float)Math.cos((float)angle());
-		float sinB = (float)Math.sin((float)angle());
+		float cosB = (float)Math.cos(angle());
+		float sinB = (float)Math.sin(angle());
 		return new Vec( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
 	}
 
 	@Override
 	public Vec inverseRotate(Vec v) {
-		float cosB = (float)Math.cos(-(float)angle());
-		float sinB = (float)Math.sin(-(float)angle());
+		float cosB = (float)Math.cos(-angle());
+		float sinB = (float)Math.sin(-angle());
 		return new Vec( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
 	}
 
@@ -146,8 +146,8 @@ public class Rot implements Constants, Orientable {
 
 	@Override
 	public Mat inverseMatrix() {
-		float cosB = (float)Math.cos(-(float)angle());
-		float sinB = (float)Math.sin(-(float)angle());
+		float cosB = (float)Math.cos(-angle());
+		float sinB = (float)Math.sin(-angle());
 		
 		return new Mat(cosB, sinB, 0, 0,
                        -sinB, cosB, 0, 0,

@@ -1133,7 +1133,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 
 		float c1, c2;
 		// Linear interpolation for close orientations
-		if ((1.0 - (float) Math.abs(cosAngle)) < 0.01) {
+		if ((1.0 - Math.abs(cosAngle)) < 0.01) {
 			c1 = 1.0f - t;
 			c2 = t;
 		} else {
