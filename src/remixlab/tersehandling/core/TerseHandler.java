@@ -1,27 +1,13 @@
-/**
- *                  TerseHandling (version 0.70.0)
- *           Copyright (c) 2013 by Jean Pierre Charalambos
- *                 @author Jean Pierre Charalambos
- *             https://github.com/nakednous/tersehandling
- *           
- * This library provides classes to ease the creation of interactive scenes.
+/*******************************************************************************
+ * TerseHandling (version 0.9.50)
+ * Copyright (c) 2013 Jean Pierre Charalambos.
+ * @author Jean Pierre Charalambos
+ * https://github.com/remixlab
  * 
- * This source file is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * 
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- * 
- * A copy of the GNU General Public License is available on the World Wide Web
- * at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by
- * writing to the Free Software Foundation, 51 Franklin Street, Suite 500
- * Boston, MA 02110-1335, USA.
- */
-
+ * All rights reserved. Library that eases the creation of interactive
+ * scenes released under the terms of the GNU Public License v3.0
+ * which available at http://www.gnu.org/licenses/gpl.html
+ ******************************************************************************/
 package remixlab.tersehandling.core;
 
 import java.util.ArrayList;
@@ -51,6 +37,38 @@ public class TerseHandler {
 	// D E V I C E S & E V E N T S
 	protected HashMap<String, Agent> agents;
 	protected LinkedList<EventGrabberTuple> eventTupleQueue;
+	
+	public static final String prettyVersion = "0.9.50";
+
+	public static final String version = "1";
+	
+	public static String prettyVersion() {
+		return prettyVersion;
+	}
+
+	public static final int versionNumber() {
+		return Integer.parseInt(version);
+	}
+
+	public static final String version() {
+		return version;
+	}
+
+	public static int majorPrettyVersionNumber() {
+		return Integer.parseInt(majorPrettyVersion());
+	}
+
+	public static String majorPrettyVersion() {
+		return prettyVersion.substring(0, prettyVersion.indexOf("."));
+	}
+
+	public static float minorPrettyVersionNumber() {
+		return Float.parseFloat(minorPrettyVersion());
+	}
+
+	public static String minorPrettyVersion() {
+		return prettyVersion.substring(prettyVersion.indexOf(".") + 1);
+	}
 
 	public TerseHandler() {
 		// agents

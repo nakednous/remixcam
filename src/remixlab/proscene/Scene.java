@@ -1,29 +1,14 @@
-/**
- *                     ProScene-2 (version 1.9.70)      
- *    Copyright (c) 2010-2012 by National University of Colombia
- *           Copyright (c) 2013 by Jean Pierre Charalambos
- *                 @author Jean Pierre Charalambos      
- *           http://www.disi.unal.edu.co/grupos/remixlab/
- *                           
- * This library provides classes to ease the creation of interactive
- * frame-based, 2d and 3d scenes in the Processing language.
+/*******************************************************************************
+ * ProScene (version 1.9.50)
+ * Copyright (c) 2010-2012 by National University of Colombia
+ * Copyright (c) 2013 Jean Pierre Charalambos.
+ * @author Jean Pierre Charalambos
+ * https://github.com/remixlab
  * 
- * This source file is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * 
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- * 
- * A copy of the GNU General Public License is available on the World Wide Web
- * at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by
- * writing to the Free Software Foundation, 51 Franklin Street, Suite 500
- * Boston, MA 02110-1335, USA.
- */
-
+ * All rights reserved. Library that eases the creation of interactive
+ * scenes released under the terms of the GNU Public License v3.0
+ * which available at http://www.gnu.org/licenses/gpl.html
+ ******************************************************************************/
 package remixlab.proscene;
 
 import processing.core.*;
@@ -1764,15 +1749,30 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	// ---- //
 	
 	// proscene version
-	public static final String version = "1.9.60";
+  public static final String proscenePrettyVersion = "1.9.50";
+		
+	public static final String prosceneVersion = "16";
+	
+	public static String prettyVersion() {
+		return proscenePrettyVersion;
+	}
+	
+	public static int versionNumber() {
+		return Integer.parseInt(prosceneVersion);
+	}
+	
+	public static String version() {
+		return prosceneVersion;
+	}	
+	
 	/**
 	 * Returns the major release version number of proscene as an integer.
 	 * <p>
 	 * {@code Scene.version} will return the complete version (major+minor)
 	 * number as a string. 
 	 */
-	public static int majorVersionNumber() {
-		return Integer.parseInt(majorVersion());
+	public static int majorPrettyVersionNumber() {
+		return Integer.parseInt(majorPrettyVersion());
 	}
 	
 	/**
@@ -1781,8 +1781,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * {@code Scene.version} will return the complete version (major+minor)
 	 * number as a string.
 	 */
-	public static String majorVersion() {
-		return version.substring(0, version.indexOf("."));
+	public static String majorPrettyVersion() {
+		return proscenePrettyVersion.substring(0, proscenePrettyVersion.indexOf("."));
 	}
 	
 	/**
@@ -1791,8 +1791,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * {@code Scene.version} will return the complete version (major+minor)
 	 * number as a string.
 	 */
-	public static float minorVersionNumber() {
-		return Float.parseFloat(minorVersion());
+	public static float minorPrettyVersionNumber() {
+		return Float.parseFloat(minorPrettyVersion());
 	}
 	
 	/**
@@ -1801,8 +1801,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * {@code Scene.version} will return the complete version (major+minor)
 	 * number as a string.
 	 */
-	public static String minorVersion() {
-		return version.substring(version.indexOf(".") + 1);
+	public static String minorPrettyVersion() {
+		return proscenePrettyVersion.substring(proscenePrettyVersion.indexOf(".") + 1);
 	}
 
 	// P R O C E S S I N G   A P P L E T   A N D   O B J E C T S

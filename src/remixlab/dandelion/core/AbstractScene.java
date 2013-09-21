@@ -1,28 +1,13 @@
-/**
- *                     Dandelion (version 0.70.0)      
- *          Copyright (c) 2013 by Jean Pierre Charalambos
- *                 @author Jean Pierre Charalambos      
- *              https://github.com/nakednous/remixcam
- *                           
- * This library provides classes to ease the creation of interactive
- * frame-based, 2d and 3d scenes.
+/*******************************************************************************
+ * Dandelion (version 0.9.50)
+ * Copyright (c) 2013 Jean Pierre Charalambos.
+ * @author Jean Pierre Charalambos
+ * https://github.com/remixlab
  * 
- * This source file is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * 
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- * 
- * A copy of the GNU General Public License is available on the World Wide Web
- * at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by
- * writing to the Free Software Foundation, 51 Franklin Street, Suite 500
- * Boston, MA 02110-1335, USA.
- */
-
+ * All rights reserved. Library that eases the creation of interactive
+ * scenes released under the terms of the GNU Public License v3.0
+ * which available at http://www.gnu.org/licenses/gpl.html
+ ******************************************************************************/
 package remixlab.dandelion.core;
 
 import java.util.HashMap;
@@ -30,6 +15,7 @@ import java.util.List;
 
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.renderer.*;
+
 import remixlab.fpstiming.AbstractTimerJob;
 import remixlab.fpstiming.AnimatedObject;
 import remixlab.fpstiming.TimingHandler;
@@ -80,6 +66,38 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * and vertical coordinates of the mouse.
    */ 
   public int cursorX, cursorY, pcursorX, pcursorY;
+  
+  public static final String prettyVersion = "0.9.50";
+
+	public static final String version = "1";
+
+	public static int versionNumber() {
+		return Integer.parseInt(version);
+	}
+
+	public static String version() {
+		return version;
+	}
+	
+	public static String prettyVersion() {
+		return prettyVersion;
+	}
+
+	public static int majorPrettyVersionNumber() {
+		return Integer.parseInt(majorPrettyVersion());
+	}
+
+	public static String majorPrettyVersion() {
+		return prettyVersion.substring(0, prettyVersion.indexOf("."));
+	}
+
+	public static float minorPrettyVersionNumber() {
+		return Float.parseFloat(minorPrettyVersion());
+	}
+
+	public static String minorPrettyVersion() {
+		return prettyVersion.substring(prettyVersion.indexOf(".") + 1);
+	}
 	
 	public AbstractScene() {		
 	  // E X C E P T I O N H A N D L I N G
