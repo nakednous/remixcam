@@ -1748,62 +1748,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	// ---- //
 	
 	// proscene version
-  public static final String proscenePrettyVersion = "1.9.50";
+  public static final String prettyVersion = "1.9.50";
 		
-	public static final String prosceneVersion = "16";
+	public static final String version = "16";
 	
-	public static String prettyVersion() {
-		return proscenePrettyVersion;
-	}
-	
-	public static int versionNumber() {
-		return Integer.parseInt(prosceneVersion);
-	}
-	
-	public static String version() {
-		return prosceneVersion;
-	}	
-	
-	/**
-	 * Returns the major release version number of proscene as an integer.
-	 * <p>
-	 * {@code Scene.version} will return the complete version (major+minor)
-	 * number as a string. 
-	 */
-	public static int majorPrettyVersionNumber() {
-		return Integer.parseInt(majorPrettyVersion());
-	}
-	
-	/**
-	 * Returns the major release version number of proscene as a string.
-	 * <p>
-	 * {@code Scene.version} will return the complete version (major+minor)
-	 * number as a string.
-	 */
-	public static String majorPrettyVersion() {
-		return proscenePrettyVersion.substring(0, proscenePrettyVersion.indexOf("."));
-	}
-	
-	/**
-	 * Returns the minor release version number of proscene as a float.
-	 * <p>
-	 * {@code Scene.version} will return the complete version (major+minor)
-	 * number as a string.
-	 */
-	public static float minorPrettyVersionNumber() {
-		return Float.parseFloat(minorPrettyVersion());
-	}
-	
-	/**
-	 * Returns the minor release version number of proscene as a string.
-	 * <p>
-	 * {@code Scene.version} will return the complete version (major+minor)
-	 * number as a string.
-	 */
-	public static String minorPrettyVersion() {
-		return proscenePrettyVersion.substring(proscenePrettyVersion.indexOf(".") + 1);
-	}
-
 	// P R O C E S S I N G   A P P L E T   A N D   O B J E C T S
 	public PApplet parent;
 	
@@ -2162,14 +2110,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	@Override
 	public void registerJob(AbstractTimerJob job) {
-		if (timersAreSingleThreaded())
+		if (timingIsSingleThreaded())
 			timerHandler().registerJob(job);
 		else
 			timerHandler().registerJob(job, new TimerWrap(this, job));
 	}
 	
 	public void setJavaTimers() {
-		if( !timersAreSingleThreaded() )
+		if( !timingIsSingleThreaded() )
 			return;
 		
 		boolean isActive;
@@ -2196,12 +2144,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		PApplet.println("awt timers set");
 	}
 	
-	public boolean timersAreSingleThreaded() {
+	public boolean timingIsSingleThreaded() {
 		return !javaTiming;
 	}
 	
 	public void switchTimers() {
-		if( timersAreSingleThreaded() )
+		if( timingIsSingleThreaded() )
 			setJavaTimers();
 		else
 			setSingleThreadedTimers();

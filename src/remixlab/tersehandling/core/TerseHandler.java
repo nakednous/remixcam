@@ -42,34 +42,6 @@ public class TerseHandler {
 
 	public static final String version = "1";
 	
-	public static String prettyVersion() {
-		return prettyVersion;
-	}
-
-	public static final int versionNumber() {
-		return Integer.parseInt(version);
-	}
-
-	public static final String version() {
-		return version;
-	}
-
-	public static int majorPrettyVersionNumber() {
-		return Integer.parseInt(majorPrettyVersion());
-	}
-
-	public static String majorPrettyVersion() {
-		return prettyVersion.substring(0, prettyVersion.indexOf("."));
-	}
-
-	public static float minorPrettyVersionNumber() {
-		return Float.parseFloat(minorPrettyVersion());
-	}
-
-	public static String minorPrettyVersion() {
-		return prettyVersion.substring(prettyVersion.indexOf(".") + 1);
-	}
-
 	public TerseHandler() {
 		// agents
 		agents = new HashMap<String, Agent>();

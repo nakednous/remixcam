@@ -70,34 +70,6 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   public static final String prettyVersion = "0.9.50";
 
 	public static final String version = "1";
-
-	public static int versionNumber() {
-		return Integer.parseInt(version);
-	}
-
-	public static String version() {
-		return version;
-	}
-	
-	public static String prettyVersion() {
-		return prettyVersion;
-	}
-
-	public static int majorPrettyVersionNumber() {
-		return Integer.parseInt(majorPrettyVersion());
-	}
-
-	public static String majorPrettyVersion() {
-		return prettyVersion.substring(0, prettyVersion.indexOf("."));
-	}
-
-	public static float minorPrettyVersionNumber() {
-		return Float.parseFloat(minorPrettyVersion());
-	}
-
-	public static String minorPrettyVersion() {
-		return prettyVersion.substring(prettyVersion.indexOf(".") + 1);
-	}
 	
 	public AbstractScene() {		
 	  // E X C E P T I O N H A N D L I N G
