@@ -87,9 +87,9 @@ public class AnimatedObject implements Animatable {
 	 * <b>Note:</b> This value is taken into account only the next time you call
 	 * {@link #startAnimation()}. If {@link #animationIsStarted()}, you should
 	 * {@link #stopAnimation()} first. See {@link #restartAnimation()} and
-	 * {@link #setAnimationPeriod(float, boolean)}.
+	 * {@link #setAnimationPeriod(long, boolean)}.
 	 * 
-	 * @see #setAnimationPeriod(float, boolean)
+	 * @see #setAnimationPeriod(long, boolean)
 	 */
 	@Override
 	public long animationPeriod() {
@@ -100,7 +100,7 @@ public class AnimatedObject implements Animatable {
 	 * Convenience function that simply calls
 	 * {@code setAnimationPeriod(period, true)}.
 	 * 
-	 * @see #setAnimationPeriod(float, boolean)
+	 * @see #setAnimationPeriod(long, boolean)
 	 */
 	@Override
 	public void setAnimationPeriod(long period) {

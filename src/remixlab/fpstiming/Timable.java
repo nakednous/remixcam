@@ -56,7 +56,6 @@ public interface Timable {
 
 	/**
 	 * Returns whether or not the timer is scheduled to be executed only once.
-	 * @return
 	 */
 	public boolean isSingleShot();
 
