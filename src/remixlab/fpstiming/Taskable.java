@@ -10,6 +10,12 @@
  ******************************************************************************/
 package remixlab.fpstiming;
 
+/**
+ * Interface to define the timer callback method.
+ */
 public interface Taskable {
+	/**
+	 * Timer callback method
+	 */
 	public void execute();
 }

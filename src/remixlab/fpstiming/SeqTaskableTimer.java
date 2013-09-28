@@ -10,33 +10,46 @@
  ******************************************************************************/
 package remixlab.fpstiming;
 
+/**
+ * A sequential timer holding a {@link #timerJob()} which defines
+ * its callback method.
+ */
 public class SeqTaskableTimer extends SeqTimer {
-	Taskable caller;
-	
-	public SeqTaskableTimer(TimingHandler scn, Taskable t) {
-		super(scn);
-		caller = t;
+	Taskable task;
+
+	public SeqTaskableTimer(TimingHandler h, Taskable t) {
+		super(h);
+		task = t;
 	}
-	
+
+	/**
+	 * Returns the object defining the timer callback method.
+	 */
 	public Taskable timerJob() {
-		return caller;
+		return task;
 	}
-	
+
 	@Override
 	public void cancel() {
 		super.cancel();
-		scene.unregisterJob(this);
+		handler.unregisterJob(this);
 	}
-	
+
+	/**
+	 * Executes the callback method defined by the {@link #timerJob()}.
+	 * <p>
+	 * <b>Note:</b> You should not call this method since it's done by the
+	 * timing handler (see {@link remixlab.fpstiming.TimingHandler#handle()}).
+	 */
 	public boolean execute() {
 		boolean result = isTrigggered();
-		
-		if(result) {
-			caller.execute();
-			if(runOnlyOnce)
-				inactivate();		
+
+		if (result) {
+			task.execute();
+			if (runOnlyOnce)
+				inactivate();
 		}
-		
+
 		return result;
-	}	
+	}
 }

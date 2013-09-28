@@ -10,73 +10,91 @@
  ******************************************************************************/
 package remixlab.fpstiming;
 
+/**
+ * An abstract wrapper class holding a {@link #timer()} together
+ * with its call back method ({@link remixlab.fpstiming.Taskable#execute()})
+ * which derived classes should implement.
+ */
 public abstract class AbstractTimerJob implements Taskable {
 	protected Timable tmr;
-	
+
+	/**
+	 * Returns the timer instance.
+	 */
 	public Timable timer() {
 		return tmr;
 	}
-	
+
+	/**
+	 * Sets the timer instance.
+	 */
 	public void setTimer(Timable t) {
 		tmr = t;
 	}
-	
-	//Wrappers	
-	
+
+	// Wrappers
+
+	/**
+	 * Timer wrapper method.
+	 */
 	public void run(long period) {
-		if(timer()!=null) {
+		if (timer() != null) {
 			timer().setSingleShot(false);
-			timer().run(period);			
+			timer().run(period);
 		}
 	}
-	
+
+	/**
+	 * Timer wrapper method.
+	 */
 	public void runOnce(long period) {
-		if(timer()!=null) {
+		if (timer() != null) {
 			timer().setSingleShot(true);
-			timer().run(period);			
-		} 
+			timer().run(period);
+		}
 	}
-	
+
+	/**
+	 * Timer wrapper method.
+	 */
 	public void stop() {
-		if(timer()!=null) {
+		if (timer() != null) {
 			timer().stop();
 		}
 	}
-	
+
+	/**
+	 * Timer wrapper method.
+	 */
 	public void cancel() {
-		if(timer()!=null) {
+		if (timer() != null) {
 			timer().cancel();
 		}
 	}
 	
+	/**
+	 * Timer wrapper method.
+	 */
 	public void create() {
-		if(timer()!=null) {
+		if (timer() != null) {
 			timer().create();
 		}
 	}
-	
+
+	/**
+	 * Timer wrapper method.
+	 */
 	public boolean isActive() {
-		if(timer()!=null) {
+		if (timer() != null) {
 			return timer().isActive();
 		}
 		return false;
 	}
-		
+
+	/**
+	 * Timer wrapper method.
+	 */
 	public long period() {
 		return timer().period();
 	}
-	
-	/**
-	public void setPeriod(long period) {
-		timer().setPeriod(period);
-	}
-	
-	public boolean isSingleShot() {
-		return timer().isSingleShot();
-	}
-	
-	public void setSingleShot(boolean singleShot) {
-		timer().setSingleShot(singleShot);
-	}
-	*/
 }

@@ -12,6 +12,19 @@ package remixlab.fpstiming;
 
 import java.util.ArrayList;
 
+/**
+ * A timing handler holds a {@link #timerPool()} and an {@link #animationPool()}.
+ * The timer pool are all the tasks scheduled to be performed in the future
+ * (one single time or periodically). The animation pool are all the objects
+ * that implement an animation callback function.
+ * <p>
+ * FPSTiming implements single threaded timers by taking the application frame rate
+ * as a clock. Each application using the library should: 1. Instantiate a single
+ * TimingHandler; 2. Schedule some tasks to be executed periodically
+ * ({@link #registerJob(AbstractTimerJob)} ); 3. Register some animation objects
+ * ({@link #registerAnimation(Animatable)}); and, 4. Call {@link #handle()}
+ * from within the application main event loop.
+ */
 public class TimingHandler {
 	// protected boolean singleThreadedTaskableTimers;
 	// T i m e r P o o l
@@ -26,7 +39,10 @@ public class TimingHandler {
 	public static final String prettyVersion = "0.9.50";
 
 	public static final String version = "1";
-	
+  
+	/**
+	 * Main constructor.
+	 */
 	public TimingHandler() {
 		frameCount = 0;
 		frameRate = 10;
@@ -36,11 +52,21 @@ public class TimingHandler {
 		animationPool = new ArrayList<Animatable>();
 	}
 
+	/**
+	 * CAnstructor that takes and registers an animation object.
+	 */
 	public TimingHandler(Animatable aObject) {
 		this();
-		this.registerAnimatable(aObject);
+		this.registerAnimation(aObject);
 	}
 
+	/**
+	 * Handler's main method. It should be called from within your main
+	 * event loop. It does the following: 1. Recomputes the frame rate;
+	 * 2. Executes the all timers (those in the {@link #timerPool()})
+	 * callback functions; and, 3. Performs all the animated objects
+	 * (those in the {@link #animationPool()}) animation functions.
+	 */
 	public void handle() {
 		updateFrameRate();
 		for (AbstractTimerJob tJob : timerPool)
@@ -55,32 +81,61 @@ public class TimingHandler {
 						aObj.animate();
 	}
 
+	/**
+	 * Returns the timer pool.
+	 */
 	public ArrayList<AbstractTimerJob> timerPool() {
 		return timerPool;
 	}
 
+	/**
+	 * Register a task in the timer pool and creates a sequential timer for it.
+	 */
 	public void registerJob(AbstractTimerJob job) {
 		job.setTimer(new SeqTaskableTimer(this, job));
 		timerPool.add(job);
 	}
 
+	/**
+	 * Register a task in the timer pool with the given timer.
+	 */
 	public void registerJob(AbstractTimerJob job, Timable timer) {
 		job.setTimer(timer);
 		timerPool.add(job);
 	}
 
+	/**
+	 * Unregisters the timer. Alternatively, you may unregister
+	 * the job related to this timer.
+	 * 
+	 * @see #unregisterJob(AbstractTimerJob)
+	 */
 	public void unregisterJob(SeqTaskableTimer t) {
 		timerPool.remove(t.timerJob());
 	}
 
+	/**
+	 * Unregisters the job. Alternatively, you may unregister
+	 * the timer related to this job.
+	 * 
+	 * @see #unregisterJob(SeqTaskableTimer)
+	 */
 	public void unregisterJob(AbstractTimerJob job) {
 		timerPool.remove(job);
 	}
 
+	/**
+	 * Returns {@code true} if the job is registered and {@code false} otherwise.
+	 */
 	public boolean isJobRegistered(AbstractTimerJob job) {
 		return timerPool.contains(job);
 	}
 
+	/**
+	 * Recomputes the frame rate based upon the frequency at which {@link #handle()}
+	 * is called from within the application main event loop. The frame rate is
+	 * needed to sync all timing operations.
+	 */
 	protected void updateFrameRate() {
 		long now = System.currentTimeMillis();
 		if (frameCount > 1) {
@@ -103,8 +158,6 @@ public class TimingHandler {
 		return frameRate;
 	}
 
-	// public abstract float frameRate();
-
 	/**
 	 * Returns the number of frames displayed since the program started.
 	 */
@@ -112,9 +165,10 @@ public class TimingHandler {
 		return frameCount;
 	}
 
+	/**
+	 * Converts all registered timers to single-threaded timers.
+	 */
 	public void restoreTimers() {
-		// if( timersAreSingleThreaded() ) return;
-
 		boolean isActive;
 
 		for (AbstractTimerJob job : timerPool) {
@@ -140,21 +194,34 @@ public class TimingHandler {
 
 	// Animation -->
 
+	/**
+	 * Returns all the animated objects registered at the handler.
+	 */
 	public ArrayList<Animatable> animationPool() {
 		return animationPool;
 	}
 
-	public void registerAnimatable(Animatable object) {
+	/**
+	 * Register the animation object.
+	 */
+	public void registerAnimation(Animatable object) {
 		if (object.timingHandler() != this)
 			object.setTimingHandler(this);
 		animationPool.add(object);
 	}
 
-	public void unregisterAnimatable(Animatable object) {
+	/**
+	 * Unregisters the animation object.
+	 */
+	public void unregisterAnimation(Animatable object) {
 		animationPool.remove(object);
 	}
 
-	public boolean isAnimatableRegistered(Animatable object) {
+	/**
+	 * Returns {@code true} if the animation object is registered
+	 * and {@code false} otherwise.
+	 */
+	public boolean isAnimationRegistered(Animatable object) {
 		return animationPool.contains(object);
 	}
 }
