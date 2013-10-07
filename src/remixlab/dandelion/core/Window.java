@@ -32,10 +32,10 @@ public class Window extends Viewport implements Copyable {
 	}
 	
 	/**
-	 * Calls {@link #Camera(Camera)} (which is protected) and returns a copy of
+	 * Calls {@link #Window(Window)} (which is protected) and returns a copy of
 	 * {@code this} object.
 	 * 
-	 * @see #Camera(Camera)
+	 * @see #Window(Window)
 	 */	
 	@Override
 	public Window get() {

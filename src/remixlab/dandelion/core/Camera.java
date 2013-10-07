@@ -981,9 +981,9 @@ public class Camera extends Viewport implements Constants, Copyable {
 	}
 
 	/**
-	 * Returns {@link remixlab.dandelion.core.Camera.Visibility#VISIBLE},
-	 * {@link remixlab.dandelion.core.Camera.Visibility#INVISIBLE}, or
-	 * {@link remixlab.dandelion.core.Camera.Visibility#SEMIVISIBLE}, depending whether
+	 * Returns {@link remixlab.dandelion.core.Viewport.Visibility#VISIBLE},
+	 * {@link remixlab.dandelion.core.Viewport.Visibility#INVISIBLE}, or
+	 * {@link remixlab.dandelion.core.Viewport.Visibility#SEMIVISIBLE}, depending whether
 	 * the sphere (of radius {@code radius} and center {@code center}) is visible,
 	 * invisible, or semi-visible, respectively.
 	 * <p>

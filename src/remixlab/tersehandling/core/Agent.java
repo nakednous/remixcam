@@ -88,12 +88,18 @@ public class Agent {
 		if (event == null || !handler.isAgentRegistered(this) || !isTracking())
 			return trackedGrabber();
 
+		Grabbable g = trackedGrabber();
+		
+		//We first check if tracked grabber remains the same
+		if (g != null)
+			if(g.checkIfGrabsInput(event))
+				return trackedGrabber();
+		
 		setTrackedGrabber(null);
 		for (Grabbable mg : pool()) {
 			// take whatever. Here the first one
 			if (mg.checkIfGrabsInput(event)) {
 				setTrackedGrabber(mg);
-				// System.out.println("oooops");
 				return trackedGrabber();
 			}
 		}
