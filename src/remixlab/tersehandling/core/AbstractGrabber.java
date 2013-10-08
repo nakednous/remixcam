@@ -17,6 +17,18 @@ package remixlab.tersehandling.core;
  * @author pierre
  */
 public abstract class AbstractGrabber implements Grabbable {
+	public AbstractGrabber() {
+	}
+	
+	public AbstractGrabber(Agent agent) {
+		agent.addInPool(this);
+	}
+	
+	public AbstractGrabber(TerseHandler handler) {
+		for (Agent agent : handler.agents())
+			agent.addInPool(this);
+	}
+	
 	@Override
 	public boolean grabsAgent(Agent agent) {
 		return agent.grabber() == this;
