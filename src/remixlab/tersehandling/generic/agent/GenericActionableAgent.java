@@ -1,11 +1,10 @@
 /*******************************************************************************
  * TerseHandling (version 0.9.50)
- * Copyright (c) 2013 Jean Pierre Charalambos.
- * @author Jean Pierre Charalambos
- * https://github.com/remixlab
- *   
+ * Copyright (c) 2013 National University of Colombia, https://github.com/remixlab
+ * @author Jean Pierre Charalambos, http://otrolado.info/
+ *    
  * All rights reserved. Library that eases the creation of interactive
- * scenes released under the terms of the GNU Public License v3.0
+ * scenes, released under the terms of the GNU Public License v3.0
  * which is available at http://www.gnu.org/licenses/gpl.html
  ******************************************************************************/
 package remixlab.tersehandling.generic.agent;
