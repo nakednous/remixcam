@@ -1,5 +1,5 @@
 /*******************************************************************************
- * ProScene (version 1.9.50)
+ * ProScene (version 2.0.0-alpha.1)
  * Copyright (c) 2013 National university of Colombia, https://github.com/remixlab
  * @author Jean Pierre Charalambos, http://otrolado.info/
  * 
@@ -1747,7 +1747,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	// ---- //
 	
 	// proscene version
-  public static final String prettyVersion = "1.9.50";
+  public static final String prettyVersion = "2.0.0-alpha.1";
 		
 	public static final String version = "16";
 	

@@ -1,8 +1,8 @@
 /*******************************************************************************
- * TerseHandling (version 0.9.50)
+ * TerseHandling (version 1.0.0-alpha.1)
  * Copyright (c) 2013 National University of Colombia, https://github.com/remixlab
  * @author Jean Pierre Charalambos, http://otrolado.info/
- *    
+ *     
  * All rights reserved. Library that eases the creation of interactive
  * scenes, released under the terms of the GNU Public License v3.0
  * which is available at http://www.gnu.org/licenses/gpl.html
@@ -37,7 +37,7 @@ public class TerseHandler {
 	protected HashMap<String, Agent> agents;
 	protected LinkedList<EventGrabberTuple> eventTupleQueue;
 	
-	public static final String prettyVersion = "0.9.50";
+	public static final String prettyVersion = "1.0.0-alpha.1";
 
 	public static final String version = "1";
 	
