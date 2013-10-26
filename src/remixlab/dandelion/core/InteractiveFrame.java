@@ -1164,9 +1164,9 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 			break;
 		case TRANSLATE3:
 			if(e3.relative())
-			  trans = new Vec(e3.getDX(), scene.isRightHanded() ? -e3.getDY() : e3.getDY(), -e3.getDZ());
+			  trans = new Vec(e3.getDX(), scene.isRightHanded() ? -e3.getDY() : e3.getDY(), e3.getDZ());
 			else
-				trans = new Vec(e3.getX(), scene.isRightHanded() ? -e3.getY() : e3.getY(), -e3.getZ());
+				trans = new Vec(e3.getX(), scene.isRightHanded() ? -e3.getY() : e3.getY(), e3.getZ());
 		  // Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
@@ -1194,9 +1194,9 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 		case TRANSLATE_ROTATE:
 		  // A. Translate the iFrame
 			if(e6.relative())
-			  trans = new Vec(e6.getDX(), scene.isRightHanded() ? -e6.getDY() : e6.getDY(), -e6.getDZ());
+			  trans = new Vec(e6.getDX(), scene.isRightHanded() ? -e6.getDY() : e6.getDY(), e6.getDZ());
 			else
-				trans = new Vec(e6.getX(), scene.isRightHanded() ? -e6.getY() : e6.getY(), -e6.getZ());
+				trans = new Vec(e6.getX(), scene.isRightHanded() ? -e6.getY() : e6.getY(), e6.getZ());
 		  // Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
