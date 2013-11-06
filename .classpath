@@ -3,6 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/home/pierre/Dropbox/workspace1/remixcam/lib/gwt-hashcode-equals-0.1.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/p5-2b"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/p5-2x"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

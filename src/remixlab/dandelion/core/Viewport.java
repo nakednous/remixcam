@@ -920,11 +920,11 @@ public abstract class Viewport implements Copyable {
 			viewMat.set(source);
 	}	
 	
-	public void setProjectionViewMatrix(Mat projviewMat) {
+	public void setProjectionTimesView(Mat projviewMat) {
 		projectionViewMat.set(projviewMat);
 }
 	
-	public void setProjectionViewMatrix(float [] source) {
+	public void setProjectionTimesView(float [] source) {
 		setProjectionViewMatrix(source, false);
 	}
 	
@@ -935,29 +935,29 @@ public abstract class Viewport implements Copyable {
 			projectionViewMat.set(source);
 	}
 	
-	public Mat getProjectionViewMatrix() {
-		return getProjectionViewMatrix(false);
+	public Mat getProjectionTimesView() {
+		return getProjectionTimesView(false);
 	}
 	
-	public Mat getProjectionViewMatrix(boolean recompute) {
-		return getProjectionViewMatrix(new Mat(), recompute);
+	public Mat getProjectionTimesView(boolean recompute) {
+		return getProjectionTimesView(new Mat(), recompute);
 	}
 	
-	public Mat getProjectionViewMatrix(Mat m) {
-		return getProjectionViewMatrix(m, false);
+	public Mat getProjectionTimesView(Mat m) {
+		return getProjectionTimesView(m, false);
 	}
 	
-	public Mat getProjectionViewMatrix(Mat m, boolean recompute) {
+	public Mat getProjectionTimesView(Mat m, boolean recompute) {
 		if (m == null)
 			m = new Mat();
 		if(recompute) {
-			computeProjectionViewMatrix();
+			projectionTimesView();
 		}
 		m.set(projectionViewMat);
 		return m;
 	}
 	
-	public void computeProjectionViewMatrix() {
+	public void projectionTimesView() {
 		Mat.mult(projectionMat, viewMat, projectionViewMat);		 
 	}
 	

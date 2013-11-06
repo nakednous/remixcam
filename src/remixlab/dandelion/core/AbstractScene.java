@@ -439,7 +439,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 
 	protected void setProjectionModelViewMatrix() {
-		viewport().computeProjectionViewMatrix();
+		viewport().projectionTimesView();
 	}
 	
 	// Try to optimize assignments in all three matrix getters?
@@ -476,7 +476,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		Mat PVM;  	
   	PVM = getMatrix();//model  	
     //PVM.preApply(camera().projectionViewMat);
-  	PVM.preApply(viewport().getProjectionViewMatrix());  	
+  	PVM.preApply(viewport().getProjectionTimesView());  	
   	return PVM;
 	}
 	

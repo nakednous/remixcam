@@ -1095,8 +1095,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			//fails due to scaling!
 			//scene().applyTransformation(camera.frame());
 				
-			pg3d().translate( cam.frame().translation().vec[0], cam.frame().translation().vec[1], cam.frame().translation().vec[2] );
-			pg3d().rotate( cam.frame().rotation().angle(), ((Quat)cam.frame().rotation()).axis().vec[0], ((Quat)cam.frame().rotation()).axis().vec[1], ((Quat)cam.frame().rotation()).axis().vec[2]);
+			//respect to parent frame:
+			//pg3d().translate( cam.frame().translation().vec[0], cam.frame().translation().vec[1], cam.frame().translation().vec[2] );
+			//pg3d().rotate( cam.frame().rotation().angle(), ((Quat)cam.frame().rotation()).axis().vec[0], ((Quat)cam.frame().rotation()).axis().vec[1], ((Quat)cam.frame().rotation()).axis().vec[2]);
+			
+			//take into account the whole hierarchy:
+			pg3d().translate( cam.frame().position().vec[0], cam.frame().position().vec[1], cam.frame().position().vec[2] );
+			pg3d().rotate( cam.frame().orientation().angle(), ((Quat)cam.frame().orientation()).axis().vec[0], ((Quat)cam.frame().orientation()).axis().vec[1], ((Quat)cam.frame().orientation()).axis().vec[2]);
 
 			// 0 is the upper left coordinates of the near corner, 1 for the far one
 			Vec[] points = new Vec[2];
@@ -1444,7 +1449,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			return false;
 		}
 	}
-	
+
 	protected abstract class P5Renderer extends ProjectionRenderer {
 		PGraphicsOpenGL pg;
 		Mat proj;
@@ -1601,7 +1606,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			// Finally, caches projmodelview
 			//pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(true).getTransposed(new float[16]));		
 			Mat.mult(proj, scene.window().view(), scene.window().projectionView());
-			pg2d().projmodelview.set(scene.window().getProjectionViewMatrix(false).getTransposed(new float[16]));
+			pg2d().projmodelview.set(scene.window().getProjectionTimesView(false).getTransposed(new float[16]));
 		  // */
 		}
 	}
@@ -1710,9 +1715,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		  // All three options work seamlessly
 		  /**
 		  // Option 1
-		  Matrix3D mat = new Matrix3D();
+		  Mat mat = new Mat();
 		  scene.camera().getViewMatrix(mat, true);
-		  mat.transpose();// experimental
+		  mat.transpose();
 		  float[] target = new float[16];
 		  pg3d().modelview.set(mat.get(target));
 		  //caches projmodelview
@@ -1720,12 +1725,19 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		  // */
 
 		  /**
-		  // Option 2
+		  // Option 2a
 		  pg3d().modelview.set(scene.camera().getViewMatrix(true).getTransposed(new float[16]));
 		  // Finally, caches projmodelview
 		  //pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
-		  Matrix3D.mult(proj, scene.camera().view(), scene.camera().projectionView());
+		  Mat.mult(proj, scene.camera().view(), scene.camera().projectionView());
 		  pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(false).getTransposed(new float[16]));
+		  // */	
+		  
+		  /**
+		  // Option 2b
+		  pg3d().modelview.set(scene.camera().getViewMatrix(true).getTransposed(new float[16]));
+		  // Finally, caches projmodelview
+		  pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
 		  // */	
 
 		  // /**
@@ -1733,9 +1745,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		  // compute the processing camera modelview matrix from our camera() parameters
 		  at = scene.camera().at();
 		  pg3d().camera(scene.camera().position().x(), scene.camera().position().y(), scene.camera().position().z(),
-		  //scene.camera().at().x(), scene.camera().at().y(), scene.camera().at().z(),
-		  at.x(), at.y(), at.z(),
-		  scene.camera().upVector().x(), scene.camera().upVector().y(), scene.camera().upVector().z());
+		  							//scene.camera().at().x(), scene.camera().at().y(), scene.camera().at().z(),
+		  							at.x(), at.y(), at.z(),
+		  							scene.camera().upVector().x(), scene.camera().upVector().y(), scene.camera().upVector().z());
 		  // We cache the processing camera modelview matrix into our camera()
 		  scene.camera().setViewMatrix( pg3d().modelview.get(new float[16]), true );// set it transposed
 		  // We cache the processing camera projmodelview matrix into our camera()

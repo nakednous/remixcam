@@ -332,7 +332,7 @@ public abstract class Renderer implements Renderable, Constants {
 	public void bindMatrices() {
 		scene.viewport().computeProjectionMatrix();
 		scene.viewport().computeViewMatrix();
-		scene.viewport().computeProjectionViewMatrix();
+		scene.viewport().projectionTimesView();
 
 		Vec pos = scene.viewport().position();
 		Orientable quat = scene.viewport().frame().orientation();

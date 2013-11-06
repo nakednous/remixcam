@@ -483,7 +483,7 @@ public abstract class StackRenderer extends Renderer {
   protected void setModelViewMatrix() {
 		scene.viewport().computeViewMatrix();	  	  
 	  resetMatrix();
-	  scene.viewport().computeProjectionViewMatrix();
+	  scene.viewport().projectionTimesView();
 	}
 		
 	// /**
