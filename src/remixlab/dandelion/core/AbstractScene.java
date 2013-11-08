@@ -13,8 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import remixlab.dandelion.geom.*;
-import remixlab.dandelion.renderer.*;
-
+import remixlab.dandelion.renderer.StackRenderer;
 import remixlab.fpstiming.AbstractTimerJob;
 import remixlab.fpstiming.AnimatedObject;
 import remixlab.fpstiming.TimingHandler;
@@ -27,7 +26,9 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	protected boolean dottedGrid;	
 	
   //O B J E C T S
-	protected Renderable renderer;
+	protected Renderable matrixHelpler;
+	protected Depictable drawingHelpler;
+	
 	protected Viewport vport;
 	protected Trackable trck;
 	public boolean avatarIsInteractiveFrame;
@@ -74,18 +75,27 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	  // E X C E P T I O N H A N D L I N G
 	  startCoordCalls = 0;
 	  timerHandler = new TimingHandler(this);		
-		terseHandler = new TerseHandler();		
+		terseHandler = new TerseHandler();
+		setMatrixHelper(new StackRenderer(this));
 		setDottedGrid(true);
 		setRightHanded();
 	}
 	
-	protected void setRenderer(Renderable r) {
-		renderer = r;
+	protected void setDrawingHelper(Depictable d) {
+		drawingHelpler = d;
 	}
 		
-	public Renderable renderer() {
-		return renderer;
-	}	
+	public Depictable drawingHelpler() {
+		return drawingHelpler;
+	}
+	
+	public void setMatrixHelper(Renderable r) {
+		matrixHelpler = r;
+	}
+		
+	public Renderable matrixHelpler() {
+		return matrixHelpler;
+	}
 	
 	public boolean gridIsDotted() {
 		return dottedGrid;
@@ -435,7 +445,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 */	
 	protected void bindMatrices() {
 		// we should simply go:
-		renderer.bindMatrices();
+		matrixHelpler.bindMatrices();
 	}
 
 	protected void setProjectionModelViewMatrix() {
@@ -511,76 +521,54 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 */
 	public void proscenium() {}
 	
-  // Event registration
+	public boolean is2D() {
+		return !is3D();
+	}
+	
+	public abstract boolean is3D();
 		
 	// WRAPPERS
-	
-  public boolean is2D() {
-  	return renderer.is2D();
-  }
-	
-	public boolean is3D() {
-		return renderer.is3D();
-	}
 	
 	/**
 	 * Push a copy of the modelview matrix onto the stack.
    */
 	public void pushMatrix() {
-		if( renderer instanceof StackRenderer )
-			renderer.pushMatrix();
-		else
-			AbstractScene.showMissingImplementationWarning("pushMatrix");
+		matrixHelpler.pushMatrix();
 	}
 	
 	/**
 	 * Replace the current modelview matrix with the top of the stack.
 	 */
 	public void popMatrix() {
-		if( renderer instanceof StackRenderer )
-			renderer.popMatrix();
-		else
-			AbstractScene.showMissingImplementationWarning("popMatrix");
+		matrixHelpler.popMatrix();
 	}
 	
 	/**
 	 * Push a copy of the projection matrix onto the stack.
    */
 	public void pushProjection() {
-		if( renderer instanceof StackRenderer )
-			renderer.pushProjection();
-		else
-			AbstractScene.showMissingImplementationWarning("pushProjection");
+		matrixHelpler.pushProjection();
 	}
 	
 	/**
 	 * Replace the current projection matrix with the top of the stack.
 	 */
 	public void popProjection() {
-		if( renderer instanceof StackRenderer )
-			renderer.popProjection();
-		else
-			AbstractScene.showMissingImplementationWarning("popProjection");
+		matrixHelpler.popProjection();
 	}
 	
   /**
    * Translate in X and Y.
    */
   public void translate(float tx, float ty) {    
-  	if( renderer instanceof StackRenderer )
-  		renderer.translate(tx, ty);
-  	else
-			AbstractScene.showMissingImplementationWarning("translate");
+  	matrixHelpler.translate(tx, ty);
   }
 
   /**
    * Translate in X, Y, and Z.
    */
   public void translate(float tx, float ty, float tz) {
-  	if( renderer instanceof StackRenderer )
-  		renderer.translate(tx, ty, tz);
-  	else
-			AbstractScene.showMissingImplementationWarning("translate");
+  	matrixHelpler.translate(tx, ty, tz);
   }
 
   /**
@@ -593,30 +581,21 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * <A HREF="http://www.xkcd.com/c184.html">Additional background</A>.
    */
   public void rotate(float angle) {
-  	if( renderer instanceof StackRenderer )
-  		renderer.rotate(angle);
-  	else
-			AbstractScene.showMissingImplementationWarning("rotate");
+  	matrixHelpler.rotate(angle);
   }
 
   /**
    * Rotate around the X axis.
    */
   public void rotateX(float angle) { 
-  	if( renderer instanceof StackRenderer )
-  		renderer.rotateX(angle);
-  	else
-			AbstractScene.showMissingImplementationWarning("rotateX");
+  	matrixHelpler.rotateX(angle);
   }
 
   /**
    * Rotate around the Y axis.
    */
   public void rotateY(float angle) {
-  	if( renderer instanceof StackRenderer )
-  		renderer.rotateY(angle);
-  	else
-  		AbstractScene.showMissingImplementationWarning("rotateY");
+  	matrixHelpler.rotateY(angle);
   }
 
   /**
@@ -628,30 +607,21 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * doing things in 2D. so we just decided to have them both be the same.
    */
   public void rotateZ(float angle) {
-  	if( renderer instanceof StackRenderer )
-  		renderer.rotateZ(angle);
-  	else
-  		AbstractScene.showMissingImplementationWarning("rotateZ");
+  	matrixHelpler.rotateZ(angle);
   }
 
   /**
    * Rotate about a vector in space. Same as the glRotatef() function.
    */
   public void rotate(float angle, float vx, float vy, float vz) {
-  	if( renderer instanceof StackRenderer )
-  		renderer.rotate(angle, vx, vy, vz);
-  	else
-  		AbstractScene.showMissingImplementationWarning("rotate");
+  	matrixHelpler.rotate(angle, vx, vy, vz);
   }
 
   /**
    * Scale in all dimensions.
    */
   public void scale(float s) {
-  	if( renderer instanceof StackRenderer )
-  		renderer.scale(s);
-  	else
-  		AbstractScene.showMissingImplementationWarning("scale");
+  	matrixHelpler.scale(s);
   }
 
   /**
@@ -661,54 +631,36 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * scaled by 1, since there's no way to know what else to scale it by.
    */
   public void scale(float sx, float sy) {
-  	if( renderer instanceof StackRenderer )
-  		renderer.scale(sx, sy);
-  	else
-  		AbstractScene.showMissingImplementationWarning("scale");
+  	matrixHelpler.scale(sx, sy);
   }
 
   /**
    * Scale in X, Y, and Z.
    */
   public void scale(float x, float y, float z) {
-  	if( renderer instanceof StackRenderer )
-  		renderer.scale(x, y, z);
-  	else
-  		AbstractScene.showMissingImplementationWarning("scale");
+  	matrixHelpler.scale(x, y, z);
   }  
   
   /**
    * Set the current modelview matrix to identity.
    */
   public void resetMatrix() {
-  	if( renderer instanceof StackRenderer )
-  		renderer.resetMatrix();
-  	else
-  		AbstractScene.showMissingImplementationWarning("resetMatrix");
+  	matrixHelpler.resetMatrix();
   }
   
   /**
    * Set the current projection matrix to identity.
    */
   public void resetProjection() {
-  	if( renderer instanceof StackRenderer )
-  		renderer.resetProjection();
-  	else
-  		AbstractScene.showMissingImplementationWarning("resetProjection");
+  	matrixHelpler.resetProjection();
   }  
   
   public void applyMatrix(Mat source) {
-  	if( renderer instanceof StackRenderer )
-  		renderer.applyMatrix(source);
-  	else
-  		AbstractScene.showMissingImplementationWarning("applyMatrix");
+  	matrixHelpler.applyMatrix(source);
   }
   
   public void applyProjection(Mat source) {
-  	if( renderer instanceof StackRenderer )
-  		renderer.applyProjection(source);
-  	else
-  		AbstractScene.showMissingImplementationWarning("applyProjection");
+  	matrixHelpler.applyProjection(source);
   }
 
   /**
@@ -718,7 +670,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
                                        float n10, float n11, float n12, float n13,
                                        float n20, float n21, float n22, float n23,
                                        float n30, float n31, float n32, float n33) {    
-  	renderer.applyMatrixRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
+  	matrixHelpler.applyMatrixRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
   }
   
   /**
@@ -728,7 +680,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
                                        float n10, float n11, float n12, float n13,
                                        float n20, float n21, float n22, float n23,
                                        float n30, float n31, float n32, float n33) {    
-  	renderer.applyProjectionRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
+  	matrixHelpler.applyProjectionRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
   }
   
   /**
@@ -738,21 +690,11 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   */
 
   public Mat getMatrix() {
-  	if( renderer instanceof StackRenderer )
-  		return renderer.getMatrix();
-  	else {
-  		AbstractScene.showMissingImplementationWarning("getMatrix");
-  		return null;
-  	}
+  	return matrixHelpler.getMatrix();
   }
   
   public Mat getProjection() {
-  	if( renderer instanceof StackRenderer )
-  		return renderer.getProjection();
-  	else {
-  		AbstractScene.showMissingImplementationWarning("getProjection");
-  		return null;
-  	}
+  	return matrixHelpler.getProjection();
   }
 
   /**
@@ -760,12 +702,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * Pass in null to create a new matrix.
    */
   public Mat getMatrix(Mat target) {
-  	if( renderer instanceof StackRenderer )
-  		return renderer.getMatrix(target);
-  	else {
-  		AbstractScene.showMissingImplementationWarning("getMatrix");
-  		return null;
-  	}
+  	return matrixHelpler.getMatrix(target);
   }
   
   /**
@@ -773,46 +710,35 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * Pass in null to create a new matrix.
    */
   public Mat getProjection(Mat target) {
-  	if( renderer instanceof StackRenderer )
-  		return renderer.getProjection(target);
-  	else {
-  		AbstractScene.showMissingImplementationWarning("getProjection");
-  		return null;
-  	}
+  	return matrixHelpler.getProjection(target);
   }
 
   /**
    * Set the current modelview matrix to the contents of another.
    */
   public void setMatrix(Mat source) {
-  	renderer.setMatrix(source);
+  	matrixHelpler.setMatrix(source);
   }
   
   /**
    * Set the current projection matrix to the contents of another.
    */
   public void setProjection(Mat source) {
-  	renderer.setProjection(source);
+  	matrixHelpler.setProjection(source);
   }
 
   /**
    * Print the current modelview matrix.
    */
   public void printMatrix() {
-  	if( renderer instanceof StackRenderer )
-  		renderer.printMatrix();
-  	else
-  		AbstractScene.showMissingImplementationWarning("printMatrix");
+  	matrixHelpler.printMatrix();
   }
   
   /**
    * Print the current projection matrix.
    */
   public void printProjection() {
-  	if( renderer instanceof StackRenderer )
-  		renderer.printProjection();
-  	else
-  		AbstractScene.showMissingImplementationWarning("printMatrix");
+  	matrixHelpler.printProjection();
   }
   
   /**
@@ -820,71 +746,71 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * positive {@code z} axis. 
 	 */
   public void cylinder(float w, float h) {
-  	renderer.cylinder(w, h);
+  	drawingHelpler().cylinder(w, h);
   }
   
   public void cone(int detail, float x, float y, float r, float h) {
-  	renderer.cone(detail, x, y, r, h);
+  	drawingHelpler().cone(detail, x, y, r, h);
   }
   
   public void cone(int detail, float x, float y, float r1, float r2, float h) {
-  	renderer.cone(detail, x, y, r1, r2, h);
+  	drawingHelpler().cone(detail, x, y, r1, r2, h);
   }
   
   public void drawAxis(float length) {
-  	renderer.drawAxis(length);
+  	drawingHelpler().drawAxis(length);
   }
   
   public void drawGrid(float size, int nbSubdivisions) {
-  	renderer.drawGrid(size, nbSubdivisions);
+  	drawingHelpler().drawGrid(size, nbSubdivisions);
   }
   
   public void drawDottedGrid(float size, int nbSubdivisions) {
-  	renderer.drawDottedGrid(size, nbSubdivisions);
+  	drawingHelpler().drawDottedGrid(size, nbSubdivisions);
   }
     
   public void drawWindow(Window window, float scale) {
-  	renderer.drawWindow(window, scale);
+  	drawingHelpler().drawWindow(window, scale);
   }
   
   public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
-  	renderer.drawCamera(camera, drawFarPlane, scale);
+  	drawingHelpler().drawCamera(camera, drawFarPlane, scale);
   }
   
   public void drawKFIViewport(float scale) {
-  	renderer.drawKFIViewport(scale);
+  	drawingHelpler().drawKFIViewport(scale);
   }
   
   public void drawZoomWindowHint() {
-  	renderer.drawZoomWindowHint();
+  	drawingHelpler().drawZoomWindowHint();
   }
   
   public void drawScreenRotateLineHint() {
-  	renderer.drawScreenRotateLineHint();
+  	drawingHelpler().drawScreenRotateLineHint();
   }
   
   public void drawArcballReferencePointHint() {
-  	renderer.drawArcballReferencePointHint();
+  	drawingHelpler().drawArcballReferencePointHint();
   }
   
   public void drawCross(float px, float py, float size) {
-  	renderer.drawCross(px, py, size);
+  	drawingHelpler().drawCross(px, py, size);
   }
   
   public void drawFilledCircle(int subdivisions, Vec center, float radius) {
-  	renderer.drawFilledCircle(subdivisions, center, radius);
+  	drawingHelpler().drawFilledCircle(subdivisions, center, radius);
   }
   
   public void drawFilledSquare(Vec center, float edge) {
-  	renderer.drawFilledSquare(center, edge);
+  	drawingHelpler().drawFilledSquare(center, edge);
   }
   
   public void drawShooterTarget(Vec center, float length) {
-		renderer.drawShooterTarget(center, length);
+  	drawingHelpler().drawShooterTarget(center, length);
 	}
 	
 	public void drawPath(List<RefFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
-		renderer.drawPath(path, mask, nbFrames, nbSteps, scale);
+		drawingHelpler().drawPath(path, mask, nbFrames, nbSteps, scale);
 	}
 	
   public void beginScreenDrawing() {
@@ -895,7 +821,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		startCoordCalls++;
 		
 		disableDepthTest();
-		renderer.beginScreenDrawing();
+		matrixHelpler.beginScreenDrawing();
   }
 	
 	public void endScreenDrawing() {
@@ -904,7 +830,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			throw new RuntimeException("There should be exactly one beginScreenDrawing() call followed by a "
 							                 + "endScreenDrawing() and they cannot be nested. Check your implementation!");
 		
-		renderer.endScreenDrawing();
+		matrixHelpler.endScreenDrawing();
 		enableDepthTest();
 	}
 	

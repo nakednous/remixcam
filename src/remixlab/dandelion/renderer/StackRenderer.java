@@ -12,7 +12,7 @@ package remixlab.dandelion.renderer;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 
-public abstract class StackRenderer extends Renderer {	
+public class StackRenderer extends Renderer {	
 	public class MatrixStack implements Constants { 
 		private static final int MATRIX_STACK_DEPTH = 32;
 		
@@ -183,6 +183,14 @@ public abstract class StackRenderer extends Renderer {
 	                    m8, m9, m10, m11,
 	                    m12, m13, m14, m15);        
 	  }
+
+	  //TODO check this
+	  public void applyMatrixRowMajorOrder(float n00, float n01, float n02,
+				float n03, float n10, float n11, float n12, float n13, float n20,
+				float n21, float n22, float n23, float n30, float n31, float n32,
+				float n33) {
+			modelview.applyTransposed(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);			
+		}
 	  
 	  public void applyProjection(float m0, float m1, float m2, float m3,
 	      float m4, float m5, float m6, float m7,
@@ -194,6 +202,15 @@ public abstract class StackRenderer extends Renderer {
 	                     m8, m9, m10, m11,
 	                     m12, m13, m14, m15);
 	  }
+	  
+	  //TODO check me
+	  public void applyProjectionRowMajorOrder(float n00, float n01, float n02,
+					float n03, float n10, float n11, float n12, float n13, float n20,
+					float n21, float n22, float n23, float n30, float n31, float n32,
+					float n33) {
+				
+	  	projection.applyTransposed(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
+		}
 	  
 	  /**
 	   * first "index" is row, second is column, e.g., n20 corresponds to the element located
@@ -296,8 +313,8 @@ public abstract class StackRenderer extends Renderer {
 	
 	protected MatrixStack mStack;
 
-	public StackRenderer(AbstractScene scn, Depictable dw) {
-		super(scn, dw);
+	public StackRenderer(AbstractScene scn) {
+		super(scn);
 		mStack = new MatrixStack();
 	}
 	
@@ -328,14 +345,6 @@ public abstract class StackRenderer extends Renderer {
 		return mStack.getMatrix(target);
   }
 	
-	//TODO implement!
-	/**
-	@Override
-  public void setMatrix(Matrix3D source) {
-		mStack.setMatrix(source);
-  }
-  */
-	
 	@Override
   public void printMatrix() {
 		mStack.printMatrix();  	
@@ -346,8 +355,6 @@ public abstract class StackRenderer extends Renderer {
 		mStack.applyMatrix(source);
 	}
 	
-	//TODO implement
-	/**
 	@Override
 	public void applyMatrixRowMajorOrder(float n00, float n01, float n02, float n03,
       float n10, float n11, float n12, float n13,
@@ -355,7 +362,6 @@ public abstract class StackRenderer extends Renderer {
       float n30, float n31, float n32, float n33) {
 		mStack.applyMatrixRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
 	}
-	*/
 	
 	@Override
 	public void pushProjection() {
@@ -382,14 +388,6 @@ public abstract class StackRenderer extends Renderer {
 		return mStack.getProjection(target);
 	}
   
-	//TODO implement me
-	/**
-	@Override
-  public void setProjection(Matrix3D source) {
-		mStack.setProjection(source);
-	}
-	*/
-  
 	@Override
   public void printProjection() {
 		mStack.printProjection();
@@ -400,16 +398,13 @@ public abstract class StackRenderer extends Renderer {
 		mStack.applyProjection(source);
 	}
   
-	//TODO implement me
-	/**
   @Override
 	public void applyProjectionRowMajorOrder(float n00, float n01, float n02,
 			float n03, float n10, float n11, float n12, float n13, float n20,
 			float n21, float n22, float n23, float n30, float n31, float n32,
 			float n33) {
-		mStack.applyProjectionRowMajorOrder
+		mStack.applyProjectionRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
 	}
-	*/
 	
 	//
 	
@@ -494,7 +489,7 @@ public abstract class StackRenderer extends Renderer {
 		//multiplyProjection(camera().getProjectionMatrix());
 		
 		// next two same as the prv three?
-		if( this.is3D() )
+		if( scene.is3D() )
 			((Camera) scene.viewport()).ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
 		else {
 		//TODO implement 2D case
@@ -537,5 +532,20 @@ public abstract class StackRenderer extends Renderer {
 	public void endScreenDrawing() {
 		popProjection();  
 		popMatrix();
+	}
+	
+
+	// TODO Check me from here
+
+	@Override
+	public void setMatrix(Mat source) {
+		resetMatrix();
+		applyMatrix(source);		
+	}
+
+	@Override
+	public void setProjection(Mat source) {
+		resetProjection();
+		applyProjection(source);	
 	}
 }

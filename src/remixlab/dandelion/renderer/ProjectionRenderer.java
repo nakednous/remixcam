@@ -14,8 +14,8 @@ import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Util;
 
 public abstract class ProjectionRenderer extends Renderer implements Constants {
-	public ProjectionRenderer(AbstractScene scn, Depictable dw) {
-		super(scn, dw);
+	public ProjectionRenderer(AbstractScene scn) {
+		super(scn);
 	}
 	
 	@Override

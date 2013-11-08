@@ -11,14 +11,10 @@ package remixlab.dandelion.core;
 
 import remixlab.dandelion.geom.*;
 
-public interface Renderable extends Depictable {
+public interface Renderable {
 	//public void setScene(AbstractScene scn);
 	
 	public AbstractScene scene();
-	
-	public boolean is2D();
-	
-	public boolean is3D();
 	
 	public void bindMatrices();
 	

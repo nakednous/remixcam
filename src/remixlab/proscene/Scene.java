@@ -619,7 +619,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawWindow(Window camera, float scale) {
-			pg().pushMatrix();
+			pushMatrix();
 			
 			/**
 			VFrame tmpFrame = new VFrame(scene.is3D());
@@ -688,7 +688,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().endShape();		
 			
 			pg().popStyle();
-			pg().popMatrix();
+			popMatrix();
 		}
 		
 		 @Override
@@ -810,7 +810,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					for (RefFrame myFr : path)
 						if ((count++) >= goal) {
 							goal += nbSteps / (float) nbFrames;
-							pg().pushMatrix();
+							pushMatrix();
 												  
 							scene.applyTransformation(myFr);						
 
@@ -819,7 +819,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 							if ((mask & 4) != 0)
 								drawAxis(scale / 10.0f);
 
-							pg().popMatrix();
+							popMatrix();
 						}
 				}
 				pg().popStyle();
@@ -897,7 +897,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 
 		/**
 		 * Draws a cylinder whose bases are formed by two cutting planes ({@code m}
-		 * and {@code n}), along the {@link #renderer()} positive {@code z} axis.
+		 * and {@code n}), along the {@link #matrixHelpler()} positive {@code z} axis.
 		 * 
 		 * @param detail
 		 * @param w radius of the cylinder and h is its height
@@ -956,15 +956,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				unitConeY[i] = r * (float) Math.sin(a1);
 			}
 
-			pg3d().pushMatrix();
-			pg3d().translate(x, y);
+			pushMatrix();
+			translate(x, y);
 			pg3d().beginShape(PApplet.TRIANGLE_FAN);
 			pg3d().vertex(0, 0, h);
 			for (int i = 0; i <= detail; i++) {
 				pg3d().vertex(unitConeX[i], unitConeY[i], 0.0f);
 			}
 			pg3d().endShape();
-			pg3d().popMatrix();
+			popMatrix();
 		}
 
 		/**
@@ -985,15 +985,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				secondCircleY[i] = r2 * (float) Math.sin(a1);
 			}
 
-			pg3d().pushMatrix();
-			pg3d().translate(x, y);
+			pushMatrix();
+			translate(x, y);
 			pg3d().beginShape(PApplet.QUAD_STRIP);
 			for (int i = 0; i <= detail; i++) {
 				pg3d().vertex(firstCircleX[i], firstCircleY[i], 0);
 				pg3d().vertex(secondCircleX[i], secondCircleY[i], h);
 			}
 			pg3d().endShape();
-			pg3d().popMatrix();		
+			popMatrix();		
 		}
 
 		@Override
@@ -1081,7 +1081,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void drawCamera(Camera cam, boolean drawFarPlane, float scale) {
-			pg3d().pushMatrix();
+			pushMatrix();
 			
 			//applyMatrix(camera.frame().worldMatrix());
 			// same as the previous line, but maybe more efficient
@@ -1100,8 +1100,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			//pg3d().rotate( cam.frame().rotation().angle(), ((Quat)cam.frame().rotation()).axis().vec[0], ((Quat)cam.frame().rotation()).axis().vec[1], ((Quat)cam.frame().rotation()).axis().vec[2]);
 			
 			//take into account the whole hierarchy:
-			pg3d().translate( cam.frame().position().vec[0], cam.frame().position().vec[1], cam.frame().position().vec[2] );
-			pg3d().rotate( cam.frame().orientation().angle(), ((Quat)cam.frame().orientation()).axis().vec[0], ((Quat)cam.frame().orientation()).axis().vec[1], ((Quat)cam.frame().orientation()).axis().vec[2]);
+			translate( cam.frame().position().vec[0], cam.frame().position().vec[1], cam.frame().position().vec[2] );
+			rotate( cam.frame().orientation().angle(), ((Quat)cam.frame().orientation()).axis().vec[0], ((Quat)cam.frame().orientation()).axis().vec[1], ((Quat)cam.frame().orientation()).axis().vec[2]);
 
 			// 0 is the upper left coordinates of the near corner, 1 for the far one
 			Vec[] points = new Vec[2];
@@ -1219,7 +1219,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg3d().endShape();
 			
 			pg3d().popStyle();
-			pg3d().popMatrix();
+			popMatrix();
 		}
 
 		@Override
@@ -1315,7 +1315,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					for (RefFrame myFr : path)
 						if ((count++) >= goal) {
 							goal += nbSteps / (float) nbFrames;
-							pg3d().pushMatrix();
+							pushMatrix();
 												  
 							scene.applyTransformation(myFr);						
 
@@ -1324,7 +1324,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 							if ((mask & 4) != 0)
 								drawAxis(scale / 10.0f);
 
-							pg3d().popMatrix();
+							popMatrix();
 						}
 				}
 				pg3d().popStyle();
@@ -1333,7 +1333,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void drawWindow(Window camera, float scale) {
-			pg().pushMatrix();
+			pushMatrix();
 			
 			//VFrame tmpFrame = new VFrame(scene.is3D());
 			//tmpFrame.fromMatrix(camera.frame().worldMatrix(), camera.frame().magnitude());		
@@ -1399,7 +1399,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().endShape();		
 			
 			pg().popStyle();
-			pg().popMatrix();
+			popMatrix();
 		}
 		
 		/**
@@ -1427,12 +1427,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		Mat proj;
 		
 		public P5RendererJava2D(Scene scn, PGraphics renderer, Depictable d) {
-			super(scn, d);
+			super(scn);
 			pg = renderer;
 		}
 		
 		public P5RendererJava2D(Scene scn, PGraphics renderer) {
-			super(scn, new P5Drawing2D(scn));
+			super(scn);
 			pg = renderer;
 		}		
 		
@@ -1443,10 +1443,163 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		public PGraphicsJava2D pgj2d() {
 		  return (PGraphicsJava2D) pg();	
 		}
+		
+	  // matrix stuff
+		
+		@Override
+		public void pushMatrix() {
+			pg().pushMatrix();
+		}
+		
+		@Override
+		public void popMatrix() {
+			pg().popMatrix();
+		}
+		
+		@Override
+		public void resetMatrix() {
+			pg().resetMatrix();
+		}
+		
+		@Override
+		public Mat getMatrix() {
+			PMatrix3D pM = (PMatrix3D) pg().getMatrix();
+			return new Mat(pM.get(new float[16]), true);// set it transposed
+		}
+		
+		@Override
+		public Mat getMatrix(Mat target) {
+			PMatrix3D pM = (PMatrix3D) pg().getMatrix();
+			target.setTransposed(pM.get(new float[16]));
+			return target;
+		}
+		
+		@Override
+		public void setMatrix(Mat source) {
+			resetMatrix();
+			applyMatrix(source);
+		}
+		
+		@Override
+		public void printMatrix() {
+			pg().printMatrix();
+		}
+		
+		@Override
+		public void printProjection() {
+			pg().printProjection();
+		}
+		
+		@Override
+		public void applyMatrix(Mat source) {
+			PMatrix3D pM = new PMatrix3D();
+			pM.set(source.getTransposed(new float[16]));
+			pg().applyMatrix(pM);
+		}
+		
+		@Override
+		public void applyMatrixRowMajorOrder(float n00, float n01, float n02, float n03,
+				                                 float n10, float n11, float n12, float n13,
+				                                 float n20, float n21, float n22, float n23,
+				                                 float n30, float n31, float n32, float n33) {
+			pg().applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22,	n23, n30, n31, n32, n33);
+		}	
+		
+		//
+		
+		@Override
+		public void translate(float tx, float ty) {
+			pg().translate(tx, ty);		
+		}
 
 		@Override
-		public boolean is3D() {
-			return false;
+		public void translate(float tx, float ty, float tz) {
+			pg().translate(tx, ty, tz);	
+		}
+		
+		@Override
+		public void rotate(float angle) {
+			pg().rotate(angle);		
+		}
+
+		@Override
+		public void rotateX(float angle) {
+			pg().rotateX(angle);		
+		}
+
+		@Override
+		public void rotateY(float angle) {
+			pg().rotateY(angle);
+		}
+
+		@Override
+		public void rotateZ(float angle) {
+			pg().rotateZ(angle);
+		}
+		
+		@Override
+		public void rotate(float angle, float vx, float vy, float vz) {
+			pg().rotate(angle, vx, vy, vz);
+		}
+		
+		@Override
+		public void scale(float s) {
+			pg().scale(s);	
+		}
+
+		@Override
+		public void scale(float sx, float sy) {
+			pg().scale(sx, sy);	
+		}
+
+		@Override
+		public void scale(float x, float y, float z) {
+			pg().scale(x, y, z);
+		}
+
+		@Override
+		public void pushProjection() {
+			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.pushProjection");			
+		}
+
+		@Override
+		public void popProjection() {
+			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.popProjection");			
+		}
+
+		@Override
+		public void resetProjection() {
+			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.resetProjection");
+		}
+
+		@Override
+		public void applyProjection(Mat source) {
+			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.resetProjection");
+		}
+
+		@Override
+		public void applyProjectionRowMajorOrder(float n00, float n01, float n02,
+				float n03, float n10, float n11, float n12, float n13, float n20,
+				float n21, float n22, float n23, float n30, float n31, float n32,
+				float n33) {
+			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.applyProjectionRowMajorOrder");			
+		}
+
+		@Override
+		public Mat getProjection() {
+			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.getProjection");
+			return null;
+		}
+
+		@Override
+		public Mat getProjection(Mat target) {
+			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.getProjection");
+			return null;
+		}
+
+		@Override
+		public void setProjection(Mat source) {
+			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.setProjection");
 		}
 	}
 
@@ -1454,8 +1607,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		PGraphicsOpenGL pg;
 		Mat proj;
 		
-		public P5Renderer(Scene scn, PGraphicsOpenGL renderer, Depictable d) {
-			super(scn, d);
+		public P5Renderer(Scene scn, PGraphicsOpenGL renderer) {
+			super(scn);
 			pg = renderer;
 			proj = new Mat();
 		}
@@ -1481,6 +1634,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		@Override
 		public void resetProjection() {
 			pggl().resetProjection();
+		}
+		
+		@Override
+		public void printProjection() {
+			pggl().printProjection();
 		}
 		
 		@Override
@@ -1510,16 +1668,119 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				float n33) {
 			pggl().applyProjection(new PMatrix3D(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33));
 		}
+		
+	// matrix stuff
+		
+		@Override
+		public void pushMatrix() {
+			pg().pushMatrix();
+		}
+		
+		@Override
+		public void popMatrix() {
+			pg().popMatrix();
+		}
+		
+		@Override
+		public void resetMatrix() {
+			pg().resetMatrix();
+		}
+		
+		@Override
+		public Mat getMatrix() {
+			PMatrix3D pM = (PMatrix3D) pg().getMatrix();
+			return new Mat(pM.get(new float[16]), true);// set it transposed
+		}
+		
+		@Override
+		public Mat getMatrix(Mat target) {
+			PMatrix3D pM = (PMatrix3D) pg().getMatrix();
+			target.setTransposed(pM.get(new float[16]));
+			return target;
+		}
+		
+		@Override
+		public void setMatrix(Mat source) {
+			resetMatrix();
+			applyMatrix(source);
+		}
+		
+		@Override
+		public void printMatrix() {
+			pg().printMatrix();
+		}
+		
+		@Override
+		public void applyMatrix(Mat source) {
+			PMatrix3D pM = new PMatrix3D();
+			pM.set(source.getTransposed(new float[16]));
+			pg().applyMatrix(pM);
+		}
+		
+		@Override
+		public void applyMatrixRowMajorOrder(float n00, float n01, float n02, float n03,
+				                                 float n10, float n11, float n12, float n13,
+				                                 float n20, float n21, float n22, float n23,
+				                                 float n30, float n31, float n32, float n33) {
+			pg().applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22,	n23, n30, n31, n32, n33);
+		}	
+		
+		//
+		
+		@Override
+		public void translate(float tx, float ty) {
+			pg().translate(tx, ty);		
+		}
+
+		@Override
+		public void translate(float tx, float ty, float tz) {
+			pg().translate(tx, ty, tz);	
+		}
+		
+		@Override
+		public void rotate(float angle) {
+			pg().rotate(angle);		
+		}
+
+		@Override
+		public void rotateX(float angle) {
+			pg().rotateX(angle);		
+		}
+
+		@Override
+		public void rotateY(float angle) {
+			pg().rotateY(angle);
+		}
+
+		@Override
+		public void rotateZ(float angle) {
+			pg().rotateZ(angle);
+		}
+		
+		@Override
+		public void rotate(float angle, float vx, float vy, float vz) {
+			pg().rotate(angle, vx, vy, vz);
+		}
+		
+		@Override
+		public void scale(float s) {
+			pg().scale(s);	
+		}
+
+		@Override
+		public void scale(float sx, float sy) {
+			pg().scale(sx, sy);	
+		}
+
+		@Override
+		public void scale(float x, float y, float z) {
+			pg().scale(x, y, z);
+		}
 	}
 	
 	protected class P5Renderer2D extends P5Renderer {	
 		public P5Renderer2D(Scene scn, PGraphicsOpenGL renderer) {
-			super(scn, renderer, new P5Drawing2D(scn));
-		}
-		
-		@Override
-		public boolean is3D() {
-			return false;
+			super(scn, renderer);
 		}
 		
 		public PGraphics2D pg2d() {
@@ -1615,18 +1876,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		Vec at;	
 		
 		public P5Renderer3D(Scene scn, PGraphicsOpenGL renderer) {
-			super(scn, renderer, new P5Drawing3D(scn));		
+			super(scn, renderer);		
 			at = new Vec();		
 		}
 		
 		public PGraphics3D pg3d() {
 		  return (PGraphics3D) pg();	
 		}
-		
-		@Override
-		public boolean is3D() {
-			return true;
-		}	
 
 		@Override
 		public void setProjection(Mat source) {
@@ -1765,6 +2021,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	// P R O C E S S I N G   A P P L E T   A N D   O B J E C T S
 	public PApplet parent;
+	protected PGraphics pgraphics;
 	
 	// H A R D W A R E
   protected ProsceneMouse prosceneMouse;
@@ -1839,7 +2096,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * corner where the off-screen Scene is expected to be displayed, e.g., for
 	 * instance with a call to the Processing built-in {@code image(img, x, y)}
 	 * function. If {@link #isOffscreen()} returns {@code false} (i.e.,
-	 * {@link #renderer()} equals the PApplet's renderer), the values of x and y
+	 * {@link #matrixHelpler()} equals the PApplet's renderer), the values of x and y
 	 * are meaningless (both are set to 0 to be taken as dummy values). If you
 	 * plan to define an on-screen Scene, call {@link #Scene(PApplet)} instead. 
 	 * 
@@ -1848,15 +2105,22 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 */
 	public Scene(PApplet p, PGraphics pg, int x, int y) {
 		parent = p;
+		pgraphics = pg;
 		
-		if( pg instanceof PGraphicsJava2D )
-			setRenderer( new P5RendererJava2D(this, (PGraphicsJava2D)pg) );	
+		if( pg instanceof PGraphicsJava2D ) {
+			setMatrixHelper( new P5RendererJava2D(this, (PGraphicsJava2D)pg) );
+			setDrawingHelper(new P5Drawing2D(this));
+		}
 		else
-			if( pg instanceof PGraphics2D )
-				setRenderer( new P5Renderer2D(this, (PGraphics2D)pg) );
+			if( pg instanceof PGraphics2D ) {
+				setMatrixHelper( new P5Renderer2D(this, (PGraphics2D)pg) );
+				setDrawingHelper(new P5Drawing2D(this));
+			}
 			else
-				if( pg instanceof PGraphics3D )
-					setRenderer( new P5Renderer3D(this, (PGraphics3D)pg) );
+				if( pg instanceof PGraphics3D ) {
+					setMatrixHelper( new P5Renderer3D(this, (PGraphics3D)pg) );
+					setDrawingHelper(new P5Drawing3D(this));
+				}
 		
 		width = pg.width;
 		height = pg.height;
@@ -1929,6 +2193,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		// called only once
 		init();
+	}
+	
+	@Override
+	public boolean is3D() {
+		return ( pgraphics instanceof PGraphics3D );
 	}
 	
 	public ProsceneMouse defaultMouseAgent() {
@@ -2007,114 +2276,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			terseHandler().unregisterAgent(prosceneMouse);
 			parent.unregisterMethod("mouseEvent", prosceneMouse);
 		}
-	}
-	
-	// matrix stuff
-	
-	@Override
-	public void pushMatrix() {
-		pg().pushMatrix();
-	}
-	
-	@Override
-	public void popMatrix() {
-		pg().popMatrix();
-	}
-	
-	@Override
-	public void resetMatrix() {
-		pg().resetMatrix();
-	}
-	
-	@Override
-	public Mat getMatrix() {
-		PMatrix3D pM = (PMatrix3D) pg().getMatrix();
-		return new Mat(pM.get(new float[16]), true);// set it transposed
-	}
-	
-	@Override
-	public Mat getMatrix(Mat target) {
-		PMatrix3D pM = (PMatrix3D) pg().getMatrix();
-		target.setTransposed(pM.get(new float[16]));
-		return target;
-	}
-	
-	@Override
-	public void setMatrix(Mat source) {
-		resetMatrix();
-		applyMatrix(source);
-	}
-	
-	@Override
-	public void printMatrix() {
-		pg().printMatrix();
-	}
-	
-	@Override
-	public void applyMatrix(Mat source) {
-		PMatrix3D pM = new PMatrix3D();
-		pM.set(source.getTransposed(new float[16]));
-		pg().applyMatrix(pM);
-	}
-	
-	@Override
-	public void applyMatrixRowMajorOrder(float n00, float n01, float n02, float n03,
-			                                 float n10, float n11, float n12, float n13,
-			                                 float n20, float n21, float n22, float n23,
-			                                 float n30, float n31, float n32, float n33) {
-		pg().applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22,	n23, n30, n31, n32, n33);
-	}	
-	
-	//
-	
-	@Override
-	public void translate(float tx, float ty) {
-		pg().translate(tx, ty);		
-	}
-
-	@Override
-	public void translate(float tx, float ty, float tz) {
-		pg().translate(tx, ty, tz);	
-	}
-	
-	@Override
-	public void rotate(float angle) {
-		pg().rotate(angle);		
-	}
-
-	@Override
-	public void rotateX(float angle) {
-		pg().rotateX(angle);		
-	}
-
-	@Override
-	public void rotateY(float angle) {
-		pg().rotateY(angle);
-	}
-
-	@Override
-	public void rotateZ(float angle) {
-		pg().rotateZ(angle);
-	}
-	
-	@Override
-	public void rotate(float angle, float vx, float vy, float vz) {
-		pg().rotate(angle, vx, vy, vz);
-	}
-	
-	@Override
-	public void scale(float s) {
-		pg().scale(s);	
-	}
-
-	@Override
-	public void scale(float sx, float sy) {
-		pg().scale(sx, sy);	
-	}
-
-	@Override
-	public void scale(float x, float y, float z) {
-		pg().scale(x, y, z);
 	}
 
 	// 2. Associated objects	
@@ -2371,16 +2532,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
   //public int mouseGrabberCameraPathOffSelectionHintColor() {	return cameraPathOffSelectionHintColor;	}
 	
 	public PGraphics pg() {
-		/**
-		if( renderer() instanceof P5Renderer )
-			return ((P5Renderer)renderer()).pg();
-		*/
-		if( renderer() instanceof P5Renderer2D )
-			return ((P5Renderer2D)renderer()).pg();
-		if( renderer() instanceof P5Renderer3D )
-			return ((P5Renderer3D)renderer()).pg();
-		//if( renderer() instanceof P5RendererJava2D )
-		return ((P5RendererJava2D)renderer()).pg();
+		if( pgraphics instanceof PGraphics3D )
+			return (PGraphics3D) pgraphics;
+		if( pgraphics instanceof PGraphics2D )
+			return (PGraphics2D) pgraphics;
+		//if ( pgraphics instanceof PGraphicsJava2D )
+			return (PGraphicsJava2D) pgraphics;
 	}
 	
 	public PGraphicsJava2D pgj2d() {
@@ -2399,14 +2556,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	public PGraphics2D pg2d() {
 		if (pg() instanceof PGraphics2D)
-			return ((P5Renderer2D) renderer()).pg2d();
+			return ((P5Renderer2D) matrixHelpler()).pg2d();
 		else 
 			throw new RuntimeException("pGraphics is not instance of PGraphics2D");		
 	}
 	
 	public PGraphics3D pg3d() {
 		if (pg() instanceof PGraphics3D)
-			return ((P5Renderer3D) renderer()).pg3d();
+			return ((P5Renderer3D) matrixHelpler()).pg3d();
 		else 
 			throw new RuntimeException("pGraphics is not instance of PGraphics3D");		
 	}
