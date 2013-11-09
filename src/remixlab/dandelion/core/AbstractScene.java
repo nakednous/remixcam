@@ -26,7 +26,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	protected boolean dottedGrid;	
 	
   //O B J E C T S
-	protected MatrixHelpable matrixHelpler;
+	protected MatrixHelpable matrixHelper;
 	protected Depictable drawingHelpler;
 	
 	protected Viewport vport;
@@ -90,11 +90,11 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 	
 	public void setMatrixHelper(MatrixHelpable r) {
-		matrixHelpler = r;
+		matrixHelper = r;
 	}
 		
-	public MatrixHelpable matrixHelpler() {
-		return matrixHelpler;
+	public MatrixHelpable matrixHelper() {
+		return matrixHelper;
 	}
 	
 	public boolean gridIsDotted() {
@@ -363,7 +363,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		 
 		//before timerHandler().handle() it was here:
 		//timerHandler().updateFrameRate();		
-		bindMatrices();
+		bind();
 		if (frustumEquationsUpdateIsEnable())
 			viewport().updateFrustumEquations();
 	}
@@ -440,56 +440,6 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	
 	protected abstract void invokeRegisteredMethod();
 	
-	/**
-	 * Bind processing matrices to proscene matrices.
-	 */	
-	protected void bindMatrices() {
-		// we should simply go:
-		matrixHelpler.bind();
-	}
-
-	protected void setProjectionModelViewMatrix() {
-		viewport().updateProjectionView();
-	}
-	
-	// Try to optimize assignments in all three matrix getters?
-	// Requires allowing returning references as well as copies of the matrices,
-	// but it seems overkill. 
-	public Mat getModelViewMatrix() {		
-		Mat modelview;
-  	modelview = getMatrix();
-  	modelview.preApply(getViewMatrix());
-  	return modelview;
-	}
-	
-	public Mat getViewMatrix() {
-		Mat view = viewport().getView();  	
-  	return view;
-	}
-	
-	public Mat getModelMatrix() {		
-		Mat model;
-  	model = getMatrix();  	
-  	return model;
-	}
-	
-	public Mat getProjectionMatrix() {		
-		Mat projection;  	
-  	projection = getProjection();
-  	return projection;
-	}
-	
-	/**
-	 * This method restores the matrix mode.
-	 */
-	public Mat getModelViewProjectionMatrix() {		
-		Mat PVM;  	
-  	PVM = getMatrix();//model  	
-    //PVM.preApply(camera().projectionViewMat);
-  	PVM.preApply(viewport().getProjectionView());  	
-  	return PVM;
-	}
-	
 	protected abstract void displayVisualHints();
 	
   //1. Scene overloaded
@@ -530,45 +480,52 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	// WRAPPERS
 	
 	/**
+	 * Bind processing matrices to proscene matrices.
+	 */	
+	protected void bind() {
+		matrixHelper.bind();
+	}
+	
+	/**
 	 * Push a copy of the modelview matrix onto the stack.
    */
-	public void pushMatrix() {
-		matrixHelpler.pushModelView();
+	public void pushModelView() {
+		matrixHelper.pushModelView();
 	}
 	
 	/**
 	 * Replace the current modelview matrix with the top of the stack.
 	 */
-	public void popMatrix() {
-		matrixHelpler.popModelView();
+	public void popModelView() {
+		matrixHelper.popModelView();
 	}
 	
 	/**
 	 * Push a copy of the projection matrix onto the stack.
    */
 	public void pushProjection() {
-		matrixHelpler.pushProjection();
+		matrixHelper.pushProjection();
 	}
 	
 	/**
 	 * Replace the current projection matrix with the top of the stack.
 	 */
 	public void popProjection() {
-		matrixHelpler.popProjection();
+		matrixHelper.popProjection();
 	}
 	
   /**
    * Translate in X and Y.
    */
   public void translate(float tx, float ty) {    
-  	matrixHelpler.translate(tx, ty);
+  	matrixHelper.translate(tx, ty);
   }
 
   /**
    * Translate in X, Y, and Z.
    */
   public void translate(float tx, float ty, float tz) {
-  	matrixHelpler.translate(tx, ty, tz);
+  	matrixHelper.translate(tx, ty, tz);
   }
 
   /**
@@ -581,21 +538,21 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * <A HREF="http://www.xkcd.com/c184.html">Additional background</A>.
    */
   public void rotate(float angle) {
-  	matrixHelpler.rotate(angle);
+  	matrixHelper.rotate(angle);
   }
 
   /**
    * Rotate around the X axis.
    */
   public void rotateX(float angle) { 
-  	matrixHelpler.rotateX(angle);
+  	matrixHelper.rotateX(angle);
   }
 
   /**
    * Rotate around the Y axis.
    */
   public void rotateY(float angle) {
-  	matrixHelpler.rotateY(angle);
+  	matrixHelper.rotateY(angle);
   }
 
   /**
@@ -607,21 +564,21 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * doing things in 2D. so we just decided to have them both be the same.
    */
   public void rotateZ(float angle) {
-  	matrixHelpler.rotateZ(angle);
+  	matrixHelper.rotateZ(angle);
   }
 
   /**
    * Rotate about a vector in space. Same as the glRotatef() function.
    */
   public void rotate(float angle, float vx, float vy, float vz) {
-  	matrixHelpler.rotate(angle, vx, vy, vz);
+  	matrixHelper.rotate(angle, vx, vy, vz);
   }
 
   /**
    * Scale in all dimensions.
    */
   public void scale(float s) {
-  	matrixHelpler.scale(s);
+  	matrixHelper.scale(s);
   }
 
   /**
@@ -631,46 +588,46 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * scaled by 1, since there's no way to know what else to scale it by.
    */
   public void scale(float sx, float sy) {
-  	matrixHelpler.scale(sx, sy);
+  	matrixHelper.scale(sx, sy);
   }
 
   /**
    * Scale in X, Y, and Z.
    */
   public void scale(float x, float y, float z) {
-  	matrixHelpler.scale(x, y, z);
+  	matrixHelper.scale(x, y, z);
   }  
   
   /**
    * Set the current modelview matrix to identity.
    */
-  public void resetMatrix() {
-  	matrixHelpler.resetModelView();
+  public void resetModelView() {
+  	matrixHelper.resetModelView();
   }
   
   /**
    * Set the current projection matrix to identity.
    */
   public void resetProjection() {
-  	matrixHelpler.resetProjection();
+  	matrixHelper.resetProjection();
   }  
   
-  public void applyMatrix(Mat source) {
-  	matrixHelpler.applyModelView(source);
+  public void applyModelView(Mat source) {
+  	matrixHelper.applyModelView(source);
   }
   
   public void applyProjection(Mat source) {
-  	matrixHelpler.applyProjection(source);
+  	matrixHelper.applyProjection(source);
   }
 
   /**
    * Apply a 4x4 modelview matrix.
    */
-  public void applyMatrixRowMajorOrder(float n00, float n01, float n02, float n03,
+  public void applyModelViewRowMajorOrder(float n00, float n01, float n02, float n03,
                                        float n10, float n11, float n12, float n13,
                                        float n20, float n21, float n22, float n23,
                                        float n30, float n31, float n32, float n33) {    
-  	matrixHelpler.applyModelViewRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
+  	matrixHelper.applyModelViewRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
   }
   
   /**
@@ -680,7 +637,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
                                        float n10, float n11, float n12, float n13,
                                        float n20, float n21, float n22, float n23,
                                        float n30, float n31, float n32, float n33) {    
-  	matrixHelpler.applyProjectionRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
+  	matrixHelper.applyProjectionRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
   }
   
   /**
@@ -689,20 +646,20 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   }
   */
 
-  public Mat getMatrix() {
-  	return matrixHelpler.getModelView();
+  public Mat getModelView() {
+  	return matrixHelper.getModelView();
   }
   
   public Mat getProjection() {
-  	return matrixHelpler.getProjection();
+  	return matrixHelper.getProjection();
   }
 
   /**
    * Copy the current modelview matrix into the specified target.
    * Pass in null to create a new matrix.
    */
-  public Mat getMatrix(Mat target) {
-  	return matrixHelpler.getModelView(target);
+  public Mat getModelView(Mat target) {
+  	return matrixHelper.getModelView(target);
   }
   
   /**
@@ -710,35 +667,35 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * Pass in null to create a new matrix.
    */
   public Mat getProjection(Mat target) {
-  	return matrixHelpler.getProjection(target);
+  	return matrixHelper.getProjection(target);
   }
 
   /**
    * Set the current modelview matrix to the contents of another.
    */
-  public void setMatrix(Mat source) {
-  	matrixHelpler.setModelView(source);
+  public void setModelView(Mat source) {
+  	matrixHelper.setModelView(source);
   }
   
   /**
    * Set the current projection matrix to the contents of another.
    */
   public void setProjection(Mat source) {
-  	matrixHelpler.setProjection(source);
+  	matrixHelper.setProjection(source);
   }
 
   /**
    * Print the current modelview matrix.
    */
-  public void printMatrix() {
-  	matrixHelpler.printModelView();
+  public void printModelView() {
+  	matrixHelper.printModelView();
   }
   
   /**
    * Print the current projection matrix.
    */
   public void printProjection() {
-  	matrixHelpler.printProjection();
+  	matrixHelper.printProjection();
   }
   
   /**
@@ -821,7 +778,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		startCoordCalls++;
 		
 		disableDepthTest();
-		matrixHelpler.beginScreenDrawing();
+		matrixHelper.beginScreenDrawing();
   }
 	
 	public void endScreenDrawing() {
@@ -830,7 +787,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			throw new RuntimeException("There should be exactly one beginScreenDrawing() call followed by a "
 							                 + "endScreenDrawing() and they cannot be nested. Check your implementation!");
 		
-		matrixHelpler.endScreenDrawing();
+		matrixHelper.endScreenDrawing();
 		enableDepthTest();
 	}
 	
@@ -1554,11 +1511,11 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #drawArrow(float, float)
 	 */
 	public void drawArrow(Vec from, Vec to,	float radius) {
-		pushMatrix();
+		pushModelView();
 		translate(from.x(), from.y(), from.z());
-		applyMatrix(new Quat(new Vec(0, 0, 1), Vec.sub(to,	from)).matrix());
+		applyModelView(new Quat(new Vec(0, 0, 1), Vec.sub(to,	from)).matrix());
 		drawArrow(Vec.sub(to, from).mag(), radius);
-		popMatrix();
+		popModelView();
 	}
 	
 	public void drawDottedGrid() {

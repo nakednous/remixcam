@@ -115,7 +115,7 @@ public interface Depictable {
  
  /**
 	 * Draws a cylinder whose bases are formed by two cutting planes ({@code m}
-	 * and {@code n}), along the {@link #matrixHelpler()} positive {@code z} axis.
+	 * and {@code n}), along the {@link #matrixHelper()} positive {@code z} axis.
 	 * 
 	 * @param detail
 	 * @param w radius of the cylinder and h is its height

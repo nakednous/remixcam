@@ -619,7 +619,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawWindow(Window camera, float scale) {
-			pushMatrix();
+			pushModelView();
 			
 			/**
 			VFrame tmpFrame = new VFrame(scene.is3D());
@@ -688,7 +688,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().endShape();		
 			
 			pg().popStyle();
-			popMatrix();
+			popModelView();
 		}
 		
 		 @Override
@@ -810,7 +810,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					for (RefFrame myFr : path)
 						if ((count++) >= goal) {
 							goal += nbSteps / (float) nbFrames;
-							pushMatrix();
+							pushModelView();
 												  
 							scene.applyTransformation(myFr);						
 
@@ -819,7 +819,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 							if ((mask & 4) != 0)
 								drawAxis(scale / 10.0f);
 
-							popMatrix();
+							popModelView();
 						}
 				}
 				pg().popStyle();
@@ -897,7 +897,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 
 		/**
 		 * Draws a cylinder whose bases are formed by two cutting planes ({@code m}
-		 * and {@code n}), along the {@link #matrixHelpler()} positive {@code z} axis.
+		 * and {@code n}), along the {@link #matrixHelper()} positive {@code z} axis.
 		 * 
 		 * @param detail
 		 * @param w radius of the cylinder and h is its height
@@ -956,7 +956,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				unitConeY[i] = r * (float) Math.sin(a1);
 			}
 
-			pushMatrix();
+			pushModelView();
 			translate(x, y);
 			pg3d().beginShape(PApplet.TRIANGLE_FAN);
 			pg3d().vertex(0, 0, h);
@@ -964,7 +964,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				pg3d().vertex(unitConeX[i], unitConeY[i], 0.0f);
 			}
 			pg3d().endShape();
-			popMatrix();
+			popModelView();
 		}
 
 		/**
@@ -985,7 +985,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				secondCircleY[i] = r2 * (float) Math.sin(a1);
 			}
 
-			pushMatrix();
+			pushModelView();
 			translate(x, y);
 			pg3d().beginShape(PApplet.QUAD_STRIP);
 			for (int i = 0; i <= detail; i++) {
@@ -993,7 +993,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				pg3d().vertex(secondCircleX[i], secondCircleY[i], h);
 			}
 			pg3d().endShape();
-			popMatrix();		
+			popModelView();		
 		}
 
 		@Override
@@ -1081,7 +1081,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void drawCamera(Camera cam, boolean drawFarPlane, float scale) {
-			pushMatrix();
+			pushModelView();
 			
 			//applyMatrix(camera.frame().worldMatrix());
 			// same as the previous line, but maybe more efficient
@@ -1219,7 +1219,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg3d().endShape();
 			
 			pg3d().popStyle();
-			popMatrix();
+			popModelView();
 		}
 
 		@Override
@@ -1315,7 +1315,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					for (RefFrame myFr : path)
 						if ((count++) >= goal) {
 							goal += nbSteps / (float) nbFrames;
-							pushMatrix();
+							pushModelView();
 												  
 							scene.applyTransformation(myFr);						
 
@@ -1324,7 +1324,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 							if ((mask & 4) != 0)
 								drawAxis(scale / 10.0f);
 
-							popMatrix();
+							popModelView();
 						}
 				}
 				pg3d().popStyle();
@@ -1333,7 +1333,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void drawWindow(Window camera, float scale) {
-			pushMatrix();
+			pushModelView();
 			
 			//VFrame tmpFrame = new VFrame(scene.is3D());
 			//tmpFrame.fromMatrix(camera.frame().worldMatrix(), camera.frame().magnitude());		
@@ -1399,7 +1399,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().endShape();		
 			
 			pg().popStyle();
-			popMatrix();
+			popModelView();
 		}
 		
 		/**
@@ -1600,6 +1600,16 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		@Override
 		public void setProjection(Mat source) {
 			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.setProjection");
+		}
+
+		@Override
+		public void initProjection() {
+			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.initProjection");
+		}
+
+		@Override
+		public void initModelView() {
+			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.initModelView");
 		}
 	}
 
@@ -2096,7 +2106,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * corner where the off-screen Scene is expected to be displayed, e.g., for
 	 * instance with a call to the Processing built-in {@code image(img, x, y)}
 	 * function. If {@link #isOffscreen()} returns {@code false} (i.e.,
-	 * {@link #matrixHelpler()} equals the PApplet's renderer), the values of x and y
+	 * {@link #matrixHelper()} equals the PApplet's renderer), the values of x and y
 	 * are meaningless (both are set to 0 to be taken as dummy values). If you
 	 * plan to define an on-screen Scene, call {@link #Scene(PApplet)} instead. 
 	 * 
@@ -2556,14 +2566,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	public PGraphics2D pg2d() {
 		if (pg() instanceof PGraphics2D)
-			return ((P5GL2DMatrixHelper) matrixHelpler()).pg2d();
+			return ((P5GL2DMatrixHelper) matrixHelper()).pg2d();
 		else 
 			throw new RuntimeException("pGraphics is not instance of PGraphics2D");		
 	}
 	
 	public PGraphics3D pg3d() {
 		if (pg() instanceof PGraphics3D)
-			return ((P5GL3DMatrixHelper) matrixHelpler()).pg3d();
+			return ((P5GL3DMatrixHelper) matrixHelper()).pg3d();
 		else 
 			throw new RuntimeException("pGraphics is not instance of PGraphics3D");		
 	}

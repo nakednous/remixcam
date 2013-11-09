@@ -371,7 +371,7 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 	@Override
 	public void bind() {
 		initProjection();
-		initModelView(true);//TODO test also: initModelView(false);
+		initModelView();
 		scene.viewport().cacheProjectionViewInverse();
 	}
 
@@ -382,6 +382,7 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 	
 	@Override
 	public void initModelView() {
+	  //TODO test also: initModelView(false);
 		initModelView(true);
 	}
 

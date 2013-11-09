@@ -20,16 +20,6 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	}
 	
 	@Override
-	public void initProjection() {
-		
-	}
-
-	@Override
-	public void initModelView() {
-		
-	}
-	
-	@Override
 	public AbstractScene scene() {
 		return scene;
 	}
