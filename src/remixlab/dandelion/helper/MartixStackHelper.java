@@ -285,42 +285,37 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 	@Override
 	public void printProjection() {
 		projection.print();
+	}	
+
+	// */
+	// Needed for screen drawing should never affect camera class
+	protected void ortho(float left, float right, float bottom, float top, float near, float far) {
+		float x = +2.0f / (right - left);
+		float y = +2.0f / (top - bottom);
+		float z = -2.0f / (far - near);
+
+		float tx = -(right + left) / (right - left);
+		float ty = -(top + bottom) / (top - bottom);
+		float tz = -(far + near) / (far - near);
+
+		if (scene.isLeftHanded())
+			// The minus sign is needed to invert the Y axis.
+			projection.setTransposed(x, 0, 0, tx, 0, -y, 0, ty, 0, 0, z, tz, 0, 0, 0,	1);
+		else
+			projection.setTransposed(x, 0, 0, tx, 0, y, 0, ty, 0, 0, z, tz, 0, 0, 0, 1);
 	}
 	
-	// High level stuff:
-
 	/**
-	 * public void setMatrix(Matrix3D source) { modelview.set(source); }
-	 * 
-	 * public void setProjection(Matrix3D source) { projection.set(source); }
-	 */
-
-	/**
-	 * Same as glFrustum().
-	 */
-	// /**
-	// TODO where is this needed? Camera matrix handling is done through the
-	// camera class
-	public void frustum(float left, float right, float bottom, float top,
-			float znear, float zfar) {
-		// Same as glFrustum(), except that it wipes out (rather than
-		// multiplies against) the current perspective matrix.
-		// <P>
-		// Implementation based on the explanation in the OpenGL blue book.
-		// projection.set((2*znear)/(right-left), 0, (right+left)/(right-left), 0,
-		// 0, (2*znear)/(top-bottom), (top+bottom)/(top-bottom), 0,
-		// 0, 0, -(zfar+znear)/(zfar-znear), -(2*zfar*znear)/(zfar-znear),
-		// 0, 0, -1, 0);
-
-		// TODO: revisar con respecto a la doc de OpenGL
-
-		/**
-		 * applyProjection((2*znear)/(right-left), 0, 0, 0, 0,
-		 * (2*znear)/(top-bottom), 0, 0, (right+left)/(right-left),
-		 * (top+bottom)/(top-bottom), -(zfar+znear)/(zfar-znear), -1, 0, 0,
-		 * -(2*zfar*znear)/(zfar-znear), 0);
-		 */
-
+	public void perspective(float fov, float aspect, float zNear, float zFar) {
+		float ymax = zNear * (float) Math.tan(fov / 2);
+		float ymin = -ymax;
+		float xmin = ymin * aspect;
+		float xmax = ymax * aspect;
+		frustum(xmin, xmax, ymin, ymax, zNear, zFar);
+	}
+	
+	// TODO where is this needed? Camera matrix handling is done through the camera class
+	public void frustum(float left, float right, float bottom, float top,	float znear, float zfar) {
 		// new approach: applies it, as in P5
 		float n2 = 2 * znear;
 		float w = right - left;
@@ -337,56 +332,27 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 					(top + bottom) / h, 0, 0, 0, -(zfar + znear) / d, -(n2 * zfar) / d,
 					0, 0, -1, 0);
 	}
-
-	// */
-
-	// TODO needed for screen drawing: needs testing -> matrix stack
-	public void ortho(float left, float right, float bottom, float top,
-			float near, float far) {
-		float x = +2.0f / (right - left);
-		float y = +2.0f / (top - bottom);
-		float z = -2.0f / (far - near);
-
-		float tx = -(right + left) / (right - left);
-		float ty = -(top + bottom) / (top - bottom);
-		float tz = -(far + near) / (far - near);
-
-		if (scene.isLeftHanded())
-			// The minus sign is needed to invert the Y axis.
-			projection.setTransposed(x, 0, 0, tx, 0, -y, 0, ty, 0, 0, z, tz, 0, 0, 0,
-					1);
-		else
-			projection.setTransposed(x, 0, 0, tx, 0, y, 0, ty, 0, 0, z, tz, 0, 0, 0,
-					1);
-	}
-	
-	public void perspective(float fov, float aspect, float zNear, float zFar) {
-		float ymax = zNear * (float) Math.tan(fov / 2);
-		float ymin = -ymax;
-		float xmin = ymin * aspect;
-		float xmax = ymax * aspect;
-		frustum(xmin, xmax, ymin, ymax, zNear, zFar);
-	}
+	*/
 
 	@Override
 	public void bind() {
-		initProjection();
-		initModelView();
+		loadProjection();
+		loadModelView();
 		scene.viewport().cacheProjectionViewInverse();
 	}
 
 	@Override
-	public void initProjection() {
+	public void loadProjection() {
 		setProjection(scene.viewport().getProjection(true));
 	}
 	
 	@Override
-	public void initModelView() {
+	public void loadModelView() {
 	  //TODO test also: initModelView(false);
-		initModelView(true);
+		loadModelView(true);
 	}
 
-	public void initModelView(boolean includeView) {		
+	public void loadModelView(boolean includeView) {		
 		scene.viewport().computeView();
 		if(includeView)
 		  setModelView(scene.viewport().getView(false));
@@ -408,32 +374,6 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 		}
 		pushModelView();
 		resetModelView();
-
-		/**
-		 * if( this.is3D() ) ((Camera) scene.pinhole()).ortho(0f, width(), height(),
-		 * 0.0f, 0.0f, -1.0f); else { pushProjection(); //float cameraZ =
-		 * (pg2d().height/2.0f) / PApplet.tan(scene.viewWindow().fieldOfView()
-		 * /2.0f); //TODO check this dummy value float cameraZ = (height()/2.0f) /
-		 * (float) Math.tan(QUARTER_PI/2.0f); float cameraNear = cameraZ / 2.0f;
-		 * float cameraFar = cameraZ * 2.0f; //renderer().ortho(-width/2, width/2,
-		 * -height/2, height/2, cameraNear, cameraFar); //TODO check this line:
-		 * //pg2d().projection.set((scene.viewWindow()).getOrtho(-pg2d().width/2,
-		 * pg2d().width/2, -pg2d().height/2, pg2d().height/2, cameraNear,
-		 * cameraFar));
-		 * //pg2d().projection.set((scene.viewWindow()).getOrtho(-pg2d().width/2,
-		 * pg2d().width/2, -pg2d().height/2, pg2d().height/2, cameraNear,
-		 * cameraFar).getTransposed(new float[16]));
-		 * pg2d().projection.set(get2DOrtho(-width()/2, width()/2, -height()/2,
-		 * height()/2, cameraNear, cameraFar));
-		 * //pg2d().projection.set(get2DOrtho(0, pg2d().width, 0, pg2d().height,
-		 * cameraNear, cameraFar)); pushMatrix(); // Camera needs to be reset!
-		 * //hack: it's trickier, but works ;) //renderer().camera(); //TODO check
-		 * this line:
-		 * //pg2d().modelview.set(((P5Camera)scene.viewWindow()).getCamera());
-		 * pg2d().modelview.set(get2DModelView()); }
-		 * loadProjection(scene.pinhole().getProjectionMatrix()); pushMatrix();
-		 * resetMatrix();
-		 */
 	}
 
 	@Override

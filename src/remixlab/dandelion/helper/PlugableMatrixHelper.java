@@ -20,8 +20,8 @@ public abstract class PlugableMatrixHelper extends MatrixHelper implements Const
 	
 	@Override
 	public void bind() {
-		initProjection();
-		initModelView();//TODO test also: initModelView(false);
+		loadProjection();
+		loadModelView();//TODO test also: initModelView(false);
 		scene.viewport().cacheProjectionViewInverse();
 	}
 	

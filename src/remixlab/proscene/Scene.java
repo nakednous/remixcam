@@ -1603,17 +1603,17 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void initProjection() {
+		public void loadProjection() {
 			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.initProjection");
 		}
 
 		@Override
-		public void initModelView() {
+		public void loadModelView() {
 			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.initModelView");
 		}
 	}
 
-	protected abstract class P5GLMatrixHelper extends PlugableMatrixHelper {
+	protected class P5GLMatrixHelper extends PlugableMatrixHelper {
 		PGraphicsOpenGL pg;
 		Mat proj;
 		
@@ -1623,12 +1623,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			proj = new Mat();
 		}
 		
-		public PGraphics pg() {
-			return pg;
-		}
-		
 		public PGraphicsOpenGL pggl() {
-		  return (PGraphicsOpenGL) pg();	
+		  return pg;	
 		}	
 		
 		@Override
@@ -1683,48 +1679,42 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void pushModelView() {
-			pg().pushMatrix();
+			pggl().pushMatrix();
 		}
 		
 		@Override
 		public void popModelView() {
-			pg().popMatrix();
+			pggl().popMatrix();
 		}
 		
 		@Override
 		public void resetModelView() {
-			pg().resetMatrix();
+			pggl().resetMatrix();
 		}
 		
 		@Override
 		public Mat getModelView() {
-			PMatrix3D pM = (PMatrix3D) pg().getMatrix();
+			PMatrix3D pM = (PMatrix3D) pggl().getMatrix();
 			return new Mat(pM.get(new float[16]), true);// set it transposed
 		}
 		
 		@Override
 		public Mat getModelView(Mat target) {
-			PMatrix3D pM = (PMatrix3D) pg().getMatrix();
+			PMatrix3D pM = (PMatrix3D) pggl().getMatrix();
 			target.setTransposed(pM.get(new float[16]));
 			return target;
 		}
 		
 		@Override
-		public void setModelView(Mat source) {
-			resetModelView();
-			applyModelView(source);
-		}
-		
-		@Override
 		public void printModelView() {
-			pg().printMatrix();
+			pggl().printMatrix();
 		}
 		
 		@Override
 		public void applyModelView(Mat source) {
 			PMatrix3D pM = new PMatrix3D();
 			pM.set(source.getTransposed(new float[16]));
-			pg().applyMatrix(pM);
+			pggl().applyMatrix(pM);
 		}
 		
 		@Override
@@ -1732,297 +1722,103 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				                                 float n10, float n11, float n12, float n13,
 				                                 float n20, float n21, float n22, float n23,
 				                                 float n30, float n31, float n32, float n33) {
-			pg().applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22,	n23, n30, n31, n32, n33);
+			pggl().applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22,	n23, n30, n31, n32, n33);
 		}	
 		
 		//
 		
 		@Override
 		public void translate(float tx, float ty) {
-			pg().translate(tx, ty);		
+			pggl().translate(tx, ty);		
 		}
 
 		@Override
 		public void translate(float tx, float ty, float tz) {
-			pg().translate(tx, ty, tz);	
+			pggl().translate(tx, ty, tz);	
 		}
 		
 		@Override
 		public void rotate(float angle) {
-			pg().rotate(angle);		
+			pggl().rotate(angle);		
 		}
 
 		@Override
 		public void rotateX(float angle) {
-			pg().rotateX(angle);		
+			pggl().rotateX(angle);		
 		}
 
 		@Override
 		public void rotateY(float angle) {
-			pg().rotateY(angle);
+			pggl().rotateY(angle);
 		}
 
 		@Override
 		public void rotateZ(float angle) {
-			pg().rotateZ(angle);
+			pggl().rotateZ(angle);
 		}
 		
 		@Override
 		public void rotate(float angle, float vx, float vy, float vz) {
-			pg().rotate(angle, vx, vy, vz);
+			pggl().rotate(angle, vx, vy, vz);
 		}
 		
 		@Override
 		public void scale(float s) {
-			pg().scale(s);	
+			pggl().scale(s);	
 		}
 
 		@Override
 		public void scale(float sx, float sy) {
-			pg().scale(sx, sy);	
+			pggl().scale(sx, sy);	
 		}
 
 		@Override
 		public void scale(float x, float y, float z) {
-			pg().scale(x, y, z);
-		}
-	}
-	
-	protected class P5GL2DMatrixHelper extends P5GLMatrixHelper {	
-		public P5GL2DMatrixHelper(Scene scn, PGraphicsOpenGL renderer) {
-			super(scn, renderer);
+			pggl().scale(x, y, z);
 		}
 		
-		public PGraphics2D pg2d() {
-		  return (PGraphics2D) pg();	
-		}	
-
+		@Override
+		public void loadProjection() {
+			proj = scene.viewport().getProjection(true);
+			pggl().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
+		                                      proj.mat[1],  proj.mat[5], proj.mat[9],  proj.mat[13],
+		                                      proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
+		                                      proj.mat[3],  proj.mat[7], proj.mat[11], proj.mat[15] ));
+		}
+		
+		@Override
+		public void loadModelView() {
+			pggl().modelview.set(scene.viewport().getView(true).getTransposed(new float[16]));	
+			scene.viewport().updateProjectionView();
+			pggl().projmodelview.set(scene.viewport().getProjectionView().getTransposed(new float[16]));
+		}
+		
 		@Override
 		public void setProjection(Mat source) {
 			PMatrix3D pM = new PMatrix3D();
 			pM.set(source.getTransposed(new float[16]));		
-			pg2d().projection.set(pM);		
+			pggl().projection.set(pM);		
 		}
-
+		
+		// /**
 		@Override
 		public void setModelView(Mat source) {
 			PMatrix3D pM = new PMatrix3D();
 			pM.set(source.getTransposed(new float[16]));
-			//pg2d().setMatrix(pM);
-	    pg2d().modelview.set(pM);
-		}	
-
+	    pggl().modelview.set(pM);
+	    //pggl().setMatrix(pM);//only for 3d
+		}
+		//*/
+		
 		/**
-		 * Sets the processing camera projection matrix from {@link #camera()}. Calls
-		 * {@code PApplet.perspective()} or {@code PApplet.orhto()} depending on the
-		 * {@link remixlab.dandelion.core.Camera#type()}.
-		 */
-		@Override
-		public void initProjection() {
-		  // All options work seemlessly
-			/**		
-			// Option 1
-			Matrix3D mat = new Matrix3D();		
-			scene.viewWindow().getProjectionMatrix(mat, true);
-			mat.transpose();		
-			float[] target = new float[16];
-			pg2d().projection.set(mat.get(target));		
-			// */	  
-
-			/**		
-			// Option 2		
-			pg2d().projection.set(scene.viewWindow().getProjectionMatrix(true).getTransposed(new float[16]));
-			// */
-
-			// /**
-		  // option 3 (new, Andres suggestion)
-			// /**		
-			proj = scene.window().getProjection(true);
-			pg2d().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
-		                                      proj.mat[1],  proj.mat[5], proj.mat[9],  proj.mat[13],
-		                                      proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
-		                                      proj.mat[3],  proj.mat[7], proj.mat[11], proj.mat[15] ));
-			// */
-
-			/**
-			proj = scene.viewWindow().getProjectionMatrix(true);
-			pg2d().flush();
-		  pg2d().projection.set( proj.mat[0], proj.mat[4],                                  proj.mat[8],  proj.mat[12],
-			                       proj.mat[1], isLeftHanded() ? proj.mat[5] : -proj.mat[5], proj.mat[9],  proj.mat[13],
-			                       proj.mat[2], proj.mat[6],                                  proj.mat[10], proj.mat[14],
-			                       proj.mat[3], proj.mat[7],                                  proj.mat[11], proj.mat[15] );
-			pg2d().updateProjmodelview();
-			// */
-		}
-
-		/**
-		 * Sets the processing camera matrix from {@link #camera()}. Simply calls
-		 * {@code PApplet.camera()}.
-		 */
-		@Override
-		public void initModelView() {
-		  // The two options work seamlessly
-			/**		
-			// Option 1
-			Matrix3D mat = new Matrix3D();		
-			scene.viewWindow().getViewMatrix(mat, true);
-			mat.transpose();// experimental
-			float[] target = new float[16];
-			pg2d().modelview.set(mat.get(target));
-			// */
-
-			// /**		
-			// Option 2
-			pg2d().modelview.set(scene.window().getView(true).getTransposed(new float[16]));						
-			// Finally, caches projmodelview
-			//pg2d().projmodelview.set(scene.viewWindow().getProjectionViewMatrix(true).getTransposed(new float[16]));	
-			scene.window().updateProjectionView();
-			pg2d().projmodelview.set(scene.window().getProjectionView().getTransposed(new float[16]));
-		  // */
-		}
-	}
-	
-	protected class P5GL3DMatrixHelper extends P5GLMatrixHelper {
-		Vec at;	
-		
-		public P5GL3DMatrixHelper(Scene scn, PGraphicsOpenGL renderer) {
-			super(scn, renderer);		
-			at = new Vec();		
-		}
-		
-		public PGraphics3D pg3d() {
-		  return (PGraphics3D) pg();	
-		}
-
-		@Override
-		public void setProjection(Mat source) {
-			PMatrix3D pM = new PMatrix3D();
-	    pM.set(source.getTransposed(new float[16]));
-	    pg3d().setProjection(pM);
-		}
-		
+		//only for 3d
 		@Override
 		public void setModelView(Mat source) {
-			PMatrix3D pM = new PMatrix3D();
-			pM.set(source.getTransposed(new float[16]));
-			pg3d().setMatrix(pM);//needs testing in screen drawing
-		}	
-		
-		//---
-
-		/**
-	   * Sets the processing camera projection matrix from {@link #camera()}. Calls
-	   * {@code PApplet.perspective()} or {@code PApplet.orhto()} depending on the
-	   * {@link remixlab.dandelion.core.Camera#type()}.
-	   */
-		@Override
-		public void initProjection() {
-		  // All options work seemlessly
-		  /**
-		  // Option 1
-		  Matrix3D mat = new Matrix3D();
-		  scene.camera().getProjectionMatrix(mat, true);
-		  mat.transpose();
-		  float[] target = new float[16];
-		  pg3d().projection.set(mat.get(target));
-		  // */	
-
-		  /**
-		  // Option 2
-		  pg3d().projection.set(scene.camera().getProjectionMatrix(true).getTransposed(new float[16]));
-		  // */
-
-		  // /**
-		  // option 3 (new, Andres suggestion)
-		  //proj.set((scene.camera().getProjectionMatrix(true).getTransposed(new float[16])));
-		  proj = scene.camera().getProjection(true);
-		  pg3d().setProjection(new PMatrix3D( proj.mat[0], proj.mat[4], proj.mat[8], proj.mat[12],
-		  																		proj.mat[1], proj.mat[5], proj.mat[9], proj.mat[13],
-		  																		proj.mat[2], proj.mat[6], proj.mat[10], proj.mat[14],
-		  																		proj.mat[3], proj.mat[7], proj.mat[11], proj.mat[15] ));
-		  // */
-
-		  /**
-		  proj = scene.camera().getProjectionMatrix(true);
-		  pg3d().flush();
-		  pg3d().projection.set( proj.mat[0], proj.mat[4], proj.mat[8], proj.mat[12],
-		  proj.mat[1], isLeftHanded() ? proj.mat[5] : -proj.mat[5], proj.mat[9], proj.mat[13],
-		  proj.mat[2], proj.mat[6], proj.mat[10], proj.mat[14],
-		  proj.mat[3], proj.mat[7], proj.mat[11], proj.mat[15] );
-		  pg3d().updateProjmodelview();//only in P5-head
-		  // */	
-
-		  /**
-		  // Option 4
-		  // compute the processing camera projection matrix from our camera() parameters
-		  switch (scene.camera().type()) {
-		  case PERSPECTIVE:
-		  pg3d().perspective(scene.camera().fieldOfView(), scene.camera().aspectRatio(), scene.camera().zNear(), scene.camera().zFar());
-		  break;
-		  case ORTHOGRAPHIC:
-		  float[] wh = scene.camera().getOrthoWidthHeight();
-		  pg3d().ortho(-wh[0], wh[0], -wh[1], wh[1], scene.camera().zNear(), scene.camera().zFar());
-		  break;
-		  }
-		  // hack:
-		  //if(this.isRightHanded())
-		  //pg3d().projection.m11 = -pg3d().projection.m11;
-		  // We cache the processing camera projection matrix into our camera()
-		  scene.camera().setProjectionMatrix( pg3d().projection.get(new float[16]), true ); // set it transposed
-		  // */
+			resetModelView();
+			applyModelView(source);
 		}
-
-		/**
-		* Sets the processing camera matrix from {@link #camera()}. Simply calls
-		* {@code PApplet.camera()}.
-		*/	
-		@Override
-		public void initModelView() {
-		  // All three options work seamlessly
-		  /**
-		  // Option 1
-		  Mat mat = new Mat();
-		  scene.camera().getViewMatrix(mat, true);
-		  mat.transpose();
-		  float[] target = new float[16];
-		  pg3d().modelview.set(mat.get(target));
-		  //caches projmodelview
-		  pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
-		  // */
-
-		  /**
-		  // Option 2a
-		  pg3d().modelview.set(scene.camera().getViewMatrix(true).getTransposed(new float[16]));
-		  // Finally, caches projmodelview
-		  //pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
-		  Mat.mult(proj, scene.camera().view(), scene.camera().projectionView());
-		  pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(false).getTransposed(new float[16]));
-		  // */	
-		  
-		  /**
-		  // Option 2b
-		  pg3d().modelview.set(scene.camera().getViewMatrix(true).getTransposed(new float[16]));
-		  // Finally, caches projmodelview
-		  pg3d().projmodelview.set(scene.camera().getProjectionViewMatrix(true).getTransposed(new float[16]));
-		  // */	
-
-		  // /**
-		  // Option 3
-		  // compute the processing camera modelview matrix from our camera() parameters
-		  at = scene.camera().at();
-		  pg3d().camera(scene.camera().position().x(), scene.camera().position().y(), scene.camera().position().z(),
-		  							//scene.camera().at().x(), scene.camera().at().y(), scene.camera().at().z(),
-		  							at.x(), at.y(), at.z(),
-		  							scene.camera().upVector().x(), scene.camera().upVector().y(), scene.camera().upVector().z());
-		  // We cache the processing camera modelview matrix into our camera()
-		  scene.camera().setView( pg3d().modelview.get(new float[16]), true );// set it transposed
-		  // We cache the processing camera projmodelview matrix into our camera()
-		  scene.camera().setProjectionView( pg3d().projmodelview.get(new float[16]), true );// set it transposed
-		  // */
-		}	
+		// */
 	}
-	
-	// ---- //
 	
 	// proscene version
   public static final String prettyVersion = "2.0.0-alpha.1";
@@ -2123,12 +1919,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		else
 			if( pg instanceof PGraphics2D ) {
-				setMatrixHelper( new P5GL2DMatrixHelper(this, (PGraphics2D)pg) );
+				setMatrixHelper( new P5GLMatrixHelper(this, (PGraphics2D)pg) );
 				setDrawingHelper(new P5Drawing2D(this));
 			}
 			else
 				if( pg instanceof PGraphics3D ) {
-					setMatrixHelper( new P5GL3DMatrixHelper(this, (PGraphics3D)pg) );
+					setMatrixHelper( new P5GLMatrixHelper(this, (PGraphics3D)pg) );
 					setDrawingHelper(new P5Drawing3D(this));
 				}
 		
@@ -2566,14 +2362,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	public PGraphics2D pg2d() {
 		if (pg() instanceof PGraphics2D)
-			return ((P5GL2DMatrixHelper) matrixHelper()).pg2d();
+			return (PGraphics2D) ((P5GLMatrixHelper) matrixHelper()).pggl();
 		else 
 			throw new RuntimeException("pGraphics is not instance of PGraphics2D");		
 	}
 	
 	public PGraphics3D pg3d() {
 		if (pg() instanceof PGraphics3D)
-			return ((P5GL3DMatrixHelper) matrixHelper()).pg3d();
+			return (PGraphics3D) ((P5GLMatrixHelper) matrixHelper()).pggl();
 		else 
 			throw new RuntimeException("pGraphics is not instance of PGraphics3D");		
 	}
