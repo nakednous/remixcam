@@ -22,7 +22,7 @@ public class Window extends Viewport implements Copyable {
 		if(scene.is3D())
 			throw new RuntimeException("Use ViewWindow only for a 2D Scene");
 		fpCoefficients = new float[4][3];		
-		computeProjectionMatrix();
+		computeProjection();
 		//flip();
 	}
 	
@@ -42,7 +42,7 @@ public class Window extends Viewport implements Copyable {
 	}
 	
 	@Override
-	public void computeViewMatrix() {		
+	public void computeView() {		
 		Rot q = (Rot)frame().orientation();
 		
 		float cosB = (float)Math.cos((double)q.angle());
@@ -72,7 +72,7 @@ public class Window extends Viewport implements Copyable {
 	}
 	
 	@Override
-	public void computeProjectionMatrix() {
+	public void computeProjection() {
 		float[] wh = getOrthoWidthHeight();
 		projectionMat.mat[0] = 1.0f / wh[0];
 		projectionMat.mat[5] = (scene.isLeftHanded() ? -1.0f : 1.0f ) / wh[1];

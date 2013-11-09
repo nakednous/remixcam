@@ -339,7 +339,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 		computeProjectionMatrix();
 		projectionViewMat = new Matrix3D();
 		// */
-		computeProjectionMatrix();
+		computeProjection();
 	}
 	
 	/**
@@ -1516,7 +1516,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 	// 8. PROCESSING MATRICES
 	
 	@Override
-	public void computeViewMatrix() {
+	public void computeView() {
 		Quat q = (Quat) frame().orientation();
 
 		float q00 = 2.0f * q.quat[0] * q.quat[0];
@@ -1570,16 +1570,16 @@ public class Camera extends Viewport implements Constants, Copyable {
 	 * planes. These values are determined from sceneRadius() and sceneCenter() so
 	 * that they best fit the scene size.
 	 * <p>
-	 * Use {@link #getProjectionMatrix()} to retrieve this matrix.
+	 * Use {@link #getProjection()} to retrieve this matrix.
 	 * <p>
 	 * <b>Note:</b> You must call this method if your Camera is not associated
 	 * with a Scene and is used for offscreen computations (using {@code
 	 * projectedCoordinatesOf()} for instance).
 	 * 
-	 * @see #setProjectionMatrix(Matrix3D)
+	 * @see #setProjection(Matrix3D)
 	 */
 	@Override
-	public void computeProjectionMatrix() {
+	public void computeProjection() {
 		float ZNear = zNear();
 		float ZFar = zFar();
 		
@@ -1609,56 +1609,6 @@ public class Camera extends Viewport implements Constants, Copyable {
 			break;
 		}
 		}
-	}	
-	
-  //TODO needed for screen drawing
-	public void ortho(float left, float right, float bottom, float top, float near, float far) {
-		float x = +2.0f / (right - left);
-		float y = +2.0f / (top - bottom);
-		float z = -2.0f / (far - near);
-		
-		float tx = -(right + left) / (right - left);
-		float ty = -(top + bottom) / (top - bottom);
-		float tz = -(far + near)   / (far - near);
-			
-		if( scene.isLeftHanded() )
-		  // The minus sign is needed to invert the Y axis.
-			projectionMat.set(x,  0, 0, tx,
-                        0, -y, 0, ty,
-                        0,  0, z, tz,
-                        0,  0, 0,  1);
-		else
-			projectionMat.set(x,  0, 0, tx,
-                        0,  y, 0, ty,
-                        0,  0, z, tz,
-                        0,  0, 0,  1);
-	}	
-	
-	public void perspective(float fov, float aspect, float zNear, float zFar) {
-    float ymax = zNear * (float) Math.tan(fov / 2);
-    float ymin = -ymax;
-    float xmin = ymin * aspect;
-    float xmax = ymax * aspect;
-    frustum(xmin, xmax, ymin, ymax, zNear, zFar);
-  }
-	
-	public void frustum(float left, float right, float bottom, float top,  float znear, float zfar) {
-		float n2 = 2 * znear;
-		float w = right - left;
-		float h = top - bottom;
-		float d = zfar - znear;
-		
-		if( scene.isLeftHanded() )
-		  // The minus sign is needed to invert the Y axis.
-			projectionMat.set(n2 / w,       0,  (right + left) / w,                0,
-                             0, -n2 / h,  (top + bottom) / h,                0,
-                             0,       0, -(zfar + znear) / d, -(n2 * zfar) / d,
-                             0,       0,                  -1,                0);
-		else
-			projectionMat.set(n2 / w,       0,  (right + left) / w,                0,
-                             0,  n2 / h,  (top + bottom) / h,                0,
-                             0,       0, -(zfar + znear) / d, -(n2 * zfar) / d,
-                             0,       0,                  -1,                0);
 	}
 	
 	//TODO needed for screen drawing

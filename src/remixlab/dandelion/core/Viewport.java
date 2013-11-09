@@ -654,35 +654,35 @@ public abstract class Viewport implements Copyable {
 	 * 
 	 * 
 	 */
-	public Mat getProjectionMatrix() {
-		return getProjectionMatrix(false);
+	public Mat getProjection() {
+		return getProjection(false);
 	}
 	
-	public Mat getProjectionMatrix(boolean recompute) {
-		return getProjectionMatrix(new Mat(), recompute);
+	public Mat getProjection(boolean recompute) {
+		return getProjection(new Mat(), recompute);
 	}
 	
-	public Mat getProjectionMatrix(Mat m) {
-		return getProjectionMatrix(m, false);
+	public Mat getProjection(Mat m) {
+		return getProjection(m, false);
 	}
 
 	/**
 	 * Fills {@code m} with the Camera projection matrix values and returns it. If
 	 * {@code m} is {@code null} a new Matrix3D will be created.
 	 * <p>
-	 * If {@code recompute} is {@code true} first calls {@link #computeProjectionMatrix()}
+	 * If {@code recompute} is {@code true} first calls {@link #computeProjection()}
 	 * to define the Camera projection matrix. Otherwise it returns the projection matrix
 	 * previously computed, e.g., as with {@link #loadProjectionMatrix()}.
 	 * 
-	 * @see #getViewMatrix(Mat, boolean)
+	 * @see #getView(Mat, boolean)
 	 */
-	public Mat getProjectionMatrix(Mat m, boolean recompute) {
+	public Mat getProjection(Mat m, boolean recompute) {
 		if (m == null)
 			m = new Mat();
 
 		if(recompute)
 			// May not be needed, but easier and more robust like this.
-			computeProjectionMatrix();
+			computeProjection();
 		m.set(projectionMat);
 
 		return m;
@@ -691,47 +691,47 @@ public abstract class Viewport implements Copyable {
 	/**
 	 * Fills the projection matrix with the {@code proj} matrix values.
 	 * 
-	 * @see #setProjectionMatrix(float[])
-	 * @see #setProjectionMatrix(float[], boolean)
-	 * @see #setViewMatrix(Mat)
-	 * @see #setViewMatrix(float[])
-	 * @see #setViewMatrix(float[], boolean)
+	 * @see #setProjection(float[])
+	 * @see #setProjection(float[], boolean)
+	 * @see #setView(Mat)
+	 * @see #setView(float[])
+	 * @see #setView(float[], boolean)
 	 */
-	public void setProjectionMatrix(Mat proj) {
+	public void setProjection(Mat proj) {
 		projectionMat.set(proj);
 	}
 	
 	/**
 	 * Convenience function that simply calls {@code setProjectionMatrix(source, false)}.
 	 * 
-	 * @see #setProjectionMatrix(Mat)
-	 * @see #setProjectionMatrix(float[], boolean) 
-	 * @see #setViewMatrix(Mat)
-	 * @see #setViewMatrix(float[])
-	 * @see #setViewMatrix(float[], boolean)
+	 * @see #setProjection(Mat)
+	 * @see #setProjection(float[], boolean) 
+	 * @see #setView(Mat)
+	 * @see #setView(float[])
+	 * @see #setView(float[], boolean)
 	 */
-	public void setProjectionMatrix(float[] source) {
-		setProjectionMatrix(source, false);
+	public void setProjection(float[] source) {
+		setProjection(source, false);
 	}
 
 	/**
 	 * Fills the projection matrix with the {@code source} matrix values
 	 * (defined in row-major order).
 	 * 
-	 * @see #setProjectionMatrix(Mat)
-	 * @see #setProjectionMatrix(float[]) 
-	 * @see #setViewMatrix(Mat)
-	 * @see #setViewMatrix(float[])
-	 * @see #setViewMatrix(float[], boolean)
+	 * @see #setProjection(Mat)
+	 * @see #setProjection(float[]) 
+	 * @see #setView(Mat)
+	 * @see #setView(float[])
+	 * @see #setView(float[], boolean)
 	 */
-	public void setProjectionMatrix(float[] source, boolean transpose) {
+	public void setProjection(float[] source, boolean transpose) {
 		if(transpose)
 			projectionMat.setTransposed(source);
 		else
 			projectionMat.set(source);
 	}	
 	
-	public abstract void computeProjectionMatrix();
+	public abstract void computeProjection();
 	
 	/**
 	 * Convenience function that simply returns {@code getOrthoWidthHeight(new
@@ -796,83 +796,83 @@ public abstract class Viewport implements Copyable {
 	 * <p>
 	 * This matrix converts from the world coordinates system to the Camera
 	 * coordinates system, so that coordinates can then be projected on screen
-	 * using the projection matrix (see {@link #computeProjectionMatrix()}).
+	 * using the projection matrix (see {@link #computeProjection()}).
 	 * <p>
-	 * Use {@link #getViewMatrix()} to retrieve this matrix.
+	 * Use {@link #getView()} to retrieve this matrix.
 	 * <p>
 	 * <b>Note:</b> You must call this method if your Camera is not associated
 	 * with a Scene and is used for offscreen computations (using {@code
 	 * projectedCoordinatesOf()} for instance).
 	 */
-	public abstract void computeViewMatrix();
+	public abstract void computeView();
 	
 	/**
 	 * Convenience function that simply returns {@code getViewMatrix(false)}
 	 * 
-	 * @see #getViewMatrix(boolean)
-	 * @see #getViewMatrix(Mat)
-	 * @see #getViewMatrix(Mat, boolean)
-	 * @see #getProjectionMatrix()
-	 * @see #getProjectionMatrix(boolean)
-	 * @see #getProjectionMatrix(Mat)
-	 * @see #getProjectionMatrix(Mat, boolean) 
+	 * @see #getView(boolean)
+	 * @see #getView(Mat)
+	 * @see #getView(Mat, boolean)
+	 * @see #getProjection()
+	 * @see #getProjection(boolean)
+	 * @see #getProjection(Mat)
+	 * @see #getProjection(Mat, boolean) 
 	 */
-	public Mat getViewMatrix() {
-		return getViewMatrix(false);
+	public Mat getView() {
+		return getView(false);
 	}
 	
 	/**
 	 * Convenience function that simply returns {@code getViewMatrix(new Matrix3D(), recompute)}
 	 * 
-	 * @see #getViewMatrix()
-	 * @see #getViewMatrix(Mat)
-	 * @see #getViewMatrix(Mat, boolean)
-	 * @see #getProjectionMatrix()
-	 * @see #getProjectionMatrix(boolean)
-	 * @see #getProjectionMatrix(Mat)
-	 * @see #getProjectionMatrix(Mat, boolean)
+	 * @see #getView()
+	 * @see #getView(Mat)
+	 * @see #getView(Mat, boolean)
+	 * @see #getProjection()
+	 * @see #getProjection(boolean)
+	 * @see #getProjection(Mat)
+	 * @see #getProjection(Mat, boolean)
 	 */
-	public Mat getViewMatrix(boolean recompute) {
-		return getViewMatrix(new Mat(), recompute);
+	public Mat getView(boolean recompute) {
+		return getView(new Mat(), recompute);
 	}
 	
 	/**
 	 * Convenience function that simply returns {@code getViewMatrix(m, false)}
 	 * 
-	 * @see #getViewMatrix()
-	 * @see #getViewMatrix(boolean)
-	 * @see #getViewMatrix(Mat, boolean)
-	 * @see #getProjectionMatrix()
-	 * @see #getProjectionMatrix(boolean)
-	 * @see #getProjectionMatrix(Mat)
-	 * @see #getProjectionMatrix(Mat, boolean)
+	 * @see #getView()
+	 * @see #getView(boolean)
+	 * @see #getView(Mat, boolean)
+	 * @see #getProjection()
+	 * @see #getProjection(boolean)
+	 * @see #getProjection(Mat)
+	 * @see #getProjection(Mat, boolean)
 	 */
-	public Mat getViewMatrix(Mat m) {
-		return getViewMatrix(m, false);
+	public Mat getView(Mat m) {
+		return getView(m, false);
 	}
 
 	/**
 	 * Fills {@code m} with the Camera View matrix values and returns it. If
 	 * {@code m} is {@code null} a new Matrix3D will be created.
 	 * <p>
-	 * If {@code recompute} is {@code true} first calls {@link #computeViewMatrix()}
+	 * If {@code recompute} is {@code true} first calls {@link #computeView()}
 	 * to define the Camera view matrix. Otherwise it returns the view matrix
 	 * previously computed, e.g., as with {@link #loadViewMatrix()}.
 	 * 
-	 * @see #getViewMatrix()
-	 * @see #getViewMatrix(boolean)
-	 * @see #getViewMatrix(Mat)
-	 * @see #getProjectionMatrix()
-	 * @see #getProjectionMatrix(boolean)
-	 * @see #getProjectionMatrix(Mat, boolean) 
+	 * @see #getView()
+	 * @see #getView(boolean)
+	 * @see #getView(Mat)
+	 * @see #getProjection()
+	 * @see #getProjection(boolean)
+	 * @see #getProjection(Mat, boolean) 
 	 */
-	public Mat getViewMatrix(Mat m, boolean recompute) {
+	public Mat getView(Mat m, boolean recompute) {
 		if (m == null)
 			m = new Mat();
 		if(recompute)
 			// May not be needed, but easier like this.
 			// Prevents from retrieving matrix in stereo mode -> overwrites shifted value.
-			computeViewMatrix();
+			computeView();
 		m.set(viewMat);
 		return m;
 	}
@@ -880,84 +880,73 @@ public abstract class Viewport implements Copyable {
 	/**
 	 * Fills the view matrix with the {@code view} matrix values.
 	 * 
-	 * @see #setProjectionMatrix(Mat)
-	 * @see #setProjectionMatrix(float[]) 
-	 * @see #setViewMatrix(float[])
-	 * @see #setViewMatrix(float[], boolean)
-	 * @see #setViewMatrix(Mat, boolean)
+	 * @see #setProjection(Mat)
+	 * @see #setProjection(float[]) 
+	 * @see #setView(float[])
+	 * @see #setView(float[], boolean)
+	 * @see #setView(Mat, boolean)
 	 */
-	public void setViewMatrix(Mat view) {
+	public void setView(Mat view) {
 			viewMat.set(view);
 	}
 	
 	/**
 	 * Convenience function that simply calls {@code setViewMatrix(source, false)}.
 	 * 
-	 * @see #setProjectionMatrix(Mat)
-	 * @see #setProjectionMatrix(float[]) 
-	 * @see #setViewMatrix(float[], boolean)
-	 * @see #setViewMatrix(Mat, boolean)
-	 * @see #setViewMatrix(Mat)
+	 * @see #setProjection(Mat)
+	 * @see #setProjection(float[]) 
+	 * @see #setView(float[], boolean)
+	 * @see #setView(Mat, boolean)
+	 * @see #setView(Mat)
 	 */
-	public void setViewMatrix(float [] source) {
-		setViewMatrix(source, false);
+	public void setView(float [] source) {
+		setView(source, false);
 	}
 	
 	/**
 	 * Fills the view matrix with the {@code source} matrix values
 	 * (defined in row-major order).
 	 * 
-	 * @see #setProjectionMatrix(Mat)
-	 * @see #setProjectionMatrix(float[]) 
-	 * @see #setViewMatrix(float[])
-	 * @see #setViewMatrix(Mat, boolean)
-	 * @see #setViewMatrix(Mat)
+	 * @see #setProjection(Mat)
+	 * @see #setProjection(float[]) 
+	 * @see #setView(float[])
+	 * @see #setView(Mat, boolean)
+	 * @see #setView(Mat)
 	 */
-	public void setViewMatrix(float [] source, boolean transpose) {
+	public void setView(float [] source, boolean transpose) {
 		if(transpose)
 			viewMat.setTransposed(source);
 		else
 			viewMat.set(source);
 	}	
 	
-	public void setProjectionTimesView(Mat projviewMat) {
+	public void setProjectionView(Mat projviewMat) {
 		projectionViewMat.set(projviewMat);
 }
 	
-	public void setProjectionTimesView(float [] source) {
-		setProjectionViewMatrix(source, false);
+	public void setProjectionView(float [] source) {
+		setProjectionView(source, false);
 	}
 	
-	public void setProjectionViewMatrix(float [] source, boolean transpose) {
+	public void setProjectionView(float [] source, boolean transpose) {
 		if(transpose)
 			projectionViewMat.setTransposed(source);
 		else
 			projectionViewMat.set(source);
 	}
 	
-	public Mat getProjectionTimesView() {
-		return getProjectionTimesView(false);
+	public Mat getProjectionView() {
+		return getProjectionView(new Mat());
 	}
 	
-	public Mat getProjectionTimesView(boolean recompute) {
-		return getProjectionTimesView(new Mat(), recompute);
-	}
-	
-	public Mat getProjectionTimesView(Mat m) {
-		return getProjectionTimesView(m, false);
-	}
-	
-	public Mat getProjectionTimesView(Mat m, boolean recompute) {
+	public Mat getProjectionView(Mat m) {
 		if (m == null)
 			m = new Mat();
-		if(recompute) {
-			projectionTimesView();
-		}
 		m.set(projectionViewMat);
 		return m;
 	}
 	
-	public void projectionTimesView() {
+	public void updateProjectionView() {
 		Mat.mult(projectionMat, viewMat, projectionViewMat);		 
 	}
 	
@@ -976,7 +965,7 @@ public abstract class Viewport implements Copyable {
 	 * @see #unprojectCacheIsOptimized()
 	 * @see #optimizeUnprojectCache(boolean)
 	 */
-	public void cacheProjViewInvMat() {		
+	public void cacheProjectionViewInverse() {		
 		if(unprojectCacheIsOptimized()) {
 			if(projectionViewInverseMat == null)
 				projectionViewInverseMat = new Mat();
@@ -1007,7 +996,7 @@ public abstract class Viewport implements Copyable {
 	 * gluProject} man page for details.
 	 * <p>
 	 * <b>Attention:</b> This method only uses the intrinsic Camera parameters
-	 * (see {@link #getViewMatrix()}, {@link #getProjectionMatrix()} and
+	 * (see {@link #getView()}, {@link #getProjection()} and
 	 * {@link #getViewport()}) and is completely independent of the processing
 	 * matrices. You can hence define a virtual Camera and use this method to
 	 * compute projections out of a classical rendering context.
@@ -1056,15 +1045,15 @@ public abstract class Viewport implements Copyable {
 	 * transformation.
 	 * <p>
 	 * This method only uses the intrinsic Camera parameters (see
-	 * {@link #getViewMatrix()}, {@link #getProjectionMatrix()} and
+	 * {@link #getView()}, {@link #getProjection()} and
 	 * {@link #getViewport()}) and is completely independent of the Processing
 	 * matrices. You can hence define a virtual Camera and use this method to
 	 * compute un-projections out of a classical rendering context.
 	 * <p>
 	 * <b>Attention:</b> However, if your Camera is not attached to a Scene (used
 	 * for offscreen computations for instance), make sure the Camera matrices are
-	 * updated before calling this method (use {@link #computeViewMatrix()},
-	 * {@link #computeProjectionMatrix()}).
+	 * updated before calling this method (use {@link #computeView()},
+	 * {@link #computeProjection()}).
 	 * <p>
 	 * This method is not computationally optimized. If you call it several times
 	 * with no change in the matrices, you should buffer the entire inverse
@@ -1219,7 +1208,7 @@ public abstract class Viewport implements Copyable {
 	 * Returns {@code true} if {@code P x M} and {@code inv (P x M)} are being cached,
 	 * and {@code false} otherwise.
 	 * 
-	 * @see #cacheProjViewInvMat()
+	 * @see #cacheProjectionViewInverse()
 	 * @see #optimizeUnprojectCache(boolean)
 	 */
 	public boolean unprojectCacheIsOptimized() {
@@ -1233,7 +1222,7 @@ public abstract class Viewport implements Copyable {
 	 * is optimised.
 	 * 
 	 * @see #unprojectCacheIsOptimized()
-	 * @see #cacheProjViewInvMat()
+	 * @see #cacheProjectionViewInverse()
 	 */
 	public void optimizeUnprojectCache(boolean optimise) {
 		unprojectCacheOptimized = optimise;

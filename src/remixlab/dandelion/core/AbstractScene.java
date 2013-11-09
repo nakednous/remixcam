@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import remixlab.dandelion.geom.*;
-import remixlab.dandelion.renderer.StackRenderer;
+import remixlab.dandelion.helper.MartixStackHelper;
 import remixlab.fpstiming.AbstractTimerJob;
 import remixlab.fpstiming.AnimatedObject;
 import remixlab.fpstiming.TimingHandler;
@@ -26,7 +26,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	protected boolean dottedGrid;	
 	
   //O B J E C T S
-	protected Renderable matrixHelpler;
+	protected MatrixHelpable matrixHelpler;
 	protected Depictable drawingHelpler;
 	
 	protected Viewport vport;
@@ -76,7 +76,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	  startCoordCalls = 0;
 	  timerHandler = new TimingHandler(this);		
 		terseHandler = new TerseHandler();
-		setMatrixHelper(new StackRenderer(this));
+		setMatrixHelper(new MartixStackHelper(this));
 		setDottedGrid(true);
 		setRightHanded();
 	}
@@ -89,11 +89,11 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		return drawingHelpler;
 	}
 	
-	public void setMatrixHelper(Renderable r) {
+	public void setMatrixHelper(MatrixHelpable r) {
 		matrixHelpler = r;
 	}
 		
-	public Renderable matrixHelpler() {
+	public MatrixHelpable matrixHelpler() {
 		return matrixHelpler;
 	}
 	
@@ -445,11 +445,11 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 */	
 	protected void bindMatrices() {
 		// we should simply go:
-		matrixHelpler.bindMatrices();
+		matrixHelpler.bind();
 	}
 
 	protected void setProjectionModelViewMatrix() {
-		viewport().projectionTimesView();
+		viewport().updateProjectionView();
 	}
 	
 	// Try to optimize assignments in all three matrix getters?
@@ -463,7 +463,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 	
 	public Mat getViewMatrix() {
-		Mat view = viewport().getViewMatrix();  	
+		Mat view = viewport().getView();  	
   	return view;
 	}
 	
@@ -486,7 +486,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		Mat PVM;  	
   	PVM = getMatrix();//model  	
     //PVM.preApply(camera().projectionViewMat);
-  	PVM.preApply(viewport().getProjectionTimesView());  	
+  	PVM.preApply(viewport().getProjectionView());  	
   	return PVM;
 	}
 	
@@ -533,14 +533,14 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * Push a copy of the modelview matrix onto the stack.
    */
 	public void pushMatrix() {
-		matrixHelpler.pushMatrix();
+		matrixHelpler.pushModelView();
 	}
 	
 	/**
 	 * Replace the current modelview matrix with the top of the stack.
 	 */
 	public void popMatrix() {
-		matrixHelpler.popMatrix();
+		matrixHelpler.popModelView();
 	}
 	
 	/**
@@ -645,7 +645,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * Set the current modelview matrix to identity.
    */
   public void resetMatrix() {
-  	matrixHelpler.resetMatrix();
+  	matrixHelpler.resetModelView();
   }
   
   /**
@@ -656,7 +656,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   }  
   
   public void applyMatrix(Mat source) {
-  	matrixHelpler.applyMatrix(source);
+  	matrixHelpler.applyModelView(source);
   }
   
   public void applyProjection(Mat source) {
@@ -670,7 +670,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
                                        float n10, float n11, float n12, float n13,
                                        float n20, float n21, float n22, float n23,
                                        float n30, float n31, float n32, float n33) {    
-  	matrixHelpler.applyMatrixRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
+  	matrixHelpler.applyModelViewRowMajorOrder(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33);
   }
   
   /**
@@ -690,7 +690,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   */
 
   public Mat getMatrix() {
-  	return matrixHelpler.getMatrix();
+  	return matrixHelpler.getModelView();
   }
   
   public Mat getProjection() {
@@ -702,7 +702,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * Pass in null to create a new matrix.
    */
   public Mat getMatrix(Mat target) {
-  	return matrixHelpler.getMatrix(target);
+  	return matrixHelpler.getModelView(target);
   }
   
   /**
@@ -717,7 +717,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * Set the current modelview matrix to the contents of another.
    */
   public void setMatrix(Mat source) {
-  	matrixHelpler.setMatrix(source);
+  	matrixHelpler.setModelView(source);
   }
   
   /**
@@ -731,7 +731,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * Print the current modelview matrix.
    */
   public void printMatrix() {
-  	matrixHelpler.printMatrix();
+  	matrixHelpler.printModelView();
   }
   
   /**

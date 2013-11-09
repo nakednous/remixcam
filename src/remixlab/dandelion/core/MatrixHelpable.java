@@ -11,12 +11,12 @@ package remixlab.dandelion.core;
 
 import remixlab.dandelion.geom.*;
 
-public interface Renderable {
+public interface MatrixHelpable {
 	//public void setScene(AbstractScene scn);
 	
 	public AbstractScene scene();
 	
-	public void bindMatrices();
+	public void bind();
 	
 	/**
 	 * Computes the world coordinates of an screen object so that drawing can be
@@ -50,12 +50,12 @@ public interface Renderable {
 	/**
 	 * Push a copy of the modelview matrix onto the stack.
    */
-	public void pushMatrix();
+	public void pushModelView();
 	
 	/**
 	 * Replace the current modelview matrix with the top of the stack.
 	 */
-	public void popMatrix();
+	public void popModelView();
 	
 	/**
 	 * Push a copy of the projection matrix onto the stack.
@@ -126,7 +126,7 @@ public interface Renderable {
   /**
    * Set the current modelview matrix to identity.
    */
-  public void resetMatrix();
+  public void resetModelView();
   
   /**
    * Set the current projection matrix to identity.
@@ -137,13 +137,13 @@ public interface Renderable {
   //public void loadProjection(Matrix3D source);
   //public void multiplyMatrix(Matrix3D source);
   //public void multiplyProjection(Matrix3D source);
-  public void applyMatrix(Mat source);
+  public void applyModelView(Mat source);
   public void applyProjection(Mat source);
   
   /**
    * Apply a 4x4 modelview matrix.
    */
-  public void applyMatrixRowMajorOrder(float n00, float n01, float n02, float n03,
+  public void applyModelViewRowMajorOrder(float n00, float n01, float n02, float n03,
                                        float n10, float n11, float n12, float n13,
                                        float n20, float n21, float n22, float n23,
                                        float n30, float n31, float n32, float n33);
@@ -158,13 +158,13 @@ public interface Renderable {
   
   //public void frustum(float left, float right, float bottom, float top, float znear, float zfar);
   
-  public Mat getMatrix();
+  public Mat getModelView();
   
   /**
    * Copy the current modelview matrix into the specified target.
    * Pass in null to create a new matrix.
    */
-  public Mat getMatrix(Mat target);
+  public Mat getModelView(Mat target);
   
   public Mat getProjection();
   
@@ -177,12 +177,12 @@ public interface Renderable {
   /**
    * Set the current modelview matrix to the contents of another.
    */
-  public void setMatrix(Mat source);
+  public void setModelView(Mat source);
   
   /**
    * Print the current modelview matrix.
    */
-  public void printMatrix();
+  public void printModelView();
   
   /**
    * Set the current projection matrix to the contents of another.
@@ -192,7 +192,11 @@ public interface Renderable {
   /**
    * Print the current projection matrix.
    */
-  public void printProjection();  
+  public void printProjection();
+  
+  public void initProjection();
+
+	public void initModelView();  
   
   
   //TODO testing this two (this is all what is new in the approach: remixlab.remixcam.renderers)

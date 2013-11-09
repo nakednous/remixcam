@@ -7,22 +7,22 @@
  * scenes, released under the terms of the GNU Public License v3.0
  * which is available at http://www.gnu.org/licenses/gpl.html
  ******************************************************************************/
-package remixlab.dandelion.renderer;
+package remixlab.dandelion.helper;
 
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Util;
 
-public abstract class ProjectionRenderer extends Renderer implements Constants {
-	public ProjectionRenderer(AbstractScene scn) {
+public abstract class PlugableMatrixHelper extends MatrixHelper implements Constants {
+	public PlugableMatrixHelper(AbstractScene scn) {
 		super(scn);
 	}
 	
 	@Override
-	public void bindMatrices() {
-		setProjectionMatrix();
-		setModelViewMatrix();
-		scene.viewport().cacheProjViewInvMat();
+	public void bind() {
+		initProjection();
+		initModelView();//TODO test also: initModelView(false);
+		scene.viewport().cacheProjectionViewInverse();
 	}
 	
 	@Override
@@ -32,8 +32,8 @@ public abstract class ProjectionRenderer extends Renderer implements Constants {
     float cameraNear = cameraZ / 2.0f;
     float cameraFar = cameraZ * 2.0f;
     setProjection(get2DOrtho(-width()/2, width()/2, -height()/2, height()/2, cameraNear, cameraFar));
-    pushMatrix();
-    setMatrix(get2DModelView());
+    pushModelView();
+    setModelView(get2DModelView());
     
     /**
 		pushProjection();
@@ -50,7 +50,7 @@ public abstract class ProjectionRenderer extends Renderer implements Constants {
 	@Override
 	public void endScreenDrawing() {
 		popProjection();  
-		popMatrix();
+		popModelView();
 	}
 	
 	protected Mat get2DOrtho(float left, float right, float bottom, float top, float near, float far) {

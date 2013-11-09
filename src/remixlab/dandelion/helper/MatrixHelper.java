@@ -7,16 +7,26 @@
  * scenes, released under the terms of the GNU Public License v3.0
  * which is available at http://www.gnu.org/licenses/gpl.html
  ******************************************************************************/
-package remixlab.dandelion.renderer;
+package remixlab.dandelion.helper;
 
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 
-public abstract class Renderer implements Renderable, Constants {
+public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	protected AbstractScene scene;
 	
-	public Renderer(AbstractScene scn) {
+	public MatrixHelper(AbstractScene scn) {
 		scene = scn;
+	}
+	
+	@Override
+	public void initProjection() {
+		
+	}
+
+	@Override
+	public void initModelView() {
+		
 	}
 	
 	@Override
@@ -41,10 +51,10 @@ public abstract class Renderer implements Renderable, Constants {
   }
 	
 	@Override
-	public void bindMatrices() {
-		scene.viewport().computeProjectionMatrix();
-		scene.viewport().computeViewMatrix();
-		scene.viewport().projectionTimesView();
+	public void bind() {
+		scene.viewport().computeProjection();
+		scene.viewport().computeView();
+		scene.viewport().updateProjectionView();
 
 		Vec pos = scene.viewport().position();
 		Orientable quat = scene.viewport().frame().orientation();
@@ -76,7 +86,7 @@ public abstract class Renderer implements Renderable, Constants {
 		Vec pos = scene.viewport().position();
 		Orientable quat = scene.viewport().frame().orientation();		
 		
-		pushMatrix();
+		pushModelView();
 		
 		if( scene.is2D() ) {
 		  translate(pos.x(), pos.y());
@@ -100,14 +110,6 @@ public abstract class Renderer implements Renderable, Constants {
 	
 	@Override
 	public void endScreenDrawing() {
-		popMatrix();
-	}
-	
-	protected void setProjectionMatrix() {
-		AbstractScene.showMissingImplementationWarning("setProjectionMatrix");
-	}
-	
-	protected void setModelViewMatrix() {
-		AbstractScene.showMissingImplementationWarning("setModelViewMatrix");
+		popModelView();
 	}
 }
