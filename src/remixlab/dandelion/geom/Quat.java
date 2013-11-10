@@ -796,6 +796,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 * @param threeXthree
 	 *          the 3*3 matrix of float values
 	 */
+	/**
 	@Override
 	public final void fromRotationMatrix(float threeXthree[][]) {
 		// Compute one plus the trace of the matrix
@@ -832,6 +833,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 		}
 		normalize();
 	}
+	*/
 
 	/**
 	 * Set the Quaternion from a (supposedly correct) 3x3 rotation matrix given in
@@ -841,14 +843,10 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 */
 	@Override
 	public final void fromMatrix(Mat glMatrix) {
-		//float [][] mat = new float [4][4];
-		float [][] threeXthree = new float [3][3];
-	  
- 	  for (int i=0; i<3; ++i)
- 	    for (int j=0; j<3; ++j)
- 	    	threeXthree[i][j] = glMatrix.mat[i*4+j];
- 	  
-		fromRotationMatrix(threeXthree);
+		Vec x = new Vec( glMatrix.mat[0], glMatrix.mat[4], glMatrix.mat[8] );
+		Vec y = new Vec( glMatrix.mat[1], glMatrix.mat[5], glMatrix.mat[9] );
+		Vec z = new Vec( glMatrix.mat[2], glMatrix.mat[6], glMatrix.mat[10] );
+		fromRotatedBasis(x,y,z);
 	}
 
 	/**
@@ -869,18 +867,56 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 * 
 	 */
 	public final void fromRotatedBasis(Vec X, Vec Y, Vec Z) {
-		float m[][] = new float[3][3];
+		float threeXthree[][] = new float[3][3];
 		float normX = X.mag();
 		float normY = Y.mag();
 		float normZ = Z.mag();
 
 		for (int i = 0; i < 3; ++i) {
-			m[i][0] = X.vec[i] / normX;
-			m[i][1] = Y.vec[i] / normY;
-			m[i][2] = Z.vec[i] / normZ;
+			threeXthree[i][0] = X.vec[i] / normX;
+			threeXthree[i][1] = Y.vec[i] / normY;
+			threeXthree[i][2] = Z.vec[i] / normZ;
 		}
 
-		fromRotationMatrix(m);
+		//Here it comes: fromRotationMatrix(threeXthree):
+	  // Compute one plus the trace of the matrix
+		float onePlusTrace = 1.0f + threeXthree[0][0] + threeXthree[1][1]
+				+ threeXthree[2][2];
+
+		if (Util.nonZero(onePlusTrace) && onePlusTrace > 0) {
+			// Direct computation
+			float s = (float) Math.sqrt(onePlusTrace) * 2.0f;
+			this.quat[0] = (threeXthree[2][1] - threeXthree[1][2]) / s;
+			this.quat[1] = (threeXthree[0][2] - threeXthree[2][0]) / s;
+			this.quat[2] = (threeXthree[1][0] - threeXthree[0][1]) / s;
+			this.quat[3] = 0.25f * s;
+		} else {
+			// Computation depends on major diagonal term
+			if ((threeXthree[0][0] > threeXthree[1][1])
+					& (threeXthree[0][0] > threeXthree[2][2])) {
+				float s = (float) Math.sqrt(1.0f + threeXthree[0][0]
+						- threeXthree[1][1] - threeXthree[2][2]) * 2.0f;
+				this.quat[0] = 0.25f * s;
+				this.quat[1] = (threeXthree[0][1] + threeXthree[1][0]) / s;
+				this.quat[2] = (threeXthree[0][2] + threeXthree[2][0]) / s;
+				this.quat[3] = (threeXthree[1][2] - threeXthree[2][1]) / s;
+			} else if (threeXthree[1][1] > threeXthree[2][2]) {
+				float s = (float) Math.sqrt(1.0f + threeXthree[1][1]
+						- threeXthree[0][0] - threeXthree[2][2]) * 2.0f;
+				this.quat[0] = (threeXthree[0][1] + threeXthree[1][0]) / s;
+				this.quat[1] = 0.25f * s;
+				this.quat[2] = (threeXthree[1][2] + threeXthree[2][1]) / s;
+				this.quat[3] = (threeXthree[0][2] - threeXthree[2][0]) / s;
+			} else {
+				float s = (float) Math.sqrt(1.0f + threeXthree[2][2]
+						- threeXthree[0][0] - threeXthree[1][1]) * 2.0f;
+				this.quat[0] = (threeXthree[0][2] + threeXthree[2][0]) / s;
+				this.quat[1] = (threeXthree[1][2] + threeXthree[2][1]) / s;
+				this.quat[2] = 0.25f * s;
+				this.quat[3] = (threeXthree[0][1] - threeXthree[1][0]) / s;
+			}
+		}
+		normalize();
 	}  
 	/**
 	 * Returns the normalized axis direction of the rotation represented by the

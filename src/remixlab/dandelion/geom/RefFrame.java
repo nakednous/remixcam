@@ -313,15 +313,17 @@ public class RefFrame implements Copyable, Constants {
 			return false;
 		}
 		
-		public void fromRotationMatrix(float m[][]) {
-		  rotation().fromRotationMatrix(m);
+		public void fromRotatedBasis(Vec x, Vec y, Vec z) {
+		  rotation().fromRotatedBasis(x,y,z);
 		  modified();
 		}
 		
+		/**
 		public void fromMatrix(Mat m) {
 		  rotation().fromMatrix(m);
 		  modified();
 		}
+		*/
 	}
 	
 	/**
@@ -2168,7 +2170,6 @@ public class RefFrame implements Copyable, Constants {
 			return;
 		}
 
-		// /**
 		kernel().translation().vec[0] = pM.mat[12] / pM.mat[15];
 		kernel().translation().vec[1] = pM.mat[13] / pM.mat[15];
 		kernel().translation().vec[2] = pM.mat[14] / pM.mat[15];
@@ -2184,19 +2185,8 @@ public class RefFrame implements Copyable, Constants {
 		r[2][0] = pM.mat[2] / pM.mat[15];
 		r[2][1] = pM.mat[6] / pM.mat[15];
 		r[2][2] = pM.mat[10] / pM.mat[15];
-		// */
-		
-		/**
-		float [][] m = new float[4][4];
-		pM.get(m);
-		float [][] rot = new float[3][3];
-	  for (int i=0; i<3; ++i) {
-	  	kernel().translation().vec[i] = m[3][i] / m[3][3];
-	  	for (int j=0; j<3; ++j)
-	  	  // Beware of the transposition (OpenGL to European math)
-	  		rot[i][j] = m[j][i] / m[3][3];
-	  }
-	  //*/
+	  
+	  //prev
 	  
 	  setScaling(scl.x(), scl.y(), scl.z());
 	  Vec s = scaling();
@@ -2217,7 +2207,11 @@ public class RefFrame implements Copyable, Constants {
 	  	}
 	  }
 	  
-	  kernel().fromRotationMatrix(r);
+	  Vec x = new Vec(r[0][0], r[1][0], r[2][0]);
+	  Vec y = new Vec(r[0][1], r[1][1], r[2][1]);
+	  Vec z = new Vec(r[0][2], r[1][2], r[2][2]);
+	  
+	  kernel().fromRotatedBasis(x,y,z);
 	}
 
 	/**

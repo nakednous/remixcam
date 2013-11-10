@@ -149,10 +149,11 @@ public class Rot implements Constants, Orientable {
 	}
 
 	@Override
-	public void fromRotationMatrix(float[][] m) {
+	//TODO needs testing
+	public void fromRotatedBasis(Vec X, Vec Y, Vec Z) {
 		//"If both sine and cosine of the angle are already known, ATAN2(sin, cos) gives the angle"
 		//http://www.firebirdsql.org/refdocs/langrefupd21-intfunc-atan2.html
-		angle = (float)Math.atan2(m[1][0], m[0][0]);
+		angle = (float)Math.atan2(X.vec[1], X.vec[0]);
 	}
 	
 	@Override

@@ -19,14 +19,11 @@ public interface Orientable extends Copyable {
 	public void compose(Orientable o);
 	public Orientable inverse();
 	public Vec rotate(Vec v);
-	public Vec inverseRotate(Vec v);	
-	//public float[][] rotationMatrix();
-	//public float[][] inverseRotationMatrix();
+	public Vec inverseRotate(Vec v);
 	public Mat matrix();
 	public Mat inverseMatrix();
 	public void fromMatrix(Mat glMatrix);
-	//TODO define properly the meaning of [][] here
-	public void fromRotationMatrix(float[][] m);
+	public void fromRotatedBasis(Vec X, Vec Y, Vec Z);
 	public float normalize();
 	public void fromTo(Vec from, Vec to);
 	public void print();
