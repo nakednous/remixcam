@@ -317,6 +317,11 @@ public class RefFrame implements Copyable, Constants {
 		  rotation().fromRotationMatrix(m);
 		  modified();
 		}
+		
+		public void fromMatrix(Mat m) {
+		  rotation().fromMatrix(m);
+		  modified();
+		}
 	}
 	
 	/**
@@ -2128,7 +2133,6 @@ public class RefFrame implements Copyable, Constants {
 			return matrix();
 	}
 	
-	//TODO test this method
 	public final void fromMatrix(Mat pM) {
 		fromMatrix(pM, new Vec(1,1,1));
 	}
@@ -2159,14 +2163,12 @@ public class RefFrame implements Copyable, Constants {
 	 * scaling in {@code m} will not be converted into the Frame by this method.
 	 */
 	public final void fromMatrix(Mat pM, Vec scl) {
-	  //TODO key! take into account scaling
-		// m should be of size [4][4]
 		if (Util.zero(pM.mat[15])) {
 			System.out.println("Doing nothing: pM.mat[15] should be non-zero!");
 			return;
 		}
 
-		/**
+		// /**
 		kernel().translation().vec[0] = pM.mat[12] / pM.mat[15];
 		kernel().translation().vec[1] = pM.mat[13] / pM.mat[15];
 		kernel().translation().vec[2] = pM.mat[14] / pM.mat[15];
@@ -2182,11 +2184,9 @@ public class RefFrame implements Copyable, Constants {
 		r[2][0] = pM.mat[2] / pM.mat[15];
 		r[2][1] = pM.mat[6] / pM.mat[15];
 		r[2][2] = pM.mat[10] / pM.mat[15];
-
-		kernel().rotation().fromRotationMatrix(r);
 		// */
 		
-		// /**
+		/**
 		float [][] m = new float[4][4];
 		pM.get(m);
 		float [][] rot = new float[3][3];
@@ -2196,25 +2196,28 @@ public class RefFrame implements Copyable, Constants {
 	  	  // Beware of the transposition (OpenGL to European math)
 	  		rot[i][j] = m[j][i] / m[3][3];
 	  }
+	  //*/
 	  
 	  setScaling(scl.x(), scl.y(), scl.z());
 	  Vec s = scaling();
 	  
 	  if( s.x()!=1 || s.y()!=1 || s.z()!=1 ) {
-	  	rot[0][0] = rot[0][0] / s.x();
-	  	rot[1][0] = rot[1][0] / s.x();
-	  	rot[2][0] = rot[2][0] / s.x();
+	  	r[0][0] = r[0][0] / s.x();
+	  	r[1][0] = r[1][0] / s.x();
+	  	r[2][0] = r[2][0] / s.x();
 	  	
-	  	rot[0][1] = rot[0][1] / s.y();
-	  	rot[1][1] = rot[1][1] / s.y();
-	  	rot[2][1] = rot[2][1] / s.y();
+	  	r[0][1] = r[0][1] / s.y();
+	  	r[1][1] = r[1][1] / s.y();
+	  	r[2][1] = r[2][1] / s.y();
 	  	
-	  	rot[0][2] = rot[0][2] / s.z();
-	  	rot[1][2] = rot[1][2] / s.z();
-	  	rot[2][2] = rot[2][2] / s.z();
+	  	if(this.is3D()) {
+	  		r[0][2] = r[0][2] / s.z();
+	  		r[1][2] = r[1][2] / s.z();
+	  		r[2][2] = r[2][2] / s.z();
+	  	}
 	  }
 	  
-	  kernel().fromRotationMatrix(rot);
+	  kernel().fromRotationMatrix(r);
 	}
 
 	/**

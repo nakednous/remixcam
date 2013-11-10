@@ -793,41 +793,41 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 * the three axis of a rotated frame. It actually fills the three columns of a
 	 * matrix with these rotated basis vectors and calls this method.
 	 * 
-	 * @param m
+	 * @param threeXthree
 	 *          the 3*3 matrix of float values
 	 */
 	@Override
-	public final void fromRotationMatrix(float m[][]) {
+	public final void fromRotationMatrix(float threeXthree[][]) {
 		// Compute one plus the trace of the matrix
-		float onePlusTrace = 1.0f + m[0][0] + m[1][1] + m[2][2];
+		float onePlusTrace = 1.0f + threeXthree[0][0] + threeXthree[1][1] + threeXthree[2][2];
 
 		if (Util.nonZero(onePlusTrace) && onePlusTrace>0) {
 			// Direct computation
 			float s = (float) Math.sqrt(onePlusTrace) * 2.0f;
-			this.quat[0] = (m[2][1] - m[1][2]) / s;
-			this.quat[1] = (m[0][2] - m[2][0]) / s;
-			this.quat[2] = (m[1][0] - m[0][1]) / s;
+			this.quat[0] = (threeXthree[2][1] - threeXthree[1][2]) / s;
+			this.quat[1] = (threeXthree[0][2] - threeXthree[2][0]) / s;
+			this.quat[2] = (threeXthree[1][0] - threeXthree[0][1]) / s;
 			this.quat[3] = 0.25f * s;
 		} else {
 			// Computation depends on major diagonal term
-			if ((m[0][0] > m[1][1]) & (m[0][0] > m[2][2])) {
-				float s = (float) Math.sqrt(1.0f + m[0][0] - m[1][1] - m[2][2]) * 2.0f;
+			if ((threeXthree[0][0] > threeXthree[1][1]) & (threeXthree[0][0] > threeXthree[2][2])) {
+				float s = (float) Math.sqrt(1.0f + threeXthree[0][0] - threeXthree[1][1] - threeXthree[2][2]) * 2.0f;
 				this.quat[0] = 0.25f * s;
-				this.quat[1] = (m[0][1] + m[1][0]) / s;
-				this.quat[2] = (m[0][2] + m[2][0]) / s;
-				this.quat[3] = (m[1][2] - m[2][1]) / s;
-			} else if (m[1][1] > m[2][2]) {
-				float s = (float) Math.sqrt(1.0f + m[1][1] - m[0][0] - m[2][2]) * 2.0f;
-				this.quat[0] = (m[0][1] + m[1][0]) / s;
+				this.quat[1] = (threeXthree[0][1] + threeXthree[1][0]) / s;
+				this.quat[2] = (threeXthree[0][2] + threeXthree[2][0]) / s;
+				this.quat[3] = (threeXthree[1][2] - threeXthree[2][1]) / s;
+			} else if (threeXthree[1][1] > threeXthree[2][2]) {
+				float s = (float) Math.sqrt(1.0f + threeXthree[1][1] - threeXthree[0][0] - threeXthree[2][2]) * 2.0f;
+				this.quat[0] = (threeXthree[0][1] + threeXthree[1][0]) / s;
 				this.quat[1] = 0.25f * s;
-				this.quat[2] = (m[1][2] + m[2][1]) / s;
-				this.quat[3] = (m[0][2] - m[2][0]) / s;
+				this.quat[2] = (threeXthree[1][2] + threeXthree[2][1]) / s;
+				this.quat[3] = (threeXthree[0][2] - threeXthree[2][0]) / s;
 			} else {
-				float s = (float) Math.sqrt(1.0f + m[2][2] - m[0][0] - m[1][1]) * 2.0f;
-				this.quat[0] = (m[0][2] + m[2][0]) / s;
-				this.quat[1] = (m[1][2] + m[2][1]) / s;
+				float s = (float) Math.sqrt(1.0f + threeXthree[2][2] - threeXthree[0][0] - threeXthree[1][1]) * 2.0f;
+				this.quat[0] = (threeXthree[0][2] + threeXthree[2][0]) / s;
+				this.quat[1] = (threeXthree[1][2] + threeXthree[2][1]) / s;
 				this.quat[2] = 0.25f * s;
-				this.quat[3] = (m[0][1] - m[1][0]) / s;
+				this.quat[3] = (threeXthree[0][1] - threeXthree[1][0]) / s;
 			}
 		}
 		normalize();
@@ -841,21 +841,13 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 */
 	@Override
 	public final void fromMatrix(Mat glMatrix) {
-		float [][] mat = new float [4][4];
+		//float [][] mat = new float [4][4];
 		float [][] threeXthree = new float [3][3];
-		
-		//TODO test: why get is not transposed?
-		glMatrix.get(mat);
-		for (int i=0; i<3; ++i)
-	    for (int j=0; j<3; ++j)
-	      threeXthree[i][j] = mat[i][j];
 	  
-		/**
  	  for (int i=0; i<3; ++i)
  	    for (int j=0; j<3; ++j)
  	    	threeXthree[i][j] = glMatrix.mat[i*4+j];
- 	  */
-		
+ 	  
 		fromRotationMatrix(threeXthree);
 	}
 
@@ -945,6 +937,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 * @see #inverseRotationMatrix()
 	 * 
 	 */
+	/**
 	@Override
 	public final float[][] rotationMatrix() {
 		float [][] mat = new float [4][4];
@@ -955,6 +948,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 	      result[i][j] = mat[i][j];
 	  return result;
 	}
+	*/
 
 	/**
 	 * Returns the Matrix3D (processing matrix) which represents the rotation
@@ -1023,6 +1017,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 * <p>
 	 * <b>Attention:</b> This is the classical mathematical rotation matrix.
 	 */
+	/**
 	@Override
 	public final float[][] inverseRotationMatrix() {
 		float [][] mat = new float [4][4];
@@ -1034,6 +1029,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 		
 	  return result;
 	}
+	*/
 
 	/**
 	 * Returns the logarithm of the Quaternion.

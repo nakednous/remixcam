@@ -95,6 +95,7 @@ public class Rot implements Constants, Orientable {
 		return new Vec( ((v.x()*cosB) - (v.y()*sinB)), ((v.x()*sinB) + (v.y()*cosB)));
 	}
 
+	/**
 	@Override
 	public float[][] rotationMatrix() {
 		float [][] mat = new float [4][4];
@@ -116,6 +117,7 @@ public class Rot implements Constants, Orientable {
 	      result[i][j] = mat[i][j];		
 	  return result;
 	}
+	*/
 
 	@Override
 	public Mat matrix() {
