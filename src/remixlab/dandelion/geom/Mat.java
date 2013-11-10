@@ -267,6 +267,7 @@ public class Mat implements Primitivable {
   /**
    * target [column] [row] 
    */
+  //TODO this seems broken!
   public float[][] get(float[][] target) {  	
   	if (target == null || (target.length == 0))
 			target = new float[4][4];
@@ -282,6 +283,7 @@ public class Mat implements Primitivable {
   /**
    * rowMajor [row] [column] 
    */
+  //TODO and thus this too!
   public float[][] getTransposed(float[][] rowMajor) {
   	if (rowMajor == null || (rowMajor.length == 0))
 			rowMajor = new float[4][4];
@@ -338,6 +340,7 @@ public class Mat implements Primitivable {
   /**
    * source [column] [row] 
    */
+  //TODO seems wrong too
   public void set(float[][] source) { 	
   	if( (source.length == 4) && (source[0].length == 4) ) {
   		int count = 0;

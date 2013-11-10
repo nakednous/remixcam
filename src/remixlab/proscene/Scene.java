@@ -1586,18 +1586,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public Mat getProjection() {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.getProjection");
-			return null;
-		}
-
-		@Override
-		public Mat getProjection(Mat target) {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.getProjection");
-			return null;
-		}
-
-		@Override
 		public void setProjection(Mat source) {
 			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.setProjection");
 		}
@@ -1615,12 +1603,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 	protected class P5GLMatrixHelper extends PlugableMatrixHelper {
 		PGraphicsOpenGL pg;
-		Mat proj;
 		
 		public P5GLMatrixHelper(Scene scn, PGraphicsOpenGL renderer) {
 			super(scn);
 			pg = renderer;
-			proj = new Mat();
 		}
 		
 		public PGraphicsOpenGL pggl() {
@@ -1779,7 +1765,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void loadProjection() {
-			proj = scene.viewport().getProjection(true);
+			Mat proj = scene.viewport().getProjection(true);
 			pggl().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
 		                                      proj.mat[1],  proj.mat[5], proj.mat[9],  proj.mat[13],
 		                                      proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
@@ -1788,9 +1774,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void loadModelView() {
-			pggl().modelview.set(scene.viewport().getView(true).getTransposed(new float[16]));	
-			scene.viewport().updateProjectionView();
-			pggl().projmodelview.set(scene.viewport().getProjectionView().getTransposed(new float[16]));
+			pggl().modelview.set(scene.viewport().getView(true).getTransposed(new float[16]));
+			pggl().projmodelview.set(Mat.mult(scene.viewport().getProjection(false),scene.viewport().getView(false)).getTransposed(new float[16]));
 		}
 		
 		@Override
@@ -2729,19 +2714,4 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		point = camera().unprojectedCoordinatesOf(point);
 		return camera().new WorldPoint(point, (depth[0] < 1.0f));
 	}	
-	
-	/**
-	//hack to make grabbers properly work
-	public void mouseEvent(processing.event.MouseEvent e) {
-		if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
-			for (Grabbable mg : deviceGrabberPool()) {
-				if(mg instanceof InteractiveFrame)
-					((InteractiveFrame)mg).keepsGrabbingCursor = false;
-				else
-					if(mg instanceof Grabber)
-					((Grabber)mg).keepsGrabbingCursor = false;
-			}			
-		}
-	}
-	*/
 }

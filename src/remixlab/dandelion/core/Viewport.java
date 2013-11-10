@@ -25,7 +25,7 @@ public abstract class Viewport implements Copyable {
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
     append(fpCoefficientsUpdate).
-    append(unprojectCacheOptimized).
+    //append(unprojectCacheOptimized).
     append(lastFrameUpdate).
     append(lastFPCoeficientsUpdateIssued).
     //append(zClippingCoef).
@@ -67,7 +67,7 @@ public abstract class Viewport implements Copyable {
 		Viewport other = (Viewport) obj;		
 	  return new EqualsBuilder()
     .append(fpCoefficientsUpdate, other.fpCoefficientsUpdate)
-    .append(unprojectCacheOptimized, other.unprojectCacheOptimized)
+    //.append(unprojectCacheOptimized, other.unprojectCacheOptimized)
     .append(lastFrameUpdate, other.lastFrameUpdate)
     .append(lastFPCoeficientsUpdateIssued, other.lastFPCoeficientsUpdateIssued)
     //.append(zClippingCoef, other.zClippingCoef)
@@ -126,11 +126,6 @@ public abstract class Viewport implements Copyable {
 	
 	protected Mat viewMat;
 	protected Mat projectionMat;
-	protected Mat projectionViewMat;
-	
-	protected Mat projectionViewInverseMat;	
-	protected boolean unprojectCacheOptimized;
-	protected boolean projectionViewMatHasInverse;
 	
   //P o i n t s o f V i e w s a n d K e y F r a m e s
 	protected HashMap<Integer, KeyFrameInterpolator> kfi;
@@ -154,7 +149,7 @@ public abstract class Viewport implements Copyable {
 	public Viewport(AbstractScene scn) {
 		scene = scn;
 		
-		optimizeUnprojectCache(false);
+		//optimizeUnprojectCache(false);
 		enableFrustumEquationsUpdate(false);	
 		
 		// /**
@@ -186,7 +181,7 @@ public abstract class Viewport implements Copyable {
 		projectionMat = new Mat();
 		projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		//computeProjectionMatrix();
-		projectionViewMat = new Mat();
+		//projectionViewMat = new Mat();
 		// */
 	}
 	
@@ -199,7 +194,7 @@ public abstract class Viewport implements Copyable {
 		this.scene = oVP.scene;
 		
 		//this.orthoSize = oVP.orthoSize;
-		this.unprojectCacheOptimized = oVP.unprojectCacheOptimized;
+		//this.unprojectCacheOptimized = oVP.unprojectCacheOptimized;
 		this.fpCoefficientsUpdate = oVP.fpCoefficientsUpdate;
 		
 		if(scene.is2D()) {
@@ -230,7 +225,7 @@ public abstract class Viewport implements Copyable {
 		this.setScreenWidthAndHeight(oVP.screenWidth(), oVP.screenHeight());		
 		this.viewMat = new Mat(oVP.viewMat);
 		this.projectionMat = new Mat(oVP.projectionMat);
-		this.projectionViewMat = new Mat(oVP.projectionViewMat);
+		//this.projectionViewMat = new Mat(oVP.projectionViewMat);
 	}
 
 	// /**
@@ -886,9 +881,11 @@ public abstract class Viewport implements Copyable {
 	 * @see #setView(float[], boolean)
 	 * @see #setView(Mat, boolean)
 	 */
+	/**
 	public void setView(Mat view) {
 			viewMat.set(view);
 	}
+	*/
 	
 	/**
 	 * Convenience function that simply calls {@code setViewMatrix(source, false)}.
@@ -899,9 +896,11 @@ public abstract class Viewport implements Copyable {
 	 * @see #setView(Mat, boolean)
 	 * @see #setView(Mat)
 	 */
+	/**
 	public void setView(float [] source) {
 		setView(source, false);
 	}
+	*/
 	
 	/**
 	 * Fills the view matrix with the {@code source} matrix values
@@ -913,65 +912,63 @@ public abstract class Viewport implements Copyable {
 	 * @see #setView(Mat, boolean)
 	 * @see #setView(Mat)
 	 */
+	/**
 	public void setView(float [] source, boolean transpose) {
 		if(transpose)
 			viewMat.setTransposed(source);
 		else
 			viewMat.set(source);
-	}	
+	}
+	*/
 	
-	public void setProjectionView(Mat projviewMat) {
-		projectionViewMat.set(projviewMat);
-}
-	
-	public void setProjectionView(float [] source) {
-		setProjectionView(source, false);
+	public void fromView(Mat mv) {
+		fromView(mv, true);
 	}
 	
-	public void setProjectionView(float [] source, boolean transpose) {
-		if(transpose)
-			projectionViewMat.setTransposed(source);
-		else
-			projectionViewMat.set(source);
-	}
-	
-	public Mat getProjectionView() {
-		return getProjectionView(new Mat());
-	}
-	
-	public Mat getProjectionView(Mat m) {
-		if (m == null)
-			m = new Mat();
-		m.set(projectionViewMat);
-		return m;
-	}
-	
-	public void updateProjectionView() {
-		Mat.mult(projectionMat, viewMat, projectionViewMat);		 
-	}
+	public abstract void fromView(Mat mv, boolean recompute);
 	
 	/**
-	 * Cache {@code (P x M)} and {@code inv (P x M)} under the following circumstances:
-	 * <p>
-	 * i) If {@code scene.mouseGrabberPool().size() > 3 && scene.hasMouseTracking()} then
-	 * {@code (P x M)} is cached so that
-	 * {@code project(float, float, float, Matrix3D, Matrix3D, int[], float[])} 
-	 * is speeded up.
-	 * <p>
-	 * ii) If {@code #unprojectCacheIsOptimized()} {@code inv (P x M)} is cached (and hence
-	 * {@code (P x M)} is cached too) so that {@code unproject(float, float, float, Matrix3D, Matrix3D, int[], float[])}
-	 * is speeded up.
-	 * 
-	 * @see #unprojectCacheIsOptimized()
-	 * @see #optimizeUnprojectCache(boolean)
-	 */
-	public void cacheProjectionViewInverse() {		
-		if(unprojectCacheIsOptimized()) {
-			if(projectionViewInverseMat == null)
-				projectionViewInverseMat = new Mat();
-			projectionViewMatHasInverse = projectionViewMat.invert(projectionViewInverseMat);
-		}
+	public void fromProjection(Mat proj) {
+		fromProjection(proj, true);
 	}
+	
+	public abstract void fromProjection(Mat proj, boolean recompute);
+	*/
+	
+  //TODO implement these two:
+	/*! Sets the Camera's position() and orientation() from an OpenGL ModelView matrix.
+
+	This enables a Camera initialisation from an other OpenGL application. \p modelView is a 16 GLdouble
+	vector representing a valid OpenGL ModelView matrix, such as one can get using:
+	\code
+	GLdouble mvm[16];
+	glGetDoublev(GL_MODELVIEW_MATRIX, mvm);
+	myCamera->setFromModelViewMatrix(mvm);
+	\endcode
+
+	After this method has been called, getModelViewMatrix() returns a matrix equivalent to \p
+	modelView.
+
+	Only the orientation() and position() of the Camera are modified.
+
+	\note If you defined your matrix as \c GLdouble \c mvm[4][4], pass \c &(mvm[0][0]) as a
+	parameter. */
+	/**
+	public void setFromModelViewMatrix(Mat modelViewMatrix)	{
+	  // Get upper left (rotation) matrix
+	  double upperLeft[3][3];
+	  for (int i=0; i<3; ++i)
+	    for (int j=0; j<3; ++j)
+	      upperLeft[i][j] = modelViewMatrix[i*4+j];
+
+	  // Transform upperLeft into the associated Quaternion
+	  Quat q;
+	  q.setFromRotationMatrix(upperLeft);
+
+	  setOrientation(q);
+	  setPosition(-q.rotate(Vec(modelViewMatrix[12], modelViewMatrix[13], modelViewMatrix[14])));
+	}
+	// */
 	
 	/**
 	 * Convenience function that simply returns {@code projectedCoordinatesOf(src,
@@ -980,7 +977,11 @@ public abstract class Viewport implements Copyable {
 	 * @see #projectedCoordinatesOf(Vec, RefFrame)
 	 */
 	public final Vec projectedCoordinatesOf(Vec src) {
-		return projectedCoordinatesOf(src, null);
+		return projectedCoordinatesOf(null, src, null);
+	}
+	
+	public final Vec projectedCoordinatesOf(Mat projview, Vec src) {
+		return projectedCoordinatesOf(projview, src, null);
 	}
 
 	/**
@@ -1004,15 +1005,17 @@ public abstract class Viewport implements Copyable {
 	 * @see #unprojectedCoordinatesOf(Vec, RefFrame)
 	 */
 	public final Vec projectedCoordinatesOf(Vec src, RefFrame frame) {
+		return projectedCoordinatesOf(null, src, frame);
+	}
+	
+	public final Vec projectedCoordinatesOf(Mat projview, Vec src, RefFrame frame) {
 		float xyz[] = new float[3];		
 
 		if (frame != null) {
 			Vec tmp = frame.inverseCoordinatesOf(src);
-			//project(tmp.vec[0], tmp.vec[1], tmp.vec[2], viewMat, projectionMat, getViewport(), xyz);
-			project(tmp.vec[0], tmp.vec[1], tmp.vec[2], xyz);
+			project(projview, tmp.vec[0], tmp.vec[1], tmp.vec[2], xyz);
 		} else
-			project(src.vec[0], src.vec[1], src.vec[2], xyz);	
-			//project(src.vec[0], src.vec[1], src.vec[2], viewMat, projectionMat, getViewport(), xyz);
+			project(projview, src.vec[0], src.vec[1], src.vec[2], xyz);	
 
 		return new Vec(xyz[0], xyz[1], xyz[2]);
 	}
@@ -1024,7 +1027,11 @@ public abstract class Viewport implements Copyable {
 	 * #see {@link #unprojectedCoordinatesOf(Vec, RefFrame)}
 	 */
 	public final Vec unprojectedCoordinatesOf(Vec src) {
-		return this.unprojectedCoordinatesOf(src, null);
+		return this.unprojectedCoordinatesOf(null, src, null);
+	}
+	
+	public final Vec unprojectedCoordinatesOf(Mat projviewInv, Vec src) {
+		return this.unprojectedCoordinatesOf(projviewInv, src, null);
 	}
 
 	/**
@@ -1064,9 +1071,13 @@ public abstract class Viewport implements Copyable {
 	 * @see #setScreenWidthAndHeight(int, int)
 	 */
 	public final Vec unprojectedCoordinatesOf(Vec src, RefFrame frame) {
+		return unprojectedCoordinatesOf(null, src, frame);
+	}
+	
+	public final Vec unprojectedCoordinatesOf(Mat projviewInv, Vec src, RefFrame frame) {
 		float xyz[] = new float[3];				
 		//unproject(src.vec[0], src.vec[1], src.vec[2], this.getViewMatrix(true), this.getProjectionMatrix(true), getViewport(), xyz);		
-		unproject(src.vec[0], src.vec[1], src.vec[2], xyz);		
+		unproject(projviewInv, src.vec[0], src.vec[1], src.vec[2], xyz);		
 		if (frame != null)
 			return frame.coordinatesOf(new Vec(xyz[0], xyz[1], xyz[2]));
 		else
@@ -1126,46 +1137,20 @@ public abstract class Viewport implements Copyable {
 	 *          Return the computed window coordinates.
 	 */
 	
-	// /**
-	public boolean project(float objx, float objy, float objz, Mat view,
-			                   Mat projection, int[] vp, float[] windowCoordinate) {		
-  	//TODO currently broken, perhaps it shoudl be just removed
-		
-		float in[] = new float[4];
-		float out[] = new float[4];
-		
-		in[0] = objx;
-		in[1] = objy;
-		in[2] = objz;
-		in[3] = 1.0f;
-		
-		view.mult(in, out);
-		projection.mult(out, in);
-		
-		if (in[3] == 0.0)
-			return false;
-		
-		in[0] /= in[3];
-		in[1] /= in[3];
-		in[2] /= in[3];
-		
-		// Map x, y and z to range 0-1
-		in[0] = in[0] * 0.5f + 0.5f;
-		in[1] = in[1] * 0.5f + 0.5f;
-		in[2] = in[2] * 0.5f + 0.5f;
-		
-		// Map x,y to viewport
-		in[0] = in[0] * vp[2] + vp[0];
-		in[1] = in[1] * vp[3] + vp[1];
-		
-		windowCoordinate[0] = in[0];
-		windowCoordinate[1] = in[1];
-		windowCoordinate[2] = in[2];
-		return true;
-	}
-	// */
 	
-	public boolean project(float objx, float objy, float objz, float[] windowCoordinate) {			
+	public boolean project(float objx, float objy, float objz, float[] windowCoordinate) {
+		//return project(Mat.mult(projectionMat, viewMat), objx, objy, objz, windowCoordinate);
+		return project(null, objx, objy, objz, windowCoordinate);
+	}
+	
+	//cached version
+	public boolean project(Mat projectionViewMat, float objx, float objy, float objz, float[] windowCoordinate) {
+		//TODO still to be decided, but thinking we should go without projStack
+		if(projectionViewMat == null)
+			//projectionViewMat = Mat.mult(projectionMat, viewMat);
+			// since it may be a projection stack in use, we want its head:
+			projectionViewMat = Mat.mult(scene.matrixHelper().getProjection(), viewMat);
+		
 		float in[] = new float[4];
 		float out[] = new float[4];
 		
@@ -1204,30 +1189,10 @@ public abstract class Viewport implements Copyable {
 		return true;
 	}
 	
-	/**
-	 * Returns {@code true} if {@code P x M} and {@code inv (P x M)} are being cached,
-	 * and {@code false} otherwise.
-	 * 
-	 * @see #cacheProjectionViewInverse()
-	 * @see #optimizeUnprojectCache(boolean)
-	 */
-	public boolean unprojectCacheIsOptimized() {
-		return unprojectCacheOptimized;
+	public boolean unproject(float winx, float winy, float winz, float[] objCoordinate) {
+		return unproject(null, winx, winy, winz, objCoordinate);
 	}
 	
-	/**
-	 * Cache {@code inv (P x M)} (and also {@code (P x M)} ) so that
-	 * {@code project(float, float, float, Matrx3D, Matrx3D, int[], float[])}
-	 * (and also {@code unproject(float, float, float, Matrx3D, Matrx3D, int[], float[])})
-	 * is optimised.
-	 * 
-	 * @see #unprojectCacheIsOptimized()
-	 * @see #cacheProjectionViewInverse()
-	 */
-	public void optimizeUnprojectCache(boolean optimise) {
-		unprojectCacheOptimized = optimise;
-	}	
-
 	/**
 	 * Similar to {@code gluUnProject}: map window coordinates to object
 	 * coordinates.
@@ -1246,64 +1211,21 @@ public abstract class Viewport implements Copyable {
 	 *          Specifies the current viewport.
 	 * @param objCoordinate
 	 *          Return the computed object coordinates.
-	 */
-	// /**
-	public boolean unproject(float winx, float winy, float winz, Mat view,
-			                     Mat projection, int vp[], float[] objCoordinate) {
-		
-		//TODO currently broken, perhaps it shoudl be just removed
-		
-		Mat projectionTimesView = new Mat();		
-		Mat.mult(projection, view, projectionTimesView);
-		Mat projectionTimesViewInverse = new Mat();
-		boolean hasInverse = projectionTimesView.invert(projectionTimesViewInverse);
-
-		if (!hasInverse)
-			return false;
-		
-		float in[] = new float[4];
-		float out[] = new float[4];
-
-		in[0] = winx;
-		in[1] = winy;
-		in[2] = winz;
-		in[3] = 1.0f;
-
-		// Map x and y from window coordinates
-		in[0] = (in[0] - vp[0]) / vp[2];
-		in[1] = (in[1] - vp[1]) / vp[3];
-
-		// Map to range -1 to 1
-		in[0] = in[0] * 2 - 1;
-		in[1] = in[1] * 2 - 1;
-		in[2] = in[2] * 2 - 1;
-
-		projectionViewInverseMat.mult(in, out);
-		
-		if (out[3] == 0.0)
-			return false;
-
-		out[0] /= out[3];
-		out[1] /= out[3];
-		out[2] /= out[3];
-
-		objCoordinate[0] = out[0];
-		objCoordinate[1] = out[1];
-		objCoordinate[2] = out[2];
-
-		return true;
-	}
-	// */
-	
-	public boolean unproject(float winx, float winy, float winz, float[] objCoordinate) {		
-		if(!unprojectCacheOptimized) {
-			if(projectionViewInverseMat == null)
-				projectionViewInverseMat = new Mat();
-			projectionViewMatHasInverse = projectionViewMat.invert(projectionViewInverseMat);
+	 */	
+	//Warning projectionViewInverseMat should be invertible (not checked here)
+	//cached version
+	public boolean unproject(Mat projectionViewInverseMat, float winx, float winy, float winz, float[] objCoordinate) {
+		if(projectionViewInverseMat == null) {
+		  //TODO still to be decided, but thinking we should go without projStack
+			projectionViewInverseMat = new Mat();
+			//boolean projectionViewMatHasInverse = Mat.mult(projectionMat, viewMat).invert(projectionViewInverseMat);
+		  // since it may be a projection stack in use, we want its head:
+			boolean projectionViewMatHasInverse = Mat.mult(scene.matrixHelper().getProjection(), viewMat).invert(projectionViewInverseMat);
+			if(projectionViewMatHasInverse)
+				return unproject(projectionViewInverseMat, winx, winy, winz, objCoordinate);
+			else
+				return false;
 		}
-		
-		if (!projectionViewMatHasInverse)
-			return false;		
 		
 		updateViewPort();
 		
@@ -1789,18 +1711,4 @@ public abstract class Viewport implements Copyable {
 	}
 	
 	public abstract Vec viewDirection();
-	
-  //TODO experimental	
-	
-	public Mat projection() {
-		return projectionMat;
-	}
-	
-	public Mat view() {
-		return viewMat;
-	}
-	
-	public Mat projectionView() {
-		return projectionViewMat;
-	}
 }

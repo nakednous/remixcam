@@ -843,10 +843,18 @@ public class Quat implements Constants, Primitivable, Orientable {
 	public final void fromMatrix(Mat glMatrix) {
 		float [][] mat = new float [4][4];
 		float [][] threeXthree = new float [3][3];
-		glMatrix.getTransposed(mat);						
+		
+		//TODO test: why get is not transposed?
+		glMatrix.get(mat);
 		for (int i=0; i<3; ++i)
 	    for (int j=0; j<3; ++j)
 	      threeXthree[i][j] = mat[i][j];
+	  
+		/**
+ 	  for (int i=0; i<3; ++i)
+ 	    for (int j=0; j<3; ++j)
+ 	    	threeXthree[i][j] = glMatrix.mat[i*4+j];
+ 	  */
 		
 		fromRotationMatrix(threeXthree);
 	}

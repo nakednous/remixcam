@@ -287,9 +287,9 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 		projection.print();
 	}	
 
-	// */
-	// Needed for screen drawing should never affect camera class
-	protected void ortho(float left, float right, float bottom, float top, float near, float far) {
+	// neeed for screen drawing
+	// TODO maybe protected? (camera matrix handling is done through the camera class)
+	public void ortho(float left, float right, float bottom, float top, float near, float far) {
 		float x = +2.0f / (right - left);
 		float y = +2.0f / (top - bottom);
 		float z = -2.0f / (far - near);
@@ -305,7 +305,7 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 			projection.setTransposed(x, 0, 0, tx, 0, y, 0, ty, 0, 0, z, tz, 0, 0, 0, 1);
 	}
 	
-	/**
+	//TODO study if this should go at all (camera matrix handling is done through the camera class)
 	public void perspective(float fov, float aspect, float zNear, float zFar) {
 		float ymax = zNear * (float) Math.tan(fov / 2);
 		float ymin = -ymax;
@@ -314,7 +314,7 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 		frustum(xmin, xmax, ymin, ymax, zNear, zFar);
 	}
 	
-	// TODO where is this needed? Camera matrix handling is done through the camera class
+  //TODO study if this should go at all (camera matrix handling is done through the camera class)
 	public void frustum(float left, float right, float bottom, float top,	float znear, float zfar) {
 		// new approach: applies it, as in P5
 		float n2 = 2 * znear;
@@ -332,13 +332,12 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 					(top + bottom) / h, 0, 0, 0, -(zfar + znear) / d, -(n2 * zfar) / d,
 					0, 0, -1, 0);
 	}
-	*/
 
 	@Override
 	public void bind() {
 		loadProjection();
 		loadModelView();
-		scene.viewport().cacheProjectionViewInverse();
+		//scene.viewport().cacheProjectionViewInverse();
 	}
 
 	@Override
@@ -358,7 +357,7 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 		  setModelView(scene.viewport().getView(false));
 		else
 			resetModelView();//loads identity -> only model, (excludes view)
-		scene.viewport().updateProjectionView();
+		//scene.viewport().updateProjectionView();
 	}
 
 	// /**

@@ -2128,6 +2128,7 @@ public class RefFrame implements Copyable, Constants {
 			return matrix();
 	}
 	
+	//TODO test this method
 	public final void fromMatrix(Mat pM) {
 		fromMatrix(pM, new Vec(1,1,1));
 	}

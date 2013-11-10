@@ -44,7 +44,7 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	public void bind() {
 		scene.viewport().computeProjection();
 		scene.viewport().computeView();
-		scene.viewport().updateProjectionView();
+		//scene.viewport().updateProjectionView();
 
 		Vec pos = scene.viewport().position();
 		Orientable quat = scene.viewport().frame().orientation();
@@ -101,5 +101,18 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	@Override
 	public void endScreenDrawing() {
 		popModelView();
+	}
+	
+	@Override
+	public Mat getProjection() {
+		return scene.viewport().getProjection(false);
+	}
+
+	@Override
+	public Mat getProjection(Mat target) {
+		if (target == null)
+			target = new Mat();
+		target.set(scene.viewport().getProjection(false));
+		return target;
 	}
 }

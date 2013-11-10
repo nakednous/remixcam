@@ -81,7 +81,27 @@ public class Window extends Viewport implements Copyable {
 		projectionMat.mat[14] = -(FAKED_ZFAR + FAKED_ZNEAR) / (FAKED_ZFAR - FAKED_ZNEAR);
 		projectionMat.mat[15] = 1.0f;
 		// same as glOrtho( -w, w, -h, h, zNear(), zFar() );
-	}	
+	}
+	
+  //TODO test
+	@Override
+  public void fromView(Mat mv, boolean recompute) {
+		Rot q = new Rot();
+		q.fromMatrix(mv);
+ 	  setOrientation(q); 	  
+ 	  setPosition(Vec.mult(q.rotate(new Vec(mv.mat[12], mv.mat[13], mv.mat[14])), -1) );
+ 	  if(recompute)
+ 	  	this.computeView();
+  }
+	
+	/**
+  //TODO implement me
+	@Override
+	public void fromProjection(Mat proj, boolean recompute) {
+		if(recompute)
+ 	  	this.computeProjection();
+	}
+	*/
 	
 	@Override
 	public float[] getOrthoWidthHeight(float[] target) {
@@ -96,6 +116,7 @@ public class Window extends Viewport implements Copyable {
 		return target;
 	}
 	
+	/**
 	public void setScaling(float s) {
 		frame().setScaling(s);
 	}
@@ -107,6 +128,7 @@ public class Window extends Viewport implements Copyable {
 	public void setScaling(Vec s) {
 		frame().setScaling(s);
 	}
+	*/
 	
 	/**
 	public float scaleFactor() {
@@ -183,8 +205,8 @@ public class Window extends Viewport implements Copyable {
 	
 	public void fitCircle(Vec center, float radius) {
 	  Vec scl = frame().scaling();
-		setScaling(scl.x() > 0 ? radius / sceneRadius() : -radius / sceneRadius(),
-				       scl.y() > 0 ? radius / sceneRadius() : -radius / sceneRadius());				
+		frame().setScaling(scl.x() > 0 ? radius / sceneRadius() : -radius / sceneRadius(),
+				               scl.y() > 0 ? radius / sceneRadius() : -radius / sceneRadius());				
 		lookAt(center);
 	}
 	
@@ -215,14 +237,14 @@ public class Window extends Viewport implements Copyable {
 		
 		if(aspectRatio() < 1.0f) {
 			if( aspectRatio () < rectRatio )
-				setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
+				frame().setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
 			else
-				setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
+				frame().setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
 		} else {
 			if( aspectRatio () < rectRatio )
-				setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
+				frame().setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
 			else
-				setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
+				frame().setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
 		}
 		
 		/**
