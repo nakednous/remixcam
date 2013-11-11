@@ -1638,6 +1638,16 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   
   public abstract int height();
   
+  public Vec projectedCoordinatesOf(Vec src) {
+  	return viewport().projectedCoordinatesOf(this.matrixHelper().getProjectionView(), src);
+  }
+  
+  public Vec unprojectedCoordinatesOf(Vec src) {
+  	if( this.matrixHelper().unprojectCacheIsOptimized() )
+  		return viewport().unprojectedCoordinatesOf(this.matrixHelper().getProjectionViewInverse(), src);
+  	else
+  		return viewport().unprojectedCoordinatesOf(src);
+  }
 
   // WARNINGS and EXCEPTIONS
      

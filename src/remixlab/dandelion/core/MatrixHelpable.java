@@ -196,7 +196,17 @@ public interface MatrixHelpable {
   
   public void loadProjection();
 
-	public void loadModelView();  
+	public void loadModelView();
+
+	Mat getProjectionView();
+
+	Mat getProjectionViewInverse();
+
+	boolean unprojectCacheIsOptimized();
+
+	void cacheProjectionViewInverse();
+
+	void optimizeUnprojectCache(boolean optimise);  
   
   
   //TODO testing this two (this is all what is new in the approach: remixlab.remixcam.renderers)

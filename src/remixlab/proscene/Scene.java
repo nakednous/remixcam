@@ -1424,16 +1424,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	protected class P5Java2DMatrixHelper extends MatrixHelper {
 		PGraphics pg;
-		Mat proj;
-		
-		public P5Java2DMatrixHelper(Scene scn, PGraphics renderer, Depictable d) {
-			super(scn);
-			pg = renderer;
-		}
+		Mat proj, mv;
 		
 		public P5Java2DMatrixHelper(Scene scn, PGraphics renderer) {
 			super(scn);
 			pg = renderer;
+			proj = new Mat();
+			mv = new Mat();
 		}		
 		
 		public PGraphics pg() {
@@ -1446,8 +1443,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void bind() {
-			scene.viewport().computeProjection();
-			scene.viewport().computeView();
+			scene.viewport().getProjection(proj, true);
+			scene.viewport().getView(mv, true);
+			cacheProjectionViewInverse();
 
 			Vec pos = scene.viewport().position();
 			Orientable quat = scene.viewport().frame().orientation();
@@ -1458,6 +1456,16 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			rotate(-quat.angle());
 			translate(-pos.x(), -pos.y());
 		}
+		
+		@Override
+		public void cacheProjectionViewInverse() {
+			Mat.mult(proj, mv, projectionViewMat);
+	    if(unprojectCacheIsOptimized()) {
+	    	if(projectionViewInverseMat == null)
+	    		projectionViewInverseMat = new Mat();
+	    	projectionViewMatHasInverse = projectionViewMat.invert(projectionViewInverseMat);
+	    }
+	  }
 		
 		@Override
 		public void beginScreenDrawing() {
@@ -1508,9 +1516,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pgj2d().resetMatrix();
 		}
 		
+		//TODO seems getModelView is not working in java2d		
 		@Override
 		public Mat getModelView() {
-			return Scene.toMat((PMatrix3D) pgj2d().getMatrix());
+			return Scene.toMat(new PMatrix3D(pgj2d().getMatrix()));
 		}
 		
 		@Override
@@ -1645,7 +1654,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 	}
 
-	protected class P5GLMatrixHelper extends PlugableMatrixHelper {
+	protected class P5GLMatrixHelper extends MatrixHelper {
 		PGraphicsOpenGL pg;
 		
 		public P5GLMatrixHelper(Scene scn, PGraphicsOpenGL renderer) {
@@ -1809,7 +1818,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		@Override
 		public void setModelView(Mat source) {
 			if( is3D() )
-				pggl().setMatrix(Scene.toPMatrix(source));
+				pggl().setMatrix(Scene.toPMatrix(source));//in P5 this caches projmodelview
 			else {
 				pggl().modelview.set(Scene.toPMatrix(source));
 				pggl().projmodelview.set(Mat.mult(scene.viewport().getProjection(false), scene.viewport().getView(false)).getTransposed(new float[16]));
@@ -2387,7 +2396,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (!iF.isInCameraPath()) {
-					Vec center = viewport().projectedCoordinatesOf(iF.position());
+					Vec center = projectedCoordinatesOf(iF.position());
 					if (grabsAnAgent(mg)) {
 						pg().pushStyle();
 					  //pg3d.stroke(mouseGrabberOnSelectionHintColor());

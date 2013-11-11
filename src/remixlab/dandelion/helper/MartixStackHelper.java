@@ -15,8 +15,8 @@ import remixlab.dandelion.geom.*;
 public class MartixStackHelper extends MatrixHelper implements Constants {
 	private static final int MATRIX_STACK_DEPTH = 32;
 
-	private static final String ERROR_PUSHMATRIX_OVERFLOW = "Too many calls to pushMatrix().";
-	private static final String ERROR_PUSHMATRIX_UNDERFLOW = "Too many calls to popMatrix(), and not enough to pushMatrix().";
+	private static final String ERROR_PUSHMATRIX_OVERFLOW = "Too many calls to pushModelView().";
+	private static final String ERROR_PUSHMATRIX_UNDERFLOW = "Too many calls to popModelView(), and not enough to pushModelView().";
 
 	float[][] matrixStack = new float[MATRIX_STACK_DEPTH][16];
 	int matrixStackDepth;
@@ -333,33 +333,6 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 					0, 0, -1, 0);
 	}
 
-	@Override
-	public void bind() {
-		loadProjection();
-		loadModelView();
-		//scene.viewport().cacheProjectionViewInverse();
-	}
-
-	@Override
-	public void loadProjection() {
-		setProjection(scene.viewport().getProjection(true));
-	}
-	
-	@Override
-	public void loadModelView() {
-	  //TODO test also: initModelView(false);
-		loadModelView(true);
-	}
-
-	public void loadModelView(boolean includeView) {		
-		scene.viewport().computeView();
-		if(includeView)
-		  setModelView(scene.viewport().getView(false));
-		else
-			resetModelView();//loads identity -> only model, (excludes view)
-		//scene.viewport().updateProjectionView();
-	}
-
 	// /**
 	@Override
 	public void beginScreenDrawing() {
@@ -367,17 +340,12 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 		resetProjection();
 		// next two same as the prv three?
 		if (scene.is3D())
-			ortho(0f, width(), height(), 0.0f, 0.0f, -1.0f);
+			ortho(0f, scene.width(), scene.height(), 0.0f, 0.0f, -1.0f);
 		else {
 			// TODO implement 2D case
 		}
 		pushModelView();
 		resetModelView();
 	}
-
-	@Override
-	public void endScreenDrawing() {
-		popProjection();
-		popModelView();
-	}
+	// */
 }
