@@ -1139,17 +1139,13 @@ public abstract class Viewport implements Copyable {
 	
 	
 	public boolean project(float objx, float objy, float objz, float[] windowCoordinate) {
-		//return project(Mat.mult(projectionMat, viewMat), objx, objy, objz, windowCoordinate);
 		return project(null, objx, objy, objz, windowCoordinate);
 	}
 	
 	//cached version
 	public boolean project(Mat projectionViewMat, float objx, float objy, float objz, float[] windowCoordinate) {
-		//TODO still to be decided, but thinking we should go without projStack
 		if(projectionViewMat == null)
-			//projectionViewMat = Mat.mult(projectionMat, viewMat);
-			// since it may be a projection stack in use, we want its head:
-			projectionViewMat = Mat.mult(scene.matrixHelper().getProjection(), viewMat);
+			projectionViewMat = Mat.mult(projectionMat, viewMat);
 		
 		float in[] = new float[4];
 		float out[] = new float[4];
@@ -1216,11 +1212,8 @@ public abstract class Viewport implements Copyable {
 	//cached version
 	public boolean unproject(Mat projectionViewInverseMat, float winx, float winy, float winz, float[] objCoordinate) {
 		if(projectionViewInverseMat == null) {
-		  //TODO still to be decided, but thinking we should go without projStack
 			projectionViewInverseMat = new Mat();
-			//boolean projectionViewMatHasInverse = Mat.mult(projectionMat, viewMat).invert(projectionViewInverseMat);
-		  // since it may be a projection stack in use, we want its head:
-			boolean projectionViewMatHasInverse = Mat.mult(scene.matrixHelper().getProjection(), viewMat).invert(projectionViewInverseMat);
+			boolean projectionViewMatHasInverse = Mat.mult(projectionMat, viewMat).invert(projectionViewInverseMat);
 			if(projectionViewMatHasInverse)
 				return unproject(projectionViewInverseMat, winx, winy, winz, objCoordinate);
 			else

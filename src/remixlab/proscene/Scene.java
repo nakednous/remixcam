@@ -1444,34 +1444,80 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		  return (PGraphicsJava2D) pg();	
 		}
 		
+		@Override
+		public void bind() {
+			scene.viewport().computeProjection();
+			scene.viewport().computeView();
+
+			Vec pos = scene.viewport().position();
+			Orientable quat = scene.viewport().frame().orientation();
+
+			translate(scene.width() / 2, scene.height() / 2);
+			if(scene.isRightHanded()) scale(1,-1);
+			scale(scene.viewport().frame().inverseMagnitude().x(), scene.viewport().frame().inverseMagnitude().y());
+			rotate(-quat.angle());
+			translate(-pos.x(), -pos.y());
+		}
+		
+		@Override
+		public void beginScreenDrawing() {
+			Vec pos = scene.viewport().position();
+			Orientable quat = scene.viewport().frame().orientation();		
+			
+			pushModelView();
+			translate(pos.x(), pos.y());
+			rotate(quat.angle());	
+			scale(scene.window().frame().magnitude().x(),	scene.window().frame().magnitude().y());
+			if(scene.isRightHanded()) scale(1,-1);
+			translate(-scene.width()/2, -scene.height()/2);
+		}
+		
+		@Override
+		public void endScreenDrawing() {
+			popModelView();
+		}
+		
 	  // matrix stuff
 		
 		@Override
+		public Mat getProjection() {
+			return scene.viewport().getProjection(false);
+		}
+
+		@Override
+		public Mat getProjection(Mat target) {
+			if (target == null) target = new Mat();
+			target.set(scene.viewport().getProjection(false));
+			return target;
+		}
+		
+		//--
+		
+		@Override
 		public void pushModelView() {
-			pg().pushMatrix();
+			pgj2d().pushMatrix();
 		}
 		
 		@Override
 		public void popModelView() {
-			pg().popMatrix();
+			pgj2d().popMatrix();
 		}
 		
 		@Override
 		public void resetModelView() {
-			pg().resetMatrix();
+			pgj2d().resetMatrix();
 		}
 		
 		@Override
 		public Mat getModelView() {
-			PMatrix3D pM = (PMatrix3D) pg().getMatrix();
-			return new Mat(pM.get(new float[16]), true);// set it transposed
+			return Scene.toMat((PMatrix3D) pgj2d().getMatrix());
 		}
 		
 		@Override
 		public Mat getModelView(Mat target) {
-			PMatrix3D pM = (PMatrix3D) pg().getMatrix();
-			target.setTransposed(pM.get(new float[16]));
-			return target;
+			if(target == null) target = new Mat(Scene.toMat( (PMatrix3D) pgj2d().getMatrix()));
+			else target.set(Scene.toMat( (PMatrix3D) pgj2d().getMatrix() ));
+	    return target;
 		}
 		
 		@Override
@@ -1482,19 +1528,17 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void printModelView() {
-			pg().printMatrix();
+			pgj2d().printMatrix();
 		}
 		
 		@Override
 		public void printProjection() {
-			pg().printProjection();
+			pgj2d().printProjection();
 		}
 		
 		@Override
 		public void applyModelView(Mat source) {
-			PMatrix3D pM = new PMatrix3D();
-			pM.set(source.getTransposed(new float[16]));
-			pg().applyMatrix(pM);
+			pgj2d().applyMatrix( Scene.toPMatrix(source) );
 		}
 		
 		@Override
@@ -1502,59 +1546,59 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				                                 float n10, float n11, float n12, float n13,
 				                                 float n20, float n21, float n22, float n23,
 				                                 float n30, float n31, float n32, float n33) {
-			pg().applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22,	n23, n30, n31, n32, n33);
+			pgj2d().applyMatrix(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22,	n23, n30, n31, n32, n33);
 		}	
 		
 		//
 		
 		@Override
 		public void translate(float tx, float ty) {
-			pg().translate(tx, ty);		
+			pgj2d().translate(tx, ty);		
 		}
 
 		@Override
 		public void translate(float tx, float ty, float tz) {
-			pg().translate(tx, ty, tz);	
+			pgj2d().translate(tx, ty, tz);	
 		}
 		
 		@Override
 		public void rotate(float angle) {
-			pg().rotate(angle);		
+			pgj2d().rotate(angle);		
 		}
 
 		@Override
 		public void rotateX(float angle) {
-			pg().rotateX(angle);		
+			pgj2d().rotateX(angle);		
 		}
 
 		@Override
 		public void rotateY(float angle) {
-			pg().rotateY(angle);
+			pgj2d().rotateY(angle);
 		}
 
 		@Override
 		public void rotateZ(float angle) {
-			pg().rotateZ(angle);
+			pgj2d().rotateZ(angle);
 		}
 		
 		@Override
 		public void rotate(float angle, float vx, float vy, float vz) {
-			pg().rotate(angle, vx, vy, vz);
+			pgj2d().rotate(angle, vx, vy, vz);
 		}
 		
 		@Override
 		public void scale(float s) {
-			pg().scale(s);	
+			pgj2d().scale(s);	
 		}
 
 		@Override
 		public void scale(float sx, float sy) {
-			pg().scale(sx, sy);	
+			pgj2d().scale(sx, sy);	
 		}
 
 		@Override
 		public void scale(float x, float y, float z) {
-			pg().scale(x, y, z);
+			pgj2d().scale(x, y, z);
 		}
 
 		@Override
@@ -1635,22 +1679,19 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public Mat getProjection() {
-			PMatrix3D pM = pggl().projection.get();
-	    return new Mat(pM.get(new float[16]), true);// set it transposed
+			return Scene.toMat(pggl().projection.get());
 		}
 
 		@Override
 		public Mat getProjection(Mat target) {
-			PMatrix3D pM = pggl().projection.get();
-	    target.setTransposed(pM.get(new float[16]));
+			if(target == null) target = new Mat(Scene.toMat( pggl().projection.get()));
+			else target.set(Scene.toMat( pggl().projection.get() ));
 	    return target;
 		}
 
 		@Override
 		public void applyProjection(Mat source) {
-			PMatrix3D pM = new PMatrix3D();
-	    pM.set(source.getTransposed(new float[16]));
-	    pggl().applyProjection(pM);		
+			pggl().applyProjection( Scene.toPMatrix(source) );		
 		}
 
 		@Override
@@ -1661,7 +1702,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pggl().applyProjection(new PMatrix3D(n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33));
 		}
 		
-	// matrix stuff
+	  // matrix stuff
 		
 		@Override
 		public void pushModelView() {
@@ -1680,14 +1721,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public Mat getModelView() {
-			PMatrix3D pM = (PMatrix3D) pggl().getMatrix();
-			return new Mat(pM.get(new float[16]), true);// set it transposed
+			return Scene.toMat((PMatrix3D) pggl().getMatrix());
 		}
 		
 		@Override
 		public Mat getModelView(Mat target) {
-			PMatrix3D pM = (PMatrix3D) pggl().getMatrix();
-			target.setTransposed(pM.get(new float[16]));
+			if(target == null) target = new Mat(Scene.toMat( (PMatrix3D) pggl().getMatrix()));
+			else target.set(Scene.toMat( (PMatrix3D) pggl().getMatrix() ));
 			return target;
 		}
 		
@@ -1698,9 +1738,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void applyModelView(Mat source) {
-			PMatrix3D pM = new PMatrix3D();
-			pM.set(source.getTransposed(new float[16]));
-			pggl().applyMatrix(pM);
+			pggl().applyMatrix(Scene.toPMatrix(source) );
 		}
 		
 		@Override
@@ -1764,45 +1802,19 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public void loadProjection() {
-			Mat proj = scene.viewport().getProjection(true);
-			pggl().setProjection(new PMatrix3D( proj.mat[0],  proj.mat[4], proj.mat[8],  proj.mat[12],
-		                                      proj.mat[1],  proj.mat[5], proj.mat[9],  proj.mat[13],
-		                                      proj.mat[2],  proj.mat[6], proj.mat[10], proj.mat[14],
-		                                      proj.mat[3],  proj.mat[7], proj.mat[11], proj.mat[15] ));
-		}
-		
-		@Override
-		public void loadModelView() {
-			pggl().modelview.set(scene.viewport().getView(true).getTransposed(new float[16]));
-			pggl().projmodelview.set(Mat.mult(scene.viewport().getProjection(false),scene.viewport().getView(false)).getTransposed(new float[16]));
-		}
-		
-		@Override
 		public void setProjection(Mat source) {
-			PMatrix3D pM = new PMatrix3D();
-			pM.set(source.getTransposed(new float[16]));		
-			pggl().projection.set(pM);		
+			pggl().setProjection(Scene.toPMatrix(source));
 		}
 		
-		// /**
 		@Override
 		public void setModelView(Mat source) {
-			PMatrix3D pM = new PMatrix3D();
-			pM.set(source.getTransposed(new float[16]));
-	    pggl().modelview.set(pM);
-	    //pggl().setMatrix(pM);//only for 3d
+			if( is3D() )
+				pggl().setMatrix(Scene.toPMatrix(source));
+			else {
+				pggl().modelview.set(Scene.toPMatrix(source));
+				pggl().projmodelview.set(Mat.mult(scene.viewport().getProjection(false), scene.viewport().getView(false)).getTransposed(new float[16]));
+			}
 		}
-		//*/
-		
-		/**
-		//only for 3d
-		@Override
-		public void setModelView(Mat source) {
-			resetModelView();
-			applyModelView(source);
-		}
-		// */
 	}
 	
 	// proscene version

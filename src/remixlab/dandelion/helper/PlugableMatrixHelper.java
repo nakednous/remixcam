@@ -26,6 +26,16 @@ public abstract class PlugableMatrixHelper extends MatrixHelper implements Const
 	}
 	
 	@Override
+	public void loadProjection() {
+		scene.setProjection(scene.viewport().getProjection(true));
+	}
+	
+	@Override
+	public void loadModelView() {
+		scene.setModelView(scene.viewport().getView(true));
+	}
+	
+	@Override
 	public void beginScreenDrawing() {
 		pushProjection();
     float cameraZ = (height()/2.0f) / (float) Math.tan(QUARTER_PI/2.0f);
