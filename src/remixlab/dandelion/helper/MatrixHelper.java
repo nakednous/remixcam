@@ -95,7 +95,7 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 		loadModelView(true);
 	}
 
-	public void loadModelView(boolean includeView) {		
+	public void loadModelView(boolean includeView) {
 		scene.viewport().computeView();
 		if(includeView)
 		  setModelView(scene.viewport().getView(false));

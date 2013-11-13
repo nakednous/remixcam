@@ -12,7 +12,7 @@ package remixlab.dandelion.helper;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 
-public class MartixStackHelper extends MatrixHelper implements Constants {
+public class MatrixStackHelper extends MatrixHelper implements Constants {
 	private static final int MATRIX_STACK_DEPTH = 32;
 
 	private static final String ERROR_PUSHMATRIX_OVERFLOW = "Too many calls to pushModelView().";
@@ -26,7 +26,7 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 
 	Mat projection, modelview;
 
-	public MartixStackHelper(AbstractScene scn) {
+	public MatrixStackHelper(AbstractScene scn) {
 		super(scn);
 		modelview = new Mat();
 		projection = new Mat();
@@ -216,7 +216,7 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 	
 	@Override
 	public void setProjection(Mat source) {
-		resetProjection();
+	  resetProjection();
 		applyProjection(source);
 	}
 
@@ -333,7 +333,7 @@ public class MartixStackHelper extends MatrixHelper implements Constants {
 					0, 0, -1, 0);
 	}
 
-	// /**
+	/**
 	@Override
 	public void beginScreenDrawing() {
 		pushProjection();

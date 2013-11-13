@@ -1729,22 +1729,10 @@ public class Camera extends Viewport implements Constants, Copyable {
 	}
 	*/
 	
-	//TODO test
 	@Override
   public void fromView(Mat mv, boolean recompute) {
 		Quat q = new Quat();
-		/**
-    // Get upper left (rotation) matrix
- 	  float [][] upperLeft = new float [3][3];
- 	  for (int i=0; i<3; ++i)
- 	    for (int j=0; j<3; ++j)
- 	      upperLeft[i][j] = mv.mat[i*4+j];
-
- 	  // Transform upperLeft into the associated Quaternion
- 	  q.fromRotationMatrix(upperLeft);
- 	  // */
  	  q.fromMatrix(mv);
-
  	  setOrientation(q); 	  
  	  setPosition(Vec.mult(q.rotate(new Vec(mv.mat[12], mv.mat[13], mv.mat[14])), -1) );
  	  if(recompute)

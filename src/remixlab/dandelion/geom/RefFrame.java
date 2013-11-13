@@ -2186,8 +2186,6 @@ public class RefFrame implements Copyable, Constants {
 		r[2][1] = pM.mat[6] / pM.mat[15];
 		r[2][2] = pM.mat[10] / pM.mat[15];
 	  
-	  //prev
-	  
 	  setScaling(scl.x(), scl.y(), scl.z());
 	  Vec s = scaling();
 	  

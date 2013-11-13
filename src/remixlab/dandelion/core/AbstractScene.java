@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import remixlab.dandelion.geom.*;
-import remixlab.dandelion.helper.MartixStackHelper;
+import remixlab.dandelion.helper.MatrixStackHelper;
 import remixlab.fpstiming.AbstractTimerJob;
 import remixlab.fpstiming.AnimatedObject;
 import remixlab.fpstiming.TimingHandler;
@@ -76,7 +76,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	  startCoordCalls = 0;
 	  timerHandler = new TimingHandler(this);		
 		terseHandler = new TerseHandler();
-		setMatrixHelper(new MartixStackHelper(this));
+		setMatrixHelper(new MatrixStackHelper(this));
 		setDottedGrid(true);
 		setRightHanded();
 	}
