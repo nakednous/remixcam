@@ -1,5 +1,5 @@
 /*******************************************************************************
- * ProScene (version 2.0.0-alpha.1)
+ * ProScene (version 2.0.0-alpha.2)
  * Copyright (c) 2013 National university of Colombia, https://github.com/remixlab
  * @author Jean Pierre Charalambos, http://otrolado.info/
  * 
@@ -354,7 +354,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 	}
 	
-	protected class P5Drawing2D implements Depictable, PConstants {
+	protected class P5Drawing2D implements VisualHintable, PConstants {
 		protected Scene scene;
 		Mat proj;
 
@@ -2193,6 +2193,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			height = pg().height;				
 			viewport().setScreenWidthAndHeight(width, height);				
 		}
+		
 		preDraw();
 	}
 
@@ -2228,10 +2229,16 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public void beginDraw() {
 		if (isOffscreen()) {
 			if (beginOffScreenDrawingCalls != 0)
-				throw new RuntimeException(
-						"There should be exactly one beginDraw() call followed by a "
-								+ "endDraw() and they cannot be nested. Check your implementation!");			
-			beginOffScreenDrawingCalls++;			
+				throw new RuntimeException("There should be exactly one beginDraw() call followed by a "
+																	+ "endDraw() and they cannot be nested. Check your implementation!");			
+			beginOffScreenDrawingCalls++;
+			
+			if ((width != pg().width) || (height != pg().height)) {
+				width = pg().width;
+				height = pg().height;				
+				viewport().setScreenWidthAndHeight(width, height);				
+			}
+			
 			preDraw();	
 		}
 	}

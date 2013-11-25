@@ -258,6 +258,8 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 		scene = scn;
 
 		isInCamPath = true;
+		//TODO experimental: still it's working when commented, why? (to init kfi branch)
+		//therefore check where this frame is added in new branch
 		scene.terseHandler().addInAllAgentPools(this);
 		
 		setGrabsInputThreshold(10);
@@ -265,6 +267,8 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 		setTranslationSensitivity(1.0f);
 		setWheelSensitivity(20.0f);
 		
+		//TODO experimental, but this line seems totally useless (to init kfi branch)
+		//idem here (to init kfi branch)
 		setListeners(iFrame);
 		
 		isSpng = false;

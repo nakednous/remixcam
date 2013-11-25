@@ -379,10 +379,15 @@ public class KeyFrameInterpolator implements Copyable {
 			this.path.add(frameIt.next().get());
 		}		
 		
+		///**
 		if(otherKFI.fr != null)
 			this.fr = otherKFI.fr.get();
 		else
-			this.fr = null;		
+			this.fr = null;
+		// */
+		
+		//TODO to init kfi branch setting it by ref
+		//this.fr = otherKFI.fr;
 		
 		this.period = otherKFI.period;
 		this.interpolationTm = otherKFI.interpolationTm;
@@ -395,9 +400,26 @@ public class KeyFrameInterpolator implements Copyable {
 		
 		this.keyFr = new ArrayList<AbstractKeyFrame>();		
 		ListIterator<AbstractKeyFrame> it = otherKFI.keyFr.listIterator();
-		while (it.hasNext()) {
-			this.keyFr.add((AbstractKeyFrame) it.next().get());
-		}		
+		while (it.hasNext()) {			
+			this.keyFr.add((AbstractKeyFrame) it.next().get());			
+		  //TODO to (init kfi branch) if it set by ref, add a listener?
+			
+			/**
+			//AbstractKeyFrame kf = (AbstractKeyFrame) it.next().get();
+			AbstractKeyFrame otherKF = (AbstractKeyFrame) it.next();
+			AbstractKeyFrame kf = (AbstractKeyFrame)otherKF.get();
+			
+			this.keyFr.add(kf);
+			
+			if(kf.frame() instanceof InteractiveFrame)
+				scene.terseHandler().addInAllAgentPools((InteractiveFrame)kf.frame());
+			//*/
+			
+			/**
+			if( otherKF != null )
+				kf.frame().addListener(this);
+				//*/
+		}	
 		
 		this.currentFrame0 = keyFr.listIterator(otherKFI.currentFrame0.nextIndex());
 		this.currentFrame1 = keyFr.listIterator(otherKFI.currentFrame1.nextIndex());
@@ -410,6 +432,9 @@ public class KeyFrameInterpolator implements Copyable {
 			}
 		};		
 		scene.registerJob(interpolationTimerJob);		
+		
+		//TODO testing (to init kfi branch)
+		//this.invalidateValues();
 	}
 	
 	public KeyFrameInterpolator get() {
@@ -1102,13 +1127,13 @@ public class KeyFrameInterpolator implements Copyable {
 		}
 	}
 
-	public void updateSplineCache() {
+	public void updateSplineCache() {		
 		Vec deltaP = Vec.sub(keyFr.get(currentFrame2.nextIndex()).position(), keyFr.get(currentFrame1.nextIndex()).position());
 		pv1 = Vec.add(Vec.mult(deltaP, 3.0f), Vec.mult(keyFr.get(currentFrame1.nextIndex()).tgP(), (-2.0f)));
 		pv1 = Vec.sub(pv1, keyFr.get(currentFrame2.nextIndex()).tgP());
 		pv2 = Vec.add(Vec.mult(deltaP, (-2.0f)), keyFr.get(currentFrame1.nextIndex()).tgP());
 		pv2 = Vec.add(pv2, keyFr.get(currentFrame2.nextIndex()).tgP());
-		
+	
 		// /**
 		//Option 2 (interpolate scaling using a spline)
 		Vec deltaS = Vec.sub(keyFr.get(currentFrame2.nextIndex()).magnitude(), keyFr.get(currentFrame1.nextIndex()).magnitude());

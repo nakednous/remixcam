@@ -13,7 +13,7 @@ import java.util.List;
 
 import remixlab.dandelion.geom.*;
 
-public interface Depictable {
+public interface VisualHintable {
   //drawing
 
   // 2D-3D

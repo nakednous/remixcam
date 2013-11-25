@@ -27,7 +27,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	
   //O B J E C T S
 	protected MatrixHelpable matrixHelper;
-	protected Depictable drawingHelpler;
+	protected VisualHintable drawingHelpler;
 	
 	protected Viewport vport;
 	protected Trackable trck;
@@ -81,11 +81,11 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		setRightHanded();
 	}
 	
-	protected void setDrawingHelper(Depictable d) {
+	protected void setDrawingHelper(VisualHintable d) {
 		drawingHelpler = d;
 	}
 		
-	public Depictable drawingHelpler() {
+	public VisualHintable drawingHelpler() {
 		return drawingHelpler;
 	}
 	
