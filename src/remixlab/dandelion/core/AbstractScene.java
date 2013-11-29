@@ -23,7 +23,7 @@ import remixlab.tersehandling.generic.profile.*;
 import remixlab.tersehandling.event.*;
 
 public abstract class AbstractScene extends AnimatedObject implements Constants, Grabbable {	
-	protected boolean dottedGrid;	
+	protected boolean dottedGrid;
 	
   //O B J E C T S
 	protected MatrixHelpable matrixHelper;

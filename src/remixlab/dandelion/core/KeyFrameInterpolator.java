@@ -779,8 +779,8 @@ public class KeyFrameInterpolator implements Copyable {
 		// */
 
 		// connect(frame, SIGNAL(modified()), SLOT(invalidateValues()));
-		if (setRef) // only when setting reference
-			frame.addListener(this);
+		//if (setRef) // only when setting reference
+			//frame.addListener(this);
 
 		valuesAreValid = false;
 		pathIsValid = false;

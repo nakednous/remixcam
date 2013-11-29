@@ -28,8 +28,8 @@ public class TimingHandler {
 	// protected boolean singleThreadedTaskableTimers;
 	// T i m e r P o o l
 	protected ArrayList<AbstractTimerJob> timerPool;
-	protected long frameCount;
-	protected float frameRate;
+	public static long frameCount;
+	public static float frameRate;
 	protected long frameRateLastMillis;
 
 	// A N I M A T I O N

@@ -19,8 +19,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 import remixlab.dandelion.constraint.*;
 import remixlab.dandelion.core.AbstractScene;
 import remixlab.dandelion.core.Constants;
-import remixlab.dandelion.core.InteractiveCameraFrame;
-import remixlab.dandelion.core.KeyFrameInterpolator;
+import remixlab.fpstiming.TimingHandler;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Util;
 
@@ -70,7 +69,7 @@ public class RefFrame implements Copyable, Constants {
 			append(scl).
 			append(refFrame).
 			append(constr).
-			append(list).
+			append(lastUpdate).
 	    toHashCode();		
 		}
 
@@ -90,56 +89,52 @@ public class RefFrame implements Copyable, Constants {
 			.append(rot, other.rot)
 			.append(refFrame, other.refFrame)
 			.append(constr, other.constr)
-			.append(list, other.list)
 			.isEquals();
 		}
 		
-		protected List<KeyFrameInterpolator> list;		
 		protected Vec trans;
 		protected Vec scl;
 		protected Orientable rot;
 		protected RefFrame refFrame;
 		protected Constraint constr;
+		protected long lastUpdate;
 		
 		public AbstractFrameKernel() {
-			list = new ArrayList<KeyFrameInterpolator>();
 			trans = new Vec(0, 0, 0);
 			scl =  new Vec(1, 1, 1);
 			rot = null;
 			refFrame = null;
 			constr = null;
+			lastUpdate = 0;
 		}
 		
 		public AbstractFrameKernel(Orientable r, Vec p, Vec s) {
-			list = new ArrayList<KeyFrameInterpolator>();
 			trans = new Vec(p.x(), p.y(), p.z());
 			scl =  new Vec(1, 1, 1);
 			setScaling(s);
 			rot = r.get();
 			refFrame = null;
 			constr = null;
+			lastUpdate = 0;
 		}
 		
 		public AbstractFrameKernel(Orientable r, Vec p) {
-			list = new ArrayList<KeyFrameInterpolator>();
 			trans = new Vec(p.x(), p.y(), p.z());
 			scl =  new Vec(1, 1, 1);
 			rot = r.get();
 			refFrame = null;
 			constr = null;
+			lastUpdate = 0;
 		}
 		
 		protected AbstractFrameKernel(AbstractFrameKernel other) {
-			list = new ArrayList<KeyFrameInterpolator>();
-			Iterator<KeyFrameInterpolator> it = other.listeners().iterator();
-			while (it.hasNext())
-				list.add(it.next());
 			trans = new Vec(other.translation().vec[0], other.translation().vec[1], other.translation().vec[2]);
 			rot = other.rotation().get();
 			scl = other.scaling().get();
 			//scl = new Vector3D(other.scaling().vec[0], other.scaling().vec[1], other.scaling().vec[2]);
 			refFrame = other.referenceFrame();
 			constr = other.constraint();
+			lastUpdate = other.lastUpdate();
 		}		
 		
 		public final Vec translation() {
@@ -201,31 +196,6 @@ public class RefFrame implements Copyable, Constants {
 			constr = c;
 		}
 		
-		/**
-		public void setListeners(List<KeyFrameInterpolator> l) {
-			list = l;
-		}
-		*/
-		
-		public void setListeners(RefFrame iFrame) {
-			//list = new ArrayList<KeyFrameInterpolator>();
-			Iterator<KeyFrameInterpolator> it = iFrame.listeners().iterator();
-			while (it.hasNext())
-				listeners().add(it.next());
-		}
-		
-		public List<KeyFrameInterpolator> listeners() {
-			return list;
-		}		
-				
-		public void addListener(KeyFrameInterpolator kfi) {
-			list.add(kfi);
-		}
-		
-		public void removeListener(KeyFrameInterpolator kfi) {
-			list.remove(kfi);
-		}
-		
 		public void translate(Vec t) {
 			translation().add(t);
 			modified();
@@ -280,17 +250,13 @@ public class RefFrame implements Copyable, Constants {
 			return inverted;
 		}		
 		
-		/**
-		 * Resets the cache of all KeyFrameInterpolators' associated with this Frame.
-		 */
 		protected void modified() {
-			if(RefFrame.this instanceof InteractiveCameraFrame)
-				((InteractiveCameraFrame)RefFrame.this).pinhole().lastFrameUpdate = ((InteractiveCameraFrame)RefFrame.this).scene.timerHandler().frameCount();
-			Iterator<KeyFrameInterpolator> it = list.iterator();
-			while (it.hasNext()) {
-				it.next().invalidateValues();
-			}						
-		}		
+			lastUpdate = TimingHandler.frameCount;
+		}
+		
+		public long lastUpdate() {
+			return lastUpdate;
+		}
 		
 		public final void setReferenceFrame(RefFrame rFrame) {
 			if (settingAsReferenceFrameWillCreateALoop(rFrame))
@@ -514,6 +480,10 @@ public class RefFrame implements Copyable, Constants {
 	public final Vec scaling() {
 		return kernel().scaling();
 	}
+	
+	public long lastUpdate() {
+		return kernel().lastUpdate();
+	}
 
 	/**
 	 * Returns the Frame translation, defined with respect to the
@@ -585,48 +555,11 @@ public class RefFrame implements Copyable, Constants {
 		return kernel().constraint();
 	}
 	
-	public void setListeners(RefFrame iFrame) {
-		kernel().setListeners(iFrame);
-	}
-	
 	/**
 	protected void modified() {
 		kernel().modified();
 	}
 	*/
-
-	/**
-	 * Returns the list of KeyFrameInterpolators that are currently listening to
-	 * this frame. Normally, you should not call this method as the
-	 * KeyFrameInterpolator takes care of calling it.
-	 * 
-	 * @see remixlab.dandelion.core.KeyFrameInterpolator#addKeyFrame(RefFrame, float,
-	 *      boolean)
-	 */
-	public List<KeyFrameInterpolator> listeners() {
-		return kernel().listeners();
-	}
-
-	/**
-	 * Adds {@code kfi} to the list of KeyFrameInterpolators that are
-	 * currently listening this frame.
-	 */
-	public void addListener(KeyFrameInterpolator kfi) {
-		kernel().addListener(kfi);
-	}
-
-	/**
-	 * Removes {@code kfi} from the list of KeyFrameInterpolators that are
-	 * currently listening to this frame. Normally, you should not call this
-	 * method, unless you have added {@code kfi} before (by calling
-	 * {@link #addListener(KeyFrameInterpolator)}).
-	 * 
-	 * @see remixlab.dandelion.core.KeyFrameInterpolator#addKeyFrame(RefFrame, float,
-	 *      boolean)
-	 */
-	public void removeListener(KeyFrameInterpolator kfi) {
-		kernel().removeListener(kfi);
-	}
 	
 	/**
 	 * Links this frame (referred to as the requested frame) to {@code sourceFrame},

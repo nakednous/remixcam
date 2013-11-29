@@ -269,7 +269,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 		
 		//TODO experimental, but this line seems totally useless (to init kfi branch)
 		//idem here (to init kfi branch)
-		setListeners(iFrame);
+		//setListeners(iFrame);
 		
 		isSpng = false;
 		setSpinningSensitivity(0.3f);

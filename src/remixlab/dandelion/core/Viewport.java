@@ -16,6 +16,7 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.dandelion.geom.*;
+import remixlab.fpstiming.TimingHandler;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.Util;
@@ -26,7 +27,7 @@ public abstract class Viewport implements Copyable {
     return new HashCodeBuilder(17, 37).
     append(fpCoefficientsUpdate).
     //append(unprojectCacheOptimized).
-    append(lastFrameUpdate).
+    append(lastParamUpdate).
     append(lastFPCoeficientsUpdateIssued).
     //append(zClippingCoef).
 		//append(IODist).
@@ -68,7 +69,7 @@ public abstract class Viewport implements Copyable {
 	  return new EqualsBuilder()
     .append(fpCoefficientsUpdate, other.fpCoefficientsUpdate)
     //.append(unprojectCacheOptimized, other.unprojectCacheOptimized)
-    .append(lastFrameUpdate, other.lastFrameUpdate)
+    .append(lastParamUpdate, other.lastParamUpdate)
     .append(lastFPCoeficientsUpdateIssued, other.lastFPCoeficientsUpdateIssued)
     //.append(zClippingCoef, other.zClippingCoef)
 		//.append(IODist,other.IODist)
@@ -143,7 +144,7 @@ public abstract class Viewport implements Copyable {
    * Takes into account the {@link #frame()} (position and orientation of the camera)
    * and the camera {@link #type()} and {@link #kind()}.
    */
-	public long lastFrameUpdate = 0;
+	public long lastParamUpdate = 0;
 	protected long lastFPCoeficientsUpdateIssued = -1;
 	
 	public Viewport(AbstractScene scn) {
@@ -242,6 +243,18 @@ public abstract class Viewport implements Copyable {
 	 */
 	public InteractiveCameraFrame frame() {
 		return frm;
+	}
+	
+	protected void modified() {
+		lastParamUpdate = TimingHandler.frameCount;
+	}
+	
+	public long lastUpdate() {
+		return Math.max(frame().lastUpdate(), lastParamUpdate());
+	}
+	
+	public long lastParamUpdate() {
+		return lastParamUpdate;
 	}
 	
   //2. POSITION AND ORIENTATION
@@ -616,8 +629,8 @@ public abstract class Viewport implements Copyable {
 	 */
 	public void setScreenWidthAndHeight(int width, int height) {
 		// Prevent negative and zero dimensions that would cause divisions by zero.
-		if( (width != scrnWidth) && (height != scrnHeight) )
-			lastFrameUpdate = scene.timerHandler().frameCount();
+		if( (width != scrnWidth) || (height != scrnHeight) )
+			modified();
 		scrnWidth = width > 0 ? width : 1;
 		scrnHeight = height > 0 ? height : 1;
 	}
@@ -1498,9 +1511,9 @@ public abstract class Viewport implements Copyable {
 	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
 	 */
 	public void updateFrustumEquations() {
-		if( lastFrameUpdate != lastFPCoeficientsUpdateIssued )	{		  
+		if( lastUpdate() != lastFPCoeficientsUpdateIssued )	{
 			computeFrustumEquations(fpCoefficients);
-			lastFPCoeficientsUpdateIssued = lastFrameUpdate;		  
+			lastFPCoeficientsUpdateIssued = lastUpdate();		  
 		}
 	}
 	
