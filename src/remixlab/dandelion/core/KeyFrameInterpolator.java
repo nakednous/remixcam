@@ -162,40 +162,27 @@ public class KeyFrameInterpolator implements Copyable {
 		protected float tm;
 		protected RefFrame frm;
 
-		AbstractKeyFrame(RefFrame fr, float t, boolean setRef) {
+		AbstractKeyFrame(RefFrame fr, float t) {
 			tm = t;
-			if (setRef) {
-				frm = fr;
-				updateValues();
-			} else {
-				frm = null;
-				p = new Vec(fr.position().vec[0], fr.position().vec[1], fr.position().vec[2]);				
-				q = fr.orientation().get();
-				s = new Vec(fr.magnitude().vec[0], fr.magnitude().vec[1], fr.magnitude().vec[2]);
-			}
+			frm = fr;
+			updateValues();
 		}
 		
 		protected AbstractKeyFrame(AbstractKeyFrame otherKF) {
 			this.tm = otherKF.tm;
 			this.frm = otherKF.frm;
-			if (this.frm != null) {
-				this.p = this.frame().position();
-				this.q = this.frame().orientation();
-				this.s = this.frame().magnitude();
-			} else {
-				//p = new Vector3D( otherKF.p.x, otherKF.p.y, otherKF.p.z );
-				this.p = new Vec(otherKF.position().vec[0], otherKF.position().vec[1], otherKF.position().vec[2]);				
-				this.q = otherKF.orientation().get();
-				this.s = new Vec(otherKF.magnitude().vec[0], otherKF.magnitude().vec[1], otherKF.magnitude().vec[2]);
-			}
+			this.updateValues();
+			/**
+			this.p = this.frame().position();
+			this.q = this.frame().orientation();
+			this.s = this.frame().magnitude();	
+			*/	
 		}		
 
 		void updateValues() {
-			if (frame() != null) {
-				p = frame().position();
-				q = frame().orientation();
-				s = frame().magnitude();
-			}
+			p = frame().position();
+			q = frame().orientation();
+			s = frame().magnitude();
 		}
 
 		Vec position() {
@@ -235,8 +222,8 @@ public class KeyFrameInterpolator implements Copyable {
 	private class KeyFrame3D extends AbstractKeyFrame {
 		protected Quat tgQuat;
 		
-		KeyFrame3D(RefFrame fr, float t, boolean setRef) {
-			super(fr, t, setRef);
+		KeyFrame3D(RefFrame fr, float t) {
+			super(fr, t);
 		}
 		
 		protected KeyFrame3D(KeyFrame3D other) {
@@ -266,8 +253,8 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 	
 	private class KeyFrame2D extends AbstractKeyFrame {		
-		KeyFrame2D(RefFrame fr, float t, boolean setRef) {
-			super(fr, t, setRef);			
+		KeyFrame2D(RefFrame fr, float t) {
+			super(fr, t);			
 		}
 		
 		protected KeyFrame2D(KeyFrame2D other) {
@@ -619,8 +606,7 @@ public class KeyFrameInterpolator implements Copyable {
 			// emit endReached();
 		} else if (interpolationTime() < keyFr.get(0).time()) {
 			if (loopInterpolation())
-				setInterpolationTime(keyFr.get(keyFr.size() - 1).time()
-						- keyFr.get(0).time() + interpolationTm);
+				setInterpolationTime(keyFr.get(keyFr.size() - 1).time()	- keyFr.get(0).time() + interpolationTm);
 			else {
 				// Make sure first KeyFrame is reached and displayed
 				interpolateAtTime(keyFr.get(0).time());
@@ -708,15 +694,6 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 
 	/**
-	 * Convenience function that simply calls {@code addKeyFrame(frame, false)}.
-	 * 
-	 * @see #addKeyFrame(RefFrame, boolean)
-	 */
-	public void addKeyFrame(RefFrame frame) {
-		addKeyFrame(frame, true);
-	}
-
-	/**
 	 * Appends a new keyFrame to the path.
 	 * <p>
 	 * Same as {@link #addKeyFrame(RefFrame, float, boolean)}, except that the
@@ -724,7 +701,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #keyFrameTime(int)} plus one second (or 0.0 if there is no previous
 	 * keyFrame).
 	 */
-	public void addKeyFrame(RefFrame frame, boolean setRef) {
+	public void addKeyFrame(RefFrame frame) {
 		float time;
 
 		if (keyFr.isEmpty())
@@ -732,17 +709,7 @@ public class KeyFrameInterpolator implements Copyable {
 		else
 			time = keyFr.get(keyFr.size() - 1).time() + 1.0f;
 
-		addKeyFrame(frame, time, setRef);
-	}
-
-	/**
-	 * Convenience function that simply calls {@code addKeyFrame(frame, time,
-	 * false)}.
-	 * 
-	 * @see #addKeyFrame(RefFrame, float, boolean)
-	 */
-	public void addKeyFrame(RefFrame frame, float time) {
-		addKeyFrame(frame, time, true);
+		addKeyFrame(frame, time);
 	}
 
 	/**
@@ -760,7 +727,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #keyFrameTime(int)} has to be monotonously increasing over
 	 * keyFrames.
 	 */
-	public void addKeyFrame(RefFrame frame, float time, boolean setRef) {
+	public void addKeyFrame(RefFrame frame, float time) {
 		if (frame == null)
 			return;
 
@@ -772,9 +739,9 @@ public class KeyFrameInterpolator implements Copyable {
 			System.out.println("Error in KeyFrameInterpolator.addKeyFrame: time is not monotone");
 		else {
 			if(scene.is3D())
-				keyFr.add(new KeyFrame3D(frame, time, setRef));
+				keyFr.add(new KeyFrame3D(frame, time));
 			else
-				keyFr.add(new KeyFrame2D(frame, time, setRef));
+				keyFr.add(new KeyFrame2D(frame, time));
 		}
 		// */
 

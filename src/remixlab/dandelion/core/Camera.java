@@ -2044,11 +2044,11 @@ public class Camera extends Viewport implements Constants, Copyable {
 			stopAllInterpolations();
 
 		interpolationKfi.deletePath();
-		interpolationKfi.addKeyFrame(frame(), false);
+		interpolationKfi.addKeyFrame(new InteractiveFrame(scene, frame()));
 
 		interpolationKfi.addKeyFrame(new RefFrame(frame().orientation(),
-				                                    Vec.add(Vec.mult(frame().position(),
-				                         0.3f), Vec.mult(target.point, 0.7f))), 0.4f, false);
+					                                    Vec.add(Vec.mult(frame().position(),
+					                                    		0.3f), Vec.mult(target.point, 0.7f))), 0.4f);
 
 		// Small hack: attach a temporary frame to take advantage of lookAt without
 		// modifying frame
@@ -2060,7 +2060,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 		lookAt(target.point);
 		setFrame(originalFrame);
 
-		interpolationKfi.addKeyFrame(tempFrame, 1.0f, false);
+		interpolationKfi.addKeyFrame(tempFrame, 1.0f);
 		interpolationKfi.startInterpolation();		
 
 		return target;

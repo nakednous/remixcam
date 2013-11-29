@@ -1292,17 +1292,6 @@ public abstract class Viewport implements Copyable {
 	}
 
 	/**
-	 * Convenience function that simply calls {@code addKeyFrameToPath(key, true)}.
-	 * <p>
-	 * The resulting created camera path will be editable.
-	 * 
-	 * @see #addKeyFrameToPath(int, boolean)
-	 */
-	public void addKeyFrameToPath(int key) {
-		addKeyFrameToPath(key, true);
-	}
-
-	/**
 	 * Adds the current Camera {@link #position()} and {@link #orientation()} as a
 	 * keyFrame to path {@code key}. If {@code editablePath} is {@code true},
 	 * builds an InteractiveFrame (from the current Camera {@link #position()} and
@@ -1320,18 +1309,15 @@ public abstract class Viewport implements Copyable {
 	 * If you use directly this method and the {@link #keyFrameInterpolator(int)}
 	 * does not exist, a new one is created.
 	 */
-	public void addKeyFrameToPath(int key, boolean editablePath) {
+	public void addKeyFrameToPath(int key) {
 		boolean info = true;
 		if (!kfi.containsKey(key)) {
 			setKeyFrameInterpolator(key, new KeyFrameInterpolator(scene, frame()));
 			System.out.println("Position " + key + " saved");
 			info = false;
 		}
-
-		if (editablePath)
-		  kfi.get(key).addKeyFrame(new InteractiveFrame(scene, frame()));
-		else
-			kfi.get(key).addKeyFrame(frame(), false);
+		
+		kfi.get(key).addKeyFrame(new InteractiveFrame(scene, frame()));
 
 		if (info)
 			System.out.println("Path " + key + ", position "
@@ -1606,7 +1592,7 @@ public abstract class Viewport implements Copyable {
 			stopAllInterpolations();
 		
 		interpolationKfi.deletePath();
-		interpolationKfi.addKeyFrame(frame(), false);
+		interpolationKfi.addKeyFrame(new InteractiveFrame(scene, frame()));
 		
 		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
 		// without modifying frame
@@ -1619,7 +1605,7 @@ public abstract class Viewport implements Copyable {
 		fitScreenRegion(rectangle);
 		setFrame(originalFrame);
 		
-		interpolationKfi.addKeyFrame(tempFrame, false);
+		interpolationKfi.addKeyFrame(tempFrame);
 		interpolationKfi.startInterpolation();
 	}
 	
@@ -1639,7 +1625,7 @@ public abstract class Viewport implements Copyable {
 			stopAllInterpolations();
 
 		interpolationKfi.deletePath();
-		interpolationKfi.addKeyFrame(frame(), false);
+		interpolationKfi.addKeyFrame(new InteractiveFrame(scene, frame()));
 
 		// Small hack: attach a temporary frame to take advantage of showEntireScene
 		// without modifying frame
@@ -1652,7 +1638,7 @@ public abstract class Viewport implements Copyable {
 		showEntireScene();
 		setFrame(originalFrame);
 
-		interpolationKfi.addKeyFrame(tempFrame, false);
+		interpolationKfi.addKeyFrame(tempFrame);
 		interpolationKfi.startInterpolation();
 	}
 	
@@ -1683,8 +1669,8 @@ public abstract class Viewport implements Copyable {
 			stopAllInterpolations();
 
 		interpolationKfi.deletePath();
-		interpolationKfi.addKeyFrame(frame(), false);
-		interpolationKfi.addKeyFrame(fr, duration, false);
+		interpolationKfi.addKeyFrame(new InteractiveFrame(scene, frame()));
+		interpolationKfi.addKeyFrame(fr, duration);
 
 		interpolationKfi.startInterpolation();
 	}
