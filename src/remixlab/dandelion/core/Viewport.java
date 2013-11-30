@@ -1320,8 +1320,7 @@ public abstract class Viewport implements Copyable {
 		kfi.get(key).addKeyFrame(new InteractiveFrame(scene, frame()));
 
 		if (info)
-			System.out.println("Path " + key + ", position "
-					+ kfi.get(key).numberOfKeyFrames() + " added");
+			System.out.println("Path " + key + ", position " + kfi.get(key).numberOfKeyFrames() + " added");
 	}
 
 	/**

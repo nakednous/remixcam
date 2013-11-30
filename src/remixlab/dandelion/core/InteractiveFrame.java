@@ -182,19 +182,13 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 		super(otherFrame);
 		this.scene = otherFrame.scene;
 		
-		this.scene.terseHandler().addInAllAgentPools(this);
-		this.isInCamPath = otherFrame.isInCamPath;
-		
-		/**
-		// TODO need check?
-		// always copy listeners in super
-		if(this.isInCamPath) {
-			this.setListeners(new ArrayList<KeyFrameInterpolator>());
-			Iterator<KeyFrameInterpolator> it = otherFrame.listeners().iterator();
-			while (it.hasNext())
-				this.listeners().add(it.next());
+		//this.scene.terseHandler().addInAllAgentPools(this);
+		for (Agent element : this.scene.terseHandler().agents() ) {
+			if( this.scene.terseHandler().isInAgentPool(otherFrame, element) )
+				this.scene.terseHandler().addInAgentPool(this, element);
 		}
-		*/
+		
+		this.isInCamPath = otherFrame.isInCamPath;
 
 		this.setGrabsInputThreshold( otherFrame.grabsInputThreshold()  );
 		this.setRotationSensitivity( otherFrame.rotationSensitivity() );
@@ -258,18 +252,12 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 		scene = scn;
 
 		isInCamPath = true;
-		//TODO experimental: still it's working when commented, why? (to init kfi branch)
-		//therefore check where this frame is added in new branch
-		scene.terseHandler().addInAllAgentPools(this);
 		
 		setGrabsInputThreshold(10);
 		setRotationSensitivity(1.0f);
 		setTranslationSensitivity(1.0f);
 		setWheelSensitivity(20.0f);
 		
-		//TODO experimental, but this line seems totally useless (to init kfi branch)
-		//idem here (to init kfi branch)
-		//setListeners(iFrame);
 		
 		isSpng = false;
 		setSpinningSensitivity(0.3f);

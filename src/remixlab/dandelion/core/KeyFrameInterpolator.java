@@ -16,6 +16,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.dandelion.geom.*;
 import remixlab.fpstiming.AbstractTimerJob;
+import remixlab.fpstiming.TimingHandler;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Util;
 
@@ -97,13 +98,12 @@ public class KeyFrameInterpolator implements Copyable {
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
 		append(currentFrmValid).
-		append(fr).
+		append(mainFrame).
 		append(interpolationSpd).
 		append(interpolationStrt).
 		append(interpolationTm).
-		append(keyFr).
+		append(keyFrameList).
 		append(lpInterpolation).
-		append(myFrame).
 		append(path).
 		append(pathIsValid).
 		append(period).
@@ -120,13 +120,12 @@ public class KeyFrameInterpolator implements Copyable {
 		KeyFrameInterpolator other = (KeyFrameInterpolator) obj;
 	   return new EqualsBuilder()		
 		.append(currentFrmValid, other.currentFrmValid)
-		.append(fr, other.fr)
+		.append(mainFrame, other.mainFrame)
 		.append(interpolationSpd, other.interpolationSpd)
 		.append(interpolationStrt, other.interpolationStrt)
 		.append(interpolationTm, other.interpolationTm)
-		.append(keyFr, other.keyFr)
+		.append(keyFrameList, other.keyFrameList)
 		.append(lpInterpolation, other.lpInterpolation)
-		.append(myFrame, other.myFrame)
 		.append(path, other.path )
 		.append(pathIsValid, other.pathIsValid)
 		.append(period, other.period)
@@ -170,13 +169,8 @@ public class KeyFrameInterpolator implements Copyable {
 		
 		protected AbstractKeyFrame(AbstractKeyFrame otherKF) {
 			this.tm = otherKF.tm;
-			this.frm = otherKF.frm;
+			this.frm = otherKF.frm.get();
 			this.updateValues();
-			/**
-			this.p = this.frame().position();
-			this.q = this.frame().orientation();
-			this.s = this.frame().magnitude();	
-			*/	
 		}		
 
 		void updateValues() {
@@ -230,6 +224,7 @@ public class KeyFrameInterpolator implements Copyable {
 			super(other);
 		}
 		
+		@Override
 		public KeyFrame3D get() {
 			return new KeyFrame3D(this);
 		}	
@@ -239,8 +234,11 @@ public class KeyFrameInterpolator implements Copyable {
 		}
 		
 		void flipOrientationIfNeeded(Quat prev) {
-			if (Quat.dotProduct(prev, (Quat)q) < 0.0f)
+			if (Quat.dotProduct(prev, (Quat)q) < 0.0f) {
+				//TODO debug: really needed?
+				System.out.println("Flipped was needed");
 				q.negate();
+			}
 		}
 		
 		@Override
@@ -261,6 +259,7 @@ public class KeyFrameInterpolator implements Copyable {
 			super(other);
 		}
 		
+		@Override
 		public KeyFrame2D get() {
 			return new KeyFrame2D(this);
 		}		
@@ -273,15 +272,16 @@ public class KeyFrameInterpolator implements Copyable {
 		}
 	}
 
-	private List<AbstractKeyFrame> keyFr;
+	private long lUpdate;
+	private List<AbstractKeyFrame> keyFrameList;
 	private ListIterator<AbstractKeyFrame> currentFrame0;
 	private ListIterator<AbstractKeyFrame> currentFrame1;
 	private ListIterator<AbstractKeyFrame> currentFrame2;
 	private ListIterator<AbstractKeyFrame> currentFrame3;
 	private List<RefFrame> path;
 	// A s s o c i a t e d f r a m e
-	private RefFrame fr;
-	private RefFrame myFrame;// needed for drawPath
+	private RefFrame mainFrame;
+	//private RefFrame myFrame;// needed for drawPath
 
 	// R h y t h m
 	private AbstractTimerJob interpolationTimerJob;
@@ -329,10 +329,9 @@ public class KeyFrameInterpolator implements Copyable {
 	 */
 	public KeyFrameInterpolator(AbstractScene scn, RefFrame frame) {
 		scene = scn;
-		myFrame = new RefFrame(scene.is3D());
-		keyFr = new ArrayList<AbstractKeyFrame>();
+		keyFrameList = new ArrayList<AbstractKeyFrame>();
 		path = new ArrayList<RefFrame>();
-		fr = null;
+		mainFrame = null;
 		period = 40;
 		interpolationTm = 0.0f;
 		interpolationSpd = 1.0f;
@@ -343,10 +342,10 @@ public class KeyFrameInterpolator implements Copyable {
 		currentFrmValid = false;
 		setFrame(frame);
 
-		currentFrame0 = keyFr.listIterator();
-		currentFrame1 = keyFr.listIterator();
-		currentFrame2 = keyFr.listIterator();
-		currentFrame3 = keyFr.listIterator();
+		currentFrame0 = keyFrameList.listIterator();
+		currentFrame1 = keyFrameList.listIterator();
+		currentFrame2 = keyFrameList.listIterator();
+		currentFrame3 = keyFrameList.listIterator();
 		
 		interpolationTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -358,23 +357,14 @@ public class KeyFrameInterpolator implements Copyable {
 	
 	protected KeyFrameInterpolator(KeyFrameInterpolator otherKFI) {
 		this.scene = otherKFI.scene;
-		this.myFrame = otherKFI.myFrame.get();		
 		
 		this.path = new ArrayList<RefFrame>();
 		ListIterator<RefFrame> frameIt = otherKFI.path.listIterator();
 		while (frameIt.hasNext()) {
 			this.path.add(frameIt.next().get());
-		}		
+		}
 		
-		///**
-		if(otherKFI.fr != null)
-			this.fr = otherKFI.fr.get();
-		else
-			this.fr = null;
-		// */
-		
-		//TODO to init kfi branch setting it by ref
-		//this.fr = otherKFI.fr;
+		this.setFrame(otherKFI.frame());
 		
 		this.period = otherKFI.period;
 		this.interpolationTm = otherKFI.interpolationTm;
@@ -385,13 +375,13 @@ public class KeyFrameInterpolator implements Copyable {
 		this.valuesAreValid = otherKFI.valuesAreValid;
 		this.currentFrmValid = otherKFI.currentFrmValid;		
 		
-		this.keyFr = new ArrayList<AbstractKeyFrame>();		
-		ListIterator<AbstractKeyFrame> it = otherKFI.keyFr.listIterator();
-		while (it.hasNext()) {			
-			this.keyFr.add((AbstractKeyFrame) it.next().get());			
-		  //TODO to (init kfi branch) if it set by ref, add a listener?
+		this.keyFrameList = new ArrayList<AbstractKeyFrame>();		
+		ListIterator<AbstractKeyFrame> it = otherKFI.keyFrameList.listIterator();
+		while (it.hasNext()) {	
+			this.keyFrameList.add((AbstractKeyFrame) it.next().get());
+		  //TODO 
 			
-			/**
+			/*
 			//AbstractKeyFrame kf = (AbstractKeyFrame) it.next().get();
 			AbstractKeyFrame otherKF = (AbstractKeyFrame) it.next();
 			AbstractKeyFrame kf = (AbstractKeyFrame)otherKF.get();
@@ -400,18 +390,13 @@ public class KeyFrameInterpolator implements Copyable {
 			
 			if(kf.frame() instanceof InteractiveFrame)
 				scene.terseHandler().addInAllAgentPools((InteractiveFrame)kf.frame());
-			//*/
-			
-			/**
-			if( otherKF != null )
-				kf.frame().addListener(this);
-				//*/
+			//*/			
 		}	
 		
-		this.currentFrame0 = keyFr.listIterator(otherKFI.currentFrame0.nextIndex());
-		this.currentFrame1 = keyFr.listIterator(otherKFI.currentFrame1.nextIndex());
-		this.currentFrame2 = keyFr.listIterator(otherKFI.currentFrame2.nextIndex());
-		this.currentFrame3 = keyFr.listIterator(otherKFI.currentFrame3.nextIndex());
+		this.currentFrame0 = keyFrameList.listIterator(otherKFI.currentFrame0.nextIndex());
+		this.currentFrame1 = keyFrameList.listIterator(otherKFI.currentFrame1.nextIndex());
+		this.currentFrame2 = keyFrameList.listIterator(otherKFI.currentFrame2.nextIndex());
+		this.currentFrame3 = keyFrameList.listIterator(otherKFI.currentFrame3.nextIndex());
 		
 		this.interpolationTimerJob = new AbstractTimerJob() {
 			public void execute() {
@@ -420,19 +405,26 @@ public class KeyFrameInterpolator implements Copyable {
 		};		
 		scene.registerJob(interpolationTimerJob);		
 		
-		//TODO testing (to init kfi branch)
-		//this.invalidateValues();
+		this.invalidateValues();
 	}
 	
 	public KeyFrameInterpolator get() {
 		return new KeyFrameInterpolator(this);
+	}
+	
+	public void checked() {
+		lUpdate = TimingHandler.frameCount;
+	}
+	
+	public long lastUpdate() {
+		return lUpdate;
 	}
 
 	/**
 	 * Sets the {@link #frame()} associated to the KeyFrameInterpolator.
 	 */
 	public void setFrame(RefFrame f) {
-		fr = f;
+		mainFrame = f;
 	}
 
 	/**
@@ -447,7 +439,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * constructor.
 	 */
 	public RefFrame frame() {
-		return fr;
+		return mainFrame;
 	}
 
 	/**
@@ -455,7 +447,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #addKeyFrame(RefFrame)} to add new keyFrames.
 	 */
 	public int numberOfKeyFrames() {
-		return keyFr.size();
+		return keyFrameList.size();
 	}
 
 	/**
@@ -594,22 +586,21 @@ public class KeyFrameInterpolator implements Copyable {
 
 		interpolationTm += interpolationSpeed() * interpolationPeriod() / 1000.0f;
 
-		if (interpolationTime() > keyFr.get(keyFr.size() - 1).time()) {
+		if (interpolationTime() > keyFrameList.get(keyFrameList.size() - 1).time()) {
 			if (loopInterpolation())
-				setInterpolationTime(keyFr.get(0).time() + interpolationTm
-						- keyFr.get(keyFr.size() - 1).time());
+				setInterpolationTime(keyFrameList.get(0).time() + interpolationTm	- keyFrameList.get(keyFrameList.size() - 1).time());
 			else {
 				// Make sure last KeyFrame is reached and displayed
-				interpolateAtTime(keyFr.get(keyFr.size() - 1).time());
+				interpolateAtTime(keyFrameList.get(keyFrameList.size() - 1).time());
 				stopInterpolation();
 			}
 			// emit endReached();
-		} else if (interpolationTime() < keyFr.get(0).time()) {
+		} else if (interpolationTime() < keyFrameList.get(0).time()) {
 			if (loopInterpolation())
-				setInterpolationTime(keyFr.get(keyFr.size() - 1).time()	- keyFr.get(0).time() + interpolationTm);
+				setInterpolationTime(keyFrameList.get(keyFrameList.size() - 1).time()	- keyFrameList.get(0).time() + interpolationTm);
 			else {
 				// Make sure first KeyFrame is reached and displayed
-				interpolateAtTime(keyFr.get(0).time());
+				interpolateAtTime(keyFrameList.get(0).time());
 				stopInterpolation();
 			}
 			// emit endReached();
@@ -659,13 +650,11 @@ public class KeyFrameInterpolator implements Copyable {
 		if (myPeriod >= 0)
 			setInterpolationPeriod(myPeriod);
 
-		if (!keyFr.isEmpty()) {
-			if ((interpolationSpeed() > 0.0)
-					&& (interpolationTime() >= keyFr.get(keyFr.size() - 1).time()))
-				setInterpolationTime(keyFr.get(0).time());
-			if ((interpolationSpeed() < 0.0)
-					&& (interpolationTime() <= keyFr.get(0).time()))
-				setInterpolationTime(keyFr.get(keyFr.size() - 1).time());
+		if (!keyFrameList.isEmpty()) {
+			if ((interpolationSpeed() > 0.0) && (interpolationTime() >= keyFrameList.get(keyFrameList.size() - 1).time()))
+				setInterpolationTime(keyFrameList.get(0).time());
+			if ((interpolationSpeed() < 0.0) && (interpolationTime() <= keyFrameList.get(0).time()))
+				setInterpolationTime(keyFrameList.get(keyFrameList.size() - 1).time());
 			interpolationTimerJob.run(interpolationPeriod());
 			interpolationStrt = true;
 			update();
@@ -704,10 +693,10 @@ public class KeyFrameInterpolator implements Copyable {
 	public void addKeyFrame(RefFrame frame) {
 		float time;
 
-		if (keyFr.isEmpty())
+		if (keyFrameList.isEmpty())
 			time = 0.0f;
 		else
-			time = keyFr.get(keyFr.size() - 1).time() + 1.0f;
+			time = keyFrameList.get(keyFrameList.size() - 1).time() + 1.0f;
 
 		addKeyFrame(frame, time);
 	}
@@ -731,23 +720,21 @@ public class KeyFrameInterpolator implements Copyable {
 		if (frame == null)
 			return;
 
-		if (keyFr.isEmpty())
+		if (keyFrameList.isEmpty())
 			interpolationTm = time;
 
 		///**
-		if ((!keyFr.isEmpty()) && (keyFr.get(keyFr.size() - 1).time() > time))
+		if ((!keyFrameList.isEmpty()) && (keyFrameList.get(keyFrameList.size() - 1).time() > time))
 			System.out.println("Error in KeyFrameInterpolator.addKeyFrame: time is not monotone");
 		else {
 			if(scene.is3D())
-				keyFr.add(new KeyFrame3D(frame, time));
+				keyFrameList.add(new KeyFrame3D(frame, time));
 			else
-				keyFr.add(new KeyFrame2D(frame, time));
+				keyFrameList.add(new KeyFrame2D(frame, time));
+			//TODO debug
+			System.out.println("adding frame " + keyFrameList.size());
 		}
 		// */
-
-		// connect(frame, SIGNAL(modified()), SLOT(invalidateValues()));
-		//if (setRef) // only when setting reference
-			//frame.addListener(this);
 
 		valuesAreValid = false;
 		pathIsValid = false;
@@ -762,14 +749,14 @@ public class KeyFrameInterpolator implements Copyable {
 	 */
 	//TODO testing
 	public void removeKeyFrame(int index) {
-		if (index < 0 || index >= keyFr.size())
+		if (index < 0 || index >= keyFrameList.size())
 			return;
 		valuesAreValid = false;
 		pathIsValid = false;
 		currentFrmValid = false;
 		if( interpolationIsStarted() )
 			stopInterpolation();
-		AbstractKeyFrame kf = keyFr.remove(index);
+		AbstractKeyFrame kf = keyFrameList.remove(index);
 		if (kf.frm  instanceof InteractiveFrame)
 			scene.terseHandler().removeFromAllAgentPools( (InteractiveFrame) kf.frm );
 		  //before:
@@ -788,7 +775,7 @@ public class KeyFrameInterpolator implements Copyable {
 	public void deletePath() {
 		stopInterpolation();
 		removeFramesFromAllAgentPools();
-		keyFr.clear();
+		keyFrameList.clear();
 		pathIsValid = false;
 		valuesAreValid = false;
 		currentFrmValid = false;
@@ -801,9 +788,8 @@ public class KeyFrameInterpolator implements Copyable {
 	 * @see #addFramesToAllAgentPools()
 	 */
 	protected void removeFramesFromAllAgentPools() {
-		for (int i = 0; i < keyFr.size(); ++i)
-			if (keyFr.get(i).frame() != null)
-				scene.terseHandler().removeFromAllAgentPools((InteractiveFrame) keyFr.get(i).frame());
+		for (int i = 0; i < keyFrameList.size(); ++i)
+			scene.terseHandler().removeFromAllAgentPools((InteractiveFrame) keyFrameList.get(i).frame());
 	}
 
 	/**
@@ -813,36 +799,35 @@ public class KeyFrameInterpolator implements Copyable {
 	 * @see #removeFramesFromAllAgentPools()
 	 */
 	protected void addFramesToAllAgentPools() {
-		for (int i = 0; i < keyFr.size(); ++i)
-			if (keyFr.get(i).frame() != null)				
-				scene.terseHandler().addInAllAgentPools((InteractiveFrame) keyFr.get(i).frame());			  
+		for (int i = 0; i < keyFrameList.size(); ++i)
+			scene.terseHandler().addInAllAgentPools((InteractiveFrame) keyFrameList.get(i).frame());			  
 	}
 
 	protected void updateModifiedFrameValues() {
 		AbstractKeyFrame kf;
 		
 		if(scene.is3D()) {
-			Quat prevQ = (Quat)keyFr.get(0).orientation();
-			for (int i = 0; i < keyFr.size(); ++i) {
-				kf = keyFr.get(i);
+			Quat prevQ = (Quat)keyFrameList.get(0).orientation();
+			for (int i = 0; i < keyFrameList.size(); ++i) {
+				kf = keyFrameList.get(i);
 				kf.updateValues();
 				((KeyFrame3D)kf).flipOrientationIfNeeded(prevQ);
 				prevQ = (Quat)kf.orientation();
 			}
 		}
 		else {
-			for (int i = 0; i < keyFr.size(); ++i) {
-				kf = keyFr.get(i);
+			for (int i = 0; i < keyFrameList.size(); ++i) {
+				kf = keyFrameList.get(i);
 				kf.updateValues();
 			}
 		}
 
-		AbstractKeyFrame prev = keyFr.get(0);
-		kf = keyFr.get(0);
+		AbstractKeyFrame prev = keyFrameList.get(0);
+		kf = keyFrameList.get(0);
 
 		int index = 1;
 		while (kf != null) {
-			AbstractKeyFrame next = (index < keyFr.size()) ? keyFr.get(index) : null;
+			AbstractKeyFrame next = (index < keyFrameList.size()) ? keyFrameList.get(index) : null;
 			index++;
 			if (next != null)
 				kf.computeTangent(prev, next);
@@ -899,27 +884,28 @@ public class KeyFrameInterpolator implements Copyable {
 	 * of {@link remixlab.dandelion.core.AbstractScene#radius()} should give good results.
 	 */
 	public void drawPath(int mask, int nbFrames, float scale) {
+		checkValidity();
 		int nbSteps = 30;
 		if (!pathIsValid) {
 			path.clear();
 
-			if (keyFr.isEmpty())
+			if (keyFrameList.isEmpty())
 				return;
 
 			if (!valuesAreValid)
 				updateModifiedFrameValues();
 
-			if (keyFr.get(0) == keyFr.get(keyFr.size() - 1))
-				path.add(new RefFrame(keyFr.get(0).orientation(), keyFr.get(0).position(), keyFr.get(0).magnitude()));
+			if (keyFrameList.get(0) == keyFrameList.get(keyFrameList.size() - 1))
+				path.add(new RefFrame(keyFrameList.get(0).orientation(), keyFrameList.get(0).position(), keyFrameList.get(0).magnitude()));
 			else {
 				AbstractKeyFrame[] kf = new AbstractKeyFrame[4];
-				kf[0] = keyFr.get(0);
+				kf[0] = keyFrameList.get(0);
 				kf[1] = kf[0];
 
 				int index = 1;
-				kf[2] = (index < keyFr.size()) ? keyFr.get(index) : null;
+				kf[2] = (index < keyFrameList.size()) ? keyFrameList.get(index) : null;
 				index++;
-				kf[3] = (index < keyFr.size()) ? keyFr.get(index) : null;
+				kf[3] = (index < keyFrameList.size()) ? keyFrameList.get(index) : null;
 
 				while (kf[2] != null) {
 					Vec pdiff = Vec.sub(kf[2].position(), kf[1].position());
@@ -938,21 +924,22 @@ public class KeyFrameInterpolator implements Copyable {
 					// */
 					
 					for (int step = 0; step < nbSteps; ++step) {
+						RefFrame frame = new RefFrame(scene.is3D());
 						float alpha = step / (float) nbSteps;
-						myFrame.setPosition(Vec.add(kf[1].position(), Vec.mult(Vec.add(kf[1].tgP(), Vec.mult(Vec.add(pvec1, Vec.mult(pvec2, alpha)), alpha)), alpha)));
+						frame.setPosition(Vec.add(kf[1].position(), Vec.mult(Vec.add(kf[1].tgP(), Vec.mult(Vec.add(pvec1, Vec.mult(pvec2, alpha)), alpha)), alpha)));
 					  if( scene.is3D()) {
-						  myFrame.setOrientation(Quat.squad((Quat)kf[1].orientation(), ((KeyFrame3D)kf[1]).tgQ(), ((KeyFrame3D)kf[2]).tgQ(), (Quat)kf[2].orientation(), alpha));
+						  frame.setOrientation(Quat.squad((Quat)kf[1].orientation(), ((KeyFrame3D)kf[1]).tgQ(), ((KeyFrame3D)kf[2]).tgQ(), (Quat)kf[2].orientation(), alpha));
 					  }
 					  else {
 					    //linear interpolation
 							float start = kf[1].orientation().angle();
 							float stop = kf[2].orientation().angle();
-							myFrame.setOrientation(new Rot(start + (stop-start) * alpha) );
+							frame.setOrientation(new Rot(start + (stop-start) * alpha) );
 					  }
 					  //myFrame.setMagnitude(magnitudeLerp(kf[1], kf[2], alpha));
 					  //Option 2 (interpolate scaling using a spline)
-					  myFrame.setMagnitude(Vec.add(kf[1].magnitude(), Vec.mult(Vec.add(kf[1].tgS(), Vec.mult(Vec.add(svec1, Vec.mult(svec2, alpha)), alpha)), alpha)));					  
-						path.add(myFrame.get());
+					  frame.setMagnitude(Vec.add(kf[1].magnitude(), Vec.mult(Vec.add(kf[1].tgS(), Vec.mult(Vec.add(svec1, Vec.mult(svec2, alpha)), alpha)), alpha)));					  
+						path.add(frame.get());
 					}
 
 					// Shift
@@ -961,7 +948,7 @@ public class KeyFrameInterpolator implements Copyable {
 					kf[2] = kf[3];
 
 					index++;
-					kf[3] = (index < keyFr.size()) ? keyFr.get(index) : null;
+					kf[3] = (index < keyFrameList.size()) ? keyFrameList.get(index) : null;
 				}
 				// Add last KeyFrame
 				path.add(new RefFrame(kf[1].orientation(), kf[1].position(), kf[1].magnitude()));
@@ -970,6 +957,20 @@ public class KeyFrameInterpolator implements Copyable {
 		}
 		
 		scene.drawPath(path, mask, nbFrames, nbSteps, scale);
+	}
+	
+	protected void checkValidity() {
+		boolean flag = false;
+		for (AbstractKeyFrame element : keyFrameList) {
+	    if(element.frame().lastUpdate() > lastUpdate()) {
+	    	flag = true;
+	    	break;
+	    }
+	  }
+		if(flag) {
+			this.invalidateValues();
+			this.checked();
+		}
 	}
 
 	/**
@@ -983,8 +984,11 @@ public class KeyFrameInterpolator implements Copyable {
 	 * state is returned.
 	 */
 	public RefFrame keyFrame(int index) {
+		/**
 		AbstractKeyFrame kf = keyFr.get(index);
 		return new RefFrame(kf.orientation(), kf.position(), kf.magnitude());
+		*/
+		return keyFrameList.get(index).frame();
 	}
 
 	/**
@@ -994,7 +998,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * @see #keyFrame(int)
 	 */
 	public float keyFrameTime(int index) {
-		return keyFr.get(index).time();
+		return keyFrameList.get(index).time();
 	}
 
 	/**
@@ -1020,10 +1024,10 @@ public class KeyFrameInterpolator implements Copyable {
 	 * @see #keyFrameTime(int)
 	 */
 	public float firstTime() {
-		if (keyFr.isEmpty())
+		if (keyFrameList.isEmpty())
 			return 0.0f;
 		else
-			return keyFr.get(0).time();
+			return keyFrameList.get(0).time();
 	}
 
 	/**
@@ -1035,10 +1039,10 @@ public class KeyFrameInterpolator implements Copyable {
 	 * @see #keyFrameTime(int)
 	 */
 	public float lastTime() {
-		if (keyFr.isEmpty())
+		if (keyFrameList.isEmpty())
 			return 0.0f;
 		else
-			return keyFr.get(keyFr.size() - 1).time();
+			return keyFrameList.get(keyFrameList.size() - 1).time();
 	}
 
 	protected void updateCurrentKeyFrameForTime(float time) {
@@ -1048,10 +1052,10 @@ public class KeyFrameInterpolator implements Copyable {
 		// TODO: Special case for loops when closed path is implemented !!
 		if (!currentFrmValid)
 			// Recompute everything from scratch
-			currentFrame1 = keyFr.listIterator();
+			currentFrame1 = keyFrameList.listIterator();
 
 		// currentFrame_[1]->peekNext() <---> keyFr.get(currentFrame1.nextIndex());
-		while (keyFr.get(currentFrame1.nextIndex()).time() > time) {
+		while (keyFrameList.get(currentFrame1.nextIndex()).time() > time) {
 			currentFrmValid = false;
 			if (!currentFrame1.hasPrevious())
 				break;
@@ -1061,9 +1065,9 @@ public class KeyFrameInterpolator implements Copyable {
 		if (!currentFrmValid)
 			// *currentFrame_[2] = *currentFrame_[1]; <---> currentFrame2 =
 			// keyFr.listIterator( currentFrame1.nextIndex() );
-			currentFrame2 = keyFr.listIterator(currentFrame1.nextIndex());
+			currentFrame2 = keyFrameList.listIterator(currentFrame1.nextIndex());
 
-		while (keyFr.get(currentFrame2.nextIndex()).time() < time) {
+		while (keyFrameList.get(currentFrame2.nextIndex()).time() < time) {
 			currentFrmValid = false;
 
 			if (!currentFrame2.hasNext())
@@ -1073,18 +1077,18 @@ public class KeyFrameInterpolator implements Copyable {
 		}
 
 		if (!currentFrmValid) {
-			currentFrame1 = keyFr.listIterator(currentFrame2.nextIndex());
+			currentFrame1 = keyFrameList.listIterator(currentFrame2.nextIndex());
 
 			if ((currentFrame1.hasPrevious())
-					&& (time < keyFr.get(currentFrame2.nextIndex()).time()))
+					&& (time < keyFrameList.get(currentFrame2.nextIndex()).time()))
 				currentFrame1.previous();
 
-			currentFrame0 = keyFr.listIterator(currentFrame1.nextIndex());
+			currentFrame0 = keyFrameList.listIterator(currentFrame1.nextIndex());
 
 			if (currentFrame0.hasPrevious())
 				currentFrame0.previous();
 
-			currentFrame3 = keyFr.listIterator(currentFrame2.nextIndex());
+			currentFrame3 = keyFrameList.listIterator(currentFrame2.nextIndex());
 
 			if (currentFrame3.hasNext())
 				currentFrame3.next();
@@ -1095,19 +1099,19 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 
 	public void updateSplineCache() {		
-		Vec deltaP = Vec.sub(keyFr.get(currentFrame2.nextIndex()).position(), keyFr.get(currentFrame1.nextIndex()).position());
-		pv1 = Vec.add(Vec.mult(deltaP, 3.0f), Vec.mult(keyFr.get(currentFrame1.nextIndex()).tgP(), (-2.0f)));
-		pv1 = Vec.sub(pv1, keyFr.get(currentFrame2.nextIndex()).tgP());
-		pv2 = Vec.add(Vec.mult(deltaP, (-2.0f)), keyFr.get(currentFrame1.nextIndex()).tgP());
-		pv2 = Vec.add(pv2, keyFr.get(currentFrame2.nextIndex()).tgP());
+		Vec deltaP = Vec.sub(keyFrameList.get(currentFrame2.nextIndex()).position(), keyFrameList.get(currentFrame1.nextIndex()).position());
+		pv1 = Vec.add(Vec.mult(deltaP, 3.0f), Vec.mult(keyFrameList.get(currentFrame1.nextIndex()).tgP(), (-2.0f)));
+		pv1 = Vec.sub(pv1, keyFrameList.get(currentFrame2.nextIndex()).tgP());
+		pv2 = Vec.add(Vec.mult(deltaP, (-2.0f)), keyFrameList.get(currentFrame1.nextIndex()).tgP());
+		pv2 = Vec.add(pv2, keyFrameList.get(currentFrame2.nextIndex()).tgP());
 	
 		// /**
 		//Option 2 (interpolate scaling using a spline)
-		Vec deltaS = Vec.sub(keyFr.get(currentFrame2.nextIndex()).magnitude(), keyFr.get(currentFrame1.nextIndex()).magnitude());
-		sv1 = Vec.add(Vec.mult(deltaS, 3.0f), Vec.mult(keyFr.get(currentFrame1.nextIndex()).tgS(), (-2.0f)));
-		sv1 = Vec.sub(sv1, keyFr.get(currentFrame2.nextIndex()).tgS());
-		sv2 = Vec.add(Vec.mult(deltaS, (-2.0f)), keyFr.get(currentFrame1.nextIndex()).tgS());
-		sv2 = Vec.add(sv2, keyFr.get(currentFrame2.nextIndex()).tgS());
+		Vec deltaS = Vec.sub(keyFrameList.get(currentFrame2.nextIndex()).magnitude(), keyFrameList.get(currentFrame1.nextIndex()).magnitude());
+		sv1 = Vec.add(Vec.mult(deltaS, 3.0f), Vec.mult(keyFrameList.get(currentFrame1.nextIndex()).tgS(), (-2.0f)));
+		sv1 = Vec.sub(sv1, keyFrameList.get(currentFrame2.nextIndex()).tgS());
+		sv2 = Vec.add(Vec.mult(deltaS, (-2.0f)), keyFrameList.get(currentFrame1.nextIndex()).tgS());
+		sv2 = Vec.add(sv2, keyFrameList.get(currentFrame2.nextIndex()).tgS());
 		// */
 		
 		splineCacheIsValid = true;
@@ -1122,9 +1126,10 @@ public class KeyFrameInterpolator implements Copyable {
 	 * {@link #frame()} state, use {@link #setInterpolationTime(float)} instead.
 	 */
 	public void interpolateAtTime(float time) {
+		this.checkValidity();
 		setInterpolationTime(time);
 
-		if ((keyFr.isEmpty()) || (frame() == null))
+		if ((keyFrameList.isEmpty()) || (frame() == null))
 			return;
 
 		if (!valuesAreValid)
@@ -1136,20 +1141,19 @@ public class KeyFrameInterpolator implements Copyable {
 			updateSplineCache();
 
 		float alpha;
-		float dt = keyFr.get(currentFrame2.nextIndex()).time()
-				- keyFr.get(currentFrame1.nextIndex()).time();
+		float dt = keyFrameList.get(currentFrame2.nextIndex()).time() - keyFrameList.get(currentFrame1.nextIndex()).time();
 		if (Util.zero(dt))
 			alpha = 0.0f;
 		else
-			alpha = (time - keyFr.get(currentFrame1.nextIndex()).time()) / dt;		
+			alpha = (time - keyFrameList.get(currentFrame1.nextIndex()).time()) / dt;		
 
 		// Linear interpolation - debug
 		// Vec pos = alpha*(currentFrame2->peekNext()->position()) +
 		// (1.0-alpha)*(currentFrame1->peekNext()->position());
 		// Vec pos = currentFrame_[1]->peekNext()->position() + alpha *
 		// (currentFrame_[1]->peekNext()->tgP() + alpha * (v1+alpha*v2));
-		Vec pos = Vec.add(keyFr.get(currentFrame1.nextIndex()).position(),
-				                        Vec.mult(Vec.add(keyFr.get(currentFrame1.nextIndex()).tgP(),
+		Vec pos = Vec.add(keyFrameList.get(currentFrame1.nextIndex()).position(),
+				                        Vec.mult(Vec.add(keyFrameList.get(currentFrame1.nextIndex()).tgP(),
 						                    Vec.mult(Vec.add(pv1, Vec.mult(pv2, alpha)), alpha)), alpha));
 		
 		/**
@@ -1161,8 +1165,8 @@ public class KeyFrameInterpolator implements Copyable {
 		
 		// /**
 		//Option 2 (interpolate scaling using a spline)
-		Vec mag = Vec.add(keyFr.get(currentFrame1.nextIndex()).magnitude(),
-                                Vec.mult(Vec.add(keyFr.get(currentFrame1.nextIndex()).tgS(),
+		Vec mag = Vec.add(keyFrameList.get(currentFrame1.nextIndex()).magnitude(),
+                                Vec.mult(Vec.add(keyFrameList.get(currentFrame1.nextIndex()).tgS(),
                                 Vec.mult(Vec.add(sv1, Vec.mult(sv2, alpha)), alpha)), alpha));
     // */		
 
@@ -1170,14 +1174,14 @@ public class KeyFrameInterpolator implements Copyable {
 	  //TODO 2d Case pending
 		Orientable q;
 		if(scene.is3D()) {
-		  q = Quat.squad((Quat)keyFr.get(currentFrame1.nextIndex()).orientation(), 
-			                    ((KeyFrame3D)keyFr.get(currentFrame1.nextIndex())).tgQ(),
-			                    ((KeyFrame3D)keyFr.get(currentFrame2.nextIndex())).tgQ(),
-			                     (Quat)keyFr.get(currentFrame2.nextIndex()).orientation(), alpha);
+		  q = Quat.squad((Quat)keyFrameList.get(currentFrame1.nextIndex()).orientation(), 
+			                    ((KeyFrame3D)keyFrameList.get(currentFrame1.nextIndex())).tgQ(),
+			                    ((KeyFrame3D)keyFrameList.get(currentFrame2.nextIndex())).tgQ(),
+			                     (Quat)keyFrameList.get(currentFrame2.nextIndex()).orientation(), alpha);
 		} else {
-			q =  new Rot( rotationLerp(keyFr.get(currentFrame1.nextIndex()),
-					                            keyFr.get(currentFrame2.nextIndex()),
-					                            ( alpha)));
+			q =  new Rot( rotationLerp(keyFrameList.get(currentFrame1.nextIndex()),
+					                                 keyFrameList.get(currentFrame2.nextIndex()),
+					                                 ( alpha)));
 		}
 		
 		frame().setPositionWithConstraint(pos);
