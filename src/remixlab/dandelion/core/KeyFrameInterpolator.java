@@ -153,42 +153,32 @@ public class KeyFrameInterpolator implements Copyable {
 			.isEquals();
 		}
 		
-		protected Vec p, tgPVec;
-		protected Vec s;		
+		protected Vec tgPVec;	
 		//Option 2 (interpolate scaling using a spline)
 		protected Vec tgSVec;
-		protected Orientable q;
 		protected float tm;
 		protected RefFrame frm;
 
 		AbstractKeyFrame(RefFrame fr, float t) {
 			tm = t;
 			frm = fr;
-			updateValues();
 		}
 		
 		protected AbstractKeyFrame(AbstractKeyFrame otherKF) {
 			this.tm = otherKF.tm;
 			this.frm = otherKF.frm.get();
-			this.updateValues();
 		}		
 
-		void updateValues() {
-			p = frame().position();
-			q = frame().orientation();
-			s = frame().magnitude();
-		}
-
 		Vec position() {
-			return p;
+			return frame().position();
 		}
 
 		Orientable orientation() {
-			return q;
+			return frame().orientation();
 		}
 		
 		Vec magnitude() {
-			return s;
+			return frame().magnitude();
 		}
 
 		float time() {
@@ -233,18 +223,10 @@ public class KeyFrameInterpolator implements Copyable {
 			return tgQuat;
 		}
 		
-		void flipOrientationIfNeeded(Quat prev) {
-			if (Quat.dotProduct(prev, (Quat)q) < 0.0f) {
-				//TODO debug: really needed?
-				System.out.println("Flipped was needed");
-				q.negate();
-			}
-		}
-		
 		@Override
 		void computeTangent(AbstractKeyFrame prev, AbstractKeyFrame next) {
 			tgPVec = Vec.mult(Vec.sub(next.position(), prev.position()), 0.5f);
-			tgQuat = Quat.squadTangent((Quat)prev.orientation(), (Quat)q, (Quat)next.orientation());
+			tgQuat = Quat.squadTangent((Quat)prev.orientation(), (Quat)orientation(), (Quat)next.orientation());
 			////Option 2 (interpolate scaling using a spline)
 			tgSVec = Vec.mult(Vec.sub(next.magnitude(), prev.magnitude()), 0.5f);			
 		}
@@ -281,7 +263,6 @@ public class KeyFrameInterpolator implements Copyable {
 	private List<RefFrame> path;
 	// A s s o c i a t e d f r a m e
 	private RefFrame mainFrame;
-	//private RefFrame myFrame;// needed for drawPath
 
 	// R h y t h m
 	private AbstractTimerJob interpolationTimerJob;
@@ -377,21 +358,8 @@ public class KeyFrameInterpolator implements Copyable {
 		
 		this.keyFrameList = new ArrayList<AbstractKeyFrame>();		
 		ListIterator<AbstractKeyFrame> it = otherKFI.keyFrameList.listIterator();
-		while (it.hasNext()) {	
+		while (it.hasNext())
 			this.keyFrameList.add((AbstractKeyFrame) it.next().get());
-		  //TODO 
-			
-			/*
-			//AbstractKeyFrame kf = (AbstractKeyFrame) it.next().get();
-			AbstractKeyFrame otherKF = (AbstractKeyFrame) it.next();
-			AbstractKeyFrame kf = (AbstractKeyFrame)otherKF.get();
-			
-			this.keyFr.add(kf);
-			
-			if(kf.frame() instanceof InteractiveFrame)
-				scene.terseHandler().addInAllAgentPools((InteractiveFrame)kf.frame());
-			//*/			
-		}	
 		
 		this.currentFrame0 = keyFrameList.listIterator(otherKFI.currentFrame0.nextIndex());
 		this.currentFrame1 = keyFrameList.listIterator(otherKFI.currentFrame1.nextIndex());
@@ -731,8 +699,6 @@ public class KeyFrameInterpolator implements Copyable {
 				keyFrameList.add(new KeyFrame3D(frame, time));
 			else
 				keyFrameList.add(new KeyFrame2D(frame, time));
-			//TODO debug
-			System.out.println("adding frame " + keyFrameList.size());
 		}
 		// */
 
@@ -805,23 +771,6 @@ public class KeyFrameInterpolator implements Copyable {
 
 	protected void updateModifiedFrameValues() {
 		AbstractKeyFrame kf;
-		
-		if(scene.is3D()) {
-			Quat prevQ = (Quat)keyFrameList.get(0).orientation();
-			for (int i = 0; i < keyFrameList.size(); ++i) {
-				kf = keyFrameList.get(i);
-				kf.updateValues();
-				((KeyFrame3D)kf).flipOrientationIfNeeded(prevQ);
-				prevQ = (Quat)kf.orientation();
-			}
-		}
-		else {
-			for (int i = 0; i < keyFrameList.size(); ++i) {
-				kf = keyFrameList.get(i);
-				kf.updateValues();
-			}
-		}
-
 		AbstractKeyFrame prev = keyFrameList.get(0);
 		kf = keyFrameList.get(0);
 
@@ -1170,8 +1119,6 @@ public class KeyFrameInterpolator implements Copyable {
                                 Vec.mult(Vec.add(sv1, Vec.mult(sv2, alpha)), alpha)), alpha));
     // */		
 
-		
-	  //TODO 2d Case pending
 		Orientable q;
 		if(scene.is3D()) {
 		  q = Quat.squad((Quat)keyFrameList.get(currentFrame1.nextIndex()).orientation(), 
