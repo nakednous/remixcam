@@ -1285,8 +1285,11 @@ public abstract class Viewport implements Copyable {
 	 * key}.
 	 */
 	public void setKeyFrameInterpolator(int key, KeyFrameInterpolator k) {
-		if (k != null)
+		if (k != null) {
+			if (kfi.get(key) != null)
+				kfi.get(key).removeFramesFromAllAgentPools();
 			kfi.put(key, k);
+		}
 		else
 			kfi.remove(key);
 	}
