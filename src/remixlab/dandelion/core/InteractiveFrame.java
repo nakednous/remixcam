@@ -361,8 +361,14 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 		
 		Vec proj = scene.viewPoint().projectedCoordinatesOf(position());
 		
+		/**
 		return ((Math.abs((event2.getX() - scene.upperLeftCorner.getX()) - proj.vec[0]) < grabsInputThreshold()) &&
 				    (Math.abs((event2.getY() - scene.upperLeftCorner.getY()) - proj.vec[1]) < grabsInputThreshold()));
+	  */
+		//TODO still a bit experimental
+		//but it seems the correct way for picking offscreen iFrames
+		return ((Math.abs(event2.getX() - proj.vec[0]) < grabsInputThreshold()) &&
+		        (Math.abs(event2.getY() - proj.vec[1]) < grabsInputThreshold()));
 	}
 
 	/**

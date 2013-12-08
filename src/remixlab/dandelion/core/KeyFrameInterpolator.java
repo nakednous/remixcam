@@ -357,9 +357,13 @@ public class KeyFrameInterpolator implements Copyable {
 		this.currentFrmValid = otherKFI.currentFrmValid;		
 		
 		this.keyFrameList = new ArrayList<AbstractKeyFrame>();		
-		ListIterator<AbstractKeyFrame> it = otherKFI.keyFrameList.listIterator();
-		while (it.hasNext())
-			this.keyFrameList.add((AbstractKeyFrame) it.next().get());
+		
+		for (AbstractKeyFrame element : otherKFI.keyFrameList) {
+			AbstractKeyFrame kf = (AbstractKeyFrame)element.get();
+			this.keyFrameList.add(kf);
+			if (kf.frame() instanceof InteractiveFrame)
+				this.scene.terseHandler().removeFromAllAgentPools((InteractiveFrame)kf.frame());
+	  }
 		
 		this.currentFrame0 = keyFrameList.listIterator(otherKFI.currentFrame0.nextIndex());
 		this.currentFrame1 = keyFrameList.listIterator(otherKFI.currentFrame1.nextIndex());
