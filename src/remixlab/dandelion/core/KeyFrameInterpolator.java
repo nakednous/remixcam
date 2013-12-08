@@ -755,7 +755,8 @@ public class KeyFrameInterpolator implements Copyable {
 	 */
 	protected void removeFramesFromAllAgentPools() {
 		for (int i = 0; i < keyFrameList.size(); ++i)
-			scene.terseHandler().removeFromAllAgentPools((InteractiveFrame) keyFrameList.get(i).frame());
+			if(keyFrameList.get(i).frame() instanceof InteractiveFrame)
+				scene.terseHandler().removeFromAllAgentPools((InteractiveFrame) keyFrameList.get(i).frame());
 	}
 
 	/**
@@ -766,7 +767,8 @@ public class KeyFrameInterpolator implements Copyable {
 	 */
 	protected void addFramesToAllAgentPools() {
 		for (int i = 0; i < keyFrameList.size(); ++i)
-			scene.terseHandler().addInAllAgentPools((InteractiveFrame) keyFrameList.get(i).frame());			  
+			if(keyFrameList.get(i).frame() instanceof InteractiveFrame)
+				scene.terseHandler().addInAllAgentPools((InteractiveFrame) keyFrameList.get(i).frame());			  
 	}
 
 	protected void updateModifiedFrameValues() {

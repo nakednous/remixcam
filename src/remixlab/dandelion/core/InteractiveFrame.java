@@ -359,7 +359,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 		else if( event instanceof DOF6Event )
 			event2 = ((DOF6Event)event).dof3Event().dof2Event();
 		
-		Vec proj = scene.viewport().projectedCoordinatesOf(position());
+		Vec proj = scene.viewPoint().projectedCoordinatesOf(position());
 		
 		return ((Math.abs((event2.getX() - scene.upperLeftCorner.getX()) - proj.vec[0]) < grabsInputThreshold()) &&
 				    (Math.abs((event2.getY() - scene.upperLeftCorner.getY()) - proj.vec[1]) < grabsInputThreshold()));

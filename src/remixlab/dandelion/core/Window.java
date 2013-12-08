@@ -12,7 +12,7 @@ package remixlab.dandelion.core;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
 
-public class Window extends Viewport implements Copyable {
+public class Window extends ViewPoint implements Copyable {
 	
 	static final float FAKED_ZNEAR = -10;  
   static final float FAKED_ZFAR = 10;	

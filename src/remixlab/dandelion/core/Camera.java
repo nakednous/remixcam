@@ -39,7 +39,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * and {@link #setStandardZFar(float)}).
  * 
  */
-public class Camera extends Viewport implements Constants, Copyable {
+public class Camera extends ViewPoint implements Constants, Copyable {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
@@ -915,7 +915,7 @@ public class Camera extends Viewport implements Constants, Copyable {
 	 * If you need a completely different zNear computation, overload the
 	 * {@link #zNear()} and {@link #zFar()} methods in a new class that publicly
 	 * inherits from Camera and use
-	 * {@link remixlab.dandelion.core.AbstractScene#setViewPort(Camera)}.
+	 * {@link remixlab.dandelion.core.AbstractScene#setViewPoint(Camera)}.
 	 * <p>
 	 * <b>Attention:</b> The value is always positive although the clipping plane
 	 * is positioned at a negative z value in the Camera coordinate system. This
@@ -1087,9 +1087,9 @@ public class Camera extends Viewport implements Constants, Copyable {
 	}
 
 	/**
-	 * Returns {@link remixlab.dandelion.core.Viewport.Visibility#VISIBLE},
-	 * {@link remixlab.dandelion.core.Viewport.Visibility#INVISIBLE}, or
-	 * {@link remixlab.dandelion.core.Viewport.Visibility#SEMIVISIBLE}, depending whether
+	 * Returns {@link remixlab.dandelion.core.ViewPoint.Visibility#VISIBLE},
+	 * {@link remixlab.dandelion.core.ViewPoint.Visibility#INVISIBLE}, or
+	 * {@link remixlab.dandelion.core.ViewPoint.Visibility#SEMIVISIBLE}, depending whether
 	 * the sphere (of radius {@code radius} and center {@code center}) is visible,
 	 * invisible, or semi-visible, respectively.
 	 * <p>

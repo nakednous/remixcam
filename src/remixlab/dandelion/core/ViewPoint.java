@@ -21,7 +21,7 @@ import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.Util;
 
-public abstract class Viewport implements Copyable {
+public abstract class ViewPoint implements Copyable {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
@@ -65,7 +65,7 @@ public abstract class Viewport implements Copyable {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		Viewport other = (Viewport) obj;		
+		ViewPoint other = (ViewPoint) obj;		
 	  return new EqualsBuilder()
     .append(fpCoefficientsUpdate, other.fpCoefficientsUpdate)
     //.append(unprojectCacheOptimized, other.unprojectCacheOptimized)
@@ -147,7 +147,7 @@ public abstract class Viewport implements Copyable {
 	public long lastParamUpdate = 0;
 	protected long lastFPCoeficientsUpdateIssued = -1;
 	
-	public Viewport(AbstractScene scn) {
+	public ViewPoint(AbstractScene scn) {
 		scene = scn;
 		
 		//optimizeUnprojectCache(false);
@@ -191,7 +191,7 @@ public abstract class Viewport implements Copyable {
 	 * 
 	 * @param oVP the viewport object to be copied
 	 */
-	protected Viewport(Viewport oVP) {
+	protected ViewPoint(ViewPoint oVP) {
 		this.scene = oVP.scene;
 		
 		//this.orthoSize = oVP.orthoSize;
@@ -231,7 +231,7 @@ public abstract class Viewport implements Copyable {
 
 	// /**
 	@Override
-	public abstract Viewport get();
+	public abstract ViewPoint get();
 	// */
 	
 	/**
@@ -546,7 +546,7 @@ public abstract class Viewport implements Copyable {
 	 * Note that {@link remixlab.dandelion.core.AbstractScene#center()} (resp.
 	 * remixlab.remixcam.core.AbstractScene{@link #setSceneCenter(Vec)}) simply call this
 	 * method (resp. {@link #setSceneCenter(Vec)}) on its associated
-	 * {@link remixlab.dandelion.core.AbstractScene#viewport()}. Default value is (0,0,0) (world
+	 * {@link remixlab.dandelion.core.AbstractScene#viewPoint()}. Default value is (0,0,0) (world
 	 * origin). Use {@link #setSceneCenter(Vec)} to change it.
 	 * 
 	 * @see #setSceneBoundingBox(Vec, Vec)

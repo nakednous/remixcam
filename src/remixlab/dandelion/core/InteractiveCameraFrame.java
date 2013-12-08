@@ -61,7 +61,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		.isEquals();
 	}
 	
-	protected Viewport viewport;
+	protected ViewPoint viewport;
 	protected Vec arcballRefPnt;	
 	protected Vec worldAxis;
 	
@@ -79,7 +79,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	 * <p>
 	 * <b>Attention:</b> Created object is {@link #removeFromDeviceGrabberPool()}.
 	 */
-	public InteractiveCameraFrame(Viewport vp) {
+	public InteractiveCameraFrame(ViewPoint vp) {
 		super(vp.scene);
 		viewport = vp;
 		scene.terseHandler().removeFromAllAgentPools(this);
@@ -125,7 +125,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 		return new InteractiveCameraFrame(this);
 	}	
 	
-	public Viewport pinhole() {
+	public ViewPoint pinhole() {
 		return viewport;
 	}
 	
@@ -584,7 +584,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 	 * 
 	 * @see #getCADAxis()
 	 */	
-	protected Quat cadQuaternion(DOF2Event event, float cx,	float cy, Viewport camera) {
+	protected Quat cadQuaternion(DOF2Event event, float cx,	float cy, ViewPoint camera) {
 		if(! (camera instanceof Camera) )
 			throw new RuntimeException("CAD cam is oly available in 3D");
 		
