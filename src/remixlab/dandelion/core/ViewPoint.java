@@ -1284,14 +1284,36 @@ public abstract class ViewPoint implements Copyable {
 	 * Sets the KeyFrameInterpolator that defines the Camera path of index {@code
 	 * key}.
 	 */
-	public void setKeyFrameInterpolator(int key, KeyFrameInterpolator k) {
-		if (k != null) {
-			if (kfi.get(key) != null)
-				kfi.get(key).removeFramesFromAllAgentPools();
-			kfi.put(key, k);
+	public void setKeyFrameInterpolator(int key, KeyFrameInterpolator keyFInterpolator) {
+	  //TODO experimental
+		// 1. currently there's one path for the given key
+		if(kfi.get(key) != null) {
+			//kfi.get(key).removeFramesFromAllAgentPools();
+			deletePath(key);			
+			/**
+			for (AbstractKeyFrame element : keyFrameInterpolator(key).keyFrameList) {
+				AbstractKeyFrame kf = (AbstractKeyFrame)element.get();					
+				if (kf.frame() instanceof InteractiveFrame)
+					scene.terseHandler().removeFromAllAgentPools((InteractiveFrame)kf.frame());
+			}
+			*/
+		}
+		if (keyFInterpolator != null) {
+			if(frame() != keyFInterpolator.frame())
+				keyFInterpolator.setFrame(frame());
+			if( keyFInterpolator.scene != scene ) {
+				keyFInterpolator.scene = scene;				
+				for (int i = 0; i < keyFInterpolator.numberOfKeyFrames(); ++i)
+					if(keyFInterpolator.keyFrame(i) instanceof InteractiveFrame)
+						((InteractiveFrame)keyFInterpolator.keyFrame(i)).scene = scene;
+	    }
+		  //end			
+			kfi.put(key, keyFInterpolator);
+			System.out.println("Path " + key + " set");
 		}
 		else
-			kfi.remove(key);
+			//kfi.remove(key);
+			deletePath(key);
 	}
 
 	/**

@@ -203,7 +203,7 @@ public class KeyFrameInterpolator implements Copyable {
 		abstract void computeTangent(AbstractKeyFrame prev, AbstractKeyFrame next);
 	}
 	
-	private class KeyFrame3D extends AbstractKeyFrame {
+	protected class KeyFrame3D extends AbstractKeyFrame {
 		protected Quat tgQuat;
 		
 		KeyFrame3D(RefFrame fr, float t) {
@@ -232,7 +232,7 @@ public class KeyFrameInterpolator implements Copyable {
 		}
 	}
 	
-	private class KeyFrame2D extends AbstractKeyFrame {		
+	protected class KeyFrame2D extends AbstractKeyFrame {		
 		KeyFrame2D(RefFrame fr, float t) {
 			super(fr, t);			
 		}
@@ -255,7 +255,7 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 
 	private long lUpdate;
-	private List<AbstractKeyFrame> keyFrameList;
+	protected List<AbstractKeyFrame> keyFrameList;
 	private ListIterator<AbstractKeyFrame> currentFrame0;
 	private ListIterator<AbstractKeyFrame> currentFrame1;
 	private ListIterator<AbstractKeyFrame> currentFrame2;
@@ -337,8 +337,7 @@ public class KeyFrameInterpolator implements Copyable {
 	}	
 	
 	protected KeyFrameInterpolator(KeyFrameInterpolator otherKFI) {
-		this.scene = otherKFI.scene;
-		
+		this.scene = otherKFI.scene;		
 		this.path = new ArrayList<RefFrame>();
 		ListIterator<RefFrame> frameIt = otherKFI.path.listIterator();
 		while (frameIt.hasNext()) {
@@ -363,7 +362,7 @@ public class KeyFrameInterpolator implements Copyable {
 			this.keyFrameList.add(kf);
 			if (kf.frame() instanceof InteractiveFrame)
 				this.scene.terseHandler().removeFromAllAgentPools((InteractiveFrame)kf.frame());
-	  }
+		}
 		
 		this.currentFrame0 = keyFrameList.listIterator(otherKFI.currentFrame0.nextIndex());
 		this.currentFrame1 = keyFrameList.listIterator(otherKFI.currentFrame1.nextIndex());
