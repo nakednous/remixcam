@@ -788,13 +788,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		 	}
 
 		@Override
-		public void drawPath(List<RefFrame> path, int mask, int nbFrames,int nbSteps, float scale) {
+		public void drawPath(KeyFrameInterpolator kfi, int mask, int nbFrames, float scale) {
 			if (mask != 0) {
+				int nbSteps = 30;
 				pg().pushStyle();
 				pg().strokeWeight(2);
 				pg().noFill();
 				pg().stroke(170);
 				
+				List<RefFrame> path = kfi.path();				
 				if (((mask & 1) != 0) && path.size() > 1 ) {				
 					pg().beginShape();
 					for (RefFrame myFr : path)
@@ -823,6 +825,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 						}
 				}
 				pg().popStyle();
+				kfi.addFramesToAllAgentPools();
+				drawViewPointPathSelectionHints();
 			}
 		}
 	}
@@ -1293,13 +1297,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public void drawPath(List<RefFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
+		public void drawPath(KeyFrameInterpolator kfi, int mask, int nbFrames, float scale) {
 			if (mask != 0) {
+				int nbSteps = 30;
 				pg3d().pushStyle();
 				pg3d().strokeWeight(2);
 				pg3d().noFill();
 				pg3d().stroke(170);
 				
+				List<RefFrame> path = kfi.path();
 				if (((mask & 1) != 0) && path.size() > 1 ) {				
 					pg3d().beginShape();
 					for (RefFrame myFr : path)
@@ -1328,6 +1334,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 						}
 				}
 				pg3d().popStyle();
+				kfi.addFramesToAllAgentPools();
+				drawViewPointPathSelectionHints();
 			}
 		}
 		

@@ -49,8 +49,8 @@ public class GenericActionableAgent<P extends GenericProfile<?,?>> extends Agent
 	
 	protected P profile;
 	
-	public GenericActionableAgent(P p, TerseHandler scn, String n) {
-		super(scn, n);
+	public GenericActionableAgent(P p, TerseHandler tHandler, String n) {
+		super(tHandler, n);
 		profile = p;
 	}
 

@@ -23,7 +23,7 @@ import remixlab.tersehandling.core.Util;
 
 public abstract class ViewPoint implements Copyable {
 	@Override
-	public int hashCode() {	
+	public int hashCode() {
     return new HashCodeBuilder(17, 37).
     append(fpCoefficientsUpdate).
     //append(unprojectCacheOptimized).
@@ -1422,7 +1422,7 @@ public abstract class ViewPoint implements Copyable {
 		itrtr = kfi.keySet().iterator();
 		while (itrtr.hasNext()) {
 			Integer key = itrtr.next();
-			kfi.get(key).addFramesToAllAgentPools();
+			//kfi.get(key).addFramesToAllAgentPools();
 			kfi.get(key).drawPath(3, 5, sceneRadius());
 		}
 	}

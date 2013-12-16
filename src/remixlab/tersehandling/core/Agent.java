@@ -37,8 +37,8 @@ public class Agent {
 	protected Grabbable defaultGrabber;
 	protected boolean agentTrckn;
 
-	public Agent(TerseHandler hndlr, String n) {
-		handler = hndlr;
+	public Agent(TerseHandler tHandler, String n) {
+		handler = tHandler;
 		nm = n;
 		grabbers = new ArrayList<Grabbable>();
 		setTracking(true);

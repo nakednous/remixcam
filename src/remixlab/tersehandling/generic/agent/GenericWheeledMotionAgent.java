@@ -20,8 +20,8 @@ public class GenericWheeledMotionAgent<W extends GenericMotionProfile<?>,
 	
 	protected W wheelProfile;
 	
-	public GenericWheeledMotionAgent(W w, M p, C c, TerseHandler scn, String n) {
-		super(p, c, scn, n);
+	public GenericWheeledMotionAgent(W w, M p, C c, TerseHandler tHandler, String n) {
+		super(p, c, tHandler, n);
 		wheelProfile = w;
 	}
 	

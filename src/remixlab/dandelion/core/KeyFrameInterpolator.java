@@ -260,7 +260,7 @@ public class KeyFrameInterpolator implements Copyable {
 	private ListIterator<AbstractKeyFrame> currentFrame1;
 	private ListIterator<AbstractKeyFrame> currentFrame2;
 	private ListIterator<AbstractKeyFrame> currentFrame3;
-	private List<RefFrame> path;
+	protected List<RefFrame> path;
 	// A s s o c i a t e d f r a m e
 	private RefFrame mainFrame;
 
@@ -756,7 +756,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * 
 	 * @see #addFramesToAllAgentPools()
 	 */
-	protected void removeFramesFromAllAgentPools() {
+	public void removeFramesFromAllAgentPools() {
 		for (int i = 0; i < keyFrameList.size(); ++i)
 			if(keyFrameList.get(i).frame() instanceof InteractiveFrame)
 				scene.terseHandler().removeFromAllAgentPools((InteractiveFrame) keyFrameList.get(i).frame());
@@ -768,7 +768,7 @@ public class KeyFrameInterpolator implements Copyable {
 	 * 
 	 * @see #removeFramesFromAllAgentPools()
 	 */
-	protected void addFramesToAllAgentPools() {
+	public void addFramesToAllAgentPools() {
 		for (int i = 0; i < keyFrameList.size(); ++i)
 			if(keyFrameList.get(i).frame() instanceof InteractiveFrame)
 				scene.terseHandler().addInAllAgentPools((InteractiveFrame) keyFrameList.get(i).frame());			  
@@ -838,10 +838,20 @@ public class KeyFrameInterpolator implements Copyable {
 	 * of {@link remixlab.dandelion.core.AbstractScene#radius()} should give good results.
 	 */
 	public void drawPath(int mask, int nbFrames, float scale) {
+		//this updates all agents by calling kfi.addFramesToAllAgentPools() and also call updatePath();
+		scene.drawPath(this, mask, nbFrames, scale);
+	}
+	
+	public List<RefFrame> path() {
+		updatePath();
+		return path;
+	}
+	
+	protected void updatePath() {
 		checkValidity();
-		int nbSteps = 30;
 		if (!pathIsValid) {
 			path.clear();
+			int nbSteps = 30;
 
 			if (keyFrameList.isEmpty())
 				return;
@@ -909,8 +919,6 @@ public class KeyFrameInterpolator implements Copyable {
 			}
 			pathIsValid = true;
 		}
-		
-		scene.drawPath(path, mask, nbFrames, nbSteps, scale);
 	}
 	
 	protected void checkValidity() {

@@ -9,8 +9,6 @@
  ******************************************************************************/
 package remixlab.dandelion.core;
 
-import java.util.List;
-
 import remixlab.dandelion.geom.*;
 
 public interface VisualHintable {
@@ -104,7 +102,7 @@ public interface VisualHintable {
 	 */
 	public void drawShooterTarget(Vec center, float length);
 		
-	public void drawPath(List<RefFrame> path, int mask, int nbFrames, int nbSteps, float scale);	
+	public void drawPath(KeyFrameInterpolator kfi, int mask, int nbFrames, float scale);
 	
 	// 3D
 	/**

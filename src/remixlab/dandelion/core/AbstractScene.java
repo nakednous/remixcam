@@ -10,8 +10,8 @@
 package remixlab.dandelion.core;
 
 import java.util.HashMap;
-import java.util.List;
 
+import remixlab.dandelion.agent.GenericWheeledBiMotionAgent;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.helper.MatrixStackHelper;
 import remixlab.fpstiming.AbstractTimerJob;
@@ -192,9 +192,6 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			break;
 		case CAMERA_TYPE:
 			toggleCameraType();
-			break;
-		case CAMERA_KIND:
-			toggleCameraKind();
 			break;
 		case ANIMATION:
 			toggleAnimation();
@@ -766,8 +763,8 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   	drawingHelpler().drawShooterTarget(center, length);
 	}
 	
-	public void drawPath(List<RefFrame> path, int mask, int nbFrames, int nbSteps, float scale) {
-		drawingHelpler().drawPath(path, mask, nbFrames, nbSteps, scale);
+	public void drawPath(KeyFrameInterpolator kfi, int mask, int nbFrames, float scale) {
+		drawingHelpler().drawPath(kfi, mask, nbFrames, scale);
 	}
 	
   public void beginScreenDrawing() {
@@ -906,11 +903,27 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			throw new RuntimeException("Camera type is only available in 3D");
 	}
 	
+	public void camera(Camera cam) {
+		if( this.is2D() ) {
+			System.out.println("Warning: Camera Type is only available in 3D");			
+		}
+		else
+			setViewPoint(cam);		
+	}
+	
 	public Window window() {
 		if (this.is2D())
 			return (Window) vPoint;
 		else 
 			throw new RuntimeException("Window type is only available in 2D");
+	}
+	
+	public void window(Window win) {
+		if( this.is3D() ) {
+			System.out.println("Warning: Window Type is only available in 2D");			
+		}
+		else
+			setViewPoint(win);
 	}
 
 	/**
@@ -925,7 +938,12 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 
 		vp.setScreenWidthAndHeight(width(), height());
     
-		vPoint = vp;		
+		vPoint = vp;
+		
+		for( Agent agent : terseHandler().agents() ) {
+			if( agent instanceof GenericWheeledBiMotionAgent )
+				agent.setDefaultGrabber(vPoint.frame());
+		}		
 
 		showAll();
 	}
@@ -1020,21 +1038,6 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			setCameraType(Camera.Type.PERSPECTIVE);
 		}
 	}
-
-	/**
-	 * Toggles the {@link #viewPoint()} kind between PROSCENE and STANDARD.
-	 */
-	public void toggleCameraKind() {
-		if( this.is2D() ) {
-			System.out.println("Warning: Camera Kind is only available in 3D");
-		}
-		else {
-		if (((Camera) viewPoint()).kind() == Camera.Kind.PROSCENE)
-			setCameraKind(Camera.Kind.STANDARD);
-		else
-			setCameraKind(Camera.Kind.PROSCENE);
-		}
-	}
 	
 	/**
 	 * Returns the current {@link #viewPoint()} type.
@@ -1058,35 +1061,6 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		else
 			if (type != ((Camera) viewPoint()).type())
 				((Camera) viewPoint()).setType(type);
-	}
-
-	/**
-	 * Returns the current {@link #viewPoint()} kind.
-	 */
-	public final Camera.Kind cameraKind() {
-		if( this.is2D() ) {
-			System.out.println("Warning: Camera Kype is only available in 3D");
-			return null;
-		}
-		return ((Camera) viewPoint()).kind();
-	}
-
-	/**
-	 * Sets the {@link #viewPoint()} kind.
-	 */
-	public void setCameraKind(Camera.Kind kind) {
-		if( this.is2D() ) {
-			System.out.println("Warning: Camera Kind is only available in 3D");			
-		}
-		else {
-		if (kind != ((Camera) viewPoint()).kind()) {
-			((Camera) viewPoint()).setKind(kind);
-			if (kind == Camera.Kind.PROSCENE)
-				System.out.println("Changing camera kind to Proscene");
-			else
-				System.out.println("Changing camera kind to Standard");
-		}
-		}
 	}
 	
 	/**

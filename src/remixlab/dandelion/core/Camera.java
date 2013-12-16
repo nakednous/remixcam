@@ -56,11 +56,10 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		//append(fpCoefficients).
 		append(frm).
 		//append(interpolationKfi).
-		append(knd).
+
 		//append(viewMat).
 		append(normal).
 		append(orthoCoef).
-		append(orthoSize).
 		append(physicalDist2Scrn).
 		append(physicalScrnWidth).
 		//append(projectionMat).
@@ -68,8 +67,6 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		//append(scnRadius).
 		//append(scrnHeight).
 		//append(scrnWidth).
-		append(stdZFar).
-		append(stdZNear).
 		//append(tempFrame).
 		append(tp).
 		//append(viewport).
@@ -107,11 +104,9 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		//.append(fpCoefficients,other.fpCoefficients)
 		.append(frm,other.frm)
 		//.append(interpolationKfi,other.interpolationKfi)
-		.append(knd,other.knd)
 		//.append(viewMat,other.viewMat)
 		.append(normal,other.normal)
-		.append(orthoCoef,other.orthoCoef)
-		.append(orthoSize,other.orthoSize)
+		.append(orthoCoef,other.orthoCoef)	
 		.append(physicalDist2Scrn,other.physicalDist2Scrn)
 		.append(physicalScrnWidth,other.physicalScrnWidth)
 		//.append(projectionMat,other.projectionMat)
@@ -119,8 +114,6 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		//.append(scnRadius,other.scnRadius)
 		//.append(scrnHeight,other.scrnHeight)
 		//.append(scrnWidth,other.scrnWidth)
-		.append(stdZFar,other.stdZFar)
-		.append(stdZNear,other.stdZNear)
 		//.append(tempFrame,other.tempFrame)
 		.append(tp,other.tp)
 		//.append(viewport,other.viewport)
@@ -233,23 +226,12 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		PERSPECTIVE, ORTHOGRAPHIC
 	};	
 
-	/**
-	 * Enumerates the Camera kind.
-	 */
-	public enum Kind {
-		PROSCENE, STANDARD
-	}	
-
 	// C a m e r a p a r a m e t e r s
 	private float fldOfView; // in radians	
 	private float zNearCoef;
 	private float zClippingCoef;	
 	private Type tp; // PERSPECTIVE or ORTHOGRAPHIC
-	private Kind knd; // PROSCENE or STANDARD
-	private float orthoSize;
 	private float orthoCoef;
-	private float stdZNear;
-	private float stdZFar;
 
 	// S t e r e o p a r a m e t e r s
 	private float IODist; // inter-ocular distance, in meters
@@ -307,11 +289,6 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		setSceneCenter(new Vector3D(0.0f, 0.0f, 0.0f));
 		// */
 
-		setKind(Kind.PROSCENE);
-		orthoSize = 1;// only for standard kind, but we initialize it here
-		setStandardZNear(0.001f);// only for standard kind, but we initialize it here
-		setStandardZFar(1000.0f);// only for standard kind, but we initialize it here
-
 		// Requires fieldOfView() when called with ORTHOGRAPHIC. Attention to
 		// projectionMat below.
 		setType(Camera.Type.PERSPECTIVE);
@@ -355,10 +332,6 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		
 		this.fldOfView = oCam.fldOfView;
 		this.orthoCoef = oCam.orthoCoef;
-		this.orthoSize = oCam.orthoSize;
-		this.setKind(oCam.kind());		
-		this.setStandardZNear(oCam.standardZNear());
-		this.setStandardZFar(oCam.standardZFar());
 		this.setType(oCam.type());
 		this.setZNearCoefficient(oCam.zNearCoefficient());
 		this.setZClippingCoefficient(oCam.zClippingCoefficient());		
@@ -637,98 +610,6 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	}
 
 	/**
-	 * Returns the kind of the Camera: PROSCENE or STANDARD.
-	 */
-	public final Kind kind() {
-		return knd;
-	}
-
-	/**
-	 * Sets the kind of the Camera: PROSCENE or STANDARD.
-	 */
-	public void setKind(Kind k) {
-		if(k!=knd)
-			modified();
-		knd = k;		
-	}
-
-	/**
-	 * Sets the value of the {@link #zNear()}. Meaningful only when the Camera
-	 * {@link #kind()} is STANDARD. This value is set to 0.001 by default.
-	 * 
-	 * @see #zNear()
-	 * @see #zFar()
-	 */
-	public void setStandardZNear(float zN) {
-		if( (kind() == Camera.Kind.STANDARD) && (zN != stdZNear) )
-			modified();
-		stdZNear = zN;
-	}
-
-	/**
-	 * Returns the value of the {@link #zNear()}. Meaningful only when the Camera
-	 * {@link #kind()} is STANDARD.
-	 * 
-	 * @see #zNear()
-	 * @see #zFar()
-	 */
-	public float standardZNear() {
-		return stdZNear;
-	}
-
-	/**
-	 * Sets the value of the {@link #zFar()}. Meaningful only when the Camera
-	 * {@link #kind()} is STANDARD. This value is set to 1000 by default.
-	 * 
-	 * @see #zNear()
-	 * @see #zFar()
-	 */
-	public void setStandardZFar(float zF) {
-		if( (kind() == Camera.Kind.STANDARD) && (zF != stdZFar) )
-			modified();
-		stdZFar = zF;
-	}
-
-	/**
-	 * Returns the value of the {@link #zFar()}. Meaningful only when the Camera
-	 * {@link #kind()} is STANDARD.
-	 * 
-	 * @see #zNear()
-	 * @see #zFar()
-	 */
-	public float standardZFar() {
-		return stdZFar;
-	}
-
-	/**
-	 * Changes the size of the frustum. If {@code augment} is true the frustum
-	 * size is augmented, otherwise it is diminished. Meaningful only when the
-	 * Camera {@link #kind()} is STANDARD and the Camera {@link #type()} is
-	 * ORTHOGRAPHIC.
-	 * 
-	 * @see #standardOrthoFrustumSize()
-	 */
-	public void changeStandardOrthoFrustumSize(boolean augment) {
-		if( (kind() == Camera.Kind.STANDARD) && (type() == Camera.Type.ORTHOGRAPHIC) )
-			modified();
-		if (augment)
-			orthoSize *= 1.01f;
-		else
-			orthoSize /= 1.01f;
-	}
-	
-	/**
-	 * Returns the frustum size. This value is used to set
-	 * {@link #getOrthoWidthHeight()}. Meaningful only when the Camera
-	 * {@link #kind()} is STANDARD and the Camera {@link #type()} is ORTHOGRAPHIC.
-	 * 
-	 * @see #getOrthoWidthHeight()
-	 */
-	public float standardOrthoFrustumSize() {
-		return orthoSize;
-	}
-
-	/**
 	 * Defines the Camera {@link #type()}.
 	 * <p>
 	 * Changing the Camera Type alters the viewport and the objects' size can be
@@ -845,9 +726,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 			target = new float[2];
 		}
 		
-		float dist = (kind() == Kind.STANDARD)
-				       ? sceneRadius() * standardOrthoFrustumSize()
-				       : orthoCoef * distanceToARP();
+		float dist = orthoCoef * distanceToARP();
 		
 		// 1. halfWidth
 		target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
@@ -924,9 +803,6 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * @see #zFar()
 	 */
 	public float zNear() {
-		if (kind() == Kind.STANDARD)
-			return standardZNear();
-
 		float z = distanceToSceneCenter() - zClippingCoefficient() * sceneRadius();
 
 		// Prevents negative or null zNear values.
@@ -959,8 +835,6 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * @see #zNear()
 	 */
 	public float zFar() {
-		if (kind() == Kind.STANDARD)
-			return this.standardZFar();
 		return distanceToSceneCenter() + zClippingCoefficient() * sceneRadius();
 	}
 
@@ -1911,21 +1785,19 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * {@link #fieldOfView()} are unchanged.
 	 * <p>
 	 * You should therefore orientate the Camera before you call this method.
-	 * <p>
-	 * <b>Attention:</b> If the Camera {@link #kind()} is STANDARD, simply resets
-	 * the {@link #standardOrthoFrustumSize()} to 1 and then calls {@code
-	 * lookAt(sceneCenter())}.
 	 * 
 	 * @see #lookAt(Vec)
 	 * @see #setOrientation(Quat)
 	 * @see #setUpVector(Vec, boolean)
 	 */
 	public void fitSphere(Vec center, float radius) {
+		/**
 		if ((kind() == Kind.STANDARD) && (type() == Type.ORTHOGRAPHIC)) {
 			orthoSize = 1;
 			lookAt(sceneCenter());
 			return;
 		}
+		*/
 
 		float distance = 0.0f;
 		switch (type()) {

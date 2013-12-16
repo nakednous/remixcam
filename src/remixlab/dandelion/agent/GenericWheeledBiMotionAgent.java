@@ -10,7 +10,6 @@
 package remixlab.dandelion.agent;
 
 import remixlab.dandelion.core.*;
-import remixlab.tersehandling.core.*;
 import remixlab.tersehandling.generic.agent.*;
 import remixlab.tersehandling.generic.profile.*;
 
@@ -27,8 +26,9 @@ public class GenericWheeledBiMotionAgent<P extends GenericMotionProfile<?>> exte
 			                               P cProfile,
 			                               GenericClickProfile<ClickAction> c,
 																		 GenericClickProfile<ClickAction> d,
-																		 TerseHandler scn, String n) {
-		super(fWProfile, fProfile, c, scn, n);
+																		 AbstractScene scn, String n) {
+		super(fWProfile, fProfile, c, scn.terseHandler(), n);
+		setDefaultGrabber(scn.viewPoint().frame());
 		camProfile = cProfile;
 		camWheelProfile = cWProfile;
 		camClickProfile = d;

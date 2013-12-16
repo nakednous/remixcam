@@ -20,8 +20,7 @@ public class MouseAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile
 				  new GenericMotionProfile<DOF2Action>(),
 				  new GenericMotionProfile<DOF2Action>(),
 				  new GenericClickProfile<ClickAction>(),
-				  new GenericClickProfile<ClickAction>(), scn.terseHandler(), n);
-		setDefaultGrabber(scn.viewPoint().frame());
+				  new GenericClickProfile<ClickAction>(), scn, n);
 		
 		setAsArcball();
 		
