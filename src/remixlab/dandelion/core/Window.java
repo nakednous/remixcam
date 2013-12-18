@@ -94,14 +94,14 @@ public class Window extends ViewPoint implements Copyable {
  	  	this.computeView();
   }
 	
-	/**
+	/*
   //TODO implement me
 	@Override
 	public void fromProjection(Mat proj, boolean recompute) {
 		if(recompute)
  	  	this.computeProjection();
 	}
-	*/
+	//*/
 	
 	@Override
 	public float[] getOrthoWidthHeight(float[] target) {
@@ -204,9 +204,12 @@ public class Window extends ViewPoint implements Copyable {
 	}
 	
 	public void fitCircle(Vec center, float radius) {
-	  Vec scl = frame().scaling();
-		frame().setScaling(scl.x() > 0 ? radius / sceneRadius() : -radius / sceneRadius(),
-				               scl.y() > 0 ? radius / sceneRadius() : -radius / sceneRadius());				
+	  Vec mag = frame().magnitude();
+	  
+	  float size = Math.min(scene.width(), scene.height());
+  	frame().setMagnitude(mag.x() > 0 ? 2*radius / size : -2*radius / size,
+                         mag.y() > 0 ? 2*radius / size : -2*radius / size);
+  	
 		lookAt(center);
 	}
 	
@@ -230,51 +233,21 @@ public class Window extends ViewPoint implements Copyable {
 	@Override
 	public void fitScreenRegion(Rect rectangle) {
 		float rectRatio = (float)rectangle.width / (float)rectangle.height;
-		//TODO needs testing
 		
-		float sclX = frame().scaling().x();
-		float sclY = frame().scaling().y();		
+		float sclX = frame().magnitude().x();
+		float sclY = frame().magnitude().y();		
 		
 		if(aspectRatio() < 1.0f) {
 			if( aspectRatio () < rectRatio )
-				frame().setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
+				frame().setMagnitude(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
 			else
-				frame().setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
+				frame().setMagnitude(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
 		} else {
 			if( aspectRatio () < rectRatio )
-				frame().setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
+				frame().setMagnitude(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
 			else
-				frame().setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
-		}
-		
-		/**
-		if(aspectRatio() < 1.0f) {
-			if( aspectRatio () < rectRatio )
-				setScaling(scaleFactor() * (float)rectangle.width / screenWidth());
-			else
-				setScaling(scaleFactor() * (float)rectangle.height / screenHeight());
-		} else {
-			if( aspectRatio () < rectRatio )
-				setScaling(scaleFactor() * (float)rectangle.width / screenWidth());
-			else
-				setScaling(scaleFactor() * (float)rectangle.height / screenHeight());
-		}
-		*/
-	
-		/**
-		if(aspectRatio() < 1.0f) {
-			if( aspectRatio () < rectRatio )
-				setSize(size() * (float)rectangle.width / screenWidth());
-			else
-				setSize(size() * (float)rectangle.height / screenHeight());
-		} else {
-			if( aspectRatio () < rectRatio )
-				setSize(size() * (float)rectangle.width / screenWidth());
-			else
-				setSize(size() * (float)rectangle.height / screenHeight());
-		}
-		// */
-		
+				frame().setMagnitude(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
+		}		
 		lookAt(unprojectedCoordinatesOf(new Vec(rectangle.getCenterX(), rectangle.getCenterY(), 0)));
 	}	
 	

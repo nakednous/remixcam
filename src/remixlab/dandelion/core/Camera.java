@@ -1588,7 +1588,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		}
 	}
 	
-	/**
+	/*
   //TODO implement me
 	@Override
 	public void fromProjection(Mat proj, boolean recompute) {
@@ -1601,7 +1601,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		if(recompute)
  	  	this.computeProjection();
 	}
-	*/
+	// */
 	
 	@Override
   public void fromView(Mat mv, boolean recompute) {
@@ -1629,73 +1629,6 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	  setPosition(-q.rotate(Vec(modelViewMatrix[12], modelViewMatrix[13], modelViewMatrix[14])));
 	}
 	// */
-	
-	//TODO needed for screen drawing
-	/**
-	public void camera() {
-    camera(cameraX, cameraY, cameraZ, cameraX, cameraY, 0, 0, 1, 0);
-  }
-	
-	public void camera(float eyeX, float eyeY, float eyeZ,
-			               float centerX, float centerY, float centerZ,
-                     float upX, float upY, float upZ) {
-		
-		// Calculating Z vector
-		float z0 = eyeX - centerX;
-		float z1 = eyeY - centerY;
-		float z2 = eyeZ - centerZ;
-		float mag = (float)Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
-		if (nonZero(mag)) {
-			z0 /= mag;
-			z1 /= mag;
-			z2 /= mag;
-		}
-		cameraEyeX = eyeX;
-		cameraEyeY = eyeY;
-		cameraEyeZ = eyeZ;
-		
-		// Calculating Y vector
-		float y0 = upX;
-		float y1 = upY;
-		float y2 = upZ;
-		
-		// Computing X vector as Y cross Z
-		float x0 =  y1 * z2 - y2 * z1;
-		float x1 = -y0 * z2 + y2 * z0;
-		float x2 =  y0 * z1 - y1 * z0;
-		
-		// Recompute Y = Z cross X
-		y0 =  z1 * x2 - z2 * x1;
-		y1 = -z0 * x2 + z2 * x0;
-		y2 =  z0 * x1 - z1 * x0;
-		
-		// Cross product gives area of parallelogram, which is < 1.0 for
-		// non-perpendicular unit-length vectors; so normalize x, y here:
-		mag = (float) Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
-		if (nonZero(mag)) {
-			x0 /= mag;
-			x1 /= mag;
-			x2 /= mag;
-		}
-		
-		mag = (float) Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
-		if (nonZero(mag)) {
-			y0 /= mag;
-			y1 /= mag;
-			y2 /= mag;
-		}
-		
-		modelview.set(x0, x1, x2, 0,
-				          y0, y1, y2, 0,
-				          z0, z1, z2, 0,
-				          0,  0,  0, 1);
-		
-		float tx = -eyeX;
-		float ty = -eyeY;
-		float tz = -eyeZ;
-		modelview.translate(tx, ty, tz);
-	}
-	*/			
 
 	// 9. WORLD -> CAMERA	
 
@@ -1861,21 +1794,16 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		float distance = 0.0f;
 		switch (type()) {
 		case PERSPECTIVE: {
-			final float distX = Vec.dist(pointX, newCenter)
-					/ (float) Math.sin(horizontalFieldOfView() / 2.0f);
-			final float distY = Vec.dist(pointY, newCenter)
-					/ (float) Math.sin(fieldOfView() / 2.0f);
+			final float distX = Vec.dist(pointX, newCenter)	/ (float) Math.sin(horizontalFieldOfView() / 2.0f);
+			final float distY = Vec.dist(pointY, newCenter) / (float) Math.sin(fieldOfView() / 2.0f);
 
 			distance = Math.max(distX, distY);
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			final float dist = Vec.dot(Vec.sub(newCenter,
-					arcballReferencePoint()), vd);
-			final float distX = Vec.dist(pointX, newCenter) / orthoCoef
-					/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
-			final float distY = Vec.dist(pointY, newCenter) / orthoCoef
-					/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
+			final float dist = Vec.dot(Vec.sub(newCenter,	arcballReferencePoint()), vd);
+			final float distX = Vec.dist(pointX, newCenter) / orthoCoef	/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
+			final float distY = Vec.dist(pointY, newCenter) / orthoCoef	/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
 
 			distance = dist + Math.max(distX, distY);
 

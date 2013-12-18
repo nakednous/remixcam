@@ -698,27 +698,27 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		  
 		  @Override
 		 	public void hollowCylinder(int detail, float w, float h, Vec m, Vec n) {
-		  	AbstractScene.showDepthWarning("cylinder");
+		  	AbstractScene.showDepthWarning("hollowCylinder");
 		 	}
 		  
 		  @Override
 		  public void cone(int detail, float x, float y, float r, float h) {
-		  	AbstractScene.showDepthWarning("cylinder");
+		  	AbstractScene.showDepthWarning("cone");
 		 	}
 		  
 		  @Override
 		  public void cone(int detail, float x, float y, float r1, float r2, float h) {
-		  	AbstractScene.showDepthWarning("cylinder");
+		  	AbstractScene.showDepthWarning("cone");
 		 	}
 		  
 		  @Override
 		  public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
-		  	AbstractScene.showDepthWarning("cylinder");
+		  	AbstractScene.showDepthWarning("drawCamera");
 		 	}
 
 		  @Override
 		  public void drawKFIViewPoint(float scale) {		  	
-		  	float halfHeight = scale * 1f;
+		  	float halfHeight = scale * 1.2f;
 				float halfWidth = halfHeight * 1.3f;
 
 				float arrowHeight = 1.5f * halfHeight;
