@@ -918,7 +918,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * {@code endShape();}<br>
 	 */
 	@Override
-	public float pixelP5Ratio(Vec position) {
+	public float pixelSceneRatio(Vec position) {
 		switch (type()) {
 		case PERSPECTIVE:
 			return 2.0f * Math.abs((frame().coordinatesOf(position, false)).vec[2]) * (float) Math.tan(fieldOfView() / 2.0f) / screenHeight();
@@ -1030,7 +1030,8 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 			boolean allOut = true;
 			for (int c = 0; c < 8; ++c) {
 				Vec pos = new Vec(((c & 4) != 0) ? p1.vec[0] : p2.vec[0],
-						((c & 2) != 0) ? p1.vec[1] : p2.vec[1], ((c & 1) != 0) ? p1.vec[2] : p2.vec[2]);
+						              ((c & 2) != 0) ? p1.vec[1] : p2.vec[1],
+						              ((c & 1) != 0) ? p1.vec[2] : p2.vec[2]);
 				if (distanceToFrustumPlane(i, pos) > 0.0)
 					allInForAllPlanes = false;
 				else

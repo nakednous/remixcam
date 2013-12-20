@@ -1593,9 +1593,9 @@ public abstract class ViewPoint implements Copyable {
 		return Vec.dot(pos, myVec) - fpCoefficients[index][3];
 	}
 	
-	public abstract float pixelP5Ratio(Vec position);
+	public abstract boolean pointIsVisible(Vec point);
 	
-	public abstract boolean pointIsVisible(Vec point);	
+	public abstract float pixelSceneRatio(Vec position);
 	
 	/**
 	 * Smoothly moves the Camera so that the rectangular screen region defined by
