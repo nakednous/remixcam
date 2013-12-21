@@ -13,8 +13,7 @@ import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
 
 public class Window extends ViewPoint implements Copyable {
-	//TODO things broken when farme().scaling() has negative values:
-	//setUpVector and frustumEquations
+	//TODO setUpVector is broken when frame().scaling() has negative values
 	
   //next variables are needed for frustum plane coefficients
 	Vec normal[] = new Vec[4];
@@ -79,7 +78,7 @@ public class Window extends ViewPoint implements Copyable {
 	
 	@Override
 	public void computeProjection() {
-		float[] wh = getOrthoWidthHeight();
+		float[] wh = getBoundaryWidthHeight();
 		projectionMat.mat[0] = 1.0f / wh[0];
 		projectionMat.mat[5] = (scene.isLeftHanded() ? -1.0f : 1.0f ) / wh[1];
 		projectionMat.mat[10] = -2.0f / (FAKED_ZFAR - FAKED_ZNEAR);
@@ -110,7 +109,7 @@ public class Window extends ViewPoint implements Copyable {
 	//*/
 	
 	@Override
-	public float[] getOrthoWidthHeight(float[] target) {
+	public float[] getBoundaryWidthHeight(float[] target) {
 		if ((target == null) || (target.length != 2)) {
 			target = new float[2];
 		}
@@ -183,18 +182,18 @@ public class Window extends ViewPoint implements Copyable {
 		return true;		
 	}
 	
-	public void fitBoundingRect(Vec min, Vec max) {
+	public void fitBoundingBox(Vec min, Vec max) {
 		float diameter = Math.max(Math.abs(max.vec[1] - min.vec[1]), Math.abs(max.vec[0] - min.vec[0]));
 		diameter = Math.max(Math.abs(max.vec[2] - min.vec[2]), diameter);
-		fitCircle(Vec.mult(Vec.add(min, max), 0.5f), 0.5f * diameter);
+		fitBall(Vec.mult(Vec.add(min, max), 0.5f), 0.5f * diameter);
 	}
 	
 	@Override
 	public void showEntireScene() {
-		fitCircle(sceneCenter(), sceneRadius());		
+		fitBall(sceneCenter(), sceneRadius());		
 	}
 	
-	public void fitCircle(Vec center, float radius) {
+	public void fitBall(Vec center, float radius) {
 	  Vec mag = frame().magnitude();
 	  
 	  float size = Math.min(scene.width(), scene.height());
@@ -209,7 +208,7 @@ public class Window extends ViewPoint implements Copyable {
 	 * {@link #setSceneCenter(Vec)}, but the scene limits are defined by a
 	 * (world axis aligned) bounding box.
 	 */
-	public void setSceneBoundingRect(Vec min, Vec max) {
+	public void setSceneBoundingBox(Vec min, Vec max) {
 		Vec mn = new Vec(min.x(), min.y(), 0);
 		Vec mx = new Vec(max.x(), max.y(), 0);
 		setSceneCenter(Vec.mult(Vec.add(mn, mx), 1 / 2.0f));
@@ -254,12 +253,12 @@ public class Window extends ViewPoint implements Copyable {
 	}
 	
 	@Override
-	public float[][] computeFrustumEquations() {
-		return computeFrustumEquations(new float[4][3]);
+	public float[][] computeBoundaryEquations() {
+		return computeBoundaryEquations(new float[4][3]);
 	}
 
 	@Override
-	public float[][] computeFrustumEquations(float[][] coef) {
+	public float[][] computeBoundaryEquations(float[][] coef) {
 		if (coef == null || (coef.length == 0))
 			coef = new float[4][3];
 		else if ((coef.length != 4) || (coef[0].length != 3))
@@ -276,7 +275,7 @@ public class Window extends ViewPoint implements Copyable {
 		normal[2] = up;
 		normal[3] = Vec.mult(up, -1);
 
-		float[] wh = getOrthoWidthHeight();
+		float[] wh = getBoundaryWidthHeight();
 		
 		dist[0] = Vec.dot(Vec.sub(pos, Vec.mult(right, wh[0])),	normal[0]);
 		dist[1] = Vec.dot(Vec.add(pos, Vec.mult(right, wh[0])),	normal[1]);
@@ -304,33 +303,41 @@ public class Window extends ViewPoint implements Copyable {
 	 * <p>
 	 * <b>Attention:</b> The camera frustum plane equations should be updated
 	 * before calling this method. You may compute them explicitly (by calling
-	 * {@link #computeFrustumEquations()} ) or enable them to be automatic updated
+	 * {@link #computeBoundaryEquations()} ) or enable them to be automatic updated
 	 * in your Scene setup (with
-	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()}).
+	 * {@link remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()}).
 	 * 
 	 * @see #pointIsVisible(Vec)
-	 * @see #sphereIsVisible(Vec, float)
-	 * @see #aaBoxIsVisible(Vec, Vec)
-	 * @see #computeFrustumEquations()
-	 * @see #updateFrustumEquations()
-	 * @see #getFrustumEquations()
-	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
+	 * @see #ballIsVisible(Vec, float)
+	 * @see #boxIsVisible(Vec, Vec)
+	 * @see #computeBoundaryEquations()
+	 * @see #updateBoundaryEquations()
+	 * @see #getBoundaryEquations()
+	 * @see remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()
 	 */
-	public float distanceToFrustumPlane(int index, Vec pos) {
-		if (!scene.frustumEquationsUpdateIsEnable())
-			System.out.println("The camera frustum plane equations (needed by distanceToFrustumPlane) may be outdated. Please "
+	@Override
+	public float distanceToBoundary(int index, Vec pos) {
+		if (!scene.boundaryEquationsAreEnabled())
+			System.out.println("The camera frustum plane equations (needed by distanceToBoundary) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
+							+ "with Scene.enableBoundaryEquations()");
 		//check this: http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
-		return (fpCoefficients[index][0] * pos.x() + fpCoefficients[index][1] * pos.y() + fpCoefficients[index][2]) /
-				   (float)Math.sqrt(fpCoefficients[index][0]*fpCoefficients[index][0] + fpCoefficients[index][1]*fpCoefficients[index][1]);
+		float result = (fpCoefficients[index][0] * pos.x() + fpCoefficients[index][1] * pos.y() + fpCoefficients[index][2]) /
+				           (float)Math.sqrt(fpCoefficients[index][0]*fpCoefficients[index][0] + fpCoefficients[index][1]*fpCoefficients[index][1]);
+		if(index==0 || index==1) {
+			if(frame().magnitude().x()<0)	result *= -1;
+		}
+		else
+			if(frame().magnitude().y()<0)	result *= -1;
+		return result;
 	}
 	
-	public Visibility rectIsVisible(Vec p1, Vec p2) {
-		if (!scene.frustumEquationsUpdateIsEnable())
+	@Override
+	public Visibility boxIsVisible(Vec p1, Vec p2) {
+		if (!scene.boundaryEquationsAreEnabled())
 			System.out.println("The camera frustum plane equations (needed by aaBoxIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
+							+ "with Scene.enableBoundaryEquations()");
 		boolean allInForAllPlanes = true;
 		
 		for (int i = 0; i < 4; ++i) {
@@ -338,31 +345,32 @@ public class Window extends ViewPoint implements Copyable {
 			for (int c = 0; c < 4; ++c) {
 				Vec pos = new Vec(((c & 2) != 0) ? p1.vec[0] : p2.vec[0],
 						              ((c & 1) != 0) ? p1.vec[1] : p2.vec[1]);
-				if (distanceToFrustumPlane(i, pos) > 0.0)
+				if (distanceToBoundary(i, pos) > 0.0)
 					allInForAllPlanes = false;
 				else
 					allOut = false;
 			}
 			// The eight points are on the outside side of this plane
 			if (allOut)
-				return Camera.Visibility.INVISIBLE;
+				return ViewPoint.Visibility.INVISIBLE;
 		}
 
 		if (allInForAllPlanes)
-			return Camera.Visibility.VISIBLE;
+			return ViewPoint.Visibility.VISIBLE;
 
 		// Too conservative, but tangent cases are too expensive to detect
-		return Camera.Visibility.SEMIVISIBLE;
+		return ViewPoint.Visibility.SEMIVISIBLE;
 	}
 	
-	public Visibility circleIsVisible(Vec center, float radius) {
-		if (!scene.frustumEquationsUpdateIsEnable())
+	@Override
+	public Visibility ballIsVisible(Vec center, float radius) {
+		if (!scene.boundaryEquationsAreEnabled())
 			System.out.println("The camera frustum plane equations (needed by sphereIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
+							+ "with Scene.enableBoundaryEquations()");
 		boolean allInForAllPlanes = true;
 		for (int i = 0; i < 4; ++i) {
-			float d = distanceToFrustumPlane(i, center);
+			float d = distanceToBoundary(i, center);
 			if (d > radius)
 				return ViewPoint.Visibility.INVISIBLE;
 			if ((d > 0) || (-d < radius))
@@ -375,19 +383,19 @@ public class Window extends ViewPoint implements Copyable {
 
 	@Override
 	public boolean pointIsVisible(Vec point) {
-		if (!scene.frustumEquationsUpdateIsEnable())
+		if (!scene.boundaryEquationsAreEnabled())
 			System.out.println("The camera frustum plane equations (needed by pointIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
+							+ "with Scene.enableBoundaryEquations()");
 		for (int i = 0; i < 4; ++i)
-			if (distanceToFrustumPlane(i, point) > 0)
+			if (distanceToBoundary(i, point) > 0)
 				return false;
 		return true;
 	}
 	
 	@Override
 	public float pixelSceneRatio(Vec position) {
-		float[] wh = getOrthoWidthHeight();
+		float[] wh = getBoundaryWidthHeight();
 		return 2.0f * wh[1] / screenHeight();
 	}
 

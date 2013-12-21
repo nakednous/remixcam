@@ -600,7 +600,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * With a {@link remixlab.dandelion.core.Camera.Type#ORTHOGRAPHIC} {@link #type()},
 	 * the {@link #fieldOfView()} is meaningless and the width and height of the
 	 * Camera frustum are inferred from the distance to the
-	 * {@link #arcballReferencePoint()} using {@link #getOrthoWidthHeight()}.
+	 * {@link #arcballReferencePoint()} using {@link #getBoundaryWidthHeight()}.
 	 * <p>
 	 * Both types use {@link #zNear()} and {@link #zFar()} (to define their
 	 * clipping planes) and {@link #aspectRatio()} (for frustum shape).
@@ -721,7 +721,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * Overload this method to change this behavior if desired.
 	 */
 	@Override
-	public float[] getOrthoWidthHeight(float[] target) {
+	public float[] getBoundaryWidthHeight(float[] target) {
 		if ((target == null) || (target.length != 2)) {
 			target = new float[2];
 		}
@@ -923,7 +923,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		case PERSPECTIVE:
 			return 2.0f * Math.abs((frame().coordinatesOf(position, false)).vec[2]) * (float) Math.tan(fieldOfView() / 2.0f) / screenHeight();
 		case ORTHOGRAPHIC: {
-			float[] wh = getOrthoWidthHeight();
+			float[] wh = getBoundaryWidthHeight();
 			return 2.0f * wh[1] / screenHeight();
 		}
 		}
@@ -936,26 +936,26 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * <p>
 	 * <b>Attention:</b> The camera frustum plane equations should be updated
 	 * before calling this method. You may compute them explicitly (by calling
-	 * {@link #computeFrustumEquations()} ) or enable them to be automatic updated
+	 * {@link #computeBoundaryEquations()} ) or enable them to be automatic updated
 	 * in your Scene setup (with
-	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()}).
+	 * {@link remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, Vec)
-	 * @see #sphereIsVisible(Vec, float)
-	 * @see #aaBoxIsVisible(Vec, Vec)
-	 * @see #computeFrustumEquations()
-	 * @see #updateFrustumEquations()
-	 * @see #getFrustumEquations()
-	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
+	 * @see #distanceToBoundary(int, Vec)
+	 * @see #ballIsVisible(Vec, float)
+	 * @see #boxIsVisible(Vec, Vec)
+	 * @see #computeBoundaryEquations()
+	 * @see #updateBoundaryEquations()
+	 * @see #getBoundaryEquations()
+	 * @see remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()
 	 */
 	@Override
 	public boolean pointIsVisible(Vec point) {
-		if (!scene.frustumEquationsUpdateIsEnable())
+		if (!scene.boundaryEquationsAreEnabled())
 			System.out.println("The camera frustum plane equations (needed by pointIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
+							+ "with Scene.enableBoundaryEquations()");
 		for (int i = 0; i < 6; ++i)
-			if (distanceToFrustumPlane(i, point) > 0)
+			if (distanceToBoundary(i, point) > 0)
 				return false;
 		return true;
 	}
@@ -969,26 +969,27 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * <p>
 	 * <b>Attention:</b> The camera frustum plane equations should be updated
 	 * before calling this method. You may compute them explicitly (by calling
-	 * {@link #computeFrustumEquations()} ) or enable them to be automatic updated
+	 * {@link #computeBoundaryEquations()} ) or enable them to be automatic updated
 	 * in your Scene setup (with
-	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()}).
+	 * {@link remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, Vec)
+	 * @see #distanceToBoundary(int, Vec)
 	 * @see #pointIsVisible(Vec)
-	 * @see #aaBoxIsVisible(Vec, Vec)
-	 * @see #computeFrustumEquations()
-	 * @see #updateFrustumEquations()
-	 * @see #getFrustumEquations()
-	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
+	 * @see #boxIsVisible(Vec, Vec)
+	 * @see #computeBoundaryEquations()
+	 * @see #updateBoundaryEquations()
+	 * @see #getBoundaryEquations()
+	 * @see remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()
 	 */
-	public Visibility sphereIsVisible(Vec center, float radius) {
-		if (!scene.frustumEquationsUpdateIsEnable())
+	@Override
+	public Visibility ballIsVisible(Vec center, float radius) {
+		if (!scene.boundaryEquationsAreEnabled())
 			System.out.println("The camera frustum plane equations (needed by sphereIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
+							+ "with Scene.enableBoundaryEquations()");
 		boolean allInForAllPlanes = true;
 		for (int i = 0; i < 6; ++i) {
-			float d = distanceToFrustumPlane(i, center);
+			float d = distanceToBoundary(i, center);
 			if (d > radius)
 				return Camera.Visibility.INVISIBLE;
 			if ((d > 0) || (-d < radius))
@@ -1008,23 +1009,24 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * <p>
 	 * <b>Attention:</b> The camera frustum plane equations should be updated
 	 * before calling this method. You may compute them explicitly (by calling
-	 * {@link #computeFrustumEquations()} ) or enable them to be automatic updated
+	 * {@link #computeBoundaryEquations()} ) or enable them to be automatic updated
 	 * in your Scene setup (with
-	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()}).
+	 * {@link remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, Vec)
+	 * @see #distanceToBoundary(int, Vec)
 	 * @see #pointIsVisible(Vec)
-	 * @see #sphereIsVisible(Vec, float)
-	 * @see #computeFrustumEquations()
-	 * @see #updateFrustumEquations()
-	 * @see #getFrustumEquations()
-	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
+	 * @see #ballIsVisible(Vec, float)
+	 * @see #computeBoundaryEquations()
+	 * @see #updateBoundaryEquations()
+	 * @see #getBoundaryEquations()
+	 * @see remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()
 	 */
-	public Visibility aaBoxIsVisible(Vec p1, Vec p2) {
-		if (!scene.frustumEquationsUpdateIsEnable())
+	@Override
+	public Visibility boxIsVisible(Vec p1, Vec p2) {
+		if (!scene.boundaryEquationsAreEnabled())
 			System.out.println("The camera frustum plane equations (needed by aaBoxIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
+							+ "with Scene.enableBoundaryEquations()");
 		boolean allInForAllPlanes = true;
 		for (int i = 0; i < 6; ++i) {
 			boolean allOut = true;
@@ -1032,7 +1034,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 				Vec pos = new Vec(((c & 4) != 0) ? p1.vec[0] : p2.vec[0],
 						              ((c & 2) != 0) ? p1.vec[1] : p2.vec[1],
 						              ((c & 1) != 0) ? p1.vec[2] : p2.vec[2]);
-				if (distanceToFrustumPlane(i, pos) > 0.0)
+				if (distanceToBoundary(i, pos) > 0.0)
 					allInForAllPlanes = false;
 				else
 					allOut = false;
@@ -1055,14 +1057,14 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * <p>
 	 * <b>Attention:</b> You should not call this method explicitly, unless you
 	 * need the frustum equations to be updated only occasionally (rare). Use
-	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()} which
+	 * {@link remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()} which
 	 * automatically update the frustum equations every frame instead.
 	 * 
-	 * @see #computeFrustumEquations(float[][])
+	 * @see #computeBoundaryEquations(float[][])
 	 */
 	@Override
-	public float[][] computeFrustumEquations() {
-		return computeFrustumEquations(new float[6][4]);
+	public float[][] computeBoundaryEquations() {
+		return computeBoundaryEquations(new float[6][4]);
 	}
 
 	/**
@@ -1093,13 +1095,13 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * <p>
 	 * <b>Attention:</b> You should not call this method explicitly, unless you
 	 * need the frustum equations to be updated only occasionally (rare). Use
-	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()} which
+	 * {@link remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()} which
 	 * automatically update the frustum equations every frame instead.
 	 * 
-	 * @see #computeFrustumEquations()
+	 * @see #computeBoundaryEquations()
 	 */
 	@Override
-	public float[][] computeFrustumEquations(float[][] coef) {	
+	public float[][] computeBoundaryEquations(float[][] coef) {	
 		// soft check:
 		if (coef == null || (coef.length == 0))
 			coef = new float[6][4];
@@ -1160,7 +1162,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 			normal[4] = up;
 			normal[5] = Vec.mult(up, -1);
 
-			float[] wh = getOrthoWidthHeight();
+			float[] wh = getBoundaryWidthHeight();
 			dist[0] = Vec.dot(Vec.sub(pos, Vec.mult(right, wh[0])),	normal[0]);
 			dist[1] = Vec.dot(Vec.add(pos, Vec.mult(right, wh[0])),	normal[1]);
 			dist[4] = Vec.dot(Vec.add(pos, Vec.mult(up, wh[1])), normal[4]);
@@ -1367,7 +1369,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * Returns the distance from the Camera center to {@link #arcballReferencePoint()}
 	 * projected along the Camera Z axis.
 	 * <p>
-	 * Used by {@link #getOrthoWidthHeight(float[])} so that when the Camera is
+	 * Used by {@link #getBoundaryWidthHeight(float[])} so that when the Camera is
 	 * translated forward then its frustum is narrowed, making the object appear
 	 * bigger on screen, as intuitively expected.
 	 */
@@ -1542,7 +1544,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * <p>
 	 * If {@link #type()} is ORTHOGRAPHIC, the projection matrix is as what
 	 * {@code ortho()} would do. Frustum's width and height are set using
-	 * {@link #getOrthoWidthHeight()}.
+	 * {@link #getBoundaryWidthHeight()}.
 	 * <p>
 	 * Both types use {@link #zNear()} and {@link #zFar()} to place clipping
 	 * planes. These values are determined from sceneRadius() and sceneCenter() so
@@ -1576,7 +1578,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			float[] wh = getOrthoWidthHeight();
+			float[] wh = getBoundaryWidthHeight();
 			projectionMat.mat[0] = 1.0f / wh[0];
 			projectionMat.mat[5] = ( scene.isLeftHanded() ? -1.0f : 1.0f ) / wh[1];
 			projectionMat.mat[10] = -2.0f / (ZFar - ZNear);
@@ -1667,7 +1669,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 			break;
 
 		case ORTHOGRAPHIC: {
-			float[] wh = getOrthoWidthHeight();
+			float[] wh = getBoundaryWidthHeight();
 			orig.set(new Vec((2.0f * pixel.x / screenWidth() - 1.0f) * wh[0],
 					-(2.0f * pixel.y / screenHeight() - 1.0f) * wh[1], 0.0f));
 			orig.set(frame().inverseCoordinatesOf(orig, false));

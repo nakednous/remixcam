@@ -361,8 +361,8 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		//before timerHandler().handle() it was here:
 		//timerHandler().updateFrameRate();		
 		bind();
-		if (frustumEquationsUpdateIsEnable())
-			viewPoint().updateFrustumEquations();
+		if (boundaryEquationsAreEnabled())
+			viewPoint().updateBoundaryEquations();
 	}
 	
 	/**
@@ -953,31 +953,31 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * equations is enabled and {@code false} otherwise. Computation of the
 	 * equations is expensive and hence is disabled by default.
 	 * 
-	 * @see #toggleFrustumEquationsUpdate()
-	 * @see #disableFrustumEquationsUpdate()
-	 * @see #enableFrustumEquationsUpdate()
-	 * @see #enableFrustumEquationsUpdate(boolean)
-	 * @see remixlab.dandelion.core.Camera#updateFrustumEquations()
+	 * @see #toggleBoundaryEquations()
+	 * @see #disableBoundaryEquations()
+	 * @see #enableBoundaryEquations()
+	 * @see #enableBoundaryEquations(boolean)
+	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
-	public boolean frustumEquationsUpdateIsEnable() {
-		return viewPoint().frustumEquationsUpdateIsEnable();
+	public boolean boundaryEquationsAreEnabled() {
+		return viewPoint().boundaryEquationsAreEnabled();
 	}
 
 	/**
 	 * Toggles automatic update of the camera frustum plane equations every frame.
 	 * Computation of the equations is expensive and hence is disabled by default.
 	 * 
-	 * @see #frustumEquationsUpdateIsEnable()
-	 * @see #disableFrustumEquationsUpdate()
-	 * @see #enableFrustumEquationsUpdate()
-	 * @see #enableFrustumEquationsUpdate(boolean)
-	 * @see remixlab.dandelion.core.Camera#updateFrustumEquations()
+	 * @see #boundaryEquationsAreEnabled()
+	 * @see #disableBoundaryEquations()
+	 * @see #enableBoundaryEquations()
+	 * @see #enableBoundaryEquations(boolean)
+	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
-	public void toggleFrustumEquationsUpdate() {
-		if ( frustumEquationsUpdateIsEnable() )
-			disableFrustumEquationsUpdate();
+	public void toggleBoundaryEquations() {
+		if ( boundaryEquationsAreEnabled() )
+			disableBoundaryEquations();
 		else
-			enableFrustumEquationsUpdate();
+			enableBoundaryEquations();
 	}
 
 	/**
@@ -985,28 +985,28 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * frame. Computation of the equations is expensive and hence is disabled by
 	 * default.
 	 * 
-	 * @see #frustumEquationsUpdateIsEnable()
-	 * @see #toggleFrustumEquationsUpdate()
-	 * @see #enableFrustumEquationsUpdate()
-	 * @see #enableFrustumEquationsUpdate(boolean)
-	 * @see remixlab.dandelion.core.Camera#updateFrustumEquations()
+	 * @see #boundaryEquationsAreEnabled()
+	 * @see #toggleBoundaryEquations()
+	 * @see #enableBoundaryEquations()
+	 * @see #enableBoundaryEquations(boolean)
+	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
-	public void disableFrustumEquationsUpdate() {
-		enableFrustumEquationsUpdate(false);
+	public void disableBoundaryEquations() {
+		enableBoundaryEquations(false);
 	}
 
 	/**
 	 * Enables automatic update of the camera frustum plane equations every frame.
 	 * Computation of the equations is expensive and hence is disabled by default.
 	 * 
-	 * @see #frustumEquationsUpdateIsEnable()
-	 * @see #toggleFrustumEquationsUpdate()
-	 * @see #disableFrustumEquationsUpdate()
-	 * @see #enableFrustumEquationsUpdate(boolean)
-	 * @see remixlab.dandelion.core.Camera#updateFrustumEquations()
+	 * @see #boundaryEquationsAreEnabled()
+	 * @see #toggleBoundaryEquations()
+	 * @see #disableBoundaryEquations()
+	 * @see #enableBoundaryEquations(boolean)
+	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
-	public void enableFrustumEquationsUpdate() {
-		enableFrustumEquationsUpdate(true);
+	public void enableBoundaryEquations() {
+		enableBoundaryEquations(true);
 	}
 
 	/**
@@ -1014,14 +1014,14 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * every frame according to {@code flag}. Computation of the equations is
 	 * expensive and hence is disabled by default.
 	 * 
-	 * @see #frustumEquationsUpdateIsEnable()
-	 * @see #toggleFrustumEquationsUpdate()
-	 * @see #disableFrustumEquationsUpdate()
-	 * @see #enableFrustumEquationsUpdate()
-	 * @see remixlab.dandelion.core.Camera#updateFrustumEquations()
+	 * @see #boundaryEquationsAreEnabled()
+	 * @see #toggleBoundaryEquations()
+	 * @see #disableBoundaryEquations()
+	 * @see #enableBoundaryEquations()
+	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
-	public void enableFrustumEquationsUpdate(boolean flag) {
-		viewPoint().enableFrustumEquationsUpdate(flag);
+	public void enableBoundaryEquations(boolean flag) {
+		viewPoint().enableBoundaryEquations(flag);
 	}
 	
 	/**
@@ -1237,7 +1237,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		if( this.is3D() )
 			System.out.println("setBoundingRect is available only in 2D. Use setBoundingBox instead");
 		else
-			((Window) viewPoint()).setSceneBoundingRect(min, max);
+			((Window) viewPoint()).setSceneBoundingBox(min, max);
 	}
 
 	/**

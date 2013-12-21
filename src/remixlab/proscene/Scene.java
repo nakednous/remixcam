@@ -1125,7 +1125,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				break;
 			}
 			case ORTHOGRAPHIC: {
-				float[] wh = cam.getOrthoWidthHeight();
+				float[] wh = cam.getBoundaryWidthHeight();
 				//points[0].x = points[1].x = scale * wh[0];
 				//points[0].y = points[1].y = scale * wh[1];
 				
@@ -1995,7 +1995,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		setFrameSelectionHintIsDrawn(false);
 		setViewPointPathsAreDrawn(false);
 		
-		disableFrustumEquationsUpdate();
+		disableBoundaryEquations();
 		
 		enableDefaultKeyboardAgent();
 		enableDefaultMouseAgent();
@@ -2190,7 +2190,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * to call it.
 	 * <p>
 	 * Sets the processing camera parameters from {@link #viewPoint()} and updates
-	 * the frustum planes equations if {@link #enableFrustumEquationsUpdate(boolean)}
+	 * the frustum planes equations if {@link #enableBoundaryEquations(boolean)}
 	 * has been set to {@code true}.
 	 */
 	public void pre() {

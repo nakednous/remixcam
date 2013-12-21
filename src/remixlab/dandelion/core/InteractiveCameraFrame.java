@@ -242,7 +242,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 			else if (dir == -1)
 				trans.set(0.0f, deltaY, 0.0f);	
 			
-			float[] wh = viewWindow.getOrthoWidthHeight();
+			float[] wh = viewWindow.getBoundaryWidthHeight();
 			trans.vec[0] *= 2.0f * wh[0] / viewWindow.screenWidth();
 			trans.vec[1] *= 2.0f * wh[1] / viewWindow.screenHeight();			
 			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity())));
@@ -418,7 +418,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 						/ camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC:
-				float[] wh = camera.getOrthoWidthHeight();
+				float[] wh = camera.getBoundaryWidthHeight();
 				trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;
@@ -441,7 +441,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
                         / camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC:
-				float[] wh = camera.getOrthoWidthHeight();
+				float[] wh = camera.getBoundaryWidthHeight();
 				trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;
@@ -461,7 +461,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
                         / camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC:
-				float[] wh = camera.getOrthoWidthHeight();
+				float[] wh = camera.getBoundaryWidthHeight();
 				trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;
@@ -482,7 +482,7 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
                         / camera.screenHeight());
 				break;
 			case ORTHOGRAPHIC:
-				float[] wh = camera.getOrthoWidthHeight();
+				float[] wh = camera.getBoundaryWidthHeight();
 				trans.vec[0] *= 2.0f * wh[0] / camera.screenWidth();
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;

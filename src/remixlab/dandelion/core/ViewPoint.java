@@ -151,7 +151,7 @@ public abstract class ViewPoint implements Copyable {
 		scene = scn;
 		
 		//optimizeUnprojectCache(false);
-		enableFrustumEquationsUpdate(false);	
+		enableBoundaryEquations(false);	
 		
 		// /**
 		//TODO subido
@@ -745,10 +745,10 @@ public abstract class ViewPoint implements Copyable {
 	 * Convenience function that simply returns {@code getOrthoWidthHeight(new
 	 * float[2])}.
 	 * 
-	 * @see #getOrthoWidthHeight(float[])
+	 * @see #getBoundaryWidthHeight(float[])
 	 */
-	public float[] getOrthoWidthHeight() {
-		return getOrthoWidthHeight(new float[2]);
+	public float[] getBoundaryWidthHeight() {
+		return getBoundaryWidthHeight(new float[2]);
 	}
 	
 	/**
@@ -772,7 +772,7 @@ public abstract class ViewPoint implements Copyable {
 	 * <p>
 	 * Overload this method to change this behavior if desired.
 	 */
-	public abstract float[] getOrthoWidthHeight(float[] target);
+	public abstract float[] getBoundaryWidthHeight(float[] target);
 
 	/**
 	 * Returns the Camera frame coordinates of a point {@code src} defined in
@@ -1150,7 +1150,6 @@ public abstract class ViewPoint implements Copyable {
 	 *          Return the computed window coordinates.
 	 */
 	
-	
 	public boolean project(float objx, float objy, float objz, float[] windowCoordinate) {
 		return project(null, objx, objy, objz, windowCoordinate);
 	}
@@ -1473,19 +1472,19 @@ public abstract class ViewPoint implements Copyable {
 			interpolationKfi.stopInterpolation();
 	}
 	
-	public abstract float[][] computeFrustumEquations();
+	public abstract float[][] computeBoundaryEquations();
 	
-	public abstract float[][] computeFrustumEquations(float[][] coef);
+	public abstract float[][] computeBoundaryEquations(float[][] coef);
 	
 	/**
 	 * Enables or disables automatic update of the camera frustum plane equations
 	 * every frame according to {@code flag}. Computation of the equations is
 	 * expensive and hence is disabled by default.
 	 * 
-	 * @see #updateFrustumEquations()
+	 * @see #updateBoundaryEquations()
 	 */
 	// TODO should be protected
-	public void enableFrustumEquationsUpdate(boolean flag) {
+	public void enableBoundaryEquations(boolean flag) {
 		fpCoefficientsUpdate = flag;
 	}
 	
@@ -1494,10 +1493,10 @@ public abstract class ViewPoint implements Copyable {
 	 * equations is enabled and {@code false} otherwise. Computation of the
 	 * equations is expensive and hence is disabled by default.
 	 * 
-	 * @see #updateFrustumEquations()
+	 * @see #updateBoundaryEquations()
 	 */
   // TODO should be protected
-	public boolean frustumEquationsUpdateIsEnable() {
+	public boolean boundaryEquationsAreEnabled() {
 		return fpCoefficientsUpdate;
 	}
 	
@@ -1505,24 +1504,24 @@ public abstract class ViewPoint implements Copyable {
 	 * Updates the frustum plane equations according to the current camera setup /
 	 * {@link #type()}, {@link #position()}, {@link #orientation()},
 	 * {@link #zNear()}, and {@link #zFar()} values), by simply calling
-	 * {@link #computeFrustumEquations()}.
+	 * {@link #computeBoundaryEquations()}.
 	 * <p>
 	 * <b>Attention:</b> You should not call this method explicitly, unless you
 	 * need the frustum equations to be updated only occasionally (rare). Use
-	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()} which
+	 * {@link remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()} which
 	 * automatically update the frustum equations every frame instead.
 	 * 
-	 * @see #distanceToFrustumPlane(int, Vec)
+	 * @see #distanceToBoundary(int, Vec)
 	 * @see #pointIsVisible(Vec)
-	 * @see #sphereIsVisible(Vec, float)
-	 * @see #aaBoxIsVisible(Vec, Vec)
-	 * @see #computeFrustumEquations()
-	 * @see #getFrustumEquations()
-	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
+	 * @see #ballIsVisible(Vec, float)
+	 * @see #boxIsVisible(Vec, Vec)
+	 * @see #computeBoundaryEquations()
+	 * @see #getBoundaryEquations()
+	 * @see remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()
 	 */
-	public void updateFrustumEquations() {
+	public void updateBoundaryEquations() {
 		if( lastUpdate() != lastFPCoeficientsUpdateIssued )	{
-			computeFrustumEquations(fpCoefficients);
+			computeBoundaryEquations(fpCoefficients);
 			lastFPCoeficientsUpdateIssued = lastUpdate();		  
 		}
 	}
@@ -1541,23 +1540,23 @@ public abstract class ViewPoint implements Copyable {
 	 * <p>
 	 * <b>Attention:</b> The camera frustum plane equations should be updated
 	 * before calling this method. You may compute them explicitly (by calling
-	 * {@link #computeFrustumEquations()} ) or enable them to be automatic updated
+	 * {@link #computeBoundaryEquations()} ) or enable them to be automatic updated
 	 * in your Scene setup (with
-	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()}).
+	 * {@link remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()}).
 	 * 
-	 * @see #distanceToFrustumPlane(int, Vec)
+	 * @see #distanceToBoundary(int, Vec)
 	 * @see #pointIsVisible(Vec)
-	 * @see #sphereIsVisible(Vec, float)
-	 * @see #aaBoxIsVisible(Vec, Vec)
-	 * @see #computeFrustumEquations()
-	 * @see #updateFrustumEquations()
-	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
+	 * @see #ballIsVisible(Vec, float)
+	 * @see #boxIsVisible(Vec, Vec)
+	 * @see #computeBoundaryEquations()
+	 * @see #updateBoundaryEquations()
+	 * @see remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()
 	 */
-	public float[][] getFrustumEquations() {
-		if (!scene.frustumEquationsUpdateIsEnable())
-			System.out.println("The camera frustum plane equations may be outdated. Please "
+	public float[][] getBoundaryEquations() {
+		if (!scene.boundaryEquationsAreEnabled())
+			System.out.println("The viewpoint boundary equations may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
+							+ "with Scene.enableBoundaryEquations()");
 		return fpCoefficients;
 	}
 	
@@ -1572,28 +1571,32 @@ public abstract class ViewPoint implements Copyable {
 	 * <p>
 	 * <b>Attention:</b> The camera frustum plane equations should be updated
 	 * before calling this method. You may compute them explicitly (by calling
-	 * {@link #computeFrustumEquations()} ) or enable them to be automatic updated
+	 * {@link #computeBoundaryEquations()} ) or enable them to be automatic updated
 	 * in your Scene setup (with
-	 * {@link remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()}).
+	 * {@link remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()}).
 	 * 
 	 * @see #pointIsVisible(Vec)
-	 * @see #sphereIsVisible(Vec, float)
-	 * @see #aaBoxIsVisible(Vec, Vec)
-	 * @see #computeFrustumEquations()
-	 * @see #updateFrustumEquations()
-	 * @see #getFrustumEquations()
-	 * @see remixlab.dandelion.core.AbstractScene#enableFrustumEquationsUpdate()
+	 * @see #ballIsVisible(Vec, float)
+	 * @see #boxIsVisible(Vec, Vec)
+	 * @see #computeBoundaryEquations()
+	 * @see #updateBoundaryEquations()
+	 * @see #getBoundaryEquations()
+	 * @see remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()
 	 */
-	public float distanceToFrustumPlane(int index, Vec pos) {
-		if (!scene.frustumEquationsUpdateIsEnable())
-			System.out.println("The camera frustum plane equations (needed by distanceToFrustumPlane) may be outdated. Please "
+	public float distanceToBoundary(int index, Vec pos) {
+		if (!scene.boundaryEquationsAreEnabled())
+			System.out.println("The viewpoint boundary equations (needed by distanceToBoundary) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
-							+ "with Scene.enableFrustumEquationsUpdate()");
+							+ "with Scene.enableBoundaryEquations()");
 		Vec myVec = new Vec(fpCoefficients[index][0],	fpCoefficients[index][1], fpCoefficients[index][2]);
 		return Vec.dot(pos, myVec) - fpCoefficients[index][3];
 	}
 	
 	public abstract boolean pointIsVisible(Vec point);
+	
+	public abstract Visibility ballIsVisible(Vec center, float radius);
+	
+	public abstract Visibility boxIsVisible(Vec p1, Vec p2);
 	
 	public abstract float pixelSceneRatio(Vec position);
 	

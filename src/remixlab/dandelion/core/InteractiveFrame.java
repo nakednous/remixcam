@@ -1115,7 +1115,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 						            / scene.camera().screenHeight());
 				break;
 			case ORTHOGRAPHIC:
-				float[] wh = scene.camera().getOrthoWidthHeight();
+				float[] wh = scene.camera().getBoundaryWidthHeight();
 				trans.vec[0] *= 2.0 * wh[0] / scene.camera().screenWidth();
 				trans.vec[1] *= 2.0 * wh[1] / scene.camera().screenHeight();
 				break;
@@ -1139,7 +1139,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 								        / scene.camera().screenHeight());
 				break;
 				case ORTHOGRAPHIC: {
-					float[] wh = scene.camera().getOrthoWidthHeight();
+					float[] wh = scene.camera().getBoundaryWidthHeight();
 					trans.vec[0] *= 2.0 * wh[0] / scene.camera().screenWidth();
 					trans.vec[1] *= 2.0 * wh[1] / scene.camera().screenHeight();
 					break;
@@ -1168,7 +1168,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 								        / scene.camera().screenHeight());
 				break;
 				case ORTHOGRAPHIC: {
-					float[] wh = scene.camera().getOrthoWidthHeight();
+					float[] wh = scene.camera().getBoundaryWidthHeight();
 					trans.vec[0] *= 2.0 * wh[0] / scene.camera().screenWidth();
 					trans.vec[1] *= 2.0 * wh[1] / scene.camera().screenHeight();
 					break;
@@ -1198,7 +1198,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 								        / scene.camera().screenHeight());
 				break;
 				case ORTHOGRAPHIC: {
-					float[] wh = scene.camera().getOrthoWidthHeight();
+					float[] wh = scene.camera().getBoundaryWidthHeight();
 					trans.vec[0] *= 2.0 * wh[0] / scene.camera().screenWidth();
 					trans.vec[1] *= 2.0 * wh[1] / scene.camera().screenHeight();
 					break;
