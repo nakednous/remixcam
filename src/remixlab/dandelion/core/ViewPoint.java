@@ -26,36 +26,21 @@ public abstract class ViewPoint implements Copyable {
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
     append(fpCoefficientsUpdate).
-    //append(unprojectCacheOptimized).
+    append(dist).
+    append(normal).
     append(lastParamUpdate).
     append(lastFPCoeficientsUpdateIssued).
-    //append(zClippingCoef).
-		//append(IODist).
-		//append(dist).
-		//append(fldOfView).
-		//append(focusDist).
 		append(fpCoefficients).
 		append(frm).
 		append(interpolationKfi).
-		//append(knd).
 		append(viewMat).
-		//append(normal).
-		//append(orthoCoef).
-		//append(orthoSize).
-		//append(physicalDist2Scrn).
-		//append(physicalScrnWidth).
 		append(projectionMat).
 		append(scnCenter).
 		append(scnRadius).
 		append(scrnHeight).
 		append(scrnWidth).
-		//append(stdZFar).
-		//append(stdZNear).
 		append(tempFrame).
-		//append(tp).
 		append(viewport).
-		//append(zClippingCoef).
-		//append(zNearCoef).
     toHashCode();
 	}
 
@@ -68,36 +53,21 @@ public abstract class ViewPoint implements Copyable {
 		ViewPoint other = (ViewPoint) obj;		
 	  return new EqualsBuilder()
     .append(fpCoefficientsUpdate, other.fpCoefficientsUpdate)
-    //.append(unprojectCacheOptimized, other.unprojectCacheOptimized)
+    .append(normal,other.normal)
+    .append(dist,other.dist)
+    .append(frm,other.frm)
     .append(lastParamUpdate, other.lastParamUpdate)
     .append(lastFPCoeficientsUpdateIssued, other.lastFPCoeficientsUpdateIssued)
-    //.append(zClippingCoef, other.zClippingCoef)
-		//.append(IODist,other.IODist)
-		//.append(dist,other.dist)
-		//.append(fldOfView,other.fldOfView)
-		//.append(focusDist,other.focusDist)
 		.append(fpCoefficients,other.fpCoefficients)
-		//.append(frm,other.frm)
 		.append(interpolationKfi,other.interpolationKfi)
-		//.append(knd,other.knd)
 		.append(viewMat,other.viewMat)
-		//.append(normal,other.normal)
-		//.append(orthoCoef,other.orthoCoef)
-		//.append(orthoSize,other.orthoSize)
-		//.append(physicalDist2Scrn,other.physicalDist2Scrn)
-		//.append(physicalScrnWidth,other.physicalScrnWidth)
 		.append(projectionMat,other.projectionMat)
 		.append(scnCenter,other.scnCenter)
 		.append(scnRadius,other.scnRadius)
 		.append(scrnHeight,other.scrnHeight)
 		.append(scrnWidth,other.scrnWidth)
-		//.append(stdZFar,other.stdZFar)
-		//.append(stdZNear,other.stdZNear)
 		.append(tempFrame,other.tempFrame)
-		//.append(tp,other.tp)
 		.append(viewport,other.viewport)
-		//.append(zClippingCoef,other.zClippingCoef)
-		//.append(zNearCoef,other.zNearCoef)
 		.isEquals();
 	}
 	
@@ -138,6 +108,9 @@ public abstract class ViewPoint implements Copyable {
 	protected float fpCoefficients[][];
 	protected boolean fpCoefficientsUpdate;
 	
+	protected Vec normal[];
+	protected float dist[];
+	
 	/**
    * Which was the last frame the camera changes.
    * <P>
@@ -148,42 +121,17 @@ public abstract class ViewPoint implements Copyable {
 	protected long lastFPCoeficientsUpdateIssued = -1;
 	
 	public ViewPoint(AbstractScene scn) {
-		scene = scn;
-		
-		//optimizeUnprojectCache(false);
-		enableBoundaryEquations(false);	
-		
-		// /**
-		//TODO subido
-		// KeyFrames
+		scene = scn;		
+		enableBoundaryEquations(false);		
 		interpolationKfi = new KeyFrameInterpolator(scene, frame());
-		kfi = new HashMap<Integer, KeyFrameInterpolator>();
-		
-		setFrame(new InteractiveCameraFrame(this));
-		
-		setSceneRadius(100);
-		// */
-		
-		// /**
-	  //TODO subido
-		// Also defines the arcballReferencePoint(), which changes orthoCoef.
-		setSceneCenter(new Vec(0.0f, 0.0f, 0.0f));
-		// */
-		
-		// /**
-		//TODO subido
-		// Dummy values
-		setScreenWidthAndHeight(600, 400);
-		// */
-		
-		// /**
-		//TODO subido
+		kfi = new HashMap<Integer, KeyFrameInterpolator>();		
+		setFrame(new InteractiveCameraFrame(this));		
+		setSceneRadius(100);		
+		setSceneCenter(new Vec(0.0f, 0.0f, 0.0f));		
+		setScreenWidthAndHeight(600, 400);	
 		viewMat = new Mat();
 		projectionMat = new Mat();
 		projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-		//computeProjectionMatrix();
-		//projectionViewMat = new Mat();
-		// */
 	}
 	
 	/**
@@ -193,9 +141,6 @@ public abstract class ViewPoint implements Copyable {
 	 */
 	protected ViewPoint(ViewPoint oVP) {
 		this.scene = oVP.scene;
-		
-		//this.orthoSize = oVP.orthoSize;
-		//this.unprojectCacheOptimized = oVP.unprojectCacheOptimized;
 		this.fpCoefficientsUpdate = oVP.fpCoefficientsUpdate;
 		
 		if(scene.is2D()) {
@@ -226,13 +171,10 @@ public abstract class ViewPoint implements Copyable {
 		this.setScreenWidthAndHeight(oVP.screenWidth(), oVP.screenHeight());		
 		this.viewMat = new Mat(oVP.viewMat);
 		this.projectionMat = new Mat(oVP.projectionMat);
-		//this.projectionViewMat = new Mat(oVP.projectionViewMat);
 	}
 
-	// /**
 	@Override
 	public abstract ViewPoint get();
-	// */
 	
 	/**
 	 * Returns the InteractiveCameraFrame attached to the Camera.

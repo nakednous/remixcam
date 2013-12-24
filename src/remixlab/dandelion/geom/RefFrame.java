@@ -131,7 +131,6 @@ public class RefFrame implements Copyable, Constants {
 			trans = new Vec(other.translation().vec[0], other.translation().vec[1], other.translation().vec[2]);
 			rot = other.rotation().get();
 			scl = other.scaling().get();
-			//scl = new Vector3D(other.scaling().vec[0], other.scaling().vec[1], other.scaling().vec[2]);
 			refFrame = other.referenceFrame();
 			constr = other.constraint();
 			lastUpdate = other.lastUpdate();
@@ -211,31 +210,6 @@ public class RefFrame implements Copyable, Constants {
 		public void scale(Vec s) {
 			setScaling( Vec.mult(scaling(), s) );
 		}
-		 
-		public void inverseScale(Vec s) {
-			setScaling( Vec.div(scaling(), s) );
-		}
-		
-		/**
-		public boolean isInverted() {
-			boolean inverted = true;
-			
-			if( referenceFrame() == null ) {
-				inverted = false;
-			}			
-			else {
-				if(this instanceof FrameKernel3D) {
-					if ( ( referenceFrame().magnitude().x() > 0 && referenceFrame().magnitude().y() > 0 && referenceFrame().magnitude().z() > 0 ) || ( referenceFrame().magnitude().x() < 0 && referenceFrame().magnitude().y() < 0 && referenceFrame().magnitude().z() < 0 ) )
-						inverted = false;
-				}
-				else {
-					if ( ( referenceFrame().magnitude().x() > 0 && referenceFrame().magnitude().y() > 0 ) || ( referenceFrame().magnitude().x() < 0 && referenceFrame().magnitude().y() < 0 ) )
-						inverted = false;
-				}
-			}
-			
-			return inverted;
-		} //*/		
 		
 		public boolean isInverted() {
 			boolean inverted = false;		
@@ -283,13 +257,6 @@ public class RefFrame implements Copyable, Constants {
 		  rotation().fromRotatedBasis(x,y,z);
 		  modified();
 		}
-		
-		/**
-		public void fromMatrix(Mat m) {
-		  rotation().fromMatrix(m);
-		  modified();
-		}
-		*/
 	}
 	
 	/**
@@ -317,16 +284,6 @@ public class RefFrame implements Copyable, Constants {
 		public FrameKernel3D get() {
 			return new FrameKernel3D(this);
 		}
-		
-		/**
-		@Override
-		public boolean isInverted(AbstractScene scene) {
-			boolean allEq = false;
-			if ( ( scaling().x() > 0 && scaling().y() > 0 && scaling().z() > 0 ) || ( scaling().x() < 0 && scaling().y() < 0 && scaling().z() < 0 ) )
-				allEq = true;
-			return (scene.isRightHanded() && allEq) || (scene.isLeftHanded() && !allEq);				
-		}
-		*/
 	}
 	
 	public class FrameKernel2D extends AbstractFrameKernel {		
@@ -350,16 +307,6 @@ public class RefFrame implements Copyable, Constants {
 		public FrameKernel2D get() {
 			return new FrameKernel2D(this);
 		}
-		
-		/**
-		@Override
-		public boolean isInverted(AbstractScene scene) {
-			boolean allEq = false;
-			if ( ( scaling().x() > 0 && scaling().y() > 0 ) || ( scaling().x() < 0 && scaling().y() < 0 ) )
-				allEq = true;
-			return (scene.isRightHanded() && allEq) || (scene.isLeftHanded() && !allEq);			
-		}
-		*/
 	}
 
 	protected AbstractFrameKernel krnl;	
@@ -446,7 +393,6 @@ public class RefFrame implements Copyable, Constants {
 		return new RefFrame(this);
 	}
 	
-	// TODO document me
 	public AbstractFrameKernel kernel() {
 		return krnl;
 	}
@@ -462,16 +408,6 @@ public class RefFrame implements Copyable, Constants {
 	public boolean is3D() {
 		return kernel().rot instanceof Quat;
 	}
-	
-	/**
-	public boolean isRightHanded(AbstractScene scene) {
-		return kernel().isInverted(scene);
-	}
-	
-	public boolean isLeftHanded(AbstractScene scene) {
-		return kernel().isLeftHanded(scene);
-	}
-	*/
 	
 	public boolean isInverted() {
 		return kernel().isInverted();
@@ -754,7 +690,6 @@ public class RefFrame implements Copyable, Constants {
 	}
 	
 	public final void setScaling(float x, float y) {
-		//TODO check third parameter
 		setScaling(new Vec(x, y, 1));
 	}
 	
@@ -763,7 +698,6 @@ public class RefFrame implements Copyable, Constants {
 	}
 	
 	public final void setScalingWithConstraint(Vec sclng) {
-		// TODO test me
 		Vec deltaS = Vec.div(sclng, this.scaling());
 		if (constraint() != null)
 			deltaS = constraint().constrainScaling(deltaS, this);
@@ -893,9 +827,7 @@ public class RefFrame implements Copyable, Constants {
 	 * @see #rotation()
 	 */
 	public final Orientable orientation() {
-	  //TODO return a reference when referenceFrame is null. Same as with
-  	// absoluteScaling() but no as with position() (which returns a newly created object)
-		Orientable res = rotation();
+		Orientable res = rotation().get();
 		RefFrame fr = referenceFrame();
 		while (fr != null) {
 			if(is3D())
@@ -951,7 +883,6 @@ public class RefFrame implements Copyable, Constants {
 	}
   
   public final void setMagnitude(float sx, float sy) {
-    //TODO check third parameter
 		setMagnitude(new Vec(sx, sy, 1));
 	}
   
@@ -960,12 +891,10 @@ public class RefFrame implements Copyable, Constants {
 	}
   
   public Vec magnitude() {
-  	//TODO return a reference when referenceFrame is null. Same as with
-  	// orientation() but no as with position() (which returns a newly created object)
   	if(referenceFrame() != null)
   		return Vec.mult(referenceFrame().magnitude(), scaling());
   	else
-  		return scaling();
+  		return scaling().get();
   }
   
   public Vec inverseMagnitude() {
@@ -1050,7 +979,6 @@ public class RefFrame implements Copyable, Constants {
 	 * @see #translation()
 	 */
 	public final Vec position() {
-	  // TODO always return a newly created object. No like position() and orientation()
 		return inverseCoordinatesOf(new Vec(0, 0, 0));
 	}
 
@@ -1141,26 +1069,6 @@ public class RefFrame implements Copyable, Constants {
 	
 	public void scale(float s) {
 		scale(new Vec(s,s,s));
-	}
-	
-	//TODO provisional: should this go?
-	public void inverseScale(Vec s) {
-		if (constraint() != null)
-			kernel().inverseScale(constraint().constrainScaling(s, this));
-		else
-			kernel().inverseScale(s);
-	}	
-	
-	public void inverseScale(float x, float y, float z) {
-		inverseScale(new Vec(x,y,z));
-	}
-	
-	public void inverseScale(float x, float y) {
-		inverseScale(new Vec(x,y,1));
-	}
-	
-	public void inverseScale(float s) {
-		inverseScale(new Vec(s,s,s));
 	}
 	
 	/**
@@ -1563,6 +1471,7 @@ public class RefFrame implements Copyable, Constants {
 		return coordinatesOf(src, true);
 	}
 	
+	//TODO get rid of boolean sclng methods? I'd love to
 	public final Vec coordinatesOf(Vec src, boolean sclng) {
 		if (referenceFrame() != null)
 			return localCoordinatesOf(referenceFrame().coordinatesOf(src), sclng);
@@ -1582,6 +1491,7 @@ public class RefFrame implements Copyable, Constants {
 		return inverseCoordinatesOf(src, true);
 	}
 	
+  //TODO get rid of boolean sclng methods? I'd love to
 	public final Vec inverseCoordinatesOf(Vec src, boolean sclng) {
 		RefFrame fr = this;
 		Vec res = src;
@@ -1606,7 +1516,7 @@ public class RefFrame implements Copyable, Constants {
 		return localCoordinatesOf(src, true);
 	}
 	
-	public final Vec localCoordinatesOf(Vec src, boolean sclng) {
+	protected final Vec localCoordinatesOf(Vec src, boolean sclng) {
 		if( sclng )
 			return Vec.div(rotation().inverseRotate(Vec.sub(src, translation())), scaling());
 		else
@@ -1626,7 +1536,7 @@ public class RefFrame implements Copyable, Constants {
 		return localInverseCoordinatesOf(src, true);
 	}
 	
-	public final Vec localInverseCoordinatesOf(Vec src, boolean sclng) {
+	protected final Vec localInverseCoordinatesOf(Vec src, boolean sclng) {
 		if( sclng )
 			return Vec.add(rotation().rotate(Vec.mult(src, scaling())), translation());
 		else
@@ -1687,7 +1597,7 @@ public class RefFrame implements Copyable, Constants {
 		return transformOf(src, true);
 	}
 	
-	public final Vec transformOf(Vec src, boolean sclng) {
+	protected final Vec transformOf(Vec src, boolean sclng) {
 		if (referenceFrame() != null)
 			return localTransformOf(referenceFrame().transformOf(src), sclng);
 		else
@@ -1706,7 +1616,7 @@ public class RefFrame implements Copyable, Constants {
 		return inverseTransformOf(src, true);
 	}
 	
-	public final Vec inverseTransformOf(Vec src, boolean sclng) {
+	protected final Vec inverseTransformOf(Vec src, boolean sclng) {
 		RefFrame fr = this;
 		Vec res = src;
 		while (fr != null) {
@@ -1862,7 +1772,7 @@ public class RefFrame implements Copyable, Constants {
 		return localTransformOf(src, true);
 	}
 	
-	public final Vec localTransformOf(Vec src, boolean sclng) {
+	protected final Vec localTransformOf(Vec src, boolean sclng) {
 		if( sclng )
 			return Vec.div(rotation().inverseRotate(src), scaling());
 		else
@@ -1882,7 +1792,7 @@ public class RefFrame implements Copyable, Constants {
 	  return localInverseTransformOf(src, true);
 	}
 	
-	public final Vec localInverseTransformOf(Vec src, boolean sclng) {
+	protected final Vec localInverseTransformOf(Vec src, boolean sclng) {
 		if( sclng )
 			return rotation().rotate(Vec.mult(src, scaling()));		
 		else
@@ -1980,7 +1890,6 @@ public class RefFrame implements Copyable, Constants {
 	 * 
 	 * @see #applyTransformation(AbstractScene)
 	 */
-	// TODO is always inneficient
 	public final Mat matrix() {
 		Mat pM = new Mat();
 
@@ -2057,7 +1966,6 @@ public class RefFrame implements Copyable, Constants {
 	 * <b>Note:</b> The scaling factor of the 4x4 matrix is 1.0.
 	 */
 	public final Mat worldMatrix() {
-	  //TODO key! take into account scaling
 		if (referenceFrame() != null) {
 			final RefFrame fr = new RefFrame();
 			fr.setTranslation(position());

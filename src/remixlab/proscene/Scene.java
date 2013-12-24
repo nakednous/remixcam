@@ -2535,7 +2535,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	@Override
 	public void displayInfo(boolean onConsole) {
 		if (onConsole)
-		//PApplet.println(info());
 			System.out.println(info());
 		else { //on applet
 			pg().textFont(parent.createFont("Arial", 12));

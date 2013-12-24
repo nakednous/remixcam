@@ -15,10 +15,6 @@ import remixlab.tersehandling.core.Copyable;
 public class Window extends ViewPoint implements Copyable {
 	//TODO setUpVector is broken when frame().scaling() has negative values
 	
-  //next variables are needed for frustum plane coefficients
-	Vec normal[] = new Vec[4];
-	float dist[] = new float[4];
-	
 	static final float FAKED_ZNEAR = -10;  
   static final float FAKED_ZFAR = 10;	
 	
@@ -26,9 +22,13 @@ public class Window extends ViewPoint implements Copyable {
 		super(scn);
 		if(scene.is3D())
 			throw new RuntimeException("Use ViewWindow only for a 2D Scene");
+		
+		dist = new float[4];
+		normal = new Vec[4];
+		//for (int i = 0; i < normal.length; i++)	normal[i] = new Vec();
+		
 		fpCoefficients = new float[4][3];		
 		computeProjection();
-		//flip();
 	}
 	
 	protected Window(Window oVW) {

@@ -301,8 +301,11 @@ public class InteractiveCameraFrame extends InteractiveFrame implements Copyable
 					delta = e1.getDX();
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) -scene.height());
-			else
-				inverseScale(1 + Math.abs(delta) / (float) -scene.height());
+			else {
+				//inverseScale(1 + Math.abs(delta) / (float) -scene.height());
+				float s = 1 + Math.abs(delta) / (float) -scene.height();
+				setScaling(Vec.div(scaling(), new Vec(s,s)));
+			}
 			break;
 		case ZOOM_ON_REGION:
 			if(e2.absolute()) {

@@ -44,32 +44,14 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
     appendSuper(super.hashCode()).
-    //append(fpCoefficientsUpdate).
-    //append(unprojectCacheOptimized).
-    //append(lastFrameUpdate).
-    //append(lastFPCoeficientsUpdateIssued).
     append(zClippingCoef).
 		append(IODist).
-		append(dist).
 		append(fldOfView).
 		append(focusDist).
-		//append(fpCoefficients).
-		append(frm).
-		//append(interpolationKfi).
-
-		//append(viewMat).
-		append(normal).
 		append(orthoCoef).
 		append(physicalDist2Scrn).
 		append(physicalScrnWidth).
-		//append(projectionMat).
-		//append(scnCenter).
-		//append(scnRadius).
-		//append(scrnHeight).
-		//append(scrnWidth).
-		//append(tempFrame).
 		append(tp).
-		//append(viewport).
 		append(zClippingCoef).
 		append(zNearCoef).
 		append(cadRotate).
@@ -77,14 +59,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		//TODO check me		
-		/**
-		if (this == obj) return true;
-		if (!super.equals(obj))	return false;
-		if (getClass() != obj.getClass())	return false;
-		// */
-		
+	public boolean equals(Object obj) {		
 		if (obj == null) return false;
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
@@ -92,36 +67,19 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		Camera other = (Camera) obj;		
 	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))
-    //.append(fpCoefficientsUpdate, other.fpCoefficientsUpdate)
-    //.append(unprojectCacheOptimized, other.unprojectCacheOptimized)
-    //.append(lastFrameUpdate, other.lastFrameUpdate)
-    //.append(lastFPCoeficientsUpdateIssued, other.lastFPCoeficientsUpdateIssued)
     .append(zClippingCoef, other.zClippingCoef)
 		.append(IODist,other.IODist)
-		.append(dist,other.dist)
 		.append(fldOfView,other.fldOfView)
 		.append(focusDist,other.focusDist)
-		//.append(fpCoefficients,other.fpCoefficients)
-		.append(frm,other.frm)
-		//.append(interpolationKfi,other.interpolationKfi)
-		//.append(viewMat,other.viewMat)
-		.append(normal,other.normal)
 		.append(orthoCoef,other.orthoCoef)	
 		.append(physicalDist2Scrn,other.physicalDist2Scrn)
 		.append(physicalScrnWidth,other.physicalScrnWidth)
-		//.append(projectionMat,other.projectionMat)
-		//.append(scnCenter,other.scnCenter)
-		//.append(scnRadius,other.scnRadius)
-		//.append(scrnHeight,other.scrnHeight)
-		//.append(scrnWidth,other.scrnWidth)
-		//.append(tempFrame,other.tempFrame)
 		.append(tp,other.tp)
-		//.append(viewport,other.viewport)
 		.append(zClippingCoef,other.zClippingCoef)
 		.append(zNearCoef,other.zNearCoef)
 		.append(cadRotate,other.cadRotate)
 		.isEquals();
-	}	
+	}
 	
 	/**
 	 * Internal class that represents/holds a cone of normals.
@@ -210,11 +168,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 
 		public Vec point;
 		public boolean found;
-	}
-	
-	// next variables are needed for frustum plane coefficients
-	Vec normal[] = new Vec[6];
-	float dist[] = new float[6];
+	}	
 
 	/**
 	 * Enumerates the two possible types of Camera.
@@ -259,63 +213,29 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 		super(scn);
 		
 		if(scene.is2D())
-			throw new RuntimeException("Use Camera only for a 3D Scene");			
-
-		for (int i = 0; i < normal.length; i++)
-			normal[i] = new Vec();
+			throw new RuntimeException("Use Camera only for a 3D Scene");
+		
+		dist = new float[6];
+		normal = new Vec[6];
+		//for (int i = 0; i < normal.length; i++)	normal[i] = new Vec();
 
 		fldOfView = (float) Math.PI / 3.0f; //in Proscene 1.x it was Pi/4
-
-		fpCoefficients = new float[6][4];
-
-		/**
-		//TODO subido
-		// KeyFrames
-		interpolationKfi = new KeyFrameInterpolator(scene, frame());
-		kfi = new HashMap<Integer, KeyFrameInterpolator>();
-		
-		setFrame(new InteractiveCameraFrame(this));
-		
-		// Requires fieldOfView() to define focusDistance()
-		setSceneRadius(100);
-		// */		
+		fpCoefficients = new float[6][4];		
 
 		// Initial value (only scaled after this)
-		orthoCoef = (float) Math.tan(fieldOfView() / 2.0f);
+		orthoCoef = (float) Math.tan(fieldOfView() / 2.0f);	
 
-		/**
-		//TODO subido
-		// Also defines the arcballReferencePoint(), which changes orthoCoef.
-		setSceneCenter(new Vector3D(0.0f, 0.0f, 0.0f));
-		// */
-
-		// Requires fieldOfView() when called with ORTHOGRAPHIC. Attention to
-		// projectionMat below.
+		// Requires fieldOfView() when called with ORTHOGRAPHIC. Attention to projectionMat below.
 		setType(Camera.Type.PERSPECTIVE);
-
 		setZNearCoefficient(0.005f);
-		setZClippingCoefficient((float) Math.sqrt(3.0f));
-
-		/**
-		//TODO subido
-		// Dummy values
-		setScreenWidthAndHeight(600, 400);
-		// */
+		setZClippingCoefficient((float) Math.sqrt(3.0f));	
 
 		// Stereo parameters
 		setIODistance(0.062f);
 		setPhysicalDistanceToScreen(0.5f);
 		setPhysicalScreenWidth(0.4f);
-		// focusDistance is set from setFieldOfView()
+		// focusDistance is set from setFieldOfView()		
 		
-		/**
-		//TODO subido
-		viewMat = new Matrix3D();
-		projectionMat = new Matrix3D();
-		projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-		computeProjectionMatrix();
-		projectionViewMat = new Matrix3D();
-		// */
 		computeProjection();
 	}
 	

@@ -968,8 +968,11 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 					delta = e1.getDX();
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
-			else
-				inverseScale(1 + Math.abs(delta) / (float) scene.height());
+			else {
+				//inverseScale(1 + Math.abs(delta) / (float) scene.height());
+				float s = 1 + Math.abs(delta) / (float) scene.height();
+				setScaling(Vec.div(scaling(), new Vec(s,s)));
+			}
 			break;
 		case CENTER_FRAME:
 			projectOnLine(scene.window().position(), scene.window().viewDirection());
@@ -1238,8 +1241,11 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 					delta = e1.getDX();	
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
-			else
-				inverseScale(1 + Math.abs(delta) / (float) scene.height());
+			else {
+				//inverseScale(1 + Math.abs(delta) / (float) scene.height());
+				float s = 1 + Math.abs(delta) / (float) scene.height();
+				setScaling(Vec.div(scaling(), new Vec(s,s,s)));
+				}
 			break;
 		case CENTER_FRAME:
 			projectOnLine(scene.camera().position(), scene.camera().viewDirection());

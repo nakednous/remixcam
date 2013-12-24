@@ -166,8 +166,8 @@ public class GenericProfile<K extends Shortcut, A extends Actionable<?>> impleme
 	public String description() {
 		String result = new String();
 		for (Entry<K, A> entry : map.entrySet())
-			result += entry.getKey().description() + " -> "
-					+ entry.getValue().description() + "\n";
+			if(entry.getKey() != null && entry.getValue() != null)
+				result += entry.getKey().description() + " -> "	+ entry.getValue().description() + "\n";
 		return result;
 	}
 }
