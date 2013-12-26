@@ -7,7 +7,7 @@
  * scenes, released under the terms of the GNU Public License v3.0
  * which is available at http://www.gnu.org/licenses/gpl.html
  ******************************************************************************/
-package remixlab.dandelion.geom;
+package remixlab.dandelion.core;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,8 +17,11 @@ import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
 import remixlab.dandelion.constraint.*;
-import remixlab.dandelion.core.AbstractScene;
-import remixlab.dandelion.core.Constants;
+import remixlab.dandelion.geom.Mat;
+import remixlab.dandelion.geom.Orientable;
+import remixlab.dandelion.geom.Quat;
+import remixlab.dandelion.geom.Rot;
+import remixlab.dandelion.geom.Vec;
 import remixlab.fpstiming.TimingHandler;
 import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Util;
@@ -697,8 +700,8 @@ public class RefFrame implements Copyable, Constants {
 		setScaling(new Vec(s, s, s));
 	}
 	
-	public final void setScalingWithConstraint(Vec sclng) {
-		Vec deltaS = Vec.div(sclng, this.scaling());
+	public final void setScalingWithConstraint(Vec s) {
+		Vec deltaS = Vec.div(s, this.scaling());
 		if (constraint() != null)
 			deltaS = constraint().constrainScaling(deltaS, this);
 
@@ -1472,7 +1475,7 @@ public class RefFrame implements Copyable, Constants {
 	}
 	
 	//TODO get rid of boolean sclng methods? I'd love to
-	public final Vec coordinatesOf(Vec src, boolean sclng) {
+	protected final Vec coordinatesOf(Vec src, boolean sclng) {
 		if (referenceFrame() != null)
 			return localCoordinatesOf(referenceFrame().coordinatesOf(src), sclng);
 		else
@@ -1492,7 +1495,7 @@ public class RefFrame implements Copyable, Constants {
 	}
 	
   //TODO get rid of boolean sclng methods? I'd love to
-	public final Vec inverseCoordinatesOf(Vec src, boolean sclng) {
+	protected final Vec inverseCoordinatesOf(Vec src, boolean sclng) {
 		RefFrame fr = this;
 		Vec res = src;
 		while (fr != null) {

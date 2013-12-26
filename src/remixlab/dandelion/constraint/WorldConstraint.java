@@ -9,6 +9,7 @@
  ******************************************************************************/
 package remixlab.dandelion.constraint;
 
+import remixlab.dandelion.core.RefFrame;
 import remixlab.dandelion.geom.*;
 
 /**

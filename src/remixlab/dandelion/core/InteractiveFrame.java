@@ -286,7 +286,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	/**
 	 * Convenience function that simply calls {@code applyTransformation(AbstractScene)}.
 	 * 
-	 * @see remixlab.dandelion.geom.RefFrame#applyTransformation(AbstractScene)
+	 * @see remixlab.dandelion.core.RefFrame#applyTransformation(AbstractScene)
 	 */
 	public void applyTransformation() {
 		applyTransformation(scene);
@@ -295,7 +295,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	/**
 	 * Convenience function that simply calls {@code applyWorldTransformation(Abstractscene)}
 	 * 
-	 * @see remixlab.dandelion.geom.RefFrame#applyWorldTransformation(AbstractScene)
+	 * @see remixlab.dandelion.core.RefFrame#applyWorldTransformation(AbstractScene)
 	 */
 	public void applyWorldTransformation() {
 		applyWorldTransformation(scene);

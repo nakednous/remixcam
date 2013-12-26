@@ -9,6 +9,7 @@
  ******************************************************************************/
 package remixlab.dandelion.constraint;
 
+import remixlab.dandelion.core.RefFrame;
 import remixlab.dandelion.geom.*;
 
 /**
@@ -16,7 +17,7 @@ import remixlab.dandelion.geom.*;
  * <p>
  * The {@link #translationConstraintDirection()} and
  * {@link #rotationConstraintDirection()} are expressed in the Frame local
- * coordinate system (see {@link remixlab.dandelion.geom.RefFrame#referenceFrame()}).
+ * coordinate system (see {@link remixlab.dandelion.core.RefFrame#referenceFrame()}).
  */
 public class LocalConstraint extends AxisPlaneConstraint {
 

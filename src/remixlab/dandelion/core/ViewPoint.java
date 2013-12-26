@@ -293,7 +293,7 @@ public abstract class ViewPoint implements Copyable {
 	 * <p>
 	 * Use {@link #setPosition(Vec)} to set the Camera position. Other
 	 * convenient methods are showEntireScene() or fitSphere(). Actually returns
-	 * {@link remixlab.dandelion.geom.RefFrame#position()}.
+	 * {@link remixlab.dandelion.core.RefFrame#position()}.
 	 * <p>
 	 * This position corresponds to the projection center of a Camera.PERSPECTIVE
 	 * camera. It is not located in the image plane, which is at a zNear()
@@ -1001,7 +1001,7 @@ public abstract class ViewPoint implements Copyable {
 	 * The result is expressed in the {@code frame} coordinate system. When
 	 * {@code frame} is {@code null}, the result is expressed in the world
 	 * coordinates system. The possible {@code frame}
-	 * {@link remixlab.dandelion.geom.RefFrame#referenceFrame()} are taken into account.
+	 * {@link remixlab.dandelion.core.RefFrame#referenceFrame()} are taken into account.
 	 * <p>
 	 * {@link #projectedCoordinatesOf(Vec, RefFrame)} performs the inverse
 	 * transformation.

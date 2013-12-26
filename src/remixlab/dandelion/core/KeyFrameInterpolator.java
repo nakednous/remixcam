@@ -89,7 +89,7 @@ import remixlab.tersehandling.core.Util;
  * to drive the Camera along a path.
  * <p>
  * <b>Attention:</b> If a Constraint is attached to the {@link #frame()} (see
- * {@link remixlab.dandelion.geom.RefFrame#constraint()}), it should be deactivated
+ * {@link remixlab.dandelion.core.RefFrame#constraint()}), it should be deactivated
  * before {@link #interpolationIsStarted()}, otherwise the interpolated motion
  * (computed as if there was no constraint) will probably be erroneous.
  */
