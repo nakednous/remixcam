@@ -554,7 +554,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	/**
 	 * Returns the vertical field of view of the Camera (in radians).
 	 * <p>
-	 * Value is set using {@link #setFieldOfView(float)}. Default value is pi/4
+	 * Value is set using {@link #setFieldOfView(float)}. Default value is pi/3
 	 * radians. This value is meaningless if the Camera {@link #type()} is
 	 * {@link remixlab.dandelion.core.Camera.Type#ORTHOGRAPHIC}.
 	 * <p>
