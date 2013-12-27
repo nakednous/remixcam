@@ -32,12 +32,12 @@ import remixlab.tersehandling.core.Util;
  * the Frame is first translated and then rotated around the new translated
  * origin.
  * <p>
- * In rare situations a frame can be {@link #linkTo(RefFrame)}, meaning that it
+ * In rare situations a frame can be {@link #linkTo(ReferenceFrame)}, meaning that it
  * will share its {@link #translation()}, {@link #rotation()},
  * {@link #referenceFrame()}, and {@link #constraint()} with the other frame,
  * which can useful for some off-screen scenes.
  */
-public class RefFrame implements Copyable, Constants {
+public class ReferenceFrame implements Copyable, Constants {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).		
@@ -54,7 +54,7 @@ public class RefFrame implements Copyable, Constants {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;		
 		
-		RefFrame other = (RefFrame) obj;
+		ReferenceFrame other = (ReferenceFrame) obj;
 	  return new EqualsBuilder()		
 		.append(krnl, other.krnl)
 		//.append(list, other.list)
@@ -63,7 +63,7 @@ public class RefFrame implements Copyable, Constants {
 		.isEquals();
 	}
 	
-	protected abstract class AbstractFrameKernel implements Copyable {
+	protected abstract class AbstractReferenceFrameKernel implements Copyable {
 		@Override
 		public int hashCode() {
 	    return new HashCodeBuilder(17, 37).		
@@ -84,7 +84,7 @@ public class RefFrame implements Copyable, Constants {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			FrameKernel3D other = (FrameKernel3D) obj;
+			ReferenceFrameKernel3D other = (ReferenceFrameKernel3D) obj;
 		  return new EqualsBuilder()
 	    .appendSuper(super.equals(obj))		
 			.append(trans, other.trans)
@@ -98,11 +98,11 @@ public class RefFrame implements Copyable, Constants {
 		protected Vec trans;
 		protected Vec scl;
 		protected Orientable rot;
-		protected RefFrame refFrame;
+		protected ReferenceFrame refFrame;
 		protected Constraint constr;
 		protected long lastUpdate;
 		
-		public AbstractFrameKernel() {
+		public AbstractReferenceFrameKernel() {
 			trans = new Vec(0, 0, 0);
 			scl =  new Vec(1, 1, 1);
 			rot = null;
@@ -111,7 +111,7 @@ public class RefFrame implements Copyable, Constants {
 			lastUpdate = 0;
 		}
 		
-		public AbstractFrameKernel(Orientable r, Vec p, Vec s) {
+		public AbstractReferenceFrameKernel(Orientable r, Vec p, Vec s) {
 			trans = new Vec(p.x(), p.y(), p.z());
 			scl =  new Vec(1, 1, 1);
 			setScaling(s);
@@ -121,7 +121,7 @@ public class RefFrame implements Copyable, Constants {
 			lastUpdate = 0;
 		}
 		
-		public AbstractFrameKernel(Orientable r, Vec p) {
+		public AbstractReferenceFrameKernel(Orientable r, Vec p) {
 			trans = new Vec(p.x(), p.y(), p.z());
 			scl =  new Vec(1, 1, 1);
 			rot = r.get();
@@ -130,7 +130,7 @@ public class RefFrame implements Copyable, Constants {
 			lastUpdate = 0;
 		}
 		
-		protected AbstractFrameKernel(AbstractFrameKernel other) {
+		protected AbstractReferenceFrameKernel(AbstractReferenceFrameKernel other) {
 			trans = new Vec(other.translation().vec[0], other.translation().vec[1], other.translation().vec[2]);
 			rot = other.rotation().get();
 			scl = other.scaling().get();
@@ -190,7 +190,7 @@ public class RefFrame implements Copyable, Constants {
 			return constr;
 		}
 		
-		public final RefFrame referenceFrame() {
+		public final ReferenceFrame referenceFrame() {
 			return refFrame;
 		}		
 		
@@ -205,7 +205,7 @@ public class RefFrame implements Copyable, Constants {
 		
 		public void rotate(Orientable q) {
 			rotation().compose(q);
-		  if(this instanceof FrameKernel3D)
+		  if(this instanceof ReferenceFrameKernel3D)
 		  	((Quat)rotation()).normalize(); // Prevents numerical drift
 			modified();
 		}
@@ -235,7 +235,7 @@ public class RefFrame implements Copyable, Constants {
 			return lastUpdate;
 		}
 		
-		public final void setReferenceFrame(RefFrame rFrame) {
+		public final void setReferenceFrame(ReferenceFrame rFrame) {
 			if (settingAsReferenceFrameWillCreateALoop(rFrame))
 				System.out.println("Frame.setReferenceFrame would create a loop in Frame hierarchy");
 			else {
@@ -246,10 +246,10 @@ public class RefFrame implements Copyable, Constants {
 			}
 		}
 		
-		public final boolean settingAsReferenceFrameWillCreateALoop(RefFrame frame) {
-			RefFrame f = frame;
+		public final boolean settingAsReferenceFrameWillCreateALoop(ReferenceFrame frame) {
+			ReferenceFrame f = frame;
 			while (f != null) {
-				if (f == RefFrame.this)
+				if (f == ReferenceFrame.this)
 					return true;
 				f = f.referenceFrame();
 			}
@@ -266,30 +266,30 @@ public class RefFrame implements Copyable, Constants {
 	 * Internal class that holds the main frame attributes. This class is useful
 	 * to linking frames (i.e., to share these attributes).
 	 */
-	public class FrameKernel3D extends AbstractFrameKernel {		
-		public FrameKernel3D() {
+	public class ReferenceFrameKernel3D extends AbstractReferenceFrameKernel {		
+		public ReferenceFrameKernel3D() {
 			rot = new Quat();
 		}
 		
-		public FrameKernel3D(Quat r, Vec p, Vec s) {
+		public ReferenceFrameKernel3D(Quat r, Vec p, Vec s) {
 			super(r, p, s);
 		}
 		
-		public FrameKernel3D(Quat r, Vec p) {
+		public ReferenceFrameKernel3D(Quat r, Vec p) {
 			super(r, p);
 		}
 		
-		protected FrameKernel3D(FrameKernel3D other) {
+		protected ReferenceFrameKernel3D(ReferenceFrameKernel3D other) {
 			super(other);
 		}
 				
 		@Override
-		public FrameKernel3D get() {
-			return new FrameKernel3D(this);
+		public ReferenceFrameKernel3D get() {
+			return new ReferenceFrameKernel3D(this);
 		}
 	}
 	
-	public class FrameKernel2D extends AbstractFrameKernel {		
+	public class FrameKernel2D extends AbstractReferenceFrameKernel {		
 		public FrameKernel2D() {
 			rot = new Rot();
 		}
@@ -312,11 +312,11 @@ public class RefFrame implements Copyable, Constants {
 		}
 	}
 
-	protected AbstractFrameKernel krnl;	
-	protected List<RefFrame> linkedFramesList;
-	protected RefFrame srcFrame;
+	protected AbstractReferenceFrameKernel krnl;	
+	protected List<ReferenceFrame> linkedFramesList;
+	protected ReferenceFrame srcFrame;
 	
-	public RefFrame() {
+	public ReferenceFrame() {
 		this(true);
 	}
 
@@ -327,23 +327,23 @@ public class RefFrame implements Copyable, Constants {
 	 * {@link #orientation()} Quaternion. The {@link #referenceFrame()} and the
 	 * {@link #constraint()} are {@code null}.
 	 */
-	public RefFrame(boolean three_d) {
+	public ReferenceFrame(boolean three_d) {
 		if(three_d)
-			krnl = new FrameKernel3D();
+			krnl = new ReferenceFrameKernel3D();
 		else
 			krnl = new FrameKernel2D();
-		linkedFramesList = new ArrayList<RefFrame>();
+		linkedFramesList = new ArrayList<ReferenceFrame>();
 		srcFrame = null;
 	}
 	
-	public RefFrame(Orientable r, Vec p, Vec s) {
+	public ReferenceFrame(Orientable r, Vec p, Vec s) {
 		if( r instanceof Quat )
-			krnl = new FrameKernel3D((Quat)r, p, s);
+			krnl = new ReferenceFrameKernel3D((Quat)r, p, s);
 		else
 			if( r instanceof Rot )
 				krnl = new FrameKernel2D((Rot)r, p, s);
 			
-		linkedFramesList = new ArrayList<RefFrame>();
+		linkedFramesList = new ArrayList<ReferenceFrame>();
 		srcFrame = null;
 	}
 
@@ -357,14 +357,14 @@ public class RefFrame implements Copyable, Constants {
 	 * {@link #referenceFrame()} is {@code null}). It has a {@code null}
 	 * associated {@link #constraint()}.
 	 */
-	public RefFrame(Orientable r, Vec p) {
+	public ReferenceFrame(Orientable r, Vec p) {
 		if( r instanceof Quat )
-			krnl = new FrameKernel3D((Quat)r, p);
+			krnl = new ReferenceFrameKernel3D((Quat)r, p);
 		else
 			if( r instanceof Rot )
 				krnl = new FrameKernel2D((Rot)r, p);
 			
-		linkedFramesList = new ArrayList<RefFrame>();
+		linkedFramesList = new ArrayList<ReferenceFrame>();
 		srcFrame = null;
 	}
 
@@ -374,13 +374,13 @@ public class RefFrame implements Copyable, Constants {
 	 * @param other
 	 *          the Frame containing the object to be copied
 	 */
-	protected RefFrame(RefFrame other) {		
+	protected ReferenceFrame(ReferenceFrame other) {		
 		if ( other.is3D() )
-			krnl = new FrameKernel3D( (FrameKernel3D)other.kernel() );
+			krnl = new ReferenceFrameKernel3D( (ReferenceFrameKernel3D)other.kernel() );
 		else
 			krnl = new FrameKernel2D( (FrameKernel2D)other.kernel() );
-		linkedFramesList = new ArrayList<RefFrame>();
-		Iterator<RefFrame> iterator = other.linkedFramesList.iterator();
+		linkedFramesList = new ArrayList<ReferenceFrame>();
+		Iterator<ReferenceFrame> iterator = other.linkedFramesList.iterator();
 		while (iterator.hasNext())
 			linkedFramesList.add(iterator.next());
 		srcFrame = other.srcFrame;
@@ -390,17 +390,17 @@ public class RefFrame implements Copyable, Constants {
 	 * Calls {@code SimpleFrame(SimpleFrame)} (which is private) and returns a copy of
 	 * {@code this} object.
 	 * 
-	 * @see #SimpleFrame(RefFrame)
+	 * @see #SimpleFrame(ReferenceFrame)
 	 */
-	public RefFrame get() {
-		return new RefFrame(this);
+	public ReferenceFrame get() {
+		return new ReferenceFrame(this);
 	}
 	
-	public AbstractFrameKernel kernel() {
+	public AbstractReferenceFrameKernel kernel() {
 		return krnl;
 	}
 	
-	public void setKernel(AbstractFrameKernel k) {
+	public void setKernel(AbstractReferenceFrameKernel k) {
 		krnl = k;
 	}
 	
@@ -468,17 +468,17 @@ public class RefFrame implements Copyable, Constants {
 	 * world coordinate system. The values match when the reference Frame {@code
 	 * null}.
 	 * <p>
-	 * Use {@link #setReferenceFrame(RefFrame)} to set this value and create a Frame
+	 * Use {@link #setReferenceFrame(ReferenceFrame)} to set this value and create a Frame
 	 * hierarchy. Convenient functions allow you to convert 3D coordinates from
 	 * one Frame to another: see {@link #coordinatesOf(Vec)},
 	 * {@link #localCoordinatesOf(Vec)} ,
-	 * {@link #coordinatesOfIn(Vec, RefFrame)} and their inverse functions.
+	 * {@link #coordinatesOfIn(Vec, ReferenceFrame)} and their inverse functions.
 	 * <p>
 	 * Vectors can also be converted using {@link #transformOf(Vec)},
-	 * {@link #transformOfIn(Vec, RefFrame)}, {@link #localTransformOf(Vec)}
+	 * {@link #transformOfIn(Vec, ReferenceFrame)}, {@link #localTransformOf(Vec)}
 	 * and their inverse functions.
 	 */
-	public final RefFrame referenceFrame() {
+	public final ReferenceFrame referenceFrame() {
 		return kernel().referenceFrame();
 	}
 
@@ -520,13 +520,13 @@ public class RefFrame implements Copyable, Constants {
 	 * @param sourceFrame the frame to link this frame with.
 	 * @return true if this frame can successfully being linked to the frame. False otherwise.
 	 * 
-	 * @see #linkFrom(RefFrame)
+	 * @see #linkFrom(ReferenceFrame)
 	 * @see #unlink()
-	 * @see #unlinkFrom(RefFrame)
+	 * @see #unlinkFrom(ReferenceFrame)
 	 * @see #isLinked()
-	 * @see #areLinkedTogether(RefFrame)
+	 * @see #areLinkedTogether(ReferenceFrame)
 	 */
-	public boolean linkTo(RefFrame sourceFrame) {
+	public boolean linkTo(ReferenceFrame sourceFrame) {
 		// avoid loops		
 		if( (!linkedFramesList.isEmpty()) || sourceFrame.linkedFramesList.contains(this) || (sourceFrame == this) )
 			return false;		
@@ -543,18 +543,18 @@ public class RefFrame implements Copyable, Constants {
 	/**
 	 * Attempts to link the {@code requestedFrame} to this frame.
 	 * <p>
-	 * See {@link #linkTo(RefFrame)} for the rules and terminology applying to the linking process.
+	 * See {@link #linkTo(ReferenceFrame)} for the rules and terminology applying to the linking process.
 	 * 
 	 * @param requestedFrame the frame that is requesting a link to this frame.
 	 * @return true if the requested frame can successfully being linked to this frame. False otherwise.
 	 * 
-	 * @see #linkTo(RefFrame)
+	 * @see #linkTo(ReferenceFrame)
 	 * @see #unlink()
-	 * @see #unlinkFrom(RefFrame)
+	 * @see #unlinkFrom(ReferenceFrame)
 	 * @see #isLinked()
-	 * @see #areLinkedTogether(RefFrame)
+	 * @see #areLinkedTogether(ReferenceFrame)
 	 */
-	public boolean linkFrom(RefFrame requestedFrame) {
+	public boolean linkFrom(ReferenceFrame requestedFrame) {
 	  // avoid loops		
 		if( (!requestedFrame.linkedFramesList.isEmpty()) || linkedFramesList.contains(this) || (requestedFrame == this) )
 			return false;		
@@ -572,15 +572,15 @@ public class RefFrame implements Copyable, Constants {
 	 * Unlinks this frame from its source frame. Does nothing if this frame is not
 	 * linked to another frame.
 	 * <p>
-	 * See {@link #linkTo(RefFrame)} for the rules and terminology applying to the linking process.
+	 * See {@link #linkTo(ReferenceFrame)} for the rules and terminology applying to the linking process.
 	 * 
 	 * @return true if succeeded otherwise returns false.
 	 * 
-	 * @see #linkTo(RefFrame)
-	 * @see #linkFrom(RefFrame) 
-	 * @see #unlinkFrom(RefFrame)
+	 * @see #linkTo(ReferenceFrame)
+	 * @see #linkFrom(ReferenceFrame) 
+	 * @see #unlinkFrom(ReferenceFrame)
 	 * @see #isLinked()
-	 * @see #areLinkedTogether(RefFrame)
+	 * @see #areLinkedTogether(ReferenceFrame)
 	 */
 	public boolean unlink() {
 		boolean result = false;
@@ -588,7 +588,7 @@ public class RefFrame implements Copyable, Constants {
 			result = srcFrame.linkedFramesList.remove(this);
 			if(result) {
 				if( is3D() )
-					setKernel(new FrameKernel3D((Quat)srcFrame.rotation(), srcFrame.translation(), srcFrame.scaling()));
+					setKernel(new ReferenceFrameKernel3D((Quat)srcFrame.rotation(), srcFrame.translation(), srcFrame.scaling()));
 				else
 					setKernel(new FrameKernel2D((Rot)srcFrame.rotation(), srcFrame.translation(), srcFrame.scaling()));
 				srcFrame = null;
@@ -599,25 +599,25 @@ public class RefFrame implements Copyable, Constants {
 	
 	/**
 	 * Unlinks the requested frame from this frame. Does nothing if the frames are
-	 * not linked together ({@link #areLinkedTogether(RefFrame)}).
+	 * not linked together ({@link #areLinkedTogether(ReferenceFrame)}).
 	 * <p>
-	 * See {@link #linkTo(RefFrame)} for the rules and terminology applying to the linking process.
+	 * See {@link #linkTo(ReferenceFrame)} for the rules and terminology applying to the linking process.
 	 * 
 	 * @return true if succeeded otherwise returns false.
 	 * 
-	 * @see #linkTo(RefFrame)
-	 * @see #linkFrom(RefFrame)
+	 * @see #linkTo(ReferenceFrame)
+	 * @see #linkFrom(ReferenceFrame)
 	 * @see #unlink()
 	 * @see #isLinked()
-	 * @see #areLinkedTogether(RefFrame)
+	 * @see #areLinkedTogether(ReferenceFrame)
 	 */
-	public boolean unlinkFrom(RefFrame requestedFrame) {
+	public boolean unlinkFrom(ReferenceFrame requestedFrame) {
 		boolean result = false;
 		if ( (srcFrame == null) && (requestedFrame != this) ) {
 			result = linkedFramesList.remove(requestedFrame);
 			if (result) {
 				if(is3D())
-					requestedFrame.setKernel(new FrameKernel3D((Quat)rotation(), translation(), scaling()));
+					requestedFrame.setKernel(new ReferenceFrameKernel3D((Quat)rotation(), translation(), scaling()));
 				else
 					requestedFrame.setKernel(new FrameKernel2D((Rot)rotation(), translation(), scaling()));
 				requestedFrame.srcFrame = null;
@@ -630,13 +630,13 @@ public class RefFrame implements Copyable, Constants {
 	 * Returns true if this frame is linked to a source frame or if this frame
 	 * acts as the source frame of other frames. Otherwise returns false.
 	 * <p>
-	 * See {@link #linkTo(RefFrame)} for the rules and terminology applying to the linking process.
+	 * See {@link #linkTo(ReferenceFrame)} for the rules and terminology applying to the linking process.
 	 * 
-	 * @see #linkTo(RefFrame)
-	 * @see #linkFrom(RefFrame)
+	 * @see #linkTo(ReferenceFrame)
+	 * @see #linkFrom(ReferenceFrame)
 	 * @see #unlink()
-	 * @see #unlinkFrom(RefFrame)
-	 * @see #areLinkedTogether(RefFrame)
+	 * @see #unlinkFrom(ReferenceFrame)
+	 * @see #areLinkedTogether(ReferenceFrame)
 	 */
 	public boolean isLinked() {
 		if ((srcFrame != null) || (!linkedFramesList.isEmpty()) )
@@ -648,15 +648,15 @@ public class RefFrame implements Copyable, Constants {
 	 * Returns true if this frame is linked with {@code sourceFrame}. Otherwise
 	 * returns false.
 	 * <p>
-	 * See {@link #linkTo(RefFrame)} for the rules and terminology applying to the linking process.
+	 * See {@link #linkTo(ReferenceFrame)} for the rules and terminology applying to the linking process.
 	 * 
-	 * @see #linkTo(RefFrame)
-	 * @see #linkFrom(RefFrame)
+	 * @see #linkTo(ReferenceFrame)
+	 * @see #linkFrom(ReferenceFrame)
 	 * @see #unlink()
-	 * @see #unlinkFrom(RefFrame)
+	 * @see #unlinkFrom(ReferenceFrame)
 	 * @see #isLinked() 
 	 */
-	public boolean areLinkedTogether(RefFrame sourceFrame) {
+	public boolean areLinkedTogether(ReferenceFrame sourceFrame) {
 		if (sourceFrame == srcFrame)			
 			return true;
 		if (linkedFramesList.contains(sourceFrame))
@@ -806,9 +806,9 @@ public class RefFrame implements Copyable, Constants {
 	 * {@code refFrame} as the {@link #referenceFrame()} would create a loop in
 	 * the Frame hierarchy.
 	 * 
-	 * @see #settingAsReferenceFrameWillCreateALoop(RefFrame)
+	 * @see #settingAsReferenceFrameWillCreateALoop(ReferenceFrame)
 	 */
-	public final void setReferenceFrame(RefFrame rFrame) {
+	public final void setReferenceFrame(ReferenceFrame rFrame) {
 		kernel().setReferenceFrame(rFrame);
 	}
 
@@ -831,7 +831,7 @@ public class RefFrame implements Copyable, Constants {
 	 */
 	public final Orientable orientation() {
 		Orientable res = rotation().get();
-		RefFrame fr = referenceFrame();
+		ReferenceFrame fr = referenceFrame();
 		while (fr != null) {
 			if(is3D())
 				res = Quat.compose(fr.rotation(), res);
@@ -867,7 +867,7 @@ public class RefFrame implements Copyable, Constants {
 	}
 	
 	public final void setMagnitude(Vec s) {
-		RefFrame refFrame = referenceFrame();
+		ReferenceFrame refFrame = referenceFrame();
 		if(refFrame != null)
 			setScaling(s.x()/refFrame.magnitude().x(), s.y()/refFrame.magnitude().y(), s.z()/refFrame.magnitude().z());
 		else
@@ -1188,7 +1188,7 @@ public class RefFrame implements Copyable, Constants {
 	 * <p>
 	 * If the Frame has a {@link #constraint()}, {@code rotation} is first
 	 * constrained using
-	 * {@link remixlab.dandelion.constraint.Constraint#constrainRotation(Quat, RefFrame)}.
+	 * {@link remixlab.dandelion.constraint.Constraint#constrainRotation(Quat, ReferenceFrame)}.
 	 * Hence the rotation actually applied to the Frame may differ from {@code
 	 * rotation} (since it can be filtered by the {@link #constraint()}). Use
 	 * {@code rotateAroundPoint(rotation, point, false)} to retrieve the filtered
@@ -1197,7 +1197,7 @@ public class RefFrame implements Copyable, Constants {
 	 * <p>
 	 * The translation which results from the filtered rotation around {@code
 	 * point} is then computed and filtered using
-	 * {@link remixlab.dandelion.constraint.Constraint#constrainTranslation(Vec, RefFrame)}.
+	 * {@link remixlab.dandelion.constraint.Constraint#constrainTranslation(Vec, ReferenceFrame)}.
 	 */
 	public final Orientable filteredRotateAroundPoint(Orientable rotation, Vec point) {
 		if (constraint() != null)
@@ -1283,7 +1283,7 @@ public class RefFrame implements Copyable, Constants {
 	 * Convenience function that simply calls {@code alignWithFrame(frame, false,
 	 * 0.85f)}
 	 */
-	public final void alignWithFrame(RefFrame frame) {
+	public final void alignWithFrame(ReferenceFrame frame) {
 		alignWithFrame(frame, false, 0.85f);	
 	}
 
@@ -1291,7 +1291,7 @@ public class RefFrame implements Copyable, Constants {
 	 * Convenience function that simply calls {@code alignWithFrame(frame, move,
 	 * 0.85f)}
 	 */
-	public final void alignWithFrame(RefFrame frame, boolean move) {
+	public final void alignWithFrame(ReferenceFrame frame, boolean move) {
 		alignWithFrame(frame, move, 0.85f);
 	}
 
@@ -1299,7 +1299,7 @@ public class RefFrame implements Copyable, Constants {
 	 * Convenience function that simply calls {@code alignWithFrame(frame, false,
 	 * threshold)}
 	 */
-	public final void alignWithFrame(RefFrame frame, float threshold) {
+	public final void alignWithFrame(ReferenceFrame frame, float threshold) {
 		alignWithFrame(frame, false, threshold);
 	}
 
@@ -1328,7 +1328,7 @@ public class RefFrame implements Copyable, Constants {
 	 * {@code frame} may be {@code null} and then represents the world coordinate
 	 * system (same convention than for the {@link #referenceFrame()}).
 	 */
-	public final void alignWithFrame(RefFrame frame, boolean move, float threshold) {
+	public final void alignWithFrame(ReferenceFrame frame, boolean move, float threshold) {
 		if(is3D()) {
 			Vec[][] directions = new Vec[2][3];
 			
@@ -1358,7 +1358,7 @@ public class RefFrame implements Copyable, Constants {
 					}
 				}
 			}
-			RefFrame old = new RefFrame(this); // correct line
+			ReferenceFrame old = new ReferenceFrame(this); // correct line
 			//VFrame old = this.get();// this call the get overloaded method and hence add the frame to the mouse grabber
 
 			vec.set(directions[0][index[0]]);
@@ -1496,7 +1496,7 @@ public class RefFrame implements Copyable, Constants {
 	
   //TODO get rid of boolean sclng methods? I'd love to
 	protected final Vec inverseCoordinatesOf(Vec src, boolean sclng) {
-		RefFrame fr = this;
+		ReferenceFrame fr = this;
 		Vec res = src;
 		while (fr != null) {
 			res = fr.localInverseCoordinatesOf(res, sclng);
@@ -1551,10 +1551,10 @@ public class RefFrame implements Copyable, Constants {
 	 * from} coordinate system is {@code src} (converts from {@code from} to
 	 * Frame).
 	 * <p>
-	 * {@link #coordinatesOfIn(Vec, RefFrame)} performs the inverse
+	 * {@link #coordinatesOfIn(Vec, ReferenceFrame)} performs the inverse
 	 * transformation.
 	 */
-	public final Vec coordinatesOfFrom(Vec src, RefFrame from) {
+	public final Vec coordinatesOfFrom(Vec src, ReferenceFrame from) {
 		if (this == from)
 			return src;
 		else if (referenceFrame() != null)
@@ -1567,11 +1567,11 @@ public class RefFrame implements Copyable, Constants {
 	 * Returns the {@code in} coordinates of the point whose position in the Frame
 	 * coordinate system is {@code src} (converts from Frame to {@code in}).
 	 * <p>
-	 * {@link #coordinatesOfFrom(Vec, RefFrame)} performs the inverse
+	 * {@link #coordinatesOfFrom(Vec, ReferenceFrame)} performs the inverse
 	 * transformation.
 	 */
-	public final Vec coordinatesOfIn(Vec src, RefFrame in) {
-		RefFrame fr = this;
+	public final Vec coordinatesOfIn(Vec src, ReferenceFrame in) {
+		ReferenceFrame fr = this;
 		Vec res = src;
 		while ((fr != null) && (fr != in)) {
 			res = fr.localInverseCoordinatesOf(res);
@@ -1620,7 +1620,7 @@ public class RefFrame implements Copyable, Constants {
 	}
 	
 	protected final Vec inverseTransformOf(Vec src, boolean sclng) {
-		RefFrame fr = this;
+		ReferenceFrame fr = this;
 		Vec res = src;
 		while (fr != null) {
 			res = fr.localInverseTransformOf(res, sclng);
@@ -1807,9 +1807,9 @@ public class RefFrame implements Copyable, Constants {
 	 * from} coordinate system is {@code src} (converts vectors from {@code from}
 	 * to Frame).
 	 * <p>
-	 * {@link #transformOfIn(Vec, RefFrame)} performs the inverse transformation.
+	 * {@link #transformOfIn(Vec, ReferenceFrame)} performs the inverse transformation.
 	 */
-	public final Vec transformOfFrom(Vec src, RefFrame from) {
+	public final Vec transformOfFrom(Vec src, ReferenceFrame from) {
 		if (this == from)
 			return src;
 		else if (referenceFrame() != null)
@@ -1823,11 +1823,11 @@ public class RefFrame implements Copyable, Constants {
 	 * Frame coordinate system is {@code src} (converts vectors from Frame to
 	 * {@code in}).
 	 * <p>
-	 * {@link #transformOfFrom(Vec, RefFrame)} performs the inverse
+	 * {@link #transformOfFrom(Vec, ReferenceFrame)} performs the inverse
 	 * transformation.
 	 */
-	public final Vec transformOfIn(Vec src, RefFrame in) {
-		RefFrame fr = this;
+	public final Vec transformOfIn(Vec src, ReferenceFrame in) {
+		ReferenceFrame fr = this;
 		Vec res = src;
 		while ((fr != null) && (fr != in)) {
 			res = fr.localInverseTransformOf(res);
@@ -1926,7 +1926,7 @@ public class RefFrame implements Copyable, Constants {
 	 * Convenience function that simply calls {@code scn.applyTransformation(this)}.
 	 * 
 	 * @see #matrix()
-	 * @see remixlab.dandelion.core.AbstractScene#applyTransformation(RefFrame)
+	 * @see remixlab.dandelion.core.AbstractScene#applyTransformation(ReferenceFrame)
 	 */
 	public void applyTransformation(AbstractScene scn) {
 		scn.applyTransformation(this);
@@ -1936,7 +1936,7 @@ public class RefFrame implements Copyable, Constants {
 	 * Convenience function that simply calls {@code scn.applyWorldTransformation(this)}.
 	 * 
 	 * @see #worldMatrix()
-	 * @see remixlab.dandelion.core.AbstractScene#applyWorldTransformation(RefFrame)
+	 * @see remixlab.dandelion.core.AbstractScene#applyWorldTransformation(ReferenceFrame)
 	 */
 	public void applyWorldTransformation(AbstractScene scn) {
 		scn.applyWorldTransformation(this);
@@ -1970,7 +1970,7 @@ public class RefFrame implements Copyable, Constants {
 	 */
 	public final Mat worldMatrix() {
 		if (referenceFrame() != null) {
-			final RefFrame fr = new RefFrame();
+			final ReferenceFrame fr = new ReferenceFrame();
 			fr.setTranslation(position());
 			fr.setRotation(orientation());
 			fr.setScaling(scaling());
@@ -2076,8 +2076,8 @@ public class RefFrame implements Copyable, Constants {
 	 * <p>
 	 * <b>Note:</b> The scaling factor of the 4x4 matrix is 1.0.
 	 */
-	public final RefFrame inverse() {
-		RefFrame fr = new RefFrame(kernel().rotation().inverse(), Vec.mult(kernel().rotation().inverseRotate(kernel().translation()), -1), kernel().inverseScaling() );
+	public final ReferenceFrame inverse() {
+		ReferenceFrame fr = new ReferenceFrame(kernel().rotation().inverse(), Vec.mult(kernel().rotation().inverseRotate(kernel().translation()), -1), kernel().inverseScaling() );
 		fr.setReferenceFrame(referenceFrame());
 		return fr;
 	}
@@ -2097,8 +2097,8 @@ public class RefFrame implements Copyable, Constants {
 	 * Use {@link #inverse()} for a local (i.e., with respect to
 	 * {@link #referenceFrame()}) transformation inverse.
 	 */
-	public final RefFrame worldInverse() {
-		return ( new RefFrame(orientation().inverse(), Vec.mult(orientation().inverseRotate(position()), -1), inverseMagnitude() ) );
+	public final ReferenceFrame worldInverse() {
+		return ( new ReferenceFrame(orientation().inverse(), Vec.mult(orientation().inverseRotate(position()), -1), inverseMagnitude() ) );
 	}  
 	
 	//TODO experimental

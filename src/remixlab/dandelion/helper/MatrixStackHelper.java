@@ -287,8 +287,9 @@ public class MatrixStackHelper extends MatrixHelper implements Constants {
 		projection.print();
 	}	
 
-	// neeed for screen drawing
+	// neeed for screen drawing in stand alone mode (jogl webgl)
 	// TODO maybe protected? (camera matrix handling is done through the camera class)
+	/*
 	public void ortho(float left, float right, float bottom, float top, float near, float far) {
 		float x = +2.0f / (right - left);
 		float y = +2.0f / (top - bottom);
@@ -332,6 +333,7 @@ public class MatrixStackHelper extends MatrixHelper implements Constants {
 					(top + bottom) / h, 0, 0, 0, -(zfar + znear) / d, -(n2 * zfar) / d,
 					0, 0, -1, 0);
 	}
+	*/
 
 	/**
 	@Override

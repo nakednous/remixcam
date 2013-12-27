@@ -858,7 +858,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * <b>Attention:</b> When drawing a frame hierarchy as above, this method
 	 * should be used whenever possible.
 	 */
-	public void applyTransformation(RefFrame frame) {
+	public void applyTransformation(ReferenceFrame frame) {
 		if( is2D() ) {
 			translate(frame.translation().x(), frame.translation().y());
 			rotate(frame.rotation().angle());
@@ -871,8 +871,8 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		}
 	}
 	
-	public void applyWorldTransformation(RefFrame frame) {
-		RefFrame refFrame = frame.referenceFrame();
+	public void applyWorldTransformation(ReferenceFrame frame) {
+		ReferenceFrame refFrame = frame.referenceFrame();
 		if(refFrame != null) {
 			applyWorldTransformation(refFrame);
 			applyTransformation(frame);

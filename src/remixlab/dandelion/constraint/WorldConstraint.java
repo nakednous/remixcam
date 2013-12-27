@@ -9,7 +9,7 @@
  ******************************************************************************/
 package remixlab.dandelion.constraint;
 
-import remixlab.dandelion.core.RefFrame;
+import remixlab.dandelion.core.ReferenceFrame;
 import remixlab.dandelion.geom.*;
 
 /**
@@ -25,7 +25,7 @@ public class WorldConstraint extends AxisPlaneConstraint {
 	 * world coordinate system by {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public Vec constrainTranslation(Vec translation, RefFrame frame) {
+	public Vec constrainTranslation(Vec translation, ReferenceFrame frame) {
 		Vec res = new Vec(translation.vec[0], translation.vec[1], translation.vec[2]);
 		Vec proj;
 		switch (translationConstraintType()) {
@@ -58,7 +58,7 @@ public class WorldConstraint extends AxisPlaneConstraint {
 	 * Frame world coordinate system by {@link #rotationConstraintDirection()}.
 	 */
 	@Override
-	public Orientable constrainRotation(Orientable rotation, RefFrame frame) {
+	public Orientable constrainRotation(Orientable rotation, ReferenceFrame frame) {
 		Orientable res = rotation.get();
 		switch (rotationConstraintType()) {
 		case FREE:

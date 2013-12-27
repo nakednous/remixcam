@@ -37,7 +37,7 @@ import remixlab.tersehandling.event.*;
  * the {@link remixlab.dandelion.core.AbstractScene#deviceGrabberPool()}.
  */
 
-public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
+public class InteractiveFrame extends ReferenceFrame implements Grabbable, Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -286,7 +286,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	/**
 	 * Convenience function that simply calls {@code applyTransformation(AbstractScene)}.
 	 * 
-	 * @see remixlab.dandelion.core.RefFrame#applyTransformation(AbstractScene)
+	 * @see remixlab.dandelion.core.ReferenceFrame#applyTransformation(AbstractScene)
 	 */
 	public void applyTransformation() {
 		applyTransformation(scene);
@@ -295,7 +295,7 @@ public class InteractiveFrame extends RefFrame implements Grabbable, Copyable {
 	/**
 	 * Convenience function that simply calls {@code applyWorldTransformation(Abstractscene)}
 	 * 
-	 * @see remixlab.dandelion.core.RefFrame#applyWorldTransformation(AbstractScene)
+	 * @see remixlab.dandelion.core.ReferenceFrame#applyWorldTransformation(AbstractScene)
 	 */
 	public void applyWorldTransformation() {
 		applyWorldTransformation(scene);

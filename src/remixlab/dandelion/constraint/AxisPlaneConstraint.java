@@ -74,7 +74,7 @@ public abstract class AxisPlaneConstraint extends Constraint {
 	 * {@link Type#AXIS}), will be forced to stay into a plane ({@link Type#PLANE}
 	 * ) or will not able to translate at all ({@link Type#FORBIDDEN}).
 	 * <p>
-	 * Use {@link remixlab.dandelion.core.RefFrame#setPosition(Vec)} to define the
+	 * Use {@link remixlab.dandelion.core.ReferenceFrame#setPosition(Vec)} to define the
 	 * position of the constrained Frame before it gets constrained.
 	 */
 	public Type translationConstraintType() {
@@ -187,7 +187,7 @@ public abstract class AxisPlaneConstraint extends Constraint {
 	 * will only be able to rotate around an axis ({@link Type#AXIS}), or will not
 	 * able to rotate at all {@link Type#FORBIDDEN}.
 	 * <p>
-	 * Use {@link remixlab.dandelion.core.RefFrame#setOrientation(Quaternion)} to define
+	 * Use {@link remixlab.dandelion.core.ReferenceFrame#setOrientation(Quaternion)} to define
 	 * the orientation of the constrained Frame before it gets constrained.
 	 * <p>
 	 * <b>Attention:</b> An {@link Type#PLANE} Type is not meaningful for
