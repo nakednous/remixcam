@@ -24,7 +24,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * A Camera defines some intrinsic parameters ({@link #fieldOfView()},
  * {@link #position()}, {@link #viewDirection()}, {@link #upVector()}...) and
  * useful positioning tools that ease its placement ({@link #showEntireScene()},
- * {@link #fitSphere(Vec, float)}, {@link #lookAt(Vec)}...). It exports
+ * {@link #fitBall(Vec, float)}, {@link #lookAt(Vec)}...). It exports
  * its associated processing projection and view matrices and it can
  * interactively be modified using the mouse.
  * <p>
@@ -590,7 +590,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * The {@link #position()} and {@link #orientation()} of the Camera are not
 	 * modified and you first have to orientate the Camera in order to actually
 	 * see the scene (see {@link #lookAt(Vec)}, {@link #showEntireScene()} or
-	 * {@link #fitSphere(Vec, float)}).
+	 * {@link #fitBall(Vec, float)}).
 	 * <p>
 	 * This method is especially useful for <i>shadow maps</i> computation. Use
 	 * the Camera positioning tools ({@link #setPosition(Vec)},
@@ -1307,6 +1307,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * {@link #setSceneCenter(Vec)}, but the scene limits are defined by a
 	 * (world axis aligned) bounding box.
 	 */
+	@Override
 	public void setSceneBoundingBox(Vec min, Vec max) {
 		setSceneCenter(Vec.mult(Vec.add(min, max), 1 / 2.0f));
 		setSceneRadius(0.5f * (Vec.sub(max, min)).mag());
@@ -1612,7 +1613,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * @see #setUpVector(Vec)
 	 * @see #setOrientation(Quat)
 	 * @see #showEntireScene()
-	 * @see #fitSphere(Vec, float)
+	 * @see #fitBall(Vec, float)
 	 * @see #fitBoundingBox(Vec, Vec)
 	 */
 	@Override
@@ -1646,7 +1647,8 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	 * @see #setOrientation(Quat)
 	 * @see #setUpVector(Vec, boolean)
 	 */
-	public void fitSphere(Vec center, float radius) {
+	@Override
+	public void fitBall(Vec center, float radius) {
 		/**
 		if ((kind() == Kind.STANDARD) && (type() == Type.ORTHOGRAPHIC)) {
 			orthoSize = 1;
@@ -1676,12 +1678,13 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	/**
 	 * Moves the Camera so that the (world axis aligned) bounding box ({@code min}
 	 * , {@code max}) is entirely visible, using
-	 * {@link #fitSphere(Vec, float)}.
+	 * {@link #fitBall(Vec, float)}.
 	 */
+	@Override
 	public void fitBoundingBox(Vec min, Vec max) {
 		float diameter = Math.max(Math.abs(max.vec[1] - min.vec[1]), Math.abs(max.vec[0] - min.vec[0]));
 		diameter = Math.max(Math.abs(max.vec[2] - min.vec[2]), diameter);
-		fitSphere(Vec.mult(Vec.add(min, max), 0.5f), 0.5f * diameter);
+		fitBall(Vec.mult(Vec.add(min, max), 0.5f), 0.5f * diameter);
 	}
 
 	/**
@@ -1739,7 +1742,7 @@ public class Camera extends ViewPoint implements Constants, Copyable {
 	
 	@Override
 	public void showEntireScene() {
-		fitSphere(sceneCenter(), sceneRadius());
+		fitBall(sceneCenter(), sceneRadius());
 	}
 
 	/**

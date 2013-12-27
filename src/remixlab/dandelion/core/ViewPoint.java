@@ -200,13 +200,20 @@ public abstract class ViewPoint implements Copyable {
 	}
 	
   //2. POSITION AND ORIENTATION
+	
+	public void flip() {
+		if( scene.isLeftHanded() )
+			scene.setRightHanded();
+		else
+			scene.setLeftHanded();
+	}
 
 	/**
 	 * Sets the Camera {@link #frame()}.
 	 * <p>
 	 * If you want to move the Camera, use {@link #setPosition(Vec)} and
 	 * {@link #setOrientation(Quat)} or one of the Camera positioning
-	 * methods ({@link #lookAt(Vec)}, {@link #fitSphere(Vec, float)},
+	 * methods ({@link #lookAt(Vec)}, {@link #fitBall(Vec, float)},
 	 * {@link #showEntireScene()}...) instead.
 	 * <p>
 	 * This method is actually mainly useful if you derive the
@@ -433,6 +440,8 @@ public abstract class ViewPoint implements Copyable {
 		}
 		//*/
 	}
+	
+	public abstract void setSceneBoundingBox(Vec min, Vec max);
 	
   //11. FLYSPEED
 
@@ -1644,12 +1653,16 @@ public abstract class ViewPoint implements Copyable {
 		interpolationKfi.startInterpolation();
 	}
 	
+	public abstract void fitBall(Vec center, float radius);
+	
+	public abstract void fitBoundingBox(Vec min, Vec max);
+	
 	public abstract void fitScreenRegion(Rect rectangle);
 	
 	/**
 	 * Moves the Camera so that the entire scene is visible.
 	 * <p>
-	 * Simply calls {@link #fitSphere(Vec, float)} on a sphere defined by
+	 * Simply calls {@link #fitBall(Vec, float)} on a sphere defined by
 	 * {@link #sceneCenter()} and {@link #sceneRadius()}.
 	 * <p>
 	 * You will typically use this method at init time after you defined a new

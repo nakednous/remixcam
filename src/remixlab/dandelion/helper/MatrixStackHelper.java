@@ -287,6 +287,8 @@ public class MatrixStackHelper extends MatrixHelper implements Constants {
 		projection.print();
 	}	
 
+	//TODO: this actually requires testing in stand alone mode. Ideally this should be handled
+	//by MatrixHelper
 	// neeed for screen drawing in stand alone mode (jogl webgl)
 	// TODO maybe protected? (camera matrix handling is done through the camera class)
 	/*
@@ -335,7 +337,7 @@ public class MatrixStackHelper extends MatrixHelper implements Constants {
 	}
 	*/
 
-	/**
+	/*
 	@Override
 	public void beginScreenDrawing() {
 		pushProjection();

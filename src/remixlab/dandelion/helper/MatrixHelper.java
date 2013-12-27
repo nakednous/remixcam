@@ -106,12 +106,9 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	@Override
 	public void beginScreenDrawing() {
 		pushProjection();
-    float cameraZ = (scene.height()/2.0f) / (float) Math.tan(QUARTER_PI/2.0f);
-    float cameraNear = cameraZ / 2.0f;
-    float cameraFar = cameraZ * 2.0f;
-    setProjection(get2DOrtho(-scene.width()/2, scene.width()/2, -scene.height()/2, scene.height()/2, cameraNear, cameraFar));
+    ortho2D();
     pushModelView();
-    setModelView(get2DModelView());
+    resetViewPoint();
 	}
 	
 	@Override
@@ -120,7 +117,20 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 		popModelView();
 	}
 	
-	protected Mat get2DOrtho(float left, float right, float bottom, float top, float near, float far) {
+	// see: http://www.opengl.org/archives/resources/faq/technical/transformations.htm
+	// "9.030 How do I draw 2D controls over my 3D rendering?"
+	protected void ortho2D() {
+		float cameraZ = (scene.height()/2.0f) / (float) Math.tan(QUARTER_PI/2.0f);
+    float cameraNear = cameraZ / 2.0f;
+    float cameraFar = cameraZ * 2.0f;
+    
+		float left = -scene.width()/2;
+		float right = scene.width()/2;
+		float bottom = -scene.height()/2;
+		float top = scene.height()/2;		
+		float near = cameraNear;
+		float far = cameraFar;
+		
 		float x = +2.0f / (right - left);
 		float y = +2.0f / (top - bottom);
 		float z = -2.0f / (far - near);
@@ -130,26 +140,23 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 		float tz = -(far + near)   / (far - near);
 		
 		// The minus sign is needed to invert the Y axis.
-		/**
-		return new PMatrix3D(x,  0, 0, tx,
-                         0, -y, 0, ty,
-                         0,  0, z, tz,
-                         0,  0, 0,  1);
-                         */
-		//scene.isRightHanded() ? y: -y ?
-		return new Mat(x,  0,  0,  0,
-				           0, -y,  0,  0,
-				           0,  0,  z,  0,
-				           tx, ty, tz, 1);
+		setProjection(new Mat(x,  0,  0,  0,
+				                  0, -y,  0,  0,
+				                  0,  0,  z,  0,
+				                  tx, ty, tz, 1));
 	}
 	
-	protected Mat get2DModelView() {
-		 return get2DModelView(scene().width()/2f, scene.height()/2f, (scene().height()/2f) / (float)Math.tan(PI*60 / 360), scene().width()/2f, scene.height()/2f, 0, 0, 1, 0);
-	}
-	
-	protected Mat get2DModelView(float eyeX, float eyeY, float eyeZ,
-     float centerX, float centerY, float centerZ,
-     float upX, float upY, float upZ) {
+	//as it's done in P5:
+	protected void resetViewPoint() {		
+		float eyeX = scene().width()/2f;
+		float eyeY = scene.height()/2f;
+		float eyeZ = (scene().height()/2f) / (float)Math.tan(PI*60 / 360);
+    float centerX = scene().width()/2f;
+    float centerY = scene.height()/2f;
+    float centerZ = 0;
+    float upX = 0;
+    float upY = 1; 
+    float upZ = 0;
 				
 		// Calculating Z vector
 		float z0 = eyeX - centerX;
@@ -204,6 +211,6 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 		
 		mv.translate(tx, ty, tz);
 		
-		return mv;
+		setModelView(mv);
 	}
 }

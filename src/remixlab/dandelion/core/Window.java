@@ -182,6 +182,7 @@ public class Window extends ViewPoint implements Copyable {
 		return true;		
 	}
 	
+	@Override
 	public void fitBoundingBox(Vec min, Vec max) {
 		float diameter = Math.max(Math.abs(max.vec[1] - min.vec[1]), Math.abs(max.vec[0] - min.vec[0]));
 		diameter = Math.max(Math.abs(max.vec[2] - min.vec[2]), diameter);
@@ -193,6 +194,7 @@ public class Window extends ViewPoint implements Copyable {
 		fitBall(sceneCenter(), sceneRadius());		
 	}
 	
+	@Override
 	public void fitBall(Vec center, float radius) {
 	  Vec mag = frame().magnitude();
 	  
@@ -208,6 +210,7 @@ public class Window extends ViewPoint implements Copyable {
 	 * {@link #setSceneCenter(Vec)}, but the scene limits are defined by a
 	 * (world axis aligned) bounding box.
 	 */
+	@Override
 	public void setSceneBoundingBox(Vec min, Vec max) {
 		Vec mn = new Vec(min.x(), min.y(), 0);
 		Vec mx = new Vec(max.x(), max.y(), 0);
@@ -414,13 +417,6 @@ public class Window extends ViewPoint implements Copyable {
 	public boolean setArcballReferencePointFromPixel(Point pixel) {		
 		setArcballReferencePoint(unprojectedCoordinatesOf(new Vec((float) pixel.x, (float) pixel.y, 0.5f)));
 		return true;
-	}	
-	
-	public void flip() {
-		if( scene.isLeftHanded() )
-			scene.setRightHanded();
-		else
-			scene.setLeftHanded();
 	}
 	
 	public void interpolateToZoomOnPixel(Point pixel) {
