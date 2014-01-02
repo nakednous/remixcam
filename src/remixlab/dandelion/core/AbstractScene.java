@@ -29,7 +29,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	protected MatrixHelpable matrixHelper;
 	protected VisualHintable drawingHelpler;
 	
-	protected ViewPoint vPoint;
+	protected Viewpoint vPoint;
 	protected Trackable trck;
 	public boolean avatarIsInteractiveFrame;
 	protected boolean avatarIsInteractiveAvatarFrame;
@@ -158,31 +158,31 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		Vec trans;
 		switch (id) {
 		case ADD_KEYFRAME_TO_PATH_1:
-			viewPoint().addKeyFrameToPath(1);
+			viewpoint().addKeyFrameToPath(1);
 			break;
 		case DELETE_PATH_1:
-			viewPoint().deletePath(1);
+			viewpoint().deletePath(1);
 			break;
 		case PLAY_PATH_1:
-			viewPoint().playPath(1);
+			viewpoint().playPath(1);
 			break;
 		case ADD_KEYFRAME_TO_PATH_2:
-			viewPoint().addKeyFrameToPath(2);
+			viewpoint().addKeyFrameToPath(2);
 			break;
 		case DELETE_PATH_2:
-			viewPoint().deletePath(2);
+			viewpoint().deletePath(2);
 			break;
 		case PLAY_PATH_2:
-			viewPoint().playPath(2);
+			viewpoint().playPath(2);
 			break;
 		case ADD_KEYFRAME_TO_PATH_3:
-			viewPoint().addKeyFrameToPath(3);
+			viewpoint().addKeyFrameToPath(3);
 			break;
 		case DELETE_PATH_3:
-			viewPoint().deletePath(3);
+			viewpoint().deletePath(3);
 			break;
 		case PLAY_PATH_3:
-			viewPoint().playPath(3);
+			viewpoint().playPath(3);
 			break;
 		case DRAW_AXIS:
 			toggleAxisIsDrawn();
@@ -209,40 +209,40 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			showAll();
 			break;
 		case MOVE_VIEWPOINT_LEFT:
-			trans = new Vec(-10.0f * viewPoint().flySpeed(), 0.0f, 0.0f);
+			trans = new Vec(-10.0f * viewpoint().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
-			viewPoint().frame().translate(viewPoint().frame().inverseTransformOf(trans));			
+			viewpoint().frame().translate(viewpoint().frame().inverseTransformOf(trans));			
 			break;
 		case MOVE_VIEWPOINT_RIGHT:
-			trans = new Vec(10.0f * viewPoint().flySpeed(), 0.0f, 0.0f);
+			trans = new Vec(10.0f * viewpoint().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
-			viewPoint().frame().translate(viewPoint().frame().inverseTransformOf(trans));			
+			viewpoint().frame().translate(viewpoint().frame().inverseTransformOf(trans));			
 			break;
 		case MOVE_VIEWPOINT_UP:
-			trans = viewPoint().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? 10.0f : -10.0f * viewPoint().flySpeed(), 0.0f));
+			trans = viewpoint().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? 10.0f : -10.0f * viewpoint().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
-			viewPoint().frame().translate(trans);					  
+			viewpoint().frame().translate(trans);					  
 			break;
 		case MOVE_VIEWPOINT_DOWN:
-			trans = viewPoint().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? -10.0f : 10.0f * viewPoint().flySpeed(), 0.0f));
+			trans = viewpoint().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? -10.0f : 10.0f * viewpoint().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.div(camera().frame().magnitude());
-			viewPoint().frame().translate(trans);			
+			viewpoint().frame().translate(trans);			
 			break;
 		case INCREASE_ROTATION_SENSITIVITY:
-			viewPoint().setRotationSensitivity(viewPoint().rotationSensitivity() * 1.2f);
+			viewpoint().setRotationSensitivity(viewpoint().rotationSensitivity() * 1.2f);
 			break;
 		case DECREASE_ROTATION_SENSITIVITY:
-			viewPoint().setRotationSensitivity(viewPoint().rotationSensitivity() / 1.2f);
+			viewpoint().setRotationSensitivity(viewpoint().rotationSensitivity() / 1.2f);
 			break;
 		case INCREASE_CAMERA_FLY_SPEED:
-			((Camera) viewPoint()).setFlySpeed(((Camera) viewPoint()).flySpeed() * 1.2f);
+			((Camera) viewpoint()).setFlySpeed(((Camera) viewpoint()).flySpeed() * 1.2f);
 			break;
 		case DECREASE_CAMERA_FLY_SPEED:
-			((Camera) viewPoint()).setFlySpeed(((Camera) viewPoint()).flySpeed() / 1.2f);
+			((Camera) viewpoint()).setFlySpeed(((Camera) viewpoint()).flySpeed() / 1.2f);
 			break;
 		case INCREASE_AVATAR_FLY_SPEED:
 			if (avatar() != null)
@@ -285,13 +285,13 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() - radius() / 50);
 			break;
 		case INTERPOLATE_TO_FIT:
-			viewPoint().interpolateToFitScene();
+			viewpoint().interpolateToFitScene();
 			break;
 		case RESET_ARP:		  
-			viewPoint().setArcballReferencePoint(new Vec(0, 0, 0));
+			viewpoint().setArcballReferencePoint(new Vec(0, 0, 0));
 			//looks horrible, but works ;)
-			viewPoint().frame().arpFlag = true;
-			viewPoint().frame().timerFx.runOnce(1000);				
+			viewpoint().frame().arpFlag = true;
+			viewpoint().frame().timerFx.runOnce(1000);				
 			break;
 		case CUSTOM:
 			AbstractScene.showMissingImplementationWarning(id);
@@ -352,17 +352,17 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	// D R A W I N G   M E T H O D S
 	
 	public void preDraw() {
-		if ( avatar() != null	&& (!viewPoint().anyInterpolationIsStarted() ) ) {
-			viewPoint().setPosition(avatar().viewPointPosition());
-			viewPoint().setUpVector(avatar().upVector());
-			viewPoint().lookAt(avatar().target());
+		if ( avatar() != null	&& (!viewpoint().anyInterpolationIsStarted() ) ) {
+			viewpoint().setPosition(avatar().viewPointPosition());
+			viewpoint().setUpVector(avatar().upVector());
+			viewpoint().lookAt(avatar().target());
 		}
 		 
 		//before timerHandler().handle() it was here:
 		//timerHandler().updateFrameRate();		
 		bind();
 		if (boundaryEquationsAreEnabled())
-			viewPoint().updateBoundaryEquations();
+			viewpoint().updateBoundaryEquations();
 	}
 	
 	/**
@@ -406,12 +406,12 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
     // 7. Grid and axis drawing
  		if (gridIsDrawn()) {
  			if(gridIsDotted())
- 				drawDottedGrid(viewPoint().sceneRadius());
+ 				drawDottedGrid(viewpoint().sceneRadius());
  			else
- 				drawGrid(viewPoint().sceneRadius());
+ 				drawGrid(viewpoint().sceneRadius());
  		}
  		if (axisIsDrawn())
- 			drawAxis(viewPoint().sceneRadius());		
+ 			drawAxis(viewpoint().sceneRadius());		
  		
     // 8. Display visual hints
  		displayVisualHints(); // abstract
@@ -446,7 +446,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * initialize stuff not initialized in {@code PApplet.setup()}. The default
 	 * implementation is empty.
 	 * <p>
-	 * Typical usage include {@link #viewPoint()} initialization ({@link #showAll()})
+	 * Typical usage include {@link #viewpoint()} initialization ({@link #showAll()})
 	 * and Scene state setup ({@link #setAxisIsDrawn(boolean)} and
 	 * {@link #setGridIsDrawn(boolean)}.
 	 */
@@ -889,7 +889,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	/**
 	 * Returns the associated Camera, never {@code null}.
 	 */
-	public ViewPoint viewPoint() {
+	public Viewpoint viewpoint() {
 		return vPoint;
 	}
 	
@@ -908,7 +908,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			System.out.println("Warning: Camera Type is only available in 3D");			
 		}
 		else
-			setViewPoint(cam);		
+			setViewpoint(cam);		
 	}
 	
 	public Window window() {
@@ -923,13 +923,13 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			System.out.println("Warning: Window Type is only available in 2D");			
 		}
 		else
-			setViewPoint(win);
+			setViewpoint(win);
 	}
 
 	/**
-	 * Replaces the current {@link #viewPoint()} with {@code vp}
+	 * Replaces the current {@link #viewpoint()} with {@code vp}
 	 */
-	public void setViewPoint(ViewPoint vp)  {
+	public void setViewpoint(Viewpoint vp)  {
 		if (vp == null)
 			return;
 
@@ -960,7 +960,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
 	public boolean boundaryEquationsAreEnabled() {
-		return viewPoint().boundaryEquationsAreEnabled();
+		return viewpoint().boundaryEquationsAreEnabled();
 	}
 
 	/**
@@ -1021,18 +1021,18 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
 	public void enableBoundaryEquations(boolean flag) {
-		viewPoint().enableBoundaryEquations(flag);
+		viewpoint().enableBoundaryEquations(flag);
 	}
 	
 	/**
-	 * Toggles the {@link #viewPoint()} type between PERSPECTIVE and ORTHOGRAPHIC.
+	 * Toggles the {@link #viewpoint()} type between PERSPECTIVE and ORTHOGRAPHIC.
 	 */
 	public void toggleCameraType() {
 		if( this.is2D() ) {
 			System.out.println("Warning: Camera Type is only available in 3D");
 		}
 		else {
-		if (((Camera) viewPoint()).type() == Camera.Type.PERSPECTIVE)
+		if (((Camera) viewpoint()).type() == Camera.Type.PERSPECTIVE)
 			setCameraType(Camera.Type.ORTHOGRAPHIC);
 		else
 			setCameraType(Camera.Type.PERSPECTIVE);
@@ -1040,7 +1040,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 	
 	/**
-	 * Returns the current {@link #viewPoint()} type.
+	 * Returns the current {@link #viewpoint()} type.
 	 */
 	public final Camera.Type cameraType() {
 		if( this.is2D() ) {
@@ -1048,19 +1048,19 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			return null;
 		}
 		else
-			return ((Camera) viewPoint()).type();		
+			return ((Camera) viewpoint()).type();		
 	}
 
 	/**
-	 * Sets the {@link #viewPoint()} type.
+	 * Sets the {@link #viewpoint()} type.
 	 */
 	public void setCameraType(Camera.Type type) {
 		if( this.is2D() ) {
 			System.out.println("Warning: Camera Type is only available in 3D");			
 		}
 		else
-			if (type != ((Camera) viewPoint()).type())
-				((Camera) viewPoint()).setType(type);
+			if (type != ((Camera) viewpoint()).type())
+				((Camera) viewpoint()).setType(type);
 	}
 	
 	/**
@@ -1126,20 +1126,20 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			avatarIsInteractiveFrame = true;
 			if (avatar() instanceof InteractiveAvatarFrame)
 				avatarIsInteractiveAvatarFrame = true;
-			viewPoint().frame().updateFlyUpVector();// ?
-			viewPoint().frame().stopSpinning();
+			viewpoint().frame().updateFlyUpVector();// ?
+			viewpoint().frame().stopSpinning();
 			if( this.avatarIsInteractiveFrame ) {
 				((InteractiveFrame) (avatar())).updateFlyUpVector();
 				((InteractiveFrame) (avatar())).stopSpinning();
 			}
 			// perform small animation ;)
-			if (viewPoint().anyInterpolationIsStarted())
-				viewPoint().stopAllInterpolations();
-			ViewPoint cm = viewPoint().get();
+			if (viewpoint().anyInterpolationIsStarted())
+				viewpoint().stopAllInterpolations();
+			Viewpoint cm = viewpoint().get();
 			cm.setPosition(avatar().viewPointPosition());
 			cm.setUpVector(avatar().upVector());
 			cm.lookAt(avatar().target());
-			viewPoint().interpolateTo(cm.frame());
+			viewpoint().interpolateTo(cm.frame());
 		}
 	}
 
@@ -1166,7 +1166,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #center()
 	 */
 	public float radius() {
-		return viewPoint().sceneRadius();
+		return viewpoint().sceneRadius();
 	}
 
 	/**
@@ -1178,7 +1178,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setCenter(Vec) {@link #radius()}
 	 */
 	public Vec center() {
-		return viewPoint().sceneCenter();
+		return viewpoint().sceneCenter();
 	}
 
 	/**
@@ -1190,7 +1190,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setCenter(Vec) {@link #radius()}
 	 */
 	public Vec arcballReferencePoint() {
-		return viewPoint().arcballReferencePoint();
+		return viewpoint().arcballReferencePoint();
 	}
 
 	/**
@@ -1202,7 +1202,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setCenter(Vec)
 	 */
 	public void setRadius(float radius) {
-		viewPoint().setSceneRadius(radius);
+		viewpoint().setSceneRadius(radius);
 	}
 
 	/**
@@ -1213,7 +1213,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setRadius(float)
 	 */
 	public void setCenter(Vec center) {
-		viewPoint().setSceneCenter(center);
+		viewpoint().setSceneCenter(center);
 	}
 
 	/**
@@ -1230,14 +1230,14 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		if( this.is2D() )
 			System.out.println("setBoundingBox is available only in 3D. Use setBoundingRect instead");
 		else
-			((Camera) viewPoint()).setSceneBoundingBox(min, max);
+			((Camera) viewpoint()).setSceneBoundingBox(min, max);
 	}
 	
 	public void setBoundingRect(Vec min, Vec max) {
 		if( this.is3D() )
 			System.out.println("setBoundingRect is available only in 2D. Use setBoundingBox instead");
 		else
-			((Window) viewPoint()).setSceneBoundingBox(min, max);
+			((Window) viewpoint()).setSceneBoundingBox(min, max);
 	}
 
 	/**
@@ -1247,7 +1247,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#showEntireScene()
 	 */
 	public void showAll() {
-		viewPoint().showEntireScene();
+		viewpoint().showEntireScene();
 	}
 
 	/**
@@ -1263,7 +1263,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#pointUnderPixel(Point)
 	 */
 	public boolean setArcballReferencePointFromPixel(Point pixel) {
-		return viewPoint().setArcballReferencePointFromPixel(pixel);
+		return viewpoint().setArcballReferencePointFromPixel(pixel);
 	}
 	
 	/**
@@ -1279,7 +1279,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#pointUnderPixel(Point)
 	 */
 	public boolean setCenterFromPixel(Point pixel) {
-		return viewPoint().setSceneCenterFromPixel(pixel);
+		return viewpoint().setSceneCenterFromPixel(pixel);
 	}
 	
 	// * Control what is drawing
@@ -1313,12 +1313,12 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 
 	/**
-	 * Toggles the state of {@link #viewPointPathsAreDrawn()}.
+	 * Toggles the state of {@link #viewpointPathsAreDrawn()}.
 	 * 
-	 * @see #setViewPointPathsAreDrawn(boolean)
+	 * @see #setViewpointPathsAreDrawn(boolean)
 	 */
 	public void toggleViewPointPathsAreDrawn() {
-		setViewPointPathsAreDrawn(!viewPointPathsAreDrawn());
+		setViewpointPathsAreDrawn(!viewpointPathsAreDrawn());
 	}	
 	
 	/**
@@ -1349,7 +1349,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * Returns {@code true} if the camera key frame paths are currently being
 	 * drawn and {@code false} otherwise.
 	 */
-	public boolean viewPointPathsAreDrawn() {
+	public boolean viewpointPathsAreDrawn() {
 		return viewPointPathsAreDrwn;
 	}
 
@@ -1402,7 +1402,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	/**
 	 * Sets the display of the camera key frame paths according to {@code draw}
 	 */
-	public void setViewPointPathsAreDrawn(boolean draw) {
+	public void setViewpointPathsAreDrawn(boolean draw) {
 		viewPointPathsAreDrwn = draw;
 	}
 	
@@ -1613,14 +1613,14 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   public abstract int height();
   
   public Vec projectedCoordinatesOf(Vec src) {
-  	return viewPoint().projectedCoordinatesOf(this.matrixHelper().getProjectionView(), src);
+  	return viewpoint().projectedCoordinatesOf(this.matrixHelper().getProjectionView(), src);
   }
   
   public Vec unprojectedCoordinatesOf(Vec src) {
   	if( this.matrixHelper().unprojectCacheIsOptimized() )
-  		return viewPoint().unprojectedCoordinatesOf(this.matrixHelper().getProjectionViewInverse(), src);
+  		return viewpoint().unprojectedCoordinatesOf(this.matrixHelper().getProjectionViewInverse(), src);
   	else
-  		return viewPoint().unprojectedCoordinatesOf(src);
+  		return viewpoint().unprojectedCoordinatesOf(src);
   }
 
   // WARNINGS and EXCEPTIONS

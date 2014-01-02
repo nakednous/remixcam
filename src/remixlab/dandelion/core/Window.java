@@ -12,7 +12,7 @@ package remixlab.dandelion.core;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
 
-public class Window extends ViewPoint implements Copyable {
+public class Window extends Viewpoint implements Copyable {
 	//TODO setUpVector is broken when frame().scaling() has negative values
 	
 	static final float FAKED_ZNEAR = -10;  
@@ -355,14 +355,14 @@ public class Window extends ViewPoint implements Copyable {
 			}
 			// The eight points are on the outside side of this plane
 			if (allOut)
-				return ViewPoint.Visibility.INVISIBLE;
+				return Viewpoint.Visibility.INVISIBLE;
 		}
 
 		if (allInForAllPlanes)
-			return ViewPoint.Visibility.VISIBLE;
+			return Viewpoint.Visibility.VISIBLE;
 
 		// Too conservative, but tangent cases are too expensive to detect
-		return ViewPoint.Visibility.SEMIVISIBLE;
+		return Viewpoint.Visibility.SEMIVISIBLE;
 	}
 	
 	@Override
@@ -375,13 +375,13 @@ public class Window extends ViewPoint implements Copyable {
 		for (int i = 0; i < 4; ++i) {
 			float d = distanceToBoundary(i, center);
 			if (d > radius)
-				return ViewPoint.Visibility.INVISIBLE;
+				return Viewpoint.Visibility.INVISIBLE;
 			if ((d > 0) || (-d < radius))
 				allInForAllPlanes = false;
 		}
 		if(allInForAllPlanes)
-			return ViewPoint.Visibility.VISIBLE;
-		return ViewPoint.Visibility.SEMIVISIBLE;
+			return Viewpoint.Visibility.VISIBLE;
+		return Viewpoint.Visibility.SEMIVISIBLE;
 	}
 
 	@Override
