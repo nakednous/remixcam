@@ -201,6 +201,37 @@ public abstract class Viewpoint implements Copyable {
 	
   //2. POSITION AND ORIENTATION
 	
+	protected boolean validateScaling() {
+		boolean passed = true;
+		if( scene.is2D() ) {
+			if( frame().scaling().x() <= 0 || frame().scaling().y() <= 0 )
+				passed = false;		
+			if( frame().referenceFrame() != null ) {			
+				if( frame().referenceFrame().magnitude().x() <= 0 || frame().referenceFrame().magnitude().y() <= 0)
+					passed = false;
+				if( Util.diff(frame().referenceFrame().magnitude().x(), frame().referenceFrame().magnitude().y()) )
+					passed = false;				
+			}
+		}
+		else {
+			if( frame().scaling().x() <= 0 || frame().scaling().y() <= 0 || frame().scaling().z() <= 0 )
+				passed = false;		
+			if( frame().referenceFrame() != null ) {			
+				if( frame().referenceFrame().magnitude().x() <= 0 || frame().referenceFrame().magnitude().y() <= 0 || frame().referenceFrame().magnitude().z() <= 0 )
+					passed = false;
+				if( Util.diff(frame().referenceFrame().magnitude().x(), frame().referenceFrame().magnitude().y()) )
+					passed = false;
+				if( Util.diff(frame().referenceFrame().magnitude().y(), frame().referenceFrame().magnitude().z()) )
+					passed = false;		
+			}
+		}
+		if(!passed)
+			throw new RuntimeException("viewpoint().frame() should have positive scaling values; and if the viewpoint.frame().referenceFrame()"
+					+ " is non null, its x,y,z magnitude values should be equal and non-negative. If you want to turn your"
+					+ " scene upside down use viewpoint.flip() instead.");
+		return passed;
+	}
+	
 	public void flip() {
 		if( scene.isLeftHanded() )
 			scene.setRightHanded();

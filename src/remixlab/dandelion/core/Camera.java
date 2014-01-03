@@ -185,7 +185,7 @@ public class Camera extends Viewpoint implements Constants, Copyable {
 	private float zNearCoef;
 	private float zClippingCoef;	
 	private Type tp; // PERSPECTIVE or ORTHOGRAPHIC
-	private float orthoCoef;
+  private float orthoCoef;
 
 	// S t e r e o p a r a m e t e r s
 	private float IODist; // inter-ocular distance, in meters
@@ -398,17 +398,23 @@ public class Camera extends Viewpoint implements Constants, Copyable {
 	
 	@Override
 	public Vec rightVector() {
-		return frame().magnitude().x() > 0 ? frame().xAxis() : frame().xAxis(false);
+		//if there were not validateScaling this should do it:
+		//return frame().magnitude().x() > 0 ? frame().xAxis() : frame().xAxis(false);
+		return frame().xAxis();
 	}
 	
 	@Override
 	public Vec upVector() {
-		return frame().magnitude().y() > 0 ? frame().yAxis() : frame().yAxis(false);
+		//if there were not validateScaling this should do it:
+		//return frame().magnitude().y() > 0 ? frame().yAxis() : frame().yAxis(false);
+		return frame().yAxis();
 	}
 	
 	@Override
 	public void setUpVector(Vec up, boolean noMove) {
-		Quat q = new Quat(new Vec(0.0f, frame().magnitude().y() > 0 ? 1.0f : -1.0f, 0.0f), frame().transformOf(up));
+	  //if there were not validateScaling this should do it:
+		//Quat q = new Quat(new Vec(0.0f, frame().magnitude().y() > 0 ? 1.0f : -1.0f, 0.0f), frame().transformOf(up));
+		Quat q = new Quat(new Vec(0.0f, 1.0f, 0.0f), frame().transformOf(up));
 
 		if (!noMove && scene.is3D())
 			frame().setPosition(Vec.sub(arcballReferencePoint(), 
@@ -433,7 +439,9 @@ public class Camera extends Viewpoint implements Constants, Copyable {
 	 */
 	@Override
 	public Vec viewDirection() {
-		return frame().magnitude().z() > 0 ? frame().zAxis(false) : frame().zAxis();
+	  //if there were not validateScaling this should do it:
+		//return frame().magnitude().z() > 0 ? frame().zAxis(false) : frame().zAxis();
+		return frame().zAxis(false);
 	}	
 
 	/**
@@ -454,7 +462,7 @@ public class Camera extends Viewpoint implements Constants, Copyable {
 		if (Util.zero(xAxis.squaredNorm())) {
 			// target is aligned with upVector, this means a rotation around X axis
 			// X axis is then unchanged, let's keep it !
-			xAxis = frame().inverseTransformOf(new Vec(1.0f, 0.0f, 0.0f));
+			xAxis = frame().xAxis();
 		}
 
 		Quat q = new Quat();
@@ -1278,9 +1286,9 @@ public class Camera extends Viewpoint implements Constants, Copyable {
 	 */
 	public float distanceToSceneCenter() {
 		//return Math.abs((frame().coordinatesOf(sceneCenter())).vec[2]);//before scln
-		//Vector3D zCam = frame().zAxis();
-		Vec zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
-		zCam.normalize();
+	  //if there were not validateScaling this should do it:
+		//Vec zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
+		Vec zCam = frame().zAxis();		
 		Vec cam2SceneCenter = Vec.sub(position(), sceneCenter());
 		return Math.abs(Vec.dot(cam2SceneCenter, zCam));		
 	}
@@ -1295,9 +1303,9 @@ public class Camera extends Viewpoint implements Constants, Copyable {
 	 */
 	public float distanceToARP() {
 		//return Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);//before scln
-		//Vector3D zCam = frame().zAxis();
-		Vec zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
-		zCam.normalize();
+		//if there were not validateScaling this should do it:
+		//Vec zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
+		Vec zCam = frame().zAxis();
 		Vec cam2arp = Vec.sub(position(), arcballReferencePoint());
 		return Math.abs(Vec.dot(cam2arp, zCam));
 	}
@@ -1649,14 +1657,6 @@ public class Camera extends Viewpoint implements Constants, Copyable {
 	 */
 	@Override
 	public void fitBall(Vec center, float radius) {
-		/**
-		if ((kind() == Kind.STANDARD) && (type() == Type.ORTHOGRAPHIC)) {
-			orthoSize = 1;
-			lookAt(sceneCenter());
-			return;
-		}
-		*/
-
 		float distance = 0.0f;
 		switch (type()) {
 		case PERSPECTIVE: {

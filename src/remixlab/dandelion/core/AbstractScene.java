@@ -352,6 +352,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	// D R A W I N G   M E T H O D S
 	
 	public void preDraw() {
+		viewpoint().validateScaling();
 		if ( avatar() != null	&& (!viewpoint().anyInterpolationIsStarted() ) ) {
 			viewpoint().setPosition(avatar().viewPointPosition());
 			viewpoint().setUpVector(avatar().upVector());

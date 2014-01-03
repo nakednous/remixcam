@@ -12,9 +12,7 @@ package remixlab.dandelion.core;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
 
-public class Window extends Viewpoint implements Copyable {
-	//TODO setUpVector is broken when frame().scaling() has negative values
-	
+public class Window extends Viewpoint implements Copyable {	
 	static final float FAKED_ZNEAR = -10;  
   static final float FAKED_ZFAR = 10;	
 	
@@ -114,44 +112,22 @@ public class Window extends Viewpoint implements Copyable {
 			target = new float[2];
 		}
 		
-		Vec vec = frame().magnitude();
-		target[0] = ( vec.x() * this.screenWidth() )  / 2;
-		target[1] = ( vec.y() * this.screenHeight() ) / 2;		
+		target[0] = ( frame().scaling().x() * this.screenWidth() )  / 2;
+		target[1] = ( frame().scaling().y() * this.screenHeight() ) / 2;
 
 		return target;
 	}
 	
-	///*
 	@Override
 	public Vec upVector() {
 		return frame().yAxis();
 	}
-	//*/
 	
-  //TODO testing it as it's done in Camera
-	/*
-	@Override
-	public Vec upVector() {
-		return frame().magnitude().y() > 0 ? frame().yAxis() : frame().yAxis(false);
-	}
-	// */
-	
-	///*
 	@Override
 	public Vec rightVector() {
 		return frame().xAxis();
 	}
-	//*/
 	
-	//TODO testing it as it's done in Camera
-	/*
-	@Override
-	public Vec rightVector() {
-		return frame().magnitude().x() > 0 ? frame().xAxis() : frame().xAxis(false);
-	}
-	//*/
-	
-	///*
 	@Override
 	public void setUpVector(Vec up, boolean noMove) {
 		Rot r = new Rot(new Vec(0.0f, 1.0f), frame().transformOf(up));
@@ -161,20 +137,6 @@ public class Window extends Viewpoint implements Copyable {
 
 		frame().rotate(r);
 	}
-	//*/
-	
-  //TODO testing it as it's done in Camera
-	/*
-	@Override
-	public void setUpVector(Vec up, boolean noMove) {
-		Rot r = new Rot(new Vec(0.0f, frame().magnitude().y() > 0 ? 1.0f : -1.0f), frame().transformOf(up));
-
-		if (!noMove) 		
-			frame().setPosition(Vec.sub(arcballReferencePoint(), (Rot.compose((Rot) frame().orientation(), r)).rotate(frame().coordinatesOf(arcballReferencePoint()))));		
-
-		frame().rotate(r);
-	}
-	//*/
 	
 	@Override
 	public boolean setSceneCenterFromPixel(Point pixel) {
@@ -196,11 +158,11 @@ public class Window extends Viewpoint implements Copyable {
 	
 	@Override
 	public void fitBall(Vec center, float radius) {
-	  Vec mag = frame().magnitude();
-	  
 	  float size = Math.min(scene.width(), scene.height());
-  	frame().setMagnitude(mag.x() > 0 ? 2*radius / size : -2*radius / size,
-                         mag.y() > 0 ? 2*radius / size : -2*radius / size);
+	  //if there were not validateScaling this should do it:
+	  //Vec scl = frame().scaling();
+  	//frame().setScaling(scl.x() > 0 ? 2*radius / size : -2*radius / size, scl.y() > 0 ? 2*radius / size : -2*radius / size);
+	  frame().setScaling(2*radius/size, 2*radius/size);
   	
 		lookAt(center);
 	}
@@ -222,19 +184,19 @@ public class Window extends Viewpoint implements Copyable {
 	public void fitScreenRegion(Rect rectangle) {
 		float rectRatio = (float)rectangle.width / (float)rectangle.height;
 		
-		float sclX = frame().magnitude().x();
-		float sclY = frame().magnitude().y();		
+		float sclX = frame().scaling().x();
+		float sclY = frame().scaling().y();		
 		
 		if(aspectRatio() < 1.0f) {
 			if( aspectRatio () < rectRatio )
-				frame().setMagnitude(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
+				frame().setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
 			else
-				frame().setMagnitude(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
+				frame().setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
 		} else {
 			if( aspectRatio () < rectRatio )
-				frame().setMagnitude(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
+				frame().setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
 			else
-				frame().setMagnitude(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
+				frame().setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
 		}		
 		lookAt(unprojectedCoordinatesOf(new Vec(rectangle.getCenterX(), rectangle.getCenterY(), 0)));
 	}	
@@ -327,11 +289,15 @@ public class Window extends Viewpoint implements Copyable {
 		//check this: http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
 		float result = (fpCoefficients[index][0] * pos.x() + fpCoefficients[index][1] * pos.y() + fpCoefficients[index][2]) /
 				           (float)Math.sqrt(fpCoefficients[index][0]*fpCoefficients[index][0] + fpCoefficients[index][1]*fpCoefficients[index][1]);
+		
+		//if there were not validateScaling this should do it:
+		/*
 		if(index==0 || index==1) {
-			if(frame().magnitude().x()<0)	result *= -1;
+			if(frame().scaling().x()<0)	result *= -1;
 		}
 		else
-			if(frame().magnitude().y()<0)	result *= -1;
+			if(frame().scaling().y()<0)	result *= -1;
+		*/
 		return result;
 	}
 	
