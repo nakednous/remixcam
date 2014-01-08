@@ -1460,7 +1460,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 			translate(scene.width() / 2, scene.height() / 2);
 			if(scene.isRightHanded()) scale(1,-1);
-			scale(scene.view().frame().inverseMagnitude().x(), scene.view().frame().inverseMagnitude().y());
+			//TODO experimental
+			//scale(scene.viewpoint().frame().inverseMagnitude().x(), scene.viewpoint().frame().inverseMagnitude().y());
+			scale(1/scene.view().frame().scaling().x(), 1/scene.view().frame().scaling().y());
 			rotate(-quat.angle());
 			translate(-pos.x(), -pos.y());
 		}
@@ -1482,8 +1484,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			
 			pushModelView();
 			translate(pos.x(), pos.y());
-			rotate(quat.angle());	
-			scale(scene.window().frame().magnitude().x(),	scene.window().frame().magnitude().y());
+			rotate(quat.angle());
+		  //TODO experimental
+			//scale(scene.window().frame().magnitude().x(),	scene.window().frame().magnitude().y());
+			scale(scene.window().frame().scaling().x(), scene.window().frame().scaling().y());
 			if(scene.isRightHanded()) scale(1,-1);
 			translate(-scene.width()/2, -scene.height()/2);
 		}
