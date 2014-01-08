@@ -47,7 +47,8 @@ public class Camera extends View implements Constants, Copyable {
     append(zClippingCoef).
 		append(IODist).
 		append(focusDist).
-		//append(orthoCoef).
+		append(orthoCoefX).
+		append(orthoCoefY).
 		append(perspScl).
 		append(physicalDist2Scrn).
 		append(physicalScrnWidth).
@@ -70,7 +71,8 @@ public class Camera extends View implements Constants, Copyable {
     .append(zClippingCoef, other.zClippingCoef)
 		.append(IODist,other.IODist)
 		.append(focusDist,other.focusDist)
-		//.append(orthoCoef,other.orthoCoef)
+		.append(orthoCoefX,other.orthoCoefX)
+		.append(orthoCoefY,other.orthoCoefY)
 		.append(perspScl,other.perspScl)
 		.append(physicalDist2Scrn,other.physicalDist2Scrn)
 		.append(physicalScrnWidth,other.physicalScrnWidth)
@@ -185,7 +187,8 @@ public class Camera extends View implements Constants, Copyable {
 	private float zClippingCoef;	
 	private Type tp; // PERSPECTIVE or ORTHOGRAPHIC
 	private Vec perspScl;
-  //public float orthoCoef;
+  private float orthoCoefX;
+  private float orthoCoefY;
 
 	// S t e r e o p a r a m e t e r s
 	private float IODist; // inter-ocular distance, in meters
@@ -253,7 +256,8 @@ public class Camera extends View implements Constants, Copyable {
 		for (int i = 0; i < normal.length; i++)
 			this.normal[i] = new Vec(oCam.normal[i].vec[0], oCam.normal[i].vec[1], oCam.normal[i].vec[2] );
 		
-		//this.orthoCoef = oCam.orthoCoef;
+		this.orthoCoefX = oCam.orthoCoefX;
+		this.orthoCoefY = oCam.orthoCoefY;
 		if(oCam.perspScl != null)
 			perspScl = oCam.perspScl.get();
 		this.setType(oCam.type());
@@ -560,6 +564,8 @@ public class Camera extends View implements Constants, Copyable {
 		
 		if (type == Camera.Type.ORTHOGRAPHIC) {
 			if(type() == Camera.Type.PERSPECTIVE)	perspScl = frame().scaling().get();
+			orthoCoefX = perspScl.x();
+			orthoCoefY = perspScl.y();
 			this.tp = type;
 			reScaleOrtho();
 		}
@@ -588,18 +594,9 @@ public class Camera extends View implements Constants, Copyable {
 			return;
 		float d = distanceToARP();
 		if (d==0)	return;
-		float coefX;
-		float coefY;
-		if(perspScl != null) {
-			coefX = perspScl.x();
-			coefY = perspScl.y();
-		}
-		else {
-			coefX = coefY = (float) Math.tan((Math.PI / 3.0f) / 2); //default fov
-		}		
-		frame().setScaling(d*2*coefX/screenHeight(),
-                       d*2*coefY/screenHeight(),
-                       d*2*coefY/screenHeight());
+		frame().setScaling(d*2*orthoCoefX/screenHeight(),
+                       d*2*orthoCoefY/screenHeight(),
+                       d*2*orthoCoefY/screenHeight());
 	}
 
 	/**
@@ -633,7 +630,9 @@ public class Camera extends View implements Constants, Copyable {
 		//frame().scaling().x( frame().scaling().y() );
 		frame().setScaling((float) Math.tan(fov / 2.0f),
 										   (float) Math.tan(fov / 2.0f),
-				                frame().scaling().z());
+										   (float) Math.tan(fov / 2.0f));
+		orthoCoefX = frame().scaling().x();
+		orthoCoefY = frame().scaling().y();
 		setFocusDistance(sceneRadius() / frame().scaling().y());
 	}
 
@@ -1431,17 +1430,8 @@ public class Camera extends View implements Constants, Copyable {
 			
 		// Prevents division by zero when rap is set to camera position
 		if ((Util.nonZero(prevDist)) && (Util.nonZero(newDist))) {
-		  //orthoCoef *= prevDist / newDist;
-			//this.reScaleOrtho(newDist, prevDist);
-			reScaleOrtho();
-			//frame().scaling().x( frame().scaling().x() *  newDist / prevDist);
-			//frame().scaling().y( frame().scaling().y() *  newDist / prevDist);
-			//this.reScaleOrtho(prevDist, newDist);
-			//frame().scaling().x( frame().scaling().x() *  prevDist / newDist);
-			//frame().scaling().y( frame().scaling().y() *  prevDist / newDist);
-			frame().setScaling(frame().scaling().x() *  prevDist / newDist,
-					               frame().scaling().y() *  prevDist / newDist,
-					               frame().scaling().z() *  prevDist / newDist);
+		  orthoCoefX *= prevDist / newDist;
+		  orthoCoefY *= prevDist / newDist;
 			}
 		}
 	}
@@ -1743,9 +1733,12 @@ public class Camera extends View implements Constants, Copyable {
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			//distance = Vec.dot(Vec.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoef);
-			float yview = Vec.dot(Vec.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / frame().scaling().y());
-			float xview = Vec.dot(Vec.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / frame().scaling().x());
+			//how to do it with both values?
+			//distance = Vec.dot(Vec.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoefY);
+			//TODO experimental:
+			//how to do it with only scaling?
+			float yview = Vec.dot(Vec.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoefY);
+			float xview = Vec.dot(Vec.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoefX);
 			distance = Math.max(xview, yview);
 			break;
 		}
@@ -1753,6 +1746,7 @@ public class Camera extends View implements Constants, Copyable {
 
 		Vec newPos = Vec.sub(center, Vec.mult(viewDirection(), distance));
 		frame().setPositionWithConstraint(newPos);
+		if( type() == Type.ORTHOGRAPHIC ) reScaleOrtho();
 	}
 
 	/**
@@ -1808,10 +1802,12 @@ public class Camera extends View implements Constants, Copyable {
 		}
 		case ORTHOGRAPHIC: {
 			final float dist = Vec.dot(Vec.sub(newCenter,	arcballReferencePoint()), vd);
-			//final float distX = Vec.dist(pointX, newCenter) / orthoCoef	/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
-			//final float distY = Vec.dist(pointY, newCenter) / orthoCoef	/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
-			final float distX = Vec.dist(pointX, newCenter) / frame().scaling().x()	/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
-			final float distY = Vec.dist(pointY, newCenter) / frame().scaling().y()	/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
+			//TODO experimental
+			final float distX = Vec.dist(pointX, newCenter) / orthoCoefX / ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
+			final float distY = Vec.dist(pointY, newCenter) / orthoCoefY / ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
+			//only with scaling how?
+			//final float distX = Vec.dist(pointX, newCenter) / frame().scaling().x()	/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
+			//final float distY = Vec.dist(pointY, newCenter) / frame().scaling().y()	/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
 
 			distance = dist + Math.max(distX, distY);
 
@@ -1820,6 +1816,7 @@ public class Camera extends View implements Constants, Copyable {
 		}
 
 		frame().setPositionWithConstraint(Vec.sub(newCenter, Vec.mult(vd, distance)));
+		if( type() == Type.ORTHOGRAPHIC ) reScaleOrtho();
 	}
 	
 	@Override

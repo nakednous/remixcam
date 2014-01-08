@@ -429,6 +429,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			trans = Vec.mult(trans, translationSensitivity());				
 			trans.div(magnitude());
 			translate(inverseTransformOf(trans));
+			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
 			//translate(inverseTransformOf(trans, false));
 			break;
 		case TRANSLATE:			
@@ -450,6 +451,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				break;
 			}
 			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
+			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
 			break;
 		case TRANSLATE3:
 			if(e3.relative())
@@ -470,6 +472,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				break;
 			}
 			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
+			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
 			break;
 		case TRANSLATE_ROTATE:
 			//translate
@@ -491,6 +494,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				break;
 			}
 			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
+			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
 		  // Rotate
 			q = new Quat();
 			if(e6.absolute())
