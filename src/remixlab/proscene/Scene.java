@@ -128,7 +128,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		Point fCorner = new Point();
 		Point lCorner = new Point();
 		GenericDOF2Event<DOF2Action> event, prevEvent;
-		float dFriction = viewpoint().frame().dampingFriction();
+		float dFriction = view().frame().dampingFriction();
 		InteractiveFrame iFrame;
 		
 		public ProsceneMouse(Scene scn, String n) {
@@ -157,14 +157,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					if(grabber() instanceof InteractiveFrame) {
 						if( need4Spin )	((InteractiveFrame)grabber()).stopSpinning();
 						iFrame = (InteractiveFrame)grabber();
-						Actionable<?> a = (grabber() instanceof InteractiveViewpointFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event);
+						Actionable<?> a = (grabber() instanceof InteractiveViewFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event);
 						if(a==null) return;
 						DandelionAction dA = (DandelionAction) a.referenceAction();
 						if( dA == DandelionAction.SCREEN_TRANSLATE ) ((InteractiveFrame)grabber()).dirIsFixed = false;						
 						need4Spin = ( ((dA == DandelionAction.ROTATE) || (dA == DandelionAction.ROTATE3) || (dA == DandelionAction.SCREEN_ROTATE) || (dA == DandelionAction.TRANSLATE_ROTATE) ) && (((InteractiveFrame) grabber()).dampingFriction() == 0));
 						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE) && scene.isDefaultMouseAgentInUse();
-						zoomOnRegion = dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveViewpointFrame) && scene.isDefaultMouseAgentInUse();
-						screenRotate = dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveViewpointFrame) && scene.isDefaultMouseAgentInUse();
+						zoomOnRegion = dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveViewFrame) && scene.isDefaultMouseAgentInUse();
+						screenRotate = dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveViewFrame) && scene.isDefaultMouseAgentInUse();
 						if(bypassNullEvent || zoomOnRegion || screenRotate) {
 							if(bypassNullEvent) {
 								//TODO: experimental, this is needed for first person:
@@ -497,7 +497,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		public void drawScreenRotateLineHint() {
 			float p1x = (float) scene.prosceneMouse.lCorner.getX();
 			float p1y = (float) scene.prosceneMouse.lCorner.getY();
-			Vec p2 = scene.viewpoint().projectedCoordinatesOf(scene.arcballReferencePoint());
+			Vec p2 = scene.view().projectedCoordinatesOf(scene.arcballReferencePoint());
 			scene.beginScreenDrawing();
 			pg().pushStyle();
 			pg().stroke(255, 255, 255);
@@ -510,7 +510,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawArcballReferencePointHint() {
-			Vec p = scene.viewpoint().projectedCoordinatesOf(scene.arcballReferencePoint());
+			Vec p = scene.view().projectedCoordinatesOf(scene.arcballReferencePoint());
 			pg().pushStyle();
 			pg().stroke(255);
 			pg().strokeWeight(3);
@@ -717,7 +717,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		 	}
 
 		  @Override
-		  public void drawKFIViewPoint(float scale) {		  	
+		  public void drawKFIView(float scale) {		  	
 		  	float halfHeight = scale * 1.2f;
 				float halfWidth = halfHeight * 1.3f;
 
@@ -817,7 +817,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 							scene.applyTransformation(myFr);						
 
 							if ((mask & 2) != 0)
-								drawKFIViewPoint(scale);
+								drawKFIView(scale);
 							if ((mask & 4) != 0)
 								drawAxis(scale / 10.0f);
 
@@ -826,7 +826,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				}
 				pg().popStyle();
 				kfi.addFramesToAllAgentPools();
-				drawViewPointPathSelectionHints();
+				drawViewPathSelectionHints();
 			}
 		}
 	}
@@ -1227,7 +1227,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawKFIViewPoint(float scale) {
+		public void drawKFIView(float scale) {
 			float halfHeight = scale * 0.07f;
 			float halfWidth = halfHeight * 1.3f;
 			float dist = halfHeight / (float) Math.tan(PApplet.PI / 8.0f);
@@ -1326,7 +1326,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 							scene.applyTransformation(myFr);						
 
 							if ((mask & 2) != 0)
-								drawKFIViewPoint(scale);
+								drawKFIView(scale);
 							if ((mask & 4) != 0)
 								drawAxis(scale / 10.0f);
 
@@ -1335,7 +1335,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				}
 				pg3d().popStyle();
 				kfi.addFramesToAllAgentPools();
-				drawViewPointPathSelectionHints();
+				drawViewPathSelectionHints();
 			}
 		}
 		
@@ -1451,16 +1451,16 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void bind() {
-			scene.viewpoint().getProjection(proj, true);
-			scene.viewpoint().getView(mv, true);
+			scene.view().getProjection(proj, true);
+			scene.view().getView(mv, true);
 			cacheProjectionViewInverse();
 
-			Vec pos = scene.viewpoint().position();
-			Orientable quat = scene.viewpoint().frame().orientation();
+			Vec pos = scene.view().position();
+			Orientable quat = scene.view().frame().orientation();
 
 			translate(scene.width() / 2, scene.height() / 2);
 			if(scene.isRightHanded()) scale(1,-1);
-			scale(scene.viewpoint().frame().inverseMagnitude().x(), scene.viewpoint().frame().inverseMagnitude().y());
+			scale(scene.view().frame().inverseMagnitude().x(), scene.view().frame().inverseMagnitude().y());
 			rotate(-quat.angle());
 			translate(-pos.x(), -pos.y());
 		}
@@ -1477,8 +1477,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void beginScreenDrawing() {
-			Vec pos = scene.viewpoint().position();
-			Orientable quat = scene.viewpoint().frame().orientation();		
+			Vec pos = scene.view().position();
+			Orientable quat = scene.view().frame().orientation();		
 			
 			pushModelView();
 			translate(pos.x(), pos.y());
@@ -1497,13 +1497,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public Mat getProjection() {
-			return scene.viewpoint().getProjection(false);
+			return scene.view().getProjection(false);
 		}
 
 		@Override
 		public Mat getProjection(Mat target) {
 			if (target == null) target = new Mat();
-			target.set(scene.viewpoint().getProjection(false));
+			target.set(scene.view().getProjection(false));
 			return target;
 		}
 		
@@ -1829,7 +1829,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				pggl().setMatrix(Scene.toPMatrix(source));//in P5 this caches projmodelview
 			else {
 				pggl().modelview.set(Scene.toPMatrix(source));
-				pggl().projmodelview.set(Mat.mult(scene.viewpoint().getProjection(false), scene.viewpoint().getView(false)).getTransposed(new float[16]));
+				pggl().projmodelview.set(Mat.mult(scene.view().getProjection(false), scene.view().getView(false)).getTransposed(new float[16]));
 			}
 		}
 	}
@@ -1971,7 +1971,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			vPoint = new Camera(this);
 		else
 			vPoint = new Window(this);
-		setViewpoint(viewpoint());//calls showAll();
+		setView(view());//calls showAll();
 		
 		setAvatar(null);
 		
@@ -1993,7 +1993,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		setAxisIsDrawn(true);
 		setGridIsDrawn(true);
 		setFrameSelectionHintIsDrawn(false);
-		setViewpointPathsAreDrawn(false);
+		setViewPathsAreDrawn(false);
 		
 		disableBoundaryEquations();
 		
@@ -2162,20 +2162,20 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected void displayVisualHints() {		
 		if (frameSelectionHintIsDrawn())
 			drawSelectionHints();
-		if (viewpointPathsAreDrawn()) {
-			viewpoint().drawAllPaths();
-			drawViewPointPathSelectionHints();
+		if (viewPathsAreDrawn()) {
+			view().drawAllPaths();
+			drawViewPathSelectionHints();
 		} else {
-			viewpoint().hideAllPaths();
+			view().hideAllPaths();
 		}
 		if (prosceneMouse.zoomOnRegion)
 			drawZoomWindowHint();
 		if (prosceneMouse.screenRotate)
 			drawScreenRotateLineHint();
-		if (viewpoint().frame().arpFlag) 
+		if (view().frame().arpFlag) 
 			drawArcballReferencePointHint();
-		if (viewpoint().frame().pupFlag) {
-			Vec v = viewpoint().projectedCoordinatesOf(viewpoint().frame().pupVec);
+		if (view().frame().pupFlag) {
+			Vec v = view().projectedCoordinatesOf(view().frame().pupVec);
 			pg().pushStyle();		
 			pg().stroke(255);
 			pg().strokeWeight(3);
@@ -2189,7 +2189,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * method. This method is registered at the PApplet and hence you don't need
 	 * to call it.
 	 * <p>
-	 * Sets the processing camera parameters from {@link #viewpoint()} and updates
+	 * Sets the processing camera parameters from {@link #view()} and updates
 	 * the frustum planes equations if {@link #enableBoundaryEquations(boolean)}
 	 * has been set to {@code true}.
 	 */
@@ -2199,7 +2199,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		if ((width != pg().width) || (height != pg().height)) {
 			width = pg().width;
 			height = pg().height;				
-			viewpoint().setScreenWidthAndHeight(width, height);				
+			view().setScreenWidthAndHeight(width, height);				
 		}
 		
 		preDraw();
@@ -2244,7 +2244,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			if ((width != pg().width) || (height != pg().height)) {
 				width = pg().width;
 				height = pg().height;				
-				viewpoint().setScreenWidthAndHeight(width, height);				
+				view().setScreenWidthAndHeight(width, height);				
 			}
 			
 			preDraw();	
@@ -2354,7 +2354,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	/**
 	 * Returns the mouse grabber off selection hint {@code color} for camera paths.
 	 * 
-	 * @see #drawViewPointPathSelectionHints()
+	 * @see #drawViewPathSelectionHints()
 	 */
   //public int mouseGrabberCameraPathOffSelectionHintColor() {	return cameraPathOffSelectionHintColor;	}
 	
@@ -2434,12 +2434,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 
 	@Override
-	protected void drawViewPointPathSelectionHints() {
+	protected void drawViewPathSelectionHints() {
 		for (Grabbable mg : terseHandler().globalGrabberList()) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
-					Vec center = viewpoint().projectedCoordinatesOf(iF.position());
+					Vec center = view().projectedCoordinatesOf(iF.position());
 					if (grabsAnAgent(mg)) {
 						pg().pushStyle();						
 					  //pg3d.stroke(mouseGrabberCameraPathOnSelectionHintColor());

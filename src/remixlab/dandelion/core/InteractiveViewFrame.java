@@ -37,7 +37,7 @@ import remixlab.tersehandling.generic.event.*;
  * <b>Note:</b> The InteractiveCameraFrame is not added to the
  * {@link remixlab.dandelion.core.AbstractScene#deviceGrabberPool()} upon creation.
  */
-public class InteractiveViewpointFrame extends InteractiveFrame implements Copyable {
+public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -53,7 +53,7 @@ public class InteractiveViewpointFrame extends InteractiveFrame implements Copya
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		InteractiveViewpointFrame other = (InteractiveViewpointFrame) obj;
+		InteractiveViewFrame other = (InteractiveViewFrame) obj;
 	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
 		.append(arcballRefPnt, other.arcballRefPnt)
@@ -61,7 +61,7 @@ public class InteractiveViewpointFrame extends InteractiveFrame implements Copya
 		.isEquals();
 	}
 	
-	protected Viewpoint viewport;
+	protected View viewport;
 	protected Vec arcballRefPnt;	
 	protected Vec worldAxis;
 	
@@ -79,7 +79,7 @@ public class InteractiveViewpointFrame extends InteractiveFrame implements Copya
 	 * <p>
 	 * <b>Attention:</b> Created object is {@link #removeFromDeviceGrabberPool()}.
 	 */
-	public InteractiveViewpointFrame(Viewpoint vp) {
+	public InteractiveViewFrame(View vp) {
 		super(vp.scene);
 		viewport = vp;
 		scene.terseHandler().removeFromAllAgentPools(this);
@@ -99,7 +99,7 @@ public class InteractiveViewpointFrame extends InteractiveFrame implements Copya
 	 * 
 	 * @param otherFrame the other interactive camera frame
 	 */
-	protected InteractiveViewpointFrame(InteractiveViewpointFrame otherFrame) {
+	protected InteractiveViewFrame(InteractiveViewFrame otherFrame) {
 		super(otherFrame);
 		this.viewport = otherFrame.viewport;
 		this.arcballRefPnt = new Vec();
@@ -116,16 +116,16 @@ public class InteractiveViewpointFrame extends InteractiveFrame implements Copya
 	}
 	
 	/**
-	 * Calls {@link #InteractiveCameraFrame(InteractiveViewpointFrame)} (which is protected)
+	 * Calls {@link #InteractiveCameraFrame(InteractiveViewFrame)} (which is protected)
 	 * and returns a copy of {@code this} object.
 	 * 
-	 * @see #InteractiveCameraFrame(InteractiveViewpointFrame)
+	 * @see #InteractiveCameraFrame(InteractiveViewFrame)
 	 */
-	public InteractiveViewpointFrame get() {
-		return new InteractiveViewpointFrame(this);
+	public InteractiveViewFrame get() {
+		return new InteractiveViewFrame(this);
 	}	
 	
-	public Viewpoint pinhole() {
+	public View pinhole() {
 		return viewport;
 	}
 	
@@ -587,7 +587,7 @@ public class InteractiveViewpointFrame extends InteractiveFrame implements Copya
 	 * 
 	 * @see #getCADAxis()
 	 */	
-	protected Quat cadQuaternion(DOF2Event event, float cx,	float cy, Viewpoint camera) {
+	protected Quat cadQuaternion(DOF2Event event, float cx,	float cy, View camera) {
 		if(! (camera instanceof Camera) )
 			throw new RuntimeException("CAD cam is oly available in 3D");
 		

@@ -21,7 +21,7 @@ import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
 import remixlab.tersehandling.core.Util;
 
-public abstract class Viewpoint implements Copyable {
+public abstract class View implements Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -50,7 +50,7 @@ public abstract class Viewpoint implements Copyable {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		Viewpoint other = (Viewpoint) obj;		
+		View other = (View) obj;		
 	  return new EqualsBuilder()
     .append(fpCoefficientsUpdate, other.fpCoefficientsUpdate)
     .append(normal,other.normal)
@@ -83,7 +83,7 @@ public abstract class Viewpoint implements Copyable {
 	};
 	
   //F r a m e
-	protected InteractiveViewpointFrame frm;
+	protected InteractiveViewFrame frm;
 	
   //S C E N E   O B J E C T 
 	public AbstractScene scene;
@@ -102,7 +102,7 @@ public abstract class Viewpoint implements Copyable {
 	protected HashMap<Integer, KeyFrameInterpolator> kfi;
 	protected Iterator<Integer> itrtr;
 	protected KeyFrameInterpolator interpolationKfi;
-	protected InteractiveViewpointFrame tempFrame;
+	protected InteractiveViewFrame tempFrame;
 	
   //F r u s t u m p l a n e c o e f f i c i e n t s
 	protected float fpCoefficients[][];
@@ -120,12 +120,12 @@ public abstract class Viewpoint implements Copyable {
 	public long lastParamUpdate = 0;
 	protected long lastFPCoeficientsUpdateIssued = -1;
 	
-	public Viewpoint(AbstractScene scn) {
+	public View(AbstractScene scn) {
 		scene = scn;		
 		enableBoundaryEquations(false);		
 		interpolationKfi = new KeyFrameInterpolator(scene, frame());
 		kfi = new HashMap<Integer, KeyFrameInterpolator>();		
-		setFrame(new InteractiveViewpointFrame(this));		
+		setFrame(new InteractiveViewFrame(this));		
 		setSceneRadius(100);		
 		setSceneCenter(new Vec(0.0f, 0.0f, 0.0f));		
 		setScreenWidthAndHeight(600, 400);	
@@ -139,7 +139,7 @@ public abstract class Viewpoint implements Copyable {
 	 * 
 	 * @param oVP the viewport object to be copied
 	 */
-	protected Viewpoint(Viewpoint oVP) {
+	protected View(View oVP) {
 		this.scene = oVP.scene;
 		this.fpCoefficientsUpdate = oVP.fpCoefficientsUpdate;
 		
@@ -174,16 +174,16 @@ public abstract class Viewpoint implements Copyable {
 	}
 
 	@Override
-	public abstract Viewpoint get();
+	public abstract View get();
 	
 	/**
 	 * Returns the InteractiveCameraFrame attached to the Camera.
 	 * <p>
 	 * This InteractiveCameraFrame defines its {@link #position()} and
 	 * {@link #orientation()} and can translate mouse events into Camera
-	 * displacement. Set using {@link #setFrame(InteractiveViewpointFrame)}.
+	 * displacement. Set using {@link #setFrame(InteractiveViewFrame)}.
 	 */
-	public InteractiveViewpointFrame frame() {
+	public InteractiveViewFrame frame() {
 		return frm;
 	}
 	
@@ -253,7 +253,7 @@ public abstract class Viewpoint implements Copyable {
 	 * <p>
 	 * A {@code null} {@code icf} reference will silently be ignored.
 	 */
-	public final void setFrame(InteractiveViewpointFrame icf) {
+	public final void setFrame(InteractiveViewFrame icf) {
 		if (icf == null)
 			return;	
 		
@@ -480,7 +480,7 @@ public abstract class Viewpoint implements Copyable {
 	 * Returns the fly speed of the Camera.
 	 * <p>
 	 * Simply returns {@code frame().flySpeed()}. See the
-	 * {@link remixlab.dandelion.core.InteractiveViewpointFrame#flySpeed()} documentation.
+	 * {@link remixlab.dandelion.core.InteractiveViewFrame#flySpeed()} documentation.
 	 * This value is only meaningful when the MouseAction bindings is
 	 * Scene.MOVE_FORWARD or is Scene.MOVE_BACKWARD.
 	 * <p>
@@ -528,7 +528,7 @@ public abstract class Viewpoint implements Copyable {
 	 * Note that {@link remixlab.dandelion.core.AbstractScene#center()} (resp.
 	 * remixlab.remixcam.core.AbstractScene{@link #setSceneCenter(Vec)}) simply call this
 	 * method (resp. {@link #setSceneCenter(Vec)}) on its associated
-	 * {@link remixlab.dandelion.core.AbstractScene#viewpoint()}. Default value is (0,0,0) (world
+	 * {@link remixlab.dandelion.core.AbstractScene#view()}. Default value is (0,0,0) (world
 	 * origin). Use {@link #setSceneCenter(Vec)} to change it.
 	 * 
 	 * @see #setSceneBoundingBox(Vec, Vec)
@@ -1302,7 +1302,7 @@ public abstract class Viewpoint implements Copyable {
 	 * keyFrame to path {@code key}. If {@code editablePath} is {@code true},
 	 * builds an InteractiveFrame (from the current Camera {@link #position()} and
 	 * {@link #orientation()}) before adding it (see
-	 * {@link remixlab.dandelion.core.InteractiveFrame#InteractiveFrame(AbstractScene, InteractiveViewpointFrame)}
+	 * {@link remixlab.dandelion.core.InteractiveFrame#InteractiveFrame(AbstractScene, InteractiveViewFrame)}
 	 * ). In the latter mode the resulting created path will be editable.
 	 * <p>
 	 * This method can also be used if you simply want to save a Camera point of
@@ -1605,8 +1605,8 @@ public abstract class Viewpoint implements Copyable {
 		
 		// Small hack: attach a temporary frame to take advantage of fitScreenRegion
 		// without modifying frame
-		tempFrame = new InteractiveViewpointFrame(this);
-		InteractiveViewpointFrame originalFrame = frame();
+		tempFrame = new InteractiveViewFrame(this);
+		InteractiveViewFrame originalFrame = frame();
 		tempFrame.setPosition(new Vec(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
 		tempFrame.setOrientation( frame().orientation().get() );
 		tempFrame.setMagnitude( frame().magnitude().get() );
@@ -1638,8 +1638,8 @@ public abstract class Viewpoint implements Copyable {
 
 		// Small hack: attach a temporary frame to take advantage of showEntireScene
 		// without modifying frame
-		tempFrame = new InteractiveViewpointFrame(this);
-		InteractiveViewpointFrame originalFrame = frame();
+		tempFrame = new InteractiveViewFrame(this);
+		InteractiveViewFrame originalFrame = frame();
 		tempFrame.setPosition(new Vec(frame().position().vec[0],	frame().position().vec[1], frame().position().vec[2]));
 		tempFrame.setOrientation( frame().orientation().get() );
 		tempFrame.setMagnitude( frame().magnitude().get() );

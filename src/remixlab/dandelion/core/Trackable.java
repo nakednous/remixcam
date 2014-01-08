@@ -17,10 +17,10 @@ import remixlab.dandelion.geom.*;
  * <p>
  * <h3>How does it work ?</h3>
  * All objects that are to be tracked by the
- * {@link remixlab.dandelion.core.AbstractScene#viewpoint()} (known as avatars) should implement
+ * {@link remixlab.dandelion.core.AbstractScene#view()} (known as avatars) should implement
  * this interface. To setup an avatar you should then call
  * {@link remixlab.dandelion.core.AbstractScene#setAvatar(Trackable)}. The avatar will be
- * tracked by the {@link remixlab.dandelion.core.AbstractScene#viewpoint()} when the camera
+ * tracked by the {@link remixlab.dandelion.core.AbstractScene#view()} when the camera
  * is in Third Person mode.
  */
 
@@ -31,7 +31,7 @@ public interface Trackable {
 	 * @return Vector3D holding the camera position defined in the world coordinate
 	 *         system.
 	 */
-	public Vec viewPointPosition();
+	public Vec viewPosition();
 
 	/**
 	 * Returns the vector to be set as the

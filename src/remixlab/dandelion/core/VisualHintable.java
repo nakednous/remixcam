@@ -161,5 +161,5 @@ public interface VisualHintable {
 	 */
  public void drawCamera(Camera camera, boolean drawFarPlane, float scale);
 
- public void drawKFIViewPoint(float scale);
+ public void drawKFIView(float scale);
 }

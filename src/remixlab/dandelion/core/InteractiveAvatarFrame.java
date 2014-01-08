@@ -19,7 +19,7 @@ import remixlab.tersehandling.core.Copyable;
  * The InteractiveAvatarFrame class represents an InteractiveDrivableFrame that
  * can be tracked by a Camera, i.e., it implements the Trackable interface.
  * <p>
- * The {@link #viewPointPosition()} of the camera that is to be tracking the frame
+ * The {@link #viewPosition()} of the camera that is to be tracking the frame
  * (see the documentation of the Trackable interface) is defined in spherical
  * coordinates ({@link #azimuth()}, {@link #inclination()} and
  * {@link #trackingDistance()}) respect to the {@link #position()} (which
@@ -151,12 +151,12 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	// Interface implementation
 
 	/**
-	 * Overloading of {@link remixlab.dandelion.core.Trackable#viewPointPosition()}.
+	 * Overloading of {@link remixlab.dandelion.core.Trackable#viewPosition()}.
 	 * Returns the world coordinates of the camera position computed in
 	 * {@link #computeViewportPosition()}.
 	 */
 	@Override
-	public Vec viewPointPosition() {
+	public Vec viewPosition() {
 		return inverseCoordinatesOf(camRelPos);
 	}
 
@@ -181,7 +181,7 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	/**
 	 * Overloading of {@link remixlab.dandelion.core.Trackable#computeViewportPosition()}.
 	 * <p>
-	 * The {@link #viewPointPosition()} of the camera that is to be tracking the
+	 * The {@link #viewPosition()} of the camera that is to be tracking the
 	 * frame (see the documentation of the Trackable interface) is defined in
 	 * spherical coordinates by means of the {@link #azimuth()}, the
 	 * {@link #inclination()} and {@link #trackingDistance()}) respect to the

@@ -162,7 +162,7 @@ public class InteractiveFrame extends ReferenceFrame implements Grabbable, Copya
 
 		flyDisp = new Vec(0.0f, 0.0f, 0.0f);
 
-		if(! (this instanceof InteractiveViewpointFrame) )
+		if(! (this instanceof InteractiveViewFrame) )
 			setFlySpeed(0.01f * scene.radius());
 
 		flyTimerJob = new AbstractTimerJob() {
@@ -247,7 +247,7 @@ public class InteractiveFrame extends ReferenceFrame implements Grabbable, Copya
 	 * 
 	 * @see remixlab.dandelion.core.Camera#addKeyFrameToPath(int)
 	 */
-	public InteractiveFrame(AbstractScene scn, InteractiveViewpointFrame iFrame) {
+	public InteractiveFrame(AbstractScene scn, InteractiveViewFrame iFrame) {
 		super(iFrame.rotation(), iFrame.translation(), iFrame.scaling());
 		scene = scn;
 
@@ -359,7 +359,7 @@ public class InteractiveFrame extends ReferenceFrame implements Grabbable, Copya
 		else if( event instanceof DOF6Event )
 			event2 = ((DOF6Event)event).dof3Event().dof2Event();
 		
-		Vec proj = scene.viewpoint().projectedCoordinatesOf(position());
+		Vec proj = scene.view().projectedCoordinatesOf(position());
 		
 		return ((Math.abs(event2.getX() - proj.vec[0]) < grabsInputThreshold()) &&
 		        (Math.abs(event2.getY() - proj.vec[1]) < grabsInputThreshold()));
