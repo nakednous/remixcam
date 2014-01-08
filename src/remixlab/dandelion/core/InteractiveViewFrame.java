@@ -515,6 +515,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			Vec mag = magnitude();
 			trans.div(mag);			
 			translate(inverseTransformOf(trans));
+			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
 			break;
 		case ZOOM_ON_REGION:
 			if(e2.absolute()) {

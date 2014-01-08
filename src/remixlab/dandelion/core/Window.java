@@ -104,19 +104,7 @@ public class Window extends View implements Copyable {
 		if(recompute)
  	  	this.computeProjection();
 	}
-	//*/
-	
-	@Override
-	public float[] getBoundaryWidthHeight(float[] target) {
-		if ((target == null) || (target.length != 2)) {
-			target = new float[2];
-		}
-		
-		target[0] = ( frame().scaling().x() * this.screenWidth() )  / 2;
-		target[1] = ( frame().scaling().y() * this.screenHeight() ) / 2;
-
-		return target;
-	}
+	//*/	
 	
 	@Override
 	public Vec upVector() {

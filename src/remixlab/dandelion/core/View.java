@@ -754,7 +754,16 @@ public abstract class View implements Copyable {
 	 * <p>
 	 * Overload this method to change this behavior if desired.
 	 */
-	public abstract float[] getBoundaryWidthHeight(float[] target);
+	public float[] getBoundaryWidthHeight(float[] target) {
+		if ((target == null) || (target.length != 2)) {
+			target = new float[2];
+		}
+		
+		target[0] = ( frame().scaling().x() * this.screenWidth() )  / 2;
+		target[1] = ( frame().scaling().y() * this.screenHeight() ) / 2;
+		
+		return target;
+	}
 
 	/**
 	 * Returns the Camera frame coordinates of a point {@code src} defined in

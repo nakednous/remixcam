@@ -690,6 +690,10 @@ public class KeyFrameInterpolator implements Copyable {
 	public void addKeyFrame(ReferenceFrame frame, float time) {
 		if (frame == null)
 			return;
+		
+		//TODO testing
+		System.out.print("scaling added: ");
+		frame.scaling().print();
 
 		if (keyFrameList.isEmpty())
 			interpolationTm = time;
@@ -1147,6 +1151,9 @@ public class KeyFrameInterpolator implements Copyable {
 		frame().setPositionWithConstraint(pos);
 		frame().setRotationWithConstraint(q);
 		frame().setMagnitudeWithConstraint(mag);
+		//TODO test
+		System.out.print("interpolated mag: ");
+		mag.print();
 	}
 	
 	protected float rotationLerp(AbstractKeyFrame kf1, AbstractKeyFrame kf2, float alpha) {

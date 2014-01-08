@@ -868,7 +868,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		else {
 			translate( frame.translation().vec[0], frame.translation().vec[1], frame.translation().vec[2] );
 			rotate( frame.rotation().angle(), ((Quat)frame.rotation()).axis().vec[0], ((Quat)frame.rotation()).axis().vec[1], ((Quat)frame.rotation()).axis().vec[2]);
-			scale(frame.scaling().x(), frame.scaling().y(), frame.scaling().z());
+		  scale(frame.scaling().x(), frame.scaling().y(), frame.scaling().z());
 		}
 	}
 	
