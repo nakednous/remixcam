@@ -140,7 +140,7 @@ public class Window extends View implements Copyable {
 	
 	@Override
 	public boolean setSceneCenterFromPixel(Point pixel) {
-		setSceneCenter(new Vec(pixel.x, pixel.y, 0));
+		setSceneCenter(new Vec(pixel.x, pixel.y));
 		return true;		
 	}
 	
@@ -370,12 +370,12 @@ public class Window extends View implements Copyable {
 
 	@Override
 	public void lookAt(Vec target) {
-		frame().setPosition(target.x(), target.y(), 0);
+		frame().setPosition(target.x(), target.y());
 	}
 	
 	@Override
 	public void setArcballReferencePoint(Vec rap) {
-		Vec vec = new Vec(rap.x(), rap.y(), 0);
+		Vec vec = new Vec(rap.x(), rap.y());
 		frame().setArcballReferencePoint(vec);
 	}
 

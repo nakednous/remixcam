@@ -128,7 +128,7 @@ public abstract class View implements Copyable {
 		setFrame(new InteractiveViewFrame(this));		
 		setSceneRadius(100);		
 		setSceneCenter(new Vec(0.0f, 0.0f, 0.0f));		
-		setScreenWidthAndHeight(600, 400);	
+		setScreenWidthAndHeight(scene.width(), scene.height());	
 		viewMat = new Mat();
 		projectionMat = new Mat();
 		projectionMat.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
