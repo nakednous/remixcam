@@ -584,6 +584,13 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			// */
 	}
 	
+	@Override
+	public void toss() {
+		super.toss();
+		Camera camera = (Camera) viewport;
+		if( camera != null ) if( camera.type() == Camera.Type.ORTHOGRAPHIC ) camera.reScaleOrtho();
+	}
+	
 	/**
 	 * Returns a Quaternion computed according to mouse motion. The Quaternion
 	 * is computed as composition of two rotations (quaternions): 1. Mouse motion along
