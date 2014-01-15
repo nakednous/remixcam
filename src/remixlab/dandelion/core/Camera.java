@@ -590,13 +590,19 @@ public class Camera extends View implements Constants, Copyable {
 	//*/
 	
 	public void reScaleOrtho() {
-		if (type() == Camera.Type.PERSPECTIVE) 
-			return;
-		float d = distanceToARP();
-		if (d==0)	return;
-		frame().setScaling(d*2*orthoCoefX/screenHeight(),
-                       d*2*orthoCoefY/screenHeight(),
-                       d*2*orthoCoefY/screenHeight());
+		if (type() == Camera.Type.ORTHOGRAPHIC) {
+			float d = distanceToARP();
+			if (d==0)	return;
+			frame().setScaling(d*2*orthoCoefX/screenHeight(),
+                         d*2*orthoCoefY/screenHeight(),
+                         d*2*orthoCoefY/screenHeight());
+		}
+	}
+	
+	@Override
+	public void setPosition(Vec pos) {
+		frame().setPosition(pos);
+		reScaleOrtho();
 	}
 
 	/**
