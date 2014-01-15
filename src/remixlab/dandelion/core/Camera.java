@@ -1851,7 +1851,7 @@ public class Camera extends View implements Constants, Copyable {
 		interpolationKfi.deletePath();
 		interpolationKfi.addKeyFrame(new InteractiveFrame(scene, frame()));
 
-		interpolationKfi.addKeyFrame(new ReferenceFrame(frame().orientation(),
+		interpolationKfi.addKeyFrame(new Frame(frame().orientation(),
 					                                    Vec.add(Vec.mult(frame().position(),
 					                                    		0.3f), Vec.mult(target.point, 0.7f))), 0.4f);
 

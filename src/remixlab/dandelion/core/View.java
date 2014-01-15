@@ -331,7 +331,7 @@ public abstract class View implements Copyable {
 	 * <p>
 	 * Use {@link #setPosition(Vec)} to set the Camera position. Other
 	 * convenient methods are showEntireScene() or fitSphere(). Actually returns
-	 * {@link remixlab.dandelion.core.ReferenceFrame#position()}.
+	 * {@link remixlab.dandelion.core.Frame#position()}.
 	 * <p>
 	 * This position corresponds to the projection center of a Camera.PERSPECTIVE
 	 * camera. It is not located in the image plane, which is at a zNear()
@@ -773,7 +773,7 @@ public abstract class View implements Copyable {
 	 * <p>
 	 * Note that the point coordinates are simply converted in a different
 	 * coordinate system. They are not projected on screen. Use
-	 * {@link #projectedCoordinatesOf(Vec, ReferenceFrame)} for that.
+	 * {@link #projectedCoordinatesOf(Vec, Frame)} for that.
 	 */
 	public Vec cameraCoordinatesOf(Vec src) {
 		return frame().coordinatesOf(src);
@@ -978,7 +978,7 @@ public abstract class View implements Copyable {
 	 * Convenience function that simply returns {@code projectedCoordinatesOf(src,
 	 * null)}
 	 * 
-	 * @see #projectedCoordinatesOf(Vec, ReferenceFrame)
+	 * @see #projectedCoordinatesOf(Vec, Frame)
 	 */
 	public final Vec projectedCoordinatesOf(Vec src) {
 		return projectedCoordinatesOf(null, src, null);
@@ -1006,13 +1006,13 @@ public abstract class View implements Copyable {
 	 * matrices. You can hence define a virtual Camera and use this method to
 	 * compute projections out of a classical rendering context.
 	 * 
-	 * @see #unprojectedCoordinatesOf(Vec, ReferenceFrame)
+	 * @see #unprojectedCoordinatesOf(Vec, Frame)
 	 */
-	public final Vec projectedCoordinatesOf(Vec src, ReferenceFrame frame) {
+	public final Vec projectedCoordinatesOf(Vec src, Frame frame) {
 		return projectedCoordinatesOf(null, src, frame);
 	}
 	
-	public final Vec projectedCoordinatesOf(Mat projview, Vec src, ReferenceFrame frame) {
+	public final Vec projectedCoordinatesOf(Mat projview, Vec src, Frame frame) {
 		float xyz[] = new float[3];		
 
 		if (frame != null) {
@@ -1028,7 +1028,7 @@ public abstract class View implements Copyable {
 	 * Convenience function that simply returns {@code return
 	 * unprojectedCoordinatesOf(src, null)}
 	 * 
-	 * #see {@link #unprojectedCoordinatesOf(Vec, ReferenceFrame)}
+	 * #see {@link #unprojectedCoordinatesOf(Vec, Frame)}
 	 */
 	public final Vec unprojectedCoordinatesOf(Vec src) {
 		return this.unprojectedCoordinatesOf(null, src, null);
@@ -1050,9 +1050,9 @@ public abstract class View implements Copyable {
 	 * The result is expressed in the {@code frame} coordinate system. When
 	 * {@code frame} is {@code null}, the result is expressed in the world
 	 * coordinates system. The possible {@code frame}
-	 * {@link remixlab.dandelion.core.ReferenceFrame#referenceFrame()} are taken into account.
+	 * {@link remixlab.dandelion.core.Frame#referenceFrame()} are taken into account.
 	 * <p>
-	 * {@link #projectedCoordinatesOf(Vec, ReferenceFrame)} performs the inverse
+	 * {@link #projectedCoordinatesOf(Vec, Frame)} performs the inverse
 	 * transformation.
 	 * <p>
 	 * This method only uses the intrinsic Camera parameters (see
@@ -1071,14 +1071,14 @@ public abstract class View implements Copyable {
 	 * projection matrix (view, projection and then viewport) to speed-up the
 	 * queries. See the gluUnProject man page for details.
 	 * 
-	 * @see #projectedCoordinatesOf(Vec, ReferenceFrame)
+	 * @see #projectedCoordinatesOf(Vec, Frame)
 	 * @see #setScreenWidthAndHeight(int, int)
 	 */
-	public final Vec unprojectedCoordinatesOf(Vec src, ReferenceFrame frame) {
+	public final Vec unprojectedCoordinatesOf(Vec src, Frame frame) {
 		return unprojectedCoordinatesOf(null, src, frame);
 	}
 	
-	public final Vec unprojectedCoordinatesOf(Mat projviewInv, Vec src, ReferenceFrame frame) {
+	public final Vec unprojectedCoordinatesOf(Mat projviewInv, Vec src, Frame frame) {
 		float xyz[] = new float[3];				
 		//unproject(src.vec[0], src.vec[1], src.vec[2], this.getViewMatrix(true), this.getProjectionMatrix(true), getViewport(), xyz);		
 		unproject(projviewInv, src.vec[0], src.vec[1], src.vec[2], xyz);		
@@ -1663,9 +1663,9 @@ public abstract class View implements Copyable {
 	/**
 	 * Convenience function that simply calls {@code interpolateTo(fr, 1)}.
 	 * 
-	 * @see #interpolateTo(ReferenceFrame, float)
+	 * @see #interpolateTo(Frame, float)
 	 */
-	public void interpolateTo(ReferenceFrame fr) {
+	public void interpolateTo(Frame fr) {
 		interpolateTo(fr, 1);
 	}
 
@@ -1676,11 +1676,11 @@ public abstract class View implements Copyable {
 	 * {@code fr} is expressed in world coordinates. {@code duration} tunes the
 	 * interpolation speed.
 	 * 
-	 * @see #interpolateTo(ReferenceFrame)
+	 * @see #interpolateTo(Frame)
 	 * @see #interpolateToFitScene()
 	 * @see #interpolateToZoomOnPixel(Point)
 	 */
-	public void interpolateTo(ReferenceFrame fr, float duration) {
+	public void interpolateTo(Frame fr, float duration) {
 		// if (interpolationKfi.interpolationIsStarted())
 		// interpolationKfi.stopInterpolation();
 		if (anyInterpolationIsStarted())

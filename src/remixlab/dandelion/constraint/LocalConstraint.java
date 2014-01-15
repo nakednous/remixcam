@@ -9,7 +9,7 @@
  ******************************************************************************/
 package remixlab.dandelion.constraint;
 
-import remixlab.dandelion.core.ReferenceFrame;
+import remixlab.dandelion.core.Frame;
 import remixlab.dandelion.geom.*;
 
 /**
@@ -17,7 +17,7 @@ import remixlab.dandelion.geom.*;
  * <p>
  * The {@link #translationConstraintDirection()} and
  * {@link #rotationConstraintDirection()} are expressed in the Frame local
- * coordinate system (see {@link remixlab.dandelion.core.ReferenceFrame#referenceFrame()}).
+ * coordinate system (see {@link remixlab.dandelion.core.Frame#referenceFrame()}).
  */
 public class LocalConstraint extends AxisPlaneConstraint {
 
@@ -27,7 +27,7 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	 * local coordinate system by {@link #translationConstraintDirection()}.
 	 */
 	@Override
-	public Vec constrainTranslation(Vec translation, ReferenceFrame frame) {
+	public Vec constrainTranslation(Vec translation, Frame frame) {
 		Vec res = new Vec(translation.vec[0], translation.vec[1], translation.vec[2]);
 		Vec proj;
 		switch (translationConstraintType()) {
@@ -56,7 +56,7 @@ public class LocalConstraint extends AxisPlaneConstraint {
 	 * Frame local coordinate system by {@link #rotationConstraintDirection()}.
 	 */
 	@Override
-	public Orientable constrainRotation(Orientable rotation, ReferenceFrame frame) {
+	public Orientable constrainRotation(Orientable rotation, Frame frame) {
 		Orientable res = rotation.get();
 		switch (rotationConstraintType()) {
 		case FREE:
