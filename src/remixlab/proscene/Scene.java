@@ -796,10 +796,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				pg().noFill();
 				pg().stroke(170);
 				
-				List<ReferenceFrame> path = kfi.path();				
+				List<Frame> path = kfi.path();				
 				if (((mask & 1) != 0) && path.size() > 1 ) {				
 					pg().beginShape();
-					for (ReferenceFrame myFr : path)
+					for (Frame myFr : path)
 						pg().vertex(myFr.position().x(), myFr.position().y());
 					pg().endShape();
 				}
@@ -809,7 +809,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 						nbFrames = nbSteps;
 					float goal = 0.0f;
 
-					for (ReferenceFrame myFr : path)
+					for (Frame myFr : path)
 						if ((count++) >= goal) {
 							goal += nbSteps / (float) nbFrames;
 							pushModelView();
@@ -1305,10 +1305,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				pg3d().noFill();
 				pg3d().stroke(170);
 				
-				List<ReferenceFrame> path = kfi.path();
+				List<Frame> path = kfi.path();
 				if (((mask & 1) != 0) && path.size() > 1 ) {				
 					pg3d().beginShape();
-					for (ReferenceFrame myFr : path)
+					for (Frame myFr : path)
 						pg3d().vertex(myFr.position().x(), myFr.position().y(), myFr.position().z());
 					pg3d().endShape();
 				}
@@ -1318,7 +1318,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 						nbFrames = nbSteps;
 					float goal = 0.0f;
 
-					for (ReferenceFrame myFr : path)
+					for (Frame myFr : path)
 						if ((count++) >= goal) {
 							goal += nbSteps / (float) nbFrames;
 							pushModelView();
