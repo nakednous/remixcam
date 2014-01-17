@@ -119,13 +119,13 @@ public class DOF3Event extends MotionEvent {
 		if (prevEvent != null)
 			if (prevEvent instanceof DOF3Event) {
 				rel = true;
-				this.dx = this.getX() - ((DOF3Event) prevEvent).getX();
-				this.dy = this.getY() - ((DOF3Event) prevEvent).getY();
-				this.dz = this.getZ() - ((DOF3Event) prevEvent).getZ();
+				this.dx = this.x() - ((DOF3Event) prevEvent).x();
+				this.dy = this.y() - ((DOF3Event) prevEvent).y();
+				this.dz = this.z() - ((DOF3Event) prevEvent).z();
 				distance = Util.distance(x, y, z,
-						((DOF3Event) prevEvent).getX(),
-						((DOF3Event) prevEvent).getY(),
-						((DOF3Event) prevEvent).getZ());
+						((DOF3Event) prevEvent).x(),
+						((DOF3Event) prevEvent).y(),
+						((DOF3Event) prevEvent).z());
 				delay = this.timestamp() - prevEvent.timestamp();
 				if (delay == 0)
 					speed = distance;
@@ -141,40 +141,40 @@ public class DOF3Event extends MotionEvent {
 			}
 	}
 
-	public float getX() {
+	public float x() {
 		return x;
 	}
 
-	public float getDX() {
+	public float dx() {
 		return dx;
 	}
 
-	public float getPrevX() {
-		return getX() - getDX();
+	public float prevX() {
+		return x() - dx();
 	}
 
-	public float getY() {
+	public float y() {
 		return y;
 	}
 
-	public float getDY() {
+	public float dy() {
 		return dy;
 	}
 
-	public float getPrevY() {
-		return getY() - getDY();
+	public float prevY() {
+		return y() - dy();
 	}
 
-	public float getZ() {
+	public float z() {
 		return z;
 	}
 
-	public float getDZ() {
+	public float dz() {
 		return dz;
 	}
 
-	public float getPrevZ() {
-		return getZ() - getDZ();
+	public float prevZ() {
+		return z() - dz();
 	}
 
 	@Override
@@ -189,9 +189,9 @@ public class DOF3Event extends MotionEvent {
 
 	@Override
 	public boolean isNull() {
-		if (relative() && Util.zero(getDX()) && Util.zero(getDY()) && Util.zero(getDZ()))
+		if (relative() && Util.zero(dx()) && Util.zero(dy()) && Util.zero(dz()))
 			return true;
-		if (absolute() && Util.zero(getX()) && Util.zero(getY()) && Util.zero(getZ()))
+		if (absolute() && Util.zero(x()) && Util.zero(y()) && Util.zero(z()))
 			return true;
 		return false;
 	}
@@ -200,10 +200,10 @@ public class DOF3Event extends MotionEvent {
 		DOF2Event pe2;
 		DOF2Event e2;
 		if (relative()) {
-			pe2 = new DOF2Event(getPrevX(), getPrevY(), getModifiers(),	getButton());
-			e2 = new DOF2Event(pe2, getX(), getY(), getModifiers(), getButton());
+			pe2 = new DOF2Event(prevX(), prevY(), modifiers(),	button());
+			e2 = new DOF2Event(pe2, x(), y(), modifiers(), button());
 		} else {
-			e2 = new DOF2Event(getX(), getY(), getModifiers(), getButton());
+			e2 = new DOF2Event(x(), y(), modifiers(), button());
 		}
 		e2.timestamp = this.timestamp();
 		e2.delay = this.delay();

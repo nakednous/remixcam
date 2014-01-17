@@ -124,7 +124,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	public class ProsceneMouse extends MouseAgent {
 		Scene scene;
-		boolean bypassNullEvent, zoomOnRegion, screenRotate, need4Spin;
+		boolean bypassNullEvent, need4Spin;
 		Point fCorner = new Point();
 		Point lCorner = new Point();
 		GenericDOF2Event<DOF2Action> event, prevEvent;
@@ -163,9 +163,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 						if( dA == DandelionAction.SCREEN_TRANSLATE ) ((InteractiveFrame)grabber()).dirIsFixed = false;						
 						need4Spin = ( ((dA == DandelionAction.ROTATE) || (dA == DandelionAction.ROTATE3) || (dA == DandelionAction.SCREEN_ROTATE) || (dA == DandelionAction.TRANSLATE_ROTATE) ) && (((InteractiveFrame) grabber()).dampingFriction() == 0));
 						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE) && scene.isDefaultMouseAgentInUse();
-						zoomOnRegion = dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveViewFrame) && scene.isDefaultMouseAgentInUse();
-						screenRotate = dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveViewFrame) && scene.isDefaultMouseAgentInUse();
-						if(bypassNullEvent || zoomOnRegion || screenRotate) {
+						setZoomVisualHint(dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveViewFrame) && scene.isDefaultMouseAgentInUse());
+						setRotateVisualHint(dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveViewFrame) && scene.isDefaultMouseAgentInUse());
+						if(bypassNullEvent || zoomVisualHint() || rotateVisualHint()) {
 							if(bypassNullEvent) {
 								//TODO: experimental, this is needed for first person:
 								((InteractiveFrame)grabber()).updateFlyUpVector();
@@ -173,9 +173,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 								((InteractiveFrame)grabber()).setDampingFriction(0);
 								handler.eventTupleQueue().add(new EventGrabberDuobleTuple(event, a, grabber()));	
 							}
-							if(zoomOnRegion || screenRotate) {
+							if(zoomVisualHint() || rotateVisualHint()) {
 								lCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
-								if(zoomOnRegion)
+								if(zoomVisualHint())
 									fCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
 							}
 					  }
@@ -187,9 +187,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			}			
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 				//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//e.g., rotate without dragging any button also possible :P
-				if(zoomOnRegion || screenRotate)
+				if(zoomVisualHint() || rotateVisualHint())
 					lCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
-				if( ! zoomOnRegion ) { //bypass zoom_on_region, may be different when using a touch device :P
+				if( ! zoomVisualHint() ) { //bypass zoom_on_region, may be different when using a touch device :P
 					event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
 					handle(event);
 				  prevEvent = event.get();
@@ -199,15 +199,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				if( grabber() instanceof InteractiveFrame ) if(need4Spin && (prevEvent.speed() >= ((InteractiveFrame) grabber()).spinningSensitivity()))	
 					((InteractiveFrame) grabber()).startSpinning(prevEvent);
 				event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
-				if(zoomOnRegion) {
+				if(zoomVisualHint()) {
 					//at first glance this should work
 					//handle(event);
 					//but the problem is that depending on the order the button and the modifiers are released,
 					//different actions maybe triggered, so we go for sure ;) :
 					enqueueEventTuple(new EventGrabberDuobleTuple(event, DOF2Action.ZOOM_ON_REGION, grabber()));
-					zoomOnRegion = false;
+					setZoomVisualHint(false);
 				}
-				if(screenRotate) screenRotate = false;
+				if(rotateVisualHint()) setRotateVisualHint(false);
 				updateGrabber(event);
 				prevEvent = event.get();
 				if(bypassNullEvent) {	
@@ -306,7 +306,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		@Override
 		public void run() {
 			create();
-			if(isSingleShot())
+			if(singleShot())
 				timer.schedule(timerTask, prd);
 			else
 				timer.scheduleAtFixedRate(timerTask, 0, prd);		
@@ -329,7 +329,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public boolean isActive() {
+		public boolean active() {
 			return timer != null;
 		}
 
@@ -339,17 +339,17 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void setPeriod(long period) {
+		public void period(long period) {
 			prd = period;
 		}
 
 		@Override
-		public boolean isSingleShot() {
+		public boolean singleShot() {
 			return runOnlyOnce;
 		}
 
 		@Override
-		public void setSingleShot(boolean singleShot) {
+		public void singleShot(boolean singleShot) {
 			runOnlyOnce = singleShot;
 		}
 	}
@@ -515,6 +515,16 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().stroke(255);
 			pg().strokeWeight(3);
 			scene.drawCross(p.vec[0], p.vec[1]);
+			pg().popStyle();
+		}
+		
+		@Override
+		public void drawPointUnderPixelHint() {
+			Vec v = view().projectedCoordinatesOf(view().frame().pupVec);
+			pg().pushStyle();		
+			pg().stroke(255);
+			pg().strokeWeight(3);
+			drawCross(v.vec[0], v.vec[1], 15);
 			pg().popStyle();
 		}
 
@@ -1500,7 +1510,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	  // matrix stuff
 		
 		@Override
-		public Mat getProjection() {
+		public Mat projection() {
 			return scene.view().getProjection(false);
 		}
 
@@ -1530,7 +1540,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		//TODO seems getModelView is not working in java2d		
 		@Override
-		public Mat getModelView() {
+		public Mat modelView() {
 			return Scene.toMat(new PMatrix3D(pgj2d().getMatrix()));
 		}
 		
@@ -1699,7 +1709,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public Mat getProjection() {
+		public Mat projection() {
 			return Scene.toMat(pggl().projection.get());
 		}
 
@@ -1741,7 +1751,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public Mat getModelView() {
+		public Mat modelView() {
 			return Scene.toMat((PMatrix3D) pggl().getMatrix());
 		}
 		
@@ -1994,10 +2004,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		//withConstraint = true;
 
-		setAxisIsDrawn(true);
-		setGridIsDrawn(true);
-		setFrameSelectionHintIsDrawn(false);
-		setViewPathsAreDrawn(false);
+		setAxisVisualHint(true);
+		setGridVisualHint(true);
+		setFrameVisualHint(false);
+		setPathsVisualHint(false);
 		
 		disableBoundaryEquations();
 		
@@ -2035,13 +2045,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public boolean isDefaultMouseAgentInUse() {
 		if(prosceneMouse == null)
 			return false;
-	  return terseHandler().isAgentRegistered(prosceneMouse);
+	  return terseHandler().agentRegistered(prosceneMouse);
 	}
 	
 	public boolean isDefaultKeyboardAgentInUse() {
 		if(prosceneKeyboard == null)
 			return false;
-	  return terseHandler().isAgentRegistered(prosceneKeyboard);
+	  return terseHandler().agentRegistered(prosceneKeyboard);
 	}
 	
 	/**
@@ -2124,10 +2134,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			isActive = job.isActive();
 			if(isActive) {
 				period = job.period();
-				rOnce = job.timer().isSingleShot();
+				rOnce = job.timer().singleShot();
 			}
 			job.stop();
-			job.setTimer(new TimerWrap(this, job));			
+			job.timer(new TimerWrap(this, job));			
 			if(isActive) {
 				if(rOnce)
 					job.runOnce(period);
@@ -2157,36 +2167,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 	
 	// 5. Drawing methods
-
-	/**
-	 * Internal use. Display various on-screen visual hints to be called from {@link #pre()}
-	 * or {@link #draw()}.
-	 */
-	@Override
-	protected void displayVisualHints() {		
-		if (frameSelectionHintIsDrawn())
-			drawSelectionHints();
-		if (viewPathsAreDrawn()) {
-			view().drawAllPaths();
-			drawViewPathSelectionHints();
-		} else {
-			view().hideAllPaths();
-		}
-		if (prosceneMouse.zoomOnRegion)
-			drawZoomWindowHint();
-		if (prosceneMouse.screenRotate)
-			drawScreenRotateLineHint();
-		if (view().frame().arpFlag) 
-			drawArcballReferencePointHint();
-		if (view().frame().pupFlag) {
-			Vec v = view().projectedCoordinatesOf(view().frame().pupVec);
-			pg().pushStyle();		
-			pg().stroke(255);
-			pg().strokeWeight(3);
-			drawCross(v.vec[0], v.vec[1]);
-			pg().popStyle();
-		}
-	}	
 
 	/**
 	 * Paint method which is called just before your {@code PApplet.draw()}
@@ -2680,7 +2660,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #startAnimation()
 	 */
 	@Override
-	public boolean externalAnimation() {
+	public boolean hasCallbackMethod() {
 		if (animateHandlerObject != null) {
 			try {
 				animateHandlerMethod.invoke(animateHandlerObject, new Object[] { this });

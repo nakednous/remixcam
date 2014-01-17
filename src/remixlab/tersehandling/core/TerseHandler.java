@@ -87,7 +87,7 @@ public class TerseHandler {
 	 * Registers the given agent.
 	 */
 	public void registerAgent(Agent agent) {
-		if (!isAgentRegistered(agent))
+		if (!agentRegistered(agent))
 			agents.put(agent.name(), agent);
 		else {
 			System.out
@@ -97,15 +97,15 @@ public class TerseHandler {
 		}
 	}
 
-	public boolean isAgentRegistered(Agent agent) {
+	public boolean agentRegistered(Agent agent) {
 		return agents.containsKey(agent.name());
 	}
 
-	public boolean isAgentRegistered(String name) {
+	public boolean agentRegistered(String name) {
 		return agents.containsKey(name);
 	}
 
-	public Agent getAgent(String name) {
+	public Agent agent(String name) {
 		return agents.get(name);
 	}
 

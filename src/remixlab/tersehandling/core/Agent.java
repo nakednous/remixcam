@@ -84,7 +84,7 @@ public class Agent {
 	}
 
 	public Grabbable updateGrabber(TerseEvent event) {
-		if (event == null || !handler.isAgentRegistered(this) || !isTracking())
+		if (event == null || !handler.agentRegistered(this) || !isTracking())
 			return trackedGrabber();
 
 		Grabbable g = trackedGrabber();
@@ -106,7 +106,7 @@ public class Agent {
 	}
 
 	public void enqueueEventTuple(EventGrabberTuple eventTuple) {
-		if (eventTuple != null && handler.isAgentRegistered(this))
+		if (eventTuple != null && handler.agentRegistered(this))
 			handler.enqueueEventTuple(eventTuple);
 	}
 
@@ -120,7 +120,7 @@ public class Agent {
 
 	// just enqueue grabber
 	public void handle(TerseEvent event) {
-		if (event == null || !handler.isAgentRegistered(this)
+		if (event == null || !handler.agentRegistered(this)
 				|| grabber() == null)
 			return;
 		handler.enqueueEventTuple(new EventGrabberTuple(event, grabber()));

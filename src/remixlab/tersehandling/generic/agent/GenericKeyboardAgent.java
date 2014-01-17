@@ -31,7 +31,7 @@ public class GenericKeyboardAgent<K extends GenericKeyboardProfile<?>> extends G
 	
 	@Override
 	public void handle(TerseEvent event) {
-		if(event == null || !handler.isAgentRegistered(this) || grabber() == null) return;
+		if(event == null || !handler.agentRegistered(this) || grabber() == null) return;
 		if(event instanceof Duoable<?>)
 			if( foreignGrabber() )
 				enqueueEventTuple(new EventGrabberTuple(event, grabber()));
@@ -40,7 +40,7 @@ public class GenericKeyboardAgent<K extends GenericKeyboardProfile<?>> extends G
 	}
 	
 	public void handleKey(TerseEvent event) {
-		if(event == null || !handler.isAgentRegistered(this) || grabber() == null) return;	
+		if(event == null || !handler.agentRegistered(this) || grabber() == null) return;	
 		if(event instanceof KeyDuoable<?>)
 			if( foreignGrabber() )
 				enqueueEventTuple(new EventGrabberTuple(event, grabber()));

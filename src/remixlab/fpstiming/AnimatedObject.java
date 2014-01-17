@@ -10,7 +10,7 @@
 package remixlab.fpstiming;
 
 /**
- * Class implementing of the main animation behavior.
+ * Class implementing the main animation behavior.
  */
 public class AnimatedObject implements Animatable {
 	protected SeqTimer animationTimer;
@@ -21,7 +21,7 @@ public class AnimatedObject implements Animatable {
 	/**
 	 * Constructs an animated object with a default {@link #animationPeriod()}
 	 * of 40 milliseconds (25Hz). The handler should explicitly be defined
-	 * afterwards ({@link #setTimingHandler(TimingHandler)}).
+	 * afterwards ({@link #timingHandler(TimingHandler)}).
 	 */
 	public AnimatedObject() {
 		setAnimationPeriod(40, false); // 25Hz
@@ -33,13 +33,13 @@ public class AnimatedObject implements Animatable {
 	 * of 40 milliseconds (25Hz).
 	 */
 	public AnimatedObject(TimingHandler handler) {
-		setTimingHandler(handler);
+		timingHandler(handler);
 		setAnimationPeriod(40, false); // 25Hz
 		stopAnimation();
 	}
 
 	@Override
-	public void setTimingHandler(TimingHandler h) {
+	public void timingHandler(TimingHandler h) {
 		handler = h;
 		handler.registerAnimation(this);
 		animationTimer = new SeqTimer(handler);
@@ -58,7 +58,7 @@ public class AnimatedObject implements Animatable {
 	/**
 	 * Return {@code true} when the animation loop is started.
 	 * <p>
-	 * The timing handler will check when {@link #animationIsStarted()}
+	 * The timing handler will check when {@link #isAnimationStarted()}
 	 * and then called the animation callback method every
 	 * {@link #animationPeriod()} milliseconds.
 	 * <p>
@@ -69,13 +69,13 @@ public class AnimatedObject implements Animatable {
 	 * @see #animate()
 	 */
 	@Override
-	public boolean animationIsStarted() {
+	public boolean isAnimationStarted() {
 		return animationStarted;
 	}
 
 	/**
 	 * The animation loop period, in milliseconds. When
-	 * {@link #animationIsStarted()}, this is the delay that takes place between
+	 * {@link #isAnimationStarted()}, this is the delay that takes place between
 	 * two consecutive iterations of the animation loop.
 	 * <p>
 	 * This delay defines a target frame rate that will only be achieved if your
@@ -84,7 +84,7 @@ public class AnimatedObject implements Animatable {
 	 * Default value is 40 milliseconds (25 Hz).
 	 * <p>
 	 * <b>Note:</b> This value is taken into account only the next time you call
-	 * {@link #startAnimation()}. If {@link #animationIsStarted()}, you should
+	 * {@link #startAnimation()}. If {@link #isAnimationStarted()}, you should
 	 * {@link #stopAnimation()} first. See {@link #restartAnimation()} and
 	 * {@link #setAnimationPeriod(long, boolean)}.
 	 * 
@@ -97,7 +97,7 @@ public class AnimatedObject implements Animatable {
 
 	/**
 	 * Convenience function that simply calls
-	 * {@code setAnimationPeriod(period, true)}.
+	 * {@code period(period, true)}.
 	 * 
 	 * @see #setAnimationPeriod(long, boolean)
 	 */
@@ -108,7 +108,7 @@ public class AnimatedObject implements Animatable {
 
 	/**
 	 * Sets the {@link #animationPeriod()}, in milliseconds. If restart is
-	 * {@code true} and {@link #animationIsStarted()} then
+	 * {@code true} and {@link #isAnimationStarted()} then
 	 * {@link #restartAnimation()} is called.
 	 * 
 	 * @see #startAnimation()
@@ -117,7 +117,7 @@ public class AnimatedObject implements Animatable {
 	public void setAnimationPeriod(long period, boolean restart) {
 		if (period > 0) {
 			animationPeriod = period;
-			if (animationIsStarted() && restart)
+			if (isAnimationStarted() && restart)
 				restartAnimation();
 		}
 	}
@@ -125,7 +125,7 @@ public class AnimatedObject implements Animatable {
 	/**
 	 * Stops animation.
 	 * 
-	 * @see #animationIsStarted()
+	 * @see #isAnimationStarted()
 	 */
 	@Override
 	public void stopAnimation() {
@@ -137,7 +137,7 @@ public class AnimatedObject implements Animatable {
 	/**
 	 * Starts the animation loop.
 	 * 
-	 * @see #animationIsStarted()
+	 * @see #isAnimationStarted()
 	 */
 	@Override
 	public void startAnimation() {
@@ -159,11 +159,11 @@ public class AnimatedObject implements Animatable {
 
 	/**
 	 * Calls {@link #startAnimation()} or {@link #stopAnimation()}, depending on
-	 * {@link #animationIsStarted()}.
+	 * {@link #isAnimationStarted()}.
 	 */
 	@Override
 	public void toggleAnimation() {
-		if (animationIsStarted())
+		if (isAnimationStarted())
 			stopAnimation();
 		else
 			startAnimation();
@@ -174,7 +174,7 @@ public class AnimatedObject implements Animatable {
 	}
 
 	@Override
-	public boolean externalAnimation() {
+	public boolean hasCallbackMethod() {
 		return false;
 	}
 }

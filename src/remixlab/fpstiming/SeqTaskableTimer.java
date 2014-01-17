@@ -41,7 +41,7 @@ public class SeqTaskableTimer extends SeqTimer {
 	 * timing handler (see {@link remixlab.fpstiming.TimingHandler#handle()}).
 	 */
 	public boolean execute() {
-		boolean result = isTrigggered();
+		boolean result = trigggered();
 
 		if (result) {
 			task.execute();

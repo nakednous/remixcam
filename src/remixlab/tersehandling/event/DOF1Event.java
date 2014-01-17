@@ -92,8 +92,8 @@ public class DOF1Event extends MotionEvent {
 		if (prevEvent != null)
 			if (prevEvent instanceof DOF1Event) {
 				rel = true;
-				this.dx = this.getX() - ((DOF1Event) prevEvent).getX();
-				distance = this.getX() - ((DOF1Event) prevEvent).getX();
+				this.dx = this.x() - ((DOF1Event) prevEvent).x();
+				distance = this.x() - ((DOF1Event) prevEvent).x();
 				delay = this.timestamp() - prevEvent.timestamp();
 				if (delay == 0)
 					speed = distance;
@@ -107,16 +107,16 @@ public class DOF1Event extends MotionEvent {
 			}
 	}
 
-	public float getX() {
+	public float x() {
 		return x;
 	}
 
-	public float getDX() {
+	public float dx() {
 		return dx;
 	}
 
-	public float getPrevX() {
-		return getX() - getDX();
+	public float prevX() {
+		return x() - dx();
 	}
 
 	@Override
@@ -128,9 +128,9 @@ public class DOF1Event extends MotionEvent {
 
 	@Override
 	public boolean isNull() {
-		if (relative() && Util.zero(getDX()))
+		if (relative() && Util.zero(dx()))
 			return true;
-		if (absolute() && Util.zero(getX()))
+		if (absolute() && Util.zero(x()))
 			return true;
 		return false;
 	}

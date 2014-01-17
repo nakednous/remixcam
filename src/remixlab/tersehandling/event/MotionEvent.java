@@ -88,13 +88,13 @@ public class MotionEvent extends TerseEvent {
 	public void modulate(float[] sens) {
 	}
 
-	public int getButton() {
+	public int button() {
 		return button;
 	}
 
 	@Override
 	public ButtonShortcut shortcut() {
-		return new ButtonShortcut(getModifiers(), getButton());
+		return new ButtonShortcut(modifiers(), button());
 	}
 
 	public long delay() {

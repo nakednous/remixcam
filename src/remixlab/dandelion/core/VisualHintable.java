@@ -62,6 +62,8 @@ public interface VisualHintable {
 	 */	
 	public void drawArcballReferencePointHint();
 	
+	public void drawPointUnderPixelHint();
+	
 	/**
 	 * Draws a cross on the screen centered under pixel {@code (px, py)}, and edge
 	 * of size {@code size}.

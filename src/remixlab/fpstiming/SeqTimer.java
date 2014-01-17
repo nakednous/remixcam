@@ -107,7 +107,7 @@ public class SeqTimer implements Timable {
 	}
 
 	@Override
-	public boolean isActive() {
+	public boolean active() {
 		return active;
 	}
 
@@ -123,7 +123,7 @@ public class SeqTimer implements Timable {
 	 * <b>Note:</b> You should not call this method since it's done by the
 	 * timing handler (see {@link remixlab.fpstiming.TimingHandler#handle()}).
 	 */
-	public boolean isTrigggered() {
+	public boolean trigggered() {
 		if (!active)
 			return false;
 
@@ -169,17 +169,17 @@ public class SeqTimer implements Timable {
 	}
 
 	@Override
-	public void setPeriod(long period) {
+	public void period(long period) {
 		prd = period;
 	}
 
 	@Override
-	public boolean isSingleShot() {
+	public boolean singleShot() {
 		return runOnlyOnce;
 	}
 
 	@Override
-	public void setSingleShot(boolean singleShot) {
+	public void singleShot(boolean singleShot) {
 		runOnlyOnce = singleShot;
 	}
 }

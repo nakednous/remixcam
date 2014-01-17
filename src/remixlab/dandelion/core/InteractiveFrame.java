@@ -361,8 +361,8 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		
 		Vec proj = scene.view().projectedCoordinatesOf(position());
 		
-		return ((Math.abs(event2.getX() - proj.vec[0]) < grabsInputThreshold()) &&
-		        (Math.abs(event2.getY() - proj.vec[1]) < grabsInputThreshold()));
+		return ((Math.abs(event2.x() - proj.vec[0]) < grabsInputThreshold()) &&
+		        (Math.abs(event2.y() - proj.vec[1]) < grabsInputThreshold()));
 	}
 
 	/**
@@ -861,12 +861,12 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		case ROLL:
 			//TODO needs testing
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
-				angle = (float) Math.PI * e1.getX()	* wheelSensitivity() / scene.camera().screenWidth();
+				angle = (float) Math.PI * e1.x()	* wheelSensitivity() / scene.camera().screenWidth();
 			else
 				if( e1.absolute() )
-					angle = (float) Math.PI * e1.getX()	/ scene.camera().screenWidth();
+					angle = (float) Math.PI * e1.x()	/ scene.camera().screenWidth();
 				else
-					angle = (float) Math.PI * e1.getDX()/ scene.camera().screenWidth();			
+					angle = (float) Math.PI * e1.dx()/ scene.camera().screenWidth();			
 		  //lef-handed coordinate system correction
 			if ( scene.isLeftHanded() )
 				angle = -angle;			
@@ -880,13 +880,13 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		case SCREEN_ROTATE:
 			trans = scene.window().projectedCoordinatesOf(position());
 			if(e2.relative()) {
-				Point prevPos = new Point(e2.getPrevX(), e2.getPrevY());
-				Point curPos= new Point(e2.getX(), e2.getY());
+				Point prevPos = new Point(e2.prevX(), e2.prevY());
+				Point curPos= new Point(e2.x(), e2.y());
 				rot = new Rot(new Point(trans.x(), trans.y()), prevPos, curPos);
 				rot = new Rot(rot.angle() * rotationSensitivity());
 			}
 			else 
-				rot = new Rot(e2.getX() * rotationSensitivity());			
+				rot = new Rot(e2.x() * rotationSensitivity());			
 			if ( isFlipped() ) rot.negate();	
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();
 			if(e2.relative()) {
@@ -896,11 +896,11 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 				rotate(rot);
 			break;
 		case SCREEN_TRANSLATE:
-			deltaX = (e2.relative()) ? e2.getDX() : e2.getX();
+			deltaX = (e2.relative()) ? e2.dx() : e2.x();
 			if(e2.relative())
-				deltaY = scene.isRightHanded() ? e2.getDY() : -e2.getDY();
+				deltaY = scene.isRightHanded() ? e2.dy() : -e2.dy();
 			else
-				deltaY = scene.isRightHanded() ? e2.getY() : -e2.getY();
+				deltaY = scene.isRightHanded() ? e2.y() : -e2.y();
 			trans = new Vec();
 			int dir = originalDirection(e2);
 			if (dir == 1)
@@ -914,11 +914,11 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			translate(trans);
 			break;
 		case TRANSLATE:
-			deltaX = (e2.relative()) ? e2.getDX() : e2.getX();
+			deltaX = (e2.relative()) ? e2.dx() : e2.x();
 			if(e2.relative())
-				deltaY = scene.isRightHanded() ? e2.getDY() : -e2.getDY();
+				deltaY = scene.isRightHanded() ? e2.dy() : -e2.dy();
 			else
-				deltaY = scene.isRightHanded() ? e2.getY() : -e2.getY();
+				deltaY = scene.isRightHanded() ? e2.y() : -e2.y();
 			trans = new Vec(deltaX, -deltaY, 0.0f);
 			trans = scene.window().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
 			// And then down to frame
@@ -929,11 +929,11 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		//TODO needs testing with space navigator
 		case TRANSLATE_ROTATE:
 			//translate
-			deltaX = (e6.relative()) ? e6.getDX() : e6.getX();
+			deltaX = (e6.relative()) ? e6.dx() : e6.x();
 			if(e6.relative())
-				deltaY = scene.isRightHanded() ? e6.getDY() : -e6.getDY();
+				deltaY = scene.isRightHanded() ? e6.dy() : -e6.dy();
 			else
-				deltaY = scene.isRightHanded() ? e6.getY() : -e6.getY();
+				deltaY = scene.isRightHanded() ? e6.y() : -e6.y();
 			trans = new Vec(deltaX, -deltaY, 0.0f);
 			trans = scene.window().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
 			// And then down to frame
@@ -945,9 +945,9 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			//TODO "relative" is experimental here.
 			//Hard to think of a DOF6 relative device in the first place.
 			if(e6.relative())
-				rot = new Rot(e6.getDRX() * rotationSensitivity());
+				rot = new Rot(e6.drx() * rotationSensitivity());
 			else 
-				rot = new Rot(e6.getRX() * rotationSensitivity());			
+				rot = new Rot(e6.rx() * rotationSensitivity());			
 			if ( isFlipped() ) rot.negate();	
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();			
 			if(e6.relative()) {
@@ -960,12 +960,12 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		case ZOOM:
 			float delta;
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
-				delta = e1.getX() * wheelSensitivity();
+				delta = e1.x() * wheelSensitivity();
 			else
 				if( e1.absolute() )
-					delta = e1.getX();
+					delta = e1.x();
 				else
-					delta = e1.getDX();
+					delta = e1.dx();
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
 			else {
@@ -1000,12 +1000,12 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		case DRIVE:
 			rotate(turnQuaternion(e1, scene.camera()));
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
-				drvSpd = 0.01f * -e1.getX() * wheelSensitivity();
+				drvSpd = 0.01f * -e1.x() * wheelSensitivity();
 			else
 				if( e1.absolute() )
-					drvSpd = 0.01f * -e1.getX();
+					drvSpd = 0.01f * -e1.x();
 				else
-					drvSpd = 0.01f * -e1.getDX();
+					drvSpd = 0.01f * -e1.dx();
 			flyDisp.set(0.0f, 0.0f, flySpeed() * drvSpd);
 			if(scene.is2D())
 				trans = localInverseTransformOf(flyDisp);
@@ -1039,12 +1039,12 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			break;
 		case ROLL:
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
-				angle = (float) Math.PI * e1.getX()	* wheelSensitivity() / scene.camera().screenWidth();
+				angle = (float) Math.PI * e1.x()	* wheelSensitivity() / scene.camera().screenWidth();
 			else
 				if( e1.absolute() )
-					angle = (float) Math.PI * e1.getX()	/ scene.camera().screenWidth();
+					angle = (float) Math.PI * e1.x()	/ scene.camera().screenWidth();
 				else
-					angle = (float) Math.PI * e1.getDX()/ scene.camera().screenWidth();			
+					angle = (float) Math.PI * e1.dx()/ scene.camera().screenWidth();			
 		  //lef-handed coordinate system correction
 			if ( scene.isLeftHanded() )
 				angle = -angle;			
@@ -1068,9 +1068,9 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			q = new Quat();
 			trans = scene.camera().projectedCoordinatesOf(position());
 	    if(e3.absolute())
-	    	q.fromEulerAngles(e3.getX(), e3.getY(), -e3.getZ());
+	    	q.fromEulerAngles(e3.x(), e3.y(), -e3.z());
 	    else
-	    	q.fromEulerAngles(e3.getDX(), e3.getDY(), -e3.getDZ());
+	    	q.fromEulerAngles(e3.dx(), e3.dy(), -e3.dz());
 	    trans.set(-q.x(), -q.y(), -q.z());
 	    trans = scene.camera().frame().orientation().rotate(trans);
 	    trans = transformOf(trans, false);
@@ -1085,8 +1085,8 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 				break;
 			}
 			trans = scene.camera().projectedCoordinatesOf(position());
-			float prev_angle = (float) Math.atan2(e2.getPrevY() - trans.vec[1], e2.getPrevX() - trans.vec[0]);
-			angle = (float) Math.atan2(e2.getY() - trans.vec[1], e2.getX() - trans.vec[0]);			
+			float prev_angle = (float) Math.atan2(e2.prevY() - trans.vec[1], e2.prevX() - trans.vec[0]);
+			angle = (float) Math.atan2(e2.y() - trans.vec[1], e2.x() - trans.vec[0]);			
 			Vec axis = transformOf(scene.camera().frame().inverseTransformOf(new Vec(0.0f, 0.0f, -1.0f)));			
 			//TODO testing handed
 			if( scene.isRightHanded() )
@@ -1102,14 +1102,14 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			trans = new Vec();
 			if (dir == 1)
 				if( e2.absolute() )
-					trans.set(e2.getX(), 0.0f, 0.0f);
+					trans.set(e2.x(), 0.0f, 0.0f);
 				else
-					trans.set(e2.getDX(), 0.0f, 0.0f);
+					trans.set(e2.dx(), 0.0f, 0.0f);
 			else if (dir == -1)
 				if( e2.absolute() )
-					trans.set(0.0f, e2.getY(), 0.0f);
+					trans.set(0.0f, e2.y(), 0.0f);
 				else
-					trans.set(0.0f, e2.getDY(), 0.0f);	
+					trans.set(0.0f, e2.dy(), 0.0f);	
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
 				trans.mult(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
@@ -1130,9 +1130,9 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			break;
 		case TRANSLATE:
 			if(e2.relative())
-			  trans = new Vec(e2.getDX(), scene.isRightHanded() ? -e2.getDY() : e2.getDY(), 0.0f);
+			  trans = new Vec(e2.dx(), scene.isRightHanded() ? -e2.dy() : e2.dy(), 0.0f);
 			else
-				trans = new Vec(e2.getX(), scene.isRightHanded() ? -e2.getY() : e2.getY(), 0.0f);
+				trans = new Vec(e2.x(), scene.isRightHanded() ? -e2.y() : e2.y(), 0.0f);
 		  // Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
@@ -1159,9 +1159,9 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			break;
 		case TRANSLATE3:
 			if(e3.relative())
-			  trans = new Vec(e3.getDX(), scene.isRightHanded() ? -e3.getDY() : e3.getDY(), e3.getDZ());
+			  trans = new Vec(e3.dx(), scene.isRightHanded() ? -e3.dy() : e3.dy(), e3.dz());
 			else
-				trans = new Vec(e3.getX(), scene.isRightHanded() ? -e3.getY() : e3.getY(), e3.getZ());
+				trans = new Vec(e3.x(), scene.isRightHanded() ? -e3.y() : e3.y(), e3.z());
 		  // Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
@@ -1189,9 +1189,9 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		case TRANSLATE_ROTATE:
 		  // A. Translate the iFrame
 			if(e6.relative())
-			  trans = new Vec(e6.getDX(), scene.isRightHanded() ? -e6.getDY() : e6.getDY(), e6.getDZ());
+			  trans = new Vec(e6.dx(), scene.isRightHanded() ? -e6.dy() : e6.dy(), e6.dz());
 			else
-				trans = new Vec(e6.getX(), scene.isRightHanded() ? -e6.getY() : e6.getY(), e6.getZ());
+				trans = new Vec(e6.x(), scene.isRightHanded() ? -e6.y() : e6.y(), e6.z());
 		  // Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
@@ -1221,7 +1221,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 	    if(e6.absolute())
 	    	q.fromEulerAngles(e6.roll(), e6.pitch(), -e6.yaw());
 	    else
-	    	q.fromEulerAngles(e6.getDRX(), e6.getDRY(), -e6.getDRZ());
+	    	q.fromEulerAngles(e6.drx(), e6.dry(), -e6.drz());
 	    trans.set(-q.x(), -q.y(), -q.z());
 	    trans = scene.camera().frame().orientation().rotate(trans);
 	    trans = transformOf(trans, false);
@@ -1233,12 +1233,12 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		case ZOOM:
 			float delta;
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
-				delta = e1.getX() * wheelSensitivity();
+				delta = e1.x() * wheelSensitivity();
 			else
 				if( e1.absolute() )
-				  delta = e1.getX();
+				  delta = e1.x();
 				else
-					delta = e1.getDX();	
+					delta = e1.dx();	
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) scene.height());
 			else {
@@ -1269,10 +1269,10 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 	 */
 	protected Quat deformedBallQuaternion(DOF2Event event, float cx, float cy, Camera camera) {
 		//TODO absolute events!?
-		float x = event.getX();
-		float y = event.getY();
-		float prevX = event.getPrevX();
-		float prevY = event.getPrevY();
+		float x = event.x();
+		float y = event.y();
+		float prevX = event.prevX();
+		float prevY = event.prevY();
 		// Points on the deformed ball		
     float px = rotationSensitivity() *                         ((int)prevX - cx)                       / camera.screenWidth();
     float py = rotationSensitivity() * (scene.isLeftHanded() ? ((int)prevY - cy) : ( cy - (int)prevY)) / camera.screenHeight();
@@ -1404,9 +1404,9 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 	protected final Quat turnQuaternion(DOF1Event event, Camera camera) {
 		float deltaX;
 		if( event instanceof GenericDOF1Event ) //it's a wheel then :P
-			deltaX = event.getX() * wheelSensitivity();
+			deltaX = event.x() * wheelSensitivity();
 		else
-			deltaX = event.absolute() ? event.getX() : event.getDX();
+			deltaX = event.absolute() ? event.x() : event.dx();
 		return new Quat(new Vec(0.0f, 1.0f, 0.0f), rotationSensitivity()	* (-deltaX) / camera.screenWidth());
 	}
 
@@ -1415,8 +1415,8 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 	 * from the mouse pitch (X axis) and yaw ({@link #flyUpVector()} axis).
 	 */
 	protected final Quat pitchYawQuaternion(DOF2Event event, Camera camera) {
-		float deltaX = event.absolute() ? event.getX() : event.getDX();
-		float deltaY = event.absolute() ? event.getY() : event.getDY();
+		float deltaX = event.absolute() ? event.x() : event.dx();
+		float deltaY = event.absolute() ? event.y() : event.dy();
 			
 		if( scene.isRightHanded() )
 			deltaY = -deltaY;
@@ -1436,9 +1436,9 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		if (!dirIsFixed) {
 			Point delta;
 			if( event.absolute() )
-				delta = new Point(event.getX(), event.getY());
+				delta = new Point(event.x(), event.y());
 			else
-				delta = new Point(event.getDX(), event.getDY());
+				delta = new Point(event.dx(), event.dy());
 			dirIsFixed = Math.abs(delta.x) != Math.abs(delta.y);
 			horiz = Math.abs(delta.x) > Math.abs(delta.y);
 		}

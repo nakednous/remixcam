@@ -58,6 +58,6 @@ public class Shortcut implements EventConstants, Copyable {
 	}
 	
 	public String description() {
-		return TerseEvent.getModifiersText(mask);
+		return TerseEvent.modifiersText(mask);
 	}
 }

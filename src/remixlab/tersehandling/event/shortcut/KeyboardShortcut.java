@@ -100,9 +100,9 @@ public final class KeyboardShortcut extends Shortcut implements Copyable {
 			description = key.toString();
 		else {
 			if(mask == 0)
-				description = KeyboardEvent.getKeyText(vKey);
+				description = KeyboardEvent.keyText(vKey);
 			else
-				description = TerseEvent.getModifiersText(mask) + "+" + KeyboardEvent.getKeyText(vKey);
+				description = TerseEvent.modifiersText(mask) + "+" + KeyboardEvent.keyText(vKey);
 		}			
 		return description;
 	}

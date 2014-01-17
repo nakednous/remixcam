@@ -81,7 +81,7 @@ public class GenericActionableAgent<P extends GenericProfile<?,?>> extends Agent
 	@Override
 	public void handle(TerseEvent event) {		
 		//overkill but feels safer ;)
-		if(event == null || !handler.isAgentRegistered(this) || grabber() == null) return;
+		if(event == null || !handler.agentRegistered(this) || grabber() == null) return;
 		if(event instanceof Duoable<?>)
 			if( foreignGrabber() )
 				enqueueEventTuple(new EventGrabberTuple(event, grabber()));

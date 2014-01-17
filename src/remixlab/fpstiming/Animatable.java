@@ -22,7 +22,7 @@ public interface Animatable {
 	 * Returns whether or not the animated method is defined externally, as
 	 * when register it through reflection.
 	 */
-	boolean externalAnimation();
+	boolean hasCallbackMethod();
 
 	/**
 	 * Returns the animation period in milliseconds.
@@ -56,19 +56,19 @@ public interface Animatable {
 	void restartAnimation();
 
 	/**
-	 * Starts or stops the animation according to {@link #animationIsStarted()}.
+	 * Starts or stops the animation according to {@link #isAnimationStarted()}.
 	 */
 	void toggleAnimation();
 
 	/**
 	 * Returns {@code true} if animation was started and {@code false} otherwise.
 	 */
-	boolean animationIsStarted();
+	boolean isAnimationStarted();
 
 	/**
 	 * Sets the timing handler.
 	 */
-	void setTimingHandler(TimingHandler h);
+	void timingHandler(TimingHandler h);
 
 	/**
 	 * Returns the timing handler.

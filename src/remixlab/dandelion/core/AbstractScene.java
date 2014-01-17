@@ -15,6 +15,7 @@ import remixlab.dandelion.agent.GenericWheeledBiMotionAgent;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.helper.MatrixStackHelper;
 import remixlab.fpstiming.AbstractTimerJob;
+import remixlab.fpstiming.Animatable;
 import remixlab.fpstiming.AnimatedObject;
 import remixlab.fpstiming.TimingHandler;
 import remixlab.tersehandling.core.*;
@@ -46,10 +47,13 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	protected TerseHandler terseHandler;
 
 	// D I S P L A Y F L A G S
+	protected int visualHintFlag; 
+	/**
 	protected boolean axisIsDrwn; // world axis
 	protected boolean gridIsDrwn; // world XY grid
 	protected boolean frameSelectionHintIsDrwn;
 	protected boolean viewPathsAreDrwn;
+	*/
 	
 	// LEFT vs RIGHT_HAND
 	protected boolean rightHanded;
@@ -105,8 +109,29 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		dottedGrid = dotted;
 	}
 	
+	//FPSTiming wrappers
 	public void registerJob(AbstractTimerJob job) {
 		timerHandler().registerJob(job);
+	}
+	
+	public void unregisterJob(AbstractTimerJob job) {
+		timerHandler().unregisterJob(job);
+	}
+	
+	public boolean isJobRegistered(AbstractTimerJob job) {
+		return timerHandler().jobRegistered(job);
+	}
+	
+	public void registerAnimation(Animatable object) {
+		timerHandler().registerAnimation(object);
+	}	
+	
+	public void unregisterAnimation(Animatable object) {
+		timerHandler().unregisterAnimation(object);
+	}
+	
+	public boolean isAnimationRegistered(Animatable object) {
+		return timerHandler().animationRegistered(object);
 	}
 	
 	/**
@@ -185,10 +210,10 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			view().playPath(3);
 			break;
 		case DRAW_AXIS:
-			toggleAxisIsDrawn();
+			toggleAxisVisualHint();
 			break;
 		case DRAW_GRID:
-			toggleGridIsDrawn();
+			toggleGridVisualHint();
 			break;
 		case CAMERA_TYPE:
 			toggleCameraType();
@@ -200,10 +225,10 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			displayInfo();
 			break;
 		case EDIT_VIEW_PATH:
-			toggleViewPathsAreDrawn();
+			togglePathsVisualHint();
 			break;
 		case DRAW_FRAME_SELECTION_HINT:
-			toggleFrameSelectionHintIsDrawn();
+			toggleFrameVisualhint();
 			break;
 		case SHOW_ALL:
 			showAll();
@@ -380,14 +405,12 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * 
 	 * @see #proscenium()
 	 * @see #addDrawHandler(Object, String)
-	 * @see #gridIsDrawn()
+	 * @see #gridVisualHint()
 	 * @see #axisIsDrwn
 	 * @see #addDrawHandler(Object, String)
 	 * @see #addAnimationHandler(Object, String)
 	 */
-	public void postDraw() {	
-		//updateFrameRate();
-		
+	public void postDraw() {			
 		// 1
 		updateCursor();
 			
@@ -405,14 +428,6 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		invokeRegisteredMethod(); // abstract
     
     // 7. Grid and axis drawing
- 		if (gridIsDrawn()) {
- 			if(gridIsDotted())
- 				drawDottedGrid(view().sceneRadius());
- 			else
- 				drawGrid(view().sceneRadius());
- 		}
- 		if (axisIsDrawn())
- 			drawAxis(view().sceneRadius());		
  		
     // 8. Display visual hints
  		displayVisualHints(); // abstract
@@ -438,7 +453,41 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	
 	protected abstract void invokeRegisteredMethod();
 	
-	protected abstract void displayVisualHints();
+	/**
+	 * Internal use. Display various on-screen visual hints to be called from {@link #pre()}
+	 * or {@link #draw()}.
+	 */
+	
+	protected void displayVisualHints() {
+		if (gridVisualHint()) {
+ 			if(gridIsDotted())
+ 				drawDottedGrid(view().sceneRadius());
+ 			else
+ 				drawGrid(view().sceneRadius());
+ 		}
+ 		if (axisVisualHint())
+ 			drawAxis(view().sceneRadius());
+ 		
+		if (frameVisualHint())
+			drawSelectionHints();
+		if (pathsVisualHint()) {
+			view().drawAllPaths();
+			drawViewPathSelectionHints();
+		} else {
+			view().hideAllPaths();
+		}
+		
+		if (zoomVisualHint())
+			drawZoomWindowHint();
+		if (rotateVisualHint())
+			drawScreenRotateLineHint();		
+		
+		if (view().frame().arpFlag) 
+			drawArcballReferencePointHint();		
+		if (view().frame().pupFlag) {
+			drawPointUnderPixelHint();
+		}
+	}
 	
   //1. Scene overloaded
 	
@@ -448,8 +497,8 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * implementation is empty.
 	 * <p>
 	 * Typical usage include {@link #view()} initialization ({@link #showAll()})
-	 * and Scene state setup ({@link #setAxisIsDrawn(boolean)} and
-	 * {@link #setGridIsDrawn(boolean)}.
+	 * and Scene state setup ({@link #setAxisVisualHint(boolean)} and
+	 * {@link #setGridVisualHint(boolean)}.
 	 */
 	public void init() {}
 	
@@ -644,12 +693,12 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   }
   */
 
-  public Mat getModelView() {
-  	return matrixHelper.getModelView();
+  public Mat modelView() {
+  	return matrixHelper.modelView();
   }
   
-  public Mat getProjection() {
-  	return matrixHelper.getProjection();
+  public Mat projection() {
+  	return matrixHelper.projection();
   }
 
   /**
@@ -746,6 +795,10 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   
   public void drawArcballReferencePointHint() {
   	drawingHelpler().drawArcballReferencePointHint();
+  }
+  
+  public void drawPointUnderPixelHint() {
+  	drawingHelpler().drawPointUnderPixelHint();
   }
   
   public void drawCross(float px, float py, float size) {
@@ -1286,72 +1339,100 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	// * Control what is drawing
 	
 	/**
-	 * Toggles the state of {@link #axisIsDrawn()}.
+	 * Toggles the state of {@link #axisVisualHint()}.
 	 * 
-	 * @see #axisIsDrawn()
-	 * @see #setAxisIsDrawn(boolean)
+	 * @see #axisVisualHint()
+	 * @see #setAxisVisualHint(boolean)
 	 */
-	public void toggleAxisIsDrawn() {
-		setAxisIsDrawn(!axisIsDrawn());
+	public void toggleAxisVisualHint() {
+		setAxisVisualHint(!axisVisualHint());
 	}
 
 	/**
-	 * Toggles the state of {@link #gridIsDrawn()}.
+	 * Toggles the state of {@link #gridVisualHint()}.
 	 * 
-	 * @see #setGridIsDrawn(boolean)
+	 * @see #setGridVisualHint(boolean)
 	 */
-	public void toggleGridIsDrawn() {
-		setGridIsDrawn(!gridIsDrawn());
+	public void toggleGridVisualHint() {
+		setGridVisualHint(!gridVisualHint());
 	}
 
 	/**
-	 * Toggles the state of {@link #frameSelectionHintIsDrawn()}.
+	 * Toggles the state of {@link #frameVisualHint()}.
 	 * 
-	 * @see #setFrameSelectionHintIsDrawn(boolean)
+	 * @see #setFrameVisualHint(boolean)
 	 */
-	public void toggleFrameSelectionHintIsDrawn() {
-		setFrameSelectionHintIsDrawn(!frameSelectionHintIsDrawn());
+	public void toggleFrameVisualhint() {
+		setFrameVisualHint(!frameVisualHint());
 	}
 
 	/**
-	 * Toggles the state of {@link #viewPathsAreDrawn()}.
+	 * Toggles the state of {@link #pathsVisualHint()}.
 	 * 
-	 * @see #setViewPathsAreDrawn(boolean)
+	 * @see #setPathsVisualHint(boolean)
 	 */
-	public void toggleViewPathsAreDrawn() {
-		setViewPathsAreDrawn(!viewPathsAreDrawn());
-	}	
+	public void togglePathsVisualHint() {
+		setPathsVisualHint(!pathsVisualHint());
+	}
+	
+	/**
+	 * Internal :p
+	 */
+	public void toggleZoomVisualHint() {
+		setZoomVisualHint(!zoomVisualHint());
+	}
+	
+	/**
+	 * Internal :p
+	 */
+	public void toggleRotateVisualHint() {
+		setRotateVisualHint(!rotateVisualHint());
+	}
 	
 	/**
 	 * Returns {@code true} if axis is currently being drawn and {@code false}
 	 * otherwise.
 	 */
-	public boolean axisIsDrawn() {
-		return axisIsDrwn;
+	public boolean axisVisualHint() {
+		return ((visualHintFlag & AXIS) != 0);
 	}
 
 	/**
 	 * Returns {@code true} if grid is currently being drawn and {@code false}
 	 * otherwise.
 	 */
-	public boolean gridIsDrawn() {
-		return gridIsDrwn;
+	public boolean gridVisualHint() {
+		return ((visualHintFlag & GRID) != 0);
 	}
 
 	/**
 	 * Returns {@code true} if the frames selection visual hints are currently
 	 * being drawn and {@code false} otherwise.
 	 */
-	public boolean frameSelectionHintIsDrawn() {
-		return frameSelectionHintIsDrwn;
+	public boolean frameVisualHint() {
+		return ((visualHintFlag & FRAME) != 0);
 	}
 
 	/**
-	 * Returns {@code true} if the camera key frame paths are currently being
-	 * drawn and {@code false} otherwise.
+	 * Returns {@code true} if the eye pads visual hints are currently
+	 * being drawn and {@code false} otherwise.
 	 */
-	public boolean viewPathsAreDrawn() {
-		return viewPathsAreDrwn;
+	public boolean pathsVisualHint() {
+		return ((visualHintFlag & PATHS) != 0);
+	}
+	
+	/**
+	 * Internal :p
+	 */
+	protected boolean zoomVisualHint() {
+		return ((visualHintFlag & ZOOM) != 0);
+	}
+	
+	/**
+	 * Internal :p
+	 */
+	protected boolean rotateVisualHint() {
+		return ((visualHintFlag & ROTATE) != 0);
 	}
 
 	/**
@@ -1367,44 +1448,62 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	/**
 	 * Convenience function that simply calls {@code setAxisIsDrawn(true)}
 	 */
+	/**
 	public void setAxisIsDrawn() {
 		setAxisIsDrawn(true);
 	}
+	*/
 
 	/**
 	 * Sets the display of the axis according to {@code draw}
 	 */
-	public void setAxisIsDrawn(boolean draw) {
-		axisIsDrwn = draw;
+	public void setAxisVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= AXIS; else visualHintFlag &= ~AXIS;
 	}
 
 	/**
 	 * Convenience function that simply calls {@code setGridIsDrawn(true)}
 	 */
+	/**
 	public void setGridIsDrawn() {
 		setGridIsDrawn(true);
 	}
+	*/
 
 	/**
 	 * Sets the display of the grid according to {@code draw}
 	 */
-	public void setGridIsDrawn(boolean draw) {
-		gridIsDrwn = draw;
+	public void setGridVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= GRID; else visualHintFlag &= ~GRID;
 	}
 
 	/**
 	 * Sets the display of the interactive frames' selection hints according to
 	 * {@code draw}
 	 */
-	public void setFrameSelectionHintIsDrawn(boolean draw) {
-		frameSelectionHintIsDrwn = draw;
+	public void setFrameVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= FRAME; else visualHintFlag &= ~FRAME;
 	}
 
 	/**
 	 * Sets the display of the camera key frame paths according to {@code draw}
 	 */
-	public void setViewPathsAreDrawn(boolean draw) {
-		viewPathsAreDrwn = draw;
+	public void setPathsVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= PATHS; else visualHintFlag &= ~PATHS;
+	}
+	
+	/**
+	 * Internal :p
+	 */
+	protected void setZoomVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= ZOOM; else visualHintFlag &= ~ZOOM;
+	}
+	
+	/**
+	 * Internal :p
+	 */
+	protected void setRotateVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= ROTATE; else visualHintFlag &= ~ROTATE;
 	}
 	
 	// Abstract drawing methods
@@ -1614,12 +1713,12 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   public abstract int height();
   
   public Vec projectedCoordinatesOf(Vec src) {
-  	return view().projectedCoordinatesOf(this.matrixHelper().getProjectionView(), src);
+  	return view().projectedCoordinatesOf(this.matrixHelper().projectionView(), src);
   }
   
   public Vec unprojectedCoordinatesOf(Vec src) {
   	if( this.matrixHelper().unprojectCacheIsOptimized() )
-  		return view().unprojectedCoordinatesOf(this.matrixHelper().getProjectionViewInverse(), src);
+  		return view().unprojectedCoordinatesOf(this.matrixHelper().projectionViewInverse(), src);
   	else
   		return view().unprojectedCoordinatesOf(src);
   }

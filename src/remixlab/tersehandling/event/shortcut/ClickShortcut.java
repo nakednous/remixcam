@@ -117,7 +117,7 @@ public class ClickShortcut extends Shortcut implements Copyable {
 	public String description() {
 		String description = new String();
 		if(mask != 0)
-			description += TerseEvent.getModifiersText(mask) + " + " + button.toString() + "_BUTTON";
+			description += TerseEvent.modifiersText(mask) + " + " + button.toString() + "_BUTTON";
 		if(numberOfClicks==1)
 		  description += " + " + numberOfClicks.toString() + " click";
 		else

@@ -83,7 +83,7 @@ public class GenericMotionAgent<M extends GenericMotionProfile<?>, C extends Gen
 	@Override
 	public void handle(TerseEvent event) {
 		//overkill but feels safer ;)
-		if(event == null || !handler.isAgentRegistered(this) || grabber() == null) return;		
+		if(event == null || !handler.agentRegistered(this) || grabber() == null) return;		
 		if(event instanceof Duoable<?>) {
 			if(event instanceof ClickEvent)
 				if( foreignGrabber() )

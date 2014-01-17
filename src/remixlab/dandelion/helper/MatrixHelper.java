@@ -39,7 +39,7 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	
 	@Override
 	public void cacheProjectionViewInverse() {
-		Mat.mult(getProjection(), getModelView(), projectionViewMat);
+		Mat.mult(projection(), modelView(), projectionViewMat);
     if(unprojectCacheIsOptimized()) {
     	if(projectionViewInverseMat == null)
     		projectionViewInverseMat = new Mat();
@@ -74,12 +74,12 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
   }
   
   @Override
-  public Mat getProjectionView() {
+  public Mat projectionView() {
 		return projectionViewMat;
 	}
   
   @Override
-  public Mat getProjectionViewInverse() {
+  public Mat projectionViewInverse() {
   	if( !unprojectCacheIsOptimized() )
 			throw new RuntimeException("optimizeUnprojectCache(true) should be called first");			
   	return projectionViewInverseMat;

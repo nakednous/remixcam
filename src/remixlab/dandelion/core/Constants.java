@@ -14,6 +14,18 @@ import remixlab.tersehandling.generic.profile.Actionable;
 
 public interface Constants extends EventConstants {	
 	/**
+	 * Visual hints as "the last shall be first"
+	 */
+	final static int AXIS    = 1 << 0;
+	final static int GRID    = 1 << 1;
+	final static int FRAME   = 1 << 2;
+	final static int PATHS   = 1 << 3;
+	final static int ZOOM    = 1 << 4; //prosceneMouse.zoomOnRegion
+	final static int ROTATE  = 1 << 5; //prosceneMouse.screenRotate
+	//final static int PUP     = 1 << 6;
+	//final static int ARP     = 1 << 7;
+	
+	/**
    * PI is a mathematical constant with the value 3.14159265358979323846.
    * It is the ratio of the circumference of a circle to its diameter.
    * It is useful in combination with the trigonometric functions <b>sin()</b> and <b>cos()</b>.
