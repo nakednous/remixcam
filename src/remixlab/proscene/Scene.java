@@ -628,7 +628,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawWindow(Window camera, float scale) {
+		public void drawCamera(View camera, float scale) {
 			pushModelView();
 			
 			/**
@@ -719,11 +719,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		  @Override
 		  public void cone(int detail, float x, float y, float r1, float r2, float h) {
 		  	AbstractScene.showDepthWarning("cone");
-		 	}
-		  
-		  @Override
-		  public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
-		  	AbstractScene.showDepthWarning("drawCamera");
 		 	}
 
 		  @Override
@@ -1094,8 +1089,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public void drawCamera(Camera cam, boolean drawFarPlane, float scale) {
+		public void drawCamera(View camera, float scale) {
 			pushModelView();
+			
+			Camera cam = (Camera) camera;
 			
 			//applyMatrix(camera.frame().worldMatrix());
 			// same as the previous line, but maybe more efficient
@@ -1147,7 +1144,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			}
 			}
 
-			int farIndex = drawFarPlane ? 1 : 0;
+			//int farIndex = drawFarPlane ? 1 : 0;
+			int farIndex = 1;
+			boolean drawFarPlane = true;
 			
 		  // Frustum lines
 			pg3d().pushStyle();		
@@ -1237,7 +1236,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawKFIView(float scale) {
+		public void drawKFIView(float scale) {			
 			float halfHeight = scale * 0.07f;
 			float halfWidth = halfHeight * 1.3f;
 			float dist = halfHeight / (float) Math.tan(PApplet.PI / 8.0f);
@@ -1348,96 +1347,6 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				drawViewPathSelectionHints();
 			}
 		}
-		
-		@Override
-		public void drawWindow(Window camera, float scale) {
-			pushModelView();
-			
-			//VFrame tmpFrame = new VFrame(scene.is3D());
-			//tmpFrame.fromMatrix(camera.frame().worldMatrix(), camera.frame().magnitude());		
-			//scene().applyTransformation(tmpFrame);
-			
-			//Same as above, but easier ;)
-		  scene().applyWorldTransformation(camera.frame());
-
-			//upper left coordinates of the near corner
-			Vec upperLeft = new Vec();
-			
-			pg().pushStyle();
-			
-			//float[] wh = camera.getOrthoWidthHeight();
-			//upperLeft.x = scale * wh[0];
-			//upperLeft.y = scale * wh[1];
-			
-			upperLeft.x(scale * scene.width() / 2);
-			upperLeft.y(scale * scene.height() / 2);
-							
-			pg().noStroke();		
-			pg().beginShape(PApplet.QUADS);				
-			pg().vertex(upperLeft.x(), upperLeft.y());
-			pg().vertex(-upperLeft.x(), upperLeft.y());
-			pg().vertex(-upperLeft.x(), -upperLeft.y());
-			pg().vertex(upperLeft.x(), -upperLeft.y());		
-			pg().endShape();
-
-			// Up arrow
-			float arrowHeight = 1.5f * upperLeft.y();
-			float baseHeight = 1.2f * upperLeft.y();
-			float arrowHalfWidth = 0.5f * upperLeft.x();
-			float baseHalfWidth = 0.3f * upperLeft.x();
-			
-		  // Base
-			pg().beginShape(PApplet.QUADS);		
-			if( camera.scene.isLeftHanded() ) {
-				pg().vertex(-baseHalfWidth, -upperLeft.y());
-				pg().vertex(baseHalfWidth, -upperLeft.y());
-				pg().vertex(baseHalfWidth, -baseHeight);
-				pg().vertex(-baseHalfWidth, -baseHeight);	
-			}
-			else {
-				pg().vertex(-baseHalfWidth, upperLeft.y());
-				pg().vertex(baseHalfWidth, upperLeft.y());
-				pg().vertex(baseHalfWidth, baseHeight);
-				pg().vertex(-baseHalfWidth, baseHeight);
-			}
-			pg().endShape();
-			
-		  // Arrow
-			pg().beginShape(PApplet.TRIANGLES);
-			if( camera.scene.isLeftHanded() ) {
-				pg().vertex(0.0f, -arrowHeight);
-				pg().vertex(-arrowHalfWidth, -baseHeight);
-				pg().vertex(arrowHalfWidth, -baseHeight);
-			}
-			else {
-				pg().vertex(0.0f, arrowHeight);
-				pg().vertex(-arrowHalfWidth, baseHeight);
-				pg().vertex(arrowHalfWidth, baseHeight);
-			}
-			pg().endShape();		
-			
-			pg().popStyle();
-			popModelView();
-		}
-		
-		/**
-		@Override
-		public void drawGrid(float size, int nbSubdivisions) {
-			pg().pushStyle();
-			pg().stroke(170, 170, 170);
-			pg().strokeWeight(1);
-			pg().beginShape(PApplet.LINES);
-			for (int i = 0; i <= nbSubdivisions; ++i) {
-				final float pos = size * (2.0f * i / nbSubdivisions - 1.0f);
-				pg().vertex(pos, -size);
-				pg().vertex(pos, +size);
-				pg().vertex(-size, pos);
-				pg().vertex(size, pos);
-			}
-			pg().endShape();
-			pg().popStyle();
-		}
-		*/
 	}
 	
 	protected class P5Java2DMatrixHelper extends MatrixHelper {

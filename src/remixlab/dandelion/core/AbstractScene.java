@@ -47,13 +47,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	protected TerseHandler terseHandler;
 
 	// D I S P L A Y F L A G S
-	protected int visualHintFlag; 
-	/**
-	protected boolean axisIsDrwn; // world axis
-	protected boolean gridIsDrwn; // world XY grid
-	protected boolean frameSelectionHintIsDrwn;
-	protected boolean viewPathsAreDrwn;
-	*/
+	protected int visualHintFlag;
 	
 	// LEFT vs RIGHT_HAND
 	protected boolean rightHanded;
@@ -772,13 +766,9 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   public void drawDottedGrid(float size, int nbSubdivisions) {
   	drawingHelpler().drawDottedGrid(size, nbSubdivisions);
   }
-    
-  public void drawWindow(Window window, float scale) {
-  	drawingHelpler().drawWindow(window, scale);
-  }
   
-  public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
-  	drawingHelpler().drawCamera(camera, drawFarPlane, scale);
+  public void drawCamera(View eye, float scale) {
+  	drawingHelpler().drawCamera(eye, scale);
   }
   
   public void drawKFIView(float scale) {
@@ -1336,7 +1326,24 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		return view().setSceneCenterFromPixel(pixel);
 	}
 	
-	// * Control what is drawing
+	// Control what is drawing
+	
+	/**
+	 * Returns the visual hints flag.
+	 */
+	public int visualHints() {
+		return this.visualHintFlag;
+	}
+	
+	/**
+	 * Low level setting of visual flags. You'd prefer {@link #setAxisVisualHint(boolean)},
+	 * {@link #setGridVisualHint(boolean)}, {@link #setPathsVisualHint(boolean)} and
+	 * {@link #setFrameVisualHint(boolean)}, unless you want to set them all at once,
+	 * e.g., {@code setVisualHints(Constants.AXIS | Constants.GRID | Constants.PATHS | Constants.FRAME)}.
+	 */
+	public void setVisualHints(int flag) {
+		visualHintFlag = flag;
+	}
 	
 	/**
 	 * Toggles the state of {@link #axisVisualHint()}.
@@ -1436,39 +1443,11 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 
 	/**
-	 * Returns {@code true} if axis is currently being drawn and {@code false}
-	 * otherwise.
-	 */
-	/**
-	public boolean interactiveFrameIsDrawn() {
-		return iFrameIsDrwn;
-	}
-	*/
-
-	/**
-	 * Convenience function that simply calls {@code setAxisIsDrawn(true)}
-	 */
-	/**
-	public void setAxisIsDrawn() {
-		setAxisIsDrawn(true);
-	}
-	*/
-
-	/**
 	 * Sets the display of the axis according to {@code draw}
 	 */
 	public void setAxisVisualHint(boolean draw) {
 		if(draw) visualHintFlag |= AXIS; else visualHintFlag &= ~AXIS;
 	}
-
-	/**
-	 * Convenience function that simply calls {@code setGridIsDrawn(true)}
-	 */
-	/**
-	public void setGridIsDrawn() {
-		setGridIsDrawn(true);
-	}
-	*/
 
 	/**
 	 * Sets the display of the grid according to {@code draw}
@@ -1632,39 +1611,12 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 	
 	/**
-	 * Convenience function that simply calls {@code drawCamera(camera, true, 1.0f)}
-	 * 
-	 * @see #drawCamera(Camera, boolean, float)
-	 */
-	public void drawCamera(Camera camera) {
-		drawCamera(camera, true, 1.0f);
-	}		
-
-	/**
-	 * Convenience function that simply calls {@code drawCamera(camera, true, scale)}
-	 * 
-	 * @see #drawCamera(Camera, boolean, float)
-	 */
-	public void drawCamera(Camera camera, float scale) {
-		drawCamera(camera, true, scale);
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code drawCamera(camera, drawFarPlane, 1.0f)}
-	 * 
-	 * @see #drawCamera(Camera, boolean, float)
-	 */
-	public void drawCamera(Camera camera, boolean drawFarPlane) {
-		drawCamera(camera, drawFarPlane, 1.0f);
-	}
-	
-	/**
 	 * Convenience function that simply calls {@code drawViewWindow(camera, 1)}
 	 * 
 	 * @see #drawWindow(Window, float)
 	 */
-	public void drawWindow(Window vWindow) {
-		drawWindow(vWindow, 1);
+	public void drawCamera(View eye) {
+		drawCamera(eye, 1);
 	}
 		
 	/**

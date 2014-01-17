@@ -36,8 +36,6 @@ public interface VisualHintable {
 	
 	public void drawDottedGrid(float size, int nbSubdivisions);
 	
-	public void drawWindow(Window window, float scale);	
-	
 	/**
 	 * Draws a rectangle on the screen showing the region where a zoom operation
 	 * is taking place.
@@ -106,7 +104,27 @@ public interface VisualHintable {
 		
 	public void drawPath(KeyFrameInterpolator kfi, int mask, int nbFrames, float scale);
 	
-	// 3D
+	/**
+	 * Draws a representation of the {@code camera} in the 3D virtual world.
+	 * <p>
+	 * The near and far planes are drawn as quads, the frustum is drawn using
+	 * lines and the camera up vector is represented by an arrow to disambiguate
+	 * the drawing.
+	 * <p>
+	 * When {@code drawFarPlane} is {@code false}, only the near plane is drawn.
+	 * {@code scale} can be used to scale the drawing: a value of 1.0 (default)
+	 * will draw the Camera's frustum at its actual size.
+	 * <p>
+	 * <b>Note:</b> The drawing of a Scene's own Scene.camera() should not be
+	 * visible, but may create artifacts due to numerical imprecisions.
+	 */
+ public void drawCamera(View eye, float scale);
+ 
+ //public void drawWindow(Window window, float scale);	
+
+ public void drawKFIView(float scale);
+	
+	// Only 3D
 	/**
 	 * Draws a cylinder of width {@code w} and height {@code h}, along the 
 	 * positive {@code z} axis. 
@@ -143,25 +161,4 @@ public interface VisualHintable {
 	 * @see #cone(int, float, float, float, float)
 	 */
  public void cone(int detail, float x, float y, float r1, float r2, float h);
- 
-//TODO pend
-	//public void drawViewPort(ViewPort camera, float scale);
-	
-	/**
-	 * Draws a representation of the {@code camera} in the 3D virtual world.
-	 * <p>
-	 * The near and far planes are drawn as quads, the frustum is drawn using
-	 * lines and the camera up vector is represented by an arrow to disambiguate
-	 * the drawing.
-	 * <p>
-	 * When {@code drawFarPlane} is {@code false}, only the near plane is drawn.
-	 * {@code scale} can be used to scale the drawing: a value of 1.0 (default)
-	 * will draw the Camera's frustum at its actual size.
-	 * <p>
-	 * <b>Note:</b> The drawing of a Scene's own Scene.camera() should not be
-	 * visible, but may create artifacts due to numerical imprecisions.
-	 */
- public void drawCamera(Camera camera, boolean drawFarPlane, float scale);
-
- public void drawKFIView(float scale);
 }
