@@ -54,7 +54,6 @@ public class Camera extends View implements Constants, Copyable {
 		append(tp).
 		append(zClippingCoef).
 		append(zNearCoef).
-		append(cadRotate).
     toHashCode();
 	}
 
@@ -77,7 +76,6 @@ public class Camera extends View implements Constants, Copyable {
 		.append(tp,other.tp)
 		.append(zClippingCoef,other.zClippingCoef)
 		.append(zNearCoef,other.zNearCoef)
-		.append(cadRotate,other.cadRotate)
 		.isEquals();
 	}
 	
@@ -192,8 +190,6 @@ public class Camera extends View implements Constants, Copyable {
 	private float focusDist; // in scene units
 	private float physicalDist2Scrn; // in meters
 	private float physicalScrnWidth; // in meters			
-	
-	protected boolean cadRotate;
 
 	/**
 	 * Main constructor.
@@ -376,23 +372,6 @@ public class Camera extends View implements Constants, Copyable {
 	@Override
 	public Camera get() {
 		return new Camera(this);
-	}
-	
-	//TODO
-	public boolean isArcBallRotate() {
-		return !isCadRotate();
-	}
-	
-	public boolean isCadRotate() {
-		return cadRotate;
-	}
-	
-	public void setCadRotate() {
-		cadRotate = true;
-	}
-	
-	public void setArcBallRotate() {
-		cadRotate = false;
 	}
 
 	// 2. POSITION AND ORIENTATION

@@ -127,6 +127,7 @@ public interface Constants extends EventConstants {
   	// DEVICE ACTIONs
   	//NO_DEVICE_ACTION("No device action", true, 2),
   	ROTATE("Rotate frame (camera or interactive frame)", true, 2),
+  	CAD_ROTATE("Rotate camera frame as in CAD applications", false, 2),
   	TRANSLATE("Translate frame (camera or interactive frame)", true, 2),
   	MOVE_FORWARD("Move forward frame (camera or interactive frame)", false, 2),
   	MOVE_BACKWARD("move backward frame (camera or interactive frame)", false, 2),
@@ -385,6 +386,7 @@ public interface Constants extends EventConstants {
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
+  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
   	TRANSLATE(DandelionAction.TRANSLATE),
   	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
@@ -429,6 +431,7 @@ public interface Constants extends EventConstants {
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
+  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
   	TRANSLATE(DandelionAction.TRANSLATE),
   	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
@@ -477,6 +480,7 @@ public interface Constants extends EventConstants {
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
+  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
   	TRANSLATE(DandelionAction.TRANSLATE),
   	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),

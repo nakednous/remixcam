@@ -367,12 +367,18 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				break;
 			}
 			trans = camera.projectedCoordinatesOf(arcballReferencePoint());			
-			if( camera.isArcBallRotate() )
-				setSpinningQuaternion(deformedBallQuaternion(e2, trans.vec[0], trans.vec[1], camera));
-			else
-				setSpinningQuaternion(cadQuaternion(e2,  trans.vec[0], trans.vec[1], camera));
+			setSpinningQuaternion(deformedBallQuaternion(e2, trans.vec[0], trans.vec[1], camera));
 			if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
-			break;		
+			break;
+		case CAD_ROTATE:
+			if(e2.absolute()) {
+				AbstractScene.showEventVariationWarning(a);
+				break;
+			}
+			trans = camera.projectedCoordinatesOf(arcballReferencePoint());			
+			setSpinningQuaternion(cadQuaternion(e2,  trans.vec[0], trans.vec[1], camera));
+			if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
+			break;
 		case ROTATE3:
 			q = new Quat();
 			if(e3.absolute())
