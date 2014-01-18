@@ -1731,4 +1731,6 @@ public abstract class View implements Copyable {
 	}
 	
 	public abstract Vec viewDirection();
+
+	public abstract void interpolateToZoomOnPixel(Point pixel);
 }

@@ -1727,11 +1727,22 @@ public class Camera extends View implements Constants, Copyable {
 	 * 
 	 * @see #interpolateToFitScene()
 	 */
-	public WorldPoint interpolateToZoomOnPixel(Point pixel) {
-		float coef = 0.1f;
-
+	@Override
+	public void interpolateToZoomOnPixel(Point pixel) {
 		WorldPoint target = pointUnderPixel(pixel);
 
+		if (!target.found) {
+			System.out.println("No object under pixel was found");
+		  //return target;
+			return;
+		}			
+		
+		interpolateToZoomOnPixel(target);
+	}
+	
+	protected WorldPoint interpolateToZoomOnPixel(WorldPoint target) {
+		float coef = 0.1f;
+		
 		if (!target.found)
 			return target;
 
@@ -1761,7 +1772,7 @@ public class Camera extends View implements Constants, Copyable {
 		interpolationKfi.startInterpolation();		
 
 		return target;
-	}	
+	}
 
 	// 13. STEREO PARAMETERS
 

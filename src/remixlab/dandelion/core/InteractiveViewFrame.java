@@ -541,7 +541,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			camera.frame().alignWithFrame(null, true);
 			break;			
 		case ZOOM_ON_PIXEL:
-				wP = camera.interpolateToZoomOnPixel(new Point(cEvent.getX(), cEvent.getY()));
+				wP = camera.interpolateToZoomOnPixel(camera.pointUnderPixel(new Point(cEvent.getX(), cEvent.getY())));
 				if (wP.found) {
 					pupVec = wP.point;
 					pupFlag = true;

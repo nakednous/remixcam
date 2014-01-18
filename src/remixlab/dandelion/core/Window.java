@@ -385,6 +385,7 @@ public class Window extends View implements Copyable {
 		return true;
 	}
 	
+	@Override
 	public void interpolateToZoomOnPixel(Point pixel) {
 		float winW = this.screenWidth()/3;
 		float winH = this.screenHeight()/3;
