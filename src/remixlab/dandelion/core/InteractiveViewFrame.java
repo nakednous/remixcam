@@ -245,7 +245,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			float[] wh = viewWindow.getBoundaryWidthHeight();
 			trans.vec[0] *= 2.0f * wh[0] / viewWindow.screenWidth();
 			trans.vec[1] *= 2.0f * wh[1] / viewWindow.screenHeight();			
-			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity())));
+			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity())));
 			break;
 		case TRANSLATE:
 			deltaX = (e2.relative()) ? e2.dx() : e2.x();
@@ -254,7 +254,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			else
 				deltaY = scene.isRightHanded() ? -e2.y() : e2.y();			
 			trans = new Vec(-deltaX, -deltaY, 0.0f);			
-			trans = viewWindow.frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			trans = viewWindow.frame().inverseTransformOf(Vec.multiply(trans, translationSensitivity()));				
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -268,7 +268,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			else
 				deltaY = scene.isRightHanded() ? -e6.y() : e6.y();			
 			trans = new Vec(-deltaX, -deltaY, 0.0f);			
-			trans = viewWindow.frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			trans = viewWindow.frame().inverseTransformOf(Vec.multiply(trans, translationSensitivity()));				
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -304,7 +304,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			else {
 				//inverseScale(1 + Math.abs(delta) / (float) -scene.height());
 				float s = 1 + Math.abs(delta) / (float) -scene.height();
-				setScaling(Vec.div(scaling(), new Vec(s,s)));
+				setScaling(Vec.divide(scaling(), new Vec(s,s)));
 			}
 			break;
 		case ZOOM_ON_REGION:
@@ -413,7 +413,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 					trans.set(0.0f, -e2.dy(), 0.0f);	
 			switch (camera.type()) {
 			case PERSPECTIVE:
-				trans.mult(2.0f
+				trans.multiply(2.0f
 						* (float) Math.tan( camera.fieldOfView() / 2.0f)
 						* Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
 						//* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2])
@@ -426,8 +426,8 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;
 			}
-			trans = Vec.mult(trans, translationSensitivity());				
-			trans.div(magnitude());
+			trans = Vec.multiply(trans, translationSensitivity());				
+			trans.divide(magnitude());
 			translate(inverseTransformOf(trans));
 			//translate(inverseTransformOf(trans, false));
 			break;
@@ -439,7 +439,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			// Scale to fit the screen mouse displacement
 			switch (camera.type()) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
+				trans.multiply(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
                         * Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
                         / camera.screenHeight());
 				break;
@@ -449,7 +449,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;
 			}
-			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
+			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
 			break;
 		case TRANSLATE3:
 			if(e3.relative())
@@ -459,7 +459,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			// Scale to fit the screen mouse displacement
 			switch (camera.type()) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
+				trans.multiply(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
                         * Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
                         / camera.screenHeight());
 				break;
@@ -469,7 +469,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;
 			}
-			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
+			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
 			break;
 		case TRANSLATE_ROTATE:
 			//translate
@@ -480,7 +480,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			// Scale to fit the screen mouse displacement
 			switch (camera.type()) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
+				trans.multiply(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
                         * Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
                         / camera.screenHeight());
 				break;
@@ -490,7 +490,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;
 			}
-			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
+			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
 		  // Rotate
 			q = new Quat();
 			if(e6.absolute())
@@ -513,7 +513,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			trans = new Vec(0.0f, 0.0f,	delta);
 			//No Scl
 			Vec mag = magnitude();
-			trans.div(mag);			
+			trans.divide(mag);			
 			translate(inverseTransformOf(trans));
 			break;
 		case ZOOM_ON_REGION:
@@ -626,7 +626,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 	 */
 	public void setCADAxis(Vec axis) {
 		//non-zero
-		if( Util.zero(axis.mag()) )
+		if( Util.zero(axis.magnitude()) )
 			return;
 		else
 			worldAxis = axis.get();

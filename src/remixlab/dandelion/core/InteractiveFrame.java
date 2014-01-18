@@ -907,7 +907,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 				trans.set(deltaX, 0.0f, 0.0f);
 			else if (dir == -1)
 				trans.set(0.0f, -deltaY, 0.0f);				
-			trans = scene.window().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			trans = scene.window().frame().inverseTransformOf(Vec.multiply(trans, translationSensitivity()));				
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -920,7 +920,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			else
 				deltaY = scene.isRightHanded() ? e2.y() : -e2.y();
 			trans = new Vec(deltaX, -deltaY, 0.0f);
-			trans = scene.window().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			trans = scene.window().frame().inverseTransformOf(Vec.multiply(trans, translationSensitivity()));				
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -935,7 +935,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			else
 				deltaY = scene.isRightHanded() ? e6.y() : -e6.y();
 			trans = new Vec(deltaX, -deltaY, 0.0f);
-			trans = scene.window().frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			trans = scene.window().frame().inverseTransformOf(Vec.multiply(trans, translationSensitivity()));				
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -971,7 +971,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			else {
 				//inverseScale(1 + Math.abs(delta) / (float) scene.height());
 				float s = 1 + Math.abs(delta) / (float) scene.height();
-				setScaling(Vec.div(scaling(), new Vec(s,s)));
+				setScaling(Vec.divide(scaling(), new Vec(s,s)));
 			}
 			break;
 		case CENTER_FRAME:
@@ -1112,7 +1112,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 					trans.set(0.0f, e2.dy(), 0.0f);	
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
+				trans.multiply(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
 						            * Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2] * scene.camera().frame().magnitude().z())
 						            //* Math.abs((camera.frame().coordinatesOf(position())).vec[2])						            
 						            / scene.camera().screenHeight());
@@ -1123,7 +1123,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 				trans.vec[1] *= 2.0 * wh[1] / scene.camera().screenHeight();
 				break;
 			}
-			trans = scene.camera().frame().orientation().rotate(Vec.mult(trans, translationSensitivity()));
+			trans = scene.camera().frame().orientation().rotate(Vec.multiply(trans, translationSensitivity()));
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
 			translate(trans);
@@ -1136,7 +1136,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		  // Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
+				trans.multiply(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
 						            * Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2] * scene.camera().frame().magnitude().z())
 								        //* Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2])						            
 								        / scene.camera().screenHeight());
@@ -1149,7 +1149,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 				}
 			}
 			// same as:
-			trans = scene.camera().frame().orientation().rotate(Vec.mult(trans, translationSensitivity()));
+			trans = scene.camera().frame().orientation().rotate(Vec.multiply(trans, translationSensitivity()));
 			// but takes into account scaling
 			//trans = scene.camera().frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
 			// And then down to frame
@@ -1165,7 +1165,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		  // Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
+				trans.multiply(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
 						            * Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2] * scene.camera().frame().magnitude().z())
 								        //* Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2])						            
 								        / scene.camera().screenHeight());
@@ -1178,7 +1178,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 				}
 			}
 		  // same as:
-			trans = scene.camera().frame().orientation().rotate(Vec.mult(trans, translationSensitivity()));
+			trans = scene.camera().frame().orientation().rotate(Vec.multiply(trans, translationSensitivity()));
 			// but takes into account scaling
 			//trans = scene.camera().frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
 			// And then down to frame
@@ -1195,7 +1195,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		  // Scale to fit the screen mouse displacement
 			switch ( scene.camera().type() ) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
+				trans.multiply(2.0f * (float) Math.tan(scene.camera().fieldOfView() / 2.0f)
 						            * Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2] * scene.camera().frame().magnitude().z())
 								        //* Math.abs((scene.camera().frame().coordinatesOf(position())).vec[2])						            
 								        / scene.camera().screenHeight());
@@ -1208,7 +1208,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 				}
 			}
 		  // same as:
-			trans = scene.camera().frame().orientation().rotate(Vec.mult(trans, translationSensitivity()));
+			trans = scene.camera().frame().orientation().rotate(Vec.multiply(trans, translationSensitivity()));
 			// but takes into account scaling
 			//trans = scene.camera().frame().inverseTransformOf(Vector3D.mult(trans, translationSensitivity()));
 			// And then down to frame
@@ -1244,7 +1244,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			else {
 				//inverseScale(1 + Math.abs(delta) / (float) scene.height());
 				float s = 1 + Math.abs(delta) / (float) scene.height();
-				setScaling(Vec.div(scaling(), new Vec(s,s,s)));
+				setScaling(Vec.divide(scaling(), new Vec(s,s,s)));
 				}
 			break;
 		case CENTER_FRAME:

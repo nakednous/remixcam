@@ -142,7 +142,7 @@ public class Camera extends View implements Constants, Copyable {
 				axis = Vec.add(axis, n[i]);
 			}
 			
-			if ( Util.nonZero(axis.mag()) ) {
+			if ( Util.nonZero(axis.magnitude()) ) {
 	      axis.normalize();
 	    }
 	    else {
@@ -378,6 +378,7 @@ public class Camera extends View implements Constants, Copyable {
 		return new Camera(this);
 	}
 	
+	//TODO
 	public boolean isArcBallRotate() {
 		return !isCadRotate();
 	}
@@ -417,7 +418,7 @@ public class Camera extends View implements Constants, Copyable {
 		Quat q = new Quat(new Vec(0.0f, 1.0f, 0.0f), frame().transformOf(up));
 
 		if (!noMove && scene.is3D())
-			frame().setPosition(Vec.sub(arcballReferencePoint(), 
+			frame().setPosition(Vec.subtract(arcballReferencePoint(), 
 							            (Quat.multiply((Quat)frame().orientation(), q)).rotate(frame().coordinatesOf(arcballReferencePoint()))));
 		
 		frame().rotate(q);
@@ -466,19 +467,8 @@ public class Camera extends View implements Constants, Copyable {
 		}
 
 		Quat q = new Quat();
-		q.fromRotatedBasis(xAxis, xAxis.cross(direction), Vec.mult(direction,	-1));
+		q.fromRotatedBasis(xAxis, xAxis.cross(direction), Vec.multiply(direction,	-1));
 		frame().setOrientationWithConstraint(q);
-	}
-
-	/**
-	 * Returns the Camera orientation, defined in the world coordinate system.
-	 * <p>
-	 * Actually returns {@code frame().orientation()}. Use
-	 * {@link #setOrientation(Quat)}, {@link #setUpVector(Vec)} or
-	 * {@link #lookAt(Vec)} to set the Camera orientation.
-	 */
-	public Orientable orientation() {
-		return frame().orientation();
 	}
 
 	/**
@@ -1049,18 +1039,18 @@ public class Camera extends View implements Constants, Copyable {
 			float hhfov = horizontalFieldOfView() / 2.0f;
 			float chhfov = (float) Math.cos(hhfov);
 			float shhfov = (float) Math.sin(hhfov);
-			normal[0] = Vec.mult(viewDir, -shhfov);
-			normal[1] = Vec.add(normal[0], Vec.mult(right, chhfov));
-			normal[0] = Vec.add(normal[0], Vec.mult(right, -chhfov));
-			normal[2] = Vec.mult(viewDir, -1);
+			normal[0] = Vec.multiply(viewDir, -shhfov);
+			normal[1] = Vec.add(normal[0], Vec.multiply(right, chhfov));
+			normal[0] = Vec.add(normal[0], Vec.multiply(right, -chhfov));
+			normal[2] = Vec.multiply(viewDir, -1);
 			normal[3] = viewDir;
 
 			float hfov = fieldOfView() / 2.0f;
 			float chfov = (float) Math.cos(hfov);
 			float shfov = (float) Math.sin(hfov);
-			normal[4] = Vec.mult(viewDir, -shfov);
-			normal[5] = Vec.add(normal[4], Vec.mult(up, -chfov));
-			normal[4] = Vec.add(normal[4], Vec.mult(up, chfov));
+			normal[4] = Vec.multiply(viewDir, -shfov);
+			normal[5] = Vec.add(normal[4], Vec.multiply(up, -chfov));
+			normal[4] = Vec.add(normal[4], Vec.multiply(up, chfov));
 
 			for (int i = 0; i < 2; ++i)
 				dist[i] = Vec.dot(pos, normal[i]);
@@ -1085,21 +1075,21 @@ public class Camera extends View implements Constants, Copyable {
 			break;
 		}
 		case ORTHOGRAPHIC:
-			normal[0] = Vec.mult(right, -1);
+			normal[0] = Vec.multiply(right, -1);
 			normal[1] = right;
 			normal[4] = up;
-			normal[5] = Vec.mult(up, -1);
+			normal[5] = Vec.multiply(up, -1);
 
 			float[] wh = getBoundaryWidthHeight();
-			dist[0] = Vec.dot(Vec.sub(pos, Vec.mult(right, wh[0])),	normal[0]);
-			dist[1] = Vec.dot(Vec.add(pos, Vec.mult(right, wh[0])),	normal[1]);
-			dist[4] = Vec.dot(Vec.add(pos, Vec.mult(up, wh[1])), normal[4]);
-			dist[5] = Vec.dot(Vec.sub(pos, Vec.mult(up, wh[1])), normal[5]);
+			dist[0] = Vec.dot(Vec.subtract(pos, Vec.multiply(right, wh[0])),	normal[0]);
+			dist[1] = Vec.dot(Vec.add(pos, Vec.multiply(right, wh[0])),	normal[1]);
+			dist[4] = Vec.dot(Vec.add(pos, Vec.multiply(up, wh[1])), normal[4]);
+			dist[5] = Vec.dot(Vec.subtract(pos, Vec.multiply(up, wh[1])), normal[5]);
 			break;
 		}
 
 		// Front and far planes are identical for both camera types.
-		normal[2] = Vec.mult(viewDir, -1);
+		normal[2] = Vec.multiply(viewDir, -1);
 		normal[3] = viewDir;
 		dist[2] = -posViewDir - zNear();
 		dist[3] = posViewDir + zFar();
@@ -1224,8 +1214,8 @@ public class Camera extends View implements Constants, Copyable {
 	 * @param c third face vertex
 	 */
   public boolean faceIsBackFacing(Vec a, Vec b, Vec c) {
-  	Vec v1 = Vec.sub(projectedCoordinatesOf(a), projectedCoordinatesOf(b));
-    Vec v2 = Vec.sub(projectedCoordinatesOf(b), projectedCoordinatesOf(c));
+  	Vec v1 = Vec.subtract(projectedCoordinatesOf(a), projectedCoordinatesOf(b));
+    Vec v2 = Vec.subtract(projectedCoordinatesOf(b), projectedCoordinatesOf(c));
     return v1.cross(v2).vec[2] <= 0;
   }
     
@@ -1284,12 +1274,13 @@ public class Camera extends View implements Constants, Copyable {
 	 * <p>
 	 * Used by {@link #zNear()} and {@link #zFar()} to optimize the Z range.
 	 */
+	@Override
 	public float distanceToSceneCenter() {
 		//return Math.abs((frame().coordinatesOf(sceneCenter())).vec[2]);//before scln
 	  //if there were not validateScaling this should do it:
 		//Vec zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
 		Vec zCam = frame().zAxis();		
-		Vec cam2SceneCenter = Vec.sub(position(), sceneCenter());
+		Vec cam2SceneCenter = Vec.subtract(position(), sceneCenter());
 		return Math.abs(Vec.dot(cam2SceneCenter, zCam));		
 	}
 
@@ -1301,12 +1292,13 @@ public class Camera extends View implements Constants, Copyable {
 	 * translated forward then its frustum is narrowed, making the object appear
 	 * bigger on screen, as intuitively expected.
 	 */
+	@Override
 	public float distanceToARP() {
 		//return Math.abs(cameraCoordinatesOf(arcballReferencePoint()).vec[2]);//before scln
 		//if there were not validateScaling this should do it:
 		//Vec zCam = frame().magnitude().z() > 0 ? frame().zAxis() : frame().zAxis(false);
 		Vec zCam = frame().zAxis();
-		Vec cam2arp = Vec.sub(position(), arcballReferencePoint());
+		Vec cam2arp = Vec.subtract(position(), arcballReferencePoint());
 		return Math.abs(Vec.dot(cam2arp, zCam));
 	}
 		
@@ -1317,8 +1309,8 @@ public class Camera extends View implements Constants, Copyable {
 	 */
 	@Override
 	public void setSceneBoundingBox(Vec min, Vec max) {
-		setSceneCenter(Vec.mult(Vec.add(min, max), 1 / 2.0f));
-		setSceneRadius(0.5f * (Vec.sub(max, min)).mag());
+		setSceneCenter(Vec.multiply(Vec.add(min, max), 1 / 2.0f));
+		setSceneRadius(0.5f * (Vec.subtract(max, min)).magnitude());
 	}
 
 	// 5. ARCBALL REFERENCE POINT
@@ -1540,7 +1532,7 @@ public class Camera extends View implements Constants, Copyable {
 		Quat q = new Quat();
  	  q.fromMatrix(mv);
  	  setOrientation(q); 	  
- 	  setPosition(Vec.mult(q.rotate(new Vec(mv.mat[12], mv.mat[13], mv.mat[14])), -1) );
+ 	  setPosition(Vec.multiply(q.rotate(new Vec(mv.mat[12], mv.mat[13], mv.mat[14])), -1) );
  	  if(recompute)
  	  	this.computeView();
   }
@@ -1593,7 +1585,7 @@ public class Camera extends View implements Constants, Copyable {
 			dir.set(new Vec(((2.0f * pixel.x / screenWidth()) - 1.0f)	* (float) Math.tan(fieldOfView() / 2.0f) * aspectRatio(),
 					                 ((2.0f * (screenHeight() - pixel.y) / screenHeight()) - 1.0f) * (float) Math.tan(fieldOfView() / 2.0f),
 					                   -1.0f));
-			dir.set(Vec.sub(frame().inverseCoordinatesOf(dir, false), orig));
+			dir.set(Vec.subtract(frame().inverseCoordinatesOf(dir, false), orig));
 			dir.normalize();
 			break;
 
@@ -1626,7 +1618,7 @@ public class Camera extends View implements Constants, Copyable {
 	 */
 	@Override
 	public void lookAt(Vec target) {
-		setViewDirection(Vec.sub(target, position()));
+		setViewDirection(Vec.subtract(target, position()));
 	}
 
 	/**
@@ -1666,12 +1658,12 @@ public class Camera extends View implements Constants, Copyable {
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			distance = Vec.dot(Vec.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoef);
+			distance = Vec.dot(Vec.subtract(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoef);
 			break;
 		}
 		}
 
-		Vec newPos = Vec.sub(center, Vec.mult(viewDirection(), distance));
+		Vec newPos = Vec.subtract(center, Vec.multiply(viewDirection(), distance));
 		frame().setPositionWithConstraint(newPos);
 	}
 
@@ -1684,7 +1676,7 @@ public class Camera extends View implements Constants, Copyable {
 	public void fitBoundingBox(Vec min, Vec max) {
 		float diameter = Math.max(Math.abs(max.vec[1] - min.vec[1]), Math.abs(max.vec[0] - min.vec[0]));
 		diameter = Math.max(Math.abs(max.vec[2] - min.vec[2]), diameter);
-		fitBall(Vec.mult(Vec.add(min, max), 0.5f), 0.5f * diameter);
+		fitBall(Vec.multiply(Vec.add(min, max), 0.5f), 0.5f * diameter);
 	}
 
 	/**
@@ -1709,27 +1701,27 @@ public class Camera extends View implements Constants, Copyable {
 		Vec orig = new Vec();
 		Vec dir = new Vec();
 		convertClickToLine(center, orig, dir);
-		Vec newCenter = Vec.add(orig, Vec.mult(dir, (distToPlane / Vec.dot(dir, vd))));
+		Vec newCenter = Vec.add(orig, Vec.multiply(dir, (distToPlane / Vec.dot(dir, vd))));
 
 		convertClickToLine(new Point(rectangle.x, center.y), orig, dir);
-		final Vec pointX = Vec.add(orig, Vec.mult(dir,	(distToPlane / Vec.dot(dir, vd))));
+		final Vec pointX = Vec.add(orig, Vec.multiply(dir,	(distToPlane / Vec.dot(dir, vd))));
 
 		convertClickToLine(new Point(center.x, rectangle.y), orig, dir);
-		final Vec pointY = Vec.add(orig, Vec.mult(dir,	(distToPlane / Vec.dot(dir, vd))));
+		final Vec pointY = Vec.add(orig, Vec.multiply(dir,	(distToPlane / Vec.dot(dir, vd))));
 
 		float distance = 0.0f;
 		switch (type()) {
 		case PERSPECTIVE: {
-			final float distX = Vec.dist(pointX, newCenter)	/ (float) Math.sin(horizontalFieldOfView() / 2.0f);
-			final float distY = Vec.dist(pointY, newCenter) / (float) Math.sin(fieldOfView() / 2.0f);
+			final float distX = Vec.distance(pointX, newCenter)	/ (float) Math.sin(horizontalFieldOfView() / 2.0f);
+			final float distY = Vec.distance(pointY, newCenter) / (float) Math.sin(fieldOfView() / 2.0f);
 
 			distance = Math.max(distX, distY);
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			final float dist = Vec.dot(Vec.sub(newCenter,	arcballReferencePoint()), vd);
-			final float distX = Vec.dist(pointX, newCenter) / orthoCoef	/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
-			final float distY = Vec.dist(pointY, newCenter) / orthoCoef	/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
+			final float dist = Vec.dot(Vec.subtract(newCenter,	arcballReferencePoint()), vd);
+			final float distX = Vec.distance(pointX, newCenter) / orthoCoef	/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
+			final float distY = Vec.distance(pointY, newCenter) / orthoCoef	/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
 
 			distance = dist + Math.max(distX, distY);
 
@@ -1737,7 +1729,7 @@ public class Camera extends View implements Constants, Copyable {
 		}
 		}
 
-		frame().setPositionWithConstraint(Vec.sub(newCenter, Vec.mult(vd, distance)));
+		frame().setPositionWithConstraint(Vec.subtract(newCenter, Vec.multiply(vd, distance)));
 	}
 	
 	@Override
@@ -1773,14 +1765,14 @@ public class Camera extends View implements Constants, Copyable {
 		interpolationKfi.addKeyFrame(new InteractiveFrame(scene, frame()));
 
 		interpolationKfi.addKeyFrame(new Frame(frame().orientation(),
-					                                    Vec.add(Vec.mult(frame().position(),
-					                                    		0.3f), Vec.mult(target.point, 0.7f))), 0.4f);
+					                                    Vec.add(Vec.multiply(frame().position(),
+					                                    		0.3f), Vec.multiply(target.point, 0.7f))), 0.4f);
 
 		// Small hack: attach a temporary frame to take advantage of lookAt without
 		// modifying frame
 		tempFrame = new InteractiveViewFrame(this);
 		InteractiveViewFrame originalFrame = frame();
-		tempFrame.setPosition(Vec.add(Vec.mult(frame().position(), coef),	Vec.mult(target.point, (1.0f - coef))));
+		tempFrame.setPosition(Vec.add(Vec.multiply(frame().position(), coef),	Vec.multiply(target.point, (1.0f - coef))));
 		tempFrame.setOrientation( frame().orientation().get() );
 		setFrame(tempFrame);
 		lookAt(target.point);

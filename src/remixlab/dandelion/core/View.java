@@ -187,6 +187,21 @@ public abstract class View implements Copyable {
 		return frm;
 	}
 	
+	public abstract float distanceToSceneCenter();
+	
+	public abstract float distanceToARP();
+	
+	/**
+	 * Returns the Camera orientation, defined in the world coordinate system.
+	 * <p>
+	 * Actually returns {@code frame().orientation()}. Use
+	 * {@link #setOrientation(Quat)}, {@link #setUpVector(Vec)} or
+	 * {@link #lookAt(Vec)} to set the Camera orientation.
+	 */
+	public Orientable orientation() {
+		return frame().orientation();
+	}
+	
 	protected void modified() {
 		lastParamUpdate = TimingHandler.frameCount;
 	}
@@ -1233,7 +1248,7 @@ public abstract class View implements Copyable {
 		in[1] = in[1] * 2 - 1;
 		in[2] = in[2] * 2 - 1;
 		
-		projectionViewInverseMat.mult(in, out);
+		projectionViewInverseMat.multiply(in, out);
 		if (Util.zero(out[3]))
 			return false;
 		

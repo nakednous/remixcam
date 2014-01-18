@@ -628,7 +628,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawCamera(View camera, float scale) {
+		public void drawView(View camera, float scale) {
 			pushModelView();
 			
 			/**
@@ -934,13 +934,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				y = w * PApplet.sin(t * TWO_PI/detail);
 				l0.set(x,y,0);
 				
-				d = ( m.dot(Vec.sub(pm0, l0)) )/( l.dot(m) );
-				p =  Vec.add( Vec.mult(l, d), l0 );
+				d = ( m.dot(Vec.subtract(pm0, l0)) )/( l.dot(m) );
+				p =  Vec.add( Vec.multiply(l, d), l0 );
 				pg3d().vertex(p.x(), p.y(), p.z());
 				
 				l0.z(h);
-				d = ( n.dot(Vec.sub(pn0, l0)) )/( l.dot(n) );
-				p =  Vec.add( Vec.mult(l, d), l0 );
+				d = ( n.dot(Vec.subtract(pn0, l0)) )/( l.dot(n) );
+				p =  Vec.add( Vec.multiply(l, d), l0 );
 				pg3d().vertex(p.x(), p.y(), p.z());
 			}
 			pg3d().endShape();
@@ -1089,7 +1089,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public void drawCamera(View camera, float scale) {
+		public void drawView(View camera, float scale) {
 			pushModelView();
 			
 			Camera cam = (Camera) camera;

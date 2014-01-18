@@ -190,6 +190,6 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	@Override
 	public void computeViewportPosition() {
 		camRelPos = q.rotate(new Vec(0, 0, 1));
-		camRelPos.mult(trackingDistance());
+		camRelPos.multiply(trackingDistance());
 	}
 }

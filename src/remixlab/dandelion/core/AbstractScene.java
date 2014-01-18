@@ -230,25 +230,25 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		case MOVE_VIEW_LEFT:
 			trans = new Vec(-10.0f * view().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
-				trans.div(camera().frame().magnitude());
+				trans.divide(camera().frame().magnitude());
 			view().frame().translate(view().frame().inverseTransformOf(trans));			
 			break;
 		case MOVE_VIEW_RIGHT:
 			trans = new Vec(10.0f * view().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
-				trans.div(camera().frame().magnitude());
+				trans.divide(camera().frame().magnitude());
 			view().frame().translate(view().frame().inverseTransformOf(trans));			
 			break;
 		case MOVE_VIEW_UP:
 			trans = view().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? 10.0f : -10.0f * view().flySpeed(), 0.0f));
 			if(this.is3D())
-				trans.div(camera().frame().magnitude());
+				trans.divide(camera().frame().magnitude());
 			view().frame().translate(trans);					  
 			break;
 		case MOVE_VIEW_DOWN:
 			trans = view().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? -10.0f : 10.0f * view().flySpeed(), 0.0f));
 			if(this.is3D())
-				trans.div(camera().frame().magnitude());
+				trans.divide(camera().frame().magnitude());
 			view().frame().translate(trans);			
 			break;
 		case INCREASE_ROTATION_SENSITIVITY:
@@ -767,8 +767,8 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   	drawingHelpler().drawDottedGrid(size, nbSubdivisions);
   }
   
-  public void drawCamera(View eye, float scale) {
-  	drawingHelpler().drawCamera(eye, scale);
+  public void drawView(View eye, float scale) {
+  	drawingHelpler().drawView(eye, scale);
   }
   
   public void drawKFIView(float scale) {
@@ -1566,8 +1566,8 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	public void drawArrow(Vec from, Vec to,	float radius) {
 		pushModelView();
 		translate(from.x(), from.y(), from.z());
-		applyModelView(new Quat(new Vec(0, 0, 1), Vec.sub(to,	from)).matrix());
-		drawArrow(Vec.sub(to, from).mag(), radius);
+		applyModelView(new Quat(new Vec(0, 0, 1), Vec.subtract(to,	from)).matrix());
+		drawArrow(Vec.subtract(to, from).magnitude(), radius);
 		popModelView();
 	}
 	
@@ -1615,8 +1615,8 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * 
 	 * @see #drawWindow(Window, float)
 	 */
-	public void drawCamera(View eye) {
-		drawCamera(eye, 1);
+	public void drawView(View eye) {
+		drawView(eye, 1);
 	}
 		
 	/**

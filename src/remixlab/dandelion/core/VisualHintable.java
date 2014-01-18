@@ -118,7 +118,7 @@ public interface VisualHintable {
 	 * <b>Note:</b> The drawing of a Scene's own Scene.camera() should not be
 	 * visible, but may create artifacts due to numerical imprecisions.
 	 */
- public void drawCamera(View eye, float scale);
+ public void drawView(View eye, float scale);
  
  //public void drawWindow(Window window, float scale);	
 

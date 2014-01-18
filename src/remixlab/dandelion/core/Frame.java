@@ -211,7 +211,7 @@ public class Frame implements Copyable, Constants {
 		}
 		
 		public void scale(Vec s) {
-			setScaling( Vec.mult(scaling(), s) );
+			setScaling( Vec.multiply(scaling(), s) );
 		}
 		
 		public boolean isInverted() {
@@ -701,7 +701,7 @@ public class Frame implements Copyable, Constants {
 	}
 	
 	public final void setScalingWithConstraint(Vec s) {
-		Vec deltaS = Vec.div(s, this.scaling());
+		Vec deltaS = Vec.divide(s, this.scaling());
 		if (constraint() != null)
 			deltaS = constraint().constrainScaling(deltaS, this);
 
@@ -717,7 +717,7 @@ public class Frame implements Copyable, Constants {
 	 * @see #setPositionWithConstraint(Vec)
 	 */
 	public final void setTranslationWithConstraint(Vec translation) {
-		Vec deltaT = Vec.sub(translation, this.translation());
+		Vec deltaT = Vec.subtract(translation, this.translation());
 		if (constraint() != null)
 			deltaT = constraint().constrainTranslation(deltaT, this);
 
@@ -876,7 +876,7 @@ public class Frame implements Copyable, Constants {
 	
 	public final void setMagnitudeWithConstraint(Vec mag) {
 		if (referenceFrame() != null)
-			mag = Vec.div(mag, referenceFrame().magnitude());
+			mag = Vec.divide(mag, referenceFrame().magnitude());
 
 		setScalingWithConstraint(mag);
 	}
@@ -895,7 +895,7 @@ public class Frame implements Copyable, Constants {
   
   public Vec magnitude() {
   	if(referenceFrame() != null)
-  		return Vec.mult(referenceFrame().magnitude(), scaling());
+  		return Vec.multiply(referenceFrame().magnitude(), scaling());
   	else
   		return scaling().get();
   }
@@ -1012,12 +1012,13 @@ public class Frame implements Copyable, Constants {
 	 * 
 	 * @see #rotate(Quat)
 	 */
+	/*
 	public final Vec filteredTranslate(Vec t) {		
 		if (constraint() != null)
 			t = constraint().constrainTranslation(t, this);
 		kernel().translate(t);
 		return t.get();
-	}
+	}*/
 	
 	/**
 	public final void translate(Vector3D t, boolean keepArg) {
@@ -1055,12 +1056,14 @@ public class Frame implements Copyable, Constants {
 			kernel().scale(s);
 	}
 	
+	/*
 	public Vec filteredScale(Vec s) {
 		if( constraint() != null )
 			s = constraint().constrainScaling(s, this);
 		kernel().scale(s);
 		return s.get();		
 	}
+	*/
 	
 	public void scale(float x, float y, float z) {
 		scale(new Vec(x,y,z));
@@ -1101,12 +1104,14 @@ public class Frame implements Copyable, Constants {
 	 * 
 	 * @see #translate(Vec)
 	 */
+	/*
 	public final Orientable filteredRotate(Orientable q) {		
 		if (constraint() != null)
 			q = constraint().constrainRotation(q, this);
 		kernel().rotate(q);
 		return q.get();
 	}
+	*/
 
 	/**
 	 * Rotates the Frame by {@code q} (defined in the Frame coordinate system):
@@ -1171,8 +1176,8 @@ public class Frame implements Copyable, Constants {
 			//q = new Quaternion(orientation().rotate(((Quaternion)rotation).axis()), rotation.angle());			
 		else 
 			q = new Rot(rotation.angle());
-		Vec t = Vec.add(point, q.rotate(Vec.sub(position(), point)));		
-		t.sub(kernel().translation());
+		Vec t = Vec.add(point, q.rotate(Vec.subtract(position(), point)));		
+		t.subtract(kernel().translation());
 		if (constraint() != null)
 			kernel().translate(constraint().constrainTranslation(t, this));
 		else
@@ -1199,6 +1204,7 @@ public class Frame implements Copyable, Constants {
 	 * point} is then computed and filtered using
 	 * {@link remixlab.dandelion.constraint.Constraint#constrainTranslation(Vec, Frame)}.
 	 */
+	/*
 	public final Orientable filteredRotateAroundPoint(Orientable rotation, Vec point) {
 		if (constraint() != null)
 			rotation = constraint().constrainRotation(rotation, this);
@@ -1222,6 +1228,7 @@ public class Frame implements Copyable, Constants {
 			kernel().translate(t);
 		return rotation.get();
 	}
+	*/
 
 	/**
 	 * Makes the Frame {@link #rotate(Quaternion)} by {@code rotation} around
@@ -1367,7 +1374,7 @@ public class Frame implements Copyable, Constants {
 			if (Math.abs(coef) >= threshold) {
 				vec.set(directions[0][index[0]]);
 				Vec axis = vec.cross(directions[1][index[1]]);
-				float angle = (float) Math.asin(axis.mag());
+				float angle = (float) Math.asin(axis.magnitude());
 				if (coef >= 0.0)
 					angle = -angle;
 				// setOrientation(Quaternion(axis, angle) * orientation());
@@ -1394,7 +1401,7 @@ public class Frame implements Copyable, Constants {
 				if (max >= threshold) {
 					vec.set(directions[0][index[0]]);
 					axis = vec.cross(dir);
-					angle = (float) Math.asin(axis.mag());
+					angle = (float) Math.asin(axis.magnitude());
 					vec.set(directions[0][index[0]]);
 					if (vec.dot(dir) >= 0.0)
 						angle = -angle;
@@ -1410,8 +1417,8 @@ public class Frame implements Copyable, Constants {
 				if (frame != null)
 					center = frame.position();
 
-				vec = Vec.sub(center, orientation().rotate(old.coordinatesOf(center, false)));
-				vec.sub(translation());
+				vec = Vec.subtract(center, orientation().rotate(old.coordinatesOf(center, false)));
+				vec.subtract(translation());
 				translate(vec);
 			}
 		}
@@ -1452,14 +1459,14 @@ public class Frame implements Copyable, Constants {
 	 * normalized.
 	 */
 	public final void projectOnLine(Vec origin, Vec direction) {
-		Vec shift = Vec.sub(origin, position());
+		Vec shift = Vec.subtract(origin, position());
 		Vec proj = shift;
 		// float directionSquaredNorm = (direction.x * direction.x) + (direction.y *
 		// direction.y) + (direction.z * direction.z);
 		// float modulation = proj.dot(direction) / directionSquaredNorm;
 		// proj = Vector3D.mult(direction, modulation);
 		proj = Vec.projectVectorOnAxis(proj, direction);
-		translate(Vec.sub(shift, proj));
+		translate(Vec.subtract(shift, proj));
 	}
 
 	/**
@@ -1521,9 +1528,9 @@ public class Frame implements Copyable, Constants {
 	
 	protected final Vec localCoordinatesOf(Vec src, boolean sclng) {
 		if( sclng )
-			return Vec.div(rotation().inverseRotate(Vec.sub(src, translation())), scaling());
+			return Vec.divide(rotation().inverseRotate(Vec.subtract(src, translation())), scaling());
 		else
-			return rotation().inverseRotate(Vec.sub(src, translation()));
+			return rotation().inverseRotate(Vec.subtract(src, translation()));
 	}
 
 	/**
@@ -1541,7 +1548,7 @@ public class Frame implements Copyable, Constants {
 	
 	protected final Vec localInverseCoordinatesOf(Vec src, boolean sclng) {
 		if( sclng )
-			return Vec.add(rotation().rotate(Vec.mult(src, scaling())), translation());
+			return Vec.add(rotation().rotate(Vec.multiply(src, scaling())), translation());
 		else
 			return Vec.add(rotation().rotate(src), translation());
 	} 
@@ -1777,7 +1784,7 @@ public class Frame implements Copyable, Constants {
 	
 	protected final Vec localTransformOf(Vec src, boolean sclng) {
 		if( sclng )
-			return Vec.div(rotation().inverseRotate(src), scaling());
+			return Vec.divide(rotation().inverseRotate(src), scaling());
 		else
 			return rotation().inverseRotate(src);		
 	}
@@ -1797,7 +1804,7 @@ public class Frame implements Copyable, Constants {
 	
 	protected final Vec localInverseTransformOf(Vec src, boolean sclng) {
 		if( sclng )
-			return rotation().rotate(Vec.mult(src, scaling()));		
+			return rotation().rotate(Vec.multiply(src, scaling()));		
 		else
 			return rotation().rotate(src);
 	}
@@ -2077,7 +2084,7 @@ public class Frame implements Copyable, Constants {
 	 * <b>Note:</b> The scaling factor of the 4x4 matrix is 1.0.
 	 */
 	public final Frame inverse() {
-		Frame fr = new Frame(kernel().rotation().inverse(), Vec.mult(kernel().rotation().inverseRotate(kernel().translation()), -1), kernel().inverseScaling() );
+		Frame fr = new Frame(kernel().rotation().inverse(), Vec.multiply(kernel().rotation().inverseRotate(kernel().translation()), -1), kernel().inverseScaling() );
 		fr.setReferenceFrame(referenceFrame());
 		return fr;
 	}
@@ -2098,7 +2105,7 @@ public class Frame implements Copyable, Constants {
 	 * {@link #referenceFrame()}) transformation inverse.
 	 */
 	public final Frame worldInverse() {
-		return ( new Frame(orientation().inverse(), Vec.mult(orientation().inverseRotate(position()), -1), inverseMagnitude() ) );
+		return ( new Frame(orientation().inverse(), Vec.multiply(orientation().inverseRotate(position()), -1), inverseMagnitude() ) );
 	}  
 	
 	//TODO experimental
