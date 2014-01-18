@@ -788,8 +788,11 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		// same as no action
 		if( event.action() == null )
 			return;
-		if( ( scene.is2D() ) && ( ((DandelionAction)event.action().referenceAction()).is2D() ) )
-			execAction2D( reduceEvent( (MotionEvent)e ));
+		if( scene.is2D() ) 
+			if(( ((DandelionAction)event.action().referenceAction()).is2D() ) )
+				execAction2D( reduceEvent( (MotionEvent)e ));
+			else
+				AbstractScene.showDepthWarning((DandelionAction) event.action().referenceAction());
 		else
 			if(scene.is3D())
 				execAction3D( reduceEvent( (MotionEvent)e ));
@@ -859,11 +862,14 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		case CUSTOM:
 			AbstractScene.showMissingImplementationWarning(a, this.getClass().getName());
 			break;
+		//better handled these by default (see below)
+		/*
 		case ZOOM_ON_REGION:
 		case ARP_FROM_PIXEL:
 		case ZOOM_ON_PIXEL:
 			AbstractScene.showOnlyEyeWarning(a);
 			break;
+		*/
 		case ROLL:
 			//TODO needs testing
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
@@ -987,7 +993,8 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			alignWithFrame(scene.window().frame());
 			break;
 		default:
-			AbstractScene.showDepthWarning(a);
+			AbstractScene.showOnlyEyeWarning(a);
+			//AbstractScene.showDepthWarning(a);//filtered by performInteraction before
 			break;
 		}
 	}

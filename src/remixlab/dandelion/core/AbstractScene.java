@@ -931,7 +931,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	// 1. Associated objects
 	
 	/**
-	 * Returns the associated Camera, never {@code null}.
+	 * Returns the associated Eye, never {@code null}.
 	 */
 	public Eye eye() {
 		return eye;
@@ -1713,7 +1713,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   }
   
   static public void showMissingImplementationWarning(DandelionAction action, String theclass) {
-    showWarning(action.name() + "should be implemented by your " + theclass + " derived class.");
+    showWarning(action.name() + " should be implemented by your " + theclass + " derived class.");
   }
   
   static public void showEventVariationWarning(DandelionAction action) {

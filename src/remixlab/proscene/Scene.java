@@ -2252,12 +2252,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
   //public int mouseGrabberCameraPathOffSelectionHintColor() {	return cameraPathOffSelectionHintColor;	}
 	
 	public PGraphics pg() {
+		return pgraphics;
+		/*
 		if( pgraphics instanceof PGraphics3D )
 			return (PGraphics3D) pgraphics;
 		if( pgraphics instanceof PGraphics2D )
 			return (PGraphics2D) pgraphics;
 		//if ( pgraphics instanceof PGraphicsJava2D )
 			return (PGraphicsJava2D) pgraphics;
+		*/
 	}
 	
 	public PGraphicsJava2D pgj2d() {
