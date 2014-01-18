@@ -39,7 +39,7 @@ import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
  * and {@link #setStandardZFar(float)}).
  * 
  */
-public class Camera extends View implements Constants, Copyable {
+public class Camera extends Eye implements Constants, Copyable {
 	@Override
 	public int hashCode() {	
     return new HashCodeBuilder(17, 37).
@@ -691,7 +691,7 @@ public class Camera extends View implements Constants, Copyable {
 	 * If you need a completely different zNear computation, overload the
 	 * {@link #zNear()} and {@link #zFar()} methods in a new class that publicly
 	 * inherits from Camera and use
-	 * {@link remixlab.dandelion.core.AbstractScene#setView(Camera)}.
+	 * {@link remixlab.dandelion.core.AbstractScene#setEye(Camera)}.
 	 * <p>
 	 * <b>Attention:</b> The value is always positive although the clipping plane
 	 * is positioned at a negative z value in the Camera coordinate system. This
@@ -858,9 +858,9 @@ public class Camera extends View implements Constants, Copyable {
 	}
 
 	/**
-	 * Returns {@link remixlab.dandelion.core.View.Visibility#VISIBLE},
-	 * {@link remixlab.dandelion.core.View.Visibility#INVISIBLE}, or
-	 * {@link remixlab.dandelion.core.View.Visibility#SEMIVISIBLE}, depending whether
+	 * Returns {@link remixlab.dandelion.core.Eye.Visibility#VISIBLE},
+	 * {@link remixlab.dandelion.core.Eye.Visibility#INVISIBLE}, or
+	 * {@link remixlab.dandelion.core.Eye.Visibility#SEMIVISIBLE}, depending whether
 	 * the sphere (of radius {@code radius} and center {@code center}) is visible,
 	 * invisible, or semi-visible, respectively.
 	 * <p>
@@ -1760,8 +1760,8 @@ public class Camera extends View implements Constants, Copyable {
 
 		// Small hack: attach a temporary frame to take advantage of lookAt without
 		// modifying frame
-		tempFrame = new InteractiveViewFrame(this);
-		InteractiveViewFrame originalFrame = frame();
+		tempFrame = new InteractiveEyeFrame(this);
+		InteractiveEyeFrame originalFrame = frame();
 		tempFrame.setPosition(Vec.add(Vec.multiply(frame().position(), coef),	Vec.multiply(target.point, (1.0f - coef))));
 		tempFrame.setOrientation( frame().orientation().get() );
 		setFrame(tempFrame);

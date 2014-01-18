@@ -12,7 +12,7 @@ package remixlab.dandelion.core;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
 
-public class Window extends View implements Copyable {	
+public class Window extends Eye implements Copyable {	
 	static final float FAKED_ZNEAR = -10;  
   static final float FAKED_ZFAR = 10;	
 	
@@ -321,14 +321,14 @@ public class Window extends View implements Copyable {
 			}
 			// The eight points are on the outside side of this plane
 			if (allOut)
-				return View.Visibility.INVISIBLE;
+				return Eye.Visibility.INVISIBLE;
 		}
 
 		if (allInForAllPlanes)
-			return View.Visibility.VISIBLE;
+			return Eye.Visibility.VISIBLE;
 
 		// Too conservative, but tangent cases are too expensive to detect
-		return View.Visibility.SEMIVISIBLE;
+		return Eye.Visibility.SEMIVISIBLE;
 	}
 	
 	@Override
@@ -341,13 +341,13 @@ public class Window extends View implements Copyable {
 		for (int i = 0; i < 4; ++i) {
 			float d = distanceToBoundary(i, center);
 			if (d > radius)
-				return View.Visibility.INVISIBLE;
+				return Eye.Visibility.INVISIBLE;
 			if ((d > 0) || (-d < radius))
 				allInForAllPlanes = false;
 		}
 		if(allInForAllPlanes)
-			return View.Visibility.VISIBLE;
-		return View.Visibility.SEMIVISIBLE;
+			return Eye.Visibility.VISIBLE;
+		return Eye.Visibility.SEMIVISIBLE;
 	}
 
 	@Override

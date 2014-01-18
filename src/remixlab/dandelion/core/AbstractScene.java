@@ -30,7 +30,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	protected MatrixHelpable matrixHelper;
 	protected VisualHintable drawingHelpler;
 	
-	protected View vPoint;
+	protected Eye eye;
 	protected Trackable trck;
 	public boolean avatarIsInteractiveFrame;
 	protected boolean avatarIsInteractiveAvatarFrame;
@@ -177,31 +177,31 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		Vec trans;
 		switch (id) {
 		case ADD_KEYFRAME_TO_PATH_1:
-			view().addKeyFrameToPath(1);
+			eye().addKeyFrameToPath(1);
 			break;
 		case DELETE_PATH_1:
-			view().deletePath(1);
+			eye().deletePath(1);
 			break;
 		case PLAY_PATH_1:
-			view().playPath(1);
+			eye().playPath(1);
 			break;
 		case ADD_KEYFRAME_TO_PATH_2:
-			view().addKeyFrameToPath(2);
+			eye().addKeyFrameToPath(2);
 			break;
 		case DELETE_PATH_2:
-			view().deletePath(2);
+			eye().deletePath(2);
 			break;
 		case PLAY_PATH_2:
-			view().playPath(2);
+			eye().playPath(2);
 			break;
 		case ADD_KEYFRAME_TO_PATH_3:
-			view().addKeyFrameToPath(3);
+			eye().addKeyFrameToPath(3);
 			break;
 		case DELETE_PATH_3:
-			view().deletePath(3);
+			eye().deletePath(3);
 			break;
 		case PLAY_PATH_3:
-			view().playPath(3);
+			eye().playPath(3);
 			break;
 		case DRAW_AXIS:
 			toggleAxisVisualHint();
@@ -218,7 +218,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		case GLOBAL_HELP:
 			displayInfo();
 			break;
-		case EDIT_VIEW_PATH:
+		case EDIT_EYE_PATH:
 			togglePathsVisualHint();
 			break;
 		case DRAW_FRAME_SELECTION_HINT:
@@ -227,41 +227,41 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		case SHOW_ALL:
 			showAll();
 			break;
-		case MOVE_VIEW_LEFT:
-			trans = new Vec(-10.0f * view().flySpeed(), 0.0f, 0.0f);
+		case MOVE_EYE_LEFT:
+			trans = new Vec(-10.0f * eye().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.divide(camera().frame().magnitude());
-			view().frame().translate(view().frame().inverseTransformOf(trans));			
+			eye().frame().translate(eye().frame().inverseTransformOf(trans));			
 			break;
-		case MOVE_VIEW_RIGHT:
-			trans = new Vec(10.0f * view().flySpeed(), 0.0f, 0.0f);
+		case MOVE_EYE_RIGHT:
+			trans = new Vec(10.0f * eye().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
 				trans.divide(camera().frame().magnitude());
-			view().frame().translate(view().frame().inverseTransformOf(trans));			
+			eye().frame().translate(eye().frame().inverseTransformOf(trans));			
 			break;
-		case MOVE_VIEW_UP:
-			trans = view().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? 10.0f : -10.0f * view().flySpeed(), 0.0f));
+		case MOVE_EYE_UP:
+			trans = eye().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? 10.0f : -10.0f * eye().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.divide(camera().frame().magnitude());
-			view().frame().translate(trans);					  
+			eye().frame().translate(trans);					  
 			break;
-		case MOVE_VIEW_DOWN:
-			trans = view().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? -10.0f : 10.0f * view().flySpeed(), 0.0f));
+		case MOVE_EYE_DOWN:
+			trans = eye().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? -10.0f : 10.0f * eye().flySpeed(), 0.0f));
 			if(this.is3D())
 				trans.divide(camera().frame().magnitude());
-			view().frame().translate(trans);			
+			eye().frame().translate(trans);			
 			break;
 		case INCREASE_ROTATION_SENSITIVITY:
-			view().setRotationSensitivity(view().rotationSensitivity() * 1.2f);
+			eye().setRotationSensitivity(eye().rotationSensitivity() * 1.2f);
 			break;
 		case DECREASE_ROTATION_SENSITIVITY:
-			view().setRotationSensitivity(view().rotationSensitivity() / 1.2f);
+			eye().setRotationSensitivity(eye().rotationSensitivity() / 1.2f);
 			break;
 		case INCREASE_CAMERA_FLY_SPEED:
-			((Camera) view()).setFlySpeed(((Camera) view()).flySpeed() * 1.2f);
+			((Camera) eye()).setFlySpeed(((Camera) eye()).flySpeed() * 1.2f);
 			break;
 		case DECREASE_CAMERA_FLY_SPEED:
-			((Camera) view()).setFlySpeed(((Camera) view()).flySpeed() / 1.2f);
+			((Camera) eye()).setFlySpeed(((Camera) eye()).flySpeed() / 1.2f);
 			break;
 		case INCREASE_AVATAR_FLY_SPEED:
 			if (avatar() != null)
@@ -304,13 +304,13 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() - radius() / 50);
 			break;
 		case INTERPOLATE_TO_FIT:
-			view().interpolateToFitScene();
+			eye().interpolateToFitScene();
 			break;
 		case RESET_ARP:		  
-			view().setArcballReferencePoint(new Vec(0, 0, 0));
+			eye().setArcballReferencePoint(new Vec(0, 0, 0));
 			//looks horrible, but works ;)
-			view().frame().arpFlag = true;
-			view().frame().timerFx.runOnce(1000);				
+			eye().frame().arpFlag = true;
+			eye().frame().timerFx.runOnce(1000);				
 			break;
 		case CUSTOM:
 			AbstractScene.showMissingImplementationWarning(id);
@@ -371,18 +371,18 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	// D R A W I N G   M E T H O D S
 	
 	public void preDraw() {
-		view().validateScaling();
-		if ( avatar() != null	&& (!view().anyInterpolationIsStarted() ) ) {
-			view().setPosition(avatar().viewPosition());
-			view().setUpVector(avatar().upVector());
-			view().lookAt(avatar().target());
+		eye().validateScaling();
+		if ( avatar() != null	&& (!eye().anyInterpolationIsStarted() ) ) {
+			eye().setPosition(avatar().eyePosition());
+			eye().setUpVector(avatar().upVector());
+			eye().lookAt(avatar().target());
 		}
 		 
 		//before timerHandler().handle() it was here:
 		//timerHandler().updateFrameRate();		
 		bind();
 		if (boundaryEquationsAreEnabled())
-			view().updateBoundaryEquations();
+			eye().updateBoundaryEquations();
 	}
 	
 	/**
@@ -455,20 +455,20 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	protected void displayVisualHints() {
 		if (gridVisualHint()) {
  			if(gridIsDotted())
- 				drawDottedGrid(view().sceneRadius());
+ 				drawDottedGrid(eye().sceneRadius());
  			else
- 				drawGrid(view().sceneRadius());
+ 				drawGrid(eye().sceneRadius());
  		}
  		if (axisVisualHint())
- 			drawAxis(view().sceneRadius());
+ 			drawAxis(eye().sceneRadius());
  		
 		if (frameVisualHint())
 			drawSelectionHints();
 		if (pathsVisualHint()) {
-			view().drawAllPaths();
-			drawViewPathSelectionHints();
+			eye().drawAllPaths();
+			drawEyePathsSelectionHints();
 		} else {
-			view().hideAllPaths();
+			eye().hideAllPaths();
 		}
 		
 		if (zoomVisualHint())
@@ -476,9 +476,9 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		if (rotateVisualHint())
 			drawScreenRotateLineHint();		
 		
-		if (view().frame().arpFlag) 
+		if (eye().frame().arpFlag) 
 			drawArcballReferencePointHint();		
-		if (view().frame().pupFlag) {
+		if (eye().frame().pupFlag) {
 			drawPointUnderPixelHint();
 		}
 	}
@@ -490,7 +490,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * initialize stuff not initialized in {@code PApplet.setup()}. The default
 	 * implementation is empty.
 	 * <p>
-	 * Typical usage include {@link #view()} initialization ({@link #showAll()})
+	 * Typical usage include {@link #eye()} initialization ({@link #showAll()})
 	 * and Scene state setup ({@link #setAxisVisualHint(boolean)} and
 	 * {@link #setGridVisualHint(boolean)}.
 	 */
@@ -767,12 +767,12 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   	drawingHelpler().drawDottedGrid(size, nbSubdivisions);
   }
   
-  public void drawView(View eye, float scale) {
-  	drawingHelpler().drawView(eye, scale);
+  public void drawEye(Eye eye, float scale) {
+  	drawingHelpler().drawEye(eye, scale);
   }
   
-  public void drawKFIView(float scale) {
-  	drawingHelpler().drawKFIView(scale);
+  public void drawKFIEye(float scale) {
+  	drawingHelpler().drawKFIEye(scale);
   }
   
   public void drawZoomWindowHint() {
@@ -933,8 +933,8 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	/**
 	 * Returns the associated Camera, never {@code null}.
 	 */
-	public View view() {
-		return vPoint;
+	public Eye eye() {
+		return eye;
 	}
 	
 	/**
@@ -942,7 +942,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 */
 	public Camera camera() {
 		if (this.is3D())
-			return (Camera) vPoint;
+			return (Camera) eye;
 		else 
 			throw new RuntimeException("Camera type is only available in 3D");
 	}
@@ -952,12 +952,12 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			System.out.println("Warning: Camera Type is only available in 3D");			
 		}
 		else
-			setView(cam);		
+			setEye(cam);		
 	}
 	
 	public Window window() {
 		if (this.is2D())
-			return (Window) vPoint;
+			return (Window) eye;
 		else 
 			throw new RuntimeException("Window type is only available in 2D");
 	}
@@ -967,13 +967,13 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			System.out.println("Warning: Window Type is only available in 2D");			
 		}
 		else
-			setView(win);
+			setEye(win);
 	}
 
 	/**
-	 * Replaces the current {@link #view()} with {@code vp}
+	 * Replaces the current {@link #eye()} with {@code vp}
 	 */
-	public void setView(View vp)  {
+	public void setEye(Eye vp)  {
 		if (vp == null)
 			return;
 
@@ -982,11 +982,11 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 
 		vp.setScreenWidthAndHeight(width(), height());
     
-		vPoint = vp;
+		eye = vp;
 		
 		for( Agent agent : terseHandler().agents() ) {
 			if( agent instanceof GenericWheeledBiMotionAgent )
-				agent.setDefaultGrabber(vPoint.frame());
+				agent.setDefaultGrabber(eye.frame());
 		}		
 
 		showAll();
@@ -1004,7 +1004,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
 	public boolean boundaryEquationsAreEnabled() {
-		return view().boundaryEquationsAreEnabled();
+		return eye().boundaryEquationsAreEnabled();
 	}
 
 	/**
@@ -1065,18 +1065,18 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
 	public void enableBoundaryEquations(boolean flag) {
-		view().enableBoundaryEquations(flag);
+		eye().enableBoundaryEquations(flag);
 	}
 	
 	/**
-	 * Toggles the {@link #view()} type between PERSPECTIVE and ORTHOGRAPHIC.
+	 * Toggles the {@link #eye()} type between PERSPECTIVE and ORTHOGRAPHIC.
 	 */
 	public void toggleCameraType() {
 		if( this.is2D() ) {
 			System.out.println("Warning: Camera Type is only available in 3D");
 		}
 		else {
-		if (((Camera) view()).type() == Camera.Type.PERSPECTIVE)
+		if (((Camera) eye()).type() == Camera.Type.PERSPECTIVE)
 			setCameraType(Camera.Type.ORTHOGRAPHIC);
 		else
 			setCameraType(Camera.Type.PERSPECTIVE);
@@ -1084,7 +1084,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 	
 	/**
-	 * Returns the current {@link #view()} type.
+	 * Returns the current {@link #eye()} type.
 	 */
 	public final Camera.Type cameraType() {
 		if( this.is2D() ) {
@@ -1092,19 +1092,19 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			return null;
 		}
 		else
-			return ((Camera) view()).type();		
+			return ((Camera) eye()).type();		
 	}
 
 	/**
-	 * Sets the {@link #view()} type.
+	 * Sets the {@link #eye()} type.
 	 */
 	public void setCameraType(Camera.Type type) {
 		if( this.is2D() ) {
 			System.out.println("Warning: Camera Type is only available in 3D");			
 		}
 		else
-			if (type != ((Camera) view()).type())
-				((Camera) view()).setType(type);
+			if (type != ((Camera) eye()).type())
+				((Camera) eye()).setType(type);
 	}
 	
 	/**
@@ -1170,20 +1170,20 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			avatarIsInteractiveFrame = true;
 			if (avatar() instanceof InteractiveAvatarFrame)
 				avatarIsInteractiveAvatarFrame = true;
-			view().frame().updateFlyUpVector();// ?
-			view().frame().stopSpinning();
+			eye().frame().updateFlyUpVector();// ?
+			eye().frame().stopSpinning();
 			if( this.avatarIsInteractiveFrame ) {
 				((InteractiveFrame) (avatar())).updateFlyUpVector();
 				((InteractiveFrame) (avatar())).stopSpinning();
 			}
 			// perform small animation ;)
-			if (view().anyInterpolationIsStarted())
-				view().stopAllInterpolations();
-			View cm = view().get();
-			cm.setPosition(avatar().viewPosition());
+			if (eye().anyInterpolationIsStarted())
+				eye().stopAllInterpolations();
+			Eye cm = eye().get();
+			cm.setPosition(avatar().eyePosition());
 			cm.setUpVector(avatar().upVector());
 			cm.lookAt(avatar().target());
-			view().interpolateTo(cm.frame());
+			eye().interpolateTo(cm.frame());
 		}
 	}
 
@@ -1210,7 +1210,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #center()
 	 */
 	public float radius() {
-		return view().sceneRadius();
+		return eye().sceneRadius();
 	}
 
 	/**
@@ -1222,7 +1222,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setCenter(Vec) {@link #radius()}
 	 */
 	public Vec center() {
-		return view().sceneCenter();
+		return eye().sceneCenter();
 	}
 
 	/**
@@ -1234,7 +1234,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setCenter(Vec) {@link #radius()}
 	 */
 	public Vec arcballReferencePoint() {
-		return view().arcballReferencePoint();
+		return eye().arcballReferencePoint();
 	}
 
 	/**
@@ -1246,7 +1246,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setCenter(Vec)
 	 */
 	public void setRadius(float radius) {
-		view().setSceneRadius(radius);
+		eye().setSceneRadius(radius);
 	}
 
 	/**
@@ -1257,7 +1257,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setRadius(float)
 	 */
 	public void setCenter(Vec center) {
-		view().setSceneCenter(center);
+		eye().setSceneCenter(center);
 	}
 
 	/**
@@ -1274,14 +1274,14 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		if( this.is2D() )
 			System.out.println("setBoundingBox is available only in 3D. Use setBoundingRect instead");
 		else
-			((Camera) view()).setSceneBoundingBox(min, max);
+			((Camera) eye()).setSceneBoundingBox(min, max);
 	}
 	
 	public void setBoundingRect(Vec min, Vec max) {
 		if( this.is3D() )
 			System.out.println("setBoundingRect is available only in 2D. Use setBoundingBox instead");
 		else
-			((Window) view()).setSceneBoundingBox(min, max);
+			((Window) eye()).setSceneBoundingBox(min, max);
 	}
 
 	/**
@@ -1291,7 +1291,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#showEntireScene()
 	 */
 	public void showAll() {
-		view().showEntireScene();
+		eye().showEntireScene();
 	}
 
 	/**
@@ -1307,7 +1307,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#pointUnderPixel(Point)
 	 */
 	public boolean setArcballReferencePointFromPixel(Point pixel) {
-		return view().setArcballReferencePointFromPixel(pixel);
+		return eye().setArcballReferencePointFromPixel(pixel);
 	}
 	
 	/**
@@ -1323,7 +1323,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#pointUnderPixel(Point)
 	 */
 	public boolean setCenterFromPixel(Point pixel) {
-		return view().setSceneCenterFromPixel(pixel);
+		return eye().setSceneCenterFromPixel(pixel);
 	}
 	
 	// Control what is drawing
@@ -1615,8 +1615,8 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * 
 	 * @see #drawWindow(Window, float)
 	 */
-	public void drawView(View eye) {
-		drawView(eye, 1);
+	public void drawEye(Eye eye) {
+		drawEye(eye, 1);
 	}
 		
 	/**
@@ -1626,7 +1626,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * <b>Attention:</b> If the InteractiveFrame is part of a Camera path draws
 	 * nothing.
 	 * 
-	 * @see #drawViewPathSelectionHints()
+	 * @see #drawEyePathsSelectionHints()
 	 */
 	protected abstract void drawSelectionHints();
 	
@@ -1637,7 +1637,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * 
 	 * @see #drawSelectionHints()
 	 */
-	protected abstract void drawViewPathSelectionHints();
+	protected abstract void drawEyePathsSelectionHints();
 		
 	/**
 	 * Convenience function that simply calls
@@ -1665,14 +1665,14 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   public abstract int height();
   
   public Vec projectedCoordinatesOf(Vec src) {
-  	return view().projectedCoordinatesOf(this.matrixHelper().projectionView(), src);
+  	return eye().projectedCoordinatesOf(this.matrixHelper().projectionView(), src);
   }
   
   public Vec unprojectedCoordinatesOf(Vec src) {
   	if( this.matrixHelper().unprojectCacheIsOptimized() )
-  		return view().unprojectedCoordinatesOf(this.matrixHelper().projectionViewInverse(), src);
+  		return eye().unprojectedCoordinatesOf(this.matrixHelper().projectionViewInverse(), src);
   	else
-  		return view().unprojectedCoordinatesOf(src);
+  		return eye().unprojectedCoordinatesOf(src);
   }
 
   // WARNINGS and EXCEPTIONS

@@ -87,7 +87,7 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	
 	@Override
 	public void loadProjection() {
-		setProjection(scene.view().getProjection(true));
+		setProjection(scene.eye().getProjection(true));
 	}
 	
 	@Override
@@ -96,9 +96,9 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	}
 
 	public void loadModelView(boolean includeView) {
-		scene.view().computeView();
+		scene.eye().computeView();
 		if(includeView)
-		  setModelView(scene.view().getView(false));
+		  setModelView(scene.eye().getView(false));
 		else
 			resetModelView();//loads identity -> only model, (excludes view)
 	}

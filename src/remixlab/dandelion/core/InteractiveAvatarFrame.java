@@ -19,7 +19,7 @@ import remixlab.tersehandling.core.Copyable;
  * The InteractiveAvatarFrame class represents an InteractiveDrivableFrame that
  * can be tracked by a Camera, i.e., it implements the Trackable interface.
  * <p>
- * The {@link #viewPosition()} of the camera that is to be tracking the frame
+ * The {@link #eyePosition()} of the camera that is to be tracking the frame
  * (see the documentation of the Trackable interface) is defined in spherical
  * coordinates ({@link #azimuth()}, {@link #inclination()} and
  * {@link #trackingDistance()}) respect to the {@link #position()} (which
@@ -109,7 +109,7 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	 */
 	public void setTrackingDistance(float d) {
 		trackingDist = d;
-		computeViewportPosition();
+		computeEyePosition();
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	public void setAzimuth(float a) {
 		float roll = q.taitBryanAngles().vec[0];
 		q.fromTaitBryan(roll, a, 0);
-		computeViewportPosition();
+		computeEyePosition();
 	}
 
 	/**
@@ -145,18 +145,18 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	public void setInclination(float i) {
 		float pitch = q.taitBryanAngles().vec[1];
 		q.fromTaitBryan(i, pitch, 0);
-		computeViewportPosition();
+		computeEyePosition();
 	}
 
 	// Interface implementation
 
 	/**
-	 * Overloading of {@link remixlab.dandelion.core.Trackable#viewPosition()}.
+	 * Overloading of {@link remixlab.dandelion.core.Trackable#eyePosition()}.
 	 * Returns the world coordinates of the camera position computed in
-	 * {@link #computeViewportPosition()}.
+	 * {@link #computeEyePosition()}.
 	 */
 	@Override
-	public Vec viewPosition() {
+	public Vec eyePosition() {
 		return inverseCoordinatesOf(camRelPos);
 	}
 
@@ -179,16 +179,16 @@ public class InteractiveAvatarFrame extends InteractiveFrame implements	Constant
 	}
 
 	/**
-	 * Overloading of {@link remixlab.dandelion.core.Trackable#computeViewportPosition()}.
+	 * Overloading of {@link remixlab.dandelion.core.Trackable#computeEyePosition()}.
 	 * <p>
-	 * The {@link #viewPosition()} of the camera that is to be tracking the
+	 * The {@link #eyePosition()} of the camera that is to be tracking the
 	 * frame (see the documentation of the Trackable interface) is defined in
 	 * spherical coordinates by means of the {@link #azimuth()}, the
 	 * {@link #inclination()} and {@link #trackingDistance()}) respect to the
 	 * {@link #position()}.
 	 */
 	@Override
-	public void computeViewportPosition() {
+	public void computeEyePosition() {
 		camRelPos = q.rotate(new Vec(0, 0, 1));
 		camRelPos.multiply(trackingDistance());
 	}

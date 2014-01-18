@@ -37,7 +37,7 @@ import remixlab.tersehandling.generic.event.*;
  * <b>Note:</b> The InteractiveCameraFrame is not added to the
  * {@link remixlab.dandelion.core.AbstractScene#deviceGrabberPool()} upon creation.
  */
-public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
+public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -53,7 +53,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		InteractiveViewFrame other = (InteractiveViewFrame) obj;
+		InteractiveEyeFrame other = (InteractiveEyeFrame) obj;
 	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
 		.append(arcballRefPnt, other.arcballRefPnt)
@@ -61,7 +61,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 		.isEquals();
 	}
 	
-	protected View viewport;
+	protected Eye viewport;
 	protected Vec arcballRefPnt;	
 	protected Vec worldAxis;
 	
@@ -79,7 +79,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 	 * <p>
 	 * <b>Attention:</b> Created object is {@link #removeFromDeviceGrabberPool()}.
 	 */
-	public InteractiveViewFrame(View vp) {
+	public InteractiveEyeFrame(Eye vp) {
 		super(vp.scene);
 		viewport = vp;
 		scene.terseHandler().removeFromAllAgentPools(this);
@@ -99,7 +99,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 	 * 
 	 * @param otherFrame the other interactive camera frame
 	 */
-	protected InteractiveViewFrame(InteractiveViewFrame otherFrame) {
+	protected InteractiveEyeFrame(InteractiveEyeFrame otherFrame) {
 		super(otherFrame);
 		this.viewport = otherFrame.viewport;
 		this.arcballRefPnt = new Vec();
@@ -116,16 +116,16 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 	}
 	
 	/**
-	 * Calls {@link #InteractiveCameraFrame(InteractiveViewFrame)} (which is protected)
+	 * Calls {@link #InteractiveCameraFrame(InteractiveEyeFrame)} (which is protected)
 	 * and returns a copy of {@code this} object.
 	 * 
-	 * @see #InteractiveCameraFrame(InteractiveViewFrame)
+	 * @see #InteractiveCameraFrame(InteractiveEyeFrame)
 	 */
-	public InteractiveViewFrame get() {
-		return new InteractiveViewFrame(this);
+	public InteractiveEyeFrame get() {
+		return new InteractiveEyeFrame(this);
 	}	
 	
-	public View pinhole() {
+	public Eye pinhole() {
 		return viewport;
 	}
 	
@@ -593,7 +593,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 	 * 
 	 * @see #getCADAxis()
 	 */	
-	protected Quat cadQuaternion(DOF2Event event, float cx,	float cy, View camera) {
+	protected Quat cadQuaternion(DOF2Event event, float cx,	float cy, Eye camera) {
 		if(! (camera instanceof Camera) )
 			throw new RuntimeException("CAD cam is oly available in 3D");
 		

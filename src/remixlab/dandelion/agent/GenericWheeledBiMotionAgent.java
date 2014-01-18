@@ -28,7 +28,7 @@ public class GenericWheeledBiMotionAgent<P extends GenericMotionProfile<?>> exte
 																		 GenericClickProfile<ClickAction> d,
 																		 AbstractScene scn, String n) {
 		super(fWProfile, fProfile, c, scn.terseHandler(), n);
-		setDefaultGrabber(scn.view().frame());
+		setDefaultGrabber(scn.eye().frame());
 		camProfile = cProfile;
 		camWheelProfile = cWProfile;
 		camClickProfile = d;
@@ -84,7 +84,7 @@ public class GenericWheeledBiMotionAgent<P extends GenericMotionProfile<?>> exte
 	
 	@Override
 	public P motionProfile() {
-		if( grabber() instanceof InteractiveViewFrame )
+		if( grabber() instanceof InteractiveEyeFrame )
 			return cameraProfile();
 		if( grabber() instanceof InteractiveFrame )
 			return frameProfile();					
@@ -93,7 +93,7 @@ public class GenericWheeledBiMotionAgent<P extends GenericMotionProfile<?>> exte
 	
 	@Override
 	public GenericClickProfile<ClickAction> clickProfile() {
-		if( grabber() instanceof InteractiveViewFrame )
+		if( grabber() instanceof InteractiveEyeFrame )
 			return cameraClickProfile();
 		if( grabber() instanceof InteractiveFrame )
 			return frameClickProfile();					
@@ -102,7 +102,7 @@ public class GenericWheeledBiMotionAgent<P extends GenericMotionProfile<?>> exte
 	
 	@Override
 	public GenericMotionProfile<WheelAction> wheelProfile() {
-		if( grabber() instanceof InteractiveViewFrame )
+		if( grabber() instanceof InteractiveEyeFrame )
 			return cameraWheelProfile();
 		if( grabber() instanceof InteractiveFrame )
 			return frameWheelProfile();					

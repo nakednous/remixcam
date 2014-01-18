@@ -27,17 +27,17 @@ public class KeyboardAgent extends GenericKeyboardAgent<GenericKeyboardProfile<C
 		
 		keyboardProfile().setShortcut('e', KeyboardAction.CAMERA_TYPE);
 		keyboardProfile().setShortcut('h', KeyboardAction.GLOBAL_HELP);
-		keyboardProfile().setShortcut('r', KeyboardAction.EDIT_VIEWPORT_PATH);
+		keyboardProfile().setShortcut('r', KeyboardAction.EDIT_EYE_PATH);
 
 		keyboardProfile().setShortcut('s', KeyboardAction.INTERPOLATE_TO_FIT);
 		keyboardProfile().setShortcut('S', KeyboardAction.SHOW_ALL);
 
-		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_RIGHT, KeyboardAction.MOVE_VIEWPORT_RIGHT);
-		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_LEFT, KeyboardAction.MOVE_VIEWPORT_LEFT);
-		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_UP, KeyboardAction.MOVE_VIEWPORT_UP);
-		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_DOWN, KeyboardAction.MOVE_VIEWPORT_DOWN);
+		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_RIGHT, KeyboardAction.MOVE_EYE_RIGHT);
+		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_LEFT, KeyboardAction.MOVE_EYE_LEFT);
+		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_UP, KeyboardAction.MOVE_EYE_UP);
+		keyboardProfile().setShortcut(TH_NOMODIFIER_MASK, TH_DOWN, KeyboardAction.MOVE_EYE_DOWN);
 
-		keyboardProfile().setShortcut((TH_ALT | GenericKeyboardEvent.TH_SHIFT), 'l',	KeyboardAction.MOVE_VIEWPORT_LEFT);
+		keyboardProfile().setShortcut((TH_ALT | GenericKeyboardEvent.TH_SHIFT), 'l',	KeyboardAction.MOVE_EYE_LEFT);
 		
 		//only one not working but horrible: 
 		//keyboardProfile().setShortcut('1', KeyboardAction.PLAY_PATH);

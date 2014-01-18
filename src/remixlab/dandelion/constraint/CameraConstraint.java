@@ -17,32 +17,32 @@ import remixlab.dandelion.geom.*;
  * <p>
  * The {@link #translationConstraintDirection()} and
  * {@link #rotationConstraintDirection()} are expressed in the associated
- * {@link #camera()} coordinate system.
+ * {@link #eye()} coordinate system.
  */
 public class CameraConstraint extends AxisPlaneConstraint {
 
-	private View camera;
+	private Eye eye;
 
 	/**
 	 * Creates a CameraConstraint, whose constrained directions are defined in the
-	 * {@link #camera()} coordinate system.
+	 * {@link #eye()} coordinate system.
 	 */
-	public CameraConstraint(View cam) {
+	public CameraConstraint(Eye theEye) {
 		super();
-		camera = cam;
+		eye = theEye;
 	}
 
 	/**
 	 * Returns the associated Camera. Set using the CameraConstraint constructor.
 	 */
-	public View camera() {
-		return camera;
+	public Eye eye() {
+		return eye;
 	}
 
 	/**
 	 * Depending on {@link #translationConstraintType()}, {@code constrain}
 	 * translation to be along an axis or limited to a plane defined in the
-	 * {@link #camera()} coordinate system by
+	 * {@link #eye()} coordinate system by
 	 * {@link #translationConstraintDirection()}.
 	 */
 	@Override
@@ -53,13 +53,13 @@ public class CameraConstraint extends AxisPlaneConstraint {
 		case FREE:
 			break;
 		case PLANE:
-			proj = camera().frame().inverseTransformOf(translationConstraintDirection());
+			proj = eye().frame().inverseTransformOf(translationConstraintDirection());
 			if (frame.referenceFrame() != null)
 				proj = frame.referenceFrame().transformOf(proj);
 			res = Vec.projectVectorOnPlane(translation, proj);
 			break;
 		case AXIS:
-			proj = camera().frame().inverseTransformOf(translationConstraintDirection());
+			proj = eye().frame().inverseTransformOf(translationConstraintDirection());
 			if (frame.referenceFrame() != null)
 				proj = frame.referenceFrame().transformOf(proj);
 			res = Vec.projectVectorOnAxis(translation, proj);
@@ -74,7 +74,7 @@ public class CameraConstraint extends AxisPlaneConstraint {
 	/**
 	 * When {@link #rotationConstraintType()} is of type AXIS, constrain {@code
 	 * rotation} to be a rotation around an axis whose direction is defined in the
-	 * {@link #camera()} coordinate system by
+	 * {@link #eye()} coordinate system by
 	 * {@link #rotationConstraintDirection()}.
 	 */
 	@Override
@@ -87,7 +87,7 @@ public class CameraConstraint extends AxisPlaneConstraint {
 			break;
 		case AXIS:
 			if(rotation instanceof Quat) {
-				Vec axis = frame.transformOf(camera().frame().inverseTransformOf(rotationConstraintDirection()));
+				Vec axis = frame.transformOf(eye().frame().inverseTransformOf(rotationConstraintDirection()));
 				Vec quat = new Vec(((Quat)rotation).quat[0], ((Quat)rotation).quat[1], ((Quat)rotation).quat[2]);
 				quat = Vec.projectVectorOnAxis(quat, axis);
 				res = new Quat(quat, 2.0f * (float) Math.acos(((Quat)rotation).quat[3]));
