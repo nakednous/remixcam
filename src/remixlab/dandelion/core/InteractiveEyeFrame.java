@@ -207,8 +207,13 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 		float deltaX, deltaY;
 		Orientable rot;
 		switch(a) {
+		//better handled these by default (see below)
+		/*
 		case CUSTOM:
+		case ROLL:
+			super.execAction2D(a);
 			break;
+		*/
 		case ROTATE:	
 		case SCREEN_ROTATE:
 			trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());			
@@ -339,8 +344,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			}
 			break;
 		default:
-			//AbstractScene.showMissingImplementationWarning(a);
-			AbstractScene.showVariationWarning(a);
+			super.execAction2D(a);
 			break;
 		}
 	}
@@ -353,6 +357,8 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 		Quat q;
 		Camera.WorldPoint wP;
 		switch(a) {
+	  //better handled these by default (see below)
+		/*
 		case CUSTOM:
 		case DRIVE:
 		case LOOK_AROUND:
@@ -361,6 +367,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 		case ROLL:
 			super.execAction3D(a);
 			break;
+			*/
 		case ROTATE:
 			if(e2.absolute()) {
 				AbstractScene.showEventVariationWarning(a);
@@ -545,7 +552,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 				if (wP.found) {
 					pupVec = wP.point;
 					pupFlag = true;
-					timerFx.runOnce(1000);						
+					timerFx.runOnce(1000);				
 				}
 			break;
 		case ARP_FROM_PIXEL:
@@ -555,7 +562,9 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			}
 			break;
 		default:
-			AbstractScene.showMissingImplementationWarning(a);
+			//Dummie value:
+			//AbstractScene.showMissingImplementationWarning(a, this.getClass().getName());
+			super.execAction3D(a);
 			break;
 		}
 		

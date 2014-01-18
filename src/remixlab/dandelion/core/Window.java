@@ -403,5 +403,10 @@ public class Window extends Eye implements Copyable {
 	@Override
 	public float distanceToARP() {
 		return Vec.distance(position(), arcballReferencePoint());
-	}	
+	}
+	
+	@Override
+	public Vec at() {
+		return position();
+	}
 }

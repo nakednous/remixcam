@@ -9,12 +9,14 @@
  ******************************************************************************/
 package remixlab.dandelion.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import com.flipthebird.gwthashcodeequals.EqualsBuilder;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 
+import remixlab.dandelion.core.Camera.Type;
 import remixlab.dandelion.geom.*;
 import remixlab.fpstiming.TimingHandler;
 import remixlab.tersehandling.core.Copyable;
@@ -1731,6 +1733,150 @@ public abstract class Eye implements Copyable {
 	}
 	
 	public abstract Vec viewDirection();
+	
+	public abstract Vec at();
 
 	public abstract void interpolateToZoomOnPixel(Point pixel);
+
+	public void setViewDirection(Vec direction) {
+		AbstractScene.showDepthWarning("setViewDirection");		
+	}
+
+	public void setOrientation(float theta, float phi) {
+		AbstractScene.showDepthWarning("setOrientation");		
+	}
+
+	public Type type() {
+		AbstractScene.showDepthWarning("type");
+		return null;
+	}
+
+	public void setType(Type type) {
+		AbstractScene.showDepthWarning("setType");
+	}
+
+	public float fieldOfView() {
+		AbstractScene.showDepthWarning("fieldOfView");
+		return 0;
+	}
+
+	public void setFieldOfView(float fov) {
+		AbstractScene.showDepthWarning("setFieldOfView");
+	}
+
+	public void setFOVToFitScene() {
+		AbstractScene.showDepthWarning("setFOVToFitScene");
+	}
+
+	public float horizontalFieldOfView() {
+		AbstractScene.showDepthWarning("horizontalFieldOfView");
+		return 0;
+	}
+
+	public void setHorizontalFieldOfView(float hfov) {
+		AbstractScene.showDepthWarning("setHorizontalFieldOfView");
+	}
+
+	public float zNear() {
+		AbstractScene.showDepthWarning("zNear");
+		return 0;
+	}
+
+	public float zFar() {
+		AbstractScene.showDepthWarning("zFar");
+		return 0;
+	}
+
+	public float zNearCoefficient() {
+		AbstractScene.showDepthWarning("zNearCoefficient");
+		return 0;
+	}
+
+	public void setZNearCoefficient(float coef) {
+		AbstractScene.showDepthWarning("setZNearCoefficient");		
+	}
+
+	public float zClippingCoefficient() {
+		AbstractScene.showDepthWarning("zClippingCoefficient");
+		return 0;
+	}
+
+	public void setZClippingCoefficient(float coef) {
+		AbstractScene.showDepthWarning("setZClippingCoefficient");
+	}
+
+	public boolean coneIsBackFacing(ArrayList<Vec> normals) {
+		AbstractScene.showDepthWarning("coneIsBackFacing");
+		return false;
+	}
+
+	public boolean coneIsBackFacing(Vec viewDirection, ArrayList<Vec> normals) {
+		AbstractScene.showDepthWarning("coneIsBackFacing");
+		return false;
+	}
+
+	public boolean coneIsBackFacing(Vec[] normals) {
+		AbstractScene.showDepthWarning("coneIsBackFacing");
+		return false;
+	}
+
+	public boolean coneIsBackFacing(Vec viewDirection, Vec[] normals) {
+		AbstractScene.showDepthWarning("coneIsBackFacing");
+		return false;
+	}
+
+	public boolean coneIsBackFacing(Vec axis, float angle) {
+		AbstractScene.showDepthWarning("coneIsBackFacing");
+		return false;
+	}
+
+	public boolean coneIsBackFacing(Vec viewDirection, Vec axis, float angle) {
+		AbstractScene.showDepthWarning("coneIsBackFacing");
+		return false;
+	}
+
+	public boolean faceIsBackFacing(Vec a, Vec b, Vec c) {
+		AbstractScene.showDepthWarning("faceIsBackFacing");
+		return false;
+	}
+
+	public void convertClickToLine(Point pixelInput, Vec orig, Vec dir) {
+		AbstractScene.showDepthWarning("convertClickToLine");		
+	}
+
+	public float IODistance() {
+		AbstractScene.showDepthWarning("IODistance");
+		return 0;
+	}
+
+	public void setIODistance(float distance) {
+		AbstractScene.showDepthWarning("setIODistance");		
+	}
+
+	public float physicalDistanceToScreen() {
+		AbstractScene.showDepthWarning("physicalDistanceToScreen");
+		return 0;
+	}
+
+	public void setPhysicalDistanceToScreen(float distance) {
+		AbstractScene.showDepthWarning("setPhysicalDistanceToScreen");		
+	}
+
+	public float physicalScreenWidth() {
+		AbstractScene.showDepthWarning("physicalScreenWidth");
+		return 0;
+	}
+
+	public void setPhysicalScreenWidth(float width) {
+		AbstractScene.showDepthWarning("setPhysicalScreenWidth");
+	}
+
+	public float focusDistance() {
+		AbstractScene.showDepthWarning("focusDistance");
+		return 0;
+	}
+
+	public void setFocusDistance(float distance) {
+		AbstractScene.showDepthWarning("setFocusDistance");
+	}
 }

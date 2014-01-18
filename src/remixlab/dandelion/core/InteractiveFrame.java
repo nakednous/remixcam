@@ -857,6 +857,12 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		float angle;
 		switch(a) {
 		case CUSTOM:
+			AbstractScene.showMissingImplementationWarning(a, this.getClass().getName());
+			break;
+		case ZOOM_ON_REGION:
+		case ARP_FROM_PIXEL:
+		case ZOOM_ON_PIXEL:
+			AbstractScene.showOnlyEyeWarning(a);
 			break;
 		case ROLL:
 			//TODO needs testing
@@ -981,8 +987,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			alignWithFrame(scene.window().frame());
 			break;
 		default:
-			AbstractScene.showMissingImplementationWarning(a);
-			//AbstractScene.showVariationWarning(a);
+			AbstractScene.showDepthWarning(a);
 			break;
 		}
 	}
@@ -995,7 +1000,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		float angle;
 		switch(a) {
 		case CUSTOM:
-			AbstractScene.showMissingImplementationWarning(a);
+			AbstractScene.showMissingImplementationWarning(a, getClass().getName());
 			break;
 		case DRIVE:
 			rotate(turnQuaternion(e1, scene.camera()));
@@ -1254,7 +1259,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			alignWithFrame(scene.camera().frame());
 			break;
 		default:
-			AbstractScene.showMissingImplementationWarning(a);
+			AbstractScene.showOnlyEyeWarning(a);
 			break;
 		}
 	}

@@ -434,6 +434,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * @see #lookAt(Vec)
 	 * @see #setUpVector(Vec)
 	 */
+	@Override
 	public void setViewDirection(Vec direction) {
 		if (Util.zero(direction.squaredNorm()))
 			return;
@@ -465,6 +466,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * 
 	 * @see #setUpVector(Vec)
 	 */
+	@Override
 	public void setOrientation(float theta, float phi) {
 		// TODO: need check.
 		Vec axis = new Vec(0.0f, 1.0f, 0.0f);
@@ -502,6 +504,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * Both types use {@link #zNear()} and {@link #zFar()} (to define their
 	 * clipping planes) and {@link #aspectRatio()} (for frustum shape).
 	 */
+	@Override
 	public final Type type() {
 		return tp;
 	}
@@ -514,6 +517,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * normal to {@link #viewDirection()}, passing through the arcball reference
 	 * point.
 	 */
+	@Override
 	public final void setType(Type type) {
 		// make ORTHOGRAPHIC frustum fit PERSPECTIVE (at least in plane normal
 		// to viewDirection(), passing
@@ -543,6 +547,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * Use {@link #setFOVToFitScene()} to adapt the {@link #fieldOfView()} to a
 	 * given scene.
 	 */
+	@Override
 	public float fieldOfView() {
 		return fldOfView;
 	}
@@ -553,6 +558,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * Note that {@link #focusDistance()} is set to {@link #sceneRadius()} / tan(
 	 * {@link #fieldOfView()}/2) by this method.
 	 */
+	@Override
 	public void setFieldOfView(float fov) {
 		fldOfView = fov;
 		setFocusDistance(sceneRadius() / (float) Math.tan(fov / 2.0f));
@@ -589,6 +595,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * sceneRadius() from the sceneCenter(). It optimizes the shadow map
 	 * resolution, although it may miss some parts of the scene.
 	 */
+	@Override
 	public void setFOVToFitScene() {
 		if (distanceToSceneCenter() > (float) Math.sqrt(2.0f) * sceneRadius())
 			setFieldOfView(2.0f * (float) Math.asin(sceneRadius() / distanceToSceneCenter()));
@@ -641,6 +648,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * horizontalFieldOfView() = 2.0 * atan ( tan(fieldOfView()/2.0) *
 	 * aspectRatio() )}.
 	 */
+	@Override
 	public float horizontalFieldOfView() {
 		return 2.0f * (float) Math.atan((float) Math.tan(fieldOfView() / 2.0f) * aspectRatio());
 	}
@@ -653,6 +661,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * setFieldOfView(( 2.0 * atan (tan(hfov / 2.0) / aspectRatio()) ))} so that a
 	 * call to {@link #horizontalFieldOfView()} returns the expected value.
 	 */
+	@Override
 	public void setHorizontalFieldOfView(float hfov) {
 		setFieldOfView(2.0f * (float) Math.atan((float) Math.tan(hfov / 2.0f) / aspectRatio()));
 	}
@@ -699,6 +708,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * 
 	 * @see #zFar()
 	 */
+	@Override
 	public float zNear() {
 		float z = distanceToSceneCenter() - zClippingCoefficient() * sceneRadius();
 
@@ -731,6 +741,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * 
 	 * @see #zNear()
 	 */
+	@Override
 	public float zFar() {
 		return distanceToSceneCenter() + zClippingCoefficient() * sceneRadius();
 	}
@@ -751,6 +762,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * <p>
 	 * Only meaningful when Camera type is PERSPECTIVE.
 	 */
+	@Override
 	public float zNearCoefficient() {
 		return zNearCoef;
 	}
@@ -758,6 +770,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	/**
 	 * Sets the {@link #zNearCoefficient()} value.
 	 */
+	@Override
 	public void setZNearCoefficient(float coef) {
 		if(coef != zNearCoef)
 			modified();
@@ -781,6 +794,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * to define more precisely the location of the clipping planes. See also
 	 * {@link #zNearCoefficient()}.
 	 */
+	@Override
 	public float zClippingCoefficient() {
 		return zClippingCoef;
 	}
@@ -788,6 +802,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	/**
 	 * Sets the {@link #zClippingCoefficient()} value.
 	 */
+	@Override
 	public void setZClippingCoefficient(float coef) {
 		if(coef != zClippingCoef)
 			modified();
@@ -1089,6 +1104,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * @see #coneIsBackFacing(Cone)
 	 * @see #coneIsBackFacing(Vec[])
 	 */
+	@Override
 	public boolean coneIsBackFacing(ArrayList<Vec> normals) {
 		return coneIsBackFacing(new Cone(normals));
 	}
@@ -1100,6 +1116,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * @param viewDirection Cached camera view direction.
 	 * @param normals cone of normals.
 	 */
+	@Override
 	public boolean coneIsBackFacing(Vec viewDirection, ArrayList<Vec> normals) {
 		return coneIsBackFacing(viewDirection, new Cone(normals));
 	}
@@ -1110,6 +1127,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * @see #coneIsBackFacing(Cone)
 	 * @see #coneIsBackFacing(ArrayList)
 	 */
+	@Override
 	public boolean coneIsBackFacing(Vec [] normals) {
 		return coneIsBackFacing(new Cone(normals));
 	}
@@ -1121,6 +1139,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * @param viewDirection Cached camera view direction.
 	 * @param normals cone of normals.
 	 */
+	@Override
 	public boolean coneIsBackFacing(Vec viewDirection, Vec [] normals) {
 		return coneIsBackFacing(viewDirection, new Cone(normals));
 	}
@@ -1152,6 +1171,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * <p>
 	 * Non-cached version of {@link #coneIsBackFacing(Vec, Vec, float)}
 	 */
+	@Override
 	public boolean coneIsBackFacing(Vec axis, float angle) {
 		return coneIsBackFacing(viewDirection(), axis, angle);
 	}
@@ -1167,6 +1187,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * @see #coneIsBackFacing(Cone)
 	 * @see #faceIsBackFacing(Vec, Vec, Vec)
 	 */
+	@Override
 	public boolean coneIsBackFacing(Vec viewDirection, Vec axis, float angle) {		
 		if( angle < HALF_PI ) {			
 			float phi = (float) Math.acos ( Vec.dot(axis, viewDirection ) );
@@ -1192,6 +1213,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * @param b second face vertex
 	 * @param c third face vertex
 	 */
+	@Override
   public boolean faceIsBackFacing(Vec a, Vec b, Vec c) {
   	Vec v1 = Vec.subtract(projectedCoordinatesOf(a), projectedCoordinatesOf(b));
     Vec v2 = Vec.subtract(projectedCoordinatesOf(b), projectedCoordinatesOf(c));
@@ -1551,6 +1573,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * <p>
 	 * This method is useful for analytical intersection in a selection method.
 	 */
+	@Override
 	public void convertClickToLine(final Point pixelInput, Vec orig, Vec dir) {
 		Point pixel = new Point(pixelInput.getX(), pixelInput.getY());
 		
@@ -1608,6 +1631,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * 
 	 * @see #lookAt(Vec)
 	 */
+	@Override
 	public Vec at() {
 		return Vec.add(position(), viewDirection());
 	}
@@ -1782,6 +1806,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * 
 	 * @see #setIODistance(float)
 	 */
+	@Override
 	public float IODistance() {
 		return IODist;
 	}
@@ -1789,6 +1814,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	/**
 	 * Sets the {@link #IODistance()}.
 	 */
+	@Override
 	public void setIODistance(float distance) {
 		IODist = distance;
 	}
@@ -1806,6 +1832,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * the latter is expressed in processing virtual world units. Use their ratio
 	 * to convert distances between these worlds.
 	 */
+	@Override
 	public float physicalDistanceToScreen() {
 		return physicalDist2Scrn;
 	}
@@ -1813,6 +1840,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	/**
 	 * Sets the {@link #physicalDistanceToScreen()}.
 	 */
+	@Override
 	public void setPhysicalDistanceToScreen(float distance) {
 		physicalDist2Scrn = distance;
 	}
@@ -1827,6 +1855,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * See {@link #physicalDistanceToScreen()} for reality center automatic
 	 * configuration.
 	 */
+	@Override
 	public float physicalScreenWidth() {
 		return physicalScrnWidth;
 	}
@@ -1834,6 +1863,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	/**
 	 * Sets the physical screen (monitor or projected wall) width (in meters).
 	 */
+	@Override
 	public void setPhysicalScreenWidth(float width) {
 		physicalScrnWidth = width;
 	}
@@ -1855,6 +1885,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * {@link #sceneRadius()} / tan({@link #fieldOfView()}/2), which provides good
 	 * results.
 	 */
+	@Override
 	public float focusDistance() {
 		return focusDist;
 	}
@@ -1862,6 +1893,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	/**
 	 * Sets the focusDistance(), in processing scene units.
 	 */
+	@Override
 	public void setFocusDistance(float distance) {
 		if(distance != focusDist)
 			modified();

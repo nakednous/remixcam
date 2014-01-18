@@ -313,7 +313,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			eye().frame().timerFx.runOnce(1000);				
 			break;
 		case CUSTOM:
-			AbstractScene.showMissingImplementationWarning(id);
+			AbstractScene.showMissingImplementationWarning(id, getClass().getName());
 			break;
 		default: 
 			System.out.println("Action cannot be handled here!");
@@ -357,7 +357,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		if (onConsole)
 			System.out.println(info());
 		else
-			AbstractScene.showMissingImplementationWarning("displayInfo");
+			AbstractScene.showMissingImplementationWarning("displayInfo", getClass().getName());
 	}
 	
 	/**
@@ -1680,7 +1680,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   static protected HashMap<String, Object> warnings;
 
   /**
-   * Show a renderer error, and keep track of it so that it's only shown once.
+   * Show warning, and keep track of it so that it's only shown once.
    * @param msg the error message (which will be stored for later comparison)
    */
   static public void showWarning(String msg) {  // ignore
@@ -1698,65 +1698,29 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * @param method The method name (no parentheses)
    */
   static public void showDepthWarning(String method) {
-    showWarning(method + "() can only be used with a renderer that supports 3D, such as P3D or OPENGL.");
-  }
-
-  /**
-   * Display a warning that the specified method that takes x, y, z parameters
-   * can only be used with x and y parameters in this renderer.
-   * @param method The method name (no parentheses)
-   */
-  static public void showDepthWarningXYZ(String method) {
-    showWarning(method + "() with x, y, and z coordinates " +
-                "can only be used with a renderer that " +
-                "supports 3D, such as P3D or OPENGL. " +
-                "Use a version without a z-coordinate instead.");
-  }
-
-  /**
-   * Display a warning that the specified method is simply unavailable.
-   */
-  static public void showMethodWarning(String method) {
-    showWarning(method + "() is not available with this renderer.");
-  }
-
-  /**
-   * Error that a particular variation of a method is unavailable (even though
-   * other variations are). For instance, if vertex(x, y, u, v) is not
-   * available, but vertex(x, y) is just fine.
-   */
-  static public void showVariationWarning(String str) {
-    showWarning(str + " is not available with this renderer.");
-  }
-
-  /**
-   * Display a warning that the specified method is not implemented, meaning
-   * that it could be either a completely missing function, although other
-   * variations of it may still work properly.
-   */
-  static public void showMissingWarning(String method) {
-    showWarning(method + "(), or this particular variation of it, " +
-                "is not available with this renderer.");
+    showWarning(method + "() is not available in 2D.");
   }
   
+  static public void showDepthWarning(DandelionAction action) {
+    showWarning(action.name() + " is not available in 2D.");
+  }
+
   /**
    * Display a warning that the specified method lacks implementation.
-   */  
-  static public void showMissingImplementationWarning(String method) {
-    showWarning(method + "(), should be implemented by your AbstractScene, " +
-                "derived class.");
+   */
+  static public void showMissingImplementationWarning(String method, String theclass) {
+    showWarning(method + "(), should be implemented by your " + theclass + " derived class.");
   }
   
-  static public void showMissingImplementationWarning(DandelionAction action) {
-    showWarning(action + "(), should be implemented by your iFrame, " +
-                "derived class.");
-  }
-  
-  static public void showVariationWarning(DandelionAction action) {
-    showWarning(action + " is not available in 2D.");
+  static public void showMissingImplementationWarning(DandelionAction action, String theclass) {
+    showWarning(action.name() + "should be implemented by your " + theclass + " derived class.");
   }
   
   static public void showEventVariationWarning(DandelionAction action) {
-    showWarning(action + " can only be performed using a relative event.");
+    showWarning(action.name() + " can only be performed using a relative event.");
+  }
+  
+  static public void showOnlyEyeWarning(DandelionAction action) {
+    showWarning(action.name() + " can only be performed by the eye (frame).");
   }
 }

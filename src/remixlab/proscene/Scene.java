@@ -1543,22 +1543,22 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void pushProjection() {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.pushProjection");			
+			AbstractScene.showMissingImplementationWarning("pushProjection", getClass().getName());			
 		}
 
 		@Override
 		public void popProjection() {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.popProjection");			
+			AbstractScene.showMissingImplementationWarning("popProjection", getClass().getName());
 		}
 
 		@Override
 		public void resetProjection() {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.resetProjection");
+			AbstractScene.showMissingImplementationWarning("resetProjection", getClass().getName());
 		}
 
 		@Override
 		public void applyProjection(Mat source) {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.resetProjection");
+			AbstractScene.showMissingImplementationWarning("resetProjection", getClass().getName());
 		}
 
 		@Override
@@ -1566,22 +1566,22 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				float n03, float n10, float n11, float n12, float n13, float n20,
 				float n21, float n22, float n23, float n30, float n31, float n32,
 				float n33) {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.applyProjectionRowMajorOrder");			
+			AbstractScene.showMissingImplementationWarning("applyProjectionRowMajorOrder", getClass().getName());			
 		}
 
 		@Override
 		public void setProjection(Mat source) {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.setProjection");
+			AbstractScene.showMissingImplementationWarning("setProjection", getClass().getName());
 		}
 
 		@Override
 		public void loadProjection() {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.initProjection");
+			AbstractScene.showMissingImplementationWarning("loadProjection", getClass().getName());
 		}
 
 		@Override
 		public void loadModelView() {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.initModelView");
+			AbstractScene.showMissingImplementationWarning("loadModelView", getClass().getName());
 		}
 	}
 

@@ -121,20 +121,19 @@ public interface Constants extends EventConstants {
   	
     // Wheel
   	ZOOM("Zoom", true, 1),
-  	ROLL("Roll frame (camera or interactive drivable frame)", true, 1),
-  	DRIVE("Drive (camera or interactive drivable frame)", false, 1),
+  	ROLL("Roll frame (camera or interactive frame)", true, 1),
+  	DRIVE("Drive (camera or interactive frame)", false, 1),
     
   	// DEVICE ACTIONs
-  	//NO_DEVICE_ACTION("No device action", true, 2),
   	ROTATE("Rotate frame (camera or interactive frame)", true, 2),
   	CAD_ROTATE("Rotate camera frame as in CAD applications", false, 2),
   	TRANSLATE("Translate frame (camera or interactive frame)", true, 2),
   	MOVE_FORWARD("Move forward frame (camera or interactive frame)", false, 2),
   	MOVE_BACKWARD("move backward frame (camera or interactive frame)", false, 2),
-  	LOOK_AROUND("Look around with frame (camera or interactive drivable frame)", false, 2),  	
+  	LOOK_AROUND("Look around with frame (camera or interactive frame)", false, 2),  	
   	SCREEN_ROTATE("Screen rotate (camera or interactive frame)", true, 2),
   	SCREEN_TRANSLATE("Screen translate frame (camera or interactive frame)", true, 2),
-  	ZOOM_ON_REGION("Zoom on region (camera or interactive drivable frame)", true, 2),
+  	ZOOM_ON_REGION("Zoom on region (camera or interactive frame)", true, 2),
   	 	
   	TRANSLATE3("Translate frame (camera or interactive frame) from dx, dy, dz simultaneously", false, 3),	
   	ROTATE3("Rotate frame (camera or interactive frame) from Euler angles", false, 3),
