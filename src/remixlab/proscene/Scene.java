@@ -110,6 +110,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public class ProsceneKeyboard extends KeyboardAgent {
 		public ProsceneKeyboard(Scene scn, String n) {
 			super(scn, n);
+			terseHandler().unregisterAgent(this);
 		}
 		
 		public void keyEvent(KeyEvent e) {
@@ -133,6 +134,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		public ProsceneMouse(Scene scn, String n) {
 			super(scn, n);
+			terseHandler().unregisterAgent(this);
 			scene = scn;
 			
 			//cameraProfile().setBinding(TH_META, TH_RIGHT, DOF2Action.TRANSLATE);	
@@ -162,9 +164,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 						DandelionAction dA = (DandelionAction) a.referenceAction();
 						if( dA == DandelionAction.SCREEN_TRANSLATE ) ((InteractiveFrame)grabber()).dirIsFixed = false;						
 						need4Spin = ( ((dA == DandelionAction.ROTATE) || (dA == DandelionAction.ROTATE3) || (dA == DandelionAction.SCREEN_ROTATE) || (dA == DandelionAction.TRANSLATE_ROTATE) ) && (((InteractiveFrame) grabber()).dampingFriction() == 0));
-						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE) && scene.isDefaultMouseAgentInUse();
-						setZoomVisualHint(dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveEyeFrame) && scene.isDefaultMouseAgentInUse());
-						setRotateVisualHint(dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveEyeFrame) && scene.isDefaultMouseAgentInUse());
+						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE) && scene.terseHandler().agentRegistered(this);
+						setZoomVisualHint(dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveEyeFrame) && scene.terseHandler().agentRegistered(this));
+						setRotateVisualHint(dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveEyeFrame) && scene.terseHandler().agentRegistered(this));
 						if(bypassNullEvent || zoomVisualHint() || rotateVisualHint()) {
 							if(bypassNullEvent) {
 								//TODO: experimental, this is needed for first person:
@@ -474,10 +476,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawZoomWindowHint() {
-			float p1x = (float) scene.prosceneMouse.fCorner.getX();
-			float p1y = (float) scene.prosceneMouse.fCorner.getY();
-			float p2x = (float) scene.prosceneMouse.lCorner.getX();
-			float p2y = (float) scene.prosceneMouse.lCorner.getY();
+			if( ! (scene.defaultMouseAgent() instanceof ProsceneMouse) )
+				return;
+			float p1x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).fCorner.getX();
+			float p1y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).fCorner.getY();
+			float p2x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getX();
+			float p2y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getY();
 			scene.beginScreenDrawing();
 			pg().pushStyle();
 			pg().stroke(255, 255, 255);
@@ -495,8 +499,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawScreenRotateLineHint() {
-			float p1x = (float) scene.prosceneMouse.lCorner.getX();
-			float p1y = (float) scene.prosceneMouse.lCorner.getY();
+			if( ! (scene.defaultMouseAgent() instanceof ProsceneMouse) )
+				return;
+			float p1x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getX();
+			float p1y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getY();
 			Vec p2 = scene.eye().projectedCoordinatesOf(scene.arcballReferencePoint());
 			scene.beginScreenDrawing();
 			pg().pushStyle();
@@ -1767,8 +1773,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected PGraphics pgraphics;
 	
 	// H A R D W A R E
-  protected ProsceneMouse prosceneMouse;
-  protected ProsceneKeyboard prosceneKeyboard;
+  //protected ProsceneMouse prosceneMouse;
+  //protected ProsceneKeyboard prosceneKeyboard;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1798,6 +1804,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected String animateHandlerMethodName;	
 	
 	protected boolean javaTiming;
+	
+	//Tersehandling agents
+	protected MouseAgent defMouseAgent;
+	protected KeyboardAgent defKeyboardAgent;
 
 	/**
 	 * Constructor that defines an on-screen Scene (the one that most likely
@@ -1920,8 +1930,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		disableBoundaryEquations();
 		
-		enableDefaultKeyboardAgent();
-		enableDefaultMouseAgent();
+		setDefaultKeyboardAgent(new ProsceneKeyboard(this, "proscene_keyboard"));
+		setDefaultMouseAgent(new ProsceneMouse(this, "proscene_mouse"));
 
 		parent.registerMethod("pre", this);
 		parent.registerMethod("draw", this);
@@ -1943,55 +1953,54 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		return ( pgraphics instanceof PGraphics3D );
 	}
 	
-	public ProsceneMouse defaultMouseAgent() {
-		return prosceneMouse;
+	public KeyboardAgent defaultKeyboardAgent() {
+		return defKeyboardAgent;
 	}
 	
-	public ProsceneKeyboard defaultKeyboardAgent() {
-		return prosceneKeyboard;
-	}
-	
-	public boolean isDefaultMouseAgentInUse() {
-		if(prosceneMouse == null)
-			return false;
-	  return terseHandler().agentRegistered(prosceneMouse);
-	}
-	
-	public boolean isDefaultKeyboardAgentInUse() {
-		if(prosceneKeyboard == null)
-			return false;
-	  return terseHandler().agentRegistered(prosceneKeyboard);
+	public void setDefaultKeyboardAgent(KeyboardAgent keyboard) {
+		if(defaultKeyboardAgent()!=null) disableDefaultKeyboardAgent();
+		defKeyboardAgent = keyboard;
+		enableDefaultKeyboardAgent();
 	}
 	
 	/**
 	 * Enables Proscene keyboard handling.
 	 * 
 	 * @see #isDefaultKeyboardAgentInUse()
-	 * @see #enableDefaultMouseAgent()
+	 * @see #enableDefaultMotionAgent()
 	 * @see #disableDefaultKeyboardAgent()
 	 */
 	public void enableDefaultKeyboardAgent() {
-		if( !isDefaultKeyboardAgentInUse() ) {
-			if(prosceneKeyboard == null)
-				prosceneKeyboard = new ProsceneKeyboard(this, "proscene_keyboard");
-			else
-				terseHandler().registerAgent(prosceneKeyboard);			
-			parent.registerMethod("keyEvent", prosceneKeyboard);
+		if( !terseHandler().agentRegistered(defaultKeyboardAgent()) ) {
+			terseHandler().registerAgent(defaultKeyboardAgent());
+			parent.registerMethod("keyEvent", defaultKeyboardAgent());
 		}
 	}
 
 	/**
 	 * Disables Proscene keyboard handling.
+	 * @return 
 	 * 
 	 * @see #isDefaultKeyboardAgentInUse()
 	 */
-	public void disableDefaultKeyboardAgent() {
-		if( isDefaultKeyboardAgentInUse() ) {
-			terseHandler().unregisterAgent(prosceneKeyboard);
-			parent.unregisterMethod("keyEvent", prosceneKeyboard);
+	public KeyboardAgent disableDefaultKeyboardAgent() {
+		if( terseHandler().agentRegistered(defaultKeyboardAgent()) ) {
+			parent.unregisterMethod("keyEvent", defaultKeyboardAgent());
+			return (KeyboardAgent)terseHandler().unregisterAgent(defaultKeyboardAgent());	
 		}
+		return defaultKeyboardAgent();
 	}
-
+	
+	public MouseAgent defaultMouseAgent() {
+		return defMouseAgent;
+	}
+	
+	public void setDefaultMouseAgent(MouseAgent agent) {
+		if(defaultMouseAgent()!=null) disableDefaultMouseAgent();
+		defMouseAgent = agent;
+		enableDefaultMouseAgent();
+	}
+	
 	/**
 	 * Enables Proscene mouse handling.
 	 * 
@@ -2000,12 +2009,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #enableDefaultKeyboardAgent()
 	 */
 	public void enableDefaultMouseAgent() {
-		if( !isDefaultMouseAgentInUse() ) {
-			if( prosceneMouse == null )
-				prosceneMouse = new ProsceneMouse(this, "proscene_mouse");
-			else
-				terseHandler().registerAgent(prosceneMouse);
-			parent.registerMethod("mouseEvent", prosceneMouse);
+		if( !terseHandler().agentRegistered(defaultMouseAgent()) ) {
+			terseHandler().registerAgent(defaultMouseAgent());
+			parent.registerMethod("mouseEvent", defaultMouseAgent());
 		}
 	}
 	
@@ -2014,12 +2020,21 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * 
 	 * @see #isDefaultMouseAgentInUse()
 	 */
-	public void disableDefaultMouseAgent() {
-		if( isDefaultMouseAgentInUse() ) {
-			terseHandler().unregisterAgent(prosceneMouse);
-			parent.unregisterMethod("mouseEvent", prosceneMouse);
+	public MouseAgent disableDefaultMouseAgent() {
+		if( terseHandler().agentRegistered(defaultMouseAgent()) ) {
+			parent.unregisterMethod("mouseEvent", defaultMouseAgent());
+			return (MouseAgent)terseHandler().unregisterAgent(defaultMouseAgent());			
 		}
+		return defaultMouseAgent();
 	}
+	
+	//Tersehandling wrappers
+	//TODO pending
+	/*
+	public void setCameraMouseBinding() {
+		defaultMotionAgent().cameraProfile().setBinding();
+	}
+	*/
 
 	// 2. Associated objects	
 	
@@ -2161,6 +2176,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		postDraw();
 	}
 	
+	/*
 	@Override
 	protected void updateCursor() {
 		pcursorX = cursorX;
@@ -2168,6 +2184,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		cursorX = parent.mouseX;
 		cursorY = parent.mouseY;
 	}
+	*/
 	
   // 4. Scene dimensions
 	

@@ -104,6 +104,11 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 	
 	//FPSTiming wrappers
+	
+	public TimingHandler timerHandler() {
+		return timerHandler;
+	}
+	
 	public void registerJob(AbstractTimerJob job) {
 		timerHandler().registerJob(job);
 	}
@@ -140,6 +145,20 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	
 	// E V E N T   HA N D L I N G
 	
+  //TerseHandling
+	
+	public TerseHandler terseHandler() {
+		return terseHandler;
+	}
+	
+	public boolean grabsAnAgent(Grabbable g) {
+		for( Agent agent : terseHandler().agents() ) {
+			if (g.grabsAgent(agent))
+					return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public boolean grabsAgent(Agent agent) {
 		return agent.grabber() == this;
@@ -148,6 +167,35 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	@Override
 	public boolean checkIfGrabsInput(TerseEvent event) {		
 		return (event instanceof GenericKeyboardEvent || event instanceof GenericClickEvent);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code displayCurrentCameraProfileHelp(true)}.
+	 * 
+	 * @see #displayInfo(boolean)
+	 */	
+	public String info() {
+		String description = new String();
+		description += "Agents' info\n";
+		int index = 1;
+		for( Agent agent : terseHandler().agents() ) {
+			description += index;
+			description += ". ";
+			description += agent.info();
+			index++;
+		}
+		return description;
+	}
+	
+	public void displayInfo() {
+		displayInfo(true);
+	}
+	
+	public void displayInfo(boolean onConsole) {
+		if (onConsole)
+			System.out.println(info());
+		else
+			AbstractScene.showMissingImplementationWarning("displayInfo", getClass().getName());
 	}
 	
 	/**
@@ -322,45 +370,6 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 	
 	/**
-	public void customClickInteraction(GenericClickEvent<?> event) {
-		AbstractScene.showDepthWarning("customClickInteraction");
-	}
-	
-  public void customKeyboardInteraction(GenericKeyboardEvent<?> event) {
-  	AbstractScene.showDepthWarning("GenericKeyboardEvent");
-	}
-	*/
-	
-	/**
-	 * Convenience function that simply calls {@code displayCurrentCameraProfileHelp(true)}.
-	 * 
-	 * @see #displayInfo(boolean)
-	 */	
-	public String info() {
-		String description = new String();
-		description += "Agents' info\n";
-		int index = 1;
-		for( Agent agent : terseHandler().agents() ) {
-			description += index;
-			description += ". ";
-			description += agent.info();
-			index++;
-		}
-		return description;
-	}
-	
-	public void displayInfo() {
-		displayInfo(true);
-	}
-	
-	public void displayInfo(boolean onConsole) {
-		if (onConsole)
-			System.out.println(info());
-		else
-			AbstractScene.showMissingImplementationWarning("displayInfo", getClass().getName());
-	}
-	
-	/**
 	 * Returns the {@link PApplet#width} to {@link PApplet#height} aspect ratio of
 	 * the processing display window.
 	 */
@@ -376,10 +385,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			eye().setPosition(avatar().eyePosition());
 			eye().setUpVector(avatar().upVector());
 			eye().lookAt(avatar().target());
-		}
-		 
-		//before timerHandler().handle() it was here:
-		//timerHandler().updateFrameRate();		
+		}		
 		bind();
 		if (boundaryEquationsAreEnabled())
 			eye().updateBoundaryEquations();
@@ -406,44 +412,20 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 */
 	public void postDraw() {			
 		// 1
-		updateCursor();
-			
+		//updateCursor();//TODO test if this is necessary
 		// 2. timers
-		//if (timersAreSingleThreaded())
-		timerHandler().handle();
-		
+		timerHandler().handle();		
 		// 3. Agents
-		terseHandler().handle();
-		
+		terseHandler().handle();		
 	  // 4. Alternative use only
-		proscenium();
-		
+		proscenium();		
 		// 6. Draw external registered method (only in java sub-classes)
 		invokeRegisteredMethod(); // abstract
-    
-    // 7. Grid and axis drawing
- 		
-    // 8. Display visual hints
+		// 7. Display visual hints
  		displayVisualHints(); // abstract
 	}
 	
-	public TerseHandler terseHandler() {
-		return terseHandler;
-	}
-	
-	public TimingHandler timerHandler() {
-		return timerHandler;
-	}
-	
-	public boolean grabsAnAgent(Grabbable g) {
-		for( Agent agent : terseHandler().agents() ) {
-			if (g.grabsAgent(agent))
-					return true;
-		}
-		return false;
-	}
-	
-	protected abstract void updateCursor();
+	//protected abstract void updateCursor();
 	
 	protected abstract void invokeRegisteredMethod();
 	

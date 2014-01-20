@@ -90,8 +90,7 @@ public class TerseHandler {
 		if (!agentRegistered(agent))
 			agents.put(agent.name(), agent);
 		else {
-			System.out
-					.println("Nothing done. An agent with the same name is already registered. Current agent names are:");
+			System.out.println("Nothing done. An agent with the same name is already registered. Current agent names are:");
 			for (Agent ag : agents.values())
 				System.out.println(ag.name());
 		}
