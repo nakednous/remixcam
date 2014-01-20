@@ -12,7 +12,7 @@ package remixlab.dandelion.core;
 import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.generic.profile.Actionable;
 
-public interface Constants extends EventConstants {	
+public interface Constants extends EventConstants {
 	/**
 	 * Visual hints as "the last shall be first"
 	 */

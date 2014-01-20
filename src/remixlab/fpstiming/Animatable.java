@@ -22,7 +22,7 @@ public interface Animatable {
 	 * Returns whether or not the animated method is defined externally, as
 	 * when register it through reflection.
 	 */
-	boolean hasCallbackMethod();
+	boolean invokeAnimationHandler();
 
 	/**
 	 * Returns the animation period in milliseconds.

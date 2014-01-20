@@ -107,7 +107,7 @@ public class SeqTimer implements Timable {
 	}
 
 	@Override
-	public boolean active() {
+	public boolean isActive() {
 		return active;
 	}
 
@@ -174,7 +174,7 @@ public class SeqTimer implements Timable {
 	}
 
 	@Override
-	public boolean singleShot() {
+	public boolean isSingleShot() {
 		return runOnlyOnce;
 	}
 

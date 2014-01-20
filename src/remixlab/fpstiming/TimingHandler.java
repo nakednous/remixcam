@@ -76,7 +76,7 @@ public class TimingHandler {
 		for (Animatable aObj : animationPool)
 			if (aObj.isAnimationStarted())
 				if (aObj.timer().trigggered())
-					if (!aObj.hasCallbackMethod())
+					if (!aObj.invokeAnimationHandler())
 						aObj.animate();
 	}
 
@@ -126,7 +126,7 @@ public class TimingHandler {
 	/**
 	 * Returns {@code true} if the job is registered and {@code false} otherwise.
 	 */
-	public boolean jobRegistered(AbstractTimerJob job) {
+	public boolean isJobRegistered(AbstractTimerJob job) {
 		return timerPool.contains(job);
 	}
 
@@ -176,7 +176,7 @@ public class TimingHandler {
 			isActive = job.isActive();
 			if (isActive) {
 				period = job.period();
-				rOnce = job.timer().singleShot();
+				rOnce = job.timer().isSingleShot();
 			}
 			job.stop();
 			job.timer(new SeqTaskableTimer(this, job));
@@ -220,7 +220,7 @@ public class TimingHandler {
 	 * Returns {@code true} if the animation object is registered
 	 * and {@code false} otherwise.
 	 */
-	public boolean animationRegistered(Animatable object) {
+	public boolean isAnimationRegistered(Animatable object) {
 		return animationPool.contains(object);
 	}
 }

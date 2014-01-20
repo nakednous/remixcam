@@ -15,7 +15,7 @@ package remixlab.fpstiming;
 public interface Timable {
 	/**
 	 * Runs the timer according to period. The timer may be scheduled
-	 * for repeated fixed-rate execution according to {@link #singleShot()}.
+	 * for repeated fixed-rate execution according to {@link #isSingleShot()}.
 	 * 
 	 * @param period time in milliseconds between successive task executions
 	 */
@@ -41,7 +41,7 @@ public interface Timable {
 	/**
 	 * Tells whether or not the timer is active.
 	 */
-	public boolean active();
+	public boolean isActive();
 
 	/**
 	 * Returns the timer period in milliseconds.
@@ -56,7 +56,7 @@ public interface Timable {
 	/**
 	 * Returns whether or not the timer is scheduled to be executed only once.
 	 */
-	public boolean singleShot();
+	public boolean isSingleShot();
 
 	/**
 	 * Defines the timer as a single shot or for repeated execution.

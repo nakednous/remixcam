@@ -164,9 +164,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 						DandelionAction dA = (DandelionAction) a.referenceAction();
 						if( dA == DandelionAction.SCREEN_TRANSLATE ) ((InteractiveFrame)grabber()).dirIsFixed = false;						
 						need4Spin = ( ((dA == DandelionAction.ROTATE) || (dA == DandelionAction.ROTATE3) || (dA == DandelionAction.SCREEN_ROTATE) || (dA == DandelionAction.TRANSLATE_ROTATE) ) && (((InteractiveFrame) grabber()).dampingFriction() == 0));
-						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE) && scene.terseHandler().agentRegistered(this);
-						setZoomVisualHint(dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveEyeFrame) && scene.terseHandler().agentRegistered(this));
-						setRotateVisualHint(dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveEyeFrame) && scene.terseHandler().agentRegistered(this));
+						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE) && scene.terseHandler().isAgentRegistered(this);
+						setZoomVisualHint(dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveEyeFrame) && scene.terseHandler().isAgentRegistered(this));
+						setRotateVisualHint(dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveEyeFrame) && scene.terseHandler().isAgentRegistered(this));
 						if(bypassNullEvent || zoomVisualHint() || rotateVisualHint()) {
 							if(bypassNullEvent) {
 								//TODO: experimental, this is needed for first person:
@@ -308,7 +308,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		@Override
 		public void run() {
 			create();
-			if(singleShot())
+			if(isSingleShot())
 				timer.schedule(timerTask, prd);
 			else
 				timer.scheduleAtFixedRate(timerTask, 0, prd);		
@@ -331,7 +331,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public boolean active() {
+		public boolean isActive() {
 			return timer != null;
 		}
 
@@ -346,7 +346,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public boolean singleShot() {
+		public boolean isSingleShot() {
 			return runOnlyOnce;
 		}
 
@@ -1971,7 +1971,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #disableDefaultKeyboardAgent()
 	 */
 	public void enableDefaultKeyboardAgent() {
-		if( !terseHandler().agentRegistered(defaultKeyboardAgent()) ) {
+		if( !terseHandler().isAgentRegistered(defaultKeyboardAgent()) ) {
 			terseHandler().registerAgent(defaultKeyboardAgent());
 			parent.registerMethod("keyEvent", defaultKeyboardAgent());
 		}
@@ -1984,7 +1984,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #isDefaultKeyboardAgentInUse()
 	 */
 	public KeyboardAgent disableDefaultKeyboardAgent() {
-		if( terseHandler().agentRegistered(defaultKeyboardAgent()) ) {
+		if( terseHandler().isAgentRegistered(defaultKeyboardAgent()) ) {
 			parent.unregisterMethod("keyEvent", defaultKeyboardAgent());
 			return (KeyboardAgent)terseHandler().unregisterAgent(defaultKeyboardAgent());	
 		}
@@ -2009,7 +2009,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #enableDefaultKeyboardAgent()
 	 */
 	public void enableDefaultMouseAgent() {
-		if( !terseHandler().agentRegistered(defaultMouseAgent()) ) {
+		if( !terseHandler().isAgentRegistered(defaultMouseAgent()) ) {
 			terseHandler().registerAgent(defaultMouseAgent());
 			parent.registerMethod("mouseEvent", defaultMouseAgent());
 		}
@@ -2021,7 +2021,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #isDefaultMouseAgentInUse()
 	 */
 	public MouseAgent disableDefaultMouseAgent() {
-		if( terseHandler().agentRegistered(defaultMouseAgent()) ) {
+		if( terseHandler().isAgentRegistered(defaultMouseAgent()) ) {
 			parent.unregisterMethod("mouseEvent", defaultMouseAgent());
 			return (MouseAgent)terseHandler().unregisterAgent(defaultMouseAgent());			
 		}
@@ -2040,14 +2040,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	@Override
 	public void registerJob(AbstractTimerJob job) {
-		if (timingIsSingleThreaded())
+		if (isTimingSingleThreaded())
 			timerHandler().registerJob(job);
 		else
 			timerHandler().registerJob(job, new TimerWrap(this, job));
 	}
 	
 	public void setJavaTimers() {
-		if( !timingIsSingleThreaded() )
+		if( !isTimingSingleThreaded() )
 			return;
 		
 		boolean isActive;
@@ -2058,7 +2058,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			isActive = job.isActive();
 			if(isActive) {
 				period = job.period();
-				rOnce = job.timer().singleShot();
+				rOnce = job.timer().isSingleShot();
 			}
 			job.stop();
 			job.timer(new TimerWrap(this, job));			
@@ -2074,12 +2074,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		PApplet.println("java util timers set");
 	}
 	
-	public boolean timingIsSingleThreaded() {
+	public boolean isTimingSingleThreaded() {
 		return !javaTiming;
 	}
 	
 	public void switchTimers() {
-		if( timingIsSingleThreaded() )
+		if( isTimingSingleThreaded() )
 			setJavaTimers();
 		else
 			setSingleThreadedTimers();
@@ -2126,7 +2126,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}	
 	
 	@Override
-	protected void invokeRegisteredMethod() {
+	protected void invokeDrawHandler() {
      	// 3. Draw external registered method
 			if (drawHandlerObject != null) {
 				try {
@@ -2569,7 +2569,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * Returns {@code true} if the user has registered a 'draw' handler method to
 	 * the Scene and {@code false} otherwise.
 	 */
-	public boolean hasRegisteredDrawHandler() {
+	public boolean hasDrawHandler() {
 		if (drawHandlerMethodName == null)
 			return false;
 		return true;
@@ -2589,7 +2589,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #startAnimation()
 	 */
 	@Override
-	public boolean hasCallbackMethod() {
+	public boolean invokeAnimationHandler() {
 		if (animateHandlerObject != null) {
 			try {
 				animateHandlerMethod.invoke(animateHandlerObject, new Object[] { this });
@@ -2640,7 +2640,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * Returns {@code true} if the user has registered an 'animation' handler method to
 	 * the Scene and {@code false} otherwise.
 	 */
-	public boolean hasRegisteredAnimationHandler() {
+	public boolean hasAnimationHandler() {
 		if (animateHandlerMethodName == null)
 			return false;
 		return true;

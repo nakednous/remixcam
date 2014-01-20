@@ -85,7 +85,7 @@ public abstract class AbstractTimerJob implements Taskable {
 	 */
 	public boolean isActive() {
 		if (timer() != null) {
-			return timer().active();
+			return timer().isActive();
 		}
 		return false;
 	}

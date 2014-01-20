@@ -1493,7 +1493,7 @@ public abstract class Eye implements Copyable {
 	 * @see #updateBoundaryEquations()
 	 */
   // TODO should be protected
-	public boolean boundaryEquationsAreEnabled() {
+	public boolean areBoundaryEquationsEnabled() {
 		return fpCoefficientsUpdate;
 	}
 	
@@ -1550,7 +1550,7 @@ public abstract class Eye implements Copyable {
 	 * @see remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()
 	 */
 	public float[][] getBoundaryEquations() {
-		if (!scene.boundaryEquationsAreEnabled())
+		if (!scene.areBoundaryEquationsEnabled())
 			System.out.println("The viewpoint boundary equations may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableBoundaryEquations()");
@@ -1581,7 +1581,7 @@ public abstract class Eye implements Copyable {
 	 * @see remixlab.dandelion.core.AbstractScene#enableBoundaryEquations()
 	 */
 	public float distanceToBoundary(int index, Vec pos) {
-		if (!scene.boundaryEquationsAreEnabled())
+		if (!scene.areBoundaryEquationsEnabled())
 			System.out.println("The viewpoint boundary equations (needed by distanceToBoundary) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableBoundaryEquations()");

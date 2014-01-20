@@ -217,7 +217,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 		case ROTATE:	
 		case SCREEN_ROTATE:
 			trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());			
-			if(e2.relative()) {
+			if(e2.isRelative()) {
 				Point prevPos = new Point(e2.prevX(), e2.prevY());
 				Point curPos= new Point(e2.x(), e2.y());
 				rot = new Rot(new Point(trans.x(), trans.y()), prevPos, curPos);
@@ -228,7 +228,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			if ( !isFlipped() ) rot.negate();
 			//but its not enough to cover all different cases, so:
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();		
-			if(e2.relative()) {
+			if(e2.isRelative()) {
 				setSpinningQuaternion(rot);
 				if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
 			} else //absolute needs testing
@@ -237,8 +237,8 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 		case SCREEN_TRANSLATE:
 			trans = new Vec();
 			int dir = originalDirection(e2);			
-			deltaX = (e2.relative()) ? e2.dx() : e2.x();
-			if(e2.relative())
+			deltaX = (e2.isRelative()) ? e2.dx() : e2.x();
+			if(e2.isRelative())
 				deltaY = scene.isRightHanded() ? e2.dy() : -e2.dy();
 			else
 				deltaY = scene.isRightHanded() ? e2.y() : -e2.y();
@@ -253,8 +253,8 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity())));
 			break;
 		case TRANSLATE:
-			deltaX = (e2.relative()) ? e2.dx() : e2.x();
-			if(e2.relative())
+			deltaX = (e2.isRelative()) ? e2.dx() : e2.x();
+			if(e2.isRelative())
 				deltaY = scene.isRightHanded() ? -e2.dy() : e2.dy();
 			else
 				deltaY = scene.isRightHanded() ? -e2.y() : e2.y();			
@@ -267,8 +267,8 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			break;
 		case TRANSLATE_ROTATE:
 			//translate:
-			deltaX = (e6.relative()) ? e6.dx() : e6.x();
-			if(e6.relative())
+			deltaX = (e6.isRelative()) ? e6.dx() : e6.x();
+			if(e6.isRelative())
 				deltaY = scene.isRightHanded() ? -e6.dy() : e6.dy();
 			else
 				deltaY = scene.isRightHanded() ? -e6.y() : e6.y();			
@@ -282,14 +282,14 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());
 		  //TODO "relative" is experimental here.
 			//Hard to think of a DOF6 relative device in the first place.
-			if(e6.relative()) 
+			if(e6.isRelative()) 
 				rot = new Rot(e6.drx() * rotationSensitivity());	
 			else
 				rot = new Rot(e6.rx() * rotationSensitivity());			
 			if ( !isFlipped() ) rot.negate();
 			//but its not enough to cover all different cases, so:
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();		
-			if(e6.relative()) {
+			if(e6.isRelative()) {
 				setSpinningQuaternion(rot);
 				if( Util.nonZero(dampingFriction()) ) startSpinning(e6);	else spin();
 			} else //absolute needs testing
@@ -300,7 +300,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = e1.x() * wheelSensitivity();
 			else
-				if( e1.absolute() )
+				if( e1.isAbsolute() )
 					delta = e1.x();
 				else
 					delta = e1.dx();
@@ -313,7 +313,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			}
 			break;
 		case ZOOM_ON_REGION:
-			if(e2.absolute()) {
+			if(e2.isAbsolute()) {
 				AbstractScene.showEventVariationWarning(a);
 				break;
 			}
@@ -369,7 +369,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			break;
 			*/
 		case ROTATE:
-			if(e2.absolute()) {
+			if(e2.isAbsolute()) {
 				AbstractScene.showEventVariationWarning(a);
 				break;
 			}
@@ -378,7 +378,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
 			break;
 		case CAD_ROTATE:
-			if(e2.absolute()) {
+			if(e2.isAbsolute()) {
 				AbstractScene.showEventVariationWarning(a);
 				break;
 			}
@@ -388,14 +388,14 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			break;
 		case ROTATE3:
 			q = new Quat();
-			if(e3.absolute())
+			if(e3.isAbsolute())
 				q.fromEulerAngles(-e3.x(), -e3.y(), e3.z());
 			else
 				q.fromEulerAngles(-e3.dx(), -e3.dy(), e3.dz());
       rotate(q);
 			break;
 		case SCREEN_ROTATE:
-			if(e2.absolute()) {
+			if(e2.isAbsolute()) {
 				AbstractScene.showEventVariationWarning(a);
 				break;
 			}
@@ -415,12 +415,12 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			trans = new Vec();
 			int dir = originalDirection(e2);
 			if (dir == 1)
-				if( e2.absolute() )
+				if( e2.isAbsolute() )
 					trans.set(-e2.x(), 0.0f, 0.0f);
 				else
 					trans.set(-e2.dx(), 0.0f, 0.0f);
 			else if (dir == -1)
-				if( e2.absolute() )
+				if( e2.isAbsolute() )
 					trans.set(0.0f, -e2.y(), 0.0f);
 				else
 					trans.set(0.0f, -e2.dy(), 0.0f);	
@@ -445,7 +445,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			//translate(inverseTransformOf(trans, false));
 			break;
 		case TRANSLATE:			
-			if(e2.relative())
+			if(e2.isRelative())
 			  trans = new Vec(-e2.dx(), scene.isRightHanded() ? e2.dy() : -e2.dy(), 0.0f);
 			else
 				trans = new Vec(-e2.x(), scene.isRightHanded() ? e2.y() : -e2.y(), 0.0f);
@@ -465,7 +465,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
 			break;
 		case TRANSLATE3:
-			if(e3.relative())
+			if(e3.isRelative())
 			  trans = new Vec(-e3.dx(), scene.isRightHanded() ? e3.dy() : -e3.dy(), -e3.dz());
 			else
 				trans = new Vec(-e3.x(), scene.isRightHanded() ? e3.y() : -e3.y(), -e3.z());
@@ -486,7 +486,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			break;
 		case TRANSLATE_ROTATE:
 			//translate
-			if(e6.relative())
+			if(e6.isRelative())
 			  trans = new Vec(-e6.dx(), scene.isRightHanded() ? e6.dy() : -e6.dy(), -e6.dz());
 			else
 				trans = new Vec(-e6.x(), scene.isRightHanded() ? e6.y() : -e6.y(), -e6.z());
@@ -506,7 +506,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
 		  // Rotate
 			q = new Quat();
-			if(e6.absolute())
+			if(e6.isAbsolute())
 				q.fromEulerAngles(-e6.roll(), -e6.pitch(), e6.yaw());
 			else
 				q.fromEulerAngles(-e6.drx(), -e6.dry(), e6.drz());
@@ -519,7 +519,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = coef * e1.x() * -wheelSensitivity() * wheelSensitivityCoef;
 			else
-				if( e1.absolute() )
+				if( e1.isAbsolute() )
 				  delta = -coef	* e1.x() / camera.screenHeight();
 				else
 					delta = -coef	* e1.dx() / camera.screenHeight();
@@ -530,7 +530,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			translate(inverseTransformOf(trans));
 			break;
 		case ZOOM_ON_REGION:
-			if(e2.absolute()) {
+			if(e2.isAbsolute()) {
 				AbstractScene.showEventVariationWarning(a);
 				break;
 			}

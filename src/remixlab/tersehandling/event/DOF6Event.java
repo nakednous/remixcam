@@ -290,7 +290,7 @@ public class DOF6Event extends MotionEvent {
 	@Override
 	public void modulate(float[] sens) {
 		if (sens != null)
-			if (sens.length >= 6 && this.absolute()) {
+			if (sens.length >= 6 && this.isAbsolute()) {
 				x = x * sens[0];
 				y = y * sens[1];
 				z = z * sens[2];
@@ -302,11 +302,11 @@ public class DOF6Event extends MotionEvent {
 
 	@Override
 	public boolean isNull() {
-		if (relative() && Util.zero(dx()) && Util.zero(dy())
+		if (isRelative() && Util.zero(dx()) && Util.zero(dy())
 				&& Util.zero(dz()) && Util.zero(drx())
 				&& Util.zero(dry()) && Util.zero(drz()))
 			return true;
-		if (absolute() && Util.zero(x()) && Util.zero(y())
+		if (isAbsolute() && Util.zero(x()) && Util.zero(y())
 				&& Util.zero(z()) && Util.zero(rx())
 				&& Util.zero(ry()) && Util.zero(rz()))
 			return true;
@@ -320,7 +320,7 @@ public class DOF6Event extends MotionEvent {
 	public DOF3Event dof3Event(boolean fromTranslation) {
 		DOF3Event pe3;
 		DOF3Event e3;
-		if (relative()) {
+		if (isRelative()) {
 			if (fromTranslation) {
 				pe3 = new DOF3Event(prevX(), prevY(), prevZ(),	modifiers(), button());
 				e3 = new DOF3Event(pe3, x(), y(), z(), modifiers(),	button());

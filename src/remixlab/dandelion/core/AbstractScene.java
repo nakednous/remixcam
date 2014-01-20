@@ -118,7 +118,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 	
 	public boolean isJobRegistered(AbstractTimerJob job) {
-		return timerHandler().jobRegistered(job);
+		return timerHandler().isJobRegistered(job);
 	}
 	
 	public void registerAnimation(Animatable object) {
@@ -130,7 +130,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 	
 	public boolean isAnimationRegistered(Animatable object) {
-		return timerHandler().animationRegistered(object);
+		return timerHandler().isAnimationRegistered(object);
 	}
 	
 	/**
@@ -387,7 +387,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			eye().lookAt(avatar().target());
 		}		
 		bind();
-		if (boundaryEquationsAreEnabled())
+		if (areBoundaryEquationsEnabled())
 			eye().updateBoundaryEquations();
 	}
 	
@@ -420,14 +420,14 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	  // 4. Alternative use only
 		proscenium();		
 		// 6. Draw external registered method (only in java sub-classes)
-		invokeRegisteredMethod(); // abstract
+		invokeDrawHandler(); // abstract
 		// 7. Display visual hints
  		displayVisualHints(); // abstract
 	}
 	
 	//protected abstract void updateCursor();
 	
-	protected abstract void invokeRegisteredMethod();
+	protected abstract void invokeDrawHandler();
 	
 	/**
 	 * Internal use. Display various on-screen visual hints to be called from {@link #pre()}
@@ -793,6 +793,178 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		drawingHelpler().drawPath(kfi, mask, nbFrames, scale);
 	}
 	
+//Abstract drawing methods
+	
+	/**
+	 * Same as {@code cone(det, 0, 0, r, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float)
+	 */
+	public void cone(int det, float r, float h) {
+		cone(det, 0, 0, r, h);
+	}		
+	
+	/**
+	 * Same as {@code cone(12, 0, 0, r, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float)
+	 */
+	public void cone(float r, float h) {
+		cone(12, 0, 0, r, h);
+	}	
+	
+	/**
+	 * Same as {@code cone(det, 0, 0, r1, r2, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float, float)
+	 */
+	public void cone(int det, float r1, float r2, float h) {
+		cone(det, 0, 0, r1, r2, h);
+	}	
+	
+	/**
+	 * Same as {@code cone(18, 0, 0, r1, r2, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float, float)
+	 */
+	public void cone(float r1, float r2, float h) {
+		cone(18, 0, 0, r1, r2, h);
+	}	
+	
+	/**
+	 * Convenience function that simply calls {@code drawAxis(100)}.
+	 */
+	public void drawAxis() {
+		drawAxis(100);
+	}	
+	
+	/**
+	 * Simply calls {@code drawArrow(length, 0.05f * length)}
+	 * 
+	 * @see #drawArrow(float, float)
+	 */
+	public void drawArrow(float length) {
+		drawArrow(length, 0.05f * length);
+	}
+	
+	/**
+	 * Draws a 3D arrow along the positive Z axis.
+	 * <p>
+	 * {@code length} and {@code radius} define its geometry.
+	 * <p>
+	 * Use {@link #drawArrow(Vec, Vec, float)} to place the arrow
+	 * in 3D.
+	 */
+	public void drawArrow(float length, float radius) {
+		float head = 2.5f * (radius / length) + 0.1f;
+		float coneRadiusCoef = 4.0f - 5.0f * head;
+
+		cylinder(radius, length * (1.0f - head / coneRadiusCoef));
+		translate(0.0f, 0.0f, length * (1.0f - head));
+		cone(coneRadiusCoef * radius, head * length);
+		translate(0.0f, 0.0f, -length * (1.0f - head));
+	}
+	
+	/**
+	 * Draws a 3D arrow between the 3D point {@code from} and the 3D point {@code
+	 * to}, both defined in the current world coordinate system.
+	 * 
+	 * @see #drawArrow(float, float)
+	 */
+	public void drawArrow(Vec from, Vec to,	float radius) {
+		pushModelView();
+		translate(from.x(), from.y(), from.z());
+		applyModelView(new Quat(new Vec(0, 0, 1), Vec.subtract(to,	from)).matrix());
+		drawArrow(Vec.subtract(to, from).magnitude(), radius);
+		popModelView();
+	}
+	
+	public void drawDottedGrid() {
+		drawDottedGrid(100, 10);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawGrid(100, 10)}
+	 * 
+	 * @see #drawGrid(float, int)
+	 */
+	public void drawGrid() {
+		drawGrid(100, 10);
+	}
+	
+	public void drawDottedGrid(float size) {
+		drawDottedGrid(size, 10);
+	}
+		
+	/**
+	 * Convenience function that simply calls {@code drawGrid(size, 10)}
+	 * 
+	 * @see #drawGrid(float, int)
+	 */
+	public void drawGrid(float size) {
+		drawGrid(size, 10);
+	}
+	
+	public void drawDottedGrid(int nbSubdivisions) {
+		drawDottedGrid(100, nbSubdivisions);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawGrid(100, nbSubdivisions)}
+	 * 
+	 * @see #drawGrid(float, int)
+	 */
+	public void drawGrid(int nbSubdivisions) {
+		drawGrid(100, nbSubdivisions);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawViewWindow(camera, 1)}
+	 * 
+	 * @see #drawWindow(Window, float)
+	 */
+	public void drawEye(Eye eye) {
+		drawEye(eye, 1);
+	}
+		
+	/**
+	 * Draws all InteractiveFrames' selection regions: a shooter target
+	 * visual hint of {@link remixlab.dandelion.core.InteractiveFrame#grabsInputThreshold()} pixels size.
+	 * 
+	 * <b>Attention:</b> If the InteractiveFrame is part of a Camera path draws
+	 * nothing.
+	 * 
+	 * @see #drawEyePathsSelectionHints()
+	 */
+	protected abstract void drawSelectionHints();
+	
+	/**
+	 * Draws the selection regions (a shooter target visual hint of
+	 * {@link remixlab.dandelion.core.InteractiveFrame#grabsInputThreshold()} pixels size) of all
+	 * InteractiveFrames forming part of the Camera paths.
+	 * 
+	 * @see #drawSelectionHints()
+	 */
+	protected abstract void drawEyePathsSelectionHints();
+		
+	/**
+	 * Convenience function that simply calls
+	 * {@code drawCross(pg3d.color(255, 255, 255), px, py, 15, 3)}.
+	 */
+	public void drawCross(float px, float py) {
+		drawCross(px, py, 15);
+	}
+		
+	/**
+	 * Convenience function that simply calls
+	 * {@code drawFilledCircle(40, center, radius)}.
+	 * 
+	 * @see #drawFilledCircle(int, Vec, float)
+	 */
+	public void drawFilledCircle(Vec center, float radius) {
+		drawFilledCircle(40, center, radius);
+	}
+	
   public void beginScreenDrawing() {
   	if (startCoordCalls != 0)
 			throw new RuntimeException("There should be exactly one beginScreenDrawing() call followed by a "
@@ -985,22 +1157,22 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #enableBoundaryEquations(boolean)
 	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
-	public boolean boundaryEquationsAreEnabled() {
-		return eye().boundaryEquationsAreEnabled();
+	public boolean areBoundaryEquationsEnabled() {
+		return eye().areBoundaryEquationsEnabled();
 	}
 
 	/**
 	 * Toggles automatic update of the camera frustum plane equations every frame.
 	 * Computation of the equations is expensive and hence is disabled by default.
 	 * 
-	 * @see #boundaryEquationsAreEnabled()
+	 * @see #areBoundaryEquationsEnabled()
 	 * @see #disableBoundaryEquations()
 	 * @see #enableBoundaryEquations()
 	 * @see #enableBoundaryEquations(boolean)
 	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
 	public void toggleBoundaryEquations() {
-		if ( boundaryEquationsAreEnabled() )
+		if ( areBoundaryEquationsEnabled() )
 			disableBoundaryEquations();
 		else
 			enableBoundaryEquations();
@@ -1011,7 +1183,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * frame. Computation of the equations is expensive and hence is disabled by
 	 * default.
 	 * 
-	 * @see #boundaryEquationsAreEnabled()
+	 * @see #areBoundaryEquationsEnabled()
 	 * @see #toggleBoundaryEquations()
 	 * @see #enableBoundaryEquations()
 	 * @see #enableBoundaryEquations(boolean)
@@ -1025,7 +1197,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * Enables automatic update of the camera frustum plane equations every frame.
 	 * Computation of the equations is expensive and hence is disabled by default.
 	 * 
-	 * @see #boundaryEquationsAreEnabled()
+	 * @see #areBoundaryEquationsEnabled()
 	 * @see #toggleBoundaryEquations()
 	 * @see #disableBoundaryEquations()
 	 * @see #enableBoundaryEquations(boolean)
@@ -1040,7 +1212,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * every frame according to {@code flag}. Computation of the equations is
 	 * expensive and hence is disabled by default.
 	 * 
-	 * @see #boundaryEquationsAreEnabled()
+	 * @see #areBoundaryEquationsEnabled()
 	 * @see #toggleBoundaryEquations()
 	 * @see #disableBoundaryEquations()
 	 * @see #enableBoundaryEquations()
@@ -1465,178 +1637,6 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 */
 	protected void setRotateVisualHint(boolean draw) {
 		if(draw) visualHintFlag |= ROTATE; else visualHintFlag &= ~ROTATE;
-	}
-	
-	// Abstract drawing methods
-		
-	/**
-	 * Same as {@code cone(det, 0, 0, r, h);}
-	 * 
-	 * @see #cone(int, float, float, float, float)
-	 */
-	public void cone(int det, float r, float h) {
-		cone(det, 0, 0, r, h);
-	}		
-	
-	/**
-	 * Same as {@code cone(12, 0, 0, r, h);}
-	 * 
-	 * @see #cone(int, float, float, float, float)
-	 */
-	public void cone(float r, float h) {
-		cone(12, 0, 0, r, h);
-	}	
-	
-	/**
-	 * Same as {@code cone(det, 0, 0, r1, r2, h);}
-	 * 
-	 * @see #cone(int, float, float, float, float, float)
-	 */
-	public void cone(int det, float r1, float r2, float h) {
-		cone(det, 0, 0, r1, r2, h);
-	}	
-	
-	/**
-	 * Same as {@code cone(18, 0, 0, r1, r2, h);}
-	 * 
-	 * @see #cone(int, float, float, float, float, float)
-	 */
-	public void cone(float r1, float r2, float h) {
-		cone(18, 0, 0, r1, r2, h);
-	}	
-	
-	/**
-	 * Convenience function that simply calls {@code drawAxis(100)}.
-	 */
-	public void drawAxis() {
-		drawAxis(100);
-	}	
-	
-	/**
-	 * Simply calls {@code drawArrow(length, 0.05f * length)}
-	 * 
-	 * @see #drawArrow(float, float)
-	 */
-	public void drawArrow(float length) {
-		drawArrow(length, 0.05f * length);
-	}
-	
-	/**
-	 * Draws a 3D arrow along the positive Z axis.
-	 * <p>
-	 * {@code length} and {@code radius} define its geometry.
-	 * <p>
-	 * Use {@link #drawArrow(Vec, Vec, float)} to place the arrow
-	 * in 3D.
-	 */
-	public void drawArrow(float length, float radius) {
-		float head = 2.5f * (radius / length) + 0.1f;
-		float coneRadiusCoef = 4.0f - 5.0f * head;
-
-		cylinder(radius, length * (1.0f - head / coneRadiusCoef));
-		translate(0.0f, 0.0f, length * (1.0f - head));
-		cone(coneRadiusCoef * radius, head * length);
-		translate(0.0f, 0.0f, -length * (1.0f - head));
-	}
-	
-	/**
-	 * Draws a 3D arrow between the 3D point {@code from} and the 3D point {@code
-	 * to}, both defined in the current world coordinate system.
-	 * 
-	 * @see #drawArrow(float, float)
-	 */
-	public void drawArrow(Vec from, Vec to,	float radius) {
-		pushModelView();
-		translate(from.x(), from.y(), from.z());
-		applyModelView(new Quat(new Vec(0, 0, 1), Vec.subtract(to,	from)).matrix());
-		drawArrow(Vec.subtract(to, from).magnitude(), radius);
-		popModelView();
-	}
-	
-	public void drawDottedGrid() {
-		drawDottedGrid(100, 10);
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code drawGrid(100, 10)}
-	 * 
-	 * @see #drawGrid(float, int)
-	 */
-	public void drawGrid() {
-		drawGrid(100, 10);
-	}
-	
-	public void drawDottedGrid(float size) {
-		drawDottedGrid(size, 10);
-	}
-		
-	/**
-	 * Convenience function that simply calls {@code drawGrid(size, 10)}
-	 * 
-	 * @see #drawGrid(float, int)
-	 */
-	public void drawGrid(float size) {
-		drawGrid(size, 10);
-	}
-	
-	public void drawDottedGrid(int nbSubdivisions) {
-		drawDottedGrid(100, nbSubdivisions);
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code drawGrid(100, nbSubdivisions)}
-	 * 
-	 * @see #drawGrid(float, int)
-	 */
-	public void drawGrid(int nbSubdivisions) {
-		drawGrid(100, nbSubdivisions);
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code drawViewWindow(camera, 1)}
-	 * 
-	 * @see #drawWindow(Window, float)
-	 */
-	public void drawEye(Eye eye) {
-		drawEye(eye, 1);
-	}
-		
-	/**
-	 * Draws all InteractiveFrames' selection regions: a shooter target
-	 * visual hint of {@link remixlab.dandelion.core.InteractiveFrame#grabsInputThreshold()} pixels size.
-	 * 
-	 * <b>Attention:</b> If the InteractiveFrame is part of a Camera path draws
-	 * nothing.
-	 * 
-	 * @see #drawEyePathsSelectionHints()
-	 */
-	protected abstract void drawSelectionHints();
-	
-	/**
-	 * Draws the selection regions (a shooter target visual hint of
-	 * {@link remixlab.dandelion.core.InteractiveFrame#grabsInputThreshold()} pixels size) of all
-	 * InteractiveFrames forming part of the Camera paths.
-	 * 
-	 * @see #drawSelectionHints()
-	 */
-	protected abstract void drawEyePathsSelectionHints();
-		
-	/**
-	 * Convenience function that simply calls
-	 * {@code drawCross(pg3d.color(255, 255, 255), px, py, 15, 3)}.
-	 */
-	public void drawCross(float px, float py) {
-		drawCross(px, py, 15);
-	}
-		
-	/**
-	 * Convenience function that simply calls
-	 * {@code drawFilledCircle(40, center, radius)}.
-	 * 
-	 * @see #drawFilledCircle(int, Vec, float)
-	 */
-	public void drawFilledCircle(Vec center, float radius) {
-		drawFilledCircle(40, center, radius);
 	}
 	
 	protected abstract Camera.WorldPoint pointUnderPixel(Point pixel);

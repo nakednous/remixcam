@@ -109,13 +109,13 @@ public class MotionEvent extends TerseEvent {
 		return speed;
 	}
 
-	public boolean relative() {
+	public boolean isRelative() {
 		// return distance() != 0;
 		return rel;
 	}
 
-	public boolean absolute() {
-		return !relative();
+	public boolean isAbsolute() {
+		return !isRelative();
 	}
 
 	public void setPreviousEvent(MotionEvent prevEvent) {

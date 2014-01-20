@@ -162,7 +162,7 @@ public class DOF2Event extends MotionEvent {
 	@Override
 	public void modulate(float[] sens) {
 		if (sens != null)
-			if (sens.length >= 2 && this.absolute()) {
+			if (sens.length >= 2 && this.isAbsolute()) {
 				x = x * sens[0];
 				y = y * sens[1];
 			}
@@ -170,9 +170,9 @@ public class DOF2Event extends MotionEvent {
 
 	@Override
 	public boolean isNull() {
-		if (relative() && Util.zero(dx()) && Util.zero(dy()))
+		if (isRelative() && Util.zero(dx()) && Util.zero(dy()))
 			return true;
-		if (absolute() && Util.zero(x()) && Util.zero(y()))
+		if (isAbsolute() && Util.zero(x()) && Util.zero(y()))
 			return true;
 		return false;
 	}
@@ -185,14 +185,14 @@ public class DOF2Event extends MotionEvent {
 		DOF1Event pe1;
 		DOF1Event e1;
 		if (fromX) {
-			if (relative()) {
+			if (isRelative()) {
 				pe1 = new DOF1Event(prevX(), modifiers(), button());				
 				e1 = new DOF1Event(pe1, x(), modifiers(), button());
 			} else {
 				e1 = new DOF1Event(x(), modifiers(), button());
 			}
 		} else {
-			if (relative()) {
+			if (isRelative()) {
 				pe1 = new DOF1Event(prevY(), modifiers(), button());
 				e1 = new DOF1Event(pe1, y(), modifiers(), button());
 			} else {

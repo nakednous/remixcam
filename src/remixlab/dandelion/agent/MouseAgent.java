@@ -89,30 +89,4 @@ public class MouseAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile
 	public void setYTranslationSensitivity(float s) {
 		sens[1] = s;
 	}
-	
-	//profile wrappers:
-	
-	public void setCameraBinding() {
-		
-	}
-	
-  public void setFrameBinding() {
-		
-	}
-  
-  public void setCameraClickBinding() {
-		
-	}
-  
-  public void setFrameClickBinding() {
-		
-	}
-  
-  public void setCameraWheelBinding() {
-		
-	}
-	
-  public void setFrameWheelBinding(Integer mask, Integer button, WheelAction action) {
-  	frameWheelProfile().setBinding(mask, button, action);
-	}
 }

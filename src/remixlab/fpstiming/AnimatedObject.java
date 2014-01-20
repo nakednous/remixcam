@@ -174,7 +174,7 @@ public class AnimatedObject implements Animatable {
 	}
 
 	@Override
-	public boolean hasCallbackMethod() {
+	public boolean invokeAnimationHandler() {
 		return false;
 	}
 }
