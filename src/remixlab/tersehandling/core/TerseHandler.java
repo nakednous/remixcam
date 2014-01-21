@@ -90,8 +90,7 @@ public class TerseHandler {
 		if (!isAgentRegistered(agent))
 			agents.put(agent.name(), agent);
 		else {
-			System.out
-					.println("Nothing done. An agent with the same name is already registered. Current agent names are:");
+			System.out.println("Nothing done. An agent with the same name is already registered. Current agent names are:");
 			for (Agent ag : agents.values())
 				System.out.println(ag.name());
 		}
@@ -105,7 +104,7 @@ public class TerseHandler {
 		return agents.containsKey(name);
 	}
 
-	public Agent getAgent(String name) {
+	public Agent agent(String name) {
 		return agents.get(name);
 	}
 

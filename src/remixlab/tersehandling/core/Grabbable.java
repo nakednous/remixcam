@@ -41,7 +41,7 @@ public interface Grabbable {
 	void performInteraction(TerseEvent event);
 	
 	/**
-	 * Check if this object grabs agent. Should return {@code true} if this object
+	 * Check if this object grabs agent. Returns {@code true} if this object
 	 * grabs the agent and {@code false} otherwise.
 	 */
 	boolean grabsAgent(Agent agent);

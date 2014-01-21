@@ -110,6 +110,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public class ProsceneKeyboard extends KeyboardAgent {
 		public ProsceneKeyboard(Scene scn, String n) {
 			super(scn, n);
+			terseHandler().unregisterAgent(this);
 		}
 		
 		public void keyEvent(KeyEvent e) {
@@ -124,15 +125,16 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	
 	public class ProsceneMouse extends MouseAgent {
 		Scene scene;
-		boolean bypassNullEvent, zoomOnRegion, screenRotate, need4Spin;
+		boolean bypassNullEvent, need4Spin;
 		Point fCorner = new Point();
 		Point lCorner = new Point();
 		GenericDOF2Event<DOF2Action> event, prevEvent;
-		float dFriction = view().frame().dampingFriction();
+		float dFriction = eye().frame().dampingFriction();
 		InteractiveFrame iFrame;
 		
 		public ProsceneMouse(Scene scn, String n) {
 			super(scn, n);
+			terseHandler().unregisterAgent(this);
 			scene = scn;
 			
 			//cameraProfile().setBinding(TH_META, TH_RIGHT, DOF2Action.TRANSLATE);	
@@ -157,15 +159,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 					if(grabber() instanceof InteractiveFrame) {
 						if( need4Spin )	((InteractiveFrame)grabber()).stopSpinning();
 						iFrame = (InteractiveFrame)grabber();
-						Actionable<?> a = (grabber() instanceof InteractiveViewFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event);
+						Actionable<?> a = (grabber() instanceof InteractiveEyeFrame) ? cameraProfile().handle((Duoable<?>)event) : frameProfile().handle((Duoable<?>)event);
 						if(a==null) return;
 						DandelionAction dA = (DandelionAction) a.referenceAction();
 						if( dA == DandelionAction.SCREEN_TRANSLATE ) ((InteractiveFrame)grabber()).dirIsFixed = false;						
 						need4Spin = ( ((dA == DandelionAction.ROTATE) || (dA == DandelionAction.ROTATE3) || (dA == DandelionAction.SCREEN_ROTATE) || (dA == DandelionAction.TRANSLATE_ROTATE) ) && (((InteractiveFrame) grabber()).dampingFriction() == 0));
-						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE) && scene.isDefaultMouseAgentInUse();
-						zoomOnRegion = dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveViewFrame) && scene.isDefaultMouseAgentInUse();
-						screenRotate = dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveViewFrame) && scene.isDefaultMouseAgentInUse();
-						if(bypassNullEvent || zoomOnRegion || screenRotate) {
+						bypassNullEvent = (dA == DandelionAction.MOVE_FORWARD) || (dA == DandelionAction.MOVE_BACKWARD) || (dA == DandelionAction.DRIVE) && scene.terseHandler().isAgentRegistered(this);
+						setZoomVisualHint(dA == DandelionAction.ZOOM_ON_REGION && (grabber() instanceof InteractiveEyeFrame) && scene.terseHandler().isAgentRegistered(this));
+						setRotateVisualHint(dA == DandelionAction.SCREEN_ROTATE && (grabber() instanceof InteractiveEyeFrame) && scene.terseHandler().isAgentRegistered(this));
+						if(bypassNullEvent || zoomVisualHint() || rotateVisualHint()) {
 							if(bypassNullEvent) {
 								//TODO: experimental, this is needed for first person:
 								((InteractiveFrame)grabber()).updateFlyUpVector();
@@ -173,9 +175,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 								((InteractiveFrame)grabber()).setDampingFriction(0);
 								handler.eventTupleQueue().add(new EventGrabberDuobleTuple(event, a, grabber()));	
 							}
-							if(zoomOnRegion || screenRotate) {
+							if(zoomVisualHint() || rotateVisualHint()) {
 								lCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
-								if(zoomOnRegion)
+								if(zoomVisualHint())
 									fCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
 							}
 					  }
@@ -187,9 +189,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			}			
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 				//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//e.g., rotate without dragging any button also possible :P
-				if(zoomOnRegion || screenRotate)
+				if(zoomVisualHint() || rotateVisualHint())
 					lCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
-				if( ! zoomOnRegion ) { //bypass zoom_on_region, may be different when using a touch device :P
+				if( ! zoomVisualHint() ) { //bypass zoom_on_region, may be different when using a touch device :P
 					event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
 					handle(event);
 				  prevEvent = event.get();
@@ -199,15 +201,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				if( grabber() instanceof InteractiveFrame ) if(need4Spin && (prevEvent.speed() >= ((InteractiveFrame) grabber()).spinningSensitivity()))	
 					((InteractiveFrame) grabber()).startSpinning(prevEvent);
 				event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
-				if(zoomOnRegion) {
+				if(zoomVisualHint()) {
 					//at first glance this should work
 					//handle(event);
 					//but the problem is that depending on the order the button and the modifiers are released,
 					//different actions maybe triggered, so we go for sure ;) :
 					enqueueEventTuple(new EventGrabberDuobleTuple(event, DOF2Action.ZOOM_ON_REGION, grabber()));
-					zoomOnRegion = false;
+					setZoomVisualHint(false);
 				}
-				if(screenRotate) screenRotate = false;
+				if(rotateVisualHint()) setRotateVisualHint(false);
 				updateGrabber(event);
 				prevEvent = event.get();
 				if(bypassNullEvent) {	
@@ -339,7 +341,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void setPeriod(long period) {
+		public void period(long period) {
 			prd = period;
 		}
 
@@ -349,7 +351,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void setSingleShot(boolean singleShot) {
+		public void singleShot(boolean singleShot) {
 			runOnlyOnce = singleShot;
 		}
 	}
@@ -474,10 +476,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawZoomWindowHint() {
-			float p1x = (float) scene.prosceneMouse.fCorner.getX();
-			float p1y = (float) scene.prosceneMouse.fCorner.getY();
-			float p2x = (float) scene.prosceneMouse.lCorner.getX();
-			float p2y = (float) scene.prosceneMouse.lCorner.getY();
+			if( ! (scene.defaultMouseAgent() instanceof ProsceneMouse) )
+				return;
+			float p1x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).fCorner.getX();
+			float p1y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).fCorner.getY();
+			float p2x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getX();
+			float p2y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getY();
 			scene.beginScreenDrawing();
 			pg().pushStyle();
 			pg().stroke(255, 255, 255);
@@ -495,9 +499,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawScreenRotateLineHint() {
-			float p1x = (float) scene.prosceneMouse.lCorner.getX();
-			float p1y = (float) scene.prosceneMouse.lCorner.getY();
-			Vec p2 = scene.view().projectedCoordinatesOf(scene.arcballReferencePoint());
+			if( ! (scene.defaultMouseAgent() instanceof ProsceneMouse) )
+				return;
+			float p1x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getX();
+			float p1y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getY();
+			Vec p2 = scene.eye().projectedCoordinatesOf(scene.arcballReferencePoint());
 			scene.beginScreenDrawing();
 			pg().pushStyle();
 			pg().stroke(255, 255, 255);
@@ -510,11 +516,21 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void drawArcballReferencePointHint() {
-			Vec p = scene.view().projectedCoordinatesOf(scene.arcballReferencePoint());
+			Vec p = scene.eye().projectedCoordinatesOf(scene.arcballReferencePoint());
 			pg().pushStyle();
 			pg().stroke(255);
 			pg().strokeWeight(3);
 			scene.drawCross(p.vec[0], p.vec[1]);
+			pg().popStyle();
+		}
+		
+		@Override
+		public void drawPointUnderPixelHint() {
+			Vec v = eye().projectedCoordinatesOf(eye().frame().pupVec);
+			pg().pushStyle();		
+			pg().stroke(255);
+			pg().strokeWeight(3);
+			drawCross(v.vec[0], v.vec[1], 15);
 			pg().popStyle();
 		}
 
@@ -618,7 +634,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawWindow(Window camera, float scale) {
+		public void drawEye(Eye camera, float scale) {
 			pushModelView();
 			
 			/**
@@ -710,14 +726,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		  public void cone(int detail, float x, float y, float r1, float r2, float h) {
 		  	AbstractScene.showDepthWarning("cone");
 		 	}
-		  
-		  @Override
-		  public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
-		  	AbstractScene.showDepthWarning("drawCamera");
-		 	}
 
 		  @Override
-		  public void drawKFIView(float scale) {		  	
+		  public void drawKFIEye(float scale) {		  	
 		  	float halfHeight = scale * 1.2f;
 				float halfWidth = halfHeight * 1.3f;
 
@@ -817,7 +828,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 							scene.applyTransformation(myFr);						
 
 							if ((mask & 2) != 0)
-								drawKFIView(scale);
+								drawKFIEye(scale);
 							if ((mask & 4) != 0)
 								drawAxis(scale / 10.0f);
 
@@ -826,7 +837,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				}
 				pg().popStyle();
 				kfi.addFramesToAllAgentPools();
-				drawViewPathSelectionHints();
+				drawEyePathsSelectionHints();
 			}
 		}
 	}
@@ -929,13 +940,13 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				y = w * PApplet.sin(t * TWO_PI/detail);
 				l0.set(x,y,0);
 				
-				d = ( m.dot(Vec.sub(pm0, l0)) )/( l.dot(m) );
-				p =  Vec.add( Vec.mult(l, d), l0 );
+				d = ( m.dot(Vec.subtract(pm0, l0)) )/( l.dot(m) );
+				p =  Vec.add( Vec.multiply(l, d), l0 );
 				pg3d().vertex(p.x(), p.y(), p.z());
 				
 				l0.z(h);
-				d = ( n.dot(Vec.sub(pn0, l0)) )/( l.dot(n) );
-				p =  Vec.add( Vec.mult(l, d), l0 );
+				d = ( n.dot(Vec.subtract(pn0, l0)) )/( l.dot(n) );
+				p =  Vec.add( Vec.multiply(l, d), l0 );
 				pg3d().vertex(p.x(), p.y(), p.z());
 			}
 			pg3d().endShape();
@@ -1084,8 +1095,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public void drawCamera(Camera cam, boolean drawFarPlane, float scale) {
+		public void drawEye(Eye camera, float scale) {
 			pushModelView();
+			
+			Camera cam = (Camera) camera;
 			
 			//applyMatrix(camera.frame().worldMatrix());
 			// same as the previous line, but maybe more efficient
@@ -1137,7 +1150,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			}
 			}
 
-			int farIndex = drawFarPlane ? 1 : 0;
+			//int farIndex = drawFarPlane ? 1 : 0;
+			int farIndex = 1;
+			boolean drawFarPlane = true;
 			
 		  // Frustum lines
 			pg3d().pushStyle();		
@@ -1227,7 +1242,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawKFIView(float scale) {
+		public void drawKFIEye(float scale) {			
 			float halfHeight = scale * 0.07f;
 			float halfWidth = halfHeight * 1.3f;
 			float dist = halfHeight / (float) Math.tan(PApplet.PI / 8.0f);
@@ -1326,7 +1341,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 							scene.applyTransformation(myFr);						
 
 							if ((mask & 2) != 0)
-								drawKFIView(scale);
+								drawKFIEye(scale);
 							if ((mask & 4) != 0)
 								drawAxis(scale / 10.0f);
 
@@ -1335,99 +1350,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				}
 				pg3d().popStyle();
 				kfi.addFramesToAllAgentPools();
-				drawViewPathSelectionHints();
+				drawEyePathsSelectionHints();
 			}
 		}
-		
-		@Override
-		public void drawWindow(Window camera, float scale) {
-			pushModelView();
-			
-			//VFrame tmpFrame = new VFrame(scene.is3D());
-			//tmpFrame.fromMatrix(camera.frame().worldMatrix(), camera.frame().magnitude());		
-			//scene().applyTransformation(tmpFrame);
-			
-			//Same as above, but easier ;)
-		  scene().applyWorldTransformation(camera.frame());
-
-			//upper left coordinates of the near corner
-			Vec upperLeft = new Vec();
-			
-			pg().pushStyle();
-			
-			//float[] wh = camera.getOrthoWidthHeight();
-			//upperLeft.x = scale * wh[0];
-			//upperLeft.y = scale * wh[1];
-			
-			upperLeft.x(scale * scene.width() / 2);
-			upperLeft.y(scale * scene.height() / 2);
-							
-			pg().noStroke();		
-			pg().beginShape(PApplet.QUADS);				
-			pg().vertex(upperLeft.x(), upperLeft.y());
-			pg().vertex(-upperLeft.x(), upperLeft.y());
-			pg().vertex(-upperLeft.x(), -upperLeft.y());
-			pg().vertex(upperLeft.x(), -upperLeft.y());		
-			pg().endShape();
-
-			// Up arrow
-			float arrowHeight = 1.5f * upperLeft.y();
-			float baseHeight = 1.2f * upperLeft.y();
-			float arrowHalfWidth = 0.5f * upperLeft.x();
-			float baseHalfWidth = 0.3f * upperLeft.x();
-			
-		  // Base
-			pg().beginShape(PApplet.QUADS);		
-			if( camera.scene.isLeftHanded() ) {
-				pg().vertex(-baseHalfWidth, -upperLeft.y());
-				pg().vertex(baseHalfWidth, -upperLeft.y());
-				pg().vertex(baseHalfWidth, -baseHeight);
-				pg().vertex(-baseHalfWidth, -baseHeight);	
-			}
-			else {
-				pg().vertex(-baseHalfWidth, upperLeft.y());
-				pg().vertex(baseHalfWidth, upperLeft.y());
-				pg().vertex(baseHalfWidth, baseHeight);
-				pg().vertex(-baseHalfWidth, baseHeight);
-			}
-			pg().endShape();
-			
-		  // Arrow
-			pg().beginShape(PApplet.TRIANGLES);
-			if( camera.scene.isLeftHanded() ) {
-				pg().vertex(0.0f, -arrowHeight);
-				pg().vertex(-arrowHalfWidth, -baseHeight);
-				pg().vertex(arrowHalfWidth, -baseHeight);
-			}
-			else {
-				pg().vertex(0.0f, arrowHeight);
-				pg().vertex(-arrowHalfWidth, baseHeight);
-				pg().vertex(arrowHalfWidth, baseHeight);
-			}
-			pg().endShape();		
-			
-			pg().popStyle();
-			popModelView();
-		}
-		
-		/**
-		@Override
-		public void drawGrid(float size, int nbSubdivisions) {
-			pg().pushStyle();
-			pg().stroke(170, 170, 170);
-			pg().strokeWeight(1);
-			pg().beginShape(PApplet.LINES);
-			for (int i = 0; i <= nbSubdivisions; ++i) {
-				final float pos = size * (2.0f * i / nbSubdivisions - 1.0f);
-				pg().vertex(pos, -size);
-				pg().vertex(pos, +size);
-				pg().vertex(-size, pos);
-				pg().vertex(size, pos);
-			}
-			pg().endShape();
-			pg().popStyle();
-		}
-		*/
 	}
 	
 	protected class P5Java2DMatrixHelper extends MatrixHelper {
@@ -1451,18 +1376,18 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void bind() {
-			scene.view().getProjection(proj, true);
-			scene.view().getView(mv, true);
+			scene.eye().getProjection(proj, true);
+			scene.eye().getView(mv, true);
 			cacheProjectionViewInverse();
 
-			Vec pos = scene.view().position();
-			Orientable quat = scene.view().frame().orientation();
+			Vec pos = scene.eye().position();
+			Orientable quat = scene.eye().frame().orientation();
 
 			translate(scene.width() / 2, scene.height() / 2);
 			if(scene.isRightHanded()) scale(1,-1);
 			//TODO experimental
 			//scale(scene.viewpoint().frame().inverseMagnitude().x(), scene.viewpoint().frame().inverseMagnitude().y());
-			scale(1/scene.view().frame().scaling().x(), 1/scene.view().frame().scaling().y());
+			scale(1/scene.eye().frame().scaling().x(), 1/scene.eye().frame().scaling().y());
 			rotate(-quat.angle());
 			translate(-pos.x(), -pos.y());
 		}
@@ -1479,8 +1404,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void beginScreenDrawing() {
-			Vec pos = scene.view().position();
-			Orientable quat = scene.view().frame().orientation();		
+			Vec pos = scene.eye().position();
+			Orientable quat = scene.eye().frame().orientation();		
 			
 			pushModelView();
 			translate(pos.x(), pos.y());
@@ -1500,14 +1425,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	  // matrix stuff
 		
 		@Override
-		public Mat getProjection() {
-			return scene.view().getProjection(false);
+		public Mat projection() {
+			return scene.eye().getProjection(false);
 		}
 
 		@Override
 		public Mat getProjection(Mat target) {
 			if (target == null) target = new Mat();
-			target.set(scene.view().getProjection(false));
+			target.set(scene.eye().getProjection(false));
 			return target;
 		}
 		
@@ -1530,7 +1455,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		//TODO seems getModelView is not working in java2d		
 		@Override
-		public Mat getModelView() {
+		public Mat modelView() {
 			return Scene.toMat(new PMatrix3D(pgj2d().getMatrix()));
 		}
 		
@@ -1624,22 +1549,22 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		@Override
 		public void pushProjection() {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.pushProjection");			
+			AbstractScene.showMissingImplementationWarning("pushProjection", getClass().getName());			
 		}
 
 		@Override
 		public void popProjection() {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.popProjection");			
+			AbstractScene.showMissingImplementationWarning("popProjection", getClass().getName());
 		}
 
 		@Override
 		public void resetProjection() {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.resetProjection");
+			AbstractScene.showMissingImplementationWarning("resetProjection", getClass().getName());
 		}
 
 		@Override
 		public void applyProjection(Mat source) {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.resetProjection");
+			AbstractScene.showMissingImplementationWarning("resetProjection", getClass().getName());
 		}
 
 		@Override
@@ -1647,22 +1572,22 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				float n03, float n10, float n11, float n12, float n13, float n20,
 				float n21, float n22, float n23, float n30, float n31, float n32,
 				float n33) {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.applyProjectionRowMajorOrder");			
+			AbstractScene.showMissingImplementationWarning("applyProjectionRowMajorOrder", getClass().getName());			
 		}
 
 		@Override
 		public void setProjection(Mat source) {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.setProjection");
+			AbstractScene.showMissingImplementationWarning("setProjection", getClass().getName());
 		}
 
 		@Override
 		public void loadProjection() {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.initProjection");
+			AbstractScene.showMissingImplementationWarning("loadProjection", getClass().getName());
 		}
 
 		@Override
 		public void loadModelView() {
-			AbstractScene.showMissingImplementationWarning("P5RendererJava2D.initModelView");
+			AbstractScene.showMissingImplementationWarning("loadModelView", getClass().getName());
 		}
 	}
 
@@ -1699,7 +1624,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public Mat getProjection() {
+		public Mat projection() {
 			return Scene.toMat(pggl().projection.get());
 		}
 
@@ -1741,7 +1666,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 		
 		@Override
-		public Mat getModelView() {
+		public Mat modelView() {
 			return Scene.toMat((PMatrix3D) pggl().getMatrix());
 		}
 		
@@ -1833,7 +1758,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				pggl().setMatrix(Scene.toPMatrix(source));//in P5 this caches projmodelview
 			else {
 				pggl().modelview.set(Scene.toPMatrix(source));
-				pggl().projmodelview.set(Mat.mult(scene.view().getProjection(false), scene.view().getView(false)).getTransposed(new float[16]));
+				pggl().projmodelview.set(Mat.mult(scene.eye().getProjection(false), scene.eye().getView(false)).getTransposed(new float[16]));
 			}
 		}
 	}
@@ -1848,8 +1773,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected PGraphics pgraphics;
 	
 	// H A R D W A R E
-  protected ProsceneMouse prosceneMouse;
-  protected ProsceneKeyboard prosceneKeyboard;
+  //protected ProsceneMouse prosceneMouse;
+  //protected ProsceneKeyboard prosceneKeyboard;
 	
 	// E X C E P T I O N H A N D L I N G	
   protected int beginOffScreenDrawingCalls;  
@@ -1879,6 +1804,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected String animateHandlerMethodName;	
 	
 	protected boolean javaTiming;
+	
+	//Tersehandling agents
+	protected MouseAgent defMouseAgent;
+	protected KeyboardAgent defKeyboardAgent;
 
 	/**
 	 * Constructor that defines an on-screen Scene (the one that most likely
@@ -1972,10 +1901,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		// need it here to properly init the camera
 		
 		if( is3D() )
-			vPoint = new Camera(this);
+			eye = new Camera(this);
 		else
-			vPoint = new Window(this);
-		setView(view());//calls showAll();
+			eye = new Window(this);
+		setEye(eye());//calls showAll();
 		
 		setAvatar(null);
 		
@@ -1994,15 +1923,15 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 
 		//withConstraint = true;
 
-		setAxisIsDrawn(true);
-		setGridIsDrawn(true);
-		setFrameSelectionHintIsDrawn(false);
-		setViewPathsAreDrawn(false);
+		setAxisVisualHint(true);
+		setGridVisualHint(true);
+		setFrameVisualHint(false);
+		setPathsVisualHint(false);
 		
 		disableBoundaryEquations();
 		
-		enableDefaultKeyboardAgent();
-		enableDefaultMouseAgent();
+		setDefaultKeyboardAgent(new ProsceneKeyboard(this, "proscene_keyboard"));
+		setDefaultMouseAgent(new ProsceneMouse(this, "proscene_mouse"));
 
 		parent.registerMethod("pre", this);
 		parent.registerMethod("draw", this);
@@ -2024,55 +1953,54 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		return ( pgraphics instanceof PGraphics3D );
 	}
 	
-	public ProsceneMouse defaultMouseAgent() {
-		return prosceneMouse;
+	public KeyboardAgent defaultKeyboardAgent() {
+		return defKeyboardAgent;
 	}
 	
-	public ProsceneKeyboard defaultKeyboardAgent() {
-		return prosceneKeyboard;
-	}
-	
-	public boolean isDefaultMouseAgentInUse() {
-		if(prosceneMouse == null)
-			return false;
-	  return terseHandler().isAgentRegistered(prosceneMouse);
-	}
-	
-	public boolean isDefaultKeyboardAgentInUse() {
-		if(prosceneKeyboard == null)
-			return false;
-	  return terseHandler().isAgentRegistered(prosceneKeyboard);
+	public void setDefaultKeyboardAgent(KeyboardAgent keyboard) {
+		if(defaultKeyboardAgent()!=null) disableDefaultKeyboardAgent();
+		defKeyboardAgent = keyboard;
+		enableDefaultKeyboardAgent();
 	}
 	
 	/**
 	 * Enables Proscene keyboard handling.
 	 * 
 	 * @see #isDefaultKeyboardAgentInUse()
-	 * @see #enableDefaultMouseAgent()
+	 * @see #enableDefaultMotionAgent()
 	 * @see #disableDefaultKeyboardAgent()
 	 */
 	public void enableDefaultKeyboardAgent() {
-		if( !isDefaultKeyboardAgentInUse() ) {
-			if(prosceneKeyboard == null)
-				prosceneKeyboard = new ProsceneKeyboard(this, "proscene_keyboard");
-			else
-				terseHandler().registerAgent(prosceneKeyboard);			
-			parent.registerMethod("keyEvent", prosceneKeyboard);
+		if( !terseHandler().isAgentRegistered(defaultKeyboardAgent()) ) {
+			terseHandler().registerAgent(defaultKeyboardAgent());
+			parent.registerMethod("keyEvent", defaultKeyboardAgent());
 		}
 	}
 
 	/**
 	 * Disables Proscene keyboard handling.
+	 * @return 
 	 * 
 	 * @see #isDefaultKeyboardAgentInUse()
 	 */
-	public void disableDefaultKeyboardAgent() {
-		if( isDefaultKeyboardAgentInUse() ) {
-			terseHandler().unregisterAgent(prosceneKeyboard);
-			parent.unregisterMethod("keyEvent", prosceneKeyboard);
+	public KeyboardAgent disableDefaultKeyboardAgent() {
+		if( terseHandler().isAgentRegistered(defaultKeyboardAgent()) ) {
+			parent.unregisterMethod("keyEvent", defaultKeyboardAgent());
+			return (KeyboardAgent)terseHandler().unregisterAgent(defaultKeyboardAgent());	
 		}
+		return defaultKeyboardAgent();
 	}
-
+	
+	public MouseAgent defaultMouseAgent() {
+		return defMouseAgent;
+	}
+	
+	public void setDefaultMouseAgent(MouseAgent agent) {
+		if(defaultMouseAgent()!=null) disableDefaultMouseAgent();
+		defMouseAgent = agent;
+		enableDefaultMouseAgent();
+	}
+	
 	/**
 	 * Enables Proscene mouse handling.
 	 * 
@@ -2081,12 +2009,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #enableDefaultKeyboardAgent()
 	 */
 	public void enableDefaultMouseAgent() {
-		if( !isDefaultMouseAgentInUse() ) {
-			if( prosceneMouse == null )
-				prosceneMouse = new ProsceneMouse(this, "proscene_mouse");
-			else
-				terseHandler().registerAgent(prosceneMouse);
-			parent.registerMethod("mouseEvent", prosceneMouse);
+		if( !terseHandler().isAgentRegistered(defaultMouseAgent()) ) {
+			terseHandler().registerAgent(defaultMouseAgent());
+			parent.registerMethod("mouseEvent", defaultMouseAgent());
 		}
 	}
 	
@@ -2095,25 +2020,34 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * 
 	 * @see #isDefaultMouseAgentInUse()
 	 */
-	public void disableDefaultMouseAgent() {
-		if( isDefaultMouseAgentInUse() ) {
-			terseHandler().unregisterAgent(prosceneMouse);
-			parent.unregisterMethod("mouseEvent", prosceneMouse);
+	public MouseAgent disableDefaultMouseAgent() {
+		if( terseHandler().isAgentRegistered(defaultMouseAgent()) ) {
+			parent.unregisterMethod("mouseEvent", defaultMouseAgent());
+			return (MouseAgent)terseHandler().unregisterAgent(defaultMouseAgent());			
 		}
+		return defaultMouseAgent();
 	}
+	
+	//Tersehandling wrappers
+	//TODO pending
+	/*
+	public void setCameraMouseBinding() {
+		defaultMotionAgent().cameraProfile().setBinding();
+	}
+	*/
 
 	// 2. Associated objects	
 	
 	@Override
 	public void registerJob(AbstractTimerJob job) {
-		if (timingIsSingleThreaded())
+		if (isTimingSingleThreaded())
 			timerHandler().registerJob(job);
 		else
 			timerHandler().registerJob(job, new TimerWrap(this, job));
 	}
 	
 	public void setJavaTimers() {
-		if( !timingIsSingleThreaded() )
+		if( !isTimingSingleThreaded() )
 			return;
 		
 		boolean isActive;
@@ -2127,7 +2061,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				rOnce = job.timer().isSingleShot();
 			}
 			job.stop();
-			job.setTimer(new TimerWrap(this, job));			
+			job.timer(new TimerWrap(this, job));			
 			if(isActive) {
 				if(rOnce)
 					job.runOnce(period);
@@ -2140,12 +2074,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		PApplet.println("java util timers set");
 	}
 	
-	public boolean timingIsSingleThreaded() {
+	public boolean isTimingSingleThreaded() {
 		return !javaTiming;
 	}
 	
 	public void switchTimers() {
-		if( timingIsSingleThreaded() )
+		if( isTimingSingleThreaded() )
 			setJavaTimers();
 		else
 			setSingleThreadedTimers();
@@ -2159,41 +2093,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	// 5. Drawing methods
 
 	/**
-	 * Internal use. Display various on-screen visual hints to be called from {@link #pre()}
-	 * or {@link #draw()}.
-	 */
-	@Override
-	protected void displayVisualHints() {		
-		if (frameSelectionHintIsDrawn())
-			drawSelectionHints();
-		if (viewPathsAreDrawn()) {
-			view().drawAllPaths();
-			drawViewPathSelectionHints();
-		} else {
-			view().hideAllPaths();
-		}
-		if (prosceneMouse.zoomOnRegion)
-			drawZoomWindowHint();
-		if (prosceneMouse.screenRotate)
-			drawScreenRotateLineHint();
-		if (view().frame().arpFlag) 
-			drawArcballReferencePointHint();
-		if (view().frame().pupFlag) {
-			Vec v = view().projectedCoordinatesOf(view().frame().pupVec);
-			pg().pushStyle();		
-			pg().stroke(255);
-			pg().strokeWeight(3);
-			drawCross(v.vec[0], v.vec[1]);
-			pg().popStyle();
-		}
-	}	
-
-	/**
 	 * Paint method which is called just before your {@code PApplet.draw()}
 	 * method. This method is registered at the PApplet and hence you don't need
 	 * to call it.
 	 * <p>
-	 * Sets the processing camera parameters from {@link #view()} and updates
+	 * Sets the processing camera parameters from {@link #eye()} and updates
 	 * the frustum planes equations if {@link #enableBoundaryEquations(boolean)}
 	 * has been set to {@code true}.
 	 */
@@ -2203,7 +2107,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		if ((width != pg().width) || (height != pg().height)) {
 			width = pg().width;
 			height = pg().height;				
-			view().setScreenWidthAndHeight(width, height);				
+			eye().setScreenWidthAndHeight(width, height);				
 		}
 		
 		preDraw();
@@ -2222,7 +2126,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}	
 	
 	@Override
-	protected void invokeRegisteredMethod() {
+	protected void invokeDrawHandler() {
      	// 3. Draw external registered method
 			if (drawHandlerObject != null) {
 				try {
@@ -2248,7 +2152,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			if ((width != pg().width) || (height != pg().height)) {
 				width = pg().width;
 				height = pg().height;				
-				view().setScreenWidthAndHeight(width, height);				
+				eye().setScreenWidthAndHeight(width, height);				
 			}
 			
 			preDraw();	
@@ -2272,6 +2176,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		postDraw();
 	}
 	
+	/*
 	@Override
 	protected void updateCursor() {
 		pcursorX = cursorX;
@@ -2279,6 +2184,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		cursorX = parent.mouseX;
 		cursorY = parent.mouseY;
 	}
+	*/
 	
   // 4. Scene dimensions
 	
@@ -2358,17 +2264,20 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	/**
 	 * Returns the mouse grabber off selection hint {@code color} for camera paths.
 	 * 
-	 * @see #drawViewPathSelectionHints()
+	 * @see #drawEyePathsSelectionHints()
 	 */
   //public int mouseGrabberCameraPathOffSelectionHintColor() {	return cameraPathOffSelectionHintColor;	}
 	
 	public PGraphics pg() {
+		return pgraphics;
+		/*
 		if( pgraphics instanceof PGraphics3D )
 			return (PGraphics3D) pgraphics;
 		if( pgraphics instanceof PGraphics2D )
 			return (PGraphics2D) pgraphics;
 		//if ( pgraphics instanceof PGraphicsJava2D )
 			return (PGraphicsJava2D) pgraphics;
+		*/
 	}
 	
 	public PGraphicsJava2D pgj2d() {
@@ -2438,12 +2347,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	}
 
 	@Override
-	protected void drawViewPathSelectionHints() {
+	protected void drawEyePathsSelectionHints() {
 		for (Grabbable mg : terseHandler().globalGrabberList()) {
 			if(mg instanceof InteractiveFrame) {
 				InteractiveFrame iF = (InteractiveFrame) mg;// downcast needed
 				if (iF.isInCameraPath()) {
-					Vec center = view().projectedCoordinatesOf(iF.position());
+					Vec center = eye().projectedCoordinatesOf(iF.position());
 					if (grabsAnAgent(mg)) {
 						pg().pushStyle();						
 					  //pg3d.stroke(mouseGrabberCameraPathOnSelectionHintColor());
@@ -2660,7 +2569,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * Returns {@code true} if the user has registered a 'draw' handler method to
 	 * the Scene and {@code false} otherwise.
 	 */
-	public boolean hasRegisteredDrawHandler() {
+	public boolean hasDrawHandler() {
 		if (drawHandlerMethodName == null)
 			return false;
 		return true;
@@ -2680,7 +2589,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * @see #startAnimation()
 	 */
 	@Override
-	public boolean externalAnimation() {
+	public boolean invokeAnimationHandler() {
 		if (animateHandlerObject != null) {
 			try {
 				animateHandlerMethod.invoke(animateHandlerObject, new Object[] { this });
@@ -2731,7 +2640,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	 * Returns {@code true} if the user has registered an 'animation' handler method to
 	 * the Scene and {@code false} otherwise.
 	 */
-	public boolean hasRegisteredAnimationHandler() {
+	public boolean hasAnimationHandler() {
 		if (animateHandlerMethodName == null)
 			return false;
 		return true;

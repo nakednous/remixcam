@@ -773,11 +773,11 @@ public class Mat implements Primitivable {
 
   //////////////////////////////////////////////////////////////
   
-  public Vec mult(Vec source) {
-  	return mult(source, null);
+  public Vec multiply(Vec source) {
+  	return multiply(source, null);
   }
 
-  public Vec mult(Vec source, Vec target) {
+  public Vec multiply(Vec source, Vec target) {
     if (target == null) {
       target = new Vec();
     }
@@ -813,7 +813,7 @@ public class Mat implements Primitivable {
    * Multiply a three or four element vector against this matrix. If out is
    * null or not length 3 or 4, a new float array (length 3) will be returned.
    */
-  public float[] mult(float[] source, float[] target) {
+  public float[] multiply(float[] source, float[] target) {
     if (target == null || target.length < 3) {
       target = new float[3];
     }
@@ -838,43 +838,43 @@ public class Mat implements Primitivable {
     return target;
   }
 
-  public float multX(float x, float y) {
+  public float multiplyX(float x, float y) {
     return mat[0]*x + mat[4]*y + mat[12];
   }
 
-  public float multY(float x, float y) {
+  public float multiplyY(float x, float y) {
     return mat[1]*x + mat[5]*y + mat[13];
   }
 
-  public float multX(float x, float y, float z) {
+  public float multiplyX(float x, float y, float z) {
     return mat[0]*x + mat[4]*y + mat[8]*z + mat[12];
   }
 
-  public float multY(float x, float y, float z) {
+  public float multiplyY(float x, float y, float z) {
     return mat[1]*x + mat[5]*y + mat[9]*z + mat[13];
   }
 
-  public float multZ(float x, float y, float z) {
+  public float multiplyZ(float x, float y, float z) {
     return mat[2]*x + mat[6]*y + mat[10]*z + mat[14];
   }
 
-  public float multW(float x, float y, float z) {
+  public float multiplyW(float x, float y, float z) {
     return mat[3]*x + mat[7]*y + mat[11]*z + mat[15];
   }
 
-  public float multX(float x, float y, float z, float w) {
+  public float multiplyX(float x, float y, float z, float w) {
     return mat[0]*x + mat[4]*y + mat[8]*z + mat[12]*w;
   }
 
-  public float multY(float x, float y, float z, float w) {
+  public float multiplyY(float x, float y, float z, float w) {
     return mat[1]*x + mat[5]*y + mat[9]*z + mat[13]*w;
   }
 
-  public float multZ(float x, float y, float z, float w) {
+  public float multiplyZ(float x, float y, float z, float w) {
     return mat[2]*x + mat[6]*y + mat[10]*z + mat[14]*w;
   }
 
-  public float multW(float x, float y, float z, float w) {
+  public float multiplyW(float x, float y, float z, float w) {
     return mat[3]*x + mat[7]*y + mat[11]*z + mat[15]*w;
   }
 
@@ -1054,7 +1054,7 @@ public class Mat implements Primitivable {
 
   // These functions should not be used, as they will be removed in the future.
 
-  protected void invTranslate(float tx, float ty, float tz) {
+  protected void inverseTranslate(float tx, float ty, float tz) {
   	/**
     preApplyTranspose(1, 0, 0, -tx,
                       0, 1, 0, -ty,
@@ -1069,7 +1069,7 @@ public class Mat implements Primitivable {
     		 		// */
   }
 
-  protected void invRotateX(float angle) {
+  protected void inverseRotateX(float angle) {
     float c = cos(-angle);
     float s = sin(-angle);
     /**
@@ -1086,7 +1086,7 @@ public class Mat implements Primitivable {
         		 // */
   }
 
-  protected void invRotateY(float angle) {
+  protected void inverseRotateY(float angle) {
     float c = cos(-angle);
     float s = sin(-angle);
     /**
@@ -1103,7 +1103,7 @@ public class Mat implements Primitivable {
     		     // */
   }
 
-  protected void invRotateZ(float angle) {
+  protected void inverseRotateZ(float angle) {
     float c = cos(-angle);
     float s = sin(-angle);
     /**
@@ -1120,7 +1120,7 @@ public class Mat implements Primitivable {
              // */
   }
 
-  protected void invRotate(float angle, float v0, float v1, float v2) {
+  protected void inverseRotate(float angle, float v0, float v1, float v2) {
     //TODO should make sure this vector is normalized
 
     float c = cos(-angle);
@@ -1148,7 +1148,7 @@ public class Mat implements Primitivable {
                        mat[3] + " " + mat[7] + " " + mat[11] + " " + mat[15] + "\n");
   }
 
-  protected void invScale(float x, float y, float z) {
+  protected void inverseScale(float x, float y, float z) {
   	/**
     preApplyTranspose(1/x, 0,   0,   0,
     		              0,   1/y, 0,   0,

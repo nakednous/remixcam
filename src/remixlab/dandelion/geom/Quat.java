@@ -610,7 +610,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 *          the angle in radians
 	 */
 	public void fromAxisAngle(Vec axis, float angle) {
-		float norm = axis.mag();
+		float norm = axis.magnitude();
 		if (Util.zero(norm)) {
 			// Null rotation
 			this.quat[0] = 0.0f;
@@ -868,9 +868,9 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 */
 	public final void fromRotatedBasis(Vec X, Vec Y, Vec Z) {
 		float threeXthree[][] = new float[3][3];
-		float normX = X.mag();
-		float normY = Y.mag();
-		float normZ = Z.mag();
+		float normX = X.magnitude();
+		float normY = Y.magnitude();
+		float normZ = Z.magnitude();
 
 		for (int i = 0; i < 3; ++i) {
 			threeXthree[i][0] = X.vec[i] / normX;
@@ -928,9 +928,9 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 */
 	public final Vec axis() {
 		Vec res = new Vec(x(), y(), z());
-		float sinus = res.mag();
+		float sinus = res.magnitude();
 		if ( Util.nonZero(sinus) )
-			res.div(sinus);
+			res.divide(sinus);
 		return res;
 	}	
 	  	
@@ -959,9 +959,9 @@ public class Quat implements Constants, Primitivable, Orientable {
 	  axis.x(x());
 	  axis.y(y());
 	  axis.z(z());
-	  float sinus = axis.mag();
+	  float sinus = axis.magnitude();
 	  if ( Util.nonZero(sinus) )
-	  	axis.div(sinus);
+	  	axis.divide(sinus);
 	}
 
 	/**

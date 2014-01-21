@@ -74,9 +74,9 @@ public class TimingHandler {
 					((SeqTaskableTimer) tJob.timer()).execute();
 		// Animation
 		for (Animatable aObj : animationPool)
-			if (aObj.animationIsStarted())
-				if (aObj.timer().isTrigggered())
-					if (!aObj.externalAnimation())
+			if (aObj.isAnimationStarted())
+				if (aObj.timer().trigggered())
+					if (!aObj.invokeAnimationHandler())
 						aObj.animate();
 	}
 
@@ -91,7 +91,7 @@ public class TimingHandler {
 	 * Register a task in the timer pool and creates a sequential timer for it.
 	 */
 	public void registerJob(AbstractTimerJob job) {
-		job.setTimer(new SeqTaskableTimer(this, job));
+		job.timer(new SeqTaskableTimer(this, job));
 		timerPool.add(job);
 	}
 
@@ -99,7 +99,7 @@ public class TimingHandler {
 	 * Register a task in the timer pool with the given timer.
 	 */
 	public void registerJob(AbstractTimerJob job, Timable timer) {
-		job.setTimer(timer);
+		job.timer(timer);
 		timerPool.add(job);
 	}
 
@@ -179,7 +179,7 @@ public class TimingHandler {
 				rOnce = job.timer().isSingleShot();
 			}
 			job.stop();
-			job.setTimer(new SeqTaskableTimer(this, job));
+			job.timer(new SeqTaskableTimer(this, job));
 			if (isActive) {
 				if (rOnce)
 					job.runOnce(period);
@@ -201,11 +201,11 @@ public class TimingHandler {
 	}
 
 	/**
-	 * Register the animation object.
+	 * Registers the animation object.
 	 */
 	public void registerAnimation(Animatable object) {
 		if (object.timingHandler() != this)
-			object.setTimingHandler(this);
+			object.timingHandler(this);
 		animationPool.add(object);
 	}
 

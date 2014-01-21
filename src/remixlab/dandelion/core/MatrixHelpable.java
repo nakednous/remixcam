@@ -158,7 +158,7 @@ public interface MatrixHelpable {
   
   //public void frustum(float left, float right, float bottom, float top, float znear, float zfar);
   
-  public Mat getModelView();
+  public Mat modelView();
   
   /**
    * Copy the current modelview matrix into the specified target.
@@ -166,7 +166,7 @@ public interface MatrixHelpable {
    */
   public Mat getModelView(Mat target);
   
-  public Mat getProjection();
+  public Mat projection();
   
   /**
    * Copy the current projection matrix into the specified target.
@@ -198,9 +198,9 @@ public interface MatrixHelpable {
 
 	public void loadModelView();
 
-	Mat getProjectionView();
+	Mat projectionView();
 
-	Mat getProjectionViewInverse();
+	Mat projectionViewInverse();
 
 	boolean unprojectCacheIsOptimized();
 

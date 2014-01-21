@@ -133,7 +133,7 @@ public class Vec implements Constants, Primitivable {
 			throw new RuntimeException("Direction squared norm is nearly 0");
 
 		float modulation = src.dot(direction) / directionSquaredNorm;
-		return Vec.mult(direction, modulation);
+		return Vec.multiply(direction, modulation);
 	}
   
   public Vec projectVectorOnPlane(Vec normal) {
@@ -152,7 +152,7 @@ public class Vec implements Constants, Primitivable {
 			throw new RuntimeException("Normal squared norm is nearly 0");
 
 		float modulation = src.dot(normal) / normalSquaredNorm;
-		return Vec.sub(src, Vec.mult(normal, modulation));
+		return Vec.subtract(src, Vec.multiply(normal, modulation));
 	}
 	
 	public static final float lerp(float start, float stop, float amt) {
@@ -283,7 +283,7 @@ public class Vec implements Constants, Primitivable {
    * Calculate the magnitude (length) of the vector
    * @return the magnitude of the vector
    */
-  public float mag() {
+  public float magnitude() {
     return (float) Math.sqrt(this.vec[0]*this.vec[0] + this.vec[1]*this.vec[1] + this.vec[2]*this.vec[2]);
   }
 
@@ -294,7 +294,7 @@ public class Vec implements Constants, Primitivable {
    * 
    * @return squared magnitude of the vector
    */
-  public float magSq() {
+  public float squaredMagnitude() {
     return (this.vec[0]*this.vec[0] + this.vec[1]*this.vec[1] + this.vec[2]*this.vec[2]);
   }
 
@@ -344,13 +344,13 @@ public class Vec implements Constants, Primitivable {
    * Subtract a vector from this vector
    * @param v the vector to be subtracted
    */
-  public void sub(Vec v) {
+  public void subtract(Vec v) {
   	this.vec[0] -= v.vec[0];
   	this.vec[1] -= v.vec[1];
   	this.vec[2] -= v.vec[2];
   }
 
-  public void sub(float x, float y, float z) {
+  public void subtract(float x, float y, float z) {
     this.vec[0] -= x;
     this.vec[1] -= y;
     this.vec[2] -= z;
@@ -362,11 +362,11 @@ public class Vec implements Constants, Primitivable {
    * @param v2 another vector
    * @return a new vector that is v1 - v2
    */
-  static public Vec sub(Vec v1, Vec v2) {
-    return sub(v1, v2, null);
+  static public Vec subtract(Vec v1, Vec v2) {
+    return subtract(v1, v2, null);
   }
 
-  static public Vec sub(Vec v1, Vec v2, Vec target) {
+  static public Vec subtract(Vec v1, Vec v2, Vec target) {
     if (target == null) {
       target = new Vec(v1.vec[0] - v2.vec[0], v1.vec[1] - v2.vec[1], v1.vec[2] - v2.vec[2]);
     } else {
@@ -379,7 +379,7 @@ public class Vec implements Constants, Primitivable {
    * Multiply this vector by a scalar
    * @param n the value to multiply by
    */
-  public void mult(float n) {
+  public void multiply(float n) {
   	this.vec[0] *= n;
   	this.vec[1] *= n;
   	this.vec[2] *= n;
@@ -391,8 +391,8 @@ public class Vec implements Constants, Primitivable {
    * @param n scalar
    * @return a new vector that is v1 * n
    */
-  static public Vec mult(Vec v, float n) {
-    return mult(v, n, null);
+  static public Vec multiply(Vec v, float n) {
+    return multiply(v, n, null);
   }
 
   /**
@@ -402,7 +402,7 @@ public class Vec implements Constants, Primitivable {
    * @param target Vector3D to store the result
    * @return the target vector, now set to v1 * n
    */
-  static public Vec mult(Vec v, float n, Vec target) {
+  static public Vec multiply(Vec v, float n, Vec target) {
     if (target == null) {
       target = new Vec(v.vec[0]*n, v.vec[1]*n, v.vec[2]*n);
     } else {
@@ -415,7 +415,7 @@ public class Vec implements Constants, Primitivable {
    * Multiply each element of one vector by the elements of another vector.
    * @param v the vector to multiply by
    */
-  public void mult(Vec v) {
+  public void multiply(Vec v) {
   	this.vec[0] *= v.vec[0];
   	this.vec[1] *= v.vec[1];
   	this.vec[2] *= v.vec[2];
@@ -425,8 +425,8 @@ public class Vec implements Constants, Primitivable {
    * Multiply each element of one vector by the individual elements of another
    * vector, and return the result as a new Vector3D.
    */
-  static public Vec mult(Vec v1, Vec v2) {
-    return mult(v1, v2, null);
+  static public Vec multiply(Vec v1, Vec v2) {
+    return multiply(v1, v2, null);
   }
 
   /**
@@ -436,7 +436,7 @@ public class Vec implements Constants, Primitivable {
    * @param v2 the second vector
    * @param target Vector3D to store the result
    */
-  static public Vec mult(Vec v1, Vec v2, Vec target) {
+  static public Vec multiply(Vec v1, Vec v2, Vec target) {
     if (target == null) {
       target = new Vec(v1.vec[0]*v2.vec[0], v1.vec[1]*v2.vec[1], v1.vec[2]*v2.vec[2]);
     } else {
@@ -449,7 +449,7 @@ public class Vec implements Constants, Primitivable {
    * Divide this vector by a scalar
    * @param n the value to divide by
    */
-  public void div(float n) {
+  public void divide(float n) {
   	this.vec[0] /= n;
   	this.vec[1] /= n;
   	this.vec[2] /= n;
@@ -461,11 +461,11 @@ public class Vec implements Constants, Primitivable {
    * @param n scalar
    * @return a new vector that is v1 / n
    */
-  static public Vec div(Vec v, float n) {
-    return div(v, n, null);
+  static public Vec divide(Vec v, float n) {
+    return divide(v, n, null);
   }
 
-  static public Vec div(Vec v, float n, Vec target) {
+  static public Vec divide(Vec v, float n, Vec target) {
     if (target == null) {
       target = new Vec(v.vec[0]/n, v.vec[1]/n, v.vec[2]/n);
     } else {
@@ -477,7 +477,7 @@ public class Vec implements Constants, Primitivable {
   /**
    * Divide each element of one vector by the elements of another vector.
    */
-  public void div(Vec v) {
+  public void divide(Vec v) {
   	this.vec[0] /= v.vec[0];
   	this.vec[1] /= v.vec[1];
   	this.vec[2] /= v.vec[2];
@@ -487,8 +487,8 @@ public class Vec implements Constants, Primitivable {
    * Divide each element of one vector by the individual elements of another
    * vector, and return the result as a new Vector3D.
    */
-  static public Vec div(Vec v1, Vec v2) {
-    return div(v1, v2, null);
+  static public Vec divide(Vec v1, Vec v2) {
+    return divide(v1, v2, null);
   }
 
   /**
@@ -498,7 +498,7 @@ public class Vec implements Constants, Primitivable {
    * @param v2 the second vector
    * @param target Vector3D to store the result
    */
-  static public Vec div(Vec v1, Vec v2, Vec target) {
+  static public Vec divide(Vec v1, Vec v2, Vec target) {
     if (target == null) {
       target = new Vec(v1.vec[0]/v2.vec[0], v1.vec[1]/v2.vec[1], v1.vec[2]/v2.vec[2]);
     } else {
@@ -512,7 +512,7 @@ public class Vec implements Constants, Primitivable {
    * @param v another vector
    * @return the Euclidean distance between
    */
-  public float dist(Vec v) {
+  public float distance(Vec v) {
     float dx = this.vec[0] - v.vec[0];
     float dy = this.vec[1] - v.vec[1];
     float dz = this.vec[2] - v.vec[2];
@@ -525,7 +525,7 @@ public class Vec implements Constants, Primitivable {
    * @param v2 another vector
    * @return the Euclidean distance between v1 and v2
    */
-  static public float dist(Vec v1, Vec v2) {
+  static public float distance(Vec v1, Vec v2) {
     float dx = v1.vec[0] - v2.vec[0];
     float dy = v1.vec[1] - v2.vec[1];
     float dz = v1.vec[2] - v2.vec[2];
@@ -589,9 +589,9 @@ public class Vec implements Constants, Primitivable {
    * Normalize the vector to length 1 (make it a unit vector)
    */
   public void normalize() {
-    float m = mag();
+    float m = magnitude();
     if (m != 0 && m != 1) {
-      div(m);
+      divide(m);
     }
   }
 
@@ -604,7 +604,7 @@ public class Vec implements Constants, Primitivable {
     if (target == null) {
       target = new Vec();
     }
-    float m = mag();
+    float m = magnitude();
     if (m > 0) {
       target.set(vec[0]/m, vec[1]/m, vec[02]/m);
     } else {
@@ -618,9 +618,9 @@ public class Vec implements Constants, Primitivable {
    * @param max the maximum length to limit this vector
    */
   public void limit(float max) {
-    if (mag() > max) {
+    if (magnitude() > max) {
       normalize();
-      mult(max);
+      multiply(max);
     }
   }
 
@@ -628,9 +628,9 @@ public class Vec implements Constants, Primitivable {
    * Sets the magnitude of the vector to an arbitrary amount.
    * @param len the new length for this vector
    */
-  public void setMag(float len) {
+  public void setMagnitude(float len) {
     normalize();
-    mult(len);	
+    multiply(len);	
   }
 
   /**
@@ -639,9 +639,9 @@ public class Vec implements Constants, Primitivable {
    * @param len the new length for the new vector
    * @return a new vector (if target was null), or target
    */
-  public Vec setMag(Vec target, float len) {
+  public Vec setMagnitude(Vec target, float len) {
     target = normalize(target);
-    target.mult(len);
+    target.multiply(len);
     return target;
   }
 

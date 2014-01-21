@@ -156,19 +156,19 @@ public class KeyboardEvent extends TerseEvent {
 
 	@Override
 	public KeyboardShortcut shortcut() {
-		return new KeyboardShortcut(getModifiers(), getKeyCode());
+		return new KeyboardShortcut(modifiers(), keyCode());
 	}
 
 	// TODO hack
 	public KeyboardShortcut keyShortcut() {
-		return new KeyboardShortcut(getKey());
+		return new KeyboardShortcut(key());
 	}
 
-	public Character getKey() {
+	public Character key() {
 		return key;
 	}
 
-	public Integer getKeyCode() {
+	public Integer keyCode() {
 		return vKey;
 	}
 
@@ -194,11 +194,11 @@ public class KeyboardEvent extends TerseEvent {
 	 * Function that maps characters to virtual keys defined according to
 	 * {@code java.awt.event.KeyEvent}.
 	 */
-	public static Integer getKeyCode(Character key) {
+	public static Integer keyCode(Character key) {
 		return map.get(key);
 	}
 	
-	public static Character getKey(Integer vk) {
+	public static Character key(Integer vk) {
 		for (Entry<Character, Integer> entry : map.entrySet()) {
 	        if (vk.equals(entry.getValue())) {
 	            return entry.getKey();
@@ -207,15 +207,15 @@ public class KeyboardEvent extends TerseEvent {
 	    return null;
 	}
 
-	public String getKeyText() {
-		return getKeyText(vKey);
+	public String keyText() {
+		return keyText(vKey);
 	}
 
 	/**
 	 * Wrapper function that simply returns what
 	 * {@code java.awt.event.KeyEvent.getKeyText(key)} would return.
 	 */
-	public static String getKeyText(Integer key) {
+	public static String keyText(Integer key) {
 		String result = "Unrecognized key";
 		Character c = null;
 		for (Entry<Character, Integer> entry : map.entrySet()) {

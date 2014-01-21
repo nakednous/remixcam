@@ -197,8 +197,8 @@ public class Rot implements Constants, Orientable {
 		//perp dot product. See:
 		//1. http://stackoverflow.com/questions/2150050/finding-signed-angle-between-vectors
 		//2. http://mathworld.wolfram.com/PerpDotProduct.html
-		float fromNorm = from.mag();
-		float toNorm = to.mag();				
+		float fromNorm = from.magnitude();
+		float toNorm = to.magnitude();				
 		if ((Util.zero(fromNorm)) || (Util.zero(toNorm)))
 			angle = 0;
 		else

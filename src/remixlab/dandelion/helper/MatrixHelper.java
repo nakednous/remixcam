@@ -39,7 +39,7 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	
 	@Override
 	public void cacheProjectionViewInverse() {
-		Mat.mult(getProjection(), getModelView(), projectionViewMat);
+		Mat.mult(projection(), modelView(), projectionViewMat);
     if(unprojectCacheIsOptimized()) {
     	if(projectionViewInverseMat == null)
     		projectionViewInverseMat = new Mat();
@@ -74,12 +74,12 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
   }
   
   @Override
-  public Mat getProjectionView() {
+  public Mat projectionView() {
 		return projectionViewMat;
 	}
   
   @Override
-  public Mat getProjectionViewInverse() {
+  public Mat projectionViewInverse() {
   	if( !unprojectCacheIsOptimized() )
 			throw new RuntimeException("optimizeUnprojectCache(true) should be called first");			
   	return projectionViewInverseMat;
@@ -87,7 +87,7 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	
 	@Override
 	public void loadProjection() {
-		setProjection(scene.view().getProjection(true));
+		setProjection(scene.eye().getProjection(true));
 	}
 	
 	@Override
@@ -96,9 +96,9 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	}
 
 	public void loadModelView(boolean includeView) {
-		scene.view().computeView();
+		scene.eye().computeView();
 		if(includeView)
-		  setModelView(scene.view().getView(false));
+		  setModelView(scene.eye().getView(false));
 		else
 			resetModelView();//loads identity -> only model, (excludes view)
 	}

@@ -15,6 +15,7 @@ import remixlab.dandelion.agent.GenericWheeledBiMotionAgent;
 import remixlab.dandelion.geom.*;
 import remixlab.dandelion.helper.MatrixStackHelper;
 import remixlab.fpstiming.AbstractTimerJob;
+import remixlab.fpstiming.Animatable;
 import remixlab.fpstiming.AnimatedObject;
 import remixlab.fpstiming.TimingHandler;
 import remixlab.tersehandling.core.*;
@@ -29,7 +30,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	protected MatrixHelpable matrixHelper;
 	protected VisualHintable drawingHelpler;
 	
-	protected View vPoint;
+	protected Eye eye;
 	protected Trackable trck;
 	public boolean avatarIsInteractiveFrame;
 	protected boolean avatarIsInteractiveAvatarFrame;
@@ -46,10 +47,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	protected TerseHandler terseHandler;
 
 	// D I S P L A Y F L A G S
-	protected boolean axisIsDrwn; // world axis
-	protected boolean gridIsDrwn; // world XY grid
-	protected boolean frameSelectionHintIsDrwn;
-	protected boolean viewPathsAreDrwn;
+	protected int visualHintFlag;
 	
 	// LEFT vs RIGHT_HAND
 	protected boolean rightHanded;
@@ -105,8 +103,34 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		dottedGrid = dotted;
 	}
 	
+	//FPSTiming wrappers
+	
+	public TimingHandler timerHandler() {
+		return timerHandler;
+	}
+	
 	public void registerJob(AbstractTimerJob job) {
 		timerHandler().registerJob(job);
+	}
+	
+	public void unregisterJob(AbstractTimerJob job) {
+		timerHandler().unregisterJob(job);
+	}
+	
+	public boolean isJobRegistered(AbstractTimerJob job) {
+		return timerHandler().isJobRegistered(job);
+	}
+	
+	public void registerAnimation(Animatable object) {
+		timerHandler().registerAnimation(object);
+	}	
+	
+	public void unregisterAnimation(Animatable object) {
+		timerHandler().unregisterAnimation(object);
+	}
+	
+	public boolean isAnimationRegistered(Animatable object) {
+		return timerHandler().isAnimationRegistered(object);
 	}
 	
 	/**
@@ -121,6 +145,20 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	
 	// E V E N T   HA N D L I N G
 	
+  //TerseHandling
+	
+	public TerseHandler terseHandler() {
+		return terseHandler;
+	}
+	
+	public boolean grabsAnAgent(Grabbable g) {
+		for( Agent agent : terseHandler().agents() ) {
+			if (g.grabsAgent(agent))
+					return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public boolean grabsAgent(Agent agent) {
 		return agent.grabber() == this;
@@ -129,6 +167,35 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	@Override
 	public boolean checkIfGrabsInput(TerseEvent event) {		
 		return (event instanceof GenericKeyboardEvent || event instanceof GenericClickEvent);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code displayCurrentCameraProfileHelp(true)}.
+	 * 
+	 * @see #displayInfo(boolean)
+	 */	
+	public String info() {
+		String description = new String();
+		description += "Agents' info\n";
+		int index = 1;
+		for( Agent agent : terseHandler().agents() ) {
+			description += index;
+			description += ". ";
+			description += agent.info();
+			index++;
+		}
+		return description;
+	}
+	
+	public void displayInfo() {
+		displayInfo(true);
+	}
+	
+	public void displayInfo(boolean onConsole) {
+		if (onConsole)
+			System.out.println(info());
+		else
+			AbstractScene.showMissingImplementationWarning("displayInfo", getClass().getName());
 	}
 	
 	/**
@@ -158,37 +225,37 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		Vec trans;
 		switch (id) {
 		case ADD_KEYFRAME_TO_PATH_1:
-			view().addKeyFrameToPath(1);
+			eye().addKeyFrameToPath(1);
 			break;
 		case DELETE_PATH_1:
-			view().deletePath(1);
+			eye().deletePath(1);
 			break;
 		case PLAY_PATH_1:
-			view().playPath(1);
+			eye().playPath(1);
 			break;
 		case ADD_KEYFRAME_TO_PATH_2:
-			view().addKeyFrameToPath(2);
+			eye().addKeyFrameToPath(2);
 			break;
 		case DELETE_PATH_2:
-			view().deletePath(2);
+			eye().deletePath(2);
 			break;
 		case PLAY_PATH_2:
-			view().playPath(2);
+			eye().playPath(2);
 			break;
 		case ADD_KEYFRAME_TO_PATH_3:
-			view().addKeyFrameToPath(3);
+			eye().addKeyFrameToPath(3);
 			break;
 		case DELETE_PATH_3:
-			view().deletePath(3);
+			eye().deletePath(3);
 			break;
 		case PLAY_PATH_3:
-			view().playPath(3);
+			eye().playPath(3);
 			break;
 		case DRAW_AXIS:
-			toggleAxisIsDrawn();
+			toggleAxisVisualHint();
 			break;
 		case DRAW_GRID:
-			toggleGridIsDrawn();
+			toggleGridVisualHint();
 			break;
 		case CAMERA_TYPE:
 			toggleCameraType();
@@ -199,50 +266,50 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		case GLOBAL_HELP:
 			displayInfo();
 			break;
-		case EDIT_VIEW_PATH:
-			toggleViewPathsAreDrawn();
+		case EDIT_EYE_PATH:
+			togglePathsVisualHint();
 			break;
 		case DRAW_FRAME_SELECTION_HINT:
-			toggleFrameSelectionHintIsDrawn();
+			toggleFrameVisualhint();
 			break;
 		case SHOW_ALL:
 			showAll();
 			break;
-		case MOVE_VIEW_LEFT:
-			trans = new Vec(-10.0f * view().flySpeed(), 0.0f, 0.0f);
+		case MOVE_EYE_LEFT:
+			trans = new Vec(-10.0f * eye().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
-				trans.div(camera().frame().magnitude());
-			view().frame().translate(view().frame().inverseTransformOf(trans));			
+				trans.divide(camera().frame().magnitude());
+			eye().frame().translate(eye().frame().inverseTransformOf(trans));			
 			break;
-		case MOVE_VIEW_RIGHT:
-			trans = new Vec(10.0f * view().flySpeed(), 0.0f, 0.0f);
+		case MOVE_EYE_RIGHT:
+			trans = new Vec(10.0f * eye().flySpeed(), 0.0f, 0.0f);
 			if(this.is3D())
-				trans.div(camera().frame().magnitude());
-			view().frame().translate(view().frame().inverseTransformOf(trans));			
+				trans.divide(camera().frame().magnitude());
+			eye().frame().translate(eye().frame().inverseTransformOf(trans));			
 			break;
-		case MOVE_VIEW_UP:
-			trans = view().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? 10.0f : -10.0f * view().flySpeed(), 0.0f));
+		case MOVE_EYE_UP:
+			trans = eye().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? 10.0f : -10.0f * eye().flySpeed(), 0.0f));
 			if(this.is3D())
-				trans.div(camera().frame().magnitude());
-			view().frame().translate(trans);					  
+				trans.divide(camera().frame().magnitude());
+			eye().frame().translate(trans);					  
 			break;
-		case MOVE_VIEW_DOWN:
-			trans = view().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? -10.0f : 10.0f * view().flySpeed(), 0.0f));
+		case MOVE_EYE_DOWN:
+			trans = eye().frame().inverseTransformOf(new Vec(0.0f, isRightHanded() ? -10.0f : 10.0f * eye().flySpeed(), 0.0f));
 			if(this.is3D())
-				trans.div(camera().frame().magnitude());
-			view().frame().translate(trans);			
+				trans.divide(camera().frame().magnitude());
+			eye().frame().translate(trans);			
 			break;
 		case INCREASE_ROTATION_SENSITIVITY:
-			view().setRotationSensitivity(view().rotationSensitivity() * 1.2f);
+			eye().setRotationSensitivity(eye().rotationSensitivity() * 1.2f);
 			break;
 		case DECREASE_ROTATION_SENSITIVITY:
-			view().setRotationSensitivity(view().rotationSensitivity() / 1.2f);
+			eye().setRotationSensitivity(eye().rotationSensitivity() / 1.2f);
 			break;
 		case INCREASE_CAMERA_FLY_SPEED:
-			((Camera) view()).setFlySpeed(((Camera) view()).flySpeed() * 1.2f);
+			((Camera) eye()).setFlySpeed(((Camera) eye()).flySpeed() * 1.2f);
 			break;
 		case DECREASE_CAMERA_FLY_SPEED:
-			((Camera) view()).setFlySpeed(((Camera) view()).flySpeed() / 1.2f);
+			((Camera) eye()).setFlySpeed(((Camera) eye()).flySpeed() / 1.2f);
 			break;
 		case INCREASE_AVATAR_FLY_SPEED:
 			if (avatar() != null)
@@ -285,60 +352,21 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 					((InteractiveAvatarFrame) avatar()).setTrackingDistance(((InteractiveAvatarFrame) avatar()).trackingDistance() - radius() / 50);
 			break;
 		case INTERPOLATE_TO_FIT:
-			view().interpolateToFitScene();
+			eye().interpolateToFitScene();
 			break;
 		case RESET_ARP:		  
-			view().setArcballReferencePoint(new Vec(0, 0, 0));
+			eye().setArcballReferencePoint(new Vec(0, 0, 0));
 			//looks horrible, but works ;)
-			view().frame().arpFlag = true;
-			view().frame().timerFx.runOnce(1000);				
+			eye().frame().arpFlag = true;
+			eye().frame().timerFx.runOnce(1000);				
 			break;
 		case CUSTOM:
-			AbstractScene.showMissingImplementationWarning(id);
+			AbstractScene.showMissingImplementationWarning(id, getClass().getName());
 			break;
 		default: 
 			System.out.println("Action cannot be handled here!");
     break;
 		}
-	}
-	
-	/**
-	public void customClickInteraction(GenericClickEvent<?> event) {
-		AbstractScene.showDepthWarning("customClickInteraction");
-	}
-	
-  public void customKeyboardInteraction(GenericKeyboardEvent<?> event) {
-  	AbstractScene.showDepthWarning("GenericKeyboardEvent");
-	}
-	*/
-	
-	/**
-	 * Convenience function that simply calls {@code displayCurrentCameraProfileHelp(true)}.
-	 * 
-	 * @see #displayInfo(boolean)
-	 */	
-	public String info() {
-		String description = new String();
-		description += "Agents' info\n";
-		int index = 1;
-		for( Agent agent : terseHandler().agents() ) {
-			description += index;
-			description += ". ";
-			description += agent.info();
-			index++;
-		}
-		return description;
-	}
-	
-	public void displayInfo() {
-		displayInfo(true);
-	}
-	
-	public void displayInfo(boolean onConsole) {
-		if (onConsole)
-			System.out.println(info());
-		else
-			AbstractScene.showMissingImplementationWarning("displayInfo");
 	}
 	
 	/**
@@ -352,18 +380,15 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	// D R A W I N G   M E T H O D S
 	
 	public void preDraw() {
-		view().validateScaling();
-		if ( avatar() != null	&& (!view().anyInterpolationIsStarted() ) ) {
-			view().setPosition(avatar().viewPosition());
-			view().setUpVector(avatar().upVector());
-			view().lookAt(avatar().target());
-		}
-		 
-		//before timerHandler().handle() it was here:
-		//timerHandler().updateFrameRate();		
+		eye().validateScaling();
+		if ( avatar() != null	&& (!eye().anyInterpolationIsStarted() ) ) {
+			eye().setPosition(avatar().eyePosition());
+			eye().setUpVector(avatar().upVector());
+			eye().lookAt(avatar().target());
+		}		
 		bind();
-		if (boundaryEquationsAreEnabled())
-			view().updateBoundaryEquations();
+		if (areBoundaryEquationsEnabled())
+			eye().updateBoundaryEquations();
 	}
 	
 	/**
@@ -380,65 +405,65 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * 
 	 * @see #proscenium()
 	 * @see #addDrawHandler(Object, String)
-	 * @see #gridIsDrawn()
+	 * @see #gridVisualHint()
 	 * @see #axisIsDrwn
 	 * @see #addDrawHandler(Object, String)
 	 * @see #addAnimationHandler(Object, String)
 	 */
-	public void postDraw() {	
-		//updateFrameRate();
-		
+	public void postDraw() {			
 		// 1
-		updateCursor();
-			
+		//updateCursor();//TODO test if this is necessary
 		// 2. timers
-		//if (timersAreSingleThreaded())
-		timerHandler().handle();
-		
+		timerHandler().handle();		
 		// 3. Agents
-		terseHandler().handle();
-		
+		terseHandler().handle();		
 	  // 4. Alternative use only
-		proscenium();
-		
+		proscenium();		
 		// 6. Draw external registered method (only in java sub-classes)
-		invokeRegisteredMethod(); // abstract
-    
-    // 7. Grid and axis drawing
- 		if (gridIsDrawn()) {
- 			if(gridIsDotted())
- 				drawDottedGrid(view().sceneRadius());
- 			else
- 				drawGrid(view().sceneRadius());
- 		}
- 		if (axisIsDrawn())
- 			drawAxis(view().sceneRadius());		
- 		
-    // 8. Display visual hints
+		invokeDrawHandler(); // abstract
+		// 7. Display visual hints
  		displayVisualHints(); // abstract
 	}
 	
-	public TerseHandler terseHandler() {
-		return terseHandler;
-	}
+	//protected abstract void updateCursor();
 	
-	public TimingHandler timerHandler() {
-		return timerHandler;
-	}
+	protected abstract void invokeDrawHandler();
 	
-	public boolean grabsAnAgent(Grabbable g) {
-		for( Agent agent : terseHandler().agents() ) {
-			if (g.grabsAgent(agent))
-					return true;
+	/**
+	 * Internal use. Display various on-screen visual hints to be called from {@link #pre()}
+	 * or {@link #draw()}.
+	 */
+	
+	protected void displayVisualHints() {
+		if (gridVisualHint()) {
+ 			if(gridIsDotted())
+ 				drawDottedGrid(eye().sceneRadius());
+ 			else
+ 				drawGrid(eye().sceneRadius());
+ 		}
+ 		if (axisVisualHint())
+ 			drawAxis(eye().sceneRadius());
+ 		
+		if (frameVisualHint())
+			drawSelectionHints();
+		if (pathsVisualHint()) {
+			eye().drawAllPaths();
+			drawEyePathsSelectionHints();
+		} else {
+			eye().hideAllPaths();
 		}
-		return false;
+		
+		if (zoomVisualHint())
+			drawZoomWindowHint();
+		if (rotateVisualHint())
+			drawScreenRotateLineHint();		
+		
+		if (eye().frame().arpFlag) 
+			drawArcballReferencePointHint();		
+		if (eye().frame().pupFlag) {
+			drawPointUnderPixelHint();
+		}
 	}
-	
-	protected abstract void updateCursor();
-	
-	protected abstract void invokeRegisteredMethod();
-	
-	protected abstract void displayVisualHints();
 	
   //1. Scene overloaded
 	
@@ -447,9 +472,9 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * initialize stuff not initialized in {@code PApplet.setup()}. The default
 	 * implementation is empty.
 	 * <p>
-	 * Typical usage include {@link #view()} initialization ({@link #showAll()})
-	 * and Scene state setup ({@link #setAxisIsDrawn(boolean)} and
-	 * {@link #setGridIsDrawn(boolean)}.
+	 * Typical usage include {@link #eye()} initialization ({@link #showAll()})
+	 * and Scene state setup ({@link #setAxisVisualHint(boolean)} and
+	 * {@link #setGridVisualHint(boolean)}.
 	 */
 	public void init() {}
 	
@@ -644,12 +669,12 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   }
   */
 
-  public Mat getModelView() {
-  	return matrixHelper.getModelView();
+  public Mat modelView() {
+  	return matrixHelper.modelView();
   }
   
-  public Mat getProjection() {
-  	return matrixHelper.getProjection();
+  public Mat projection() {
+  	return matrixHelper.projection();
   }
 
   /**
@@ -723,17 +748,13 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   public void drawDottedGrid(float size, int nbSubdivisions) {
   	drawingHelpler().drawDottedGrid(size, nbSubdivisions);
   }
-    
-  public void drawWindow(Window window, float scale) {
-  	drawingHelpler().drawWindow(window, scale);
+  
+  public void drawEye(Eye eye, float scale) {
+  	drawingHelpler().drawEye(eye, scale);
   }
   
-  public void drawCamera(Camera camera, boolean drawFarPlane, float scale) {
-  	drawingHelpler().drawCamera(camera, drawFarPlane, scale);
-  }
-  
-  public void drawKFIView(float scale) {
-  	drawingHelpler().drawKFIView(scale);
+  public void drawKFIEye(float scale) {
+  	drawingHelpler().drawKFIEye(scale);
   }
   
   public void drawZoomWindowHint() {
@@ -746,6 +767,10 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   
   public void drawArcballReferencePointHint() {
   	drawingHelpler().drawArcballReferencePointHint();
+  }
+  
+  public void drawPointUnderPixelHint() {
+  	drawingHelpler().drawPointUnderPixelHint();
   }
   
   public void drawCross(float px, float py, float size) {
@@ -766,6 +791,178 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	
 	public void drawPath(KeyFrameInterpolator kfi, int mask, int nbFrames, float scale) {
 		drawingHelpler().drawPath(kfi, mask, nbFrames, scale);
+	}
+	
+//Abstract drawing methods
+	
+	/**
+	 * Same as {@code cone(det, 0, 0, r, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float)
+	 */
+	public void cone(int det, float r, float h) {
+		cone(det, 0, 0, r, h);
+	}		
+	
+	/**
+	 * Same as {@code cone(12, 0, 0, r, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float)
+	 */
+	public void cone(float r, float h) {
+		cone(12, 0, 0, r, h);
+	}	
+	
+	/**
+	 * Same as {@code cone(det, 0, 0, r1, r2, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float, float)
+	 */
+	public void cone(int det, float r1, float r2, float h) {
+		cone(det, 0, 0, r1, r2, h);
+	}	
+	
+	/**
+	 * Same as {@code cone(18, 0, 0, r1, r2, h);}
+	 * 
+	 * @see #cone(int, float, float, float, float, float)
+	 */
+	public void cone(float r1, float r2, float h) {
+		cone(18, 0, 0, r1, r2, h);
+	}	
+	
+	/**
+	 * Convenience function that simply calls {@code drawAxis(100)}.
+	 */
+	public void drawAxis() {
+		drawAxis(100);
+	}	
+	
+	/**
+	 * Simply calls {@code drawArrow(length, 0.05f * length)}
+	 * 
+	 * @see #drawArrow(float, float)
+	 */
+	public void drawArrow(float length) {
+		drawArrow(length, 0.05f * length);
+	}
+	
+	/**
+	 * Draws a 3D arrow along the positive Z axis.
+	 * <p>
+	 * {@code length} and {@code radius} define its geometry.
+	 * <p>
+	 * Use {@link #drawArrow(Vec, Vec, float)} to place the arrow
+	 * in 3D.
+	 */
+	public void drawArrow(float length, float radius) {
+		float head = 2.5f * (radius / length) + 0.1f;
+		float coneRadiusCoef = 4.0f - 5.0f * head;
+
+		cylinder(radius, length * (1.0f - head / coneRadiusCoef));
+		translate(0.0f, 0.0f, length * (1.0f - head));
+		cone(coneRadiusCoef * radius, head * length);
+		translate(0.0f, 0.0f, -length * (1.0f - head));
+	}
+	
+	/**
+	 * Draws a 3D arrow between the 3D point {@code from} and the 3D point {@code
+	 * to}, both defined in the current world coordinate system.
+	 * 
+	 * @see #drawArrow(float, float)
+	 */
+	public void drawArrow(Vec from, Vec to,	float radius) {
+		pushModelView();
+		translate(from.x(), from.y(), from.z());
+		applyModelView(new Quat(new Vec(0, 0, 1), Vec.subtract(to,	from)).matrix());
+		drawArrow(Vec.subtract(to, from).magnitude(), radius);
+		popModelView();
+	}
+	
+	public void drawDottedGrid() {
+		drawDottedGrid(100, 10);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawGrid(100, 10)}
+	 * 
+	 * @see #drawGrid(float, int)
+	 */
+	public void drawGrid() {
+		drawGrid(100, 10);
+	}
+	
+	public void drawDottedGrid(float size) {
+		drawDottedGrid(size, 10);
+	}
+		
+	/**
+	 * Convenience function that simply calls {@code drawGrid(size, 10)}
+	 * 
+	 * @see #drawGrid(float, int)
+	 */
+	public void drawGrid(float size) {
+		drawGrid(size, 10);
+	}
+	
+	public void drawDottedGrid(int nbSubdivisions) {
+		drawDottedGrid(100, nbSubdivisions);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawGrid(100, nbSubdivisions)}
+	 * 
+	 * @see #drawGrid(float, int)
+	 */
+	public void drawGrid(int nbSubdivisions) {
+		drawGrid(100, nbSubdivisions);
+	}
+	
+	/**
+	 * Convenience function that simply calls {@code drawViewWindow(camera, 1)}
+	 * 
+	 * @see #drawWindow(Window, float)
+	 */
+	public void drawEye(Eye eye) {
+		drawEye(eye, 1);
+	}
+		
+	/**
+	 * Draws all InteractiveFrames' selection regions: a shooter target
+	 * visual hint of {@link remixlab.dandelion.core.InteractiveFrame#grabsInputThreshold()} pixels size.
+	 * 
+	 * <b>Attention:</b> If the InteractiveFrame is part of a Camera path draws
+	 * nothing.
+	 * 
+	 * @see #drawEyePathsSelectionHints()
+	 */
+	protected abstract void drawSelectionHints();
+	
+	/**
+	 * Draws the selection regions (a shooter target visual hint of
+	 * {@link remixlab.dandelion.core.InteractiveFrame#grabsInputThreshold()} pixels size) of all
+	 * InteractiveFrames forming part of the Camera paths.
+	 * 
+	 * @see #drawSelectionHints()
+	 */
+	protected abstract void drawEyePathsSelectionHints();
+		
+	/**
+	 * Convenience function that simply calls
+	 * {@code drawCross(pg3d.color(255, 255, 255), px, py, 15, 3)}.
+	 */
+	public void drawCross(float px, float py) {
+		drawCross(px, py, 15);
+	}
+		
+	/**
+	 * Convenience function that simply calls
+	 * {@code drawFilledCircle(40, center, radius)}.
+	 * 
+	 * @see #drawFilledCircle(int, Vec, float)
+	 */
+	public void drawFilledCircle(Vec center, float radius) {
+		drawFilledCircle(40, center, radius);
 	}
 	
   public void beginScreenDrawing() {
@@ -888,10 +1085,10 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	// 1. Associated objects
 	
 	/**
-	 * Returns the associated Camera, never {@code null}.
+	 * Returns the associated Eye, never {@code null}.
 	 */
-	public View view() {
-		return vPoint;
+	public Eye eye() {
+		return eye;
 	}
 	
 	/**
@@ -899,7 +1096,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 */
 	public Camera camera() {
 		if (this.is3D())
-			return (Camera) vPoint;
+			return (Camera) eye;
 		else 
 			throw new RuntimeException("Camera type is only available in 3D");
 	}
@@ -909,12 +1106,12 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			System.out.println("Warning: Camera Type is only available in 3D");			
 		}
 		else
-			setView(cam);		
+			setEye(cam);		
 	}
 	
 	public Window window() {
 		if (this.is2D())
-			return (Window) vPoint;
+			return (Window) eye;
 		else 
 			throw new RuntimeException("Window type is only available in 2D");
 	}
@@ -924,13 +1121,13 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			System.out.println("Warning: Window Type is only available in 2D");			
 		}
 		else
-			setView(win);
+			setEye(win);
 	}
 
 	/**
-	 * Replaces the current {@link #view()} with {@code vp}
+	 * Replaces the current {@link #eye()} with {@code vp}
 	 */
-	public void setView(View vp)  {
+	public void setEye(Eye vp)  {
 		if (vp == null)
 			return;
 
@@ -939,11 +1136,11 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 
 		vp.setScreenWidthAndHeight(width(), height());
     
-		vPoint = vp;
+		eye = vp;
 		
 		for( Agent agent : terseHandler().agents() ) {
 			if( agent instanceof GenericWheeledBiMotionAgent )
-				agent.setDefaultGrabber(vPoint.frame());
+				agent.setDefaultGrabber(eye.frame());
 		}		
 
 		showAll();
@@ -960,22 +1157,22 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #enableBoundaryEquations(boolean)
 	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
-	public boolean boundaryEquationsAreEnabled() {
-		return view().boundaryEquationsAreEnabled();
+	public boolean areBoundaryEquationsEnabled() {
+		return eye().areBoundaryEquationsEnabled();
 	}
 
 	/**
 	 * Toggles automatic update of the camera frustum plane equations every frame.
 	 * Computation of the equations is expensive and hence is disabled by default.
 	 * 
-	 * @see #boundaryEquationsAreEnabled()
+	 * @see #areBoundaryEquationsEnabled()
 	 * @see #disableBoundaryEquations()
 	 * @see #enableBoundaryEquations()
 	 * @see #enableBoundaryEquations(boolean)
 	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
 	public void toggleBoundaryEquations() {
-		if ( boundaryEquationsAreEnabled() )
+		if ( areBoundaryEquationsEnabled() )
 			disableBoundaryEquations();
 		else
 			enableBoundaryEquations();
@@ -986,7 +1183,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * frame. Computation of the equations is expensive and hence is disabled by
 	 * default.
 	 * 
-	 * @see #boundaryEquationsAreEnabled()
+	 * @see #areBoundaryEquationsEnabled()
 	 * @see #toggleBoundaryEquations()
 	 * @see #enableBoundaryEquations()
 	 * @see #enableBoundaryEquations(boolean)
@@ -1000,7 +1197,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * Enables automatic update of the camera frustum plane equations every frame.
 	 * Computation of the equations is expensive and hence is disabled by default.
 	 * 
-	 * @see #boundaryEquationsAreEnabled()
+	 * @see #areBoundaryEquationsEnabled()
 	 * @see #toggleBoundaryEquations()
 	 * @see #disableBoundaryEquations()
 	 * @see #enableBoundaryEquations(boolean)
@@ -1015,25 +1212,25 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * every frame according to {@code flag}. Computation of the equations is
 	 * expensive and hence is disabled by default.
 	 * 
-	 * @see #boundaryEquationsAreEnabled()
+	 * @see #areBoundaryEquationsEnabled()
 	 * @see #toggleBoundaryEquations()
 	 * @see #disableBoundaryEquations()
 	 * @see #enableBoundaryEquations()
 	 * @see remixlab.dandelion.core.Camera#updateBoundaryEquations()
 	 */
 	public void enableBoundaryEquations(boolean flag) {
-		view().enableBoundaryEquations(flag);
+		eye().enableBoundaryEquations(flag);
 	}
 	
 	/**
-	 * Toggles the {@link #view()} type between PERSPECTIVE and ORTHOGRAPHIC.
+	 * Toggles the {@link #eye()} type between PERSPECTIVE and ORTHOGRAPHIC.
 	 */
 	public void toggleCameraType() {
 		if( this.is2D() ) {
 			System.out.println("Warning: Camera Type is only available in 3D");
 		}
 		else {
-		if (((Camera) view()).type() == Camera.Type.PERSPECTIVE)
+		if (((Camera) eye()).type() == Camera.Type.PERSPECTIVE)
 			setCameraType(Camera.Type.ORTHOGRAPHIC);
 		else
 			setCameraType(Camera.Type.PERSPECTIVE);
@@ -1041,7 +1238,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	}
 	
 	/**
-	 * Returns the current {@link #view()} type.
+	 * Returns the current {@link #eye()} type.
 	 */
 	public final Camera.Type cameraType() {
 		if( this.is2D() ) {
@@ -1049,19 +1246,19 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			return null;
 		}
 		else
-			return ((Camera) view()).type();		
+			return ((Camera) eye()).type();		
 	}
 
 	/**
-	 * Sets the {@link #view()} type.
+	 * Sets the {@link #eye()} type.
 	 */
 	public void setCameraType(Camera.Type type) {
 		if( this.is2D() ) {
 			System.out.println("Warning: Camera Type is only available in 3D");			
 		}
 		else
-			if (type != ((Camera) view()).type())
-				((Camera) view()).setType(type);
+			if (type != ((Camera) eye()).type())
+				((Camera) eye()).setType(type);
 	}
 	
 	/**
@@ -1127,20 +1324,20 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 			avatarIsInteractiveFrame = true;
 			if (avatar() instanceof InteractiveAvatarFrame)
 				avatarIsInteractiveAvatarFrame = true;
-			view().frame().updateFlyUpVector();// ?
-			view().frame().stopSpinning();
+			eye().frame().updateFlyUpVector();// ?
+			eye().frame().stopSpinning();
 			if( this.avatarIsInteractiveFrame ) {
 				((InteractiveFrame) (avatar())).updateFlyUpVector();
 				((InteractiveFrame) (avatar())).stopSpinning();
 			}
 			// perform small animation ;)
-			if (view().anyInterpolationIsStarted())
-				view().stopAllInterpolations();
-			View cm = view().get();
-			cm.setPosition(avatar().viewPosition());
+			if (eye().anyInterpolationIsStarted())
+				eye().stopAllInterpolations();
+			Eye cm = eye().get();
+			cm.setPosition(avatar().eyePosition());
 			cm.setUpVector(avatar().upVector());
 			cm.lookAt(avatar().target());
-			view().interpolateTo(cm.frame());
+			eye().interpolateTo(cm.frame());
 		}
 	}
 
@@ -1167,7 +1364,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #center()
 	 */
 	public float radius() {
-		return view().sceneRadius();
+		return eye().sceneRadius();
 	}
 
 	/**
@@ -1179,7 +1376,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setCenter(Vec) {@link #radius()}
 	 */
 	public Vec center() {
-		return view().sceneCenter();
+		return eye().sceneCenter();
 	}
 
 	/**
@@ -1191,7 +1388,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setCenter(Vec) {@link #radius()}
 	 */
 	public Vec arcballReferencePoint() {
-		return view().arcballReferencePoint();
+		return eye().arcballReferencePoint();
 	}
 
 	/**
@@ -1203,7 +1400,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setCenter(Vec)
 	 */
 	public void setRadius(float radius) {
-		view().setSceneRadius(radius);
+		eye().setSceneRadius(radius);
 	}
 
 	/**
@@ -1214,7 +1411,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see #setRadius(float)
 	 */
 	public void setCenter(Vec center) {
-		view().setSceneCenter(center);
+		eye().setSceneCenter(center);
 	}
 
 	/**
@@ -1231,14 +1428,14 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 		if( this.is2D() )
 			System.out.println("setBoundingBox is available only in 3D. Use setBoundingRect instead");
 		else
-			((Camera) view()).setSceneBoundingBox(min, max);
+			((Camera) eye()).setSceneBoundingBox(min, max);
 	}
 	
 	public void setBoundingRect(Vec min, Vec max) {
 		if( this.is3D() )
 			System.out.println("setBoundingRect is available only in 2D. Use setBoundingBox instead");
 		else
-			((Window) view()).setSceneBoundingBox(min, max);
+			((Window) eye()).setSceneBoundingBox(min, max);
 	}
 
 	/**
@@ -1248,7 +1445,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#showEntireScene()
 	 */
 	public void showAll() {
-		view().showEntireScene();
+		eye().showEntireScene();
 	}
 
 	/**
@@ -1264,7 +1461,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#pointUnderPixel(Point)
 	 */
 	public boolean setArcballReferencePointFromPixel(Point pixel) {
-		return view().setArcballReferencePointFromPixel(pixel);
+		return eye().setArcballReferencePointFromPixel(pixel);
 	}
 	
 	/**
@@ -1280,330 +1477,166 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
 	 * @see remixlab.dandelion.core.Camera#pointUnderPixel(Point)
 	 */
 	public boolean setCenterFromPixel(Point pixel) {
-		return view().setSceneCenterFromPixel(pixel);
+		return eye().setSceneCenterFromPixel(pixel);
 	}
 	
-	// * Control what is drawing
+	// Control what is drawing
 	
 	/**
-	 * Toggles the state of {@link #axisIsDrawn()}.
-	 * 
-	 * @see #axisIsDrawn()
-	 * @see #setAxisIsDrawn(boolean)
+	 * Returns the visual hints flag.
 	 */
-	public void toggleAxisIsDrawn() {
-		setAxisIsDrawn(!axisIsDrawn());
+	public int visualHints() {
+		return this.visualHintFlag;
+	}
+	
+	/**
+	 * Low level setting of visual flags. You'd prefer {@link #setAxisVisualHint(boolean)},
+	 * {@link #setGridVisualHint(boolean)}, {@link #setPathsVisualHint(boolean)} and
+	 * {@link #setFrameVisualHint(boolean)}, unless you want to set them all at once,
+	 * e.g., {@code setVisualHints(Constants.AXIS | Constants.GRID | Constants.PATHS | Constants.FRAME)}.
+	 */
+	public void setVisualHints(int flag) {
+		visualHintFlag = flag;
+	}
+	
+	/**
+	 * Toggles the state of {@link #axisVisualHint()}.
+	 * 
+	 * @see #axisVisualHint()
+	 * @see #setAxisVisualHint(boolean)
+	 */
+	public void toggleAxisVisualHint() {
+		setAxisVisualHint(!axisVisualHint());
 	}
 
 	/**
-	 * Toggles the state of {@link #gridIsDrawn()}.
+	 * Toggles the state of {@link #gridVisualHint()}.
 	 * 
-	 * @see #setGridIsDrawn(boolean)
+	 * @see #setGridVisualHint(boolean)
 	 */
-	public void toggleGridIsDrawn() {
-		setGridIsDrawn(!gridIsDrawn());
+	public void toggleGridVisualHint() {
+		setGridVisualHint(!gridVisualHint());
 	}
 
 	/**
-	 * Toggles the state of {@link #frameSelectionHintIsDrawn()}.
+	 * Toggles the state of {@link #frameVisualHint()}.
 	 * 
-	 * @see #setFrameSelectionHintIsDrawn(boolean)
+	 * @see #setFrameVisualHint(boolean)
 	 */
-	public void toggleFrameSelectionHintIsDrawn() {
-		setFrameSelectionHintIsDrawn(!frameSelectionHintIsDrawn());
+	public void toggleFrameVisualhint() {
+		setFrameVisualHint(!frameVisualHint());
 	}
 
 	/**
-	 * Toggles the state of {@link #viewPathsAreDrawn()}.
+	 * Toggles the state of {@link #pathsVisualHint()}.
 	 * 
-	 * @see #setViewPathsAreDrawn(boolean)
+	 * @see #setPathsVisualHint(boolean)
 	 */
-	public void toggleViewPathsAreDrawn() {
-		setViewPathsAreDrawn(!viewPathsAreDrawn());
-	}	
+	public void togglePathsVisualHint() {
+		setPathsVisualHint(!pathsVisualHint());
+	}
+	
+	/**
+	 * Internal :p
+	 */
+	public void toggleZoomVisualHint() {
+		setZoomVisualHint(!zoomVisualHint());
+	}
+	
+	/**
+	 * Internal :p
+	 */
+	public void toggleRotateVisualHint() {
+		setRotateVisualHint(!rotateVisualHint());
+	}
 	
 	/**
 	 * Returns {@code true} if axis is currently being drawn and {@code false}
 	 * otherwise.
 	 */
-	public boolean axisIsDrawn() {
-		return axisIsDrwn;
+	public boolean axisVisualHint() {
+		return ((visualHintFlag & AXIS) != 0);
 	}
 
 	/**
 	 * Returns {@code true} if grid is currently being drawn and {@code false}
 	 * otherwise.
 	 */
-	public boolean gridIsDrawn() {
-		return gridIsDrwn;
+	public boolean gridVisualHint() {
+		return ((visualHintFlag & GRID) != 0);
 	}
 
 	/**
 	 * Returns {@code true} if the frames selection visual hints are currently
 	 * being drawn and {@code false} otherwise.
 	 */
-	public boolean frameSelectionHintIsDrawn() {
-		return frameSelectionHintIsDrwn;
+	public boolean frameVisualHint() {
+		return ((visualHintFlag & FRAME) != 0);
 	}
 
 	/**
-	 * Returns {@code true} if the camera key frame paths are currently being
-	 * drawn and {@code false} otherwise.
+	 * Returns {@code true} if the eye pads visual hints are currently
+	 * being drawn and {@code false} otherwise.
 	 */
-	public boolean viewPathsAreDrawn() {
-		return viewPathsAreDrwn;
+	public boolean pathsVisualHint() {
+		return ((visualHintFlag & PATHS) != 0);
 	}
-
+	
 	/**
-	 * Returns {@code true} if axis is currently being drawn and {@code false}
-	 * otherwise.
+	 * Internal :p
 	 */
-	/**
-	public boolean interactiveFrameIsDrawn() {
-		return iFrameIsDrwn;
+	protected boolean zoomVisualHint() {
+		return ((visualHintFlag & ZOOM) != 0);
 	}
-	*/
-
+	
 	/**
-	 * Convenience function that simply calls {@code setAxisIsDrawn(true)}
+	 * Internal :p
 	 */
-	public void setAxisIsDrawn() {
-		setAxisIsDrawn(true);
+	protected boolean rotateVisualHint() {
+		return ((visualHintFlag & ROTATE) != 0);
 	}
 
 	/**
 	 * Sets the display of the axis according to {@code draw}
 	 */
-	public void setAxisIsDrawn(boolean draw) {
-		axisIsDrwn = draw;
-	}
-
-	/**
-	 * Convenience function that simply calls {@code setGridIsDrawn(true)}
-	 */
-	public void setGridIsDrawn() {
-		setGridIsDrawn(true);
+	public void setAxisVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= AXIS; else visualHintFlag &= ~AXIS;
 	}
 
 	/**
 	 * Sets the display of the grid according to {@code draw}
 	 */
-	public void setGridIsDrawn(boolean draw) {
-		gridIsDrwn = draw;
+	public void setGridVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= GRID; else visualHintFlag &= ~GRID;
 	}
 
 	/**
 	 * Sets the display of the interactive frames' selection hints according to
 	 * {@code draw}
 	 */
-	public void setFrameSelectionHintIsDrawn(boolean draw) {
-		frameSelectionHintIsDrwn = draw;
+	public void setFrameVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= FRAME; else visualHintFlag &= ~FRAME;
 	}
 
 	/**
 	 * Sets the display of the camera key frame paths according to {@code draw}
 	 */
-	public void setViewPathsAreDrawn(boolean draw) {
-		viewPathsAreDrwn = draw;
-	}
-	
-	// Abstract drawing methods
-		
-	/**
-	 * Same as {@code cone(det, 0, 0, r, h);}
-	 * 
-	 * @see #cone(int, float, float, float, float)
-	 */
-	public void cone(int det, float r, float h) {
-		cone(det, 0, 0, r, h);
-	}		
-	
-	/**
-	 * Same as {@code cone(12, 0, 0, r, h);}
-	 * 
-	 * @see #cone(int, float, float, float, float)
-	 */
-	public void cone(float r, float h) {
-		cone(12, 0, 0, r, h);
-	}	
-	
-	/**
-	 * Same as {@code cone(det, 0, 0, r1, r2, h);}
-	 * 
-	 * @see #cone(int, float, float, float, float, float)
-	 */
-	public void cone(int det, float r1, float r2, float h) {
-		cone(det, 0, 0, r1, r2, h);
-	}	
-	
-	/**
-	 * Same as {@code cone(18, 0, 0, r1, r2, h);}
-	 * 
-	 * @see #cone(int, float, float, float, float, float)
-	 */
-	public void cone(float r1, float r2, float h) {
-		cone(18, 0, 0, r1, r2, h);
-	}	
-	
-	/**
-	 * Convenience function that simply calls {@code drawAxis(100)}.
-	 */
-	public void drawAxis() {
-		drawAxis(100);
-	}	
-	
-	/**
-	 * Simply calls {@code drawArrow(length, 0.05f * length)}
-	 * 
-	 * @see #drawArrow(float, float)
-	 */
-	public void drawArrow(float length) {
-		drawArrow(length, 0.05f * length);
+	public void setPathsVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= PATHS; else visualHintFlag &= ~PATHS;
 	}
 	
 	/**
-	 * Draws a 3D arrow along the positive Z axis.
-	 * <p>
-	 * {@code length} and {@code radius} define its geometry.
-	 * <p>
-	 * Use {@link #drawArrow(Vec, Vec, float)} to place the arrow
-	 * in 3D.
+	 * Internal :p
 	 */
-	public void drawArrow(float length, float radius) {
-		float head = 2.5f * (radius / length) + 0.1f;
-		float coneRadiusCoef = 4.0f - 5.0f * head;
-
-		cylinder(radius, length * (1.0f - head / coneRadiusCoef));
-		translate(0.0f, 0.0f, length * (1.0f - head));
-		cone(coneRadiusCoef * radius, head * length);
-		translate(0.0f, 0.0f, -length * (1.0f - head));
+	protected void setZoomVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= ZOOM; else visualHintFlag &= ~ZOOM;
 	}
 	
 	/**
-	 * Draws a 3D arrow between the 3D point {@code from} and the 3D point {@code
-	 * to}, both defined in the current world coordinate system.
-	 * 
-	 * @see #drawArrow(float, float)
+	 * Internal :p
 	 */
-	public void drawArrow(Vec from, Vec to,	float radius) {
-		pushModelView();
-		translate(from.x(), from.y(), from.z());
-		applyModelView(new Quat(new Vec(0, 0, 1), Vec.sub(to,	from)).matrix());
-		drawArrow(Vec.sub(to, from).mag(), radius);
-		popModelView();
-	}
-	
-	public void drawDottedGrid() {
-		drawDottedGrid(100, 10);
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code drawGrid(100, 10)}
-	 * 
-	 * @see #drawGrid(float, int)
-	 */
-	public void drawGrid() {
-		drawGrid(100, 10);
-	}
-	
-	public void drawDottedGrid(float size) {
-		drawDottedGrid(size, 10);
-	}
-		
-	/**
-	 * Convenience function that simply calls {@code drawGrid(size, 10)}
-	 * 
-	 * @see #drawGrid(float, int)
-	 */
-	public void drawGrid(float size) {
-		drawGrid(size, 10);
-	}
-	
-	public void drawDottedGrid(int nbSubdivisions) {
-		drawDottedGrid(100, nbSubdivisions);
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code drawGrid(100, nbSubdivisions)}
-	 * 
-	 * @see #drawGrid(float, int)
-	 */
-	public void drawGrid(int nbSubdivisions) {
-		drawGrid(100, nbSubdivisions);
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code drawCamera(camera, true, 1.0f)}
-	 * 
-	 * @see #drawCamera(Camera, boolean, float)
-	 */
-	public void drawCamera(Camera camera) {
-		drawCamera(camera, true, 1.0f);
-	}		
-
-	/**
-	 * Convenience function that simply calls {@code drawCamera(camera, true, scale)}
-	 * 
-	 * @see #drawCamera(Camera, boolean, float)
-	 */
-	public void drawCamera(Camera camera, float scale) {
-		drawCamera(camera, true, scale);
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code drawCamera(camera, drawFarPlane, 1.0f)}
-	 * 
-	 * @see #drawCamera(Camera, boolean, float)
-	 */
-	public void drawCamera(Camera camera, boolean drawFarPlane) {
-		drawCamera(camera, drawFarPlane, 1.0f);
-	}
-	
-	/**
-	 * Convenience function that simply calls {@code drawViewWindow(camera, 1)}
-	 * 
-	 * @see #drawWindow(Window, float)
-	 */
-	public void drawWindow(Window vWindow) {
-		drawWindow(vWindow, 1);
-	}
-		
-	/**
-	 * Draws all InteractiveFrames' selection regions: a shooter target
-	 * visual hint of {@link remixlab.dandelion.core.InteractiveFrame#grabsInputThreshold()} pixels size.
-	 * 
-	 * <b>Attention:</b> If the InteractiveFrame is part of a Camera path draws
-	 * nothing.
-	 * 
-	 * @see #drawViewPathSelectionHints()
-	 */
-	protected abstract void drawSelectionHints();
-	
-	/**
-	 * Draws the selection regions (a shooter target visual hint of
-	 * {@link remixlab.dandelion.core.InteractiveFrame#grabsInputThreshold()} pixels size) of all
-	 * InteractiveFrames forming part of the Camera paths.
-	 * 
-	 * @see #drawSelectionHints()
-	 */
-	protected abstract void drawViewPathSelectionHints();
-		
-	/**
-	 * Convenience function that simply calls
-	 * {@code drawCross(pg3d.color(255, 255, 255), px, py, 15, 3)}.
-	 */
-	public void drawCross(float px, float py) {
-		drawCross(px, py, 15);
-	}
-		
-	/**
-	 * Convenience function that simply calls
-	 * {@code drawFilledCircle(40, center, radius)}.
-	 * 
-	 * @see #drawFilledCircle(int, Vec, float)
-	 */
-	public void drawFilledCircle(Vec center, float radius) {
-		drawFilledCircle(40, center, radius);
+	protected void setRotateVisualHint(boolean draw) {
+		if(draw) visualHintFlag |= ROTATE; else visualHintFlag &= ~ROTATE;
 	}
 	
 	protected abstract Camera.WorldPoint pointUnderPixel(Point pixel);
@@ -1614,14 +1647,14 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   public abstract int height();
   
   public Vec projectedCoordinatesOf(Vec src) {
-  	return view().projectedCoordinatesOf(this.matrixHelper().getProjectionView(), src);
+  	return eye().projectedCoordinatesOf(this.matrixHelper().projectionView(), src);
   }
   
   public Vec unprojectedCoordinatesOf(Vec src) {
   	if( this.matrixHelper().unprojectCacheIsOptimized() )
-  		return view().unprojectedCoordinatesOf(this.matrixHelper().getProjectionViewInverse(), src);
+  		return eye().unprojectedCoordinatesOf(this.matrixHelper().projectionViewInverse(), src);
   	else
-  		return view().unprojectedCoordinatesOf(src);
+  		return eye().unprojectedCoordinatesOf(src);
   }
 
   // WARNINGS and EXCEPTIONS
@@ -1629,7 +1662,7 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   static protected HashMap<String, Object> warnings;
 
   /**
-   * Show a renderer error, and keep track of it so that it's only shown once.
+   * Show warning, and keep track of it so that it's only shown once.
    * @param msg the error message (which will be stored for later comparison)
    */
   static public void showWarning(String msg) {  // ignore
@@ -1647,65 +1680,29 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
    * @param method The method name (no parentheses)
    */
   static public void showDepthWarning(String method) {
-    showWarning(method + "() can only be used with a renderer that supports 3D, such as P3D or OPENGL.");
-  }
-
-  /**
-   * Display a warning that the specified method that takes x, y, z parameters
-   * can only be used with x and y parameters in this renderer.
-   * @param method The method name (no parentheses)
-   */
-  static public void showDepthWarningXYZ(String method) {
-    showWarning(method + "() with x, y, and z coordinates " +
-                "can only be used with a renderer that " +
-                "supports 3D, such as P3D or OPENGL. " +
-                "Use a version without a z-coordinate instead.");
-  }
-
-  /**
-   * Display a warning that the specified method is simply unavailable.
-   */
-  static public void showMethodWarning(String method) {
-    showWarning(method + "() is not available with this renderer.");
-  }
-
-  /**
-   * Error that a particular variation of a method is unavailable (even though
-   * other variations are). For instance, if vertex(x, y, u, v) is not
-   * available, but vertex(x, y) is just fine.
-   */
-  static public void showVariationWarning(String str) {
-    showWarning(str + " is not available with this renderer.");
-  }
-
-  /**
-   * Display a warning that the specified method is not implemented, meaning
-   * that it could be either a completely missing function, although other
-   * variations of it may still work properly.
-   */
-  static public void showMissingWarning(String method) {
-    showWarning(method + "(), or this particular variation of it, " +
-                "is not available with this renderer.");
+    showWarning(method + "() is not available in 2D.");
   }
   
+  static public void showDepthWarning(DandelionAction action) {
+    showWarning(action.name() + " is not available in 2D.");
+  }
+
   /**
    * Display a warning that the specified method lacks implementation.
-   */  
-  static public void showMissingImplementationWarning(String method) {
-    showWarning(method + "(), should be implemented by your AbstractScene, " +
-                "derived class.");
+   */
+  static public void showMissingImplementationWarning(String method, String theclass) {
+    showWarning(method + "(), should be implemented by your " + theclass + " derived class.");
   }
   
-  static public void showMissingImplementationWarning(DandelionAction action) {
-    showWarning(action + "(), should be implemented by your iFrame, " +
-                "derived class.");
-  }
-  
-  static public void showVariationWarning(DandelionAction action) {
-    showWarning(action + " is not available in 2D.");
+  static public void showMissingImplementationWarning(DandelionAction action, String theclass) {
+    showWarning(action.name() + " should be implemented by your " + theclass + " derived class.");
   }
   
   static public void showEventVariationWarning(DandelionAction action) {
-    showWarning(action + " can only be performed using a relative event.");
+    showWarning(action.name() + " can only be performed using a relative event.");
+  }
+  
+  static public void showOnlyEyeWarning(DandelionAction action) {
+    showWarning(action.name() + " can only be performed by the eye (frame).");
   }
 }

@@ -59,7 +59,7 @@ public class GenericKeyboardProfile<A extends Actionable<?>> extends GenericProf
 	 * @see #setShortcut(Integer, Integer, Actionable)
 	 */
 	public void setShortcut(Integer mask, Character key, A action) {
-		setShortcut(mask, KeyboardEvent.getKeyCode(key), action);
+		setShortcut(mask, KeyboardEvent.keyCode(key), action);
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class GenericKeyboardProfile<A extends Actionable<?>> extends GenericProf
 	 * @see #removeShortcut(Integer, Integer)
 	 */
 	public void removeShortcut(Integer mask, Character key) {
-		removeShortcut(mask, KeyboardEvent.getKeyCode(key));
+		removeShortcut(mask, KeyboardEvent.keyCode(key));
 	}
 
 	/**
@@ -196,7 +196,7 @@ public class GenericKeyboardProfile<A extends Actionable<?>> extends GenericProf
 	 * @see #shortcut(Integer, Integer)
 	 */
 	public Actionable<?> shortcut(Integer mask, Character key) {
-		return shortcut(mask, KeyboardEvent.getKeyCode(key));
+		return shortcut(mask, KeyboardEvent.keyCode(key));
 	}
 
 	/**
@@ -234,7 +234,7 @@ public class GenericKeyboardProfile<A extends Actionable<?>> extends GenericProf
 	 * @see #isKeyInUse(Integer, Integer)
 	 */
 	public boolean isKeyInUse(Integer mask, Character key) {
-		return isKeyInUse(mask, KeyboardEvent.getKeyCode(key));
+		return isKeyInUse(mask, KeyboardEvent.keyCode(key));
 	}
 
 	/**

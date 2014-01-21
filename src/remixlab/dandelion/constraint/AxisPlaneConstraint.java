@@ -138,12 +138,12 @@ public abstract class AxisPlaneConstraint extends Constraint {
 	 */
 	public void setTranslationConstraintDirection(Vec direction) {
 		if ((translationConstraintType() != AxisPlaneConstraint.Type.FREE) && (translationConstraintType() != AxisPlaneConstraint.Type.FORBIDDEN)) {
-			float norm = direction.mag();
+			float norm = direction.magnitude();
 			if (Util.zero(norm)) {
 				System.out.println("Warning: AxisPlaneConstraint.setTranslationConstraintDir: null vector for translation constraint");
 				transConstraintType = AxisPlaneConstraint.Type.FREE;
 			} else
-				transConstraintDir = Vec.mult(direction, (1.0f / norm));
+				transConstraintDir = Vec.multiply(direction, (1.0f / norm));
 		}
 	}
 
@@ -162,12 +162,12 @@ public abstract class AxisPlaneConstraint extends Constraint {
 	 */
 	public void setRotationConstraintDirection(Vec direction) {
 		if ((rotationConstraintType() != AxisPlaneConstraint.Type.FREE)	&& (rotationConstraintType() != AxisPlaneConstraint.Type.FORBIDDEN)) {
-			float norm = direction.mag();
+			float norm = direction.magnitude();
 			if (Util.zero(norm)) {
 				System.out.println("Warning: AxisPlaneConstraint.setRotationConstraintDir: null vector for rotation constraint");
 				rotConstraintType = AxisPlaneConstraint.Type.FREE;
 			} else
-				rotConstraintDir = Vec.mult(direction, (1.0f / norm));
+				rotConstraintDir = Vec.multiply(direction, (1.0f / norm));
 		}
 	}
 

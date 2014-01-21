@@ -65,10 +65,10 @@ public class TerseEvent implements EventConstants, Copyable {
 	}
   
   public Shortcut shortcut() {
-  	return new Shortcut(getModifiers());
+  	return new Shortcut(modifiers());
   }
   
-  public Integer getModifiers() {
+  public Integer modifiers() {
     return modifiers;
   }
   
@@ -100,7 +100,7 @@ public class TerseEvent implements EventConstants, Copyable {
     return (modifiers & TH_ALT_GRAPH) != 0;
   }
   
-	public static String getModifiersText(int mask) {
+	public static String modifiersText(int mask) {
 		String r = new String();
 		if((TH_ALT & mask)       == TH_ALT) r += "ALT";						
 		if((TH_SHIFT & mask)     == TH_SHIFT) r += (r.length() > 0) ? "+SHIFT" : "SHIFT";

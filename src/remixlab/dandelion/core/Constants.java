@@ -12,7 +12,19 @@ package remixlab.dandelion.core;
 import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.generic.profile.Actionable;
 
-public interface Constants extends EventConstants {	
+public interface Constants extends EventConstants {
+	/**
+	 * Visual hints as "the last shall be first"
+	 */
+	final static int AXIS    = 1 << 0;
+	final static int GRID    = 1 << 1;
+	final static int FRAME   = 1 << 2;
+	final static int PATHS   = 1 << 3;
+	final static int ZOOM    = 1 << 4; //prosceneMouse.zoomOnRegion
+	final static int ROTATE  = 1 << 5; //prosceneMouse.screenRotate
+	//final static int PUP     = 1 << 6;
+	//final static int ARP     = 1 << 7;
+	
 	/**
    * PI is a mathematical constant with the value 3.14159265358979323846.
    * It is the ratio of the circumference of a circle to its diameter.
@@ -85,15 +97,15 @@ public interface Constants extends EventConstants {
   	INTERPOLATE_TO_FIT("Zoom to fit the scene", true, 0),
   	RESET_ARP("Reset the arcball reference point to the 3d frame world origin", true, 0),
   	GLOBAL_HELP("Displays the global help", true, 0),
-  	EDIT_VIEW_PATH("Toggles the key frame camera paths (if any) for edition", true, 0),
+  	EDIT_EYE_PATH("Toggles the key frame camera paths (if any) for edition", true, 0),
   	DRAW_FRAME_SELECTION_HINT("Toggle interactive frame selection region drawing", true, 0),
   	SHOW_ALL("Show the whole scene", true, 0),
   	
     //CAMERA KEYBOARD ACTIONs  // TODO all of these could be dof_1
-  	MOVE_VIEW_LEFT("Move camera to the left", true, 0),
-  	MOVE_VIEW_RIGHT("Move camera to the right", true, 0),
-  	MOVE_VIEW_UP("Move camera up", true, 0),
-  	MOVE_VIEW_DOWN("Move camera down", true, 0),
+  	MOVE_EYE_LEFT("Move camera to the left", true, 0),
+  	MOVE_EYE_RIGHT("Move camera to the right", true, 0),
+  	MOVE_EYE_UP("Move camera up", true, 0),
+  	MOVE_EYE_DOWN("Move camera down", true, 0),
   	INCREASE_ROTATION_SENSITIVITY("Increase camera rotation sensitivity (only meaningful in arcball mode)", true, 0),
   	DECREASE_ROTATION_SENSITIVITY("Decrease camera rotation sensitivity (only meaningful in arcball mode)", true, 0),
   	INCREASE_CAMERA_FLY_SPEED("Increase camera fly speed (only meaningful in first-person mode)", false, 0),
@@ -109,19 +121,19 @@ public interface Constants extends EventConstants {
   	
     // Wheel
   	ZOOM("Zoom", true, 1),
-  	ROLL("Roll frame (camera or interactive drivable frame)", true, 1),
-  	DRIVE("Drive (camera or interactive drivable frame)", false, 1),
+  	ROLL("Roll frame (camera or interactive frame)", true, 1),
+  	DRIVE("Drive (camera or interactive frame)", false, 1),
     
   	// DEVICE ACTIONs
-  	//NO_DEVICE_ACTION("No device action", true, 2),
   	ROTATE("Rotate frame (camera or interactive frame)", true, 2),
+  	CAD_ROTATE("Rotate camera frame as in CAD applications", false, 2),
   	TRANSLATE("Translate frame (camera or interactive frame)", true, 2),
   	MOVE_FORWARD("Move forward frame (camera or interactive frame)", false, 2),
   	MOVE_BACKWARD("move backward frame (camera or interactive frame)", false, 2),
-  	LOOK_AROUND("Look around with frame (camera or interactive drivable frame)", false, 2),  	
+  	LOOK_AROUND("Look around with frame (camera or interactive frame)", false, 2),  	
   	SCREEN_ROTATE("Screen rotate (camera or interactive frame)", true, 2),
   	SCREEN_TRANSLATE("Screen translate frame (camera or interactive frame)", true, 2),
-  	ZOOM_ON_REGION("Zoom on region (camera or interactive drivable frame)", true, 2),
+  	ZOOM_ON_REGION("Zoom on region (camera or interactive frame)", true, 2),
   	 	
   	TRANSLATE3("Translate frame (camera or interactive frame) from dx, dy, dz simultaneously", false, 3),	
   	ROTATE3("Rotate frame (camera or interactive frame) from Euler angles", false, 3),
@@ -203,17 +215,17 @@ public interface Constants extends EventConstants {
   	RESET_ARP(DandelionAction.RESET_ARP),
   	GLOBAL_HELP(DandelionAction.GLOBAL_HELP),
   	//CURRENT_CAMERA_PROFILE_HELP(DandelionAction.CURRENT_CAMERA_PROFILE_HELP),
-  	EDIT_VIEWPORT_PATH(DandelionAction.EDIT_VIEW_PATH),
+  	EDIT_EYE_PATH(DandelionAction.EDIT_EYE_PATH),
   	//FOCUS_INTERACTIVE_FRAME(DandelionAction.FOCUS_INTERACTIVE_FRAME),
   	DRAW_FRAME_SELECTION_HINT(DandelionAction.DRAW_FRAME_SELECTION_HINT),
   	//CONSTRAIN_FRAME(DandelionAction.CONSTRAIN_FRAME),
   	SHOW_ALL(DandelionAction.SHOW_ALL),
   	
     //CAMERA KEYBOARD ACTIONs
-  	MOVE_VIEWPORT_LEFT(DandelionAction.MOVE_VIEW_LEFT),
-  	MOVE_VIEWPORT_RIGHT(DandelionAction.MOVE_VIEW_RIGHT),
-  	MOVE_VIEWPORT_UP(DandelionAction.MOVE_VIEW_UP),
-  	MOVE_VIEWPORT_DOWN(DandelionAction.MOVE_VIEW_DOWN),
+  	MOVE_EYE_LEFT(DandelionAction.MOVE_EYE_LEFT),
+  	MOVE_EYE_RIGHT(DandelionAction.MOVE_EYE_RIGHT),
+  	MOVE_EYE_UP(DandelionAction.MOVE_EYE_UP),
+  	MOVE_EYE_DOWN(DandelionAction.MOVE_EYE_DOWN),
   	INCREASE_ROTATION_SENSITIVITY(DandelionAction.INCREASE_ROTATION_SENSITIVITY),
   	DECREASE_ROTATION_SENSITIVITY(DandelionAction.DECREASE_ROTATION_SENSITIVITY),
   	INCREASE_CAMERA_FLY_SPEED(DandelionAction.INCREASE_CAMERA_FLY_SPEED),
@@ -279,17 +291,17 @@ public interface Constants extends EventConstants {
   	RESET_ARP(DandelionAction.RESET_ARP),
   	GLOBAL_HELP(DandelionAction.GLOBAL_HELP),
   	//CURRENT_CAMERA_PROFILE_HELP(DandelionAction.CURRENT_CAMERA_PROFILE_HELP),
-  	EDIT_VIEWPORT_PATH(DandelionAction.EDIT_VIEW_PATH),
+  	EDIT_EYE_PATH(DandelionAction.EDIT_EYE_PATH),
   	//FOCUS_INTERACTIVE_FRAME(DandelionAction.FOCUS_INTERACTIVE_FRAME),
   	DRAW_FRAME_SELECTION_HINT(DandelionAction.DRAW_FRAME_SELECTION_HINT),
   	//CONSTRAIN_FRAME(DandelionAction.CONSTRAIN_FRAME),
   	SHOW_ALL(DandelionAction.SHOW_ALL),
   	
     //CAMERA KEYBOARD ACTIONs
-  	MOVE_VIEWPORT_LEFT(DandelionAction.MOVE_VIEW_LEFT),
-  	MOVE_VIEWPORT_RIGHT(DandelionAction.MOVE_VIEW_RIGHT),
-  	MOVE_VIEWPORT_UP(DandelionAction.MOVE_VIEW_UP),
-  	MOVE_VIEWPORT_DOWN(DandelionAction.MOVE_VIEW_DOWN),
+  	MOVE_EYE_LEFT(DandelionAction.MOVE_EYE_LEFT),
+  	MOVE_EYE_RIGHT(DandelionAction.MOVE_EYE_RIGHT),
+  	MOVE_EYE_UP(DandelionAction.MOVE_EYE_UP),
+  	MOVE_EYE_DOWN(DandelionAction.MOVE_EYE_DOWN),
   	INCREASE_ROTATION_SENSITIVITY(DandelionAction.INCREASE_ROTATION_SENSITIVITY),
   	DECREASE_ROTATION_SENSITIVITY(DandelionAction.DECREASE_ROTATION_SENSITIVITY),
   	INCREASE_CAMERA_FLY_SPEED(DandelionAction.INCREASE_CAMERA_FLY_SPEED),
@@ -373,6 +385,7 @@ public interface Constants extends EventConstants {
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
+  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
   	TRANSLATE(DandelionAction.TRANSLATE),
   	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
@@ -417,6 +430,7 @@ public interface Constants extends EventConstants {
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
+  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
   	TRANSLATE(DandelionAction.TRANSLATE),
   	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),
@@ -465,6 +479,7 @@ public interface Constants extends EventConstants {
     
   	//DOF_2
   	ROTATE(DandelionAction.ROTATE),
+  	CAD_ROTATE(DandelionAction.CAD_ROTATE),
   	TRANSLATE(DandelionAction.TRANSLATE),
   	MOVE_FORWARD(DandelionAction.MOVE_FORWARD),
   	MOVE_BACKWARD(DandelionAction.MOVE_BACKWARD),

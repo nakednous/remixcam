@@ -12,7 +12,7 @@ package remixlab.dandelion.core;
 import remixlab.dandelion.geom.*;
 import remixlab.tersehandling.core.Copyable;
 
-public class Window extends View implements Copyable {	
+public class Window extends Eye implements Copyable {	
 	static final float FAKED_ZNEAR = -10;  
   static final float FAKED_ZFAR = 10;	
 	
@@ -92,7 +92,7 @@ public class Window extends View implements Copyable {
 		Rot q = new Rot();
 		q.fromMatrix(mv);
  	  setOrientation(q); 	  
- 	  setPosition(Vec.mult(q.rotate(new Vec(mv.mat[12], mv.mat[13], mv.mat[14])), -1) );
+ 	  setPosition(Vec.multiply(q.rotate(new Vec(mv.mat[12], mv.mat[13], mv.mat[14])), -1) );
  	  if(recompute)
  	  	this.computeView();
   }
@@ -121,7 +121,7 @@ public class Window extends View implements Copyable {
 		Rot r = new Rot(new Vec(0.0f, 1.0f), frame().transformOf(up));
 
 		if (!noMove) 		
-			frame().setPosition(Vec.sub(arcballReferencePoint(), (Rot.compose((Rot) frame().orientation(), r)).rotate(frame().coordinatesOf(arcballReferencePoint()))));		
+			frame().setPosition(Vec.subtract(arcballReferencePoint(), (Rot.compose((Rot) frame().orientation(), r)).rotate(frame().coordinatesOf(arcballReferencePoint()))));		
 
 		frame().rotate(r);
 	}
@@ -136,7 +136,7 @@ public class Window extends View implements Copyable {
 	public void fitBoundingBox(Vec min, Vec max) {
 		float diameter = Math.max(Math.abs(max.vec[1] - min.vec[1]), Math.abs(max.vec[0] - min.vec[0]));
 		diameter = Math.max(Math.abs(max.vec[2] - min.vec[2]), diameter);
-		fitBall(Vec.mult(Vec.add(min, max), 0.5f), 0.5f * diameter);
+		fitBall(Vec.multiply(Vec.add(min, max), 0.5f), 0.5f * diameter);
 	}
 	
 	@Override
@@ -164,8 +164,8 @@ public class Window extends View implements Copyable {
 	public void setSceneBoundingBox(Vec min, Vec max) {
 		Vec mn = new Vec(min.x(), min.y(), 0);
 		Vec mx = new Vec(max.x(), max.y(), 0);
-		setSceneCenter(Vec.mult(Vec.add(mn, mx), 1 / 2.0f));
-		setSceneRadius(0.5f * (Vec.sub(mx, mn)).mag());
+		setSceneCenter(Vec.multiply(Vec.add(mn, mx), 1 / 2.0f));
+		setSceneRadius(0.5f * (Vec.subtract(mx, mn)).magnitude());
 	}
 	
 	@Override
@@ -223,17 +223,17 @@ public class Window extends View implements Copyable {
 		Vec up = upVector();
 		Vec right = rightVector();
 		
-		normal[0] = Vec.mult(right, -1);
+		normal[0] = Vec.multiply(right, -1);
 		normal[1] = right;
 		normal[2] = up;
-		normal[3] = Vec.mult(up, -1);
+		normal[3] = Vec.multiply(up, -1);
 
 		float[] wh = getBoundaryWidthHeight();
 		
-		dist[0] = Vec.dot(Vec.sub(pos, Vec.mult(right, wh[0])),	normal[0]);
-		dist[1] = Vec.dot(Vec.add(pos, Vec.mult(right, wh[0])),	normal[1]);
-		dist[2] = Vec.dot(Vec.add(pos, Vec.mult(up, wh[1])), normal[2]);
-		dist[3] = Vec.dot(Vec.sub(pos, Vec.mult(up, wh[1])), normal[3]);
+		dist[0] = Vec.dot(Vec.subtract(pos, Vec.multiply(right, wh[0])),	normal[0]);
+		dist[1] = Vec.dot(Vec.add(pos, Vec.multiply(right, wh[0])),	normal[1]);
+		dist[2] = Vec.dot(Vec.add(pos, Vec.multiply(up, wh[1])), normal[2]);
+		dist[3] = Vec.dot(Vec.subtract(pos, Vec.multiply(up, wh[1])), normal[3]);
 		
 		for (int i = 0; i < 4; ++i) {
 			coef[i][0] = normal[i].vec[0];
@@ -270,7 +270,7 @@ public class Window extends View implements Copyable {
 	 */
 	@Override
 	public float distanceToBoundary(int index, Vec pos) {
-		if (!scene.boundaryEquationsAreEnabled())
+		if (!scene.areBoundaryEquationsEnabled())
 			System.out.println("The camera frustum plane equations (needed by distanceToBoundary) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableBoundaryEquations()");
@@ -291,7 +291,7 @@ public class Window extends View implements Copyable {
 	
 	@Override
 	public Visibility boxIsVisible(Vec p1, Vec p2) {
-		if (!scene.boundaryEquationsAreEnabled())
+		if (!scene.areBoundaryEquationsEnabled())
 			System.out.println("The camera frustum plane equations (needed by aaBoxIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableBoundaryEquations()");
@@ -309,19 +309,19 @@ public class Window extends View implements Copyable {
 			}
 			// The eight points are on the outside side of this plane
 			if (allOut)
-				return View.Visibility.INVISIBLE;
+				return Eye.Visibility.INVISIBLE;
 		}
 
 		if (allInForAllPlanes)
-			return View.Visibility.VISIBLE;
+			return Eye.Visibility.VISIBLE;
 
 		// Too conservative, but tangent cases are too expensive to detect
-		return View.Visibility.SEMIVISIBLE;
+		return Eye.Visibility.SEMIVISIBLE;
 	}
 	
 	@Override
 	public Visibility ballIsVisible(Vec center, float radius) {
-		if (!scene.boundaryEquationsAreEnabled())
+		if (!scene.areBoundaryEquationsEnabled())
 			System.out.println("The camera frustum plane equations (needed by sphereIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableBoundaryEquations()");
@@ -329,18 +329,18 @@ public class Window extends View implements Copyable {
 		for (int i = 0; i < 4; ++i) {
 			float d = distanceToBoundary(i, center);
 			if (d > radius)
-				return View.Visibility.INVISIBLE;
+				return Eye.Visibility.INVISIBLE;
 			if ((d > 0) || (-d < radius))
 				allInForAllPlanes = false;
 		}
 		if(allInForAllPlanes)
-			return View.Visibility.VISIBLE;
-		return View.Visibility.SEMIVISIBLE;
+			return Eye.Visibility.VISIBLE;
+		return Eye.Visibility.SEMIVISIBLE;
 	}
 
 	@Override
 	public boolean pointIsVisible(Vec point) {
-		if (!scene.boundaryEquationsAreEnabled())
+		if (!scene.areBoundaryEquationsEnabled())
 			System.out.println("The camera frustum plane equations (needed by pointIsVisible) may be outdated. Please "
 							+ "enable automatic updates of the equations in your PApplet.setup "
 							+ "with Scene.enableBoundaryEquations()");
@@ -373,6 +373,7 @@ public class Window extends View implements Copyable {
 		return true;
 	}
 	
+	@Override
 	public void interpolateToZoomOnPixel(Point pixel) {
 		float winW = this.screenWidth()/3;
 		float winH = this.screenHeight()/3;
@@ -380,5 +381,20 @@ public class Window extends View implements Copyable {
 		float cY = (float)pixel.y - winH/2;
 		Rect rect = new Rect((int)cX, (int)cY, (int)winW, (int)winH);
 		this.interpolateToZoomOnRegion(rect);		
-	}	
+	}
+
+	@Override
+	public float distanceToSceneCenter() {
+		return Vec.distance(position(), sceneCenter());
+	}
+
+	@Override
+	public float distanceToARP() {
+		return Vec.distance(position(), arcballReferencePoint());
+	}
+	
+	@Override
+	public Vec at() {
+		return position();
+	}
 }

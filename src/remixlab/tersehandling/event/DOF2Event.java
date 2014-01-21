@@ -118,9 +118,9 @@ public class DOF2Event extends MotionEvent {
 		if (prevEvent != null)
 			if (prevEvent instanceof DOF2Event) {
 				rel = true;
-				this.dx = this.getX() - ((DOF2Event) prevEvent).getX();
-				this.dy = this.getY() - ((DOF2Event) prevEvent).getY();
-				distance = Util.distance(x, y, ((DOF2Event) prevEvent).getX(), ((DOF2Event) prevEvent).getY());
+				this.dx = this.x() - ((DOF2Event) prevEvent).x();
+				this.dy = this.y() - ((DOF2Event) prevEvent).y();
+				distance = Util.distance(x, y, ((DOF2Event) prevEvent).x(), ((DOF2Event) prevEvent).y());
 				delay = this.timestamp() - prevEvent.timestamp();
 				if (delay == 0)
 					speed = distance;
@@ -135,34 +135,34 @@ public class DOF2Event extends MotionEvent {
 			}
 	}
 
-	public float getX() {
+	public float x() {
 		return x;
 	}
 
-	public float getDX() {
+	public float dx() {
 		return dx;
 	}
 
-	public float getPrevX() {
-		return getX() - getDX();
+	public float prevX() {
+		return x() - dx();
 	}
 
-	public float getY() {
+	public float y() {
 		return y;
 	}
 
-	public float getDY() {
+	public float dy() {
 		return dy;
 	}
 
-	public float getPrevY() {
-		return getY() - getDY();
+	public float prevY() {
+		return y() - dy();
 	}
 
 	@Override
 	public void modulate(float[] sens) {
 		if (sens != null)
-			if (sens.length >= 2 && this.absolute()) {
+			if (sens.length >= 2 && this.isAbsolute()) {
 				x = x * sens[0];
 				y = y * sens[1];
 			}
@@ -170,9 +170,9 @@ public class DOF2Event extends MotionEvent {
 
 	@Override
 	public boolean isNull() {
-		if (relative() && Util.zero(getDX()) && Util.zero(getDY()))
+		if (isRelative() && Util.zero(dx()) && Util.zero(dy()))
 			return true;
-		if (absolute() && Util.zero(getX()) && Util.zero(getY()))
+		if (isAbsolute() && Util.zero(x()) && Util.zero(y()))
 			return true;
 		return false;
 	}
@@ -185,18 +185,18 @@ public class DOF2Event extends MotionEvent {
 		DOF1Event pe1;
 		DOF1Event e1;
 		if (fromX) {
-			if (relative()) {
-				pe1 = new DOF1Event(getPrevX(), getModifiers(), getButton());				
-				e1 = new DOF1Event(pe1, getX(), getModifiers(), getButton());
+			if (isRelative()) {
+				pe1 = new DOF1Event(prevX(), modifiers(), button());				
+				e1 = new DOF1Event(pe1, x(), modifiers(), button());
 			} else {
-				e1 = new DOF1Event(getX(), getModifiers(), getButton());
+				e1 = new DOF1Event(x(), modifiers(), button());
 			}
 		} else {
-			if (relative()) {
-				pe1 = new DOF1Event(getPrevY(), getModifiers(), getButton());
-				e1 = new DOF1Event(pe1, getY(), getModifiers(), getButton());
+			if (isRelative()) {
+				pe1 = new DOF1Event(prevY(), modifiers(), button());
+				e1 = new DOF1Event(pe1, y(), modifiers(), button());
 			} else {
-				e1 = new DOF1Event(getY(), getModifiers(), getButton());
+				e1 = new DOF1Event(y(), modifiers(), button());
 			}
 		}
 		e1.timestamp = this.timestamp();

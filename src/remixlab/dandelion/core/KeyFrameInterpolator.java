@@ -225,10 +225,10 @@ public class KeyFrameInterpolator implements Copyable {
 		
 		@Override
 		void computeTangent(AbstractKeyFrame prev, AbstractKeyFrame next) {
-			tgPVec = Vec.mult(Vec.sub(next.position(), prev.position()), 0.5f);
+			tgPVec = Vec.multiply(Vec.subtract(next.position(), prev.position()), 0.5f);
 			tgQuat = Quat.squadTangent((Quat)prev.orientation(), (Quat)orientation(), (Quat)next.orientation());
 			////Option 2 (interpolate scaling using a spline)
-			tgSVec = Vec.mult(Vec.sub(next.magnitude(), prev.magnitude()), 0.5f);			
+			tgSVec = Vec.multiply(Vec.subtract(next.magnitude(), prev.magnitude()), 0.5f);			
 		}
 	}
 	
@@ -248,9 +248,9 @@ public class KeyFrameInterpolator implements Copyable {
 		
 		@Override
 		void computeTangent(AbstractKeyFrame prev, AbstractKeyFrame next) {
-			tgPVec = Vec.mult(Vec.sub(next.position(), prev.position()), 0.5f);			
+			tgPVec = Vec.multiply(Vec.subtract(next.position(), prev.position()), 0.5f);			
 		  //Option 2 (interpolate scaling using a spline)
-			tgSVec = Vec.mult(Vec.sub(next.magnitude(), prev.magnitude()), 0.5f);			
+			tgSVec = Vec.multiply(Vec.subtract(next.magnitude(), prev.magnitude()), 0.5f);			
 		}
 	}
 
@@ -876,25 +876,25 @@ public class KeyFrameInterpolator implements Copyable {
 				kf[3] = (index < keyFrameList.size()) ? keyFrameList.get(index) : null;
 
 				while (kf[2] != null) {
-					Vec pdiff = Vec.sub(kf[2].position(), kf[1].position());
-					Vec pvec1 = Vec.add(Vec.mult(pdiff, 3.0f), Vec.mult(kf[1].tgP(), (-2.0f)));
-					pvec1 = Vec.sub(pvec1, kf[2].tgP());
-					Vec pvec2 = Vec.add(Vec.mult(pdiff, (-2.0f)), kf[1].tgP());
+					Vec pdiff = Vec.subtract(kf[2].position(), kf[1].position());
+					Vec pvec1 = Vec.add(Vec.multiply(pdiff, 3.0f), Vec.multiply(kf[1].tgP(), (-2.0f)));
+					pvec1 = Vec.subtract(pvec1, kf[2].tgP());
+					Vec pvec2 = Vec.add(Vec.multiply(pdiff, (-2.0f)), kf[1].tgP());
 					pvec2 = Vec.add(pvec2, kf[2].tgP());
 					
 					// /**
 					//Option 2 (interpolate scaling using a spline)
-					Vec sdiff = Vec.sub(kf[2].magnitude(), kf[1].magnitude());
-					Vec svec1 = Vec.add(Vec.mult(sdiff, 3.0f), Vec.mult(kf[1].tgS(), (-2.0f)));
-					svec1 = Vec.sub(svec1, kf[2].tgS());
-					Vec svec2 = Vec.add(Vec.mult(sdiff, (-2.0f)), kf[1].tgS());
+					Vec sdiff = Vec.subtract(kf[2].magnitude(), kf[1].magnitude());
+					Vec svec1 = Vec.add(Vec.multiply(sdiff, 3.0f), Vec.multiply(kf[1].tgS(), (-2.0f)));
+					svec1 = Vec.subtract(svec1, kf[2].tgS());
+					Vec svec2 = Vec.add(Vec.multiply(sdiff, (-2.0f)), kf[1].tgS());
 					svec2 = Vec.add(svec2, kf[2].tgS());
 					// */
 					
 					for (int step = 0; step < nbSteps; ++step) {
 						Frame frame = new Frame(scene.is3D());
 						float alpha = step / (float) nbSteps;
-						frame.setPosition(Vec.add(kf[1].position(), Vec.mult(Vec.add(kf[1].tgP(), Vec.mult(Vec.add(pvec1, Vec.mult(pvec2, alpha)), alpha)), alpha)));
+						frame.setPosition(Vec.add(kf[1].position(), Vec.multiply(Vec.add(kf[1].tgP(), Vec.multiply(Vec.add(pvec1, Vec.multiply(pvec2, alpha)), alpha)), alpha)));
 					  if( scene.is3D()) {
 						  frame.setOrientation(Quat.squad((Quat)kf[1].orientation(), ((KeyFrame3D)kf[1]).tgQ(), ((KeyFrame3D)kf[2]).tgQ(), (Quat)kf[2].orientation(), alpha));
 					  }
@@ -906,7 +906,7 @@ public class KeyFrameInterpolator implements Copyable {
 					  }
 					  //myFrame.setMagnitude(magnitudeLerp(kf[1], kf[2], alpha));
 					  //Option 2 (interpolate scaling using a spline)
-					  frame.setMagnitude(Vec.add(kf[1].magnitude(), Vec.mult(Vec.add(kf[1].tgS(), Vec.mult(Vec.add(svec1, Vec.mult(svec2, alpha)), alpha)), alpha)));					  
+					  frame.setMagnitude(Vec.add(kf[1].magnitude(), Vec.multiply(Vec.add(kf[1].tgS(), Vec.multiply(Vec.add(svec1, Vec.multiply(svec2, alpha)), alpha)), alpha)));					  
 						path.add(frame.get());
 					}
 
@@ -1065,18 +1065,18 @@ public class KeyFrameInterpolator implements Copyable {
 	}
 
 	public void updateSplineCache() {		
-		Vec deltaP = Vec.sub(keyFrameList.get(currentFrame2.nextIndex()).position(), keyFrameList.get(currentFrame1.nextIndex()).position());
-		pv1 = Vec.add(Vec.mult(deltaP, 3.0f), Vec.mult(keyFrameList.get(currentFrame1.nextIndex()).tgP(), (-2.0f)));
-		pv1 = Vec.sub(pv1, keyFrameList.get(currentFrame2.nextIndex()).tgP());
-		pv2 = Vec.add(Vec.mult(deltaP, (-2.0f)), keyFrameList.get(currentFrame1.nextIndex()).tgP());
+		Vec deltaP = Vec.subtract(keyFrameList.get(currentFrame2.nextIndex()).position(), keyFrameList.get(currentFrame1.nextIndex()).position());
+		pv1 = Vec.add(Vec.multiply(deltaP, 3.0f), Vec.multiply(keyFrameList.get(currentFrame1.nextIndex()).tgP(), (-2.0f)));
+		pv1 = Vec.subtract(pv1, keyFrameList.get(currentFrame2.nextIndex()).tgP());
+		pv2 = Vec.add(Vec.multiply(deltaP, (-2.0f)), keyFrameList.get(currentFrame1.nextIndex()).tgP());
 		pv2 = Vec.add(pv2, keyFrameList.get(currentFrame2.nextIndex()).tgP());
 	
 		// /**
 		//Option 2 (interpolate scaling using a spline)
-		Vec deltaS = Vec.sub(keyFrameList.get(currentFrame2.nextIndex()).magnitude(), keyFrameList.get(currentFrame1.nextIndex()).magnitude());
-		sv1 = Vec.add(Vec.mult(deltaS, 3.0f), Vec.mult(keyFrameList.get(currentFrame1.nextIndex()).tgS(), (-2.0f)));
-		sv1 = Vec.sub(sv1, keyFrameList.get(currentFrame2.nextIndex()).tgS());
-		sv2 = Vec.add(Vec.mult(deltaS, (-2.0f)), keyFrameList.get(currentFrame1.nextIndex()).tgS());
+		Vec deltaS = Vec.subtract(keyFrameList.get(currentFrame2.nextIndex()).magnitude(), keyFrameList.get(currentFrame1.nextIndex()).magnitude());
+		sv1 = Vec.add(Vec.multiply(deltaS, 3.0f), Vec.multiply(keyFrameList.get(currentFrame1.nextIndex()).tgS(), (-2.0f)));
+		sv1 = Vec.subtract(sv1, keyFrameList.get(currentFrame2.nextIndex()).tgS());
+		sv2 = Vec.add(Vec.multiply(deltaS, (-2.0f)), keyFrameList.get(currentFrame1.nextIndex()).tgS());
 		sv2 = Vec.add(sv2, keyFrameList.get(currentFrame2.nextIndex()).tgS());
 		// */
 		
@@ -1119,8 +1119,8 @@ public class KeyFrameInterpolator implements Copyable {
 		// Vec pos = currentFrame_[1]->peekNext()->position() + alpha *
 		// (currentFrame_[1]->peekNext()->tgP() + alpha * (v1+alpha*v2));
 		Vec pos = Vec.add(keyFrameList.get(currentFrame1.nextIndex()).position(),
-				                        Vec.mult(Vec.add(keyFrameList.get(currentFrame1.nextIndex()).tgP(),
-						                    Vec.mult(Vec.add(pv1, Vec.mult(pv2, alpha)), alpha)), alpha));
+				                        Vec.multiply(Vec.add(keyFrameList.get(currentFrame1.nextIndex()).tgP(),
+						                    Vec.multiply(Vec.add(pv1, Vec.multiply(pv2, alpha)), alpha)), alpha));
 		
 		/**
 		//Option 1
@@ -1132,8 +1132,8 @@ public class KeyFrameInterpolator implements Copyable {
 		// /**
 		//Option 2 (interpolate scaling using a spline)
 		Vec mag = Vec.add(keyFrameList.get(currentFrame1.nextIndex()).magnitude(),
-                                Vec.mult(Vec.add(keyFrameList.get(currentFrame1.nextIndex()).tgS(),
-                                Vec.mult(Vec.add(sv1, Vec.mult(sv2, alpha)), alpha)), alpha));
+                                Vec.multiply(Vec.add(keyFrameList.get(currentFrame1.nextIndex()).tgS(),
+                                Vec.multiply(Vec.add(sv1, Vec.multiply(sv2, alpha)), alpha)), alpha));
     // */		
 
 		Orientable q;

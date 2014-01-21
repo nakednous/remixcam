@@ -74,7 +74,7 @@ public abstract class Constraint {
 		sclConstraintValues.set(Math.abs(values.x()), Math.abs(values.y()), Math.abs(values.z()));
 		float min = Math.min(Math.max(values.x(), values.y()), values.z());
 		if( min != 0 )
-			sclConstraintValues.div(min);
+			sclConstraintValues.divide(min);
 	}
 	
 	/**

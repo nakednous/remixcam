@@ -56,7 +56,7 @@ public class MatrixStackHelper extends MatrixHelper implements Constants {
 	}
 
 	@Override
-	public Mat getModelView() {
+	public Mat modelView() {
 		return modelview.get();
 	}
 
@@ -267,7 +267,7 @@ public class MatrixStackHelper extends MatrixHelper implements Constants {
 	}
 
 	@Override
-	public Mat getProjection() {
+	public Mat projection() {
 		return projection.get();
 	}
 

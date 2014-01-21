@@ -110,7 +110,7 @@ public final class ButtonShortcut extends Shortcut implements Copyable {
 	 */
 	protected String description(Integer b) {
 		//TODO: NO_BUTTON should be defined -> e.g., mouse move
-		String r = TerseEvent.getModifiersText(mask);
+		String r = TerseEvent.modifiersText(mask);
 		switch (b) {
 		case TH_LEFT:
 			r += (r.length() > 0) ? "+LEFT_BUTTON" : "LEFT_BUTTON";

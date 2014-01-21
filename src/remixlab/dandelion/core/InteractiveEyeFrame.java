@@ -37,7 +37,7 @@ import remixlab.tersehandling.generic.event.*;
  * <b>Note:</b> The InteractiveCameraFrame is not added to the
  * {@link remixlab.dandelion.core.AbstractScene#deviceGrabberPool()} upon creation.
  */
-public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
+public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 	@Override
 	public int hashCode() {
     return new HashCodeBuilder(17, 37).
@@ -53,7 +53,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 		if (obj == this) return true;		
 		if (obj.getClass() != getClass()) return false;
 		
-		InteractiveViewFrame other = (InteractiveViewFrame) obj;
+		InteractiveEyeFrame other = (InteractiveEyeFrame) obj;
 	  return new EqualsBuilder()
     .appendSuper(super.equals(obj))		
 		.append(arcballRefPnt, other.arcballRefPnt)
@@ -61,7 +61,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 		.isEquals();
 	}
 	
-	protected View viewport;
+	protected Eye viewport;
 	protected Vec arcballRefPnt;	
 	protected Vec worldAxis;
 	
@@ -79,7 +79,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 	 * <p>
 	 * <b>Attention:</b> Created object is {@link #removeFromDeviceGrabberPool()}.
 	 */
-	public InteractiveViewFrame(View vp) {
+	public InteractiveEyeFrame(Eye vp) {
 		super(vp.scene);
 		viewport = vp;
 		scene.terseHandler().removeFromAllAgentPools(this);
@@ -99,7 +99,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 	 * 
 	 * @param otherFrame the other interactive camera frame
 	 */
-	protected InteractiveViewFrame(InteractiveViewFrame otherFrame) {
+	protected InteractiveEyeFrame(InteractiveEyeFrame otherFrame) {
 		super(otherFrame);
 		this.viewport = otherFrame.viewport;
 		this.arcballRefPnt = new Vec();
@@ -116,16 +116,16 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 	}
 	
 	/**
-	 * Calls {@link #InteractiveCameraFrame(InteractiveViewFrame)} (which is protected)
+	 * Calls {@link #InteractiveCameraFrame(InteractiveEyeFrame)} (which is protected)
 	 * and returns a copy of {@code this} object.
 	 * 
-	 * @see #InteractiveCameraFrame(InteractiveViewFrame)
+	 * @see #InteractiveCameraFrame(InteractiveEyeFrame)
 	 */
-	public InteractiveViewFrame get() {
-		return new InteractiveViewFrame(this);
+	public InteractiveEyeFrame get() {
+		return new InteractiveEyeFrame(this);
 	}	
 	
-	public View pinhole() {
+	public Eye pinhole() {
 		return viewport;
 	}
 	
@@ -207,23 +207,28 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 		float deltaX, deltaY;
 		Orientable rot;
 		switch(a) {
+		//better handled these by default (see below)
+		/*
 		case CUSTOM:
+		case ROLL:
+			super.execAction2D(a);
 			break;
+		*/
 		case ROTATE:	
 		case SCREEN_ROTATE:
 			trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());			
-			if(e2.relative()) {
-				Point prevPos = new Point(e2.getPrevX(), e2.getPrevY());
-				Point curPos= new Point(e2.getX(), e2.getY());
+			if(e2.isRelative()) {
+				Point prevPos = new Point(e2.prevX(), e2.prevY());
+				Point curPos= new Point(e2.x(), e2.y());
 				rot = new Rot(new Point(trans.x(), trans.y()), prevPos, curPos);
 				rot = new Rot(rot.angle() * rotationSensitivity());
 			}
 			else
-				rot = new Rot(e2.getX() * rotationSensitivity());			
+				rot = new Rot(e2.x() * rotationSensitivity());			
 			if ( !isFlipped() ) rot.negate();
 			//but its not enough to cover all different cases, so:
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();		
-			if(e2.relative()) {
+			if(e2.isRelative()) {
 				setSpinningQuaternion(rot);
 				if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
 			} else //absolute needs testing
@@ -232,11 +237,11 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 		case SCREEN_TRANSLATE:
 			trans = new Vec();
 			int dir = originalDirection(e2);			
-			deltaX = (e2.relative()) ? e2.getDX() : e2.getX();
-			if(e2.relative())
-				deltaY = scene.isRightHanded() ? e2.getDY() : -e2.getDY();
+			deltaX = (e2.isRelative()) ? e2.dx() : e2.x();
+			if(e2.isRelative())
+				deltaY = scene.isRightHanded() ? e2.dy() : -e2.dy();
 			else
-				deltaY = scene.isRightHanded() ? e2.getY() : -e2.getY();
+				deltaY = scene.isRightHanded() ? e2.y() : -e2.y();
 			if (dir == 1)
 				trans.set(-deltaX, 0.0f, 0.0f);
 			else if (dir == -1)
@@ -245,16 +250,16 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			float[] wh = viewWindow.getBoundaryWidthHeight();
 			trans.vec[0] *= 2.0f * wh[0] / viewWindow.screenWidth();
 			trans.vec[1] *= 2.0f * wh[1] / viewWindow.screenHeight();			
-			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity())));
+			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity())));
 			break;
 		case TRANSLATE:
-			deltaX = (e2.relative()) ? e2.getDX() : e2.getX();
-			if(e2.relative())
-				deltaY = scene.isRightHanded() ? -e2.getDY() : e2.getDY();
+			deltaX = (e2.isRelative()) ? e2.dx() : e2.x();
+			if(e2.isRelative())
+				deltaY = scene.isRightHanded() ? -e2.dy() : e2.dy();
 			else
-				deltaY = scene.isRightHanded() ? -e2.getY() : e2.getY();			
+				deltaY = scene.isRightHanded() ? -e2.y() : e2.y();			
 			trans = new Vec(-deltaX, -deltaY, 0.0f);			
-			trans = viewWindow.frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			trans = viewWindow.frame().inverseTransformOf(Vec.multiply(trans, translationSensitivity()));				
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -262,13 +267,13 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			break;
 		case TRANSLATE_ROTATE:
 			//translate:
-			deltaX = (e6.relative()) ? e6.getDX() : e6.getX();
-			if(e6.relative())
-				deltaY = scene.isRightHanded() ? -e6.getDY() : e6.getDY();
+			deltaX = (e6.isRelative()) ? e6.dx() : e6.x();
+			if(e6.isRelative())
+				deltaY = scene.isRightHanded() ? -e6.dy() : e6.dy();
 			else
-				deltaY = scene.isRightHanded() ? -e6.getY() : e6.getY();			
+				deltaY = scene.isRightHanded() ? -e6.y() : e6.y();			
 			trans = new Vec(-deltaX, -deltaY, 0.0f);			
-			trans = viewWindow.frame().inverseTransformOf(Vec.mult(trans, translationSensitivity()));				
+			trans = viewWindow.frame().inverseTransformOf(Vec.multiply(trans, translationSensitivity()));				
 			// And then down to frame
 			if (referenceFrame() != null)
 				trans = referenceFrame().transformOf(trans);
@@ -277,14 +282,14 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			trans = viewWindow.projectedCoordinatesOf(arcballReferencePoint());
 		  //TODO "relative" is experimental here.
 			//Hard to think of a DOF6 relative device in the first place.
-			if(e6.relative()) 
-				rot = new Rot(e6.getDRX() * rotationSensitivity());	
+			if(e6.isRelative()) 
+				rot = new Rot(e6.drx() * rotationSensitivity());	
 			else
-				rot = new Rot(e6.getRX() * rotationSensitivity());			
+				rot = new Rot(e6.rx() * rotationSensitivity());			
 			if ( !isFlipped() ) rot.negate();
 			//but its not enough to cover all different cases, so:
 			if (scene.window().frame().magnitude().x() * scene.window().frame().magnitude().y() < 0 ) rot.negate();		
-			if(e6.relative()) {
+			if(e6.isRelative()) {
 				setSpinningQuaternion(rot);
 				if( Util.nonZero(dampingFriction()) ) startSpinning(e6);	else spin();
 			} else //absolute needs testing
@@ -293,29 +298,29 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 		case ZOOM:
 			float delta;
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
-				delta = e1.getX() * wheelSensitivity();
+				delta = e1.x() * wheelSensitivity();
 			else
-				if( e1.absolute() )
-					delta = e1.getX();
+				if( e1.isAbsolute() )
+					delta = e1.x();
 				else
-					delta = e1.getDX();
+					delta = e1.dx();
 			if(delta >= 0)
 				scale(1 + Math.abs(delta) / (float) -scene.height());
 			else {
 				//inverseScale(1 + Math.abs(delta) / (float) -scene.height());
 				float s = 1 + Math.abs(delta) / (float) -scene.height();
-				setScaling(Vec.div(scaling(), new Vec(s,s)));
+				setScaling(Vec.divide(scaling(), new Vec(s,s)));
 			}
 			break;
 		case ZOOM_ON_REGION:
-			if(e2.absolute()) {
+			if(e2.isAbsolute()) {
 				AbstractScene.showEventVariationWarning(a);
 				break;
 			}
-			int w = (int) Math.abs(e2.getDX());
-			int tlX = (int) e2.getPrevX() < (int) e2.getX() ? (int) e2.getPrevX() : (int) e2.getX();
-			int h = (int) Math.abs(e2.getDY());
-			int tlY = (int) e2.getPrevY() < (int) e2.getY() ? (int) e2.getPrevY() : (int) e2.getY();
+			int w = (int) Math.abs(e2.dx());
+			int tlX = (int) e2.prevX() < (int) e2.x() ? (int) e2.prevX() : (int) e2.x();
+			int h = (int) Math.abs(e2.dy());
+			int tlY = (int) e2.prevY() < (int) e2.y() ? (int) e2.prevY() : (int) e2.y();
 			// viewWindow.fitScreenRegion( new Rectangle (tlX, tlY, w, h) );			
 			viewWindow.interpolateToZoomOnRegion(new Rect(tlX, tlY, w, h));
 			break;
@@ -339,8 +344,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			}
 			break;
 		default:
-			//AbstractScene.showMissingImplementationWarning(a);
-			AbstractScene.showVariationWarning(a);
+			super.execAction2D(a);
 			break;
 		}
 	}
@@ -353,6 +357,8 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 		Quat q;
 		Camera.WorldPoint wP;
 		switch(a) {
+	  //better handled these by default (see below)
+		/*
 		case CUSTOM:
 		case DRIVE:
 		case LOOK_AROUND:
@@ -361,34 +367,41 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 		case ROLL:
 			super.execAction3D(a);
 			break;
+			*/
 		case ROTATE:
-			if(e2.absolute()) {
+			if(e2.isAbsolute()) {
 				AbstractScene.showEventVariationWarning(a);
 				break;
 			}
 			trans = camera.projectedCoordinatesOf(arcballReferencePoint());			
-			if( camera.isArcBallRotate() )
-				setSpinningQuaternion(deformedBallQuaternion(e2, trans.vec[0], trans.vec[1], camera));
-			else
-				setSpinningQuaternion(cadQuaternion(e2,  trans.vec[0], trans.vec[1], camera));
+			setSpinningQuaternion(deformedBallQuaternion(e2, trans.vec[0], trans.vec[1], camera));
 			if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
-			break;		
+			break;
+		case CAD_ROTATE:
+			if(e2.isAbsolute()) {
+				AbstractScene.showEventVariationWarning(a);
+				break;
+			}
+			trans = camera.projectedCoordinatesOf(arcballReferencePoint());			
+			setSpinningQuaternion(cadQuaternion(e2,  trans.vec[0], trans.vec[1], camera));
+			if( Util.nonZero(dampingFriction()) ) startSpinning(e2);	else spin();
+			break;
 		case ROTATE3:
 			q = new Quat();
-			if(e3.absolute())
-				q.fromEulerAngles(-e3.getX(), -e3.getY(), e3.getZ());
+			if(e3.isAbsolute())
+				q.fromEulerAngles(-e3.x(), -e3.y(), e3.z());
 			else
-				q.fromEulerAngles(-e3.getDX(), -e3.getDY(), e3.getDZ());
+				q.fromEulerAngles(-e3.dx(), -e3.dy(), e3.dz());
       rotate(q);
 			break;
 		case SCREEN_ROTATE:
-			if(e2.absolute()) {
+			if(e2.isAbsolute()) {
 				AbstractScene.showEventVariationWarning(a);
 				break;
 			}
 			trans = camera.projectedCoordinatesOf(arcballReferencePoint());
-			float angle = (float) Math.atan2(e2.getY() - trans.vec[1], e2.getX() - trans.vec[0])
-					        - (float) Math.atan2(e2.getPrevY() - trans.vec[1], e2.getPrevX() - trans.vec[0]);
+			float angle = (float) Math.atan2(e2.y() - trans.vec[1], e2.x() - trans.vec[0])
+					        - (float) Math.atan2(e2.prevY() - trans.vec[1], e2.prevX() - trans.vec[0]);
 			// lef-handed coordinate system correction
 			//if( scene.isLeftHanded() )
 			if( !isFlipped() )
@@ -402,18 +415,18 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			trans = new Vec();
 			int dir = originalDirection(e2);
 			if (dir == 1)
-				if( e2.absolute() )
-					trans.set(-e2.getX(), 0.0f, 0.0f);
+				if( e2.isAbsolute() )
+					trans.set(-e2.x(), 0.0f, 0.0f);
 				else
-					trans.set(-e2.getDX(), 0.0f, 0.0f);
+					trans.set(-e2.dx(), 0.0f, 0.0f);
 			else if (dir == -1)
-				if( e2.absolute() )
-					trans.set(0.0f, -e2.getY(), 0.0f);
+				if( e2.isAbsolute() )
+					trans.set(0.0f, -e2.y(), 0.0f);
 				else
-					trans.set(0.0f, -e2.getDY(), 0.0f);	
+					trans.set(0.0f, -e2.dy(), 0.0f);	
 			switch (camera.type()) {
 			case PERSPECTIVE:
-				trans.mult(2.0f
+				trans.multiply(2.0f
 						* (float) Math.tan( camera.fieldOfView() / 2.0f)
 						* Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
 						//* Math.abs((camera.frame().coordinatesOf(arcballReferencePoint())).vec[2])
@@ -426,21 +439,21 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;
 			}
-			trans = Vec.mult(trans, translationSensitivity());				
-			trans.div(magnitude());
+			trans = Vec.multiply(trans, translationSensitivity());				
+			trans.divide(magnitude());
 			translate(inverseTransformOf(trans));
 			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
 			//translate(inverseTransformOf(trans, false));
 			break;
 		case TRANSLATE:			
-			if(e2.relative())
-			  trans = new Vec(-e2.getDX(), scene.isRightHanded() ? e2.getDY() : -e2.getDY(), 0.0f);
+			if(e2.isRelative())
+			  trans = new Vec(-e2.dx(), scene.isRightHanded() ? e2.dy() : -e2.dy(), 0.0f);
 			else
-				trans = new Vec(-e2.getX(), scene.isRightHanded() ? e2.getY() : -e2.getY(), 0.0f);
+				trans = new Vec(-e2.x(), scene.isRightHanded() ? e2.y() : -e2.y(), 0.0f);
 			// Scale to fit the screen mouse displacement
 			switch (camera.type()) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
+				trans.multiply(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
                         * Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
                         / camera.screenHeight());
 				break;
@@ -450,18 +463,18 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;
 			}
-			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
+			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
 			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
 			break;
 		case TRANSLATE3:
-			if(e3.relative())
-			  trans = new Vec(-e3.getDX(), scene.isRightHanded() ? e3.getDY() : -e3.getDY(), -e3.getDZ());
+			if(e3.isRelative())
+			  trans = new Vec(-e3.dx(), scene.isRightHanded() ? e3.dy() : -e3.dy(), -e3.dz());
 			else
-				trans = new Vec(-e3.getX(), scene.isRightHanded() ? e3.getY() : -e3.getY(), -e3.getZ());
+				trans = new Vec(-e3.x(), scene.isRightHanded() ? e3.y() : -e3.y(), -e3.z());
 			// Scale to fit the screen mouse displacement
 			switch (camera.type()) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
+				trans.multiply(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
                         * Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
                         / camera.screenHeight());
 				break;
@@ -471,19 +484,19 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;
 			}
-			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
+			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
 			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
 			break;
 		case TRANSLATE_ROTATE:
 			//translate
-			if(e6.relative())
-			  trans = new Vec(-e6.getDX(), scene.isRightHanded() ? e6.getDY() : -e6.getDY(), -e6.getDZ());
+			if(e6.isRelative())
+			  trans = new Vec(-e6.dx(), scene.isRightHanded() ? e6.dy() : -e6.dy(), -e6.dz());
 			else
-				trans = new Vec(-e6.getX(), scene.isRightHanded() ? e6.getY() : -e6.getY(), -e6.getZ());
+				trans = new Vec(-e6.x(), scene.isRightHanded() ? e6.y() : -e6.y(), -e6.z());
 			// Scale to fit the screen mouse displacement
 			switch (camera.type()) {
 			case PERSPECTIVE:
-				trans.mult(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
+				trans.multiply(2.0f * (float) Math.tan( camera.fieldOfView() / 2.0f)
                         * Math.abs(coordinatesOf(arcballReferencePoint()).vec[2] * magnitude().z())
                         / camera.screenHeight());
 				break;
@@ -493,14 +506,14 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 				trans.vec[1] *= 2.0f * wh[1] / camera.screenHeight();
 				break;
 			}
-			translate(inverseTransformOf(Vec.mult(trans, translationSensitivity()), false));
+			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
 			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
 		  // Rotate
 			q = new Quat();
-			if(e6.absolute())
+			if(e6.isAbsolute())
 				q.fromEulerAngles(-e6.roll(), -e6.pitch(), e6.yaw());
 			else
-				q.fromEulerAngles(-e6.getDRX(), -e6.getDRY(), e6.getDRZ());
+				q.fromEulerAngles(-e6.drx(), -e6.dry(), e6.drz());
       rotate(q);
 			break;
 		case ZOOM:
@@ -508,28 +521,28 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			float coef = Math.max(Math.abs((coordinatesOf(camera.arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * camera.sceneRadius());
 			float delta;
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
-				delta = coef * e1.getX() * -wheelSensitivity() * wheelSensitivityCoef;
+				delta = coef * e1.x() * -wheelSensitivity() * wheelSensitivityCoef;
 			else
-				if( e1.absolute() )
-				  delta = -coef	* e1.getX() / camera.screenHeight();
+				if( e1.isAbsolute() )
+				  delta = -coef	* e1.x() / camera.screenHeight();
 				else
-					delta = -coef	* e1.getDX() / camera.screenHeight();
+					delta = -coef	* e1.dx() / camera.screenHeight();
 			trans = new Vec(0.0f, 0.0f,	delta);
 			//No Scl
 			Vec mag = magnitude();
-			trans.div(mag);			
+			trans.divide(mag);			
 			translate(inverseTransformOf(trans));
 			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
 			break;
 		case ZOOM_ON_REGION:
-			if(e2.absolute()) {
+			if(e2.isAbsolute()) {
 				AbstractScene.showEventVariationWarning(a);
 				break;
 			}
-			int w = (int) Math.abs(e2.getDX());
-			int tlX = (int) e2.getPrevX() < (int) e2.getX() ? (int) e2.getPrevX() : (int) e2.getX();
-			int h = (int) Math.abs(e2.getDY());
-			int tlY = (int) e2.getPrevY() < (int) e2.getY() ? (int) e2.getPrevY() : (int) e2.getY();
+			int w = (int) Math.abs(e2.dx());
+			int tlX = (int) e2.prevX() < (int) e2.x() ? (int) e2.prevX() : (int) e2.x();
+			int h = (int) Math.abs(e2.dy());
+			int tlY = (int) e2.prevY() < (int) e2.y() ? (int) e2.prevY() : (int) e2.y();
 			// camera.fitScreenRegion( new Rectangle (tlX, tlY, w, h) );			
 			camera.interpolateToZoomOnRegion(new Rect(tlX, tlY, w, h));
 			break;
@@ -540,11 +553,11 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			camera.frame().alignWithFrame(null, true);
 			break;			
 		case ZOOM_ON_PIXEL:
-				wP = camera.interpolateToZoomOnPixel(new Point(cEvent.getX(), cEvent.getY()));
+				wP = camera.interpolateToZoomOnPixel(camera.pointUnderPixel(new Point(cEvent.getX(), cEvent.getY())));
 				if (wP.found) {
 					pupVec = wP.point;
 					pupFlag = true;
-					timerFx.runOnce(1000);						
+					timerFx.runOnce(1000);				
 				}
 			break;
 		case ARP_FROM_PIXEL:
@@ -554,7 +567,9 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 			}
 			break;
 		default:
-			AbstractScene.showMissingImplementationWarning(a);
+			//Dummie value:
+			//AbstractScene.showMissingImplementationWarning(a, this.getClass().getName());
+			super.execAction3D(a);
 			break;
 		}
 		
@@ -599,14 +614,14 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 	 * 
 	 * @see #getCADAxis()
 	 */	
-	protected Quat cadQuaternion(DOF2Event event, float cx,	float cy, View camera) {
+	protected Quat cadQuaternion(DOF2Event event, float cx,	float cy, Eye camera) {
 		if(! (camera instanceof Camera) )
 			throw new RuntimeException("CAD cam is oly available in 3D");
 		
-		float x = event.getX();
-		float y = event.getY();
-		float prevX = event.getPrevX();
-		float prevY = event.getPrevY();
+		float x = event.x();
+		float y = event.y();
+		float prevX = event.prevX();
+		float prevY = event.prevY();
 		
 		// Points on the deformed ball
 		float px = rotationSensitivity() * ((int) prevX - cx)	/ camera.screenWidth();
@@ -638,7 +653,7 @@ public class InteractiveViewFrame extends InteractiveFrame implements Copyable {
 	 */
 	public void setCADAxis(Vec axis) {
 		//non-zero
-		if( Util.zero(axis.mag()) )
+		if( Util.zero(axis.magnitude()) )
 			return;
 		else
 			worldAxis = axis.get();
