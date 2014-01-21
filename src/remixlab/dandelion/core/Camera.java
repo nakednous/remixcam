@@ -536,7 +536,7 @@ public class Camera extends Eye implements Constants, Copyable {
 			orthoCoefX = perspScl.x();
 			orthoCoefY = perspScl.y();
 			this.tp = type;
-			reScaleOrtho();
+			rescaleOrtho();
 		}
 		
 		if (type == Camera.Type.PERSPECTIVE) {
@@ -558,7 +558,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	}
 	//*/
 	
-	public void reScaleOrtho() {
+	public void rescaleOrtho() {
 		if (type() == Camera.Type.ORTHOGRAPHIC) {
 			float d = distanceToARP();
 			if (d==0)	return;
@@ -571,7 +571,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	@Override
 	public void setPosition(Vec pos) {
 		frame().setPosition(pos);
-		reScaleOrtho();
+		rescaleOrtho();
 	}
 
 	/**
@@ -1711,12 +1711,12 @@ public class Camera extends Eye implements Constants, Copyable {
 			break;
 		}
 		case ORTHOGRAPHIC: {
-			distance = Vec.dot(Vec.subtract(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoef);
+			//how to do it with both values?
 			//distance = Vec.dot(Vec.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoefY);
 			//TODO experimental:
 			//how to do it with only scaling?
-			float yview = Vec.dot(Vec.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoefY);
-			float xview = Vec.dot(Vec.sub(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoefX);
+			float yview = Vec.dot(Vec.subtract(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoefY);
+			float xview = Vec.dot(Vec.subtract(center, arcballReferencePoint()), viewDirection())	+ (radius / orthoCoefX);
 			distance = Math.max(xview, yview);
 			break;
 		}
@@ -1724,7 +1724,7 @@ public class Camera extends Eye implements Constants, Copyable {
 
 		Vec newPos = Vec.subtract(center, Vec.multiply(viewDirection(), distance));
 		frame().setPositionWithConstraint(newPos);
-		if( type() == Type.ORTHOGRAPHIC ) reScaleOrtho();
+		if( type() == Type.ORTHOGRAPHIC ) rescaleOrtho();
 	}
 
 	/**
@@ -1780,9 +1780,9 @@ public class Camera extends Eye implements Constants, Copyable {
 		}
 		case ORTHOGRAPHIC: {
 			final float dist = Vec.dot(Vec.subtract(newCenter,	arcballReferencePoint()), vd);
-			final float distX = Vec.distance(pointX, newCenter) / orthoCoef	/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
-			final float distY = Vec.distance(pointY, newCenter) / orthoCoef	/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
-			final float distY = Vec.dist(pointY, newCenter) / orthoCoefY / ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
+			//TODO experimental
+			final float distX = Vec.distance(pointX, newCenter) / orthoCoefX / ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
+			final float distY = Vec.distance(pointY, newCenter) / orthoCoefY / ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
 			//only with scaling how?
 			//final float distX = Vec.dist(pointX, newCenter) / frame().scaling().x()	/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
 			//final float distY = Vec.dist(pointY, newCenter) / frame().scaling().y()	/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
@@ -1794,7 +1794,7 @@ public class Camera extends Eye implements Constants, Copyable {
 		}
 
 		frame().setPositionWithConstraint(Vec.subtract(newCenter, Vec.multiply(vd, distance)));
-		if( type() == Type.ORTHOGRAPHIC ) reScaleOrtho();
+		if( type() == Type.ORTHOGRAPHIC ) rescaleOrtho();
 	}
 	
 	@Override

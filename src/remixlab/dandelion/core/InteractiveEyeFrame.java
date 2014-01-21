@@ -295,7 +295,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			} else //absolute needs testing
 				rotate(rot);
 			break;
-		case ZOOM:
+		case SCALE:
 			float delta;
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = e1.x() * wheelSensitivity();
@@ -442,7 +442,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			trans = Vec.multiply(trans, translationSensitivity());				
 			trans.divide(magnitude());
 			translate(inverseTransformOf(trans));
-			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
+			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.rescaleOrtho();
 			//translate(inverseTransformOf(trans, false));
 			break;
 		case TRANSLATE:			
@@ -464,7 +464,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 				break;
 			}
 			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
-			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
+			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.rescaleOrtho();
 			break;
 		case TRANSLATE3:
 			if(e3.isRelative())
@@ -485,7 +485,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 				break;
 			}
 			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
-			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
+			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.rescaleOrtho();
 			break;
 		case TRANSLATE_ROTATE:
 			//translate
@@ -507,7 +507,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 				break;
 			}
 			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
-			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
+			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.rescaleOrtho();
 		  // Rotate
 			q = new Quat();
 			if(e6.isAbsolute())
@@ -516,10 +516,25 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 				q.fromEulerAngles(-e6.drx(), -e6.dry(), e6.drz());
       rotate(q);
 			break;
+		case SCALE:
+			float delta;
+			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
+				delta = e1.x() * wheelSensitivity();
+			else
+				if( e1.isAbsolute() )
+				  delta = e1.x();
+				else
+					delta = e1.dx();	
+			if(delta >= 0)
+				scale(1 + Math.abs(delta) / (float) -scene.height());
+			else {
+				float s = 1 + Math.abs(delta) / (float) -scene.height();
+				setScaling(Vec.divide(scaling(), new Vec(s,s,s)));
+				}
+			break;
 		case ZOOM:
 			float wheelSensitivityCoef = 8E-4f;
 			float coef = Math.max(Math.abs((coordinatesOf(camera.arcballReferencePoint())).vec[2] * magnitude().z() ), 0.2f * camera.sceneRadius());
-			float delta;
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = coef * e1.x() * -wheelSensitivity() * wheelSensitivityCoef;
 			else
@@ -532,7 +547,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			Vec mag = magnitude();
 			trans.divide(mag);			
 			translate(inverseTransformOf(trans));
-			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.reScaleOrtho();
+			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.rescaleOrtho();
 			break;
 		case ZOOM_ON_REGION:
 			if(e2.isAbsolute()) {
@@ -603,7 +618,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 	public void toss() {
 		super.toss();
 		Camera camera = (Camera) viewport;
-		if( camera != null ) if( camera.type() == Camera.Type.ORTHOGRAPHIC ) camera.reScaleOrtho();
+		if( camera != null ) if( camera.type() == Camera.Type.ORTHOGRAPHIC ) camera.rescaleOrtho();
 	}
 	
 	/**

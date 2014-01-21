@@ -969,7 +969,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			  // absolute should simply go (only relative has speed which is needed by start spinning):
 				rotate(rot);
 			break;
-		case ZOOM:
+		case SCALE:
 			float delta;
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = e1.x() * wheelSensitivity();
@@ -994,7 +994,6 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 			break;
 		default:
 			AbstractScene.showOnlyEyeWarning(a);
-			//AbstractScene.showDepthWarning(a);//filtered by performInteraction before
 			break;
 		}
 	}
@@ -1242,7 +1241,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 	    q.z(trans.z());
 	    rotate(q);
 			break;
-		case ZOOM:
+		case SCALE:
 			float delta;
 			if( e1 instanceof GenericDOF1Event ) //its a wheel wheel :P
 				delta = e1.x() * wheelSensitivity();

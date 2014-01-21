@@ -120,7 +120,8 @@ public interface Constants extends EventConstants {
   	DECREASE_TRACKING_DISTANCE("Decrease camera tracking distance respect to the avatar (only meaningful in third-person mode)", false, 0),
   	
     // Wheel
-  	ZOOM("Zoom", true, 1),
+  	SCALE("Scale", true, 1),
+  	ZOOM("Zoom", false, 1),
   	ROLL("Roll frame (camera or interactive frame)", true, 1),
   	DRIVE("Drive (camera or interactive frame)", false, 1),
     
@@ -344,7 +345,8 @@ public interface Constants extends EventConstants {
   }
   
   public enum WheelAction implements Actionable<DandelionAction> {  	
-    //DOF_1  	
+    //DOF_1
+  	SCALE(DandelionAction.SCALE),
   	ZOOM(DandelionAction.ZOOM),
   	ROLL(DandelionAction.ROLL),
   	DRIVE(DandelionAction.DRIVE),
@@ -379,6 +381,7 @@ public interface Constants extends EventConstants {
   
   public enum DOF2Action implements Actionable<DandelionAction> {
   	//DOF_1
+  	SCALE(DandelionAction.SCALE),
   	ZOOM(DandelionAction.ZOOM),
   	ROLL(DandelionAction.ROLL),
   	DRIVE(DandelionAction.DRIVE),
@@ -424,6 +427,7 @@ public interface Constants extends EventConstants {
   
   public enum DOF3Action implements Actionable<DandelionAction> {
   	//DOF_1
+  	SCALE(DandelionAction.SCALE),
   	ZOOM(DandelionAction.ZOOM),
   	ROLL(DandelionAction.ROLL),
   	DRIVE(DandelionAction.DRIVE),
@@ -473,6 +477,7 @@ public interface Constants extends EventConstants {
   
   public enum DOF6Action implements Actionable<DandelionAction> {
   	//DOF_1
+  	SCALE(DandelionAction.SCALE),
   	ZOOM(DandelionAction.ZOOM),
   	ROLL(DandelionAction.ROLL),
   	DRIVE(DandelionAction.DRIVE),

@@ -30,8 +30,8 @@ public class MouseAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile
 		frameClickProfile().setClickBinding(TH_NOMODIFIER_MASK, TH_LEFT, 2, ClickAction.ALIGN_FRAME);
 		frameClickProfile().setClickBinding(TH_NOMODIFIER_MASK, TH_RIGHT, 2, ClickAction.CENTER_FRAME);
 		
-		cameraWheelProfile().setBinding(TH_NOMODIFIER_MASK, TH_NOBUTTON, WheelAction.ZOOM);		
-		frameWheelProfile().setBinding(TH_NOMODIFIER_MASK, TH_NOBUTTON, WheelAction.ZOOM);
+		cameraWheelProfile().setBinding(TH_NOMODIFIER_MASK, TH_NOBUTTON, scn.is3D() ? WheelAction.ZOOM : WheelAction.SCALE);		
+		frameWheelProfile().setBinding(TH_NOMODIFIER_MASK, TH_NOBUTTON, WheelAction.SCALE);
 	}
 	
 	public void setAsFirstPerson() {		
@@ -61,7 +61,7 @@ public class MouseAgent extends GenericWheeledBiMotionAgent<GenericMotionProfile
 		cameraProfile().setBinding(TH_SHIFT, TH_RIGHT, DOF2Action.SCREEN_ROTATE);
 			
 		frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_LEFT, DOF2Action.ROTATE);
-		frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_CENTER, DOF2Action.ZOOM);
+		frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_CENTER, DOF2Action.SCALE);
 		frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_RIGHT, DOF2Action.TRANSLATE);
 		frameProfile().setBinding(TH_SHIFT, TH_CENTER, DOF2Action.SCREEN_TRANSLATE);
 		frameProfile().setBinding(TH_SHIFT, TH_RIGHT, DOF2Action.SCREEN_ROTATE);

@@ -259,7 +259,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			cameraProfile().setBinding((TH_META | TH_SHIFT), TH_RIGHT, DOF2Action.SCREEN_ROTATE);
 				
 			frameProfile().setBinding(TH_NOMODIFIER_MASK, TH_LEFT, DOF2Action.ROTATE);
-			frameProfile().setBinding(TH_ALT, TH_CENTER, DOF2Action.ZOOM);
+			frameProfile().setBinding(TH_ALT, TH_CENTER, DOF2Action.SCALE);
 			frameProfile().setBinding(TH_META, TH_RIGHT, DOF2Action.TRANSLATE);
 			frameProfile().setBinding((TH_ALT | TH_SHIFT), TH_CENTER, DOF2Action.SCREEN_TRANSLATE);
 			frameProfile().setBinding((TH_META | TH_SHIFT), TH_RIGHT, DOF2Action.SCREEN_ROTATE);
