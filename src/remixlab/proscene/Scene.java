@@ -728,7 +728,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		 	}
 
 		  @Override
-		  public void drawKFIEye(float scale) {		  	
+		  public void drawKeyFrame(float scale) {		  	
 		  	float halfHeight = scale * 1.2f;
 				float halfWidth = halfHeight * 1.3f;
 
@@ -828,7 +828,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 							scene.applyTransformation(myFr);						
 
 							if ((mask & 2) != 0)
-								drawKFIEye(scale);
+								drawKeyFrame(scale);
 							if ((mask & 4) != 0)
 								drawAxis(scale / 10.0f);
 
@@ -1242,7 +1242,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void drawKFIEye(float scale) {			
+		public void drawKeyFrame(float scale) {			
 			float halfHeight = scale * 0.07f;
 			float halfWidth = halfHeight * 1.3f;
 			float dist = halfHeight / (float) Math.tan(PApplet.PI / 8.0f);
@@ -1341,7 +1341,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 							scene.applyTransformation(myFr);						
 
 							if ((mask & 2) != 0)
-								drawKFIEye(scale);
+								drawKeyFrame(scale);
 							if ((mask & 4) != 0)
 								drawAxis(scale / 10.0f);
 

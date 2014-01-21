@@ -753,9 +753,11 @@ public abstract class AbstractScene extends AnimatedObject implements Constants,
   	drawingHelpler().drawEye(eye, scale);
   }
   
-  public void drawKFIEye(float scale) {
-  	drawingHelpler().drawKFIEye(scale);
+  /* not needed
+  public void drawKeyFrame(float scale) {
+  	drawingHelpler().drawKeyFrame(scale);
   }
+  */
   
   public void drawZoomWindowHint() {
   	drawingHelpler().drawZoomWindowHint();
