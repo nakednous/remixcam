@@ -332,13 +332,13 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			break;
 			//TODO these timer actions need testing
 		case ZOOM_ON_PIXEL:
-				viewWindow.interpolateToZoomOnPixel(new Point(cEvent.getX(), cEvent.getY()));
-				pupVec = viewWindow.unprojectedCoordinatesOf(new Vec(cEvent.getX(), cEvent.getY(), 0.5f));
+				viewWindow.interpolateToZoomOnPixel(new Point(cEvent.x(), cEvent.y()));
+				pupVec = viewWindow.unprojectedCoordinatesOf(new Vec(cEvent.x(), cEvent.y(), 0.5f));
 				pupFlag = true;
 				timerFx.runOnce(1000);
 			break;
 		case ARP_FROM_PIXEL:
-			if (viewWindow.setArcballReferencePointFromPixel( new Point(cEvent.getX(), cEvent.getY()) )) {			  
+			if (viewWindow.setArcballReferencePointFromPixel( new Point(cEvent.x(), cEvent.y()) )) {			  
 				arpFlag = true;
 				timerFx.runOnce(1000);					
 			}
@@ -568,7 +568,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			camera.frame().alignWithFrame(null, true);
 			break;			
 		case ZOOM_ON_PIXEL:
-				wP = camera.interpolateToZoomOnPixel(camera.pointUnderPixel(new Point(cEvent.getX(), cEvent.getY())));
+				wP = camera.interpolateToZoomOnPixel(camera.pointUnderPixel(new Point(cEvent.x(), cEvent.y())));
 				if (wP.found) {
 					pupVec = wP.point;
 					pupFlag = true;
@@ -576,7 +576,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 				}
 			break;
 		case ARP_FROM_PIXEL:
-			if (camera.setArcballReferencePointFromPixel(new Point(cEvent.getX(), cEvent.getY()))) {			  
+			if (camera.setArcballReferencePointFromPixel(new Point(cEvent.x(), cEvent.y()))) {			  
 				arpFlag = true;
 				timerFx.runOnce(1000);					
 			}

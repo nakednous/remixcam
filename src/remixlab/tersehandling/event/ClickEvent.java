@@ -93,22 +93,22 @@ public class ClickEvent extends TerseEvent {
 	
 	@Override
 	public ClickShortcut shortcut() {
-		return new ClickShortcut(modifiers(), getButton(), getClickCount());
+		return new ClickShortcut(modifiers(), button(), clickCount());
 	}
 	
-	public float getX() {
+	public float x() {
 		return x;
 	}
 	
-	public float getY() {
+	public float y() {
 		return y;
 	}
 	
-	public int getClickCount() {
+	public int clickCount() {
 		return numberOfClicks;
 	}
 	
-	public int getButton() {
+	public int button() {
 		return button;
 	}
 }

@@ -27,7 +27,7 @@ public abstract class AbstractTimerJob implements Taskable {
 	/**
 	 * Sets the timer instance.
 	 */
-	public void timer(Timable t) {
+	public void setTimer(Timable t) {
 		tmr = t;
 	}
 
@@ -38,7 +38,7 @@ public abstract class AbstractTimerJob implements Taskable {
 	 */
 	public void run(long period) {
 		if (timer() != null) {
-			timer().singleShot(false);
+			timer().setSingleShot(false);
 			timer().run(period);
 		}
 	}
@@ -48,7 +48,7 @@ public abstract class AbstractTimerJob implements Taskable {
 	 */
 	public void runOnce(long period) {
 		if (timer() != null) {
-			timer().singleShot(true);
+			timer().setSingleShot(true);
 			timer().run(period);
 		}
 	}

@@ -51,7 +51,7 @@ public interface Timable {
 	/**
 	 * Defines the timer period in milliseconds.
 	 */
-	public void period(long period);
+	public void setPeriod(long period);
 
 	/**
 	 * Returns whether or not the timer is scheduled to be executed only once.
@@ -61,5 +61,5 @@ public interface Timable {
 	/**
 	 * Defines the timer as a single shot or for repeated execution.
 	 */
-	public void singleShot(boolean singleShot);
+	public void setSingleShot(boolean singleShot);
 }

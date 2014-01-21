@@ -169,7 +169,7 @@ public class SeqTimer implements Timable {
 	}
 
 	@Override
-	public void period(long period) {
+	public void setPeriod(long period) {
 		prd = period;
 	}
 
@@ -179,7 +179,7 @@ public class SeqTimer implements Timable {
 	}
 
 	@Override
-	public void singleShot(boolean singleShot) {
+	public void setSingleShot(boolean singleShot) {
 		runOnlyOnce = singleShot;
 	}
 }

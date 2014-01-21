@@ -341,7 +341,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void period(long period) {
+		public void setPeriod(long period) {
 			prd = period;
 		}
 
@@ -351,7 +351,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 
 		@Override
-		public void singleShot(boolean singleShot) {
+		public void setSingleShot(boolean singleShot) {
 			runOnlyOnce = singleShot;
 		}
 	}
@@ -2061,7 +2061,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				rOnce = job.timer().isSingleShot();
 			}
 			job.stop();
-			job.timer(new TimerWrap(this, job));			
+			job.setTimer(new TimerWrap(this, job));			
 			if(isActive) {
 				if(rOnce)
 					job.runOnce(period);

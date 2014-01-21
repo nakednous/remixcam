@@ -68,7 +68,7 @@ public interface Animatable {
 	/**
 	 * Sets the timing handler.
 	 */
-	void timingHandler(TimingHandler h);
+	void setTimingHandler(TimingHandler h);
 
 	/**
 	 * Returns the timing handler.

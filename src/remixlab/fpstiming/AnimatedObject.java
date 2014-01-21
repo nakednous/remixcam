@@ -21,7 +21,7 @@ public class AnimatedObject implements Animatable {
 	/**
 	 * Constructs an animated object with a default {@link #animationPeriod()}
 	 * of 40 milliseconds (25Hz). The handler should explicitly be defined
-	 * afterwards ({@link #timingHandler(TimingHandler)}).
+	 * afterwards ({@link #setTimingHandler(TimingHandler)}).
 	 */
 	public AnimatedObject() {
 		setAnimationPeriod(40, false); // 25Hz
@@ -33,13 +33,13 @@ public class AnimatedObject implements Animatable {
 	 * of 40 milliseconds (25Hz).
 	 */
 	public AnimatedObject(TimingHandler handler) {
-		timingHandler(handler);
+		setTimingHandler(handler);
 		setAnimationPeriod(40, false); // 25Hz
 		stopAnimation();
 	}
 
 	@Override
-	public void timingHandler(TimingHandler h) {
+	public void setTimingHandler(TimingHandler h) {
 		handler = h;
 		handler.registerAnimation(this);
 		animationTimer = new SeqTimer(handler);
