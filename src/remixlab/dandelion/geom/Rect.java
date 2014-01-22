@@ -44,12 +44,12 @@ public class Rect {
 	/**
 	 * The X coordinate of the upper-left corner of the Rectangle.
 	 */
-	public int x;
+	protected int x;
 	
 	/**
 	 * The Y coordinate of the upper-left corner of the Rectangle.
 	 */
-	public int y;
+	protected int y;
 	
 	/**
 	 * The width of the Rectangle.
@@ -88,6 +88,14 @@ public class Rect {
 		this.y = y;
 		this.width = width;
 		this.height = height;
+	}
+	
+	public float x() {
+		return x;
+	}
+	
+	public float y() {
+		return y;
 	}
 
 	/**

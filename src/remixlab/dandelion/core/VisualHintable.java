@@ -122,7 +122,7 @@ public interface VisualHintable {
  
  //public void drawWindow(Window window, float scale);	
 
- public void drawKeyFrame(float scale);
+ public void drawEye(float scale);
 	
 	// Only 3D
 	/**

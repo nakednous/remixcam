@@ -1763,10 +1763,10 @@ public class Camera extends Eye implements Constants, Copyable {
 		convertClickToLine(center, orig, dir);
 		Vec newCenter = Vec.add(orig, Vec.multiply(dir, (distToPlane / Vec.dot(dir, vd))));
 
-		convertClickToLine(new Point(rectangle.x, center.y), orig, dir);
+		convertClickToLine(new Point(rectangle.x(), center.y), orig, dir);
 		final Vec pointX = Vec.add(orig, Vec.multiply(dir,	(distToPlane / Vec.dot(dir, vd))));
 
-		convertClickToLine(new Point(center.x, rectangle.y), orig, dir);
+		convertClickToLine(new Point(center.x, rectangle.y()), orig, dir);
 		final Vec pointY = Vec.add(orig, Vec.multiply(dir,	(distToPlane / Vec.dot(dir, vd))));
 
 		float distance = 0.0f;
