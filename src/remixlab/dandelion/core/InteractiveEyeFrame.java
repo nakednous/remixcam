@@ -442,7 +442,6 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			trans = Vec.multiply(trans, translationSensitivity());				
 			trans.divide(magnitude());
 			translate(inverseTransformOf(trans));
-			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.rescaleOrtho();
 			//translate(inverseTransformOf(trans, false));
 			break;
 		case TRANSLATE:			
@@ -464,7 +463,6 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 				break;
 			}
 			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
-			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.rescaleOrtho();
 			break;
 		case TRANSLATE3:
 			if(e3.isRelative())
@@ -485,7 +483,6 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 				break;
 			}
 			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
-			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.rescaleOrtho();
 			break;
 		case TRANSLATE_ROTATE:
 			//translate
@@ -507,7 +504,6 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 				break;
 			}
 			translate(inverseTransformOf(Vec.multiply(trans, translationSensitivity()), false));
-			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.rescaleOrtho();
 		  // Rotate
 			q = new Quat();
 			if(e6.isAbsolute())
@@ -547,7 +543,6 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			Vec mag = magnitude();
 			trans.divide(mag);			
 			translate(inverseTransformOf(trans));
-			if( camera.type() == Camera.Type.ORTHOGRAPHIC )	camera.rescaleOrtho();
 			break;
 		case ZOOM_ON_REGION:
 			if(e2.isAbsolute()) {
@@ -618,7 +613,6 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 	public void toss() {
 		super.toss();
 		Camera camera = (Camera) viewport;
-		if( camera != null ) if( camera.type() == Camera.Type.ORTHOGRAPHIC ) camera.rescaleOrtho();
 	}
 	
 	/**
