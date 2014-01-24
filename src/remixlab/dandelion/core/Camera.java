@@ -52,6 +52,7 @@ public class Camera extends Eye implements Constants, Copyable {
 		append(tp).
 		append(zClippingCoef).
 		append(zNearCoef).
+		append(rapK).
     toHashCode();
 	}
 
@@ -72,6 +73,7 @@ public class Camera extends Eye implements Constants, Copyable {
 		.append(tp,other.tp)
 		.append(zClippingCoef,other.zClippingCoef)
 		.append(zNearCoef,other.zNearCoef)
+		.append(rapK,other.rapK)
 		.isEquals();
 	}
 	
@@ -184,6 +186,9 @@ public class Camera extends Eye implements Constants, Copyable {
 	private float focusDist; // in scene units
 	private float physicalDist2Scrn; // in meters
 	private float physicalScrnWidth; // in meters			
+	
+	//rescale ortho when rap changes
+	private float rapK = 1;
 
 	/**
 	 * Main constructor.
@@ -251,6 +256,7 @@ public class Camera extends Eye implements Constants, Copyable {
 		this.setIODistance( oCam.IODistance() );
 		this.setPhysicalDistanceToScreen(oCam.physicalDistanceToScreen());
 		this.setPhysicalScreenWidth( oCam.physicalScreenWidth() );
+		this.rapK = oCam.rapK;
 	}
 	
 	/*! Defines the Camera position(), orientation() and fieldOfView() from a projection matrix.
@@ -1369,14 +1375,21 @@ public class Camera extends Eye implements Constants, Copyable {
 		viewMat.mat[13] = -t.vec[1];
 		viewMat.mat[14] = -t.vec[2];
 		viewMat.mat[15] = 1.0f;
-	}
+	} 
 	
 	@Override
 	protected float rescalingOrthoFactor() {
-		Vec zCam = frame().zAxis();
-		Vec camOrig = Vec.subtract(position(), new Vec(0,0,0));
-		float toOrigin = Math.abs(Vec.dot(camOrig, zCam));
-		return (2*(toOrigin==0 ? 0.1f : toOrigin)/screenHeight());
+		float toARP = this.distanceToARP();
+		return (2*(Util.zero(toARP) ? Util.FLOAT_EPS : toARP) * rapK / screenHeight());
+	}
+	
+	@Override
+	public void setArcballReferencePoint(Vec rap) {
+		float prevDist = distanceToARP();
+		frame().setArcballReferencePoint(rap);
+		float newDist =  distanceToARP();
+		if ((Util.nonZero(prevDist)) && (Util.nonZero(newDist)))
+			rapK *= prevDist / newDist;
 	}
 
 	/**
