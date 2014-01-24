@@ -1280,35 +1280,6 @@ public class Camera extends Eye implements Constants, Copyable {
 	*/
 
 	/**
-	 * Changes the {@link #arcballReferencePoint()} to {@code rap} (defined in the
-	 * world coordinate system).
-	 */
-	@Override
-	public void setArcballReferencePoint(Vec rap) {
-		//float prevDist = Math.abs(frame().coordinatesOf(arcballReferencePoint(), false).vec[2]);
-		//float prevDist = distanceToARP();
-
-		//rescalingOrthoFactor();
-		frame().setArcballReferencePoint(rap);
-
-		// orthoCoef is used to compensate for changes of the
-		// arcballReferencePoint, so that the image does
-		// not change when the arcballReferencePoint is changed in ORTHOGRAPHIC
-		// mode.
-		
-		//if (type() == Camera.Type.ORTHOGRAPHIC) {
-			
-		//float newDist = Math.abs(frame().coordinatesOf(arcballReferencePoint(), false).vec[2]);
-		//float newDist =  distanceToARP();
-			
-		// Prevents division by zero when rap is set to camera position
-		//if ((Util.nonZero(prevDist)) && (Util.nonZero(newDist)))
-			//TODO pending
-			//orthoCoef *= prevDist / newDist;
-		//}
-	}
-
-	/**
 	 * The {@link #arcballReferencePoint()} is set to the point located under
 	 * {@code pixel} on screen. Returns {@code true} if a point was found under
 	 * {@code pixel} and {@code false} if none was found (in this case no
@@ -1400,12 +1371,12 @@ public class Camera extends Eye implements Constants, Copyable {
 		viewMat.mat[15] = 1.0f;
 	}
 	
-  //float prevDist;
-	//TODO setarp?
 	@Override
 	protected float rescalingOrthoFactor() {
-		float newDist = distanceToARP();
-		return (2*(newDist==0 ? 0.1f : newDist)/screenHeight());
+		Vec zCam = frame().zAxis();
+		Vec camOrig = Vec.subtract(position(), new Vec(0,0,0));
+		float toOrigin = Math.abs(Vec.dot(camOrig, zCam));
+		return (2*(toOrigin==0 ? 0.1f : toOrigin)/screenHeight());
 	}
 
 	/**

@@ -579,7 +579,9 @@ public abstract class Eye implements Copyable {
 	 * Changes the {@link #arcballReferencePoint()} to {@code rap} (defined in the
 	 * world coordinate system).
 	 */	
-	public abstract void setArcballReferencePoint(Vec rap);
+	public void setArcballReferencePoint(Vec rap) {
+		frame().setArcballReferencePoint(rap);
+	}
 	
 	public abstract boolean setArcballReferencePointFromPixel(Point pixel);
 	

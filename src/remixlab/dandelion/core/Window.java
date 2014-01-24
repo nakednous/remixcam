@@ -360,12 +360,6 @@ public class Window extends Eye implements Copyable {
 	public void lookAt(Vec target) {
 		frame().setPosition(target.x(), target.y());
 	}
-	
-	@Override
-	public void setArcballReferencePoint(Vec rap) {
-		Vec vec = new Vec(rap.x(), rap.y());
-		frame().setArcballReferencePoint(vec);
-	}
 
 	@Override
 	public boolean setArcballReferencePointFromPixel(Point pixel) {		
