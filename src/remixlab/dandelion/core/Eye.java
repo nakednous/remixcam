@@ -121,7 +121,21 @@ public abstract class Eye implements Copyable {
 	protected long lastFPCoeficientsUpdateIssued = -1;
 	
 	public Eye(AbstractScene scn) {
-		scene = scn;		
+		scene = scn;
+		
+		if(scene.is2D()) {
+			fpCoefficients = new float[4][3];
+			normal = new Vec[4];
+			for (int i = 0; i < normal.length; i++)	normal[i] = new Vec();
+			dist = new float[4];
+		}
+		else {
+			fpCoefficients = new float[6][4];
+			normal = new Vec[6];
+			for (int i = 0; i < normal.length; i++)	normal[i] = new Vec();
+			dist = new float[6];
+		}
+
 		enableBoundaryEquations(false);		
 		interpolationKfi = new KeyFrameInterpolator(scene, frame());
 		kfi = new HashMap<Integer, KeyFrameInterpolator>();		
@@ -148,14 +162,26 @@ public abstract class Eye implements Copyable {
 			for (int i=0; i<4; i++)
 				for (int j=0; j<3; j++)
 					this.fpCoefficients[i][j] = oVP.fpCoefficients[i][j];
+			this.normal = new Vec[4];
+			for (int i = 0; i < normal.length; i++)
+				this.normal[i] = new Vec(oVP.normal[i].vec[0], oVP.normal[i].vec[1], oVP.normal[i].vec[2] );			
+			this.dist = new float[4];
+			for (int i = 0; i < dist.length; i++)
+				this.dist[i] = oVP.dist[i];			
 		}
 		else {
 			this.fpCoefficients = new float[6][4];
 			for (int i=0; i<6; i++)
 				for (int j=0; j<4; j++)
 					this.fpCoefficients[i][j] = oVP.fpCoefficients[i][j];
+			this.normal = new Vec[6];
+			for (int i = 0; i < normal.length; i++)
+				this.normal[i] = new Vec(oVP.normal[i].vec[0], oVP.normal[i].vec[1], oVP.normal[i].vec[2] );
+			this.dist = new float[6];
+			for (int i = 0; i < dist.length; i++)
+				this.dist[i] = oVP.dist[i];
 		}
-				
+					
 		this.frm = oVP.frame().get();		
 		this.interpolationKfi = oVP.interpolationKfi.get();		
 		this.kfi = new HashMap<Integer, KeyFrameInterpolator>();

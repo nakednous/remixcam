@@ -1769,7 +1769,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	public static final String version = "16";
 	
 	// P R O C E S S I N G   A P P L E T   A N D   O B J E C T S
-	public PApplet parent;
+	protected PApplet parent;
 	protected PGraphics pgraphics;
 	
 	// H A R D W A R E
@@ -2457,7 +2457,11 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			pg().text(info(), 10, 10, (pg().width-20), (pg().height-20));
 			endScreenDrawing();
 		}
-	}	
+	}
+	
+	public PApplet papplet() {
+		return parent;
+	}
 
 	// 9. Mouse customization
 

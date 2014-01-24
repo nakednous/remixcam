@@ -21,11 +21,11 @@ public class Window extends Eye implements Copyable {
 		if(scene.is3D())
 			throw new RuntimeException("Use ViewWindow only for a 2D Scene");
 		
-		dist = new float[4];
-		normal = new Vec[4];
+		//dist = new float[4];
+		//normal = new Vec[4];
 		//for (int i = 0; i < normal.length; i++)	normal[i] = new Vec();
 		
-		fpCoefficients = new float[4][3];		
+		//fpCoefficients = new float[4][3];		
 		computeProjection();
 	}
 	

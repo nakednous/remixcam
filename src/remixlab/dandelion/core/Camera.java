@@ -210,8 +210,8 @@ public class Camera extends Eye implements Constants, Copyable {
 		if(scene.is2D())
 			throw new RuntimeException("Use Camera only for a 3D Scene");
 		
-		dist = new float[6];
-		normal = new Vec[6];
+		//dist = new float[6];
+		//normal = new Vec[6];
 		//for (int i = 0; i < normal.length; i++)	normal[i] = new Vec();
 		
 	  //fldOfView = (float) Math.PI / 3.0f; //in Proscene 1.x it was Pi/4
@@ -220,7 +220,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	  // Initial value (only scaled after this)
 		//orthoCoef = (float)Math.tan(fieldOfView() / 2.0f);
 
-		fpCoefficients = new float[6][4];		
+		//fpCoefficients = new float[6][4];		
 
 		// Initial value (only scaled after this)
 		//orthoCoef = (float) Math.tan(fieldOfView() / 2.0f);	
@@ -245,11 +245,7 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * @param oCam the camera object to be copied
 	 */
 	protected Camera(Camera oCam) {
-		super(oCam);	
-		
-		for (int i = 0; i < normal.length; i++)
-			this.normal[i] = new Vec(oCam.normal[i].vec[0], oCam.normal[i].vec[1], oCam.normal[i].vec[2] );
-		
+		super(oCam);		
 		this.setType(oCam.type());
 		this.setZNearCoefficient(oCam.zNearCoefficient());
 		this.setZClippingCoefficient(oCam.zClippingCoefficient());		
