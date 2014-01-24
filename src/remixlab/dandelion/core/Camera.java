@@ -47,7 +47,6 @@ public class Camera extends Eye implements Constants, Copyable {
     append(zClippingCoef).
 		append(IODist).
 		append(focusDist).
-		append(orthoCoef).
 		append(physicalDist2Scrn).
 		append(physicalScrnWidth).
 		append(tp).
@@ -68,7 +67,6 @@ public class Camera extends Eye implements Constants, Copyable {
     .append(zClippingCoef, other.zClippingCoef)
 		.append(IODist,other.IODist)
 		.append(focusDist,other.focusDist)
-		.append(orthoCoef,other.orthoCoef)
 		.append(physicalDist2Scrn,other.physicalDist2Scrn)
 		.append(physicalScrnWidth,other.physicalScrnWidth)
 		.append(tp,other.tp)
@@ -180,10 +178,6 @@ public class Camera extends Eye implements Constants, Copyable {
 	private float zNearCoef;
 	private float zClippingCoef;	
 	private Type tp; // PERSPECTIVE or ORTHOGRAPHIC
-	private float orthoCoef;
-	//private Vec perspScl;
-  //private float orthoCoefX;
-  //private float orthoCoefY;
 
 	// S t e r e o p a r a m e t e r s
 	private float IODist; // inter-ocular distance, in meters
@@ -219,7 +213,7 @@ public class Camera extends Eye implements Constants, Copyable {
 		//setFieldOfView((float) Math.PI / 2.0f);//fov yScaling -> 1
 		setFieldOfView((float) Math.PI / 3.0f);
 	  // Initial value (only scaled after this)
-		orthoCoef = (float)Math.tan(fieldOfView() / 2.0f);
+		//orthoCoef = (float)Math.tan(fieldOfView() / 2.0f);
 
 		fpCoefficients = new float[6][4];		
 
@@ -251,7 +245,6 @@ public class Camera extends Eye implements Constants, Copyable {
 		for (int i = 0; i < normal.length; i++)
 			this.normal[i] = new Vec(oCam.normal[i].vec[0], oCam.normal[i].vec[1], oCam.normal[i].vec[2] );
 		
-		this.orthoCoef = oCam.orthoCoef;
 		this.setType(oCam.type());
 		this.setZNearCoefficient(oCam.zNearCoefficient());
 		this.setZClippingCoefficient(oCam.zClippingCoefficient());		
@@ -519,89 +512,11 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * point.
 	 */
 	public final void setType(Type type) {
-		///*
-		if( type != type() ) modified();
-		
-	  // make ORTHOGRAPHIC frustum fit PERSPECTIVE (at least in plane normal
-		// to viewDirection(), passing
-		// through RAP). Done only when CHANGING type since orthoCoef may have
-		// been changed with a
-		// setArcballReferencePoint in the meantime.		
-
-		if ((type == Camera.Type.ORTHOGRAPHIC) && (type() == Camera.Type.PERSPECTIVE)) {
-			//orthoCoef = (float)Math.tan(fieldOfView() / 2.0f);
-			orthoCoef = frame().scaling().y();
-			rescaleOrtho();
+		if( type != type() ) { 
+			modified();
+			this.tp = type;
 		}
-		
-		this.tp = type;
-		//*/
 	}
-	
-	//float adjustX, adjustY;
-	
-	///*
-	private void rescaleOrtho() {
-		float d = distanceToARP();
-	  if (d==0)	return;
-		orthoCoef = (2*d/screenHeight());
-		/*
-		if (type() == Camera.Type.ORTHOGRAPHIC) {
-			float d = distanceToARP();
-			if (d==0)	return;
-			
-			//frame().setScaling(d*2*orthoCoefX/screenHeight(),
-        //                 d*2*orthoCoefY/screenHeight(),
-          //               d*2*orthoCoefY/screenHeight());
-      
-			
-			// //adjustX = 2*d / (screenHeight() * frame().scaling().x());
-			////adjustY = 2*d / (screenHeight() * frame().scaling().y());
-		}
-		*/
-	}
-
-	
-	@Override
-	public float[] getBoundaryWidthHeight(float[] target) {
-		if ((target == null) || (target.length != 2)) {
-			target = new float[2];
-		}
-		
-		this.rescaleOrtho();
-		
-		//target[0] = ( frame().scaling().x() * this.screenWidth() )  / 2;
-		//target[1] = ( frame().scaling().y() * this.screenHeight() ) / 2;
-		//target[0] = ( d*2*orthoCoef/screenHeight() * this.screenWidth() )  / 2;
-		//target[1] = ( d*2*orthoCoef/screenHeight() * this.screenHeight() ) / 2;
-		target[0] = (orthoCoef) * ( frame().scaling().x() * this.screenWidth() / 2);
-		target[1] = (orthoCoef) * ( frame().scaling().y() * this.screenHeight() / 2);
-		
-		return target;
-		//*/
-		
-		/*
-		if ((target == null) || (target.length != 2)) {
-      target = new float[2];
-     }
-		
-		float dist = orthoCoef * distanceToARP();
-		// 1. halfWidth
-		target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
-		// 2. halfHeight
-		target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);
-		
-		return target;
-		*/
-	}
-	
-	/*
-	@Override
-	public void setPosition(Vec pos) {
-		frame().setPosition(pos);
-		rescaleOrtho();
-	}
-	*/
 
 	/**
 	 * Returns the vertical field of view of the Camera (in radians).
@@ -673,51 +588,6 @@ public class Camera extends Eye implements Constants, Copyable {
 		else
 			setFieldOfView((float) Math.PI / 2.0f);
 	}
-
-	/**
-	 * Fills in {@code target} with the {@code halfWidth} and {@code halfHeight}
-	 * of the Camera orthographic frustum and returns it.
-	 * <p>
-	 * While {@code target[0]} holds {@code halfWidth}, {@code target[1]} holds
-	 * {@code halfHeight}.
-	 * <p>
-	 * These values are only valid and used when the Camera is of {@link #type()}
-	 * ORTHOGRAPHIC and they are expressed in processing scene units.
-	 * <p>
-	 * When the Camera {@link #kind()} is PROSCENE, these values are proportional
-	 * to the Camera (z projected) distance to the
-	 * {@link #arcballReferencePoint()}. When zooming on the object, the Camera is
-	 * translated forward and its frustum is narrowed, making the object appear
-	 * bigger on screen, as intuitively expected.
-	 * <p>
-	 * When the Camera {@link #kind()} is STANDARD, these values are defined as
-	 * {@link #sceneRadius()} * {@link #standardOrthoFrustumSize()}.
-	 * <p>
-	 * Overload this method to change this behavior if desired.
-	 */
-	/*
-	@Override
-	public float[] getBoundaryWidthHeight(float[] target) {
-		if ((target == null) || (target.length != 2)) {
-			target = new float[2];
-		}
-		
-		// float dist = orthoCoef * distanceToARP();		
-		// //1. halfWidth
-		//target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
-		// //2. halfHeight
-		//target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);
-		
-		float distX = frame().scaling().x() * distanceToARP();
-		float distY = frame().scaling().y() * distanceToARP();
-		// 1. halfWidth
-		target[0] = distX * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
-		// 2. halfHeight
-		target[1] = distY * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);
-
-		return target;
-	}
-	//*/
 
 	/**
 	 * Returns the horizontal field of view of the Camera (in radians).
@@ -1416,8 +1286,9 @@ public class Camera extends Eye implements Constants, Copyable {
 	@Override
 	public void setArcballReferencePoint(Vec rap) {
 		//float prevDist = Math.abs(frame().coordinatesOf(arcballReferencePoint(), false).vec[2]);
-		float prevDist = distanceToARP();
+		//float prevDist = distanceToARP();
 
+		//rescalingOrthoFactor();
 		frame().setArcballReferencePoint(rap);
 
 		// orthoCoef is used to compensate for changes of the
@@ -1425,15 +1296,16 @@ public class Camera extends Eye implements Constants, Copyable {
 		// not change when the arcballReferencePoint is changed in ORTHOGRAPHIC
 		// mode.
 		
-		if (type() == Camera.Type.ORTHOGRAPHIC) {
+		//if (type() == Camera.Type.ORTHOGRAPHIC) {
 			
 		//float newDist = Math.abs(frame().coordinatesOf(arcballReferencePoint(), false).vec[2]);
-		float newDist =  distanceToARP();
+		//float newDist =  distanceToARP();
 			
 		// Prevents division by zero when rap is set to camera position
-		if ((Util.nonZero(prevDist)) && (Util.nonZero(newDist)))
-			orthoCoef *= prevDist / newDist;
-		}
+		//if ((Util.nonZero(prevDist)) && (Util.nonZero(newDist)))
+			//TODO pending
+			//orthoCoef *= prevDist / newDist;
+		//}
 	}
 
 	/**
@@ -1526,6 +1398,14 @@ public class Camera extends Eye implements Constants, Copyable {
 		viewMat.mat[13] = -t.vec[1];
 		viewMat.mat[14] = -t.vec[2];
 		viewMat.mat[15] = 1.0f;
+	}
+	
+  //float prevDist;
+	//TODO setarp?
+	@Override
+	protected float rescalingOrthoFactor() {
+		float newDist = distanceToARP();
+		return (2*(newDist==0 ? 0.1f : newDist)/screenHeight());
 	}
 
 	/**
@@ -1798,8 +1678,7 @@ public class Camera extends Eye implements Constants, Copyable {
 		case ORTHOGRAPHIC: {
 			final float dist = Vec.dot(Vec.subtract(newCenter,	arcballReferencePoint()), vd);
 			//final float distX = Vec.distance(pointX, newCenter) / frame().scaling().x()	/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
-			//final float distY = Vec.distance(pointY, newCenter) / frame().scaling().y()	/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
-			
+			//final float distY = Vec.distance(pointY, newCenter) / frame().scaling().y()	/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);			
 			final float distX = Vec.distance(pointX, newCenter) / Math.max(frame().scaling().x(),frame().scaling().y())  / ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
       final float distY = Vec.distance(pointY, newCenter) / Math.max(frame().scaling().x(),frame().scaling().y())  / ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
 

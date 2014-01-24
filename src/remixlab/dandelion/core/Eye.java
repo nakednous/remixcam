@@ -774,10 +774,32 @@ public abstract class Eye implements Copyable {
 			target = new float[2];
 		}
 		
-		target[0] = ( frame().scaling().x() * this.screenWidth() )  / 2;
-		target[1] = ( frame().scaling().y() * this.screenHeight() ) / 2;
+		float orthoCoef = this.rescalingOrthoFactor();
+		
+		target[0] = (orthoCoef) * ( frame().scaling().x() * this.screenWidth() / 2);
+		target[1] = (orthoCoef) * ( frame().scaling().y() * this.screenHeight() / 2);
 		
 		return target;
+		//*/
+		
+		/*
+		if ((target == null) || (target.length != 2)) {
+	     target = new float[2];
+	  }
+			
+		float dist = orthoCoef * distanceToARP();
+		// 1. halfWidth
+		target[0] = dist * ((aspectRatio() < 1.0f) ? 1.0f : aspectRatio());
+		// 2. halfHeight
+		target[1] = dist * ((aspectRatio() < 1.0f) ? 1.0f / aspectRatio() : 1.0f);
+		
+		return target;
+		*/
+	}
+	
+	//standard cameras and 2d :)
+	protected float rescalingOrthoFactor() {
+		return 1.0f;
 	}
 
 	/**

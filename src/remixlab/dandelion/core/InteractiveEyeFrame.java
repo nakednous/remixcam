@@ -609,12 +609,6 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 			// */
 	}
 	
-	@Override
-	public void toss() {
-		super.toss();
-		Camera camera = (Camera) viewport;
-	}
-	
 	/**
 	 * Returns a Quaternion computed according to mouse motion. The Quaternion
 	 * is computed as composition of two rotations (quaternions): 1. Mouse motion along
