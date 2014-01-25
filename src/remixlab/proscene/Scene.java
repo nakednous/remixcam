@@ -2001,6 +2001,14 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		enableDefaultMouseAgent();
 	}
 	
+	public boolean isDefaultMouseAgentEnabled() {
+		return terseHandler().isAgentRegistered(defMouseAgent);
+	}
+	
+	public boolean isDefaultKeyboardAgentEnabled() {
+		return terseHandler().isAgentRegistered(defKeyboardAgent);
+	}
+	
 	/**
 	 * Enables Proscene mouse handling.
 	 * 
