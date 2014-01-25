@@ -1213,7 +1213,7 @@ public abstract class Eye implements Copyable {
 	//cached version
 	public boolean project(Mat projectionViewMat, float objx, float objy, float objz, float[] windowCoordinate) {
 		if(projectionViewMat == null)
-			projectionViewMat = Mat.mult(projectionMat, viewMat);
+			projectionViewMat = Mat.multiply(projectionMat, viewMat);
 		
 		float in[] = new float[4];
 		float out[] = new float[4];
@@ -1281,7 +1281,7 @@ public abstract class Eye implements Copyable {
 	public boolean unproject(Mat projectionViewInverseMat, float winx, float winy, float winz, float[] objCoordinate) {
 		if(projectionViewInverseMat == null) {
 			projectionViewInverseMat = new Mat();
-			boolean projectionViewMatHasInverse = Mat.mult(projectionMat, viewMat).invert(projectionViewInverseMat);
+			boolean projectionViewMatHasInverse = Mat.multiply(projectionMat, viewMat).invert(projectionViewInverseMat);
 			if(projectionViewMatHasInverse)
 				return unproject(projectionViewInverseMat, winx, winy, winz, objCoordinate);
 			else

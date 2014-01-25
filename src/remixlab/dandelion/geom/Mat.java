@@ -574,13 +574,13 @@ public class Mat implements Primitivable {
 				  source.mat[12], source.mat[13], source.mat[14], source.mat[15]);
   }
   
-  public static Mat mult(Mat a, Mat b) {
+  public static Mat multiply(Mat a, Mat b) {
   	Mat c = new Mat();
-  	mult(a,b,c);
+  	multiply(a,b,c);
   	return c;
   }
   
-  public static void mult(Mat a, Mat b, Mat c) { 
+  public static void multiply(Mat a, Mat b, Mat c) { 
   	c.mat[0] = a.mat[0]*b.mat[0] + a.mat[4]*b.mat[1] + a.mat[8]*b.mat[2] + a.mat[12]*b.mat[3];
     c.mat[4] = a.mat[0]*b.mat[4] + a.mat[4]*b.mat[5] + a.mat[8]*b.mat[6] + a.mat[12]*b.mat[7];
     c.mat[8] = a.mat[0]*b.mat[8] + a.mat[4]*b.mat[9] + a.mat[8]*b.mat[10] + a.mat[12]*b.mat[11];

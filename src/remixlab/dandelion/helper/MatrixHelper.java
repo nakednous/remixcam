@@ -39,7 +39,7 @@ public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	
 	@Override
 	public void cacheProjectionViewInverse() {
-		Mat.mult(projection(), modelView(), projectionViewMat);
+		Mat.multiply(projection(), modelView(), projectionViewMat);
     if(unprojectCacheIsOptimized()) {
     	if(projectionViewInverseMat == null)
     		projectionViewInverseMat = new Mat();

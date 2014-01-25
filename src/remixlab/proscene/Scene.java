@@ -1394,7 +1394,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		@Override
 		public void cacheProjectionViewInverse() {
-			Mat.mult(proj, mv, projectionViewMat);
+			Mat.multiply(proj, mv, projectionViewMat);
 	    if(unprojectCacheIsOptimized()) {
 	    	if(projectionViewInverseMat == null)
 	    		projectionViewInverseMat = new Mat();
@@ -1758,7 +1758,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				pggl().setMatrix(Scene.toPMatrix(source));//in P5 this caches projmodelview
 			else {
 				pggl().modelview.set(Scene.toPMatrix(source));
-				pggl().projmodelview.set(Mat.mult(scene.eye().getProjection(false), scene.eye().getView(false)).getTransposed(new float[16]));
+				pggl().projmodelview.set(Mat.multiply(scene.eye().getProjection(false), scene.eye().getView(false)).getTransposed(new float[16]));
 			}
 		}
 	}
