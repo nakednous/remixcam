@@ -2459,7 +2459,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		}
 	}
 	
-	public PApplet papplet() {
+	public PApplet pApplet() {
 		return parent;
 	}
 
