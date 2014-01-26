@@ -736,7 +736,7 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		if (Math.abs(eventSpeed) < .001f)
 			eventSpeed = 0;
 		
-		flyDisp.z(flyDisp.z() * (eventSpeed / prevSpeed));
+		flyDisp.setZ(flyDisp.z() * (eventSpeed / prevSpeed));
 		
 		if(scene.is2D())
 			setTossingDirection(localInverseTransformOf(flyDisp));
@@ -1085,9 +1085,9 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 	    trans.set(-q.x(), -q.y(), -q.z());
 	    trans = scene.camera().frame().orientation().rotate(trans);
 	    trans = transformOf(trans, false);
-	    q.x(trans.x());
-	    q.y(trans.y());
-	    q.z(trans.z());
+	    q.setX(trans.x());
+	    q.setY(trans.y());
+	    q.setZ(trans.z());
 	    rotate(q);
 			break;
 		case SCREEN_ROTATE:
@@ -1236,9 +1236,9 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 	    trans.set(-q.x(), -q.y(), -q.z());
 	    trans = scene.camera().frame().orientation().rotate(trans);
 	    trans = transformOf(trans, false);
-	    q.x(trans.x());
-	    q.y(trans.y());
-	    q.z(trans.z());
+	    q.setX(trans.x());
+	    q.setY(trans.y());
+	    q.setZ(trans.z());
 	    rotate(q);
 			break;
 		case SCALE:
@@ -1307,9 +1307,9 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 		
 		Vec res = new Vec(trans);			
 		// perform conversion			
-		if (scaling().x() < 0 )	res.x(-trans.x());
-		if (scaling().y() < 0 )	res.y(-trans.y());
-		if (scaling().z() < 0 )	res.z(-trans.z());
+		if (scaling().x() < 0 )	res.setX(-trans.x());
+		if (scaling().y() < 0 )	res.setY(-trans.y());
+		if (scaling().z() < 0 )	res.setZ(-trans.z());
 		
 		return new Quat(res, isInverted() ? rot.angle() : -rot.angle());						
 	}	
@@ -1450,8 +1450,8 @@ public class InteractiveFrame extends Frame implements Grabbable, Copyable {
 				delta = new Point(event.x(), event.y());
 			else
 				delta = new Point(event.dx(), event.dy());
-			dirIsFixed = Math.abs(delta.x) != Math.abs(delta.y);
-			horiz = Math.abs(delta.x) > Math.abs(delta.y);
+			dirIsFixed = Math.abs(delta.x()) != Math.abs(delta.y());
+			horiz = Math.abs(delta.x()) > Math.abs(delta.y());
 		}
 
 		if (dirIsFixed)

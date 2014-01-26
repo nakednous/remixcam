@@ -159,15 +159,15 @@ public class Frame implements Copyable, Constants {
 		public final void setScaling(Vec s) {
 			if( Util.zero(s.x()) ) {
 				System.out.println("Setting x scale value to zero is not allowed");
-				s.x(scl.x());
+				s.setX(scl.x());
 			}
 			if( Util.zero(s.y()) ) {
 				System.out.println("Setting y scale value to zero is not allowed");
-				s.y(scl.y());
+				s.setY(scl.y());
 			}
 			if( Util.zero(s.z()) ) {
 				System.out.println("Setting z scale value to zero is not allowed");
-				s.z(scl.z());
+				s.setZ(scl.z());
 			}
 			scl = s;
 			modified();
@@ -1911,19 +1911,19 @@ public class Frame implements Copyable, Constants {
 		
 		Vec s = scaling();
 		if(s.x() != 1) {
-			pM.m00(pM.m00()*s.x());
-			pM.m10(pM.m10()*s.x());
-			pM.m20(pM.m20()*s.x());
+			pM.setM00(pM.m00()*s.x());
+			pM.setM10(pM.m10()*s.x());
+			pM.setM20(pM.m20()*s.x());
 		}
 		if(s.y() != 1) {
-			pM.m01(pM.m01()*s.y());
-			pM.m11(pM.m11()*s.y());
-			pM.m21(pM.m21()*s.y());
+			pM.setM01(pM.m01()*s.y());
+			pM.setM11(pM.m11()*s.y());
+			pM.setM21(pM.m21()*s.y());
 		}
 		if(s.z() != 1) {
-			pM.m02(pM.m02()*s.z());
-			pM.m12(pM.m12()*s.z());
-			pM.m22(pM.m22()*s.z());
+			pM.setM02(pM.m02()*s.z());
+			pM.setM12(pM.m12()*s.z());
+			pM.setM22(pM.m22()*s.z());
 		}
 
 		return pM;

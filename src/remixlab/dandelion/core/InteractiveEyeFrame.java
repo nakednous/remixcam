@@ -198,7 +198,7 @@ public class InteractiveEyeFrame extends InteractiveFrame implements Copyable {
 	public void setArcballReferencePoint(Vec refP) {
 		arcballRefPnt = refP;
 		if(scene.is2D())
-			arcballRefPnt.z(0);
+			arcballRefPnt.setZ(0);
 	}
 	
 	@Override

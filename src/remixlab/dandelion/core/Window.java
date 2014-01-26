@@ -128,7 +128,7 @@ public class Window extends Eye implements Copyable {
 	
 	@Override
 	public boolean setSceneCenterFromPixel(Point pixel) {
-		setSceneCenter(new Vec(pixel.x, pixel.y));
+		setSceneCenter(new Vec(pixel.x(), pixel.y()));
 		return true;		
 	}
 	
@@ -170,23 +170,23 @@ public class Window extends Eye implements Copyable {
 	
 	@Override
 	public void fitScreenRegion(Rect rectangle) {
-		float rectRatio = (float)rectangle.width / (float)rectangle.height;
+		float rectRatio = (float)rectangle.width() / (float)rectangle.height();
 		
 		float sclX = frame().scaling().x();
 		float sclY = frame().scaling().y();		
 		
 		if(aspectRatio() < 1.0f) {
 			if( aspectRatio () < rectRatio )
-				frame().setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
+				frame().setScaling(sclX * (float)rectangle.width() / screenWidth(), sclY * (float)rectangle.width() / screenWidth());
 			else
-				frame().setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
+				frame().setScaling(sclX * (float)rectangle.height() / screenHeight(), sclY * (float)rectangle.height() / screenHeight());
 		} else {
 			if( aspectRatio () < rectRatio )
-				frame().setScaling(sclX * (float)rectangle.width / screenWidth(), sclY * (float)rectangle.width / screenWidth());
+				frame().setScaling(sclX * (float)rectangle.width() / screenWidth(), sclY * (float)rectangle.width() / screenWidth());
 			else
-				frame().setScaling(sclX * (float)rectangle.height / screenHeight(), sclY * (float)rectangle.height / screenHeight());
+				frame().setScaling(sclX * (float)rectangle.height() / screenHeight(), sclY * (float)rectangle.height() / screenHeight());
 		}		
-		lookAt(unprojectedCoordinatesOf(new Vec(rectangle.getCenterX(), rectangle.getCenterY(), 0)));
+		lookAt(unprojectedCoordinatesOf(new Vec(rectangle.centerX(), rectangle.centerY(), 0)));
 	}	
 	
 	@Override
@@ -363,7 +363,7 @@ public class Window extends Eye implements Copyable {
 
 	@Override
 	public boolean setArcballReferencePointFromPixel(Point pixel) {		
-		setArcballReferencePoint(unprojectedCoordinatesOf(new Vec((float) pixel.x, (float) pixel.y, 0.5f)));
+		setArcballReferencePoint(unprojectedCoordinatesOf(new Vec((float) pixel.x(), (float) pixel.y(), 0.5f)));
 		return true;
 	}
 	
@@ -371,8 +371,8 @@ public class Window extends Eye implements Copyable {
 	public void interpolateToZoomOnPixel(Point pixel) {
 		float winW = this.screenWidth()/3;
 		float winH = this.screenHeight()/3;
-		float cX = (float)pixel.x - winW/2;
-		float cY = (float)pixel.y - winH/2;
+		float cX = (float)pixel.x() - winW/2;
+		float cY = (float)pixel.y() - winH/2;
 		Rect rect = new Rect((int)cX, (int)cY, (int)winW, (int)winH);
 		this.interpolateToZoomOnRegion(rect);		
 	}

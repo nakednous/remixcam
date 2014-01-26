@@ -40,12 +40,12 @@ public class Point {
 	/**
 	 * The X coordinate of this Point.
 	 */
-	public int x;
+	protected int x;
 	
 	/**
 	 * The Y coordinate of this Point.
 	 */
-	public int y;
+	protected int y;
 
 	/**
 	 * Constructs and initializes a point at the (0,0) location in the
@@ -62,7 +62,7 @@ public class Point {
 	 *          the point to be copied
 	 */
 	public Point(Point p) {
-		this(p.getX(), p.getY());
+		this(p.x(), p.y());
 	}
 
 	/**
@@ -101,15 +101,23 @@ public class Point {
 	/**
 	 * Returns the x coordinate of the point.
 	 */
-	public int getX() {
+	public int x() {
 		return x;
 	}
 
 	/**
 	 * Returns the y coordinate of the point.
 	 */
-	public int getY() {
+	public int y() {
 		return y;
+	}
+	
+	public void setX(int xVal) {
+		x = xVal;
+	}
+	
+	public void setY(int yVal) {
+		x = yVal;
 	}
 
 	/**
@@ -136,7 +144,7 @@ public class Point {
 	 * Returns the Euclidean distance between points p1 and p2.
 	 */
 	public static float distance(Point p1, Point p2) {
-		return Point.distance(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+		return Point.distance(p1.x(), p1.y(), p2.x(), p2.y());
 	}
 	
 	public static float distance(float deltaX, float deltaY) {

@@ -54,12 +54,12 @@ public class Rect {
 	/**
 	 * The width of the Rectangle.
 	 */
-	public int width;
+	protected int width;
 	
 	/**
 	 * The height of the Rectangle.
 	 */
-	public int height;
+	protected int height;
 
 	/**
 	 * Constructs a new Rectangle whose upper-left corner is at (0, 0) in the
@@ -97,18 +97,42 @@ public class Rect {
 	public float y() {
 		return y;
 	}
+	
+	public void setX(int xVal) {
+		x = xVal;
+	}
+	
+	public void setY(int yVal) {
+		x = yVal;
+	}
+	
+	public int width() {
+		return width;
+	}
+	
+	public int height() {
+		return width;
+	}
+	
+	public void setWidth(int w) {
+		width = w;
+	}
+	
+	public void setHeight(int h) {
+		height = h;
+	}
 
 	/**
 	 * Returns the X coordinate of the center of the rectangle.
 	 */
-	public float getCenterX() {
+	public float centerX() {
 		return (float) x + ((float) width / 2);
 	}
 	
 	/**
 	 * Returns the Y coordinate of the center of the rectangle.
 	 */
-	public float getCenterY() {
+	public float centerY() {
 		return (float) y + ((float) height / 2);
 	}
 }

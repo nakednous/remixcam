@@ -150,12 +150,12 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		
 		public void mouseEvent(processing.event.MouseEvent e) {
 			if( e.getAction() == processing.event.MouseEvent.MOVE ) {
-				event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
+				event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.x(), e.getY() - scene.upperLeftCorner.y());
 				updateGrabber(event);
 				prevEvent = event.get();
 			}
 			if( e.getAction() == processing.event.MouseEvent.PRESS ) {
-				  event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
+				  event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.x(), e.getY() - scene.upperLeftCorner.y(), e.getModifiers(), e.getButton());
 					if(grabber() instanceof InteractiveFrame) {
 						if( need4Spin )	((InteractiveFrame)grabber()).stopSpinning();
 						iFrame = (InteractiveFrame)grabber();
@@ -176,9 +176,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 								handler.eventTupleQueue().add(new EventGrabberDuobleTuple(event, a, grabber()));	
 							}
 							if(zoomVisualHint() || rotateVisualHint()) {
-								lCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
+								lCorner.set(e.getX() - scene.upperLeftCorner.x(), e.getY() - scene.upperLeftCorner.y());
 								if(zoomVisualHint())
-									fCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
+									fCorner.set(e.getX() - scene.upperLeftCorner.x(), e.getY() - scene.upperLeftCorner.y());
 							}
 					  }
 					  else
@@ -190,9 +190,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			if( e.getAction() == processing.event.MouseEvent.DRAG ) {
 				//if( e.getAction() == processing.event.MouseEvent.MOVE ) {//e.g., rotate without dragging any button also possible :P
 				if(zoomVisualHint() || rotateVisualHint())
-					lCorner.set(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY());
+					lCorner.set(e.getX() - scene.upperLeftCorner.x(), e.getY() - scene.upperLeftCorner.y());
 				if( ! zoomVisualHint() ) { //bypass zoom_on_region, may be different when using a touch device :P
-					event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
+					event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.x(), e.getY() - scene.upperLeftCorner.y(), e.getModifiers(), e.getButton());
 					handle(event);
 				  prevEvent = event.get();
 				}
@@ -200,7 +200,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			if( e.getAction() == processing.event.MouseEvent.RELEASE ) {
 				if( grabber() instanceof InteractiveFrame ) if(need4Spin && (prevEvent.speed() >= ((InteractiveFrame) grabber()).spinningSensitivity()))	
 					((InteractiveFrame) grabber()).startSpinning(prevEvent);
-				event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton());
+				event = new GenericDOF2Event<DOF2Action>(prevEvent, e.getX() - scene.upperLeftCorner.x(), e.getY() - scene.upperLeftCorner.y(), e.getModifiers(), e.getButton());
 				if(zoomVisualHint()) {
 					//at first glance this should work
 					//handle(event);
@@ -221,7 +221,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				handle(new GenericDOF1Event<WheelAction>(e.getCount(), e.getModifiers(), TH_NOBUTTON));
 			}			
 			if( e.getAction() == MouseEvent.CLICK ) {
-				handle(new GenericClickEvent<ClickAction>(e.getX() - scene.upperLeftCorner.getX(), e.getY() - scene.upperLeftCorner.getY(), e.getModifiers(), e.getButton(), e.getCount()));
+				handle(new GenericClickEvent<ClickAction>(e.getX() - scene.upperLeftCorner.x(), e.getY() - scene.upperLeftCorner.y(), e.getModifiers(), e.getButton(), e.getCount()));
 			}	
 		}
 		
@@ -478,10 +478,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		public void drawZoomWindowHint() {
 			if( ! (scene.defaultMouseAgent() instanceof ProsceneMouse) )
 				return;
-			float p1x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).fCorner.getX();
-			float p1y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).fCorner.getY();
-			float p2x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getX();
-			float p2y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getY();
+			float p1x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).fCorner.x();
+			float p1y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).fCorner.y();
+			float p2x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.x();
+			float p2y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.y();
 			scene.beginScreenDrawing();
 			pg().pushStyle();
 			pg().stroke(255, 255, 255);
@@ -501,8 +501,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 		public void drawScreenRotateLineHint() {
 			if( ! (scene.defaultMouseAgent() instanceof ProsceneMouse) )
 				return;
-			float p1x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getX();
-			float p1y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.getY();
+			float p1x = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.x();
+			float p1y = (float) ((ProsceneMouse)scene.defaultMouseAgent()).lCorner.y();
 			Vec p2 = scene.eye().projectedCoordinatesOf(scene.arcballReferencePoint());
 			scene.beginScreenDrawing();
 			pg().pushStyle();
@@ -656,8 +656,8 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			upperLeft.y = scale * wh[1];
 			*/
 			
-			upperLeft.x(scale * scene.width() / 2);
-			upperLeft.y(scale * scene.height() / 2);
+			upperLeft.setX(scale * scene.width() / 2);
+			upperLeft.setY(scale * scene.height() / 2);
 							
 			pg().noStroke();		
 			pg().beginShape(PApplet.QUADS);				
@@ -944,7 +944,7 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				p =  Vec.add( Vec.multiply(l, d), l0 );
 				pg3d().vertex(p.x(), p.y(), p.z());
 				
-				l0.z(h);
+				l0.setZ(h);
 				d = ( n.dot(Vec.subtract(pn0, l0)) )/( l.dot(n) );
 				p =  Vec.add( Vec.multiply(l, d), l0 );
 				pg3d().vertex(p.x(), p.y(), p.z());
@@ -1125,16 +1125,16 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 			points[0] = new Vec();
 			points[1] = new Vec();
 
-			points[0].z(scale * cam.zNear());
-			points[1].z(scale * cam.zFar());
+			points[0].setZ(scale * cam.zNear());
+			points[1].setZ(scale * cam.zFar());
 
 			switch (cam.type()) {
 			case PERSPECTIVE: {
-				points[0].y(points[0].z() * PApplet.tan(cam.fieldOfView() / 2.0f));
-				points[0].x(points[0].y() * cam.aspectRatio());
+				points[0].setY(points[0].z() * PApplet.tan(cam.fieldOfView() / 2.0f));
+				points[0].setX(points[0].y() * cam.aspectRatio());
 				float ratio = points[1].z() / points[0].z();
-				points[1].y(ratio * points[0].y());
-				points[1].x(ratio * points[0].x());
+				points[1].setY(ratio * points[0].y());
+				points[1].setX(ratio * points[0].x());
 				break;
 			}
 			case ORTHOGRAPHIC: {
@@ -1142,10 +1142,10 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 				//points[0].x = points[1].x = scale * wh[0];
 				//points[0].y = points[1].y = scale * wh[1];
 				
-				points[0].x(scale * wh[0]);
-				points[1].x(scale * wh[0]);
-				points[0].y(scale * wh[1]); 
-				points[1].y(scale * wh[1]);
+				points[0].setX(scale * wh[0]);
+				points[1].setX(scale * wh[0]);
+				points[0].setY(scale * wh[1]); 
+				points[1].setY(scale * wh[1]);
 				break;
 			}
 			}
@@ -2668,9 +2668,9 @@ public class Scene extends AbstractScene /**implements PConstants*/ {
 	protected Camera.WorldPoint pointUnderPixel(Point pixel) {
 		float[] depth = new float[1];
 		PGL pgl = pggl().beginPGL();
-		pgl.readPixels(pixel.x, (camera().screenHeight() - pixel.y), 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, FloatBuffer.wrap(depth));		
+		pgl.readPixels(pixel.x(), (camera().screenHeight() - pixel.y()), 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, FloatBuffer.wrap(depth));		
 		pggl().endPGL();		
-		Vec point = new Vec(pixel.x, pixel.y, depth[0]);		
+		Vec point = new Vec(pixel.x(), pixel.y(), depth[0]);		
 		point = camera().unprojectedCoordinatesOf(point);
 		return camera().new WorldPoint(point, (depth[0] < 1.0f));
 	}	

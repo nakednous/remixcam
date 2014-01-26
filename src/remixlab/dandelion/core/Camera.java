@@ -1508,17 +1508,17 @@ public class Camera extends Eye implements Constants, Copyable {
 	 * This method is useful for analytical intersection in a selection method.
 	 */
 	public void convertClickToLine(final Point pixelInput, Vec orig, Vec dir) {
-		Point pixel = new Point(pixelInput.getX(), pixelInput.getY());
+		Point pixel = new Point(pixelInput.x(), pixelInput.y());
 		
 		//lef-handed coordinate system correction
 		if( scene.isLeftHanded() )
-			pixel.y = screenHeight() - pixelInput.y;
+			pixel.setY(screenHeight() - pixelInput.y());
 		
 		switch (type()) {
 		case PERSPECTIVE:
 			orig.set(position());
-			dir.set(new Vec(((2.0f * pixel.x / screenWidth()) - 1.0f)	* (float) Math.tan(fieldOfView() / 2.0f) * aspectRatio(),
-					                 ((2.0f * (screenHeight() - pixel.y) / screenHeight()) - 1.0f) * (float) Math.tan(fieldOfView() / 2.0f),
+			dir.set(new Vec(((2.0f * pixel.x() / screenWidth()) - 1.0f)	* (float) Math.tan(fieldOfView() / 2.0f) * aspectRatio(),
+					                 ((2.0f * (screenHeight() - pixel.y()) / screenHeight()) - 1.0f) * (float) Math.tan(fieldOfView() / 2.0f),
 					                   -1.0f));
 			dir.set(Vec.subtract(frame().inverseCoordinatesOf(dir, false), orig));
 			dir.normalize();
@@ -1526,8 +1526,8 @@ public class Camera extends Eye implements Constants, Copyable {
 
 		case ORTHOGRAPHIC: {
 			float[] wh = getBoundaryWidthHeight();
-			orig.set(new Vec((2.0f * pixel.x / screenWidth() - 1.0f) * wh[0],
-					-(2.0f * pixel.y / screenHeight() - 1.0f) * wh[1], 0.0f));
+			orig.set(new Vec((2.0f * pixel.x() / screenWidth() - 1.0f) * wh[0],
+					-(2.0f * pixel.y() / screenHeight() - 1.0f) * wh[1], 0.0f));
 			orig.set(frame().inverseCoordinatesOf(orig, false));
 			dir.set(viewDirection());
 			break;
@@ -1633,17 +1633,17 @@ public class Camera extends Eye implements Constants, Copyable {
 		Vec vd = viewDirection();
 		float distToPlane = distanceToSceneCenter();
 
-		Point center = new Point((int) rectangle.getCenterX(), (int) rectangle.getCenterY());
+		Point center = new Point((int) rectangle.centerX(), (int) rectangle.centerY());
 
 		Vec orig = new Vec();
 		Vec dir = new Vec();
 		convertClickToLine(center, orig, dir);
 		Vec newCenter = Vec.add(orig, Vec.multiply(dir, (distToPlane / Vec.dot(dir, vd))));
 
-		convertClickToLine(new Point(rectangle.x(), center.y), orig, dir);
+		convertClickToLine(new Point(rectangle.x(), center.y()), orig, dir);
 		final Vec pointX = Vec.add(orig, Vec.multiply(dir,	(distToPlane / Vec.dot(dir, vd))));
 
-		convertClickToLine(new Point(center.x, rectangle.y()), orig, dir);
+		convertClickToLine(new Point(center.x(), rectangle.y()), orig, dir);
 		final Vec pointY = Vec.add(orig, Vec.multiply(dir,	(distToPlane / Vec.dot(dir, vd))));
 
 		float distance = 0.0f;

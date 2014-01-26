@@ -129,22 +129,22 @@ public class Mat implements Primitivable {
   */
     
   // first index is row, second is column  
-  public void m00(float v) { mat[0]=v; }  
-  public void m01(float v) { mat[4]=v; }    
-  public void m02(float v) { mat[8]=v; }  
-  public void m03(float v) { mat[12]=v; }  
-  public void m10(float v) { mat[1]=v; }  
-  public void m11(float v) { mat[5]=v; }
-  public void m12(float v) { mat[9]=v; }
-  public void m13(float v) { mat[13]=v; }
-  public void m20(float v) { mat[2]=v; }
-  public void m21(float v) { mat[6]=v; }
-  public void m22(float v) { mat[10]=v; }
-  public void m23(float v) { mat[14]=v; }
-  public void m30(float v) { mat[3]=v; }
-  public void m31(float v) { mat[7]=v; }
-  public void m32(float v) { mat[11]=v; }
-  public void m33(float v) { mat[15]=v; }
+  public void setM00(float v) { mat[0]=v; }  
+  public void setM01(float v) { mat[4]=v; }    
+  public void setM02(float v) { mat[8]=v; }  
+  public void setM03(float v) { mat[12]=v; }  
+  public void setM10(float v) { mat[1]=v; }  
+  public void setM11(float v) { mat[5]=v; }
+  public void setM12(float v) { mat[9]=v; }
+  public void setM13(float v) { mat[13]=v; }
+  public void setM20(float v) { mat[2]=v; }
+  public void setM21(float v) { mat[6]=v; }
+  public void setM22(float v) { mat[10]=v; }
+  public void setM23(float v) { mat[14]=v; }
+  public void setM30(float v) { mat[3]=v; }
+  public void setM31(float v) { mat[7]=v; }
+  public void setM32(float v) { mat[11]=v; }
+  public void setM33(float v) { mat[15]=v; }
   
   public float m00() { return mat[0]; }
   public float m01() { return mat[4]; }

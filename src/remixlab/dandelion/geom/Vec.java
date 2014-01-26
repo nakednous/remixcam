@@ -111,16 +111,16 @@ public class Vec implements Constants, Primitivable {
 		return this.vec[2];
 	}	
 	
-	public float x(float x) {
-		return this.vec[0] = x;
+	public void setX(float x) {
+		this.vec[0] = x;
 	}
 	
-	public float y(float y) {
-		return this.vec[1] = y;
+	public void setY(float y) {
+		this.vec[1] = y;
 	}
 	
-	public float z(float z) {
-		return this.vec[2] = z;
+	public void setZ(float z) {
+		this.vec[2] = z;
 	}  
   
   public Vec projectVectorOnAxis(Vec direction) {

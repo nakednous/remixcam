@@ -237,20 +237,20 @@ public class Quat implements Constants, Primitivable, Orientable {
 		return this.quat[3];
 	}
 	
-	public float x(float x) {
-		return this.quat[0] = x;
+	public void setX(float x) {
+		this.quat[0] = x;
 	}
 	
-	public float y(float y) {
-		return this.quat[1] = y;
+	public void setY(float y) {
+		this.quat[1] = y;
 	}
 	
-	public float z(float z) {
-		return this.quat[2] = z;
+	public void setZ(float z) {
+		this.quat[2] = z;
 	}
 	
-	public float w(float w) {
-		return this.quat[3] = w;
+	public void setW(float w) {
+		this.quat[3] = w;
 	}
 	
 	@Override
@@ -367,7 +367,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 * @param b
 	 *          the second Quaternion
 	 */
-	public final static float dotProduct(Quat a, Quat b) {
+	public final static float dot(Quat a, Quat b) {
 		return a.quat[0] * b.quat[0] + a.quat[1] * b.quat[1] + a.quat[2] * b.quat[2] + a.quat[3] * b.quat[3];
 	}
 	
@@ -956,9 +956,9 @@ public class Quat implements Constants, Primitivable, Orientable {
 	 */
 	public void axisAngle(Vec axis, float angle) {
 		angle = 2 * (float) Math.acos(w());
-	  axis.x(x());
-	  axis.y(y());
-	  axis.z(z());
+	  axis.setX(x());
+	  axis.setY(y());
+	  axis.setZ(z());
 	  float sinus = axis.magnitude();
 	  if ( Util.nonZero(sinus) )
 	  	axis.divide(sinus);
@@ -1153,7 +1153,7 @@ public class Quat implements Constants, Primitivable, Orientable {
 	public static final Quat slerp(Quat a, Quat b, float t,
 			boolean allowFlip) {
 		// Warning: this method should not normalize the Quaternion
-		float cosAngle = Quat.dotProduct(a, b);
+		float cosAngle = Quat.dot(a, b);
 
 		float c1, c2;
 		// Linear interpolation for close orientations
