@@ -1,6 +1,6 @@
 /*******************************************************************************
- * TerseHandling (version 1.0.0-alpha.1)
- * Copyright (c) 2013 National University of Colombia, https://github.com/remixlab
+ * TerseHandling (version 1.0.0)
+ * Copyright (c) 2014 National University of Colombia, https://github.com/remixlab
  * @author Jean Pierre Charalambos, http://otrolado.info/
  *     
  * All rights reserved. Library that eases the creation of interactive
