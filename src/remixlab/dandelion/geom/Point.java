@@ -9,8 +9,8 @@
  ******************************************************************************/
 package remixlab.dandelion.geom;
 
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
+import remixlab.util.EqualsBuilder;
+import remixlab.util.HashCodeBuilder;
 
 /**
  * Point class that provides a quick replacement for the java.awt.Point.

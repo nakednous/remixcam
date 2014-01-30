@@ -12,14 +12,13 @@ package remixlab.dandelion.core;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
 import remixlab.dandelion.geom.*;
 import remixlab.fpstiming.TimingHandler;
-import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.Grabbable;
-import remixlab.tersehandling.core.Util;
+import remixlab.util.Copyable;
+import remixlab.util.EqualsBuilder;
+import remixlab.util.HashCodeBuilder;
+import remixlab.util.Util;
 
 public abstract class Eye implements Copyable {
 	@Override

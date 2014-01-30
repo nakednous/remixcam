@@ -9,12 +9,11 @@
  ******************************************************************************/
 package remixlab.tersehandling.event;
 
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
-import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.core.EventConstants;
 import remixlab.tersehandling.event.shortcut.Shortcut;
+import remixlab.util.Copyable;
+import remixlab.util.EqualsBuilder;
+import remixlab.util.HashCodeBuilder;
 
 public class TerseEvent implements EventConstants, Copyable {
 	@Override

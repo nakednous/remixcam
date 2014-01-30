@@ -9,11 +9,10 @@
  ******************************************************************************/
 package remixlab.dandelion.geom;
 
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
 import remixlab.dandelion.core.Constants;
-import remixlab.tersehandling.core.Util;
+import remixlab.util.EqualsBuilder;
+import remixlab.util.HashCodeBuilder;
+import remixlab.util.Util;
 
 /**
  * A 4 element unit quaternion represented by single precision floating point

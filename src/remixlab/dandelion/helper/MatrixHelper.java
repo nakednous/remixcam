@@ -11,7 +11,7 @@ package remixlab.dandelion.helper;
 
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
-import remixlab.tersehandling.core.Util;
+import remixlab.util.Util;
 
 public abstract class MatrixHelper implements MatrixHelpable, Constants {
 	protected AbstractScene scene;

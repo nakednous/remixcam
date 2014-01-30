@@ -13,9 +13,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
 import remixlab.dandelion.constraint.*;
 import remixlab.dandelion.geom.Mat;
 import remixlab.dandelion.geom.Orientable;
@@ -23,8 +20,10 @@ import remixlab.dandelion.geom.Quat;
 import remixlab.dandelion.geom.Rot;
 import remixlab.dandelion.geom.Vec;
 import remixlab.fpstiming.TimingHandler;
-import remixlab.tersehandling.core.Copyable;
-import remixlab.tersehandling.core.Util;
+import remixlab.util.Copyable;
+import remixlab.util.EqualsBuilder;
+import remixlab.util.HashCodeBuilder;
+import remixlab.util.Util;
 
 /**
  * A Frame is a 3D coordinate system, represented by a {@link #position()} and

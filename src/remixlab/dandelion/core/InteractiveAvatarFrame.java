@@ -9,11 +9,10 @@
  ******************************************************************************/
 package remixlab.dandelion.core;
 
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
 import remixlab.dandelion.geom.*;
-import remixlab.tersehandling.core.Copyable;
+import remixlab.util.Copyable;
+import remixlab.util.EqualsBuilder;
+import remixlab.util.HashCodeBuilder;
 
 /**
  * The InteractiveAvatarFrame class represents an InteractiveDrivableFrame that

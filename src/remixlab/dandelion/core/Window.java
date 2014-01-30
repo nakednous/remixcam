@@ -10,7 +10,7 @@
 package remixlab.dandelion.core;
 
 import remixlab.dandelion.geom.*;
-import remixlab.tersehandling.core.Copyable;
+import remixlab.util.Copyable;
 
 public class Window extends Eye implements Copyable {	
 	static final float FAKED_ZNEAR = -10;  

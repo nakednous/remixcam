@@ -9,12 +9,11 @@
  ******************************************************************************/
 package remixlab.tersehandling.event.shortcut;
 
-import com.flipthebird.gwthashcodeequals.EqualsBuilder;
-import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
-
-import remixlab.tersehandling.core.Copyable;
 import remixlab.tersehandling.event.TerseEvent;
 import remixlab.tersehandling.event.KeyboardEvent;
+import remixlab.util.Copyable;
+import remixlab.util.EqualsBuilder;
+import remixlab.util.HashCodeBuilder;
 
 /**
  * This class represents keyboard shortcuts.
