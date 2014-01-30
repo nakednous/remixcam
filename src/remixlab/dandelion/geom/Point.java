@@ -117,7 +117,7 @@ public class Point {
 	}
 	
 	public void setY(int yVal) {
-		x = yVal;
+		y = yVal;
 	}
 
 	/**

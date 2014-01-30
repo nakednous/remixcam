@@ -1659,8 +1659,10 @@ public class Camera extends Eye implements Constants, Copyable {
 			final float dist = Vec.dot(Vec.subtract(newCenter,	arcballReferencePoint()), vd);
 			//final float distX = Vec.distance(pointX, newCenter) / frame().scaling().x()	/ ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
 			//final float distY = Vec.distance(pointY, newCenter) / frame().scaling().y()	/ ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);			
-			final float distX = Vec.distance(pointX, newCenter) / Math.max(frame().scaling().x(),frame().scaling().y())  / ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
-      final float distY = Vec.distance(pointY, newCenter) / Math.max(frame().scaling().x(),frame().scaling().y())  / ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
+			//final float distX = Vec.distance(pointX, newCenter) / Math.max(frame().scaling().x(),frame().scaling().y())  / ((aspectRatio() < 1.0) ? 1.0f : aspectRatio());
+      //final float distY = Vec.distance(pointY, newCenter) / Math.max(frame().scaling().x(),frame().scaling().y())  / ((aspectRatio() < 1.0) ? 1.0f / aspectRatio() : 1.0f);
+			final float distX = Vec.distance(pointX, newCenter) / Math.max(frame().scaling().x(),frame().scaling().y()) / aspectRatio();
+			final float distY = Vec.distance(pointY, newCenter) / Math.max(frame().scaling().x(),frame().scaling().y()) / 1.0f;
 
 			distance = dist + Math.max(distX, distY);
 
